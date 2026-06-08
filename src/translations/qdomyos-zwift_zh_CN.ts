@@ -886,618 +886,618 @@ The following questions will customize QZ for your equipment and goals.</source>
 <context>
     <name>homeform</name>
     <message>
-        <location filename="../homeform.cpp" line="283"/>
+        <location filename="../homeform.cpp" line="285"/>
         <source>Speed (%1/h)</source>
         <translation>速度 (%1/h)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="286"/>
+        <location filename="../homeform.cpp" line="288"/>
         <source>Inclination (%)</source>
         <translation>坡度（%）</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="288"/>
+        <location filename="../homeform.cpp" line="290"/>
         <source>Descent (%1)</source>
         <translation>下坡 (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="290"/>
+        <location filename="../homeform.cpp" line="292"/>
         <source>Cadence (rpm)</source>
         <translation>ケイ定速 (rpm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="292"/>
+        <location filename="../homeform.cpp" line="294"/>
         <source>Elev. Gain (%1)</source>
         <translation>爬升高度 (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="295"/>
+        <location filename="../homeform.cpp" line="297"/>
         <source>Calories (KCal)</source>
         <translation>卡路里 (KCal)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="297"/>
+        <location filename="../homeform.cpp" line="299"/>
         <source>Odometer (%1)</source>
         <translation>里程表 (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="301"/>
+        <location filename="../homeform.cpp" line="303"/>
         <source>Pace (m/%1)</source>
         <translation>配速 (m/%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="305"/>
+        <location filename="../homeform.cpp" line="307"/>
         <source>Avg Pace (m/%1)</source>
         <translation>平均配速 (m/%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="309"/>
+        <location filename="../homeform.cpp" line="311"/>
         <source>GAP (m/%1)</source>
         <translation>间隙 (m/%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="314"/>
+        <location filename="../homeform.cpp" line="316"/>
         <source>T.Pace(m/%1)</source>
         <translation>目标配速(米/%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="317"/>
+        <location filename="../homeform.cpp" line="319"/>
         <source>Pace 500m (m/%1)</source>
         <translation>配速 500m (m/%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="321"/>
+        <location filename="../homeform.cpp" line="323"/>
         <source>Resistance</source>
         <translation>阻力</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="324"/>
+        <location filename="../homeform.cpp" line="326"/>
         <source>Peloton R(%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="327"/>
+        <location filename="../homeform.cpp" line="329"/>
         <source>Target R.</source>
         <translation>目标 R.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="330"/>
+        <location filename="../homeform.cpp" line="332"/>
         <source>T.Peloton R(%)</source>
         <translation>总.Peloton R(%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="332"/>
+        <location filename="../homeform.cpp" line="334"/>
         <source>T.Cadence(rpm)</source>
         <translation>T.踏频(rpm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="334"/>
+        <location filename="../homeform.cpp" line="336"/>
         <source>T.Power(W)</source>
         <translation>T.功率(W)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="336"/>
+        <location filename="../homeform.cpp" line="338"/>
         <source>T.Zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="338"/>
+        <location filename="../homeform.cpp" line="340"/>
         <source>T.Speed (%1/h)</source>
         <translation>T.速度 (%1/h)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="342"/>
+        <location filename="../homeform.cpp" line="344"/>
         <source>T.Incline (%)</source>
         <translation>坡度 (%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="345"/>
+        <location filename="../homeform.cpp" line="347"/>
         <source>Watt</source>
         <translation>Watt</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="347"/>
+        <location filename="../homeform.cpp" line="349"/>
         <source>Weight Loss(%1)</source>
         <translation>减重(%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="350"/>
+        <location filename="../homeform.cpp" line="352"/>
         <source>AVG Watt</source>
         <translation>平均瓦数</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="352"/>
+        <location filename="../homeform.cpp" line="354"/>
         <source>AVG Watt Lap</source>
         <translation>平均瓦数圈</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="354"/>
+        <location filename="../homeform.cpp" line="356"/>
         <source>Watt/Kg</source>
         <translation>瓦特/公斤</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="356"/>
+        <location filename="../homeform.cpp" line="358"/>
         <source>FTP Zone</source>
         <translation>FTP 区间</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="358"/>
+        <location filename="../homeform.cpp" line="360"/>
         <source>Heart (bpm)</source>
         <translation>心率 (次/分钟)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="360"/>
+        <location filename="../homeform.cpp" line="362"/>
         <source>Fan Speed</source>
         <translation>风扇速度</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="362"/>
+        <location filename="../homeform.cpp" line="364"/>
         <source>KJouls</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="365"/>
+        <location filename="../homeform.cpp" line="367"/>
         <source>Elapsed</source>
         <translation>已用时间</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="368"/>
+        <location filename="../homeform.cpp" line="370"/>
         <source>Moving T.</source>
         <translation>移动 T.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="370"/>
+        <location filename="../homeform.cpp" line="372"/>
         <source>Clock</source>
         <translation>时钟</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="373"/>
+        <location filename="../homeform.cpp" line="375"/>
         <source>Lap Elapsed</source>
         <translation>圈数耗时</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="377"/>
+        <location filename="../homeform.cpp" line="379"/>
         <source>Time to Next</source>
         <translation>到下一个</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="381"/>
+        <location filename="../homeform.cpp" line="383"/>
         <source>Next Rows</source>
         <translation>下一行</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="384"/>
+        <location filename="../homeform.cpp" line="386"/>
         <source>METS</source>
         <translation>代谢当量</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="386"/>
+        <location filename="../homeform.cpp" line="388"/>
         <source>Target METS</source>
         <translation>目标METS</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="388"/>
+        <location filename="../homeform.cpp" line="390"/>
         <source>RSS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="390"/>
+        <location filename="../homeform.cpp" line="392"/>
         <source>Steering</source>
         <translation>转向</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="393"/>
+        <location filename="../homeform.cpp" line="395"/>
         <source>Peloton Offset</source>
         <translation>Peloton 偏移</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="396"/>
+        <location filename="../homeform.cpp" line="398"/>
         <source>Peloton Rem.</source>
         <translation>Peloton 提醒</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="398"/>
+        <location filename="../homeform.cpp" line="400"/>
         <source>Strokes Count</source>
         <translation>划次数</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="400"/>
+        <location filename="../homeform.cpp" line="402"/>
         <source>Strokes Length</source>
         <translation>划水长度</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="402"/>
+        <location filename="../homeform.cpp" line="404"/>
         <source>Gears</source>
         <translation>齿轮</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="404"/>
+        <location filename="../homeform.cpp" line="406"/>
         <source>GearsPlus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="406"/>
+        <location filename="../homeform.cpp" line="408"/>
         <source>GearsMinus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="408"/>
+        <location filename="../homeform.cpp" line="410"/>
         <source>Cruise</source>
         <translation>巡航</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="410"/>
+        <location filename="../homeform.cpp" line="412"/>
         <source>Climb</source>
         <translation>爬坡</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="412"/>
+        <location filename="../homeform.cpp" line="414"/>
         <source>Sprint</source>
         <translation>冲刺</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="414"/>
+        <location filename="../homeform.cpp" line="416"/>
         <source>Power Avg</source>
         <translation>平均功率</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="416"/>
+        <location filename="../homeform.cpp" line="418"/>
         <source>HRV (ms)</source>
         <translation>HRV (毫秒)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="418"/>
+        <location filename="../homeform.cpp" line="420"/>
         <source>PID Heart</source>
         <translation>PID 心率</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="420"/>
+        <location filename="../homeform.cpp" line="422"/>
         <source>Ext.Inclin.(%)</source>
         <translation>外部坡度(%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="423"/>
+        <location filename="../homeform.cpp" line="425"/>
         <source>Stride L.(%1)</source>
         <translation>步长 L.（%1）</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="425"/>
+        <location filename="../homeform.cpp" line="427"/>
         <source>Ground C.(ms)</source>
         <translation>地面接触(ms)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="428"/>
+        <location filename="../homeform.cpp" line="430"/>
         <source>Vert.Osc.(mm)</source>
         <translation>垂直振动 (mm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="432"/>
+        <location filename="../homeform.cpp" line="434"/>
         <source>Step Count</source>
         <translation>步数</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="5665"/>
+        <location filename="../homeform.cpp" line="5667"/>
         <source>Stop</source>
         <translation>停止</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="5677"/>
+        <location filename="../homeform.cpp" line="5679"/>
         <source>Start</source>
         <translation>开始</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="5679"/>
+        <location filename="../homeform.cpp" line="5681"/>
         <source>Pause</source>
         <translation>暂停</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6279"/>
-        <location filename="../homeform.cpp" line="6431"/>
-        <location filename="../homeform.cpp" line="6602"/>
+        <location filename="../homeform.cpp" line="6281"/>
+        <location filename="../homeform.cpp" line="6433"/>
+        <location filename="../homeform.cpp" line="6604"/>
         <source>Rec.</source>
         <translation>记录</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6282"/>
-        <location filename="../homeform.cpp" line="6434"/>
-        <location filename="../homeform.cpp" line="6605"/>
+        <location filename="../homeform.cpp" line="6284"/>
+        <location filename="../homeform.cpp" line="6436"/>
+        <location filename="../homeform.cpp" line="6607"/>
         <source>Easy</source>
         <translation>轻松</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6286"/>
+        <location filename="../homeform.cpp" line="6288"/>
         <source>Brisk</source>
         <translation>快速</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6288"/>
-        <location filename="../homeform.cpp" line="6437"/>
-        <location filename="../homeform.cpp" line="6608"/>
+        <location filename="../homeform.cpp" line="6290"/>
+        <location filename="../homeform.cpp" line="6439"/>
+        <location filename="../homeform.cpp" line="6610"/>
         <source>Moder.</source>
         <translation>中等</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6293"/>
+        <location filename="../homeform.cpp" line="6295"/>
         <source>Power</source>
         <translation>功率</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6295"/>
-        <location filename="../homeform.cpp" line="6440"/>
-        <location filename="../homeform.cpp" line="6611"/>
+        <location filename="../homeform.cpp" line="6297"/>
+        <location filename="../homeform.cpp" line="6442"/>
+        <location filename="../homeform.cpp" line="6613"/>
         <source>Chall.</source>
         <translation>挑战</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6300"/>
-        <location filename="../homeform.cpp" line="6309"/>
-        <location filename="../homeform.cpp" line="6449"/>
-        <location filename="../homeform.cpp" line="6614"/>
+        <location filename="../homeform.cpp" line="6302"/>
+        <location filename="../homeform.cpp" line="6311"/>
+        <location filename="../homeform.cpp" line="6451"/>
+        <location filename="../homeform.cpp" line="6616"/>
         <source>Max</source>
         <translation>最大</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6302"/>
-        <location filename="../homeform.cpp" line="6443"/>
+        <location filename="../homeform.cpp" line="6304"/>
+        <location filename="../homeform.cpp" line="6445"/>
         <source>Hard</source>
         <translation>困难</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6306"/>
-        <location filename="../homeform.cpp" line="6446"/>
+        <location filename="../homeform.cpp" line="6308"/>
+        <location filename="../homeform.cpp" line="6448"/>
         <source>V.Hard</source>
         <translation>V.困难</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6312"/>
-        <location filename="../homeform.cpp" line="6452"/>
-        <location filename="../homeform.cpp" line="6617"/>
+        <location filename="../homeform.cpp" line="6314"/>
+        <location filename="../homeform.cpp" line="6454"/>
+        <location filename="../homeform.cpp" line="6619"/>
         <source>N/A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7877"/>
+        <location filename="../homeform.cpp" line="7879"/>
         <source>, speed </source>
         <translation>, 速度 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7879"/>
-        <location filename="../homeform.cpp" line="7897"/>
-        <location filename="../homeform.cpp" line="8058"/>
-        <location filename="../homeform.cpp" line="8091"/>
+        <location filename="../homeform.cpp" line="7881"/>
+        <location filename="../homeform.cpp" line="7899"/>
+        <location filename="../homeform.cpp" line="8060"/>
+        <location filename="../homeform.cpp" line="8093"/>
         <source> kilometers per hour</source>
         <translation> 公里每小时</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7883"/>
-        <location filename="../homeform.cpp" line="7892"/>
-        <location filename="../homeform.cpp" line="7901"/>
-        <location filename="../homeform.cpp" line="8063"/>
-        <location filename="../homeform.cpp" line="8095"/>
+        <location filename="../homeform.cpp" line="7885"/>
+        <location filename="../homeform.cpp" line="7894"/>
+        <location filename="../homeform.cpp" line="7903"/>
+        <location filename="../homeform.cpp" line="8065"/>
+        <location filename="../homeform.cpp" line="8097"/>
         <source> miles per hour</source>
         <translation> 公里每小时</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7885"/>
+        <location filename="../homeform.cpp" line="7887"/>
         <source>, Average speed </source>
         <translation>, 平均速度 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7888"/>
+        <location filename="../homeform.cpp" line="7890"/>
         <source>kilometers per hour</source>
         <translation>公里每小时</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7894"/>
+        <location filename="../homeform.cpp" line="7896"/>
         <source>, Max speed </source>
         <translation>, 最大速度 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7904"/>
+        <location filename="../homeform.cpp" line="7906"/>
         <source>, inclination </source>
         <translation>, 坡度 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7907"/>
+        <location filename="../homeform.cpp" line="7909"/>
         <source>, cadence </source>
         <translation>, 步频 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7910"/>
+        <location filename="../homeform.cpp" line="7912"/>
         <source>, Average cadence </source>
         <translation>, 平均踏频 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7914"/>
+        <location filename="../homeform.cpp" line="7916"/>
         <source>, Max cadence </source>
         <translation>, 最大踏频 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7919"/>
+        <location filename="../homeform.cpp" line="7921"/>
         <source>, elevation </source>
         <translation>, 海拔 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7921"/>
+        <location filename="../homeform.cpp" line="7923"/>
         <source> meters</source>
         <translation> 米</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7925"/>
+        <location filename="../homeform.cpp" line="7927"/>
         <source> feet</source>
         <translation> 英尺</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7927"/>
+        <location filename="../homeform.cpp" line="7929"/>
         <source>, calories burned </source>
         <translation>, 消耗卡路里 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7930"/>
+        <location filename="../homeform.cpp" line="7932"/>
         <source>, distance </source>
         <translation>, 距离 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7932"/>
+        <location filename="../homeform.cpp" line="7934"/>
         <source>kilometers</source>
         <translation>公里</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7935"/>
+        <location filename="../homeform.cpp" line="7937"/>
         <source> miles</source>
         <translation> 英里</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7939"/>
-        <location filename="../homeform.cpp" line="7943"/>
-        <location filename="../homeform.cpp" line="7948"/>
-        <location filename="../homeform.cpp" line="7951"/>
-        <location filename="../homeform.cpp" line="7954"/>
+        <location filename="../homeform.cpp" line="7941"/>
+        <location filename="../homeform.cpp" line="7945"/>
+        <location filename="../homeform.cpp" line="7950"/>
+        <location filename="../homeform.cpp" line="7953"/>
+        <location filename="../homeform.cpp" line="7956"/>
         <source>, pace </source>
         <translation>, 配速 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7958"/>
+        <location filename="../homeform.cpp" line="7960"/>
         <source>, resistance </source>
         <translation>, 阻力 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7963"/>
+        <location filename="../homeform.cpp" line="7965"/>
         <source>, average resistance </source>
         <translation>, 平均阻力 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7967"/>
+        <location filename="../homeform.cpp" line="7969"/>
         <source>, max resistance </source>
         <translation>, 最大阻力 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7970"/>
+        <location filename="../homeform.cpp" line="7972"/>
         <source>, watt </source>
         <translation>, 瓦特 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7973"/>
+        <location filename="../homeform.cpp" line="7975"/>
         <source>, average watt </source>
         <translation>, 平均瓦特 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7976"/>
+        <location filename="../homeform.cpp" line="7978"/>
         <source>, max watt </source>
         <translation>, 最大瓦特 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7980"/>
+        <location filename="../homeform.cpp" line="7982"/>
         <source>, ftp </source>
         <translation>, 功率计 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7982"/>
+        <location filename="../homeform.cpp" line="7984"/>
         <source>, heart rate </source>
         <translation>, 心率 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7985"/>
+        <location filename="../homeform.cpp" line="7987"/>
         <source>, average heart rate </source>
         <translation>, 平均心率 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7988"/>
+        <location filename="../homeform.cpp" line="7990"/>
         <source>, max heart rate </source>
         <translation>, 最大心率 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7991"/>
+        <location filename="../homeform.cpp" line="7993"/>
         <source>, jouls </source>
         <translation>, 焦耳 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7994"/>
+        <location filename="../homeform.cpp" line="7996"/>
         <source>, elapsed </source>
         <translation>, 经过 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7996"/>
+        <location filename="../homeform.cpp" line="7998"/>
         <source> minutes </source>
         <translation> 分钟 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7998"/>
+        <location filename="../homeform.cpp" line="8000"/>
         <source> seconds</source>
         <translation> 秒</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8004"/>
+        <location filename="../homeform.cpp" line="8006"/>
         <source>, peloton resistance </source>
         <translation>, peloton 阻力 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8012"/>
+        <location filename="../homeform.cpp" line="8014"/>
         <source>, average peloton resistance </source>
         <translation>, 平均 Peloton 阻力 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8020"/>
+        <location filename="../homeform.cpp" line="8022"/>
         <source>, max peloton resistance </source>
         <translation>, 最大 Peloton 阻力 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8028"/>
+        <location filename="../homeform.cpp" line="8030"/>
         <source>, target peloton resistance </source>
         <translation>, 目标 peloton 阻力 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8036"/>
+        <location filename="../homeform.cpp" line="8038"/>
         <source>, target cadence </source>
         <translation>, 目标踏频 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8042"/>
+        <location filename="../homeform.cpp" line="8044"/>
         <source>, target power </source>
         <translation>, 目标功率 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8048"/>
+        <location filename="../homeform.cpp" line="8050"/>
         <source>, target zone </source>
         <translation>, 目标区域 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8054"/>
+        <location filename="../homeform.cpp" line="8056"/>
         <source>, target speed </source>
         <translation>, 目标速度 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8068"/>
+        <location filename="../homeform.cpp" line="8070"/>
         <source>, target incline </source>
         <translation>, 目标坡度 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8073"/>
+        <location filename="../homeform.cpp" line="8075"/>
         <source>, watt for kilograms </source>
         <translation>, 瓦特用于千克 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8076"/>
+        <location filename="../homeform.cpp" line="8078"/>
         <source>, average watt for kilograms</source>
         <translation>, 平均瓦特每公斤</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8079"/>
+        <location filename="../homeform.cpp" line="8081"/>
         <source>, max watt for kilograms</source>
         <translation>, 每公斤最大瓦特</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8089"/>
+        <location filename="../homeform.cpp" line="8091"/>
         <source>speed changed to</source>
         <translation>速度已更改为</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8854"/>
+        <location filename="../homeform.cpp" line="8934"/>
         <source>JSON parser error</source>
         <translation>JSON 解析错误</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="9141"/>
+        <location filename="../homeform.cpp" line="9221"/>
         <source>Error retrieving access token, %1 (%2)</source>
         <translation>无法检索访问令牌，%1 (%2)</translation>
     </message>
