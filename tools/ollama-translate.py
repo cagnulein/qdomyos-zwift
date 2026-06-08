@@ -334,7 +334,15 @@ def existing_translation_needs_work(source: str, translation: str) -> bool:
     if not translation.strip():
         return True
 
-    return bool(validate_translation(source, translation))
+    errors = validate_translation(source, translation)
+
+    # If the only error is that translation is identical to source, it's likely
+    # a proper noun, protocol, or technical term that should remain unchanged.
+    # Don't mark it as needing work; treat it as valid and finalize it.
+    if errors == ["translation is identical to source"]:
+        return False
+
+    return bool(errors)
 
 
 def finalize_valid_translations(root, keep_unfinished: bool) -> int:
