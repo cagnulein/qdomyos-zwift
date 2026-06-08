@@ -32,7 +32,6 @@ class HealthConnectHelper {
         private const val MIN_SUPPORTED_SDK = 26
         private const val HEALTH_CONNECT_PROVIDER = "com.google.android.apps.healthdata"
         private const val PREFS_NAME = "qz_health_connect"
-        private const val PREF_PERMISSION_PROMPT_SHOWN = "permission_prompt_shown_v2"
         private const val PREF_PERMISSION_PROMPT_PENDING = "permission_prompt_pending_v2"
 
         private var initialized = false
@@ -61,7 +60,7 @@ class HealthConnectHelper {
                 if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
                     HealthConnectClient.getOrCreate(context.applicationContext, HEALTH_CONNECT_PROVIDER)
                     QLog.d(TAG, "Health Connect client initialized")
-                    requestPermissionsOnce(context, false)
+                    requestPermissionsIfNeeded(context)
                 }
             } catch (t: Throwable) {
                 QLog.w(TAG, "Health Connect init was skipped", t)
@@ -88,11 +87,12 @@ class HealthConnectHelper {
                     }
 
                     val client = HealthConnectClient.getOrCreate(appContext, HEALTH_CONNECT_PROVIDER)
-                    val permissions = writePermissions()
                     val granted = client.permissionController.getGrantedPermissions()
-                    if (!granted.containsAll(permissions)) {
-                        QLog.d(TAG, "Skipping Health Connect write: missing permissions ${permissions - granted}")
-                        requestPermissionsOnce(context, true)
+
+                    val requiredPermission = HealthPermission.getWritePermission(ExerciseSessionRecord::class)
+                    if (!granted.contains(requiredPermission)) {
+                        QLog.d(TAG, "Skipping Health Connect write: missing required permission WRITE_EXERCISE")
+                        requestPermissionsIfNeeded(context)
                         return@launch
                     }
 
@@ -102,7 +102,7 @@ class HealthConnectHelper {
                         return@launch
                     }
 
-                    val records = buildRecords(samples, title, deviceType, deviceName)
+                    val records = buildRecords(samples, title, deviceType, deviceName, granted)
                     if (records.isEmpty()) {
                         QLog.d(TAG, "Skipping Health Connect write: no records built")
                         return@launch
@@ -129,7 +129,9 @@ class HealthConnectHelper {
             )
         }
 
-        private fun requestPermissionsOnce(context: Context, force: Boolean) {
+        // Ask for missing permissions every time the app starts (like iOS HealthKit behaviour).
+        // Uses a PENDING flag so we never show two dialogs simultaneously.
+        private fun requestPermissionsIfNeeded(context: Context) {
             val activity = context as? Activity
             if (activity == null) {
                 QLog.d(TAG, "Skipping Health Connect permission request: context is not an Activity")
@@ -137,10 +139,6 @@ class HealthConnectHelper {
             }
 
             val prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            if (!force && prefs.getBoolean(PREF_PERMISSION_PROMPT_SHOWN, false)) {
-                QLog.d(TAG, "Skipping Health Connect permission request: prompt already shown")
-                return
-            }
             if (prefs.getBoolean(PREF_PERMISSION_PROMPT_PENDING, false)) {
                 QLog.d(TAG, "Skipping Health Connect permission request: prompt already pending")
                 return
@@ -177,9 +175,15 @@ class HealthConnectHelper {
             }
         }
 
-        // Visible for testing
+        // Visible for testing — grantedPermissions defaults to all permissions so existing tests pass unchanged.
         @JvmStatic
-        fun buildRecords(samples: JSONArray, title: String?, deviceType: Int, deviceName: String?): List<Record> {
+        fun buildRecords(
+            samples: JSONArray,
+            title: String?,
+            deviceType: Int,
+            deviceName: String?,
+            grantedPermissions: Set<String> = writePermissions()
+        ): List<Record> {
             val first = samples.getJSONObject(0)
             val last = samples.getJSONObject(samples.length() - 1)
             val start = Instant.ofEpochMilli(first.getLong("time"))
@@ -201,26 +205,37 @@ class HealthConnectHelper {
                 metadata = Metadata(recordingMethod = Metadata.RECORDING_METHOD_MANUAL_ENTRY)
             )
 
-            val totalDistanceKm = last.optDouble("distance", 0.0)
-            if (totalDistanceKm > 0.0) {
-                records += DistanceRecord(
-                    startTime = start,
-                    startZoneOffset = zoneOffset,
-                    endTime = end,
-                    endZoneOffset = zoneOffset,
-                    distance = Length.kilometers(totalDistanceKm)
-                )
+            val hasDistance = grantedPermissions.contains(HealthPermission.getWritePermission(DistanceRecord::class))
+            val hasCalories = grantedPermissions.contains(HealthPermission.getWritePermission(TotalCaloriesBurnedRecord::class))
+            val hasHeartRate = grantedPermissions.contains(HealthPermission.getWritePermission(HeartRateRecord::class))
+            val hasPower = grantedPermissions.contains(HealthPermission.getWritePermission(PowerRecord::class))
+            val hasSpeed = grantedPermissions.contains(HealthPermission.getWritePermission(SpeedRecord::class))
+            val hasCadence = grantedPermissions.contains(HealthPermission.getWritePermission(CyclingPedalingCadenceRecord::class))
+
+            if (hasDistance) {
+                val totalDistanceKm = last.optDouble("distance", 0.0)
+                if (totalDistanceKm > 0.0) {
+                    records += DistanceRecord(
+                        startTime = start,
+                        startZoneOffset = zoneOffset,
+                        endTime = end,
+                        endZoneOffset = zoneOffset,
+                        distance = Length.kilometers(totalDistanceKm)
+                    )
+                }
             }
 
-            val totalCaloriesKcal = last.optDouble("calories", 0.0)
-            if (totalCaloriesKcal > 0.0) {
-                records += TotalCaloriesBurnedRecord(
-                    startTime = start,
-                    startZoneOffset = zoneOffset,
-                    endTime = end,
-                    endZoneOffset = zoneOffset,
-                    energy = Energy.kilocalories(totalCaloriesKcal)
-                )
+            if (hasCalories) {
+                val totalCaloriesKcal = last.optDouble("calories", 0.0)
+                if (totalCaloriesKcal > 0.0) {
+                    records += TotalCaloriesBurnedRecord(
+                        startTime = start,
+                        startZoneOffset = zoneOffset,
+                        endTime = end,
+                        endZoneOffset = zoneOffset,
+                        energy = Energy.kilocalories(totalCaloriesKcal)
+                    )
+                }
             }
 
             val heartSamples = mutableListOf<HeartRateRecord.Sample>()
@@ -236,16 +251,16 @@ class HealthConnectHelper {
                 val speed = sample.optDouble("speed", 0.0)
                 val cadence = sample.optDouble("cadence", 0.0)
 
-                if (heart > 0) {
+                if (hasHeartRate && heart > 0) {
                     heartSamples += HeartRateRecord.Sample(time = time, beatsPerMinute = heart.toLong())
                 }
-                if (watts > 0.0) {
+                if (hasPower && watts > 0.0) {
                     powerSamples += PowerRecord.Sample(time = time, power = Power.watts(watts))
                 }
-                if (speed > 0.0) {
+                if (hasSpeed && speed > 0.0) {
                     speedSamples += SpeedRecord.Sample(time = time, speed = Velocity.kilometersPerHour(speed))
                 }
-                if (cadence > 0.0) {
+                if (hasCadence && cadence > 0.0) {
                     cadenceSamples += CyclingPedalingCadenceRecord.Sample(time = time, revolutionsPerMinute = cadence)
                 }
             }

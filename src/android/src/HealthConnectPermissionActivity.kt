@@ -12,7 +12,6 @@ class HealthConnectPermissionActivity : ComponentActivity() {
         getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putBoolean(PREF_PERMISSION_PROMPT_PENDING, false)
-            .putBoolean(PREF_PERMISSION_PROMPT_SHOWN, true)
             .apply()
         QLog.d(TAG, "Health Connect permission request finished. Granted: $grantedPermissions")
         finish()
@@ -46,7 +45,6 @@ class HealthConnectPermissionActivity : ComponentActivity() {
 
         private const val TAG = "HealthConnectPermissionActivity"
         private const val PREFS_NAME = "qz_health_connect"
-        private const val PREF_PERMISSION_PROMPT_SHOWN = "permission_prompt_shown_v2"
         private const val PREF_PERMISSION_PROMPT_PENDING = "permission_prompt_pending_v2"
     }
 }
