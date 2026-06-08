@@ -2,10 +2,14 @@ package org.cagnulen.qdomyoszwift
 
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import org.json.JSONArray
 import org.json.JSONObject
@@ -253,6 +257,83 @@ class HealthConnectHelperTest {
         assertFalse(records.any { it is DistanceRecord })
     }
 
+    // ── buildRecords: elevation ───────────────────────────────────────────────
+
+    @Test
+    fun `buildRecords includes ElevationGainedRecord when last sample has elevationGain greater than 0`() {
+        val samples = twoSamples(1_000L, 2_000L, elevationGain = 150.0)
+        val records = HealthConnectHelper.buildRecords(samples, "t", BIKE, null)
+        assertTrue(records.any { it is ElevationGainedRecord })
+    }
+
+    @Test
+    fun `buildRecords omits ElevationGainedRecord when elevationGain is 0`() {
+        val samples = twoSamples(1_000L, 2_000L)
+        val records = HealthConnectHelper.buildRecords(samples, "t", BIKE, null)
+        assertFalse(records.any { it is ElevationGainedRecord })
+    }
+
+    // ── buildRecords: steps ───────────────────────────────────────────────────
+
+    @Test
+    fun `buildRecords includes StepsRecord when last sample has stepCount greater than 0`() {
+        val samples = twoSamples(1_000L, 2_000L, stepCount = 500.0)
+        val records = HealthConnectHelper.buildRecords(samples, "t", TREADMILL, null)
+        assertTrue(records.any { it is StepsRecord })
+    }
+
+    @Test
+    fun `buildRecords omits StepsRecord when stepCount is 0`() {
+        val samples = twoSamples(1_000L, 2_000L)
+        val records = HealthConnectHelper.buildRecords(samples, "t", TREADMILL, null)
+        assertFalse(records.any { it is StepsRecord })
+    }
+
+    // ── buildRecords: steps cadence vs cycling cadence ────────────────────────
+
+    @Test
+    fun `buildRecords uses StepsCadenceRecord for treadmill cadence`() {
+        val samples = JSONArray().apply {
+            put(makeSample(1_000L, cadence = 160.0))
+            put(makeSample(2_000L, cadence = 165.0))
+        }
+        val records = HealthConnectHelper.buildRecords(samples, "t", TREADMILL, null)
+        assertTrue(records.any { it is StepsCadenceRecord })
+        assertFalse(records.any { it is CyclingPedalingCadenceRecord })
+    }
+
+    @Test
+    fun `buildRecords uses CyclingPedalingCadenceRecord for bike cadence`() {
+        val samples = JSONArray().apply {
+            put(makeSample(1_000L, cadence = 80.0))
+            put(makeSample(2_000L, cadence = 85.0))
+        }
+        val records = HealthConnectHelper.buildRecords(samples, "t", BIKE, null)
+        assertTrue(records.any { it is CyclingPedalingCadenceRecord })
+        assertFalse(records.any { it is StepsCadenceRecord })
+    }
+
+    // ── buildRecords: HRV ─────────────────────────────────────────────────────
+
+    @Test
+    fun `buildRecords includes HeartRateVariabilityRmssdRecord when hrv greater than 0`() {
+        val samples = JSONArray().apply {
+            put(makeSample(1_000L, hrv = 42.5))
+            put(makeSample(2_000L, hrv = 38.0))
+        }
+        val records = HealthConnectHelper.buildRecords(samples, "t", BIKE, null)
+        val hrvRecords = records.filterIsInstance<HeartRateVariabilityRmssdRecord>()
+        assertEquals(2, hrvRecords.size)
+        assertEquals(42.5, hrvRecords[0].heartRateVariabilityMillis, 0.001)
+    }
+
+    @Test
+    fun `buildRecords omits HeartRateVariabilityRmssdRecord when hrv is 0`() {
+        val samples = JSONArray().apply { put(makeSample(1_000L)) }
+        val records = HealthConnectHelper.buildRecords(samples, "t", BIKE, null)
+        assertFalse(records.any { it is HeartRateVariabilityRmssdRecord })
+    }
+
     // ── helpers ───────────────────────────────────────────────────────────────
 
     private fun makeSample(
@@ -262,7 +343,10 @@ class HealthConnectHelperTest {
         cadence: Double = 0.0,
         heart: Int = 0,
         distance: Double = 0.0,
-        calories: Double = 0.0
+        calories: Double = 0.0,
+        elevationGain: Double = 0.0,
+        stepCount: Double = 0.0,
+        hrv: Double = 0.0
     ) = JSONObject().apply {
         put("time", time)
         put("speed", speed)
@@ -271,6 +355,9 @@ class HealthConnectHelperTest {
         put("heart", heart)
         put("distance", distance)
         put("calories", calories)
+        put("elevationGain", elevationGain)
+        put("stepCount", stepCount)
+        put("hrv", hrv)
     }
 
     private fun singleSample(time: Long = System.currentTimeMillis()) =
@@ -280,10 +367,13 @@ class HealthConnectHelperTest {
         startMs: Long,
         endMs: Long,
         distance: Double = 0.0,
-        calories: Double = 0.0
+        calories: Double = 0.0,
+        elevationGain: Double = 0.0,
+        stepCount: Double = 0.0
     ) = JSONArray().apply {
         put(makeSample(startMs, speed = 25.0, watt = 150.0, cadence = 80.0))
         put(makeSample(endMs, speed = 28.0, watt = 180.0, cadence = 85.0,
-                       distance = distance, calories = calories))
+                       distance = distance, calories = calories,
+                       elevationGain = elevationGain, stepCount = stepCount))
     }
 }

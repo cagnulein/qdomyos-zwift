@@ -8,11 +8,15 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Energy
@@ -125,7 +129,11 @@ class HealthConnectHelper {
                 HealthPermission.getWritePermission(HeartRateRecord::class),
                 HealthPermission.getWritePermission(PowerRecord::class),
                 HealthPermission.getWritePermission(SpeedRecord::class),
-                HealthPermission.getWritePermission(CyclingPedalingCadenceRecord::class)
+                HealthPermission.getWritePermission(CyclingPedalingCadenceRecord::class),
+                HealthPermission.getWritePermission(ElevationGainedRecord::class),
+                HealthPermission.getWritePermission(StepsRecord::class),
+                HealthPermission.getWritePermission(StepsCadenceRecord::class),
+                HealthPermission.getWritePermission(HeartRateVariabilityRmssdRecord::class)
             )
         }
 
@@ -211,6 +219,10 @@ class HealthConnectHelper {
             val hasPower = grantedPermissions.contains(HealthPermission.getWritePermission(PowerRecord::class))
             val hasSpeed = grantedPermissions.contains(HealthPermission.getWritePermission(SpeedRecord::class))
             val hasCadence = grantedPermissions.contains(HealthPermission.getWritePermission(CyclingPedalingCadenceRecord::class))
+            val hasElevation = grantedPermissions.contains(HealthPermission.getWritePermission(ElevationGainedRecord::class))
+            val hasSteps = grantedPermissions.contains(HealthPermission.getWritePermission(StepsRecord::class))
+            val hasStepsCadence = grantedPermissions.contains(HealthPermission.getWritePermission(StepsCadenceRecord::class))
+            val hasHrv = grantedPermissions.contains(HealthPermission.getWritePermission(HeartRateVariabilityRmssdRecord::class))
 
             if (hasDistance) {
                 val totalDistanceKm = last.optDouble("distance", 0.0)
@@ -238,10 +250,39 @@ class HealthConnectHelper {
                 }
             }
 
+            if (hasElevation) {
+                val elevationGainM = last.optDouble("elevationGain", 0.0)
+                if (elevationGainM > 0.0) {
+                    records += ElevationGainedRecord(
+                        startTime = start,
+                        startZoneOffset = zoneOffset,
+                        endTime = end,
+                        endZoneOffset = zoneOffset,
+                        elevation = Length.meters(elevationGainM)
+                    )
+                }
+            }
+
+            if (hasSteps) {
+                val stepCount = last.optDouble("stepCount", 0.0).toLong()
+                if (stepCount > 0L) {
+                    records += StepsRecord(
+                        startTime = start,
+                        startZoneOffset = zoneOffset,
+                        endTime = end,
+                        endZoneOffset = zoneOffset,
+                        count = stepCount
+                    )
+                }
+            }
+
+            val isTreadmill = deviceType == 1
             val heartSamples = mutableListOf<HeartRateRecord.Sample>()
             val powerSamples = mutableListOf<PowerRecord.Sample>()
             val speedSamples = mutableListOf<SpeedRecord.Sample>()
             val cadenceSamples = mutableListOf<CyclingPedalingCadenceRecord.Sample>()
+            val stepsCadenceSamples = mutableListOf<StepsCadenceRecord.Sample>()
+            val hrvRecords = mutableListOf<HeartRateVariabilityRmssdRecord>()
 
             for (i in 0 until samples.length()) {
                 val sample = samples.getJSONObject(i)
@@ -250,6 +291,7 @@ class HealthConnectHelper {
                 val watts = sample.optDouble("watt", 0.0)
                 val speed = sample.optDouble("speed", 0.0)
                 val cadence = sample.optDouble("cadence", 0.0)
+                val hrv = sample.optDouble("hrv", 0.0)
 
                 if (hasHeartRate && heart > 0) {
                     heartSamples += HeartRateRecord.Sample(time = time, beatsPerMinute = heart.toLong())
@@ -260,8 +302,20 @@ class HealthConnectHelper {
                 if (hasSpeed && speed > 0.0) {
                     speedSamples += SpeedRecord.Sample(time = time, speed = Velocity.kilometersPerHour(speed))
                 }
-                if (hasCadence && cadence > 0.0) {
-                    cadenceSamples += CyclingPedalingCadenceRecord.Sample(time = time, revolutionsPerMinute = cadence)
+                if (cadence > 0.0) {
+                    if (hasCadence && !isTreadmill) {
+                        cadenceSamples += CyclingPedalingCadenceRecord.Sample(time = time, revolutionsPerMinute = cadence)
+                    }
+                    if (hasStepsCadence && isTreadmill) {
+                        stepsCadenceSamples += StepsCadenceRecord.Sample(time = time, rate = cadence)
+                    }
+                }
+                if (hasHrv && hrv > 0.0) {
+                    hrvRecords += HeartRateVariabilityRmssdRecord(
+                        time = time,
+                        zoneOffset = zoneOffset,
+                        heartRateVariabilityMillis = hrv
+                    )
                 }
             }
 
@@ -277,6 +331,10 @@ class HealthConnectHelper {
             if (cadenceSamples.isNotEmpty()) {
                 records += CyclingPedalingCadenceRecord(start, zoneOffset, end, zoneOffset, cadenceSamples)
             }
+            if (stepsCadenceSamples.isNotEmpty()) {
+                records += StepsCadenceRecord(start, zoneOffset, end, zoneOffset, stepsCadenceSamples)
+            }
+            records += hrvRecords
 
             return records
         }
