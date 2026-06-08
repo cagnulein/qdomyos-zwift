@@ -143,6 +143,7 @@ jobs:
 
       - name: Build
         run: |
+            lrelease src/qdomyos-zwift.pri
             qmake
             make -j8
             cd src/debug
@@ -165,11 +166,12 @@ jobs:
             cp ../../adb/* adb/
             cd ..
             cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
         if: matrix.config.python
-            
+
       - name: Build without python
         run: |
+            lrelease src/qdomyos-zwift.pri
             qmake
             make -j8
             cd src/debug
@@ -1170,6 +1172,7 @@ jobs:
 
       - name: Build
         run: |
+            lrelease src/qdomyos-zwift.pri
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
@@ -1198,10 +1201,11 @@ jobs:
 
       - name: Build without python
         run: |
+            lrelease src/qdomyos-zwift.pri
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
-            qmake           
+            qmake
             nmake
             cd src/debug
             mkdir output
@@ -1373,6 +1377,7 @@ jobs:
 
       - name: Build
         run: |
+            lrelease src/qdomyos-zwift.pri
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
@@ -1757,10 +1762,11 @@ jobs:
 
       - name: Build
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
         run: |
-            qmake            
+            lrelease src/qdomyos-zwift.pri
+            qmake
             nmake
             cd src/debug
             mkdir output
@@ -1786,10 +1792,11 @@ jobs:
             
       - name: Build without python
 #            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
-#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose     
-        run: |          
-            qmake           
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+        run: |
+            lrelease src/qdomyos-zwift.pri
+            qmake
             nmake
             cd src/debug
             mkdir output
@@ -1966,6 +1973,7 @@ jobs:
 
       - name: Build
         run: |
+          lrelease src/qdomyos-zwift.pri
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
@@ -1994,6 +2002,7 @@ jobs:
 
       - name: Build without python
         run: |
+          lrelease src/qdomyos-zwift.pri
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
