@@ -207,7 +207,8 @@ ApplicationWindow {
         property string shortcut_preset_powerzone_7: ""
         property string shortcut_auto_resistance: ""
         property string shortcut_lap: ""
-        property string shortcut_start_stop: ""        
+        property string shortcut_start_stop: ""
+        property string shortcut_stop: ""
     }
 
 
@@ -1480,6 +1481,7 @@ ApplicationWindow {
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_auto_resistance; enabled: shortcutReady(sequence); onActivated: rootItem.setAutoResistance(!rootItem.autoResistance) }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_lap; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLap() }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_start_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStartStop() }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStop() }
         }
     }
 }

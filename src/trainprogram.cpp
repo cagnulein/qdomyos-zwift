@@ -1397,6 +1397,24 @@ void trainprogram::decreaseElapsedTime(int32_t i) {
     ticks -= i;
 }
 
+void trainprogram::goToPreviousRow() {
+    if (currentStep == 0)
+        return;
+
+    // Compute the total ticks at the start of the row before currentStep
+    int32_t targetTicks = 0;
+    for (int i = 0; i < (int)currentStep - 1; i++) {
+        targetTicks += calculateTimeForRow(i);
+    }
+
+    int32_t decrease = ticks - targetTicks;
+    if (decrease > 0) {
+        offset -= decrease;
+        ticks = targetTicks;
+    }
+    currentStep--;
+}
+
 void trainprogram::onTapeStarted() { started = true; }
 
 void trainprogram::restart() {
