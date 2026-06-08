@@ -7793,6 +7793,7 @@ void homeform::update() {
                                (bluetoothManager->device()->elapsedTime().hour() * 3600);
             uint8_t delta = 10;
             bool trainprogram_pid_pushy = settings.value(QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy).toBool();
+            double trainprogram_pid_hr_pushy_zone_limit = settings.value(QZSettings::trainprogram_pid_hr_pushy_zone_limit, QZSettings::default_trainprogram_pid_hr_pushy_zone_limit).toDouble();
             bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR >= 0;
             double maxSpeed = 30;
             double minSpeed = 0;
@@ -7884,7 +7885,7 @@ void homeform::update() {
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (currentSpeed < maxSpeed && trainprogram_pid_pushy) {
                             pid_heart_zone_small_inc_counter++;
-                            double pushyZoneLimit = (double)zone + 0.8;
+                            double pushyZoneLimit = (double)zone + trainprogram_pid_hr_pushy_zone_limit;
                             double distanceToNextZone = ((double)zone + 1.0) - currentHRZone;
                             if (currentHRZone < pushyZoneLimit && distanceToNextZone > 0.0 &&
                                 pid_heart_zone_small_inc_counter > (10 * distanceToNextZone)) {
