@@ -40,6 +40,82 @@ UNCHANGED_TEXTS = BRAND_SET | {
     "Watt",
 }
 
+# Domain-specific glossary for fitness/cycling terms.
+# Keys are English source terms (case-sensitive), values are the preferred translation.
+# Add entries here when the LLM picks the wrong word for a domain-specific concept.
+GLOSSARY: dict[str, dict[str, str]] = {
+    "Italian": {
+        "Gears": "Marce",
+        "Gear": "Marcia",
+        "Gear +": "Marcia +",
+        "Gear -": "Marcia -",
+        "Gears +": "Marce +",
+        "Gears -": "Marce -",
+        "Cadence": "Cadenza",
+        "Resistance": "Resistenza",
+        "Inclination": "Inclinazione",
+        "Incline": "Pendenza",
+        "Peloton Resistance": "Resistenza Peloton",
+        "Watts": "Watt",
+        "Lap": "Giro",
+        "Stride": "Passo",
+        "Step Count": "Contapassi",
+        "Ramp": "Rampa",
+    },
+    "French": {
+        "Gears": "Vitesses",
+        "Gear": "Vitesse",
+        "Gear +": "Vitesse +",
+        "Gear -": "Vitesse -",
+        "Gears +": "Vitesses +",
+        "Gears -": "Vitesses -",
+        "Cadence": "Cadence",
+        "Resistance": "Résistance",
+        "Inclination": "Inclinaison",
+        "Incline": "Pente",
+        "Lap": "Tour",
+    },
+    "Spanish": {
+        "Gears": "Marchas",
+        "Gear": "Marcha",
+        "Gear +": "Marcha +",
+        "Gear -": "Marcha -",
+        "Gears +": "Marchas +",
+        "Gears -": "Marchas -",
+        "Cadence": "Cadencia",
+        "Resistance": "Resistencia",
+        "Inclination": "Inclinación",
+        "Incline": "Pendiente",
+        "Lap": "Vuelta",
+    },
+    "German": {
+        "Gears": "Gänge",
+        "Gear": "Gang",
+        "Gear +": "Gang +",
+        "Gear -": "Gang -",
+        "Gears +": "Gänge +",
+        "Gears -": "Gänge -",
+        "Cadence": "Kadenz",
+        "Resistance": "Widerstand",
+        "Inclination": "Neigung",
+        "Incline": "Steigung",
+        "Lap": "Runde",
+    },
+    "Portuguese": {
+        "Gears": "Marchas",
+        "Gear": "Marcha",
+        "Gear +": "Marcha +",
+        "Gear -": "Marcha -",
+        "Gears +": "Marchas +",
+        "Gears -": "Marchas -",
+        "Cadence": "Cadência",
+        "Resistance": "Resistência",
+        "Inclination": "Inclinação",
+        "Incline": "Inclinação",
+        "Lap": "Volta",
+    },
+}
+
 
 def should_skip_source(text: str) -> bool:
     s = text.strip()
@@ -94,12 +170,26 @@ def count_accelerators(text: str) -> int:
     return count
 
 
+def build_glossary_section(target_language: str) -> str:
+    lang_glossary = GLOSSARY.get(target_language, {})
+    if not lang_glossary:
+        return ""
+    lines = [f'- "{en}" → "{tr}"' for en, tr in lang_glossary.items()]
+    return (
+        "\nDomain glossary (fitness/cycling context — use these translations exactly):\n"
+        + "\n".join(lines)
+        + "\n"
+    )
+
+
 def call_ollama(
     model: str,
     source_text: str,
     target_language: str,
     timeout: int = 180,
 ) -> str:
+    glossary_section = build_glossary_section(target_language)
+
     prompt = f"""You are translating UI strings for QZ, a Qt/QML fitness app.
 
 Translate from English to {target_language}.
@@ -118,7 +208,7 @@ Rules:
 - Do not translate brand/product/protocol names: {", ".join(BRANDS)}.
 - Keep the translation short and suitable for a mobile app UI.
 - If the source text is already a brand name, protocol name, number, symbol, or file pattern, return it unchanged.
-
+{glossary_section}
 Source text:
 {source_text}
 """
