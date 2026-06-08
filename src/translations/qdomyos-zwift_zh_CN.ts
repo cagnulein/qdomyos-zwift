@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
@@ -151,7 +151,7 @@ Would you like to do that now?</source>
     </message>
     <message>
         <location filename="../HomeForm.ui.qml" line="206"/>
-        <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn't, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the 'virtual device' setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
+        <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>此应用应自动连接到您的自行车/跑步机/划船机。&lt;b&gt;如果无法连接，请检查&lt;/b&gt;：&lt;br&gt;1) 在运行 qdomyos-zwift 时，您的 Echelon/Domyos App 必须关闭；&lt;br&gt;2) 蓝牙和蓝牙权限都必须启用&lt;br&gt;3) 在启动此应用之前，您的自行车/跑步机/划船机应处于开启状态&lt;br&gt;4) 尝试重启您的设备&lt;br&gt;&lt;br&gt;如果您的自行车/跑步机每隔 30 秒就断开连接，请尝试在左侧栏禁用“虚拟设备”设置。&lt;br&gt;&lt;br&gt;如果遇到任何问题，请随时通过 roberto.viola83@gmail.com 联系我。&lt;br&gt;&lt;br&gt;&lt;b&gt;祝您骑行愉快！&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ 特此声明，对于因使用或误用本应用而导致的任何偶然或后果性损害，QZ 不承担任何责任或赔偿。&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
     </message>
 </context>
@@ -347,12 +347,12 @@ Would you like to do that now?</source>
     <message>
         <location filename="../mainwindow.ui" line="1102"/>
         <source>&amp;Reset</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1109"/>
         <source>&amp;Load</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1116"/>
@@ -367,7 +367,7 @@ Would you like to do that now?</source>
     <message>
         <location filename="../mainwindow.ui" line="1159"/>
         <source>S&amp;top</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="349"/>
@@ -428,13 +428,13 @@ Would you like to do that now?</source>
     <name>SwagBagView</name>
     <message>
         <location filename="../SwagBagView.qml" line="66"/>
-        <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The "Swag Bag" is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
+        <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
         <translation>嗨！你知道 QZ 只是一个开源独立应用吗？&lt;br&gt;&lt;br&gt;这不是大型公司运营的！&lt;br&gt;“Swag Bag” 是支持 QZ Fitness 持续开发、维护和支持的方式！</translation>
     </message>
     <message>
         <location filename="../SwagBagView.qml" line="92"/>
-        <source>&lt;html&gt;&lt;style type='text/css'&gt;&lt;/style&gt;Swag bag feature:&lt;br&gt;• an auto-renewable subscription&lt;br&gt;• 1 month ($1.99)&lt;br&gt;• Your subscription will be charged to your iTunes account at confirmation of purchase and will automatically renew (at the duration selected) unless auto-renew is turned off at least 24 hours before the end of the current period.&lt;br&gt;• Current subscription may not be cancelled during the active subscription period; however, you can manage your subscription and/or turn off auto-renewal by visiting your iTunes Account Settings after purchase.&lt;br&gt;• Privacy policy: &lt;a href='https://robertoviola.cloud/privacy-policy-qdomyos-zwift/'&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• Licensed Application end user license agreement: &lt;a href='https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;style type='text/css'&gt;&lt;/style&gt;赠品包功能：&lt;br&gt;• 自动续订订阅&lt;br&gt;• 1 个月 ($1.99)&lt;br&gt;• 您的订阅将在购买确认时计入您的 iTunes 账户，并自动续订（按选定的期限），除非您在当前周期结束前至少 24 小时关闭自动续订。&lt;br&gt;• 在活跃订阅期内，当前订阅可能无法取消；但是，您可以在购买后访问您的 iTunes 账户设置来管理您的订阅和/或关闭自动续订。&lt;br&gt;• 隐私政策： &lt;a href='https://robertoviola.cloud/privacy-policy-qdomyos-zwift/'&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• 授权应用程序最终用户许可协议： &lt;a href='https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;style type=&apos;text/css&apos;&gt;&lt;/style&gt;Swag bag feature:&lt;br&gt;• an auto-renewable subscription&lt;br&gt;• 1 month ($1.99)&lt;br&gt;• Your subscription will be charged to your iTunes account at confirmation of purchase and will automatically renew (at the duration selected) unless auto-renew is turned off at least 24 hours before the end of the current period.&lt;br&gt;• Current subscription may not be cancelled during the active subscription period; however, you can manage your subscription and/or turn off auto-renewal by visiting your iTunes Account Settings after purchase.&lt;br&gt;• Privacy policy: &lt;a href=&apos;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&apos;&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• Licensed Application end user license agreement: &lt;a href=&apos;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&apos;&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;style type=&apos;text/css&apos;&gt;&lt;/style&gt;赠品包功能：&lt;br&gt;• 自动续订订阅&lt;br&gt;• 1 个月 ($1.99)&lt;br&gt;• 您的订阅将在购买确认时计入您的 iTunes 账户，并自动续订（按选定的期限），除非您在当前周期结束前至少 24 小时关闭自动续订。&lt;br&gt;• 在活跃订阅期内，当前订阅可能无法取消；但是，您可以在购买后访问您的 iTunes 账户设置来管理您的订阅和/或关闭自动续订。&lt;br&gt;• 隐私政策： &lt;a href=&apos;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&apos;&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• 授权应用程序最终用户许可协议： &lt;a href=&apos;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&apos;&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -513,12 +513,12 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <location filename="../Wizard.qml" line="181"/>
-        <source>I'm fine, thanks.</source>
+        <source>I&apos;m fine, thanks.</source>
         <translation>我很好，谢谢。</translation>
     </message>
     <message>
         <location filename="../Wizard.qml" line="211"/>
-        <source>What's your fitness device?</source>
+        <source>What&apos;s your fitness device?</source>
         <translation>您的健身设备是什么？</translation>
     </message>
     <message>
@@ -648,7 +648,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     </message>
     <message>
         <location filename="../Wizard.qml" line="690"/>
-        <source>QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout</source>
+        <source>QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn&apos;t work on workout</source>
         <translation>QZ 将从 Zwift 应用实时读取坡度，并调整您跑步机上的坡度。它不适用于训练</translation>
     </message>
     <message>
@@ -788,7 +788,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <location filename="../Wizard.qml" line="1378"/>
         <source>Garmin watch</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -953,7 +953,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <location filename="../homeform.cpp" line="324"/>
         <source>Peloton R(%)</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="327"/>
@@ -978,7 +978,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <location filename="../homeform.cpp" line="336"/>
         <source>T.Zone</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="338"/>
@@ -1033,7 +1033,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <location filename="../homeform.cpp" line="362"/>
         <source>KJouls</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="365"/>
@@ -1078,7 +1078,7 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <location filename="../homeform.cpp" line="388"/>
         <source>RSS</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="390"/>
@@ -1113,12 +1113,12 @@ The following questions will customize QZ for your equipment and goals.</source>
     <message>
         <location filename="../homeform.cpp" line="404"/>
         <source>GearsPlus</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="406"/>
         <source>GearsMinus</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="408"/>
@@ -1253,7 +1253,7 @@ The following questions will customize QZ for your equipment and goals.</source>
         <location filename="../homeform.cpp" line="6452"/>
         <location filename="../homeform.cpp" line="6617"/>
         <source>N/A</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="7877"/>
@@ -1536,7 +1536,7 @@ choose a nickname in the general settings
 and enable the QZ Classifica setting in the
 experimental settings section and
 restart the app.</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main.qml" line="437"/>
@@ -1565,8 +1565,8 @@ restart the app.</source>
     </message>
     <message>
         <location filename="../main.qml" line="529"/>
-        <source>Browse the What's on Zwift workout library&lt;br&gt;and choose your workout. It will&lt;br&gt; be automatically loaded on QZ when you will&lt;br&gt;press the load button on the top!&lt;br&gt;&lt;br&gt;QZ is not affiliated with Zwift&lt;br&gt;or https://whatsonzwift.com/ website.</source>
-        <translation>浏览 What's on Zwift 训练库&lt;br&gt;并选择您的训练。当您点击顶部的加载按钮时，它将&lt;br&gt;自动加载到 QZ 上！&lt;br&gt;&lt;br&gt;QZ 与 Zwift 或 https://whatsonzwift.com/ 网站无关。</translation>
+        <source>Browse the What&apos;s on Zwift workout library&lt;br&gt;and choose your workout. It will&lt;br&gt; be automatically loaded on QZ when you will&lt;br&gt;press the load button on the top!&lt;br&gt;&lt;br&gt;QZ is not affiliated with Zwift&lt;br&gt;or https://whatsonzwift.com/ website.</source>
+        <translation>浏览 What&apos;s on Zwift 训练库&lt;br&gt;并选择您的训练。当您点击顶部的加载按钮时，它将&lt;br&gt;自动加载到 QZ 上！&lt;br&gt;&lt;br&gt;QZ 与 Zwift 或 https://whatsonzwift.com/ 网站无关。</translation>
     </message>
     <message>
         <location filename="../main.qml" line="558"/>
@@ -1625,20 +1625,20 @@ Do you want to do it now?</source>
         <location filename="../main.qml" line="721"/>
         <source>Workout found:
 </source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main.qml" line="722"/>
         <source>
 Date: </source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main.qml" line="723"/>
         <source>
 
 Do you want to start it now?</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main.qml" line="811"/>
@@ -1834,7 +1834,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../profiles.qml" line="98"/>
-        <source>You're creating a new profile with the default values, would you like to save the current one before?</source>
+        <source>You&apos;re creating a new profile with the default values, would you like to save the current one before?</source>
         <translation>您正在使用默认值创建新档案，是否需要先保存当前档案？</translation>
     </message>
     <message>
@@ -2280,8 +2280,8 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="2197"/>
-        <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet'inches" format (e.g., 5'10") for imperial units.</source>
-        <translation>输入您的身高，以便更准确地计算BMR和活动卡路里。公制单位请使用厘米，英制单位请使用“英尺'英寸”格式（例如：5'10"）。</translation>
+        <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
+        <translation>输入您的身高，以便更准确地计算BMR和活动卡路里。公制单位请使用厘米，英制单位请使用“英尺&apos;英寸”格式（例如：5&apos;10&quot;）。</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="2213"/>
@@ -2406,7 +2406,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="2643"/>
-        <source>This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ's more accurate calculation.</source>
+        <source>This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ&apos;s more accurate calculation.</source>
         <translation>阻止您的自行车或跑步机将消耗卡路里数据发送给 QZ，并默认使用 QZ 更准确的计算。</translation>
     </message>
     <message>
@@ -2561,7 +2561,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="3239"/>
-        <source>Specify a particular gear value to be restored at startup. This will override the 'Restore Gears on Startup' setting.</source>
+        <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
         <translation>指定在启动时恢复的特定档位值。这将覆盖“启动时恢复齿轮”设置。</translation>
     </message>
     <message>
@@ -2805,7 +2805,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="4184"/>
-        <source>If you have a generic FTMS bike and the tiles don't appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
+        <source>If you have a generic FTMS bike and the tiles don&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
         <translation>如果您有通用 FTMS 自行车，并且瓷砖没有出现在主 QZ 屏幕上，请在此处选择您自行车的 Bluetooth 名称。</translation>
     </message>
     <message>
@@ -2845,7 +2845,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="4291"/>
-        <source>Since this bike doesn't send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little 'jumpy' and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
+        <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
         <translation>由于该自行车未通过 Bluetooth 发送阻力数据，QZ 使用踏频和功率进行计算。结果可能会有些“跳动”，因此，使用此设置，您可以过滤阻力值。该单位是纯阻力级别，设置 5 意味着只有当阻力变化达到 5 个级别时，您才会看到阻力变化。</translation>
     </message>
     <message>
@@ -3414,7 +3414,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="2138"/>
-        <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable 'Use kg for weight'.</source>
+        <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;.</source>
         <translation>请输入您的体重（公斤），以便 QZ 更准确地计算消耗的卡路里。注意：如果您选择使用英里作为行进距离单位，除非您启用“使用公斤作为体重”，否则系统会要求您输入磅（lbs）的体重。</translation>
     </message>
     <message>
@@ -3470,7 +3470,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="1730"/>
         <source>Chinese (Simplified)</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1731"/>
@@ -3629,8 +3629,8 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="2186"/>
-        <source>Invalid format! Use feet'inches (e.g., 6'2")</source>
-        <translation>格式无效！请使用英尺'英寸（例如：6'2"）</translation>
+        <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
+        <translation>格式无效！请使用英尺&apos;英寸（例如：6&apos;2&quot;）</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="2466"/>
@@ -3667,7 +3667,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="3308"/>
-        <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will 'level the playing field' against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable 'Use kg for weight'. Default unit is kilograms (kgs).</source>
+        <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will &apos;level the playing field&apos; against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;. Default unit is kilograms (kgs).</source>
         <translation>允许 QZ 在计算速度时包含自行车的重量。例如，如果您在 VZfit 上与自己比赛，添加自行车重量可以使您与虚拟自我之间的“竞争更公平”。如果您已将 QZ 设置为以英里计算距离，请以磅 (lbs) 输入自行车重量，除非您启用“使用公斤作为重量”。默认单位是千克 (kgs)。</translation>
     </message>
     <message>
@@ -3678,12 +3678,12 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="4564"/>
         <source>SP-HT-9600iE</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="4607"/>
         <source>Snode Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="4709"/>
@@ -3703,22 +3703,22 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="4781"/>
         <source>Life Fitness IC8</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="4795"/>
         <source>Life Fitness IC5</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5132"/>
         <source>TDF1 IP:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5156"/>
         <source>TDF4 IP:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5180"/>
@@ -3730,7 +3730,7 @@ Do you want to start it now?</source>
         <location filename="../settings.qml" line="9813"/>
         <location filename="../settings.qml" line="11564"/>
         <source>ADB Remote</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5454"/>
@@ -3740,12 +3740,12 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="5515"/>
         <source>Toputure Bikes</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5523"/>
         <source>Toputure TEB1</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5537"/>
@@ -3783,7 +3783,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="6190"/>
         <source>Tiles Shadow</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="6517"/>
@@ -3930,12 +3930,12 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="7214"/>
         <source>Zwift Play &amp; Click Settings</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7215"/>
-        <source>Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts.</source>
-        <translation>您是否要禁用 Zwift Play 和 Zwift Click 设置？将它们与 'Get gears from Zwift' 同时启用可能会导致冲突。</translation>
+        <source>Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with &apos;Get gears from Zwift&apos; may cause conflicts.</source>
+        <translation>您是否要禁用 Zwift Play 和 Zwift Click 设置？将它们与 &apos;Get gears from Zwift&apos; 同时启用可能会导致冲突。</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7227"/>
@@ -3954,7 +3954,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7305"/>
-        <source>By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn't affect the real gear value one the bike. Default: disabled.</source>
+        <source>By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn&apos;t affect the real gear value one the bike. Default: disabled.</source>
         <translation>默认情况下，QZ 显示的是自行车实际的齿轮。启用此项后，QZ 将显示您在 Zwift 上看到的相同齿轮。这不会影响自行车上的实际齿轮值。默认值：禁用。</translation>
     </message>
     <message>
@@ -3964,7 +3964,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7341"/>
-        <source>Define the number of delay seconds between each inclination change from Zwift. This value can't be less than 5. Default: 5</source>
+        <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
         <translation>定义从 Zwift 每次坡度变化之间的延迟秒数。此值不能小于 5。默认值：5</translation>
     </message>
     <message>
@@ -3975,7 +3975,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7368"/>
-        <source>Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout</source>
+        <source>Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn&apos;t work on workout</source>
         <translation>仅限 Android 和 iOS：QZ 将从 Zwift 应用实时读取坡度，并调整您跑步机上的坡度。它不适用于训练</translation>
     </message>
     <message>
@@ -4051,7 +4051,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="7579"/>
         <source>Garmin Connect</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7586"/>
@@ -4097,7 +4097,7 @@ Please enter it below:</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7725"/>
-        <source>If you don't receive the code, please enable 2FA in your Garmin profile privacy settings.</source>
+        <source>If you don&apos;t receive the code, please enable 2FA in your Garmin profile privacy settings.</source>
         <translation>如果您未收到代码，请在您的 Garmin 个人资料隐私设置中启用 2FA。</translation>
     </message>
     <message>
@@ -4202,13 +4202,13 @@ Please enter it below:</source>
     </message>
     <message>
         <location filename="../settings.qml" line="8438"/>
-        <source>Alternatively to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.</source>
+        <source>Alternatively to &apos;PID on Heart Zone&apos; setting you can use this couple of settings in order to specify a HR range.</source>
         <translation>与“PID on Heart Zone”设置不同，您可以使用以下几个设置来指定心率范围。</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="8451"/>
-        <source>PID 'Pushy'</source>
-        <translation type="unfinished"/>
+        <source>PID &apos;Pushy&apos;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="8465"/>
@@ -4482,7 +4482,7 @@ Please enter it below:</source>
     </message>
     <message>
         <location filename="../settings.qml" line="9435"/>
-        <source>If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
+        <source>If you have a generic FTMS bike and the tiles doesn&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
         <translation>如果您有通用 FTMS 自行车，并且该设备未在主 QZ 屏幕上显示，请在此处选择您自行车的蓝牙名称。</translation>
     </message>
     <message>
@@ -4503,7 +4503,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="9791"/>
         <source>Nordictrack 2950 IP:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="9830"/>
@@ -4518,7 +4518,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="9852"/>
         <source>BH IBoxster Plus</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="9868"/>
@@ -4548,22 +4548,22 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="9938"/>
         <source>WalkingPad X21 v2</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="9953"/>
         <source>WalkingPad X21 v3</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="9967"/>
         <source>WalkingPad X21 v4</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="9981"/>
         <source>WalkingPad G1</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="9995"/>
@@ -4583,7 +4583,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10033"/>
         <source>Fitfiu MC-460</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10046"/>
@@ -4593,7 +4593,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10059"/>
         <source>UMAY S100</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10076"/>
@@ -4608,7 +4608,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10098"/>
         <source>T900</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10112"/>
@@ -4684,17 +4684,17 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10363"/>
         <source>Sole F63</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10377"/>
         <source>Sole F65</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10391"/>
         <source>Sole TT8</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10408"/>
@@ -4714,12 +4714,12 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10440"/>
         <source>AnyRun</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10453"/>
         <source>Atletica Lightspeed</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10467"/>
@@ -4759,7 +4759,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10581"/>
         <source>Paragon X</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10595"/>
@@ -4775,7 +4775,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10623"/>
         <source>Omega Z</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10638"/>
@@ -4840,7 +4840,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10858"/>
         <source>TRX 65s EVO</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10873"/>
@@ -4855,22 +4855,22 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="10901"/>
         <source>Toorx SRX 500</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10916"/>
         <source>Toorx SRX 3500</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10930"/>
         <source>Enerfit SPX 9500 / Toorx SRX 500</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10944"/>
         <source>HOP-Sport HS-090h</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10958"/>
@@ -4900,7 +4900,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11033"/>
         <source>Toorx/iConsole Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11048"/>
@@ -4920,7 +4920,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11093"/>
         <source>JLL IC400 Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11107"/>
@@ -4930,12 +4930,12 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11121"/>
         <source>Asviva Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11135"/>
         <source>Hertz XR 770 Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11148"/>
@@ -4945,7 +4945,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11161"/>
         <source>iConsole Rower</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11174"/>
@@ -4980,17 +4980,17 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11279"/>
         <source>Proform Sport RL</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11292"/>
         <source>Proform Rower 750R</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11313"/>
         <source>ProForm Rower IP:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11338"/>
@@ -5016,7 +5016,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11391"/>
         <source>Life Fitness 95xi (CSAFE)</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11422"/>
@@ -5031,7 +5031,7 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11467"/>
         <source>Gymstick GX6.0</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11482"/>
@@ -5041,17 +5041,17 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11489"/>
         <source>Proform Hybrid Trainer XT</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11503"/>
         <source>Proform Hybrid Trainer PFEL03815</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11516"/>
         <source>Nordictrack C7.5</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11529"/>
@@ -5261,7 +5261,7 @@ IMPORTANT NOTES:
 - No Average/smooth in Hometrainer config for standard home trainers which work at 1hz (No race mode available)
 - Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app!
 - Need to use QZ in bridge mode!
-- For Elite home trainers or those who have a race mode (10hz), if it's not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.</source>
+- For Elite home trainers or those who have a race mode (10hz), if it&apos;s not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.</source>
         <translation>如果您的设备发送给 QZ 的功率输出/瓦数波动较大，此设置将使功率区域图表更平滑。这对于使用功率计踏板也很有帮助。它使用谐波平均，比算术平均更能平滑功率尖峰。如果任何读数是 0，功率会立即变为 0。默认值是关闭。
 
 重要提示：
@@ -5317,7 +5317,7 @@ IMPORTANT NOTES:
     </message>
     <message>
         <location filename="../settings.qml" line="12391"/>
-        <source>If you don't want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
+        <source>If you don&apos;t want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
         <translation>如果不想让坡度低于某个值（适用于自行车和跑步机），请在此设置最小值。默认值：-999。</translation>
     </message>
     <message>
@@ -5357,7 +5357,7 @@ IMPORTANT NOTES:
     </message>
     <message>
         <location filename="../settings.qml" line="12511"/>
-        <source>For the smart trainers, use resistance instead of inclination. This should help if you don't want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
+        <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>对于智能训练器，请使用阻力而不是坡度。如果您不希望 Wahoo Climb 或类似设备在换档时改变坡度，使用此设置会有帮助。默认：禁用</translation>
     </message>
     <message>
@@ -5387,7 +5387,7 @@ IMPORTANT NOTES:
     </message>
     <message>
         <location filename="../settings.qml" line="12617"/>
-        <source>Don't touch these settings if your bike works properly!</source>
+        <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>如果自行车运行正常，请勿更改这些设置。</translation>
     </message>
     <message>
@@ -5423,7 +5423,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="12768"/>
         <source>Rogue Echo Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="12782"/>
@@ -5533,7 +5533,7 @@ IMPORTANT NOTES:
     <message>
         <location filename="../settings.qml" line="13103"/>
         <source>Use cadence from the power sensor</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="13117"/>
@@ -5547,7 +5547,7 @@ IMPORTANT NOTES:
     </message>
     <message>
         <location filename="../settings.qml" line="13144"/>
-        <source>If you have a Bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.</source>
+        <source>If you have a Bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can&apos;t get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.</source>
         <translation>如果您连接了蓝牙跑步机和 Stryd 设备到 QZ，默认情况下，Stryd 无法从跑步机获取倾斜度。启用此功能后，QZ 将向从 Stryd 读取的功率增加一个倾斜度增益。默认值：禁用。</translation>
     </message>
     <message>
@@ -5623,7 +5623,7 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <location filename="../settings.qml" line="13347"/>
         <source>Elite Sterzo Smart:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="13386"/>
@@ -5638,7 +5638,7 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <location filename="../settings.qml" line="13429"/>
         <source>Peloton Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="13446"/>
@@ -6001,7 +6001,7 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <location filename="../settings.qml" line="14807"/>
         <source>Wahoo direct connect</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14815"/>
@@ -6016,7 +6016,7 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <location filename="../settings.qml" line="14844"/>
         <source>ID:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14865"/>
@@ -6081,7 +6081,7 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <location filename="../settings.qml" line="15108"/>
         <source>OSC IP:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="15131"/>
@@ -6210,7 +6210,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <location filename="../settings.qml" line="15520"/>
-        <source>Android Only: enable this to force Android to don't kill QZ when it's running on background</source>
+        <source>Android Only: enable this to force Android to don&apos;t kill QZ when it&apos;s running on background</source>
         <translation>仅限 Android：启用此项可强制 Android 在后台运行时不终止 QZ</translation>
     </message>
     <message>
@@ -6269,7 +6269,7 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <location filename="../settings-shortcuts.qml" line="128"/>
         <source>None</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings-shortcuts.qml" line="177"/>
@@ -6990,7 +6990,7 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <location filename="../settings-tiles.qml" line="1039"/>
         <source>FTP %</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="1070"/>
