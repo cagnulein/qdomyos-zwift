@@ -81,6 +81,41 @@ QString uploadActivityLabelFromFitFile(const QString &fitFilePath) {
     return uploadActivityLabelFromSport(sport);
 }
 
+#ifdef Q_OS_ANDROID
+bool clearAndroidJniException(const char *context) {
+    QAndroidJniEnvironment env;
+    if (!env->ExceptionCheck()) {
+        return false;
+    }
+
+    env->ExceptionDescribe();
+    env->ExceptionClear();
+    qWarning() << "Android JNI exception cleared during" << context;
+    return true;
+}
+
+QString fallbackFileNameFromUri(const QString &uriString) {
+    QUrl url(uriString);
+    QString fileName = url.fileName();
+    if (!fileName.isEmpty()) {
+        return fileName;
+    }
+
+    const QString lastSegment = url.path().section('/', -1);
+    if (!lastSegment.isEmpty()) {
+        return lastSegment;
+    }
+
+    return QStringLiteral("imported_file");
+}
+
+constexpr int AndroidDocumentPickerProfileRequestCode = 4101;
+constexpr int AndroidDocumentPickerTrainingRequestCode = 4102;
+constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
+constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
+constexpr jint AndroidActivityResultOk = -1;
+#endif
+
 class MailSenderThread : public QThread {
   public:
     MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail)
@@ -1062,6 +1097,31 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnOAuthCallback(JNIEnv *en
         QMetaObject::invokeMethod(homeform::singleton(), "handleOAuthCallbackUrl", Qt::QueuedConnection,
                                   Q_ARG(QString, url));
     }
+}
+
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *env, jclass clazz, jint requestCode,
+                                                                       jint resultCode, jstring localPathString) {
+    Q_UNUSED(clazz)
+    if (resultCode != AndroidActivityResultOk || !homeform::singleton()) {
+        return;
+    }
+
+    QString localPath;
+    if (localPathString) {
+        const char *pathChars = env->GetStringUTFChars(localPathString, nullptr);
+        localPath = QString::fromUtf8(pathChars ? pathChars : "");
+        if (pathChars) {
+            env->ReleaseStringUTFChars(localPathString, pathChars);
+        }
+    }
+
+    if (localPath.isEmpty()) {
+        return;
+    }
+
+    QMetaObject::invokeMethod(homeform::singleton(), "handleAndroidDocumentPicked", Qt::QueuedConnection,
+                              Q_ARG(int, static_cast<int>(requestCode)), Q_ARG(QString, localPath));
 }
 
 JNIEXPORT void JNICALL
@@ -5060,26 +5120,23 @@ void homeform::Plus(const QString &name) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
                 m_overridePower = true;
                 ((bike *)bluetoothManager->device())
-                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() + powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((bike *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 m_overridePower = true;
                 ((treadmill *)bluetoothManager->device())
-                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() + powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
                 m_overridePower = true;
                 ((rower *)bluetoothManager->device())
-                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() + powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
             }
         }
@@ -5363,26 +5420,23 @@ void homeform::Minus(const QString &name) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
                 m_overridePower = true;
                 ((bike *)bluetoothManager->device())
-                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((bike *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 m_overridePower = true;
                 ((treadmill *)bluetoothManager->device())
-                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
                 m_overridePower = true;
                 ((rower *)bluetoothManager->device())
-                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             }
         }
@@ -6191,6 +6245,15 @@ void homeform::update() {
                                                      QString::number(inclination, 'f', 1) + QStringLiteral("%"));
             this->target_power->setValue(
                 QString::number(((treadmill *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->powerOffsetForTrainingProgram() != 0) {
+                this->target_power->setSecondLine(
+                    QStringLiteral("%1%2W")
+                        .arg(trainProgram->powerOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                              : QStringLiteral(""))
+                        .arg(trainProgram->powerOffsetForTrainingProgram()));
+            } else {
+                this->target_power->setSecondLine(QStringLiteral(""));
+            }
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
                 QStringLiteral("AVG: ") +
@@ -6506,6 +6569,15 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
             this->target_power->setValue(
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->powerOffsetForTrainingProgram() != 0) {
+                this->target_power->setSecondLine(
+                    QStringLiteral("%1%2W")
+                        .arg(trainProgram->powerOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                              : QStringLiteral(""))
+                        .arg(trainProgram->powerOffsetForTrainingProgram()));
+            } else {
+                this->target_power->setSecondLine(QStringLiteral(""));
+            }
             this->resistance->setValue(QString::number(resistance, 'f', 0));
             updateGearsValue();
 
@@ -6642,6 +6714,15 @@ void homeform::update() {
                 QString::number(((rower *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
             this->target_power->setValue(
                 QString::number(((rower *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->powerOffsetForTrainingProgram() != 0) {
+                this->target_power->setSecondLine(
+                    QStringLiteral("%1%2W")
+                        .arg(trainProgram->powerOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                              : QStringLiteral(""))
+                        .arg(trainProgram->powerOffsetForTrainingProgram()));
+            } else {
+                this->target_power->setSecondLine(QStringLiteral(""));
+            }
             this->resistance->setValue(QString::number(resistance, 'f', 0));
 
             this->resistance->setSecondLine(
@@ -7428,6 +7509,7 @@ void homeform::update() {
                                (bluetoothManager->device()->elapsedTime().hour() * 3600);
             uint8_t delta = 10;
             bool trainprogram_pid_pushy = settings.value(QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy).toBool();
+            double trainprogram_pid_hr_pushy_zone_limit = settings.value(QZSettings::trainprogram_pid_hr_pushy_zone_limit, QZSettings::default_trainprogram_pid_hr_pushy_zone_limit).toDouble();
             bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR >= 0;
             double maxSpeed = 30;
             double minSpeed = 0;
@@ -7519,7 +7601,10 @@ void homeform::update() {
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (currentSpeed < maxSpeed && trainprogram_pid_pushy) {
                             pid_heart_zone_small_inc_counter++;
-                            if (fabs(((float)zone) - currentHRZone) < 0.5 && pid_heart_zone_small_inc_counter > (10 * fabs(((float)zone) - currentHRZone))) {
+                            double pushyZoneLimit = (double)zone + trainprogram_pid_hr_pushy_zone_limit;
+                            double distanceToNextZone = ((double)zone + 1.0) - currentHRZone;
+                            if (currentHRZone < pushyZoneLimit && distanceToNextZone > 0.0 &&
+                                pid_heart_zone_small_inc_counter > (10 * distanceToNextZone)) {
                                 double newSpeed = std::min(currentSpeed + step, maxSpeed);
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
@@ -8243,13 +8328,24 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
     QAndroidJniObject jUriString = QAndroidJniObject::fromString(uriString);
     QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
+    if (clearAndroidJniException("Uri.parse") || !jUri.isValid()) {
+        return fallbackFileNameFromUri(uriString);
+    }
     QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
         "org/cagnulen/qdomyoszwift/ContentHelper",
         "getFileName",
         "(Landroid/content/Context;Landroid/net/Uri;)Ljava/lang/String;",
         QtAndroid::androidContext().object(),
         jUri.object());
-    return result.toString();
+    if (clearAndroidJniException("ContentHelper.getFileName") || !result.isValid()) {
+        return fallbackFileNameFromUri(uriString);
+    }
+
+    QString fileName = result.toString();
+    if (fileName.isEmpty()) {
+        fileName = fallbackFileNameFromUri(uriString);
+    }
+    return fileName;
 #else
     return uriString;
 #endif
@@ -8257,40 +8353,80 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
 QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 #ifdef Q_OS_ANDROID        
-    QString fileNameLocal = "";
     qDebug() << "Android Version:" << QOperatingSystemVersion::current();
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 13))
-        fileNameLocal = getFileNameFromContentUri(file.toString());
-    if(fileNameLocal.contains(getWritableAppDir() + subfolder + "/")) {
+    const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(file);
+    const QString destinationDir = getWritableAppDir() + subfolder + "/";
+    QDir().mkpath(destinationDir);
+
+    if (!sourcePath.isEmpty() && sourcePath.startsWith(destinationDir)) {
         qDebug() << "no need to copy file, the file is already in QZ subfolder" << file << subfolder;
-        return file.toString();
+        return sourcePath;
     }
-    
-    QString filename = "";
-    QFile fileFile(QQmlFile::urlToLocalFileOrQrc(file));
-    // android <14 fallback
-    if(fileNameLocal.length() == 0) {
-        qDebug() << "android <14 fallback" << fileNameLocal << filename << file.fileName();
-        filename = file.fileName();
-    } else {
-        QFileInfo f(fileNameLocal);
-        filename = f.fileName();        
+
+    QString filename;
+    if (file.toString().startsWith(QStringLiteral("content"))) {
+        filename = getFileNameFromContentUri(file.toString());
     }
-    QString dest = getWritableAppDir() + subfolder + "/" + filename;
-    qDebug() << file.fileName() << fileNameLocal << filename;
+    if (filename.isEmpty() && !sourcePath.isEmpty()) {
+        filename = QFileInfo(sourcePath).fileName();
+    }
+    if (filename.isEmpty()) {
+        filename = QFileInfo(file.fileName()).fileName();
+    }
+    if (filename.isEmpty()) {
+        filename = QStringLiteral("imported_file");
+    }
+
+    const QString dest = destinationDir + filename;
+    qDebug() << file.fileName() << sourcePath << filename;
     QFile::remove(dest);
+
+    if (file.toString().startsWith(QStringLiteral("content"))) {
+        QAndroidJniObject jUriString = QAndroidJniObject::fromString(file.toString());
+        QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod(
+            "android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
+        if (clearAndroidJniException("Uri.parse for copy") || !jUri.isValid()) {
+            qWarning() << "Unable to parse content URI for copy" << file;
+            return QString();
+        }
+
+        QAndroidJniObject jDest = QAndroidJniObject::fromString(dest);
+        jboolean copied = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/ContentHelper",
+            "copyContentToFile",
+            "(Landroid/content/Context;Landroid/net/Uri;Ljava/lang/String;)Z",
+            QtAndroid::androidContext().object(),
+            jUri.object(),
+            jDest.object<jstring>());
+        if (clearAndroidJniException("ContentHelper.copyContentToFile")) {
+            QFile::remove(dest);
+            return QString();
+        }
+
+        qDebug() << "copyContentToFile" << dest << static_cast<bool>(copied);
+        if (!copied || !QFile::exists(dest)) {
+            QFile::remove(dest);
+            return QString();
+        }
+        return dest;
+    }
+
+    QFile fileFile(sourcePath);
     bool copy = fileFile.copy(dest);
     qDebug() << "copy" << dest << copy << fileFile.exists() << fileFile.isReadable();
-    return dest;
+    return copy ? dest : QString();
 #endif
     return file.toString();
 }
 
 void homeform::profile_open_clicked(const QUrl &fileName) {
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
 #ifdef Q_OS_ANDROID
-    copyAndroidContentsURI(fileName, "profiles");
+    const QString copiedFile = copyAndroidContentsURI(fileName, "profiles");
+    if (!copiedFile.isEmpty()) {
+        loadSettings(QUrl::fromLocalFile(copiedFile));
+    }
 #else
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     QFileInfo fileInfo(file);
     bool r = file.copy(getWritableAppDir() + "profiles/" + fileInfo.fileName());
     qDebug() << "profile copy" << r << getWritableAppDir() + "profiles/" + fileInfo.fileName();
@@ -8298,13 +8434,17 @@ void homeform::profile_open_clicked(const QUrl &fileName) {
 }
 
 void homeform::trainprogram_open_other_folder(const QUrl &fileName) {
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(fileName, "training");
+    const QString copiedFile = copyAndroidContentsURI(fileName, "training");
+    if (!copiedFile.isEmpty()) {
+        trainprogram_open_clicked(QUrl::fromLocalFile(copiedFile));
+    }
 }
 
 void homeform::gpx_open_other_folder(const QUrl &fileName) {
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(fileName, "gpx");
+    const QString copiedFile = copyAndroidContentsURI(fileName, "gpx");
+    if (!copiedFile.isEmpty()) {
+        gpx_open_clicked(QUrl::fromLocalFile(copiedFile));
+    }
 }
 
 bool homeform::startTrainingProgramFromFile(const QString &filePath) {
@@ -8321,6 +8461,74 @@ bool homeform::startTrainingProgramFromFile(const QString &filePath) {
     }
     trainprogram_open_clicked(QUrl::fromLocalFile(localPath));
     return true;
+}
+
+void homeform::openAndroidDocumentPicker(const QString &kind) {
+#ifdef Q_OS_ANDROID
+    int requestCode = 0;
+    QString mimeType = QStringLiteral("*/*");
+    QString destinationDir;
+    if (kind == QStringLiteral("profile")) {
+        requestCode = AndroidDocumentPickerProfileRequestCode;
+        destinationDir = getWritableAppDir() + QStringLiteral("profiles/");
+    } else if (kind == QStringLiteral("training")) {
+        requestCode = AndroidDocumentPickerTrainingRequestCode;
+        mimeType = QStringLiteral("*/*");
+        destinationDir = getWritableAppDir() + QStringLiteral("training/");
+    } else if (kind == QStringLiteral("gpx")) {
+        requestCode = AndroidDocumentPickerGpxRequestCode;
+        mimeType = QStringLiteral("*/*");
+        destinationDir = getWritableAppDir() + QStringLiteral("gpx/");
+    } else if (kind == QStringLiteral("settings")) {
+        requestCode = AndroidDocumentPickerSettingsRequestCode;
+        destinationDir = getWritableAppDir() + QStringLiteral("settings/");
+    } else {
+        qWarning() << "Unknown Android document picker kind" << kind;
+        return;
+    }
+
+    QAndroidJniObject javaMimeType = QAndroidJniObject::fromString(mimeType);
+    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(destinationDir);
+    QtAndroid::androidActivity().callMethod<void>("openDocumentPicker", "(Ljava/lang/String;ILjava/lang/String;)V",
+                                                  javaMimeType.object<jstring>(), requestCode,
+                                                  javaDestinationDir.object<jstring>());
+    if (clearAndroidJniException("CustomQtActivity.openDocumentPicker")) {
+        return;
+    }
+#else
+    Q_UNUSED(kind)
+#endif
+}
+
+void homeform::handleAndroidDocumentPicked(int requestCode, const QString &localPath) {
+#ifdef Q_OS_ANDROID
+    if (localPath.isEmpty()) {
+        qWarning() << "Android document picker returned empty local path for request code" << requestCode;
+        return;
+    }
+
+    const QUrl localUrl = QUrl::fromLocalFile(localPath);
+    switch (requestCode) {
+    case AndroidDocumentPickerProfileRequestCode:
+        loadSettings(localUrl);
+        break;
+    case AndroidDocumentPickerTrainingRequestCode:
+        trainprogram_open_clicked(localUrl);
+        break;
+    case AndroidDocumentPickerGpxRequestCode:
+        gpx_open_clicked(localUrl);
+        break;
+    case AndroidDocumentPickerSettingsRequestCode:
+        loadSettings(localUrl);
+        break;
+    default:
+        qWarning() << "Unknown Android document picker request code" << requestCode << localPath;
+        break;
+    }
+#else
+    Q_UNUSED(requestCode)
+    Q_UNUSED(localPath)
+#endif
 }
 
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
@@ -10119,12 +10327,18 @@ void homeform::saveSettings(const QUrl &filename) {
 void homeform::loadSettings(const QUrl &filename) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(filename));
-    copyAndroidContentsURI(filename, "settings");
+    QString settingsFile = file.fileName();
+#ifdef Q_OS_ANDROID
+    const QString copiedSettingsFile = copyAndroidContentsURI(filename, "settings");
+    if (!copiedSettingsFile.isEmpty()) {
+        settingsFile = copiedSettingsFile;
+    }
+#endif
 
     qDebug() << "homeform::loadSettings" << file.fileName();
 
     QSettings settings;
-    QSettings settings2Load(file.fileName(), QSettings::IniFormat);
+    QSettings settings2Load(settingsFile, QSettings::IniFormat);
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {

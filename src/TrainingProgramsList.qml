@@ -18,6 +18,7 @@ ColumnLayout {
             FileDialog {
                 title: "Please choose a file"
                 folder: shortcuts.home
+                nameFilters: ["Training programs (*.xml *.zwo)", "All files (*)"]
                 visible: true
                 onAccepted: {
                     console.log("You chose: " + fileUrl)
@@ -306,8 +307,11 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            // Create a fresh FileDialog instance
-            fileDialogLoader.active = true
+            if (Qt.platform.os === "android") {
+                rootItem.openAndroidDocumentPicker("training")
+            } else {
+                fileDialogLoader.active = true
+            }
         }
         anchors {
             bottom: parent.bottom

@@ -13,20 +13,25 @@ ColumnLayout {
     signal trainprogram_open_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
+    property var selectedFileUrl: ""
     Loader {
         id: fileDialogLoader
         active: false
         sourceComponent: Component {
             FileDialog {
+                id: fileDialog
                 title: "Please choose a file"
                 folder: shortcuts.home
+                nameFilters: ["GPX files (*.gpx *.GPX)", "All files (*)"]
                 visible: true
                 onAccepted: {
-                    console.log("You chose: " + fileUrl)
+                    var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")
+                    console.log("You chose: " + chosenFile)
+                    selectedFileUrl = chosenFile
                     if(OS_VERSION === "Android") {
-                        trainprogram_open_other_folder(fileUrl)
+                        trainprogram_open_other_folder(chosenFile)
                     } else {
-                        trainprogram_open_clicked(fileUrl)
+                        trainprogram_open_clicked(chosenFile)
                     }
                     close()
                     // Destroy and recreate the dialog for next use
@@ -71,7 +76,7 @@ ColumnLayout {
                            filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
                         filter+="*"
                         print(filter)
-                        folderModel.nameFilters = [filter + ".gpx"]
+                        folderModel.nameFilters = [filter + ".gpx", filter + ".GPX"]
                     }
                     id: filterField
                     onTextChanged: updateFilter()
@@ -95,7 +100,7 @@ ColumnLayout {
                 id: list
                 FolderListModel {
                     id: folderModel
-                    nameFilters: ["*.gpx"]
+                    nameFilters: ["*.gpx", "*.GPX"]
                     folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
                     showDotAndDotDot: false
                     showDirs: true
@@ -273,8 +278,11 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'gpx')
-            // Create a fresh FileDialog instance
-            fileDialogLoader.active = true
+            if (Qt.platform.os === "android") {
+                rootItem.openAndroidDocumentPicker("gpx")
+            } else {
+                fileDialogLoader.active = true
+            }
         }
         anchors {
             bottom: parent.bottom

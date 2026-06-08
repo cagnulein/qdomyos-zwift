@@ -1683,10 +1683,12 @@ import Qt.labs.platform 1.1
             property string shortcut_preset_powerzone_6: ""
             property string shortcut_preset_powerzone_7: ""
             property string shortcut_lap: ""
-            property string shortcut_start_stop: ""
+            property string shortcut_start_stop: ""            
             property bool horizon_treadmill_omega_z: false
 
             property string app_language: "auto"
+            
+            property real trainprogram_pid_hr_pushy_zone_limit: 0.8
         }
 
 
@@ -8463,6 +8465,40 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("PID Pushy Zone Limit:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pidHrPushyZoneLimitTextField
+                            text: settings.trainprogram_pid_hr_pushy_zone_limit
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_pid_hr_pushy_zone_limit = parseFloat(pidHrPushyZoneLimitTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Fraction of zone above the target zone where 'Pushy' mode stops pushing. 0.8 means the PID stops pushing at zone+0.8. Default: 0.8.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

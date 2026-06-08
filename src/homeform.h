@@ -614,6 +614,7 @@ public:
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
     Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
+    Q_INVOKABLE void openAndroidDocumentPicker(const QString &kind);
 
     double wattMaxChart() {
         QSettings settings;
@@ -1017,6 +1018,7 @@ public:
     static QString getFileNameFromContentUri(const QString &uriString);
 
     int16_t fanOverride = 0;
+    const float powerJog = 5.0;
 
     void update();
     void ten_hz();
@@ -1072,6 +1074,7 @@ public:
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_autostart_requested();
     void handleOAuthCallbackUrl(const QString &callbackUrl);
+    void handleAndroidDocumentPicked(int requestCode, const QString &uriString);
 
   private slots:
     void Start();
