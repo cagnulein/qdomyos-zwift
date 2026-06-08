@@ -31,9 +31,6 @@
                                                 android:host="www.qzfitness.com"
                                                 android:pathPrefix="/peloton/callback" />
                                         </intent-filter>
-                                        <intent-filter>
-                                            <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
-                                        </intent-filter>
                                         <meta-data
                                             android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                                             android:resource="@xml/device_filter" />
@@ -91,16 +88,6 @@
 					<meta-data android:name="android.app.extract_android_style" android:value="default"/>
                                 <!-- extract android style -->
 				</activity>
-                                <activity-alias
-                                    android:name="ViewPermissionUsageActivity"
-                                    android:exported="true"
-                                    android:targetActivity=".CustomQtActivity"
-                                    android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
-                                    <intent-filter>
-                                        <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
-                                        <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
-                                    </intent-filter>
-                                </activity-alias>
 				<service
 				    android:name=".ForegroundService"
 					 android:enabled="true"
@@ -137,11 +124,6 @@
                                     android:value="ocr" />
 
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
-                                <activity
-                                    android:name=".HealthConnectPermissionActivity"
-                                    android:exported="false"
-                                    android:theme="@style/Theme.AppCompat" />
-
                                 <activity
                                     android:name=".HealthConnectPermissionActivity"
                                     android:exported="false"

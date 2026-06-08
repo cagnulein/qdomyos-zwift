@@ -9,7 +9,6 @@ buildscript {
         classpath 'com.android.tools.build:gradle:8.13.2'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.5'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20'
     }
 }
 
@@ -22,7 +21,6 @@ repositories {
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'com.google.protobuf'
-apply plugin: 'org.jetbrains.kotlin.android'
 
 def amazon = System.getenv('AMAZON')
 def androidCompileSdk = (project.findProperty('androidCompileSdkVersion') ?: '35').toString()
@@ -68,7 +66,6 @@ dependencies {
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
     implementation("com.garmin.connectiq:ciq-companion-app-sdk:2.3.0@aar")
-    implementation "androidx.activity:activity-ktx:1.9.3"
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:2.1.20'
@@ -132,7 +129,6 @@ android {
             renderscript.srcDirs = ['src']
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
-            kotlin.srcDirs = ['src', 'java']
         }
         debug {
             java.srcDirs += ["$buildDir/generated/aidl_source_output_dir/debug/out"]
