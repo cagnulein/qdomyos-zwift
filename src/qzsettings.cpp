@@ -1227,8 +1227,10 @@ const QString QZSettings::shortcut_lap = QStringLiteral("shortcut_lap");
 const QString QZSettings::default_shortcut_lap = QStringLiteral("");
 const QString QZSettings::shortcut_start_stop = QStringLiteral("shortcut_start_stop");
 const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
+const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
+const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 959;
+const uint32_t allSettingsCount = 960;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2204,6 +2206,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::shortcut_auto_resistance, QZSettings::default_shortcut_auto_resistance},
     {QZSettings::shortcut_lap, QZSettings::default_shortcut_lap},
     {QZSettings::shortcut_start_stop, QZSettings::default_shortcut_start_stop},
+    {QZSettings::shortcut_stop, QZSettings::default_shortcut_stop},
     {QZSettings::step_gain, QZSettings::default_step_gain},
     {QZSettings::proform_carbon_tlx_treadmill, QZSettings::default_proform_carbon_tlx_treadmill},
     {QZSettings::proform_carbon_tlx_v84_314_treadmill, QZSettings::default_proform_carbon_tlx_v84_314_treadmill},

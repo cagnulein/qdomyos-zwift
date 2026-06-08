@@ -629,6 +629,7 @@ public:
     Q_INVOKABLE void sendMail();
 
     Q_INVOKABLE void keyboardStartStop() { StartRequested(); }
+    Q_INVOKABLE void keyboardStop() { Stop(); }
     Q_INVOKABLE void keyboardLap() { Lap(); }
     Q_INVOKABLE void keyboardPlus(const QString &name) { Plus(name); }
     Q_INVOKABLE void keyboardMinus(const QString &name) { Minus(name); }
