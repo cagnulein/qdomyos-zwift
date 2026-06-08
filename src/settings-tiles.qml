@@ -1036,7 +1036,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: ftpEnabledAccordion
-            title: qsTr("FTP %")
+            title: "FTP %"
             linkedBoolSetting: "tile_ftp_enabled"
             settings: settings
             accordionContent: RowLayout {
