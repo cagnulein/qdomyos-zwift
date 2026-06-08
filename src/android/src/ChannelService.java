@@ -15,6 +15,8 @@
  */
 package org.cagnulen.qdomyoszwift;
 
+import android.content.pm.ApplicationInfo;
+
 import com.dsi.ant.AntService;
 import com.dsi.ant.channel.*;
 import com.dsi.ant.message.ChannelId;
@@ -59,6 +61,10 @@ public class ChannelService extends Service {
     SDMChannelController sdmChannelController = null;
     BikeChannelController bikeChannelController = null; // Added BikeChannelController reference
     BikeTransmitterController bikeTransmitterController = null; // Added BikeTransmitterController reference
+
+    private boolean isDebuggableBuild() {
+        return (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+    }
 
     private ServiceConnection mAntRadioServiceConnection = new ServiceConnection() {
         @Override
@@ -494,7 +500,7 @@ public class ChannelService extends Service {
     };
 
     private void doBindAntRadioService() {
-        if (BuildConfig.DEBUG) QLog.v(TAG, "doBindAntRadioService");
+        if (isDebuggableBuild()) QLog.v(TAG, "doBindAntRadioService");
 
         ContextCompat.registerReceiver(
             this,
@@ -509,13 +515,13 @@ public class ChannelService extends Service {
     }
 
     private void doUnbindAntRadioService() {
-        if (BuildConfig.DEBUG) QLog.v(TAG, "doUnbindAntRadioService");
+        if (isDebuggableBuild()) QLog.v(TAG, "doUnbindAntRadioService");
 
         // Stop listing for channel available intents
         try {
             unregisterReceiver(mChannelProviderStateChangedReceiver);
         } catch (IllegalArgumentException exception) {
-            if (BuildConfig.DEBUG)
+            if (isDebuggableBuild())
                 QLog.d(TAG, "Attempting to unregister a never registered Channel Provider State Changed receiver.");
         }
 
