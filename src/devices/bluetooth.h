@@ -142,6 +142,7 @@
 #include "templateinfosenderbuilder.h"
 #include "technogymbike/technogymbike.h"
 #include "devices/toorxtreadmill/toorxtreadmill.h"
+#include "devices/iconsolebike/iconsolebike.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
 #include "devices/trxappgateusbbike/trxappgateusbbike.h"
@@ -210,6 +211,7 @@ class bluetooth : public QObject, public SignalHandler {
     domyosrower *domyosRower = nullptr;
     domyoselliptical *domyosElliptical = nullptr;
     toorxtreadmill *toorx = nullptr;
+    iconsolebike *iconsole = nullptr;
     iconceptbike *iConceptBike = nullptr;
     iconceptelliptical *iConceptElliptical = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
@@ -356,7 +358,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool sramDeviceAvaiable();
     bool cycplusBC2DeviceAvaiable();
     bool thinkriderDeviceAvaiable();
-    bool fitmetria_fanfit_isconnected(QString name);
+    bool fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device);
     bool gymModeEnabled() const;
 
 #ifdef Q_OS_WIN
