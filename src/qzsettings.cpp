@@ -71,6 +71,8 @@ const QString QZSettings::code = QStringLiteral("code");
 const QString QZSettings::default_code = QStringLiteral("");
 //--------------------------------------------------------------------------------------------
 const QString QZSettings::ui_zoom = QStringLiteral("ui_zoom");
+const QString QZSettings::app_language = QStringLiteral("app_language");
+const QString QZSettings::default_app_language = QStringLiteral("auto");
 const QString QZSettings::bike_heartrate_service = QStringLiteral("bike_heartrate_service");
 const QString QZSettings::bike_resistance_offset = QStringLiteral("bike_resistance_offset");
 const QString QZSettings::bike_resistance_gain_f = QStringLiteral("bike_resistance_gain_f");
@@ -1094,6 +1096,7 @@ const QString QZSettings::proform_carbon_tlx_v84_314_treadmill = QStringLiteral(
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 const QString QZSettings::proform_treadmill_cst_505_pftl59420_0 = QStringLiteral("proform_treadmill_cst_505_pftl59420_0");
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
+const QString QZSettings::horizon_treadmill_omega_z = QStringLiteral("horizon_treadmill_omega_z");
 
 const QString QZSettings::shortcuts_enabled = QStringLiteral("shortcuts_enabled");
 const QString QZSettings::shortcut_speed_plus = QStringLiteral("shortcut_speed_plus");
@@ -1225,7 +1228,7 @@ const QString QZSettings::default_shortcut_lap = QStringLiteral("");
 const QString QZSettings::shortcut_start_stop = QStringLiteral("shortcut_start_stop");
 const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 957;
+const uint32_t allSettingsCount = 959;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1266,6 +1269,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::intervalsicu_suffix, QZSettings::default_intervalsicu_suffix},
     {QZSettings::intervalsicu_date_prefix, QZSettings::default_intervalsicu_date_prefix},
     {QZSettings::ui_zoom, QZSettings::default_ui_zoom},
+    {QZSettings::app_language, QZSettings::default_app_language},
     {QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service},
     {QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset},
     {QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f},
@@ -2206,6 +2210,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6},
     {QZSettings::proform_treadmill_cst_505_pftl59420_0, QZSettings::default_proform_treadmill_cst_505_pftl59420_0},
     {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
+    {QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
