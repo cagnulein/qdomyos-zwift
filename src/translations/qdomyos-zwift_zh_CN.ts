@@ -1141,9 +1141,8 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>平均功率</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="418"/>
         <source>HRV (ms)</source>
-        <translation>HRV (毫秒)</translation>
+        <translation type="vanished">HRV (毫秒)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="420"/>
@@ -1387,9 +1386,8 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>, 最大瓦特 </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7982"/>
         <source>, ftp </source>
-        <translation>, 功率计 </translation>
+        <translation type="vanished">, 功率计 </translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="7984"/>
@@ -3090,9 +3088,8 @@ Do you want to start it now?</source>
         <translation>Kettler USB 动感单车选项</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="5298"/>
         <source>Baudrate:</source>
-        <translation>波特率:</translation>
+        <translation type="vanished">波特率:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5329"/>
@@ -3493,9 +3490,8 @@ Do you want to start it now?</source>
         <translation>阿拉伯语</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1735"/>
         <source>Hindi</source>
-        <translation>印地语</translation>
+        <translation type="vanished">印地语</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1736"/>
@@ -4049,11 +4045,6 @@ Do you want to start it now?</source>
         <translation>使用您的 Garmin 手表获取来自自行车的 ANT+ 指标</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7579"/>
-        <source>Garmin Connect</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="7586"/>
         <source>Enable Garmin Upload</source>
         <translation>启用 Garmin 上传</translation>
@@ -4069,14 +4060,12 @@ Do you want to start it now?</source>
         <translation>Garmin 邮箱:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7641"/>
         <source>Garmin Password:</source>
-        <translation>Garmin 密码:</translation>
+        <translation type="vanished">Garmin 密码:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7668"/>
         <source>Garmin Server:</source>
-        <translation>Garmin 服务器:</translation>
+        <translation type="vanished">Garmin 服务器:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7689"/>
@@ -4516,11 +4505,6 @@ Please enter it below:</source>
         <translation>Pafers 跑步机</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9852"/>
-        <source>BH IBoxster Plus</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="9868"/>
         <source>GEM Module Options</source>
         <translation>GEM 模块选项</translation>
@@ -4579,11 +4563,6 @@ Please enter it below:</source>
         <location filename="../settings.qml" line="10025"/>
         <source>RunnerT Options</source>
         <translation>RunnerT 选项</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10033"/>
-        <source>Fitfiu MC-460</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10046"/>
@@ -4710,16 +4689,6 @@ Please enter it below:</source>
         <location filename="../settings.qml" line="10433"/>
         <source>Fitshow Treadmill Options</source>
         <translation>跑步机选项</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10440"/>
-        <source>AnyRun</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10453"/>
-        <source>Atletica Lightspeed</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10467"/>
@@ -4863,16 +4832,6 @@ Please enter it below:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10930"/>
-        <source>Enerfit SPX 9500 / Toorx SRX 500</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10944"/>
-        <source>HOP-Sport HS-090h</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="10958"/>
         <source>Taurua IC90 Bike</source>
         <translation>Taurua IC90 自行车</translation>
@@ -4888,9 +4847,8 @@ Please enter it below:</source>
         <translation>Reebok FR30 跑步机</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11003"/>
         <source>DKN Endurn Treadmill</source>
-        <translation>DKN Endurn 跑步机</translation>
+        <translation type="vanished">DKN Endurn 跑步机</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11018"/>
@@ -4930,11 +4888,6 @@ Please enter it below:</source>
     <message>
         <location filename="../settings.qml" line="11121"/>
         <source>Asviva Bike</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11135"/>
-        <source>Hertz XR 770 Bike</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5027,11 +4980,6 @@ Please enter it below:</source>
         <location filename="../settings.qml" line="11454"/>
         <source>Allows you to force QZ to connect to your FTMS Elliptical. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is Disabled.</source>
         <translation>允许您强制 QZ 连接到您的 FTMS 全能椭圆机。如果您不确定，请保持此项禁用，并发送电子邮件给 QZ 支持。默认值是禁用。</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11467"/>
-        <source>Gymstick GX6.0</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11482"/>
@@ -5606,9 +5554,8 @@ Default: A = -0.96, B = 1.33</source>
         <translation>Elite Rizer 选项</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13279"/>
         <source>Elite Rizer:</source>
-        <translation>精英提升:</translation>
+        <translation type="vanished">精英提升:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="13315"/>
@@ -5619,11 +5566,6 @@ Default: A = -0.96, B = 1.33</source>
         <location filename="../settings.qml" line="13339"/>
         <source>Elite Sterzo Smart Options</source>
         <translation>Elite Sterzo 智能选项</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="13347"/>
-        <source>Elite Sterzo Smart:</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="13386"/>
@@ -5764,9 +5706,8 @@ Default: A = -0.96, B = 1.33</source>
         <translation>CYCPLUS 选项</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="14087"/>
         <source>CYCPLUS BC2 Controller</source>
-        <translation>CYCPLUS BC2 控制器</translation>
+        <translation type="vanished">CYCPLUS BC2 控制器</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14101"/>
@@ -6986,11 +6927,6 @@ Default: A = -0.96, B = 1.33</source>
         <location filename="../settings-tiles.qml" line="1007"/>
         <source>AVG Watt Lap</source>
         <translation>平均瓦数圈</translation>
-    </message>
-    <message>
-        <location filename="../settings-tiles.qml" line="1039"/>
-        <source>FTP %</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="1070"/>
