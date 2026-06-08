@@ -8,6 +8,7 @@ import Qt.labs.platform 1.1
 
 //Page {
     ScrollView {
+        objectName: "settingsPage"
         contentWidth: -1
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
@@ -118,6 +119,9 @@ import Qt.labs.platform 1.1
                 items.push(pages[k])
             }
 
+            for (var t = 0; t < items.length; t++)
+                items[t]._translatedName = computeTranslatedName(items[t])
+
             searchableSettings = items
             if (settingsSearchActive && settingsSearchPending && settingsSearchDebounceTimer.running)
                 return
@@ -129,10 +133,32 @@ import Qt.labs.platform 1.1
             return entry && entry.key && entry.key.indexOf("tile_") === 0 && entry.key.lastIndexOf("_order") === entry.key.length - 6
         }
 
+        // Try to find a translation for a catalog entry name by probing common QML contexts.
+        // Returns the translated string if found, or the original name as fallback.
+        function computeTranslatedName(entry) {
+            var name = entry.name || entry.key
+            if (!name) return name
+            var contexts = [
+                "settings", "settings-tiles", "settings-tts",
+                "settings-shortcuts", "settings-treadmill-inclination-override",
+                "homeform"
+            ]
+            for (var i = 0; i < contexts.length; i++) {
+                // Try with trailing colon (common label pattern "Foo:")
+                var withColon = qsTranslate(contexts[i], name + ":")
+                if (withColon !== name + ":") return withColon.replace(/:$/, "").trim()
+                // Try without colon
+                var plain = qsTranslate(contexts[i], name)
+                if (plain !== name) return plain
+            }
+            return name
+        }
+
         function searchableText(entry) {
             var parts = [
                 entry.key,
                 entry.name,
+                entry._translatedName,
                 entry.description,
                 entry.parent,
                 parentDisplayName(entry),
@@ -175,7 +201,8 @@ import Qt.labs.platform 1.1
         function parentDisplayName(entry) {
             if (!entry.parent)
                 return qsTr("General")
-            return catalogEntryNameByKey(entry.parent)
+            var name = catalogEntryNameByKey(entry.parent)
+            return computeTranslatedName({name: name, key: entry.parent}) || name
         }
 
         function updateFilteredSettings() {
@@ -1658,6 +1685,8 @@ import Qt.labs.platform 1.1
             property string shortcut_lap: ""
             property string shortcut_start_stop: ""
             property bool horizon_treadmill_omega_z: false
+
+            property string app_language: "auto"
         }
 
 
@@ -1685,9 +1714,43 @@ import Qt.labs.platform 1.1
         }
 
         Component.onCompleted: {
-            window.settings_restart_to_apply = false
+            window.settings_restart_to_apply = false;
         }
 
+        property var appLanguageOptions: [
+            { label: qsTr("Auto (System)"), value: "auto" },
+            { label: qsTr("English"), value: "en" },
+            { label: qsTr("Italian"), value: "it" },
+            { label: qsTr("German"), value: "de" },
+            { label: qsTr("French"), value: "fr" },
+            { label: qsTr("Spanish"), value: "es" },
+            { label: qsTr("Portuguese"), value: "pt" },
+            { label: qsTr("Portuguese (Brazil)"), value: "pt_BR" },
+            { label: qsTr("Russian"), value: "ru" },
+            { label: qsTr("Chinese (Simplified)"), value: "zh_CN" },
+            { label: qsTr("Chinese (Traditional)"), value: "zh_TW" },
+            { label: qsTr("Japanese"), value: "ja" },
+            { label: qsTr("Korean"), value: "ko" },
+            { label: qsTr("Arabic"), value: "ar" },
+            { label: qsTr("Hindi"), value: "hi" },
+            { label: qsTr("Turkish"), value: "tr" },
+            { label: qsTr("Vietnamese"), value: "vi" },
+            { label: qsTr("Polish"), value: "pl" },
+            { label: qsTr("Ukrainian"), value: "uk" },
+            { label: qsTr("Dutch"), value: "nl" },
+            { label: qsTr("Thai"), value: "th" },
+            { label: qsTr("Indonesian"), value: "id" },
+            { label: qsTr("Romanian"), value: "ro" },
+            { label: qsTr("Czech"), value: "cs" },
+            { label: qsTr("Greek"), value: "el" },
+            { label: qsTr("Swedish"), value: "sv" },
+            { label: qsTr("Hungarian"), value: "hu" },
+            { label: qsTr("Finnish"), value: "fi" },
+            { label: qsTr("Norwegian"), value: "no" },
+            { label: qsTr("Danish"), value: "da" },
+            { label: qsTr("Hebrew"), value: "he" },
+            { label: qsTr("Catalan"), value: "ca" }
+        ]
         Timer {
             id: settingsSearchDebounceTimer
             interval: 1500
@@ -1799,7 +1862,7 @@ import Qt.labs.platform 1.1
                                     spacing: 2
 
                                     Label {
-                                        text: entry.name || entry.key
+                                        text: entry._translatedName || entry.name || entry.key
                                         font.bold: true
                                         wrapMode: Text.WordWrap
                                         Layout.fillWidth: true
@@ -1978,9 +2041,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okUiZoomButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ui_zoom = uiZoomTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.ui_zoom = uiZoomTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     Label {
@@ -1993,6 +2056,56 @@ import Qt.labs.platform 1.1
                         verticalAlignment: Text.AlignVCenter
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         width: column1.width * 0.8
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelAppLanguage
+                            text: qsTr("App Language:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: appLanguageCombo
+                            model: appLanguageOptions
+                            textRole: "label"
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: displayText = currentText
+                            Component.onCompleted: {
+                                var selected = settings.app_language
+                                var i
+                                for (i = 0; i < appLanguageOptions.length; i++) {
+                                    if (appLanguageOptions[i].value === selected) {
+                                        currentIndex = i
+                                        return
+                                    }
+                                }
+                                currentIndex = 0
+                            }
+                        }
+                        Button {
+                            id: okAppLanguageButton
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                settings.app_language = appLanguageOptions[appLanguageCombo.currentIndex].value
+                                window.settings_restart_to_apply = true
+                                toast.show(qsTr("Setting saved!"))
+                            }
+                        }
+                    }
+                    Label {
+                        text: qsTr("Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
@@ -2016,9 +2129,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okWeightButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?weightTextField.text / 2.20462:weightTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?weightTextField.text / 2.20462:weightTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     Label {
@@ -2062,7 +2175,7 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okHeightButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 if (settings.miles_unit) {
@@ -2070,13 +2183,13 @@ import Qt.labs.platform 1.1
                                     if (parts) {
                                         settings.height = parseInt(parts[1]) * 30.48 + parseInt(parts[2]) * 2.54;
                                     } else {
-                                        toast.show("Invalid format! Use feet'inches (e.g., 6'2\")");
+                                        toast.show(qsTr("Invalid format! Use feet'inches (e.g., 6'2\")"));
                                         return;
                                     }
                                 } else {
                                     settings.height = parseFloat(heightTextField.text);
                                 }
-                                toast.show("Setting saved!");
+                                toast.show(qsTr("Setting saved!"));
                             }
                         }
                     }
@@ -2112,9 +2225,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okAgeButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.age = ageTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.age = ageTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2152,9 +2265,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okSex
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.sex = sexTextField.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.sex = sexTextField.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2191,9 +2304,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okFTPButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftp = ftpTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.ftp = ftpTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2227,9 +2340,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftp_run = ftpRunTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.ftp_run = ftpRunTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2264,9 +2377,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okNicknameButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.user_nickname = nicknameTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.user_nickname = nicknameTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2301,9 +2414,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okEmailButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.user_email = emailTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.user_email = emailTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2617,9 +2730,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okHeartBeltNameButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2638,7 +2751,7 @@ import Qt.labs.platform 1.1
 
                     Button {
                         id: refreshHeartBeltNameButton
-                        text: "Refresh Devices List"
+                        text: qsTr("Refresh Devices List")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
@@ -2670,9 +2783,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okHeartRateZone1Button
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.heart_rate_zone1 = heartRateZone1TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.heart_rate_zone1 = heartRateZone1TextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -2695,9 +2808,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okHeartRateZone2Button
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.heart_rate_zone2 = heartRateZone2TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.heart_rate_zone2 = heartRateZone2TextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -2720,9 +2833,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okHeartRateZone3Button
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.heart_rate_zone3 = heartRateZone3TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.heart_rate_zone3 = heartRateZone3TextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -2745,9 +2858,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okHeartRateZone4Button
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.heart_rate_zone4 = heartRateZone4TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.heart_rate_zone4 = heartRateZone4TextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -2819,9 +2932,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okHeartRateMaxOverrideValue
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.heart_max_override_value = heartRateMaxOverrideValueTextField.text; toast.show("Setting saved!"); }
+                                            onClicked: { settings.heart_max_override_value = heartRateMaxOverrideValueTextField.text; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -2857,9 +2970,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okHeartRateRestingValue
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.heart_rate_resting = heartRateRestingValueTextField.text; toast.show("Setting saved!"); }
+                                            onClicked: { settings.heart_rate_resting = heartRateRestingValueTextField.text; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -2905,9 +3018,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okPowerFromHeartPWR1
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.power_hr_pwr1 = powerFromHeartPWR1TextField.text; toast.show("Setting saved!"); }
+                                            onClicked: { settings.power_hr_pwr1 = powerFromHeartPWR1TextField.text; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -2930,9 +3043,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okPowerFromHeartHR1
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.power_hr_hr1 = powerFromHeartHR1TextField.text; toast.show("Setting saved!"); }
+                                            onClicked: { settings.power_hr_hr1 = powerFromHeartHR1TextField.text; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -2955,9 +3068,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okPowerFromHeartPWR2
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.power_hr_pwr2 = powerFromHeartPWR2TextField.text; toast.show("Setting saved!"); }
+                                            onClicked: { settings.power_hr_pwr2 = powerFromHeartPWR2TextField.text; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -2980,9 +3093,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okPowerFromHeartHR2
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.power_hr_hr2 = powerFromHeartHR2TextField.text; toast.show("Setting saved!"); }
+                                            onClicked: { settings.power_hr_hr2 = powerFromHeartHR2TextField.text; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                 }
@@ -3112,12 +3225,12 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             enabled: gearsRestoreValueDelegate.checked
                             onClicked: {
                                 settings.gears_current_value_f = specificGearValueField.text
-                                toast.show("Setting saved!")
+                                toast.show(qsTr("Setting saved!"))
                             }
                         }
                     }
@@ -3153,9 +3266,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okRollingResistanceButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.rolling_resistance = rollingreistanceTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.rolling_resistance = rollingreistanceTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     Label {
@@ -3185,9 +3298,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okBikeWeightButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.bike_weight = ((settings.miles_unit && !settings.weight_kg_unit)?bikeweightTextField.text / 2.20462:bikeweightTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.bike_weight = ((settings.miles_unit && !settings.weight_kg_unit)?bikeweightTextField.text / 2.20462:bikeweightTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3223,9 +3336,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okCRRGainButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.crrGain = crrGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.crrGain = crrGainTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     RowLayout {
@@ -3247,9 +3360,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okCWGainButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.cwGain = cwGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.cwGain = cwGainTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     IndicatorOnlySwitch {
@@ -3299,9 +3412,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okBikeResistanceOffsetButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.bike_resistance_offset = bikeResistanceOffsetTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.bike_resistance_offset = bikeResistanceOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3337,9 +3450,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okBikePowerOffsetButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.bike_power_offset = bikePowerOffsetTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.bike_power_offset = bikePowerOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3375,9 +3488,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okBikeResistanceGainButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.bike_resistance_gain_f = bikeResistanceGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.bike_resistance_gain_f = bikeResistanceGainTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3413,9 +3526,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okzwiftErgFilterButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_erg_filter = zwiftErgFilterTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.zwift_erg_filter = zwiftErgFilterTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3451,9 +3564,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okzwiftErgDownFilterButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_erg_filter_down = zwiftErgDownFilterTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.zwift_erg_filter_down = zwiftErgDownFilterTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3489,9 +3602,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okzwiftErgResistanceDownButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_erg_resistance_down = zwiftErgResistanceDownTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.zwift_erg_resistance_down = zwiftErgResistanceDownTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3527,9 +3640,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okzwiftErgResistanceUpButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_erg_resistance_up = zwiftErgResistanceUpTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.zwift_erg_resistance_up = zwiftErgResistanceUpTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3565,9 +3678,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okBikeResistanceStartButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.bike_resistance_start = bikeResistanceStartTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.bike_resistance_start = bikeResistanceStartTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3601,9 +3714,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.gears_gain = gearsGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.gears_gain = gearsGainTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3645,9 +3758,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.gears_offset = gearsOffsetTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.gears_offset = gearsOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3749,9 +3862,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_gear_up_cadence = automaticVirtualShiftingGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.automatic_virtual_shifting_gear_up_cadence = automaticVirtualShiftingGearUpCadenceTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3773,9 +3886,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_gear_up_time = automaticVirtualShiftingGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.automatic_virtual_shifting_gear_up_time = automaticVirtualShiftingGearUpTimeTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3797,9 +3910,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_gear_down_cadence = automaticVirtualShiftingGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.automatic_virtual_shifting_gear_down_cadence = automaticVirtualShiftingGearDownCadenceTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3821,9 +3934,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_gear_down_time = automaticVirtualShiftingGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.automatic_virtual_shifting_gear_down_time = automaticVirtualShiftingGearDownTimeTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3855,9 +3968,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_cadence = automaticVirtualShiftingClimbGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_cadence = automaticVirtualShiftingClimbGearUpCadenceTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3879,9 +3992,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_time = automaticVirtualShiftingClimbGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_up_time = automaticVirtualShiftingClimbGearUpTimeTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3903,9 +4016,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_cadence = automaticVirtualShiftingClimbGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_cadence = automaticVirtualShiftingClimbGearDownCadenceTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3927,9 +4040,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_time = automaticVirtualShiftingClimbGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.automatic_virtual_shifting_climb_gear_down_time = automaticVirtualShiftingClimbGearDownTimeTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3961,9 +4074,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_cadence = automaticVirtualShiftingSprintGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_cadence = automaticVirtualShiftingSprintGearUpCadenceTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -3985,9 +4098,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_time = automaticVirtualShiftingSprintGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_time = automaticVirtualShiftingSprintGearUpTimeTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -4009,9 +4122,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_cadence = automaticVirtualShiftingSprintGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_cadence = automaticVirtualShiftingSprintGearDownCadenceTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -4033,9 +4146,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_time = automaticVirtualShiftingSprintGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_time = automaticVirtualShiftingSprintGearDownTimeTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -4061,9 +4174,9 @@ import Qt.labs.platform 1.1
 
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_bike = stripRssi(ftmsBikeTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.ftms_bike = stripRssi(ftmsBikeTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -4169,9 +4282,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okschwinnResistanceSmoothButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.schwinn_resistance_smooth = scwhinnResistanceSmoothTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.schwinn_resistance_smooth = scwhinnResistanceSmoothTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             Label {
@@ -4213,9 +4326,9 @@ import Qt.labs.platform 1.1
                             }
                             Button {
                                 id: okhorizonGr7CadenceMultiplierButton
-                                text: "OK"
+                                text: qsTr("OK")
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: { settings.horizon_gr7_cadence_multiplier = horizonGr7CadenceMultiplierTextField.text; toast.show("Setting saved!"); }
+                                onClicked: { settings.horizon_gr7_cadence_multiplier = horizonGr7CadenceMultiplierTextField.text; toast.show(qsTr("Setting saved!")); }
                             }
                         }
                     }
@@ -4252,9 +4365,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okEchelonWattTable
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.echelon_watttable = echelonWattTableTextField.displayText; toast.show("Setting saved!"); }
+                                    onClicked: { settings.echelon_watttable = echelonWattTableTextField.displayText; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -4276,9 +4389,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okechelonResistanceGainButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.echelon_resistance_gain = echelonResistanceGainTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.echelon_resistance_gain = echelonResistanceGainTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -4300,9 +4413,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okechelonResistanceOffsetButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.echelon_resistance_offset = echelonResistanceOffsetTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.echelon_resistance_offset = echelonResistanceOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -4658,9 +4771,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okflywheelBikeFilterButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.flywheel_filter = flywheelBikeFilterTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.flywheel_filter = flywheelBikeFilterTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -4720,9 +4833,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okDomyosBikeCadenceFilter
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -4852,9 +4965,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okproformBikeWheelRatioButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -5030,9 +5143,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.proformtdf1ip = proformTDF1IPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.proformtdf1ip = proformTDF1IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -5055,9 +5168,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okproformTDF4IPButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.proformtdf4ip = proformTDF4IPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.proformtdf4ip = proformTDF4IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -5079,9 +5192,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okproformTDFCompanionIPButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.tdf_10_ip = proformTDFCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.tdf_10_ip = proformTDFCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -5139,9 +5252,9 @@ import Qt.labs.platform 1.1
                             }
                             Button {
                                 id: okcomputrainerSerialPortButton
-                                text: "OK"
+                                text: qsTr("OK")
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: { settings.computrainer_serialport = computrainerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                onClicked: { settings.computrainer_serialport = computrainerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                             }
                         }
                     }
@@ -5173,9 +5286,9 @@ import Qt.labs.platform 1.1
                             }
                             Button {
                                 id: okKettlerUsbSerialPortButton
-                                text: "OK"
+                                text: qsTr("OK")
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: { settings.kettler_usb_serialport = kettlerUsbSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                onClicked: { settings.kettler_usb_serialport = kettlerUsbSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                             }
                         }
                         RowLayout {
@@ -5198,12 +5311,12 @@ import Qt.labs.platform 1.1
                             }
                             Button {
                                 id: okKettlerUsbBaudrateButton
-                                text: "OK"
+                                text: qsTr("OK")
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: {
                                     settings.kettler_usb_baudrate = parseInt(kettlerUsbBaudrateComboBox.displayText);
                                     window.settings_restart_to_apply = true;
-                                    toast.show("Setting saved!");
+                                    toast.show(qsTr("Setting saved!"));
                                 }
                             }
                         }
@@ -5256,9 +5369,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okm3iBikeIdButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.m3i_bike_id = m3iBikeIdTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.m3i_bike_id = m3iBikeIdTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -5281,9 +5394,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okm3iBikeSpeedBuffsizeButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -5389,9 +5502,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okAntBikeDeviceNumberButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ant_bike_device_number = antBikeDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.ant_bike_device_number = antBikeDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -5507,9 +5620,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ant_speed_offset = antspeedOffsetTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.ant_speed_offset = antspeedOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5544,9 +5657,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ant_speed_gain = antspeedGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.ant_speed_gain = antspeedGainTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5596,9 +5709,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okAntHeartDeviceNumberButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ant_heart_device_number = antHeartDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.ant_heart_device_number = antHeartDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5713,9 +5826,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okFloatingWindowTypeButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.floatingwindow_type = floatingWindowTypeComboBox.currentIndex; toast.show("Setting saved!"); }
+                            onClicked: { settings.floatingwindow_type = floatingWindowTypeComboBox.currentIndex; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5763,9 +5876,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okFloatingWidthButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.floating_width = floatingWidthField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.floating_width = floatingWidthField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5800,9 +5913,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okFloatingHeightButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.floating_height = floatingHeightField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.floating_height = floatingHeightField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5837,9 +5950,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okFloatingTransparencyButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.floating_transparency = floatingTransparencyField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.floating_transparency = floatingTransparencyField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5885,7 +5998,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Button {
-                        text: "Open Floating on a Browser"
+                        text: qsTr("Open Floating on a Browser")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: openFloatingWindowBrowser();
                     }
@@ -5909,9 +6022,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okChartDisplayModeButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.chart_display_mode = chartDisplayModeComboBox.currentIndex; toast.show("Setting saved!"); }
+                            onClicked: { settings.chart_display_mode = chartDisplayModeComboBox.currentIndex; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6024,13 +6137,13 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okBackgroundColor
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.theme_background_color = backgroundColorTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.theme_background_color = backgroundColorTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                                 ColorDialog {
                                     id: backgroundColorDialog
-                                    title: "Please choose a color"
+                                    title: qsTr("Please choose a color")
                                     onAccepted: {
                                         backgroundColorTextField.text = this.color
                                         visible = false;
@@ -6058,13 +6171,13 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: oktileBackgroundColor
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.theme_tile_background_color = tilebackgroundColorTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.theme_tile_background_color = tilebackgroundColorTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                                 ColorDialog {
                                     id: tilebackgroundColorDialog
-                                    title: "Please choose a color"
+                                    title: qsTr("Please choose a color")
                                     onAccepted: {
                                         tilebackgroundColorTextField.text = this.color
                                         visible = false;
@@ -6105,13 +6218,13 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: oktileShadowColor
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.theme_tile_shadow_color = tileShadowColorTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.theme_tile_shadow_color = tileShadowColorTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                                 ColorDialog {
                                     id: tileShadowColorDialog
-                                    title: "Please choose a color"
+                                    title: qsTr("Please choose a color")
                                     onAccepted: {
                                         tileShadowColorTextField.text = this.color
                                         visible = false;
@@ -6138,13 +6251,13 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okStatusbarBackgroundColor
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.theme_status_bar_background_color = statusbarbackgroundColorTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.theme_status_bar_background_color = statusbarbackgroundColorTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                                 ColorDialog {
                                     id: statusbarbackgroundColorDialog
-                                    title: "Please choose a color"
+                                    title: qsTr("Please choose a color")
                                     onAccepted: {
                                         statusbarbackgroundColorTextField.text = this.color
                                         visible = false;
@@ -6169,9 +6282,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.theme_tile_secondline_textsize = secondLineTextSizeField.text; window.settings_restart_to_apply = true;  toast.show("Setting saved!"); }
+                                    onClicked: { settings.theme_tile_secondline_textsize = secondLineTextSizeField.text; window.settings_restart_to_apply = true;  toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -6206,9 +6319,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okPelotonUsernameButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_username = pelotonUsernameTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_username = pelotonUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6246,9 +6359,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okPelotonPasswordButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_password = pelotonPasswordTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_password = pelotonPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6303,9 +6416,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okPelotonDifficultyButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_difficulty = pelotonDifficultyTextField.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_difficulty = pelotonDifficultyTextField.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6341,9 +6454,9 @@ import Qt.labs.platform 1.1
 
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_treadmill_level = parseInt(pelotonTreadmillLevelTextField.displayText); toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_treadmill_level = parseInt(pelotonTreadmillLevelTextField.displayText); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6379,9 +6492,9 @@ import Qt.labs.platform 1.1
 
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_treadmill_walk_level = parseInt(pelotonTreadmillWalkLevelTextField.displayText); toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_treadmill_walk_level = parseInt(pelotonTreadmillWalkLevelTextField.displayText); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6413,9 +6526,9 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_treadmill_walking_min_speed = (settings.miles_unit ? pelotonTreadmillWalkingMinSpeedTextField.text / 0.621371 : pelotonTreadmillWalkingMinSpeedTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_treadmill_walking_min_speed = (settings.miles_unit ? pelotonTreadmillWalkingMinSpeedTextField.text / 0.621371 : pelotonTreadmillWalkingMinSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6447,9 +6560,9 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_treadmill_running_min_speed = (settings.miles_unit ? pelotonTreadmillRunningMinSpeedTextField.text / 0.621371 : pelotonTreadmillRunningMinSpeedTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_treadmill_running_min_speed = (settings.miles_unit ? pelotonTreadmillRunningMinSpeedTextField.text / 0.621371 : pelotonTreadmillRunningMinSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6485,9 +6598,9 @@ import Qt.labs.platform 1.1
 
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_rower_level = parseInt(pelotonRowerLevelTextField.displayText); toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_rower_level = parseInt(pelotonRowerLevelTextField.displayText); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6522,9 +6635,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okPZPUsernameButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pzp_username = pzpUsernameTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.pzp_username = pzpUsernameTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6561,9 +6674,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okPZPPasswordButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pzp_password = pzpPasswordTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.pzp_password = pzpPasswordTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6599,9 +6712,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okPelotonGainButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_gain = pelotonGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_gain = pelotonGainTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6637,9 +6750,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okPelotonOffsetButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_offset = pelotonOffsetTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_offset = pelotonOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6760,7 +6873,7 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okPelotonCadenceMetric
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.peloton_cadence_metric = pelotonCadenceMetricTextField.displayText;
                         }
@@ -6787,9 +6900,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okPelotonHeartRateMetric
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_heartrate_metric = pelotonHeartRateMetricTextField.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_heartrate_metric = pelotonHeartRateMetricTextField.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6827,9 +6940,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okPelotonDateOnStrava
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_date = pelotonDateOnStravaTextField.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_date = pelotonDateOnStravaTextField.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6865,9 +6978,9 @@ import Qt.labs.platform 1.1
 
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_date_format = pelotonDateFormatTextField.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.peloton_date_format = pelotonDateFormatTextField.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -7036,9 +7149,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okZwiftUsernameButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_username = zwiftUsernameTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.zwift_username = zwiftUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -7076,9 +7189,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okZwiftPasswordButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_password = zwiftPasswordTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.zwift_password = zwiftPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -7098,8 +7211,8 @@ import Qt.labs.platform 1.1
 
                     MessageDialog {
                         id: zwiftPlaySettingsDialog
-                        text: "Zwift Play & Click Settings"
-                        informativeText: "Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts."
+                        text: qsTr("Zwift Play & Click Settings")
+                        informativeText: qsTr("Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts.")
                         buttons: (MessageDialog.Yes | MessageDialog.No)
                         onYesClicked: {
                             settings.zwift_play = false;
@@ -7217,9 +7330,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -7512,12 +7625,12 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 rootItem.garmin_connect_logout();
                                 settings.garmin_email = garminEmailTextField.text;
-                                toast.show("Setting saved!");
+                                toast.show(qsTr("Setting saved!"));
                             }
                         }
                     }
@@ -7539,12 +7652,12 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 rootItem.garmin_connect_logout();
                                 settings.garmin_password = garminPasswordTextField.text;
-                                toast.show("Setting saved!");
+                                toast.show(qsTr("Setting saved!"));
                             }
                         }
                     }
@@ -7573,7 +7686,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Button {
-                        text: "Test Garmin Login"
+                        text: qsTr("Test Garmin Login")
                         Layout.alignment: Qt.AlignHCenter
                         onClicked: { rootItem.garmin_connect_login(); }
                     }
@@ -7594,7 +7707,7 @@ import Qt.labs.platform 1.1
                             spacing: 20
 
                             Label {
-                                text: "Garmin MFA Required"
+                                text: qsTr("Garmin MFA Required")
                                 font.pixelSize: 18
                                 font.bold: true
                                 Layout.fillWidth: true
@@ -7602,14 +7715,14 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: "Garmin has sent a verification code to your email.\nPlease enter it below:"
+                                text: qsTr("Garmin has sent a verification code to your email.\nPlease enter it below:")
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 horizontalAlignment: Text.AlignHCenter
                             }
 
                             Label {
-                                text: "If you don't receive the code, please enable 2FA in your Garmin profile privacy settings."
+                                text: qsTr("If you don't receive the code, please enable 2FA in your Garmin profile privacy settings.")
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 horizontalAlignment: Text.AlignHCenter
@@ -7620,7 +7733,7 @@ import Qt.labs.platform 1.1
 
                             TextField {
                                 id: mfaCodeTextField
-                                placeholderText: "Enter MFA code"
+                                placeholderText: qsTr("Enter MFA code")
                                 horizontalAlignment: Text.AlignHCenter
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 40
@@ -7639,7 +7752,7 @@ import Qt.labs.platform 1.1
                                 spacing: 10
 
                                 Button {
-                                    text: "Cancel"
+                                    text: qsTr("Cancel")
                                     Layout.fillWidth: true
                                     onClicked: {
                                         mfaCodeTextField.text = "";
@@ -7648,7 +7761,7 @@ import Qt.labs.platform 1.1
                                 }
 
                                 Button {
-                                    text: "Submit"
+                                    text: qsTr("Submit")
                                     Layout.fillWidth: true
                                     highlighted: true
                                     enabled: mfaCodeTextField.text.length > 0
@@ -8258,9 +8371,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTreadmillPidHR
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_pid_heart_zone = treadmillPidHRTextField.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.treadmill_pid_heart_zone = treadmillPidHRTextField.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8293,9 +8406,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_pid_heart_min = treadmillPidHRminTextField.text ; toast.show("Setting saved!"); }
+                            onClicked: { settings.treadmill_pid_heart_min = treadmillPidHRminTextField.text ; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8315,9 +8428,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_pid_heart_max = treadmillPidHRmaxTextField.text ; toast.show("Setting saved!"); }
+                            onClicked: { settings.treadmill_pid_heart_max = treadmillPidHRmaxTextField.text ; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8406,9 +8519,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramPace1Mile
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pacef_1mile = (((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]))) / 1.60934; toast.show("Setting saved!"); }
+                            onClicked: { settings.pacef_1mile = (((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]))) / 1.60934; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8443,9 +8556,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramPace5km
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pacef_5km = (((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]))) / 5; toast.show("Setting saved!"); }
+                            onClicked: { settings.pacef_5km = (((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]))) / 5; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8480,9 +8593,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramPace10KM
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pacef_10km = (((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]))) / 10; toast.show("Setting saved!"); }
+                            onClicked: { settings.pacef_10km = (((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]))) / 10; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8517,9 +8630,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramPaceHalfMarathon
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pacef_halfmarathon = (((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]))) / 21; toast.show("Setting saved!"); }
+                            onClicked: { settings.pacef_halfmarathon = (((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]))) / 21; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8554,9 +8667,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramPaceMarathon
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pacef_marathon = (((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]))) / 42; toast.show("Setting saved!"); }
+                            onClicked: { settings.pacef_marathon = (((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]))) / 42; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8594,9 +8707,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTreadmillPaceDefault
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pace_default = treadmillPaceDefaultTextField.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.pace_default = treadmillPaceDefaultTextField.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8631,9 +8744,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okPidHeartZoneErgModeWattStep
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pid_heart_zone_erg_mode_watt_step = parseInt(pidHeartZoneErgModeWattStepTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.pid_heart_zone_erg_mode_watt_step = parseInt(pidHeartZoneErgModeWattStepTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8680,9 +8793,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramRandomDuration
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_total = trainProgramRandomDurationTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_total = trainProgramRandomDurationTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8705,9 +8818,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramRandomPeriod
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8730,9 +8843,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramRandomSpeedMin
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8755,9 +8868,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramRandomSpeedMax
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8780,9 +8893,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramRandomInclineMin
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8805,9 +8918,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramRandomInclineMax
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8830,9 +8943,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramRandomResistanceMin
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8855,9 +8968,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTrainProgramRandomResistanceMax
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9042,9 +9155,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTreadmillSpeedStepButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.text * 1.60934:treadmillSpeedStepTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.text * 1.60934:treadmillSpeedStepTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9079,9 +9192,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_incline_min = treadmillInclinationMinTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.treadmill_incline_min = treadmillInclinationMinTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9115,9 +9228,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_incline_max = treadmillInclinationMaxTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.treadmill_incline_max = treadmillInclinationMaxTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9151,9 +9264,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.text * 1.60934:treadmillSpeedMaxTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.text * 1.60934:treadmillSpeedMaxTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9187,9 +9300,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_speed_min = (settings.miles_unit?treadmillSpeedMinTextField.text * 1.60934:treadmillSpeedMinTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.treadmill_speed_min = (settings.miles_unit?treadmillSpeedMinTextField.text * 1.60934:treadmillSpeedMinTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9225,9 +9338,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okStepGainButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.step_gain = stepGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.step_gain = stepGainTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9312,9 +9425,9 @@ import Qt.labs.platform 1.1
 
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_treadmill = stripRssi(ftmsTreadmillTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.ftms_treadmill = stripRssi(ftmsTreadmillTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9666,9 +9779,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okproformtreadmillIPButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.proformtreadmillip = proformtreadmillIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.proformtreadmillip = proformtreadmillIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -9690,9 +9803,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: oknordictrack2950IPButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.nordictrack_2950_ip = nordictrack2950IPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.nordictrack_2950_ip = nordictrack2950IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -10084,9 +10197,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_5kmh = domyosTreadmillButton5KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_5kmh = domyosTreadmillButton5KmhTimeTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
                                 }
                             }
 
@@ -10107,9 +10220,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_10kmh = domyosTreadmillButton10KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_10kmh = domyosTreadmillButton10KmhTimeTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
                                 }
                             }
 
@@ -10130,9 +10243,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_16kmh = domyosTreadmillButton16KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_16kmh = domyosTreadmillButton16KmhTimeTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
                                 }
                             }
 
@@ -10153,9 +10266,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.domyos_treadmill_button_22kmh = domyosTreadmillButton22KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.domyos_treadmill_button_22kmh = domyosTreadmillButton22KmhTimeTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
                                 }
                             }
 
@@ -10176,9 +10289,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.poll_device_time = pollDeviceTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.poll_device_time = pollDeviceTimeTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
                                 }
                             }
                             Label {
@@ -10396,9 +10509,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okfitshowTreadmillUserIdButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -10568,9 +10681,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile1Button
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.horizon_treadmill_profile_user1 = horizonTreadmillProfile1TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.horizon_treadmill_profile_user1 = horizonTreadmillProfile1TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -10591,9 +10704,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile2Button
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.horizon_treadmill_profile_user2 = horizonTreadmillProfile2TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.horizon_treadmill_profile_user2 = horizonTreadmillProfile2TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -10614,9 +10727,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile3Button
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.horizon_treadmill_profile_user3 = horizonTreadmillProfile3TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.horizon_treadmill_profile_user3 = horizonTreadmillProfile3TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -10637,9 +10750,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile4Button
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.horizon_treadmill_profile_user4 = horizonTreadmillProfile4TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.horizon_treadmill_profile_user4 = horizonTreadmillProfile4TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -10660,9 +10773,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile5Button
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.horizon_treadmill_profile_user5 = horizonTreadmillProfile5TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.horizon_treadmill_profile_user5 = horizonTreadmillProfile5TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -11103,9 +11216,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.csafe_rower = csaferowerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.csafe_rower = csaferowerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -11131,14 +11244,14 @@ import Qt.labs.platform 1.1
 
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_rower = stripRssi(ftmsRowerTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.ftms_rower = stripRssi(ftmsRowerTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
                     Button {
-                        text: "Refresh Devices List"
+                        text: qsTr("Refresh Devices List")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
@@ -11210,9 +11323,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.proform_rower_ip = proformRowerIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.proform_rower_ip = proformRowerIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -11254,9 +11367,9 @@ import Qt.labs.platform 1.1
                             }
                             Button {
                                 id: okDomyosEllipticalRatioButton
-                                text: "OK"
+                                text: qsTr("OK")
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text; toast.show("Setting saved!"); }
+                                onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text; toast.show(qsTr("Setting saved!")); }
                             }
                         }
                         IndicatorOnlySwitch {
@@ -11297,9 +11410,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.csafe_elliptical_port = csafeellipticalSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.csafe_elliptical_port = csafeellipticalSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -11325,14 +11438,14 @@ import Qt.labs.platform 1.1
 
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_elliptical = stripRssi(ftmsEllipticalTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.ftms_elliptical = stripRssi(ftmsEllipticalTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
                     Button {
-                        text: "Refresh Devices List"
+                        text: qsTr("Refresh Devices List")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
@@ -11442,9 +11555,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.proform_elliptical_ip = proformEllipticalCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.proform_elliptical_ip = proformEllipticalCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -11558,15 +11671,15 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okFilterDeviceButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.filter_device = stripRssi(filterDeviceTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            onClicked: { settings.filter_device = stripRssi(filterDeviceTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
                     Button {
                         id: refreshFilterDeviceButton
-                        text: "Refresh Devices List"
+                        text: qsTr("Refresh Devices List")
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
@@ -11630,9 +11743,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okwattOffsetButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_offset = wattOffsetTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show("Setting saved!"); }
+                            onClicked: { settings.watt_offset = wattOffsetTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -11668,9 +11781,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okWattGainButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_gain = wattGainTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show("Setting saved!"); }
+                            onClicked: { settings.watt_gain = wattGainTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -11706,9 +11819,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okspeedOffsetButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.speed_offset = speedOffsetTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.speed_offset = speedOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -11745,9 +11858,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okSpeedGainButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.speed_gain = speedGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.speed_gain = speedGainTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -11783,9 +11896,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okcadenceOffsetButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.cadence_offset = cadenceOffsetTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.cadence_offset = cadenceOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -11821,9 +11934,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okCadenceGainButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.cadence_gain = cadenceGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.cadence_gain = cadenceGainTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -11867,9 +11980,9 @@ import Qt.labs.platform 1.1
 
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.strava_upload_mode = stravaUploadMode.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.strava_upload_mode = stravaUploadMode.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -11891,9 +12004,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okStravaSuffixButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.strava_suffix = stravaSuffixTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.strava_suffix = stravaSuffixTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12194,9 +12307,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTreadmillInclinationOffsetButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_inclination_offset = treadmillInclinationOffsetTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.zwift_inclination_offset = treadmillInclinationOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12232,9 +12345,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okTreadmillInclinationGainButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_inclination_gain = treadmillInclinationGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.zwift_inclination_gain = treadmillInclinationGainTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12268,9 +12381,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.min_inclination = minInclinationTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.min_inclination = minInclinationTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12306,9 +12419,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okInclinationStepButton
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_step_incline = inclinationStepTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.treadmill_step_incline = inclinationStepTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12424,9 +12537,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.autolap_distance = (settings.miles_unit?autoLapOnDistanceTextField.text * 1.60934:autoLapOnDistanceTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.autolap_distance = (settings.miles_unit?autoLapOnDistanceTextField.text * 1.60934:autoLapOnDistanceTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12460,9 +12573,9 @@ import Qt.labs.platform 1.1
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.inclination_delay_seconds = treadmillInclinationDelayTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.inclination_delay_seconds = treadmillInclinationDelayTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12587,15 +12700,15 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okCadenceSensorNameButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cadence_sensor_name = stripRssi(cadenceSensorNameTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cadence_sensor_name = stripRssi(cadenceSensorNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
                             Button {
                                 id: refreshCadenceSensorNameButton
-                                text: "Refresh Devices List"
+                                text: qsTr("Refresh Devices List")
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: refresh_bluetooth_devices_clicked();
                             }
@@ -12632,9 +12745,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okCadenceSpeedRatio
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cadence_sensor_speed_ratio = cadenceSpeedRatioTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cadence_sensor_speed_ratio = cadenceSpeedRatioTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13117,15 +13230,15 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okPowerSensorNameButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_name = stripRssi(powerSensorNameTextField.displayText); settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_name = stripRssi(powerSensorNameTextField.displayText); settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
                             Button {
                                 id: refreshPowerSensorNameButton
-                                text: "Refresh Devices List"
+                                text: qsTr("Refresh Devices List")
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: refresh_bluetooth_devices_clicked();
                             }
@@ -13183,15 +13296,15 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okEliteRizerNameButton
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.elite_rizer_name = stripRssi(eliteRizerNameTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            onClicked: { settings.elite_rizer_name = stripRssi(eliteRizerNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
                                     Button {
                                         id: refreshEliteRizerNameButton
-                                        text: "Refresh Devices List"
+                                        text: qsTr("Refresh Devices List")
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                         onClicked: refresh_bluetooth_devices_clicked();
                                     }
@@ -13214,9 +13327,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okEliteRizerGainButton
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.elite_rizer_gain = eliteRizerGainTextField.text; toast.show("Setting saved!"); }
+                                            onClicked: { settings.elite_rizer_gain = eliteRizerGainTextField.text; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }                                    
                                 }                                
@@ -13251,15 +13364,15 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okEliteSterzoSmartNameButton
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.elite_sterzo_smart_name = stripRssi(eliteSterzoSmartNameTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            onClicked: { settings.elite_sterzo_smart_name = stripRssi(eliteSterzoSmartNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
                                     Button {
                                         id: refreshEliteSterzoSmartNameButton
-                                        text: "Refresh Devices List"
+                                        text: qsTr("Refresh Devices List")
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                         onClicked: refresh_bluetooth_devices_clicked();
                                     }
@@ -13298,15 +13411,15 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okFTMSAccessoryNameButton
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ftms_accessory_name = stripRssi(ftmsAccessoryNameTextField.displayText); window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.ftms_accessory_name = stripRssi(ftmsAccessoryNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
                             Button {
                                 id: refreshFTMSAccessoryNameButton
-                                text: "Refresh Devices List"
+                                text: qsTr("Refresh Devices List")
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: refresh_bluetooth_devices_clicked();
                             }                                                        
@@ -13345,9 +13458,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okSS2kShiftStep
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ss2k_shift_step = ss2kShiftStepTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.ss2k_shift_step = ss2kShiftStepTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -13369,9 +13482,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okSS2kMaxResistance
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ss2k_max_resistance = ss2kMaxResistanceTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.ss2k_max_resistance = ss2kMaxResistanceTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -13393,9 +13506,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okSS2kMinResistance
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ss2k_min_resistance = ss2kMinResistanceTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.ss2k_min_resistance = ss2kMinResistanceTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13426,9 +13539,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okSS2kResistanceSample1
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_resistance_sample_1 = ss2kResistanceSample1TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            onClicked: { settings.ss2k_resistance_sample_1 = ss2kResistanceSample1TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13449,9 +13562,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample1
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_shift_step_sample_1 = ss2kShiftStepSample1TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            onClicked: { settings.ss2k_shift_step_sample_1 = ss2kShiftStepSample1TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13473,9 +13586,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okSS2kResistanceSample2
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_resistance_sample_2 = ss2kResistanceSample2TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            onClicked: { settings.ss2k_resistance_sample_2 = ss2kResistanceSample2TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13496,9 +13609,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample2
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_shift_step_sample_2 = ss2kShiftStepSample2TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            onClicked: { settings.ss2k_shift_step_sample_2 = ss2kShiftStepSample2TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13520,9 +13633,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okSS2kResistanceSample3
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_resistance_sample_3 = ss2kResistanceSample3TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            onClicked: { settings.ss2k_resistance_sample_3 = ss2kResistanceSample3TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13543,9 +13656,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample3
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_shift_step_sample_3 = ss2kShiftStepSample3TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            onClicked: { settings.ss2k_shift_step_sample_3 = ss2kShiftStepSample3TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13567,9 +13680,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okSS2kResistanceSample4
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_resistance_sample_4 = ss2kResistanceSample4TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            onClicked: { settings.ss2k_resistance_sample_4 = ss2kResistanceSample4TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                     RowLayout {
@@ -13590,9 +13703,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample4
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.ss2k_shift_step_sample_4 = ss2kShiftStepSample4TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            onClicked: { settings.ss2k_shift_step_sample_4 = ss2kShiftStepSample4TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                 }
@@ -13645,9 +13758,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okFitmetriaFanFitModeTextField
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.displayText; toast.show("Setting saved!"); }
+                                    onClicked: { settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.displayText; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -13669,9 +13782,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okFitmetriaFanFitMin
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_min = fitmetriaFanFitMinTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.fitmetria_fanfit_min = fitmetriaFanFitMinTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -13693,9 +13806,9 @@ import Qt.labs.platform 1.1
                                 }
                                 Button {
                                     id: okFitmetriaFanFitMax
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_max = fitmetriaFanFitMaxTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.fitmetria_fanfit_max = fitmetriaFanFitMaxTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -13742,9 +13855,9 @@ import Qt.labs.platform 1.1
 
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_mode = headWindModeTextField.displayText; toast.show("Setting saved!"); }
+                                    onClicked: { settings.fitmetria_fanfit_mode = headWindModeTextField.displayText; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -13764,9 +13877,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_min = headWindMinTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.fitmetria_fanfit_min = headWindMinTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -13786,9 +13899,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_max = headWindMaxTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.fitmetria_fanfit_max = headWindMaxTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -13835,9 +13948,9 @@ import Qt.labs.platform 1.1
 
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_mode = eliteAriaModeTextField.displayText; toast.show("Setting saved!"); }
+                                    onClicked: { settings.fitmetria_fanfit_mode = eliteAriaModeTextField.displayText; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -13857,9 +13970,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_min = eliteAriaMinTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.fitmetria_fanfit_min = eliteAriaMinTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -13879,9 +13992,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_max = eliteAriaMaxTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.fitmetria_fanfit_max = eliteAriaMaxTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -14186,9 +14299,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.poll_device_time = zwiftDevPollTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    onClicked: { settings.poll_device_time = zwiftDevPollTimeTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true;}
                                 }
                             }
                             Label {
@@ -14249,9 +14362,9 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okMapsType
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.maps_type = mapsTypeTextField.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.maps_type = mapsTypeTextField.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     IndicatorOnlySwitch {
@@ -14302,7 +14415,7 @@ import Qt.labs.platform 1.1
                         }
                         Button {
                             id: okVideoWindow
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.video_playback_window_s = videoWindowTextField.text
                         }
@@ -14742,9 +14855,9 @@ import Qt.labs.platform 1.1
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.dircon_id = dirconIdTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true; }
+                                            onClicked: { settings.dircon_id = dirconIdTextField.text; toast.show(qsTr("Setting saved!")); window.settings_restart_to_apply = true; }
                                         }
                                     }
 
@@ -14779,9 +14892,9 @@ import Qt.labs.platform 1.1
                                         }
                                         Button {
                                             id: okDirconServerPort
-                                            text: "OK"
+                                            text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.dircon_server_base_port = dirconServerPortTextField.text; toast.show("Setting saved!"); }
+                                            onClicked: { settings.dircon_server_base_port = dirconServerPortTextField.text; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
                                 }
@@ -14814,9 +14927,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.mqtt_host = mqttHostTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.mqtt_host = mqttHostTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14850,9 +14963,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.mqtt_port = mqttPortTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.mqtt_port = mqttPortTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14886,9 +14999,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.mqtt_username = mqttUsernameTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.mqtt_username = mqttUsernameTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14923,9 +15036,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.mqtt_password = mqttPasswordTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.mqtt_password = mqttPasswordTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14959,9 +15072,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.mqtt_deviceid = mqttDeviceIdTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.mqtt_deviceid = mqttDeviceIdTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -15006,9 +15119,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.osc_ip = oscIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.osc_ip = oscIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -15030,9 +15143,9 @@ import Qt.labs.platform 1.1
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.osc_port = oscPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.osc_port = oscPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -15476,13 +15589,13 @@ import Qt.labs.platform 1.1
                         
                         Button {
                             id: clearLogs
-                            text: "Clear History"
+                            text: qsTr("Clear History")
                             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                             onClicked: rootItem.clearFiles();
                         }
                         
                         Button {
-                            text: "Show Logs Folder"
+                            text: qsTr("Show Logs Folder")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 toast.show(rootItem.getProfileDir())
