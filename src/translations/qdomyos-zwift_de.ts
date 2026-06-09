@@ -12,37 +12,37 @@
 <context>
     <name>Home</name>
     <message>
-        <location filename="../Home.qml" line="45"/>
+        <location filename="../Home.qml" line="44"/>
         <source>Peloton Workout in progress</source>
         <translation>Peloton Workout läuft</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="46"/>
+        <location filename="../Home.qml" line="45"/>
         <source>Do you want to follow the resistance? </source>
         <translation>Möchten Sie den Widerstand verfolgen? </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="77"/>
+        <location filename="../Home.qml" line="76"/>
         <source>New lap started!</source>
         <translation>Neue Runde gestartet!</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="84"/>
+        <location filename="../Home.qml" line="83"/>
         <source>Stop Workout</source>
         <translation>Starkes Training beenden</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="85"/>
+        <location filename="../Home.qml" line="84"/>
         <source>Do you really want to stop the current workout?</source>
         <translation>Möchten Sie das aktuelle Training wirklich beenden?</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="110"/>
+        <location filename="../Home.qml" line="109"/>
         <source>Permissions Required</source>
         <translation>Berechtigungen erforderlich</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="111"/>
+        <location filename="../Home.qml" line="110"/>
         <source>QZ requires both Bluetooth and Location Services to be enabled.
 Location Services are necessary on Android to allow the app to find Bluetooth devices.
 The GPS will not be used.
@@ -55,54 +55,54 @@ Das GPS wird nicht verwendet.
 Möchten Sie sie aktivieren?</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="123"/>
+        <location filename="../Home.qml" line="122"/>
         <source>Reminder Preference</source>
         <translation>Erinnerungseinstellung</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="124"/>
+        <location filename="../Home.qml" line="123"/>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
         <translation>Möchten Sie daran erinnert werden, das Standort-Service das nächste Mal zu aktivieren?</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="132"/>
+        <location filename="../Home.qml" line="131"/>
         <source>Restart the app</source>
         <translation>Starte die App neu</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="133"/>
+        <location filename="../Home.qml" line="132"/>
         <source>To apply the changes, you need to restart the app.
 Would you like to do that now?</source>
         <translation>Um die Änderungen anzuwenden, müssen Sie die App neu starten.
 Möchten Sie das jetzt tun?</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="205"/>
+        <location filename="../Home.qml" line="204"/>
         <source>Adjustable. Current value: </source>
         <translation>Einstellbar. Aktueller Wert: </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="205"/>
+        <location filename="../Home.qml" line="204"/>
         <source>Current value: </source>
         <translation>Aktueller Wert: </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="356"/>
+        <location filename="../Home.qml" line="355"/>
         <source>Decrease </source>
         <translation>Verringern </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="357"/>
+        <location filename="../Home.qml" line="356"/>
         <source>Decrease the value of </source>
         <translation>Verringern des Wertes von </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="375"/>
+        <location filename="../Home.qml" line="374"/>
         <source>Increase </source>
         <translation>Erhöhen </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="376"/>
+        <location filename="../Home.qml" line="375"/>
         <source>Increase the value of </source>
         <translation>Erhöhen Sie den Wert von </translation>
     </message>
@@ -110,47 +110,47 @@ Möchten Sie das jetzt tun?</translation>
 <context>
     <name>HomeForm.ui</name>
     <message>
-        <location filename="../HomeForm.ui.qml" line="9"/>
+        <location filename="../HomeForm.ui.qml" line="7"/>
         <source>QZ Fitness</source>
         <translation>QZ Fitness</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="74"/>
+        <location filename="../HomeForm.ui.qml" line="73"/>
         <source>Bluetooth connection</source>
         <translation>Bluetooth-Verbindung</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="75"/>
+        <location filename="../HomeForm.ui.qml" line="74"/>
         <source>Device connected</source>
         <translation>Gerät verbunden</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="75"/>
+        <location filename="../HomeForm.ui.qml" line="74"/>
         <source>Device not connected</source>
         <translation>Gerät nicht verbunden</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="115"/>
+        <location filename="../HomeForm.ui.qml" line="110"/>
         <source>Start workout</source>
         <translation>Start Training</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="145"/>
+        <location filename="../HomeForm.ui.qml" line="135"/>
         <source>Stop workout</source>
         <translation>Beenden des Trainings</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="176"/>
+        <location filename="../HomeForm.ui.qml" line="161"/>
         <source>Lap</source>
         <translation>Runde</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="177"/>
+        <location filename="../HomeForm.ui.qml" line="162"/>
         <source>Record a new lap</source>
         <translation>Aufrunden eines neuen Runden</translation>
     </message>
     <message>
-        <location filename="../HomeForm.ui.qml" line="206"/>
+        <location filename="../HomeForm.ui.qml" line="186"/>
         <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
         <translation>Diese App sollte sich automatisch mit Ihrem Fahrrad/Laufband/Rudergänger verbinden. &lt;b&gt;Wenn das nicht der Fall ist, überprüfen Sie bitte Folgendes:&lt;/b&gt;:&lt;br&gt;1) Ihre Echelon/Domyos App MUSS geschlossen sein, während qdomyos-zwift läuft;&lt;br&gt;2) Sowohl Bluetooth als auch die Bluetooth-Berechtigungen MÜSSEN aktiviert sein&lt;br&gt;3) Ihr Fahrrad/Laufband/Rudergänger sollte BEVOR Sie diese App starten, eingeschaltet sein&lt;br&gt;4) Versuchen Sie, Ihr Gerät neu zu starten&lt;br&gt;&lt;br&gt;Wenn Ihr Fahrrad/Laufband alle 30 Sekunden die Verbindung verliert, versuchen Sie, die Einstellung &apos;virtuelles Gerät&apos; in der linken Leiste zu deaktivieren.&lt;br&gt;&lt;br&gt;Bei Problemen können Sie mich gerne unter roberto.viola83@gmail.com kontaktieren.&lt;br&gt;&lt;br&gt;&lt;b&gt;Viel Spaß bei der Fahrt!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ lehnt ausdrücklich jegliche Haftung für&lt;br&gt;zufällige oder Folge-Schäden ab und übernimmt&lt;br&gt;keine Verantwortung oder Haftung für Verluste&lt;br&gt;oder Schäden, die einer Person durch&lt;br&gt;die Nutzung oder den Missbrauch der App entstehen.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
     </message>
@@ -419,7 +419,7 @@ Möchten Sie das jetzt tun?</translation>
 <context>
     <name>SettingsList</name>
     <message>
-        <location filename="../SettingsList.qml" line="36"/>
+        <location filename="../SettingsList.qml" line="28"/>
         <source>Settings folder</source>
         <translation>Einstellungen Ordner</translation>
     </message>
@@ -457,7 +457,7 @@ Möchten Sie das jetzt tun?</translation>
 <context>
     <name>WebPelotonAuth</name>
     <message>
-        <location filename="../WebPelotonAuth.qml" line="79"/>
+        <location filename="../WebPelotonAuth.qml" line="77"/>
         <source>Your Peloton account is now connected!</source>
         <translation>Ihr Peloton-Konto ist verbunden!</translation>
     </message>
@@ -873,12 +873,12 @@ Die folgenden Fragen passen QZ an Ihre Ausrüstung und Ziele an.</translation>
 <context>
     <name>gears</name>
     <message>
-        <location filename="../gears.qml" line="335"/>
+        <location filename="../gears.qml" line="347"/>
         <source>Without Wheel Diameter Protocol</source>
         <translation>Ohne Laufrad-Durchmesser-Protokoll</translation>
     </message>
     <message>
-        <location filename="../gears.qml" line="349"/>
+        <location filename="../gears.qml" line="361"/>
         <source>Enable this for simplified Wahoo protocol that adds gears directly to grade instead of using wheel diameter changes. Default is false.</source>
         <translation>Aktivieren für das vereinfachte Wahoo Protokoll, das Gänge direkt auf die Steigung anstatt Laufraddurchmesseränderungen zu verwenden. Standard: Falsch.</translation>
     </message>
@@ -886,618 +886,608 @@ Die folgenden Fragen passen QZ an Ihre Ausrüstung und Ziele an.</translation>
 <context>
     <name>homeform</name>
     <message>
-        <location filename="../homeform.cpp" line="283"/>
+        <location filename="../homeform.cpp" line="277"/>
         <source>Speed (%1/h)</source>
         <translation>Geschwindigkeit (%1/h)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="286"/>
+        <location filename="../homeform.cpp" line="280"/>
         <source>Inclination (%)</source>
         <translation>Neigung (%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="288"/>
+        <location filename="../homeform.cpp" line="282"/>
         <source>Descent (%1)</source>
         <translation>Abfahrt (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="290"/>
+        <location filename="../homeform.cpp" line="284"/>
         <source>Cadence (rpm)</source>
         <translation>Kadenz (U/min)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="292"/>
+        <location filename="../homeform.cpp" line="286"/>
         <source>Elev. Gain (%1)</source>
         <translation>Höhengewinn (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="295"/>
+        <location filename="../homeform.cpp" line="289"/>
         <source>Calories (KCal)</source>
         <translation>Kalorien (KCal)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="297"/>
+        <location filename="../homeform.cpp" line="291"/>
         <source>Odometer (%1)</source>
         <translation>Zählerstand (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="301"/>
+        <location filename="../homeform.cpp" line="295"/>
         <source>Pace (m/%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="305"/>
+        <location filename="../homeform.cpp" line="299"/>
         <source>Avg Pace (m/%1)</source>
         <translation>Durchschnittliches Tempo (m/%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="309"/>
+        <location filename="../homeform.cpp" line="303"/>
         <source>GAP (m/%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="314"/>
+        <location filename="../homeform.cpp" line="308"/>
         <source>T.Pace(m/%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="317"/>
+        <location filename="../homeform.cpp" line="311"/>
         <source>Pace 500m (m/%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="321"/>
+        <location filename="../homeform.cpp" line="315"/>
         <source>Resistance</source>
         <translation>Widerstand</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="324"/>
+        <location filename="../homeform.cpp" line="318"/>
         <source>Peloton R(%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="327"/>
+        <location filename="../homeform.cpp" line="321"/>
         <source>Target R.</source>
         <translation>Ziel R.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="330"/>
+        <location filename="../homeform.cpp" line="324"/>
         <source>T.Peloton R(%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="332"/>
+        <location filename="../homeform.cpp" line="326"/>
         <source>T.Cadence(rpm)</source>
         <translation>T.Kadenz(rpm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="334"/>
+        <location filename="../homeform.cpp" line="328"/>
         <source>T.Power(W)</source>
         <translation>Ziel-Leistung(W)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="336"/>
+        <location filename="../homeform.cpp" line="330"/>
         <source>T.Zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="338"/>
+        <location filename="../homeform.cpp" line="332"/>
         <source>T.Speed (%1/h)</source>
         <translation>Geschwindigkeit (%1/h)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="342"/>
+        <location filename="../homeform.cpp" line="336"/>
         <source>T.Incline (%)</source>
         <translation>T.Steigung (%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="345"/>
+        <location filename="../homeform.cpp" line="339"/>
         <source>Watt</source>
         <translation>Watt</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="347"/>
+        <location filename="../homeform.cpp" line="341"/>
         <source>Weight Loss(%1)</source>
         <translation>Gewichtsverlust(%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="350"/>
+        <location filename="../homeform.cpp" line="344"/>
         <source>AVG Watt</source>
         <translation>Durchschnittliche Watt</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="352"/>
+        <location filename="../homeform.cpp" line="346"/>
         <source>AVG Watt Lap</source>
         <translation>Durchschnittliche Watt-Runde</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="354"/>
+        <location filename="../homeform.cpp" line="348"/>
         <source>Watt/Kg</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="356"/>
+        <location filename="../homeform.cpp" line="350"/>
         <source>FTP Zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="358"/>
+        <location filename="../homeform.cpp" line="352"/>
         <source>Heart (bpm)</source>
         <translation>Herzfrequenz (bpm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="360"/>
+        <location filename="../homeform.cpp" line="354"/>
         <source>Fan Speed</source>
         <translation>Lüftergeschwindigkeit</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="362"/>
+        <location filename="../homeform.cpp" line="356"/>
         <source>KJouls</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="365"/>
+        <location filename="../homeform.cpp" line="359"/>
         <source>Elapsed</source>
         <translation>Vergangen</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="368"/>
+        <location filename="../homeform.cpp" line="362"/>
         <source>Moving T.</source>
         <translation>In Bewegung T.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="370"/>
+        <location filename="../homeform.cpp" line="364"/>
         <source>Clock</source>
         <translation>Uhrzeit</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="373"/>
+        <location filename="../homeform.cpp" line="367"/>
         <source>Lap Elapsed</source>
         <translation>Runde Elapsed</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="377"/>
+        <location filename="../homeform.cpp" line="371"/>
         <source>Time to Next</source>
         <translation>Bis zum nächsten</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="381"/>
+        <location filename="../homeform.cpp" line="375"/>
         <source>Next Rows</source>
         <translation>Nächste Zeilen</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="384"/>
+        <location filename="../homeform.cpp" line="378"/>
         <source>METS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="386"/>
+        <location filename="../homeform.cpp" line="380"/>
         <source>Target METS</source>
         <translation>Ziel-METS</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="388"/>
+        <location filename="../homeform.cpp" line="382"/>
         <source>RSS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="390"/>
+        <location filename="../homeform.cpp" line="384"/>
         <source>Steering</source>
         <translation>Lenkung</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="393"/>
+        <location filename="../homeform.cpp" line="387"/>
         <source>Peloton Offset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="396"/>
+        <location filename="../homeform.cpp" line="390"/>
         <source>Peloton Rem.</source>
         <translation>Peloton Fern.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="398"/>
+        <location filename="../homeform.cpp" line="392"/>
         <source>Strokes Count</source>
         <translation>Zählungen</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="400"/>
+        <location filename="../homeform.cpp" line="394"/>
         <source>Strokes Length</source>
         <translation>Schlaglänge</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="402"/>
+        <location filename="../homeform.cpp" line="396"/>
         <source>Gears</source>
         <translation>Zahnräder</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="404"/>
+        <location filename="../homeform.cpp" line="398"/>
         <source>GearsPlus</source>
         <translation>Gänge +</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="406"/>
+        <location filename="../homeform.cpp" line="400"/>
         <source>GearsMinus</source>
         <translation>Gänge -</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="408"/>
+        <location filename="../homeform.cpp" line="402"/>
         <source>Cruise</source>
         <translation>Cruisen</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="410"/>
+        <location filename="../homeform.cpp" line="404"/>
         <source>Climb</source>
         <translation>Anstieg</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="412"/>
+        <location filename="../homeform.cpp" line="406"/>
         <source>Sprint</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="414"/>
+        <location filename="../homeform.cpp" line="408"/>
         <source>Power Avg</source>
         <translation>Durchschnittsleistung</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="416"/>
-        <source>HRV (ms)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../homeform.cpp" line="418"/>
+        <location filename="../homeform.cpp" line="412"/>
         <source>PID Heart</source>
         <translation>PID Herz</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="420"/>
+        <location filename="../homeform.cpp" line="414"/>
         <source>Ext.Inclin.(%)</source>
         <translation>Ext.Steigung(%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="423"/>
+        <location filename="../homeform.cpp" line="417"/>
         <source>Stride L.(%1)</source>
         <translation>Schrittlänge L.(%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="425"/>
+        <location filename="../homeform.cpp" line="419"/>
         <source>Ground C.(ms)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="428"/>
+        <location filename="../homeform.cpp" line="422"/>
         <source>Vert.Osc.(mm)</source>
         <translation>Vert.Oszill.(mm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="432"/>
+        <location filename="../homeform.cpp" line="426"/>
         <source>Step Count</source>
         <translation>Schrittzahl</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="5665"/>
+        <location filename="../homeform.cpp" line="5683"/>
         <source>Stop</source>
         <translation>Stopp</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="5677"/>
+        <location filename="../homeform.cpp" line="5695"/>
         <source>Start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="5679"/>
+        <location filename="../homeform.cpp" line="5697"/>
         <source>Pause</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6279"/>
-        <location filename="../homeform.cpp" line="6431"/>
-        <location filename="../homeform.cpp" line="6602"/>
+        <location filename="../homeform.cpp" line="6297"/>
+        <location filename="../homeform.cpp" line="6449"/>
+        <location filename="../homeform.cpp" line="6620"/>
         <source>Rec.</source>
         <translation>Aufn.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6282"/>
-        <location filename="../homeform.cpp" line="6434"/>
-        <location filename="../homeform.cpp" line="6605"/>
+        <location filename="../homeform.cpp" line="6300"/>
+        <location filename="../homeform.cpp" line="6452"/>
+        <location filename="../homeform.cpp" line="6623"/>
         <source>Easy</source>
         <translation>Einfach</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6286"/>
+        <location filename="../homeform.cpp" line="6304"/>
         <source>Brisk</source>
         <translation>Zügig</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6288"/>
-        <location filename="../homeform.cpp" line="6437"/>
-        <location filename="../homeform.cpp" line="6608"/>
+        <location filename="../homeform.cpp" line="6306"/>
+        <location filename="../homeform.cpp" line="6455"/>
+        <location filename="../homeform.cpp" line="6626"/>
         <source>Moder.</source>
         <translation>Moderat</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6293"/>
+        <location filename="../homeform.cpp" line="6311"/>
         <source>Power</source>
         <translation>Leistung</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6295"/>
-        <location filename="../homeform.cpp" line="6440"/>
-        <location filename="../homeform.cpp" line="6611"/>
+        <location filename="../homeform.cpp" line="6313"/>
+        <location filename="../homeform.cpp" line="6458"/>
+        <location filename="../homeform.cpp" line="6629"/>
         <source>Chall.</source>
         <translation>Herausf.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6300"/>
-        <location filename="../homeform.cpp" line="6309"/>
-        <location filename="../homeform.cpp" line="6449"/>
-        <location filename="../homeform.cpp" line="6614"/>
+        <location filename="../homeform.cpp" line="6318"/>
+        <location filename="../homeform.cpp" line="6327"/>
+        <location filename="../homeform.cpp" line="6467"/>
+        <location filename="../homeform.cpp" line="6632"/>
         <source>Max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6302"/>
-        <location filename="../homeform.cpp" line="6443"/>
+        <location filename="../homeform.cpp" line="6320"/>
+        <location filename="../homeform.cpp" line="6461"/>
         <source>Hard</source>
         <translation>Schwer</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6306"/>
-        <location filename="../homeform.cpp" line="6446"/>
+        <location filename="../homeform.cpp" line="6324"/>
+        <location filename="../homeform.cpp" line="6464"/>
         <source>V.Hard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6312"/>
-        <location filename="../homeform.cpp" line="6452"/>
-        <location filename="../homeform.cpp" line="6617"/>
+        <location filename="../homeform.cpp" line="6330"/>
+        <location filename="../homeform.cpp" line="6470"/>
+        <location filename="../homeform.cpp" line="6635"/>
         <source>N/A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7877"/>
+        <location filename="../homeform.cpp" line="7896"/>
         <source>, speed </source>
         <translation>, Geschwindigkeit </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7879"/>
-        <location filename="../homeform.cpp" line="7897"/>
-        <location filename="../homeform.cpp" line="8058"/>
-        <location filename="../homeform.cpp" line="8091"/>
+        <location filename="../homeform.cpp" line="7898"/>
+        <location filename="../homeform.cpp" line="7916"/>
+        <location filename="../homeform.cpp" line="8077"/>
+        <location filename="../homeform.cpp" line="8110"/>
         <source> kilometers per hour</source>
         <translation> Kilometer pro Stunde</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7883"/>
-        <location filename="../homeform.cpp" line="7892"/>
-        <location filename="../homeform.cpp" line="7901"/>
-        <location filename="../homeform.cpp" line="8063"/>
-        <location filename="../homeform.cpp" line="8095"/>
+        <location filename="../homeform.cpp" line="7902"/>
+        <location filename="../homeform.cpp" line="7911"/>
+        <location filename="../homeform.cpp" line="7920"/>
+        <location filename="../homeform.cpp" line="8082"/>
+        <location filename="../homeform.cpp" line="8114"/>
         <source> miles per hour</source>
         <translation> km/h</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7885"/>
+        <location filename="../homeform.cpp" line="7904"/>
         <source>, Average speed </source>
         <translation>, Durchschnittsgeschwindigkeit </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7888"/>
+        <location filename="../homeform.cpp" line="7907"/>
         <source>kilometers per hour</source>
         <translation>kilometer pro Stunde</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7894"/>
+        <location filename="../homeform.cpp" line="7913"/>
         <source>, Max speed </source>
         <translation>, Maximale Geschwindigkeit </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7904"/>
+        <location filename="../homeform.cpp" line="7923"/>
         <source>, inclination </source>
         <translation>, Steigung </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7907"/>
+        <location filename="../homeform.cpp" line="7926"/>
         <source>, cadence </source>
         <translation>, Kadenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7910"/>
+        <location filename="../homeform.cpp" line="7929"/>
         <source>, Average cadence </source>
         <translation>, Durchschnittliche Trittfrequenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7914"/>
+        <location filename="../homeform.cpp" line="7933"/>
         <source>, Max cadence </source>
         <translation>, Max. Trittfrequenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7919"/>
+        <location filename="../homeform.cpp" line="7938"/>
         <source>, elevation </source>
         <translation>, Höhe </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7921"/>
+        <location filename="../homeform.cpp" line="7940"/>
         <source> meters</source>
         <translation> Meter</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7925"/>
+        <location filename="../homeform.cpp" line="7944"/>
         <source> feet</source>
         <translation> füße</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7927"/>
+        <location filename="../homeform.cpp" line="7946"/>
         <source>, calories burned </source>
         <translation>, verbrannte Kalorien </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7930"/>
+        <location filename="../homeform.cpp" line="7949"/>
         <source>, distance </source>
         <translation>, Distanz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7932"/>
+        <location filename="../homeform.cpp" line="7951"/>
         <source>kilometers</source>
         <translation>Kilometer</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7935"/>
+        <location filename="../homeform.cpp" line="7954"/>
         <source> miles</source>
         <translation> Meilen</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7939"/>
-        <location filename="../homeform.cpp" line="7943"/>
-        <location filename="../homeform.cpp" line="7948"/>
-        <location filename="../homeform.cpp" line="7951"/>
-        <location filename="../homeform.cpp" line="7954"/>
+        <location filename="../homeform.cpp" line="7958"/>
+        <location filename="../homeform.cpp" line="7962"/>
+        <location filename="../homeform.cpp" line="7967"/>
+        <location filename="../homeform.cpp" line="7970"/>
+        <location filename="../homeform.cpp" line="7973"/>
         <source>, pace </source>
         <translation>, Tempo </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7958"/>
+        <location filename="../homeform.cpp" line="7977"/>
         <source>, resistance </source>
         <translation>, Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7963"/>
+        <location filename="../homeform.cpp" line="7982"/>
         <source>, average resistance </source>
         <translation>, durchschnittlicher Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7967"/>
+        <location filename="../homeform.cpp" line="7986"/>
         <source>, max resistance </source>
         <translation>, maximaler Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7970"/>
+        <location filename="../homeform.cpp" line="7989"/>
         <source>, watt </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7973"/>
+        <location filename="../homeform.cpp" line="7992"/>
         <source>, average watt </source>
         <translation>, durchschnittliche Wattzahl </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7976"/>
+        <location filename="../homeform.cpp" line="7995"/>
         <source>, max watt </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7980"/>
-        <source>, ftp </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../homeform.cpp" line="7982"/>
+        <location filename="../homeform.cpp" line="8001"/>
         <source>, heart rate </source>
         <translation>, Herzfrequenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7985"/>
+        <location filename="../homeform.cpp" line="8004"/>
         <source>, average heart rate </source>
         <translation>, durchschnittliche Herzfrequenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7988"/>
+        <location filename="../homeform.cpp" line="8007"/>
         <source>, max heart rate </source>
         <translation>, maximale Herzfrequenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7991"/>
+        <location filename="../homeform.cpp" line="8010"/>
         <source>, jouls </source>
         <translation>, Joule </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7994"/>
+        <location filename="../homeform.cpp" line="8013"/>
         <source>, elapsed </source>
         <translation>, vergangen </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7996"/>
+        <location filename="../homeform.cpp" line="8015"/>
         <source> minutes </source>
         <translation> Minuten </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7998"/>
+        <location filename="../homeform.cpp" line="8017"/>
         <source> seconds</source>
         <translation> Sekunden</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8004"/>
+        <location filename="../homeform.cpp" line="8023"/>
         <source>, peloton resistance </source>
         <translation>, peloton Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8012"/>
+        <location filename="../homeform.cpp" line="8031"/>
         <source>, average peloton resistance </source>
         <translation>, durchschnittlicher peloton-Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8020"/>
+        <location filename="../homeform.cpp" line="8039"/>
         <source>, max peloton resistance </source>
         <translation>, max Peloton-Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8028"/>
+        <location filename="../homeform.cpp" line="8047"/>
         <source>, target peloton resistance </source>
         <translation>, Ziel peloton Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8036"/>
+        <location filename="../homeform.cpp" line="8055"/>
         <source>, target cadence </source>
         <translation>, Ziel-Kadenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8042"/>
+        <location filename="../homeform.cpp" line="8061"/>
         <source>, target power </source>
         <translation>, Zielleistung </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8048"/>
+        <location filename="../homeform.cpp" line="8067"/>
         <source>, target zone </source>
         <translation>, Zielzone </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8054"/>
+        <location filename="../homeform.cpp" line="8073"/>
         <source>, target speed </source>
         <translation>Zielgeschwindigkeit </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8068"/>
+        <location filename="../homeform.cpp" line="8087"/>
         <source>, target incline </source>
         <translation>, Zielneigung </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8073"/>
+        <location filename="../homeform.cpp" line="8092"/>
         <source>, watt for kilograms </source>
         <translation>, Watt pro Kilogramm </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8076"/>
+        <location filename="../homeform.cpp" line="8095"/>
         <source>, average watt for kilograms</source>
         <translation>, durchschnittliche Watt pro Kilogramm</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8079"/>
+        <location filename="../homeform.cpp" line="8098"/>
         <source>, max watt for kilograms</source>
         <translation>, max Watt für Kilogramm</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8089"/>
+        <location filename="../homeform.cpp" line="8108"/>
         <source>speed changed to</source>
         <translation>Geschwindigkeit geändert zu</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8854"/>
+        <location filename="../homeform.cpp" line="8874"/>
         <source>JSON parser error</source>
         <translation>JSON Parserfehler</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="9141"/>
+        <location filename="../homeform.cpp" line="9161"/>
         <source>Error retrieving access token, %1 (%2)</source>
         <translation>Fehler beim Abrufen des Zugriffstokens, %1 (%2)</translation>
     </message>
@@ -1505,22 +1495,22 @@ Die folgenden Fragen passen QZ an Ihre Ausrüstung und Ziele an.</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.qml" line="20"/>
+        <location filename="../main.qml" line="19"/>
         <source>qDomyos-Zwift</source>
         <translation>qDomyos-Zwift</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="356"/>
+        <location filename="../main.qml" line="355"/>
         <source>Program has been loaded correctly. Press start to begin!</source>
         <translation>Programm wurde erfolgreich geladen. Drücken Sie Start, um zu beginnen!</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="363"/>
+        <location filename="../main.qml" line="362"/>
         <source>Peloton Authentication Change</source>
         <translation>Peloton Authentifizierung ändern</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="364"/>
+        <location filename="../main.qml" line="363"/>
         <source>Peloton has moved to a new authentication system. Username and password are no longer required.
 
 Would you like to switch to the new authentication method now?</source>
@@ -1529,7 +1519,7 @@ Would you like to switch to the new authentication method now?</source>
 Möchten Sie jetzt auf die neue Authentifizierungsmethode umstellen?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="413"/>
+        <location filename="../main.qml" line="412"/>
         <source>QZ Classifica is a realtime viewer about the actual
 effort of every QZ users! If you want to join in,
 choose a nickname in the general settings
@@ -1544,224 +1534,224 @@ Abschnitt experimentelle Einstellungen und
 starten Sie die App neu.</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="437"/>
+        <location filename="../main.qml" line="436"/>
         <source>Select Your Gym Device</source>
         <translation>Wähle dein Fitnessgerät</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="446"/>
+        <location filename="../main.qml" line="445"/>
         <source>QZ found the nearby Bluetooth trainers. Choose the machine you want to use for this session.</source>
         <translation>QZ hat nahegelegene Bluetooth-Trainer gefunden. Wähle das Gerät, das du für diese Einheit verwenden möchtest.</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="455"/>
+        <location filename="../main.qml" line="454"/>
         <source>Select a device</source>
         <translation>Wähle ein Gerät</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="471"/>
+        <location filename="../main.qml" line="470"/>
         <source>The list refreshes automatically every 10 seconds.</source>
         <translation>Die Liste wird alle 10 Sekunden automatisch aktualisiert.</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="479"/>
+        <location filename="../main.qml" line="478"/>
         <source>Skip</source>
         <translation>Überspringen</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="529"/>
+        <location filename="../main.qml" line="528"/>
         <source>Browse the What&apos;s on Zwift workout library&lt;br&gt;and choose your workout. It will&lt;br&gt; be automatically loaded on QZ when you will&lt;br&gt;press the load button on the top!&lt;br&gt;&lt;br&gt;QZ is not affiliated with Zwift&lt;br&gt;or https://whatsonzwift.com/ website.</source>
         <translation>Durchsuche die What&apos;s on Zwift Workout Library&lt;br&gt;und wähle dein Workout. Es wird automatisch auf QZ geladen, wenn du oben auf den Lade-Button drückst!&lt;br&gt;&lt;br&gt;QZ ist nicht mit Zwift&lt;br&gt;oder der Website https://whatsonzwift.com/ verbunden.</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="558"/>
+        <location filename="../main.qml" line="557"/>
         <source>Settings has been loaded correctly. Restart the app!</source>
         <translation>Einstellungen wurden korrekt geladen. Starten Sie die App neu!</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="587"/>
+        <location filename="../main.qml" line="586"/>
         <source>Saved! Check your private folder (Android)&lt;br&gt;or Files App (iOS)</source>
         <translation>Gespeichert! Überprüfe deinen privaten Ordner (Android)&lt;br&gt;oder die Dateien-App (iOS)</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="621"/>
+        <location filename="../main.qml" line="620"/>
         <source>Your Strava account is now connected!&lt;br&gt;&lt;br&gt;When you will save a FIT file it will&lt;br&gt;automatically uploaded to Strava!</source>
         <translation>Dein Strava-Konto ist jetzt verbunden!&lt;br&gt;&lt;br&gt;Wenn du eine FIT-Datei speicherst, wird sie&lt;br&gt;automatisch nach Strava hochgeladen!</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="655"/>
+        <location filename="../main.qml" line="654"/>
         <source>Your Peloton account is now connected!&lt;br&gt;&lt;br&gt;Restart the app to apply this change!</source>
         <translation>Dein Peloton-Konto ist jetzt verbunden!&lt;br&gt;&lt;br&gt;Starte die App neu, um diese Änderung zu übernehmen!</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="695"/>
+        <location filename="../main.qml" line="694"/>
         <source>Trial time expired!&lt;br&gt;&lt;br&gt;Please join the QZ Patreon Membership to unlock the full license!&lt;br&gt;https://www.patreon.com/bePatron?u=45290147&lt;br&gt;&lt;br&gt;Then add your patreon email in the email field in the general settings.&lt;br&gt;The App will now close.</source>
         <translation>Die Testzeit ist abgelaufen!&lt;br&gt;&lt;br&gt;Bitte treten Sie der QZ Patreon Membership bei, um die volle Lizenz freizuschalten!&lt;br&gt;https://www.patreon.com/bePatron?u=45290147&lt;br&gt;&lt;br&gt;Fügen Sie dann Ihre patreon E-Mail-Adresse im Feld E-Mail in den allgemeinen Einstellungen hinzu.&lt;br&gt;Die App wird nun geschlossen.</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="702"/>
+        <location filename="../main.qml" line="701"/>
         <source>Settings changed</source>
         <translation>Einstellungen geändert</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="703"/>
+        <location filename="../main.qml" line="702"/>
         <source>In order to apply the changes you need to restart the app.
 Do you want to do it now?</source>
         <translation>Die Änderungen werden erst nach einem Neustart der App wirksam.
 Möchten Sie es jetzt tun?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="711"/>
-        <location filename="../main.qml" line="810"/>
+        <location filename="../main.qml" line="710"/>
+        <location filename="../main.qml" line="813"/>
         <source>Strava</source>
         <translation>Strava</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="712"/>
+        <location filename="../main.qml" line="711"/>
         <source>Do you want to upload the workout to Strava?</source>
         <translation>Möchten Sie das Workout nach Strava hochladen?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="720"/>
+        <location filename="../main.qml" line="719"/>
         <source>Garmin Workout Planned</source>
         <translation>Garmin Training geplant</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="721"/>
+        <location filename="../main.qml" line="720"/>
         <source>Workout found:
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.qml" line="722"/>
+        <location filename="../main.qml" line="721"/>
         <source>
 Date: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.qml" line="723"/>
+        <location filename="../main.qml" line="722"/>
         <source>
 
 Do you want to start it now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.qml" line="811"/>
+        <location filename="../main.qml" line="814"/>
         <source>You are already connected to Strava. Do you want to log out?</source>
         <translation>Du bist bereits mit Strava verbunden. Möchtest du dich abmelden?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="820"/>
+        <location filename="../main.qml" line="823"/>
         <source>Peloton</source>
         <translation>Peloton</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="821"/>
+        <location filename="../main.qml" line="824"/>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Sie sind bereits mit Peloton verbunden. Möchten Sie sich abmelden?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="830"/>
+        <location filename="../main.qml" line="833"/>
         <source>Intervals.icu</source>
         <translation>Intervals.icu</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="831"/>
+        <location filename="../main.qml" line="834"/>
         <source>You are already connected to Intervals.icu. Do you want to log out?</source>
         <translation>Sie sind bereits mit Intervals.icu verbunden. Möchten Sie sich abmelden?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="936"/>
+        <location filename="../main.qml" line="939"/>
         <source>You can move the tiles!</source>
         <translation>Du kannst die Kacheln bewegen!</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="936"/>
+        <location filename="../main.qml" line="939"/>
         <source>The tiles are locked now</source>
         <translation>Die Kacheln sind jetzt gesperrt</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="977"/>
+        <location filename="../main.qml" line="980"/>
         <source>Search settings</source>
         <translation>Suchen Sie Einstellungen</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1087"/>
+        <location filename="../main.qml" line="1090"/>
         <source>Profile: </source>
         <translation>Profil: </translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1099"/>
+        <location filename="../main.qml" line="1102"/>
         <source>Settings</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1113"/>
+        <location filename="../main.qml" line="1116"/>
         <source>Workouts History</source>
         <translation>Trainingsverlauf</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1122"/>
+        <location filename="../main.qml" line="1125"/>
         <source>Swag Bag</source>
         <translation>Goodiepaket</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1131"/>
+        <location filename="../main.qml" line="1134"/>
         <source>Charts</source>
         <translation>Diagramme</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1144"/>
+        <location filename="../main.qml" line="1147"/>
         <source>Open GPX</source>
         <translation>Öffne GPX</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1160"/>
+        <location filename="../main.qml" line="1163"/>
         <source>Open Train Program</source>
         <translation>Öffne Trainingsprogramm</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1178"/>
+        <location filename="../main.qml" line="1184"/>
         <source>Workout Editor</source>
         <translation>Trainingseditor</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1206"/>
+        <location filename="../main.qml" line="1212"/>
         <source>Save GPX</source>
         <translation>Speichern GPX</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1216"/>
+        <location filename="../main.qml" line="1222"/>
         <source>Save FIT</source>
         <translation>Speichere FIT</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1226"/>
+        <location filename="../main.qml" line="1232"/>
         <source>Wizard</source>
         <translation>Assistent</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1235"/>
+        <location filename="../main.qml" line="1241"/>
         <source>Help</source>
         <translation>Hilfe</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1244"/>
+        <location filename="../main.qml" line="1250"/>
         <source>Community</source>
         <translation>Gemeinschaft</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1252"/>
+        <location filename="../main.qml" line="1258"/>
         <source>Credits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1260"/>
+        <location filename="../main.qml" line="1266"/>
         <source>Quit</source>
         <translation>Beenden</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="144"/>
+        <location filename="../main.cpp" line="145"/>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift - Fitness-Geräte-Verbindung</translation>
     </message>
@@ -1783,32 +1773,31 @@ Do you want to start it now?</source>
 <context>
     <name>profiles</name>
     <message>
-        <location filename="../profiles.qml" line="27"/>
         <source>Please choose a file</source>
-        <translation>Bitte wählen Sie eine Datei</translation>
+        <translation type="vanished">Bitte wählen Sie eine Datei</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="49"/>
+        <location filename="../profiles.qml" line="47"/>
         <source>Profile loaded</source>
         <translation>Profil geladen</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="50"/>
+        <location filename="../profiles.qml" line="48"/>
         <source>Would you like to quit?</source>
         <translation>Möchten Sie beenden?</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="51"/>
+        <location filename="../profiles.qml" line="49"/>
         <source>You must quit and restart for changes to take effect.</source>
         <translation>Sie müssen beenden und neu starten, damit die Änderungen wirksam werden.</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="64"/>
+        <location filename="../profiles.qml" line="63"/>
         <source>Delete profile</source>
         <translation>Löschen des Profils</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="65"/>
+        <location filename="../profiles.qml" line="64"/>
         <source>Would you like to delete this profile?</source>
         <translation>Möchten Sie dieses Profil löschen?</translation>
     </message>
@@ -1843,9 +1832,8 @@ Do you want to start it now?</source>
         <translation>Sie erstellen ein neues Profil mit den Standardwerten. Möchten Sie das aktuelle vorher speichern?</translation>
     </message>
     <message>
-        <location filename="../profiles.qml" line="102"/>
         <source>OldProfile</source>
-        <translation>Altes Profil</translation>
+        <translation type="vanished">Altes Profil</translation>
     </message>
     <message>
         <location filename="../profiles.qml" line="124"/>
@@ -3443,11 +3431,6 @@ Do you want to start it now?</source>
         <translation>Arabisch</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1735"/>
-        <source>Hindi</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="1736"/>
         <source>Turkish</source>
         <translation>Türkisch</translation>
@@ -3726,11 +3709,6 @@ Do you want to start it now?</source>
         <location filename="../settings.qml" line="11564"/>
         <source>ADB Remote</source>
         <translation>ADB Fern</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5298"/>
-        <source>Baudrate:</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5357"/>
@@ -4054,11 +4032,6 @@ Do you want to start it now?</source>
         <translation>Verwenden Sie Ihre Garmin Uhr, um die ANT+-Metriken von einem Fahrrad zu erhalten</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7579"/>
-        <source>Garmin Connect</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="7586"/>
         <source>Enable Garmin Upload</source>
         <translation>Aktivieren Sie Garmin Upload</translation>
@@ -4074,14 +4047,8 @@ Do you want to start it now?</source>
         <translation>Garmin E-Mail:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7641"/>
         <source>Garmin Password:</source>
-        <translation>Garmin Passwort:</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7668"/>
-        <source>Garmin Server:</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Garmin Passwort:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7689"/>
@@ -4521,11 +4488,6 @@ Bitte geben Sie ihn unten ein:</translation>
         <translation>Pafers Laufband</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9852"/>
-        <source>BH IBoxster Plus</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="9868"/>
         <source>GEM Module Options</source>
         <translation>GEM Moduloptionen</translation>
@@ -4584,11 +4546,6 @@ Bitte geben Sie ihn unten ein:</translation>
         <location filename="../settings.qml" line="10025"/>
         <source>RunnerT Options</source>
         <translation>RunnerT Optionen</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10033"/>
-        <source>Fitfiu MC-460</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10046"/>
@@ -4715,16 +4672,6 @@ Bitte geben Sie ihn unten ein:</translation>
         <location filename="../settings.qml" line="10433"/>
         <source>Fitshow Treadmill Options</source>
         <translation>Fitshow Laufband Optionen</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10440"/>
-        <source>AnyRun</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10453"/>
-        <source>Atletica Lightspeed</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10467"/>
@@ -4868,16 +4815,6 @@ Bitte geben Sie ihn unten ein:</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10930"/>
-        <source>Enerfit SPX 9500 / Toorx SRX 500</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10944"/>
-        <source>HOP-Sport HS-090h</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="10958"/>
         <source>Taurua IC90 Bike</source>
         <translation type="unfinished"></translation>
@@ -4893,9 +4830,8 @@ Bitte geben Sie ihn unten ein:</translation>
         <translation>Reebok FR30 Laufband</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11003"/>
         <source>DKN Endurn Treadmill</source>
-        <translation>DKN Endurn Laufband</translation>
+        <translation type="vanished">DKN Endurn Laufband</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11018"/>
@@ -4936,11 +4872,6 @@ Bitte geben Sie ihn unten ein:</translation>
         <location filename="../settings.qml" line="11121"/>
         <source>Asviva Bike</source>
         <translation>Asviva Fahrrad</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11135"/>
-        <source>Hertz XR 770 Bike</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11148"/>
@@ -5032,11 +4963,6 @@ Bitte geben Sie ihn unten ein:</translation>
         <location filename="../settings.qml" line="11454"/>
         <source>Allows you to force QZ to connect to your FTMS Elliptical. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is Disabled.</source>
         <translation>Ermöglicht die erzwungene Verbindung von QZ mit Ihrem FTMS Elliptical. Bei Unsicherheit lassen Sie dies deaktiviert und senden Sie eine E-Mail an den QZ Support. Standardmäßig ist dies deaktiviert.</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11467"/>
-        <source>Gymstick GX6.0</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11482"/>
@@ -5611,11 +5537,6 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Elite Rizer Optionen</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13279"/>
-        <source>Elite Rizer:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="13315"/>
         <source>Difficulty/Gain:</source>
         <translation>Schwierigkeit/Höhenmeter:</translation>
@@ -5624,11 +5545,6 @@ Standard: A = -0.96, B = 1.33</translation>
         <location filename="../settings.qml" line="13339"/>
         <source>Elite Sterzo Smart Options</source>
         <translation>Elite Sterzo Smart Optionen</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="13347"/>
-        <source>Elite Sterzo Smart:</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="13386"/>
@@ -5767,11 +5683,6 @@ Standard: A = -0.96, B = 1.33</translation>
         <location filename="../settings.qml" line="14079"/>
         <source>CYCPLUS Options</source>
         <translation>CYCPLUS Optionen</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="14087"/>
-        <source>CYCPLUS BC2 Controller</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14101"/>
@@ -6991,11 +6902,6 @@ Standard: A = -0.96, B = 1.33</translation>
         <location filename="../settings-tiles.qml" line="1007"/>
         <source>AVG Watt Lap</source>
         <translation>Durchschnittliche Watt-Runde</translation>
-    </message>
-    <message>
-        <location filename="../settings-tiles.qml" line="1039"/>
-        <source>FTP %</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="1070"/>
