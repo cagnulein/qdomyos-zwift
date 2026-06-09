@@ -218,7 +218,7 @@ void iconsolebike::rfCommConnected() {
 
 void iconsolebike::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
     qDebug() << QStringLiteral("iconsolebike::onSocketErrorOccurred") << error;
-    emit debug(QStringLiteral("Socket error: ") + QString::number(error));
+    emit debug(QStringLiteral("Socket error: %1").arg(static_cast<int>(error)));
 }
 
 void iconsolebike::readSocket() {
