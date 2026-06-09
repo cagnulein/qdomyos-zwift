@@ -59,6 +59,10 @@ data_len));
 }*/
 
 void schwinnic4bike::update() {
+
+    if (!m_control)
+        return;
+
     qDebug() << gattNotify1Characteristic.isValid();
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
@@ -391,7 +395,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 }
 
 void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
-    if (state != QLowEnergyService::ServiceDiscovered) {
+    if (state != QLowEnergyService::RemoteServiceDiscovered) {
         return;
     }
 
@@ -409,7 +413,7 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
     // m_control->d_ptr->writeDescriptor(qzService, 0x30, 0x31, descriptor);
 
     gattCommunicationChannelService->writeDescriptor(
-        gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        gattNotify1Characteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
 
     connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
             &schwinnic4bike::characteristicChanged);
@@ -516,12 +520,12 @@ void schwinnic4bike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &schwinnic4bike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &schwinnic4bike::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &schwinnic4bike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &schwinnic4bike::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

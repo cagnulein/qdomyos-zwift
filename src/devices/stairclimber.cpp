@@ -1,6 +1,6 @@
 #include "stairclimber.h"
 #ifdef Q_OS_ANDROID
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"

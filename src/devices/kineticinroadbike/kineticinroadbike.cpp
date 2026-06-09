@@ -87,6 +87,10 @@ void kineticinroadbike::forceResistance(resistance_t requestResistance) {
 }
 
 void kineticinroadbike::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -389,14 +393,14 @@ void kineticinroadbike::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
-        if (gattCommunicationChannelService->state() == QLowEnergyService::ServiceDiscovered) {
+        if (gattCommunicationChannelService->state() == QLowEnergyService::RemoteServiceDiscovered) {
             // establish hook into notifications
             auto characteristics_list = gattCommunicationChannelService->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << c.properties();
             }
         }
 
@@ -413,7 +417,7 @@ void kineticinroadbike::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &kineticinroadbike::characteristicWritten);
         connect(gattCommunicationChannelService,
-                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                &QLowEnergyService::errorOccurred,
                 this, &kineticinroadbike::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &kineticinroadbike::descriptorWritten);
@@ -467,11 +471,11 @@ void kineticinroadbike::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotify1Characteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotify2Characteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotify3Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotify3Characteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -526,12 +530,12 @@ void kineticinroadbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &kineticinroadbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &kineticinroadbike::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &kineticinroadbike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &kineticinroadbike::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

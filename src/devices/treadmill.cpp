@@ -1,6 +1,6 @@
 #include "treadmill.h"
 #ifdef Q_OS_ANDROID
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -651,7 +651,7 @@ bool treadmill::cadenceFromAppleWatch() {
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
         jint garminCadence =
-            QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
+            QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
         qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(garminCadence);
         // Ignore transient Garmin cadence spikes while the treadmill is not moving yet.
         if (garminCadence > 0 && Speed.value() > 0.0) {

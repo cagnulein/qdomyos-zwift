@@ -5,16 +5,16 @@ charts::charts(MainWindow *parent) : QDialog(parent), ui(new Ui::charts) {
     ui->setupUi(this);
     this->parent = parent;
 
-    chart = new QtCharts::QChart();
-    chart_view = new QtCharts::QChartView(chart, ui->widget);
+    chart = new QChart();
+    chart_view = new QChartView(chart, ui->widget);
     ui->widget->setVisible(false);
 
-    chart_series_speed = new QtCharts::QLineSeries();
-    chart_series_pace = new QtCharts::QLineSeries();
-    chart_series_inclination = new QtCharts::QLineSeries();
-    chart_series_heart = new QtCharts::QLineSeries();
-    chart_series_watt = new QtCharts::QLineSeries();
-    chart_series_resistance = new QtCharts::QLineSeries();
+    chart_series_speed = new QLineSeries();
+    chart_series_pace = new QLineSeries();
+    chart_series_inclination = new QLineSeries();
+    chart_series_heart = new QLineSeries();
+    chart_series_watt = new QLineSeries();
+    chart_series_resistance = new QLineSeries();
 
     chart_series_speed->setPointLabelsVisible(false); // is false by default
     chart_series_speed->setPointLabelsColor(Qt::black);

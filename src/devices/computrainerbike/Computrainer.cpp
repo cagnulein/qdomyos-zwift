@@ -24,6 +24,10 @@
 
 #include "Computrainer.h"
 
+#ifdef Q_OS_ANDROID
+#include <QJniObject>
+#endif
+
 const static uint8_t ergo_command[56] =
     {
         //                        Ergo            various
@@ -769,8 +773,9 @@ int Computrainer::closePort() {
 
 int Computrainer::openPort() {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "open",
-                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+    QJniObject context = QJniObject::callStaticObjectMethod("org/qtproject/qt/android/QtNative", "getContext", "()Landroid/content/Context;");
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "open",
+                                              "(Landroid/content/Context;)V", context.object());
 #elif !defined(WIN32)
 
     // LINUX AND MAC USES TERMIO / IOCTL / STDIO
@@ -832,7 +837,7 @@ int Computrainer::openPort() {
     // if deviceFilename references a port above COM9
     // then we need to open "\\.\COMX" not "COMX"
     QString portSpec;
-    int portnum = deviceFilename.midRef(3).toString().toInt();
+    int portnum = deviceFilename.mid(3).toInt();
     if (portnum < 10)
         portSpec = deviceFilename;
     else
@@ -895,13 +900,13 @@ int Computrainer::rawWrite(uint8_t *bytes, int size) // unix!!
 
 #ifdef Q_OS_ANDROID
 
-    QAndroidJniEnvironment env;
+    QJniEnvironment env;
     jbyteArray d = env->NewByteArray(size);
     jbyte *b = env->GetByteArrayElements(d, 0);
     for (int i = 0; i < size; i++)
         b[i] = bytes[i];
     env->SetByteArrayRegion(d, 0, size, b);
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
+    QJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
     env->DeleteLocalRef(d);
 #elif defined(WIN32)
     DWORD cBytes;
@@ -947,22 +952,17 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
         }
     }
 
-    QAndroidJniEnvironment env;
-    int timeout = 0;
-    int maxRetries = 100; // Maximum number of retries (100 * 50ms = 5 seconds timeout)
-    int retryCount = 0;
-
-    while (fullLen < size && retryCount < maxRetries) {
+    QJniEnvironment env;
+    while (fullLen < size) {
         // Push a new local frame to automatically manage JNI references
         // This prevents local reference table overflow by cleaning up refs at the end of each iteration
         if (env->PushLocalFrame(16) < 0) {
             qDebug() << "Failed to push local frame";
             return -1;
-        }
-
-        QAndroidJniObject dd =
-            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
-        jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
+        }      
+        QJniObject dd =
+            QJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
+        jint len = QJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
         jbyteArray d = dd.object<jbyteArray>();
         jbyte *b = env->GetByteArrayElements(d, 0);
 

@@ -533,6 +533,10 @@ void speraxtreadmill::changeInclinationRequested(double grade, double percentage
 }
 
 void speraxtreadmill::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -610,7 +614,7 @@ void speraxtreadmill::update() {
                 writeCharacteristic(gattWriteCharacteristic, start, sizeof(start), QStringLiteral("start"), false, false);
             }
             else if (requestStop != -1) {
-                emit debug(QStringLiteral("stopping... ") + paused);              
+                emit debug(QStringLiteral("stopping... ") + (paused ? QStringLiteral("true") : QStringLiteral("false")));
 
                 requestStop = -1;
                 uint8_t stop[] = {0xf5, 0x0a, 0x00, 0x15, 0x00, 0x00, 0x00, 0xd3, 0x01, 0xfa};
@@ -773,12 +777,12 @@ void speraxtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-    if (state == QLowEnergyService::ServiceDiscovered) {
+    if (state == QLowEnergyService::RemoteServiceDiscovered) {
 
         // qDebug() << gattCommunicationChannelService->characteristics();
         auto characteristics_list = gattCommunicationChannelService->characteristics();
-        for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle()
+        for (const QLowEnergyCharacteristic &c : std::as_const(characteristics_list)) {
+            qDebug() << QStringLiteral("char uuid") << c.uuid() 
                      << c.properties();
         }
 
@@ -793,7 +797,7 @@ void speraxtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &speraxtreadmill::characteristicWritten);
         connect(gattCommunicationChannelService,
-                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                &QLowEnergyService::errorOccurred,
                 this, &speraxtreadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &speraxtreadmill::descriptorWritten);
@@ -802,7 +806,7 @@ void speraxtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotifyCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -825,7 +829,7 @@ void speraxtreadmill::serviceScanDone(void) {
 
     auto services_list = m_control->services();
     emit debug("Services found:");
-    for (const QBluetoothUuid &s : qAsConst(services_list)) {
+    for (const QBluetoothUuid &s : std::as_const(services_list)) {
         emit debug(s.toString());
     }
 
@@ -861,12 +865,12 @@ void speraxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &speraxtreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &speraxtreadmill::serviceScanDone);
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, &speraxtreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &speraxtreadmill::controllerStateChanged);
 
         connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                &QLowEnergyController::errorOccurred,
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);

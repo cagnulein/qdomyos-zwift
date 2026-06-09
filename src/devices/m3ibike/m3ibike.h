@@ -15,7 +15,7 @@
 #ifndef Q_OS_ANDROID
 #include <QtCore/qcoreapplication.h>
 #else
-#include <QAndroidJniObject>
+#include <QJniObject>
 #include <QtGui/qguiapplication.h>
 #endif
 #include <QtCore/qlist.h>
@@ -174,12 +174,12 @@ class m3ibike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 #if defined(Q_OS_ANDROID)
-    QAndroidJniObject bluetoothAdapter;
-    QAndroidJniObject bluetoothScanner;
-    QAndroidJniObject scanCallback;
-    QAndroidJniObject listOfFilters;
-    QAndroidJniObject settingsObject;
-    QAndroidJniObject filterObject0;
+    QJniObject bluetoothAdapter;
+    QJniObject bluetoothScanner;
+    QJniObject scanCallback;
+    QJniObject listOfFilters;
+    QJniObject settingsObject;
+    QJniObject filterObject0;
     bool scannerActive = false;
     static void newAndroidScanResult(JNIEnv *env, jobject /*thiz*/, jobject record);
     static void newAndroidScanError(JNIEnv *, jobject /*thiz*/, jint code);
