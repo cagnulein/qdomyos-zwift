@@ -135,5 +135,8 @@
         <file>WebPelotonAuth.qml</file>
         <file>inner_templates/floating/hfloating.htm</file>
         <file>WebIntervalsICUAuth.qml</file>
+        <file>inner_templates/bike-pro/index.html</file>
+        <file>inner_templates/bike-pro/style.css</file>
+        <file>inner_templates/bike-pro/app.js</file>
     </qresource>
 </RCC>

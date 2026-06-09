@@ -6,6 +6,7 @@ import QtQuick.Window 2.12
 import Qt.labs.settings 1.0
 import Qt.labs.platform 1.1
 import QtMultimedia 5.15
+import QtWebView 1.1
 
 HomeForm {
     objectName: "home"
@@ -38,6 +39,69 @@ HomeForm {
         property string theme_tile_shadow_color: "#9C27B0"
         property int theme_tile_secondline_textsize: 12
         property bool skipLocationServicesDialog: false
+        property bool ui_custom_dashboard_enabled: false
+        property string ui_custom_dashboard_name: "bike-pro"
+    }
+
+    // Custom web dashboard overlay — sits below the toolbar, covers the tile area
+    Loader {
+        id: customDashboardLoader
+        active: settings.ui_custom_dashboard_enabled
+        anchors.fill: parent
+        anchors.topMargin: rootItem.topBarHeight
+        z: 10
+
+        sourceComponent: Item {
+            anchors.fill: parent
+
+            property bool pageLoaded: false
+
+            Settings {
+                id: dashboardQSettings
+            }
+
+            Timer {
+                id: dashboardPortPoller
+                interval: 500
+                repeat: true
+                running: !parent.pageLoaded
+                onTriggered: {
+                    var p = dashboardQSettings.value("template_inner_QZWS_port", 0)
+                    if (!p) return
+                    var target = "http://localhost:" + p + "/" + settings.ui_custom_dashboard_name + "/index.html"
+                    if (dashboardWebView.url !== target)
+                        dashboardWebView.url = target
+                }
+            }
+
+            WebView {
+                id: dashboardWebView
+                anchors.fill: parent
+                visible: parent.pageLoaded
+                onLoadingChanged: {
+                    if (loadRequest.status === WebView.LoadSucceededStatus) {
+                        parent.pageLoaded = true
+                        dashboardBusy.visible = false
+                        dashboardBusy.running = false
+                        dashboardPortPoller.stop()
+                    } else if (loadRequest.status === WebView.LoadFailedStatus) {
+                        parent.pageLoaded = false
+                        dashboardBusy.visible = true
+                        dashboardBusy.running = true
+                        dashboardPortPoller.start()
+                    }
+                }
+            }
+
+            BusyIndicator {
+                id: dashboardBusy
+                anchors.centerIn: parent
+                visible: !parent.pageLoaded
+                running: !parent.pageLoaded
+            }
+
+            Component.onCompleted: dashboardPortPoller.start()
+        }
     }
 
     MessageDialog {

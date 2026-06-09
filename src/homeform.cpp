@@ -278,7 +278,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     settings.setValue(sKey + QStringLiteral("type"), TEMPLATE_TYPE_WEBSERVER);
     settings.setValue(sKey + QStringLiteral("port"), 0);
     this->innerTemplateManager =
-        TemplateInfoSenderBuilder::getInstance(innerId, QStringList({QStringLiteral(":/inner_templates/")}), this);
+        TemplateInfoSenderBuilder::getInstance(
+            innerId,
+            QStringList({QStringLiteral(":/inner_templates/"),
+                         getWritableAppDir() + QStringLiteral("dashboards")}),
+            this);
 
     speed = new DataObject(tr("Speed (%1/h)").arg(unit),
                            QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), true,
@@ -10212,6 +10216,24 @@ void homeform::clearFiles() {
             QFile::remove(f.filePath());
         }
     }
+}
+
+QStringList homeform::availableDashboards() {
+    QStringList result;
+    // built-in dashboards from Qt resources
+    QDir resDir(QStringLiteral(":/inner_templates"));
+    for (const QString &name : resDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        if (QFile::exists(QStringLiteral(":/inner_templates/") + name + QStringLiteral("/index.html")))
+            result << name;
+    }
+    // user dashboards from writable storage
+    QDir userDir(getWritableAppDir() + QStringLiteral("dashboards"));
+    for (const QString &name : userDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        if (!result.contains(name) &&
+            QFile::exists(userDir.filePath(name + QStringLiteral("/index.html"))))
+            result << name;
+    }
+    return result;
 }
 
 int homeform::preview_workout_points() {

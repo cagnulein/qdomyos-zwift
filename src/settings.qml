@@ -1687,6 +1687,10 @@ import Qt.labs.platform 1.1
             property bool horizon_treadmill_omega_z: false
 
             property string app_language: "auto"
+
+            // from version 2.16.40
+            property bool ui_custom_dashboard_enabled: false
+            property string ui_custom_dashboard_name: "bike-pro"
         }
 
 
@@ -2535,7 +2539,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Turn this on for: - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment. - Capturing non-equipment-based workouts, such as yoga or strength training. NOTE: All such workouts are labeled as “Rides” in Strava, but you can edit the label in Strava.")
+                        text: qsTr(“Turn this on for: - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment. - Capturing non-equipment-based workouts, such as yoga or strength training. NOTE: All such workouts are labeled as “Rides” in Strava, but you can edit the label in Strava.”)
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -2545,7 +2549,62 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }                    
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: customDashboardEnabledDelegate
+                        text: qsTr(“Custom Dashboard”)
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ui_custom_dashboard_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.ui_custom_dashboard_enabled = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr(“Replace the default QZ home screen with a custom web dashboard. The built-in 'bike-pro' dashboard is included. Add your own by placing files in the 'dashboards/<name>/' folder in the QZ data directory.”)
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        visible: settings.ui_custom_dashboard_enabled
+                        Layout.fillWidth: true
+
+                        Label {
+                            text: qsTr(“Dashboard:”)
+                            Layout.fillWidth: true
+                        }
+
+                        ComboBox {
+                            id: customDashboardCombo
+                            model: rootItem.availableDashboards()
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Component.onCompleted: {
+                                var idx = find(settings.ui_custom_dashboard_name)
+                                if (idx >= 0) currentIndex = idx
+                            }
+                            onActivated: {
+                                settings.ui_custom_dashboard_name = currentText
+                                window.settings_restart_to_apply = true
+                                toast.show(qsTr(“Setting saved!”))
+                            }
+                        }
+                    }
                 }
             }
 
