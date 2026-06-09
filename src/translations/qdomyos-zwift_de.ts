@@ -1141,11 +1141,6 @@ Die folgenden Fragen passen QZ an Ihre Ausrüstung und Ziele an.</translation>
         <translation>Durchschnittsleistung</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="416"/>
-        <source>HRV (ms)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../homeform.cpp" line="418"/>
         <source>PID Heart</source>
         <translation>PID Herz</translation>
@@ -1384,11 +1379,6 @@ Die folgenden Fragen passen QZ an Ihre Ausrüstung und Ziele an.</translation>
     <message>
         <location filename="../homeform.cpp" line="7976"/>
         <source>, max watt </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../homeform.cpp" line="7980"/>
-        <source>, ftp </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3443,11 +3433,6 @@ Do you want to start it now?</source>
         <translation>Arabisch</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="1735"/>
-        <source>Hindi</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="1736"/>
         <source>Turkish</source>
         <translation>Türkisch</translation>
@@ -3726,11 +3711,6 @@ Do you want to start it now?</source>
         <location filename="../settings.qml" line="11564"/>
         <source>ADB Remote</source>
         <translation>ADB Fern</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="5298"/>
-        <source>Baudrate:</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5357"/>
@@ -4054,11 +4034,6 @@ Do you want to start it now?</source>
         <translation>Verwenden Sie Ihre Garmin Uhr, um die ANT+-Metriken von einem Fahrrad zu erhalten</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7579"/>
-        <source>Garmin Connect</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="7586"/>
         <source>Enable Garmin Upload</source>
         <translation>Aktivieren Sie Garmin Upload</translation>
@@ -4074,14 +4049,8 @@ Do you want to start it now?</source>
         <translation>Garmin E-Mail:</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="7641"/>
         <source>Garmin Password:</source>
-        <translation>Garmin Passwort:</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="7668"/>
-        <source>Garmin Server:</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Garmin Passwort:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7689"/>
@@ -4521,11 +4490,6 @@ Bitte geben Sie ihn unten ein:</translation>
         <translation>Pafers Laufband</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="9852"/>
-        <source>BH IBoxster Plus</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="9868"/>
         <source>GEM Module Options</source>
         <translation>GEM Moduloptionen</translation>
@@ -4584,11 +4548,6 @@ Bitte geben Sie ihn unten ein:</translation>
         <location filename="../settings.qml" line="10025"/>
         <source>RunnerT Options</source>
         <translation>RunnerT Optionen</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10033"/>
-        <source>Fitfiu MC-460</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10046"/>
@@ -4715,16 +4674,6 @@ Bitte geben Sie ihn unten ein:</translation>
         <location filename="../settings.qml" line="10433"/>
         <source>Fitshow Treadmill Options</source>
         <translation>Fitshow Laufband Optionen</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10440"/>
-        <source>AnyRun</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10453"/>
-        <source>Atletica Lightspeed</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10467"/>
@@ -4868,16 +4817,6 @@ Bitte geben Sie ihn unten ein:</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="10930"/>
-        <source>Enerfit SPX 9500 / Toorx SRX 500</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="10944"/>
-        <source>HOP-Sport HS-090h</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="10958"/>
         <source>Taurua IC90 Bike</source>
         <translation type="unfinished"></translation>
@@ -4893,9 +4832,8 @@ Bitte geben Sie ihn unten ein:</translation>
         <translation>Reebok FR30 Laufband</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="11003"/>
         <source>DKN Endurn Treadmill</source>
-        <translation>DKN Endurn Laufband</translation>
+        <translation type="vanished">DKN Endurn Laufband</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11018"/>
@@ -4936,11 +4874,6 @@ Bitte geben Sie ihn unten ein:</translation>
         <location filename="../settings.qml" line="11121"/>
         <source>Asviva Bike</source>
         <translation>Asviva Fahrrad</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11135"/>
-        <source>Hertz XR 770 Bike</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11148"/>
@@ -5032,11 +4965,6 @@ Bitte geben Sie ihn unten ein:</translation>
         <location filename="../settings.qml" line="11454"/>
         <source>Allows you to force QZ to connect to your FTMS Elliptical. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is Disabled.</source>
         <translation>Ermöglicht die erzwungene Verbindung von QZ mit Ihrem FTMS Elliptical. Bei Unsicherheit lassen Sie dies deaktiviert und senden Sie eine E-Mail an den QZ Support. Standardmäßig ist dies deaktiviert.</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="11467"/>
-        <source>Gymstick GX6.0</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11482"/>
@@ -5611,11 +5539,6 @@ Standard: A = -0.96, B = 1.33</translation>
         <translation>Elite Rizer Optionen</translation>
     </message>
     <message>
-        <location filename="../settings.qml" line="13279"/>
-        <source>Elite Rizer:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../settings.qml" line="13315"/>
         <source>Difficulty/Gain:</source>
         <translation>Schwierigkeit/Höhenmeter:</translation>
@@ -5624,11 +5547,6 @@ Standard: A = -0.96, B = 1.33</translation>
         <location filename="../settings.qml" line="13339"/>
         <source>Elite Sterzo Smart Options</source>
         <translation>Elite Sterzo Smart Optionen</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="13347"/>
-        <source>Elite Sterzo Smart:</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="13386"/>
@@ -5767,11 +5685,6 @@ Standard: A = -0.96, B = 1.33</translation>
         <location filename="../settings.qml" line="14079"/>
         <source>CYCPLUS Options</source>
         <translation>CYCPLUS Optionen</translation>
-    </message>
-    <message>
-        <location filename="../settings.qml" line="14087"/>
-        <source>CYCPLUS BC2 Controller</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14101"/>
@@ -6991,11 +6904,6 @@ Standard: A = -0.96, B = 1.33</translation>
         <location filename="../settings-tiles.qml" line="1007"/>
         <source>AVG Watt Lap</source>
         <translation>Durchschnittliche Watt-Runde</translation>
-    </message>
-    <message>
-        <location filename="../settings-tiles.qml" line="1039"/>
-        <source>FTP %</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="1070"/>
