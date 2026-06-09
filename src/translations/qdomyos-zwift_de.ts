@@ -12,37 +12,37 @@
 <context>
     <name>Home</name>
     <message>
-        <location filename="../Home.qml" line="109"/>
+        <location filename="../Home.qml" line="45"/>
         <source>Peloton Workout in progress</source>
         <translation>Peloton Workout läuft</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="110"/>
+        <location filename="../Home.qml" line="46"/>
         <source>Do you want to follow the resistance? </source>
         <translation>Möchten Sie den Widerstand verfolgen? </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="141"/>
+        <location filename="../Home.qml" line="77"/>
         <source>New lap started!</source>
         <translation>Neue Runde gestartet!</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="148"/>
+        <location filename="../Home.qml" line="84"/>
         <source>Stop Workout</source>
         <translation>Starkes Training beenden</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="149"/>
+        <location filename="../Home.qml" line="85"/>
         <source>Do you really want to stop the current workout?</source>
         <translation>Möchten Sie das aktuelle Training wirklich beenden?</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="174"/>
+        <location filename="../Home.qml" line="110"/>
         <source>Permissions Required</source>
         <translation>Berechtigungen erforderlich</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="175"/>
+        <location filename="../Home.qml" line="111"/>
         <source>QZ requires both Bluetooth and Location Services to be enabled.
 Location Services are necessary on Android to allow the app to find Bluetooth devices.
 The GPS will not be used.
@@ -55,54 +55,54 @@ Das GPS wird nicht verwendet.
 Möchten Sie sie aktivieren?</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="187"/>
+        <location filename="../Home.qml" line="123"/>
         <source>Reminder Preference</source>
         <translation>Erinnerungseinstellung</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="188"/>
+        <location filename="../Home.qml" line="124"/>
         <source>Would you like to be reminded about enabling Location Services next time?</source>
         <translation>Möchten Sie daran erinnert werden, das Standort-Service das nächste Mal zu aktivieren?</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="196"/>
+        <location filename="../Home.qml" line="132"/>
         <source>Restart the app</source>
         <translation>Starte die App neu</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="197"/>
+        <location filename="../Home.qml" line="133"/>
         <source>To apply the changes, you need to restart the app.
 Would you like to do that now?</source>
         <translation>Um die Änderungen anzuwenden, müssen Sie die App neu starten.
 Möchten Sie das jetzt tun?</translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="269"/>
+        <location filename="../Home.qml" line="205"/>
         <source>Adjustable. Current value: </source>
         <translation>Einstellbar. Aktueller Wert: </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="269"/>
+        <location filename="../Home.qml" line="205"/>
         <source>Current value: </source>
         <translation>Aktueller Wert: </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="420"/>
+        <location filename="../Home.qml" line="356"/>
         <source>Decrease </source>
         <translation>Verringern </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="421"/>
+        <location filename="../Home.qml" line="357"/>
         <source>Decrease the value of </source>
         <translation>Verringern des Wertes von </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="439"/>
+        <location filename="../Home.qml" line="375"/>
         <source>Increase </source>
         <translation>Erhöhen </translation>
     </message>
     <message>
-        <location filename="../Home.qml" line="440"/>
+        <location filename="../Home.qml" line="376"/>
         <source>Increase the value of </source>
         <translation>Erhöhen Sie den Wert von </translation>
     </message>
@@ -886,608 +886,608 @@ Die folgenden Fragen passen QZ an Ihre Ausrüstung und Ziele an.</translation>
 <context>
     <name>homeform</name>
     <message>
-        <location filename="../homeform.cpp" line="287"/>
+        <location filename="../homeform.cpp" line="393"/>
         <source>Speed (%1/h)</source>
         <translation>Geschwindigkeit (%1/h)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="290"/>
+        <location filename="../homeform.cpp" line="396"/>
         <source>Inclination (%)</source>
         <translation>Neigung (%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="292"/>
+        <location filename="../homeform.cpp" line="398"/>
         <source>Descent (%1)</source>
         <translation>Abfahrt (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="294"/>
+        <location filename="../homeform.cpp" line="400"/>
         <source>Cadence (rpm)</source>
         <translation>Kadenz (U/min)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="296"/>
+        <location filename="../homeform.cpp" line="402"/>
         <source>Elev. Gain (%1)</source>
         <translation>Höhengewinn (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="299"/>
+        <location filename="../homeform.cpp" line="405"/>
         <source>Calories (KCal)</source>
         <translation>Kalorien (KCal)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="301"/>
+        <location filename="../homeform.cpp" line="407"/>
         <source>Odometer (%1)</source>
         <translation>Zählerstand (%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="305"/>
+        <location filename="../homeform.cpp" line="411"/>
         <source>Pace (m/%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="309"/>
+        <location filename="../homeform.cpp" line="415"/>
         <source>Avg Pace (m/%1)</source>
         <translation>Durchschnittliches Tempo (m/%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="313"/>
+        <location filename="../homeform.cpp" line="419"/>
         <source>GAP (m/%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="318"/>
+        <location filename="../homeform.cpp" line="424"/>
         <source>T.Pace(m/%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="321"/>
+        <location filename="../homeform.cpp" line="427"/>
         <source>Pace 500m (m/%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="325"/>
+        <location filename="../homeform.cpp" line="431"/>
         <source>Resistance</source>
         <translation>Widerstand</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="328"/>
+        <location filename="../homeform.cpp" line="434"/>
         <source>Peloton R(%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="331"/>
+        <location filename="../homeform.cpp" line="437"/>
         <source>Target R.</source>
         <translation>Ziel R.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="334"/>
+        <location filename="../homeform.cpp" line="440"/>
         <source>T.Peloton R(%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="336"/>
+        <location filename="../homeform.cpp" line="442"/>
         <source>T.Cadence(rpm)</source>
         <translation>T.Kadenz(rpm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="338"/>
+        <location filename="../homeform.cpp" line="444"/>
         <source>T.Power(W)</source>
         <translation>Ziel-Leistung(W)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="340"/>
+        <location filename="../homeform.cpp" line="446"/>
         <source>T.Zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="342"/>
+        <location filename="../homeform.cpp" line="448"/>
         <source>T.Speed (%1/h)</source>
         <translation>Geschwindigkeit (%1/h)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="346"/>
+        <location filename="../homeform.cpp" line="452"/>
         <source>T.Incline (%)</source>
         <translation>T.Steigung (%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="349"/>
+        <location filename="../homeform.cpp" line="455"/>
         <source>Watt</source>
         <translation>Watt</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="351"/>
+        <location filename="../homeform.cpp" line="457"/>
         <source>Weight Loss(%1)</source>
         <translation>Gewichtsverlust(%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="354"/>
+        <location filename="../homeform.cpp" line="460"/>
         <source>AVG Watt</source>
         <translation>Durchschnittliche Watt</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="356"/>
+        <location filename="../homeform.cpp" line="462"/>
         <source>AVG Watt Lap</source>
         <translation>Durchschnittliche Watt-Runde</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="358"/>
+        <location filename="../homeform.cpp" line="464"/>
         <source>Watt/Kg</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="360"/>
+        <location filename="../homeform.cpp" line="466"/>
         <source>FTP Zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="362"/>
+        <location filename="../homeform.cpp" line="468"/>
         <source>Heart (bpm)</source>
         <translation>Herzfrequenz (bpm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="364"/>
+        <location filename="../homeform.cpp" line="470"/>
         <source>Fan Speed</source>
         <translation>Lüftergeschwindigkeit</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="366"/>
+        <location filename="../homeform.cpp" line="472"/>
         <source>KJouls</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="369"/>
+        <location filename="../homeform.cpp" line="475"/>
         <source>Elapsed</source>
         <translation>Vergangen</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="372"/>
+        <location filename="../homeform.cpp" line="478"/>
         <source>Moving T.</source>
         <translation>In Bewegung T.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="374"/>
+        <location filename="../homeform.cpp" line="480"/>
         <source>Clock</source>
         <translation>Uhrzeit</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="377"/>
+        <location filename="../homeform.cpp" line="483"/>
         <source>Lap Elapsed</source>
         <translation>Runde Elapsed</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="381"/>
+        <location filename="../homeform.cpp" line="487"/>
         <source>Time to Next</source>
         <translation>Bis zum nächsten</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="385"/>
+        <location filename="../homeform.cpp" line="491"/>
         <source>Next Rows</source>
         <translation>Nächste Zeilen</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="388"/>
+        <location filename="../homeform.cpp" line="494"/>
         <source>METS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="390"/>
+        <location filename="../homeform.cpp" line="496"/>
         <source>Target METS</source>
         <translation>Ziel-METS</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="392"/>
+        <location filename="../homeform.cpp" line="498"/>
         <source>RSS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="394"/>
+        <location filename="../homeform.cpp" line="500"/>
         <source>Steering</source>
         <translation>Lenkung</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="397"/>
+        <location filename="../homeform.cpp" line="503"/>
         <source>Peloton Offset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="400"/>
+        <location filename="../homeform.cpp" line="506"/>
         <source>Peloton Rem.</source>
         <translation>Peloton Fern.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="402"/>
+        <location filename="../homeform.cpp" line="508"/>
         <source>Strokes Count</source>
         <translation>Zählungen</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="404"/>
+        <location filename="../homeform.cpp" line="510"/>
         <source>Strokes Length</source>
         <translation>Schlaglänge</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="406"/>
+        <location filename="../homeform.cpp" line="512"/>
         <source>Gears</source>
         <translation>Zahnräder</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="408"/>
+        <location filename="../homeform.cpp" line="514"/>
         <source>GearsPlus</source>
         <translation>Gänge +</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="410"/>
+        <location filename="../homeform.cpp" line="516"/>
         <source>GearsMinus</source>
         <translation>Gänge -</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="412"/>
+        <location filename="../homeform.cpp" line="518"/>
         <source>Cruise</source>
         <translation>Cruisen</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="414"/>
+        <location filename="../homeform.cpp" line="520"/>
         <source>Climb</source>
         <translation>Anstieg</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="416"/>
+        <location filename="../homeform.cpp" line="522"/>
         <source>Sprint</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="418"/>
+        <location filename="../homeform.cpp" line="524"/>
         <source>Power Avg</source>
         <translation>Durchschnittsleistung</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="422"/>
+        <location filename="../homeform.cpp" line="528"/>
         <source>PID Heart</source>
         <translation>PID Herz</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="424"/>
+        <location filename="../homeform.cpp" line="530"/>
         <source>Ext.Inclin.(%)</source>
         <translation>Ext.Steigung(%)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="427"/>
+        <location filename="../homeform.cpp" line="533"/>
         <source>Stride L.(%1)</source>
         <translation>Schrittlänge L.(%1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="429"/>
+        <location filename="../homeform.cpp" line="535"/>
         <source>Ground C.(ms)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="432"/>
+        <location filename="../homeform.cpp" line="538"/>
         <source>Vert.Osc.(mm)</source>
         <translation>Vert.Oszill.(mm)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="436"/>
+        <location filename="../homeform.cpp" line="542"/>
         <source>Step Count</source>
         <translation>Schrittzahl</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="5669"/>
+        <location filename="../homeform.cpp" line="5792"/>
         <source>Stop</source>
         <translation>Stopp</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="5681"/>
+        <location filename="../homeform.cpp" line="5804"/>
         <source>Start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="5683"/>
+        <location filename="../homeform.cpp" line="5806"/>
         <source>Pause</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6283"/>
-        <location filename="../homeform.cpp" line="6435"/>
-        <location filename="../homeform.cpp" line="6606"/>
+        <location filename="../homeform.cpp" line="6406"/>
+        <location filename="../homeform.cpp" line="6558"/>
+        <location filename="../homeform.cpp" line="6729"/>
         <source>Rec.</source>
         <translation>Aufn.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6286"/>
-        <location filename="../homeform.cpp" line="6438"/>
-        <location filename="../homeform.cpp" line="6609"/>
+        <location filename="../homeform.cpp" line="6409"/>
+        <location filename="../homeform.cpp" line="6561"/>
+        <location filename="../homeform.cpp" line="6732"/>
         <source>Easy</source>
         <translation>Einfach</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6290"/>
+        <location filename="../homeform.cpp" line="6413"/>
         <source>Brisk</source>
         <translation>Zügig</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6292"/>
-        <location filename="../homeform.cpp" line="6441"/>
-        <location filename="../homeform.cpp" line="6612"/>
+        <location filename="../homeform.cpp" line="6415"/>
+        <location filename="../homeform.cpp" line="6564"/>
+        <location filename="../homeform.cpp" line="6735"/>
         <source>Moder.</source>
         <translation>Moderat</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6297"/>
+        <location filename="../homeform.cpp" line="6420"/>
         <source>Power</source>
         <translation>Leistung</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6299"/>
-        <location filename="../homeform.cpp" line="6444"/>
-        <location filename="../homeform.cpp" line="6615"/>
+        <location filename="../homeform.cpp" line="6422"/>
+        <location filename="../homeform.cpp" line="6567"/>
+        <location filename="../homeform.cpp" line="6738"/>
         <source>Chall.</source>
         <translation>Herausf.</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6304"/>
-        <location filename="../homeform.cpp" line="6313"/>
-        <location filename="../homeform.cpp" line="6453"/>
-        <location filename="../homeform.cpp" line="6618"/>
+        <location filename="../homeform.cpp" line="6427"/>
+        <location filename="../homeform.cpp" line="6436"/>
+        <location filename="../homeform.cpp" line="6576"/>
+        <location filename="../homeform.cpp" line="6741"/>
         <source>Max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6306"/>
-        <location filename="../homeform.cpp" line="6447"/>
+        <location filename="../homeform.cpp" line="6429"/>
+        <location filename="../homeform.cpp" line="6570"/>
         <source>Hard</source>
         <translation>Schwer</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6310"/>
-        <location filename="../homeform.cpp" line="6450"/>
+        <location filename="../homeform.cpp" line="6433"/>
+        <location filename="../homeform.cpp" line="6573"/>
         <source>V.Hard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="6316"/>
-        <location filename="../homeform.cpp" line="6456"/>
-        <location filename="../homeform.cpp" line="6621"/>
+        <location filename="../homeform.cpp" line="6439"/>
+        <location filename="../homeform.cpp" line="6579"/>
+        <location filename="../homeform.cpp" line="6744"/>
         <source>N/A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7881"/>
+        <location filename="../homeform.cpp" line="8004"/>
         <source>, speed </source>
         <translation>, Geschwindigkeit </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7883"/>
-        <location filename="../homeform.cpp" line="7901"/>
-        <location filename="../homeform.cpp" line="8062"/>
-        <location filename="../homeform.cpp" line="8095"/>
+        <location filename="../homeform.cpp" line="8006"/>
+        <location filename="../homeform.cpp" line="8024"/>
+        <location filename="../homeform.cpp" line="8185"/>
+        <location filename="../homeform.cpp" line="8218"/>
         <source> kilometers per hour</source>
         <translation> Kilometer pro Stunde</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7887"/>
-        <location filename="../homeform.cpp" line="7896"/>
-        <location filename="../homeform.cpp" line="7905"/>
-        <location filename="../homeform.cpp" line="8067"/>
-        <location filename="../homeform.cpp" line="8099"/>
+        <location filename="../homeform.cpp" line="8010"/>
+        <location filename="../homeform.cpp" line="8019"/>
+        <location filename="../homeform.cpp" line="8028"/>
+        <location filename="../homeform.cpp" line="8190"/>
+        <location filename="../homeform.cpp" line="8222"/>
         <source> miles per hour</source>
         <translation> km/h</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7889"/>
+        <location filename="../homeform.cpp" line="8012"/>
         <source>, Average speed </source>
         <translation>, Durchschnittsgeschwindigkeit </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7892"/>
+        <location filename="../homeform.cpp" line="8015"/>
         <source>kilometers per hour</source>
         <translation>kilometer pro Stunde</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7898"/>
+        <location filename="../homeform.cpp" line="8021"/>
         <source>, Max speed </source>
         <translation>, Maximale Geschwindigkeit </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7908"/>
+        <location filename="../homeform.cpp" line="8031"/>
         <source>, inclination </source>
         <translation>, Steigung </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7911"/>
+        <location filename="../homeform.cpp" line="8034"/>
         <source>, cadence </source>
         <translation>, Kadenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7914"/>
+        <location filename="../homeform.cpp" line="8037"/>
         <source>, Average cadence </source>
         <translation>, Durchschnittliche Trittfrequenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7918"/>
+        <location filename="../homeform.cpp" line="8041"/>
         <source>, Max cadence </source>
         <translation>, Max. Trittfrequenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7923"/>
+        <location filename="../homeform.cpp" line="8046"/>
         <source>, elevation </source>
         <translation>, Höhe </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7925"/>
+        <location filename="../homeform.cpp" line="8048"/>
         <source> meters</source>
         <translation> Meter</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7929"/>
+        <location filename="../homeform.cpp" line="8052"/>
         <source> feet</source>
         <translation> füße</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7931"/>
+        <location filename="../homeform.cpp" line="8054"/>
         <source>, calories burned </source>
         <translation>, verbrannte Kalorien </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7934"/>
+        <location filename="../homeform.cpp" line="8057"/>
         <source>, distance </source>
         <translation>, Distanz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7936"/>
+        <location filename="../homeform.cpp" line="8059"/>
         <source>kilometers</source>
         <translation>Kilometer</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7939"/>
+        <location filename="../homeform.cpp" line="8062"/>
         <source> miles</source>
         <translation> Meilen</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7943"/>
-        <location filename="../homeform.cpp" line="7947"/>
-        <location filename="../homeform.cpp" line="7952"/>
-        <location filename="../homeform.cpp" line="7955"/>
-        <location filename="../homeform.cpp" line="7958"/>
+        <location filename="../homeform.cpp" line="8066"/>
+        <location filename="../homeform.cpp" line="8070"/>
+        <location filename="../homeform.cpp" line="8075"/>
+        <location filename="../homeform.cpp" line="8078"/>
+        <location filename="../homeform.cpp" line="8081"/>
         <source>, pace </source>
         <translation>, Tempo </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7962"/>
+        <location filename="../homeform.cpp" line="8085"/>
         <source>, resistance </source>
         <translation>, Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7967"/>
+        <location filename="../homeform.cpp" line="8090"/>
         <source>, average resistance </source>
         <translation>, durchschnittlicher Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7971"/>
+        <location filename="../homeform.cpp" line="8094"/>
         <source>, max resistance </source>
         <translation>, maximaler Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7974"/>
+        <location filename="../homeform.cpp" line="8097"/>
         <source>, watt </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7977"/>
+        <location filename="../homeform.cpp" line="8100"/>
         <source>, average watt </source>
         <translation>, durchschnittliche Wattzahl </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7980"/>
+        <location filename="../homeform.cpp" line="8103"/>
         <source>, max watt </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7986"/>
+        <location filename="../homeform.cpp" line="8109"/>
         <source>, heart rate </source>
         <translation>, Herzfrequenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7989"/>
+        <location filename="../homeform.cpp" line="8112"/>
         <source>, average heart rate </source>
         <translation>, durchschnittliche Herzfrequenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7992"/>
+        <location filename="../homeform.cpp" line="8115"/>
         <source>, max heart rate </source>
         <translation>, maximale Herzfrequenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7995"/>
+        <location filename="../homeform.cpp" line="8118"/>
         <source>, jouls </source>
         <translation>, Joule </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="7998"/>
+        <location filename="../homeform.cpp" line="8121"/>
         <source>, elapsed </source>
         <translation>, vergangen </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8000"/>
+        <location filename="../homeform.cpp" line="8123"/>
         <source> minutes </source>
         <translation> Minuten </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8002"/>
+        <location filename="../homeform.cpp" line="8125"/>
         <source> seconds</source>
         <translation> Sekunden</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8008"/>
+        <location filename="../homeform.cpp" line="8131"/>
         <source>, peloton resistance </source>
         <translation>, peloton Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8016"/>
+        <location filename="../homeform.cpp" line="8139"/>
         <source>, average peloton resistance </source>
         <translation>, durchschnittlicher peloton-Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8024"/>
+        <location filename="../homeform.cpp" line="8147"/>
         <source>, max peloton resistance </source>
         <translation>, max Peloton-Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8032"/>
+        <location filename="../homeform.cpp" line="8155"/>
         <source>, target peloton resistance </source>
         <translation>, Ziel peloton Widerstand </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8040"/>
+        <location filename="../homeform.cpp" line="8163"/>
         <source>, target cadence </source>
         <translation>, Ziel-Kadenz </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8046"/>
+        <location filename="../homeform.cpp" line="8169"/>
         <source>, target power </source>
         <translation>, Zielleistung </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8052"/>
+        <location filename="../homeform.cpp" line="8175"/>
         <source>, target zone </source>
         <translation>, Zielzone </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8058"/>
+        <location filename="../homeform.cpp" line="8181"/>
         <source>, target speed </source>
         <translation>Zielgeschwindigkeit </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8072"/>
+        <location filename="../homeform.cpp" line="8195"/>
         <source>, target incline </source>
         <translation>, Zielneigung </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8077"/>
+        <location filename="../homeform.cpp" line="8200"/>
         <source>, watt for kilograms </source>
         <translation>, Watt pro Kilogramm </translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8080"/>
+        <location filename="../homeform.cpp" line="8203"/>
         <source>, average watt for kilograms</source>
         <translation>, durchschnittliche Watt pro Kilogramm</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8083"/>
+        <location filename="../homeform.cpp" line="8206"/>
         <source>, max watt for kilograms</source>
         <translation>, max Watt für Kilogramm</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8093"/>
+        <location filename="../homeform.cpp" line="8216"/>
         <source>speed changed to</source>
         <translation>Geschwindigkeit geändert zu</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="8858"/>
+        <location filename="../homeform.cpp" line="9106"/>
         <source>JSON parser error</source>
         <translation>JSON Parserfehler</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="9145"/>
+        <location filename="../homeform.cpp" line="9393"/>
         <source>Error retrieving access token, %1 (%2)</source>
         <translation>Fehler beim Abrufen des Zugriffstokens, %1 (%2)</translation>
     </message>
@@ -1602,7 +1602,7 @@ Möchten Sie es jetzt tun?</translation>
     </message>
     <message>
         <location filename="../main.qml" line="711"/>
-        <location filename="../main.qml" line="810"/>
+        <location filename="../main.qml" line="844"/>
         <source>Strava</source>
         <translation>Strava</translation>
     </message>
@@ -1636,117 +1636,117 @@ Do you want to start it now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.qml" line="811"/>
+        <location filename="../main.qml" line="845"/>
         <source>You are already connected to Strava. Do you want to log out?</source>
         <translation>Du bist bereits mit Strava verbunden. Möchtest du dich abmelden?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="820"/>
+        <location filename="../main.qml" line="854"/>
         <source>Peloton</source>
         <translation>Peloton</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="821"/>
+        <location filename="../main.qml" line="855"/>
         <source>You are already connected to Peloton. Do you want to log out?</source>
         <translation>Sie sind bereits mit Peloton verbunden. Möchten Sie sich abmelden?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="830"/>
+        <location filename="../main.qml" line="864"/>
         <source>Intervals.icu</source>
         <translation>Intervals.icu</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="831"/>
+        <location filename="../main.qml" line="865"/>
         <source>You are already connected to Intervals.icu. Do you want to log out?</source>
         <translation>Sie sind bereits mit Intervals.icu verbunden. Möchten Sie sich abmelden?</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="936"/>
+        <location filename="../main.qml" line="970"/>
         <source>You can move the tiles!</source>
         <translation>Du kannst die Kacheln bewegen!</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="936"/>
+        <location filename="../main.qml" line="970"/>
         <source>The tiles are locked now</source>
         <translation>Die Kacheln sind jetzt gesperrt</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="977"/>
+        <location filename="../main.qml" line="1011"/>
         <source>Search settings</source>
         <translation>Suchen Sie Einstellungen</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1087"/>
+        <location filename="../main.qml" line="1121"/>
         <source>Profile: </source>
         <translation>Profil: </translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1099"/>
+        <location filename="../main.qml" line="1133"/>
         <source>Settings</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1113"/>
+        <location filename="../main.qml" line="1147"/>
         <source>Workouts History</source>
         <translation>Trainingsverlauf</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1122"/>
+        <location filename="../main.qml" line="1156"/>
         <source>Swag Bag</source>
         <translation>Goodiepaket</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1131"/>
+        <location filename="../main.qml" line="1165"/>
         <source>Charts</source>
         <translation>Diagramme</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1144"/>
+        <location filename="../main.qml" line="1178"/>
         <source>Open GPX</source>
         <translation>Öffne GPX</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1160"/>
+        <location filename="../main.qml" line="1194"/>
         <source>Open Train Program</source>
         <translation>Öffne Trainingsprogramm</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1178"/>
+        <location filename="../main.qml" line="1212"/>
         <source>Workout Editor</source>
         <translation>Trainingseditor</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1206"/>
+        <location filename="../main.qml" line="1240"/>
         <source>Save GPX</source>
         <translation>Speichern GPX</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1216"/>
+        <location filename="../main.qml" line="1250"/>
         <source>Save FIT</source>
         <translation>Speichere FIT</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1226"/>
+        <location filename="../main.qml" line="1260"/>
         <source>Wizard</source>
         <translation>Assistent</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1235"/>
+        <location filename="../main.qml" line="1269"/>
         <source>Help</source>
         <translation>Hilfe</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1244"/>
+        <location filename="../main.qml" line="1278"/>
         <source>Community</source>
         <translation>Gemeinschaft</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1252"/>
+        <location filename="../main.qml" line="1286"/>
         <source>Credits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.qml" line="1260"/>
+        <location filename="../main.qml" line="1294"/>
         <source>Quit</source>
         <translation>Beenden</translation>
     </message>
@@ -1851,2132 +1851,3363 @@ Do you want to start it now?</source>
 <context>
     <name>settings</name>
     <message>
+        <location filename="../settings.qml" line="2019"/>
         <source>General Options</source>
-        <translation type="vanished">Allgemeine Optionen</translation>
+        <translation>Allgemeine Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2047"/>
+        <location filename="../settings.qml" line="2094"/>
+        <location filename="../settings.qml" line="2135"/>
+        <location filename="../settings.qml" line="2181"/>
+        <location filename="../settings.qml" line="2231"/>
+        <location filename="../settings.qml" line="2271"/>
+        <location filename="../settings.qml" line="2310"/>
+        <location filename="../settings.qml" line="2346"/>
+        <location filename="../settings.qml" line="2383"/>
+        <location filename="../settings.qml" line="2420"/>
+        <location filename="../settings.qml" line="2736"/>
+        <location filename="../settings.qml" line="2789"/>
+        <location filename="../settings.qml" line="2814"/>
+        <location filename="../settings.qml" line="2839"/>
+        <location filename="../settings.qml" line="2864"/>
+        <location filename="../settings.qml" line="2938"/>
+        <location filename="../settings.qml" line="2976"/>
+        <location filename="../settings.qml" line="3024"/>
+        <location filename="../settings.qml" line="3049"/>
+        <location filename="../settings.qml" line="3074"/>
+        <location filename="../settings.qml" line="3099"/>
+        <location filename="../settings.qml" line="3231"/>
+        <location filename="../settings.qml" line="3272"/>
+        <location filename="../settings.qml" line="3304"/>
+        <location filename="../settings.qml" line="3342"/>
+        <location filename="../settings.qml" line="3366"/>
+        <location filename="../settings.qml" line="3418"/>
+        <location filename="../settings.qml" line="3456"/>
+        <location filename="../settings.qml" line="3494"/>
+        <location filename="../settings.qml" line="3532"/>
+        <location filename="../settings.qml" line="3570"/>
+        <location filename="../settings.qml" line="3608"/>
+        <location filename="../settings.qml" line="3646"/>
+        <location filename="../settings.qml" line="3684"/>
+        <location filename="../settings.qml" line="3720"/>
+        <location filename="../settings.qml" line="3764"/>
+        <location filename="../settings.qml" line="3868"/>
+        <location filename="../settings.qml" line="3892"/>
+        <location filename="../settings.qml" line="3916"/>
+        <location filename="../settings.qml" line="3940"/>
+        <location filename="../settings.qml" line="3974"/>
+        <location filename="../settings.qml" line="3998"/>
+        <location filename="../settings.qml" line="4022"/>
+        <location filename="../settings.qml" line="4046"/>
+        <location filename="../settings.qml" line="4080"/>
+        <location filename="../settings.qml" line="4104"/>
+        <location filename="../settings.qml" line="4128"/>
+        <location filename="../settings.qml" line="4152"/>
+        <location filename="../settings.qml" line="4180"/>
+        <location filename="../settings.qml" line="4288"/>
+        <location filename="../settings.qml" line="4332"/>
+        <location filename="../settings.qml" line="4371"/>
+        <location filename="../settings.qml" line="4395"/>
+        <location filename="../settings.qml" line="4419"/>
+        <location filename="../settings.qml" line="4777"/>
+        <location filename="../settings.qml" line="4839"/>
+        <location filename="../settings.qml" line="4971"/>
+        <location filename="../settings.qml" line="5149"/>
+        <location filename="../settings.qml" line="5174"/>
+        <location filename="../settings.qml" line="5198"/>
+        <location filename="../settings.qml" line="5258"/>
+        <location filename="../settings.qml" line="5292"/>
+        <location filename="../settings.qml" line="5317"/>
+        <location filename="../settings.qml" line="5375"/>
+        <location filename="../settings.qml" line="5400"/>
+        <location filename="../settings.qml" line="5508"/>
+        <location filename="../settings.qml" line="5626"/>
+        <location filename="../settings.qml" line="5663"/>
+        <location filename="../settings.qml" line="5715"/>
+        <location filename="../settings.qml" line="5832"/>
+        <location filename="../settings.qml" line="5882"/>
+        <location filename="../settings.qml" line="5919"/>
+        <location filename="../settings.qml" line="5956"/>
+        <location filename="../settings.qml" line="6028"/>
+        <location filename="../settings.qml" line="6143"/>
+        <location filename="../settings.qml" line="6177"/>
+        <location filename="../settings.qml" line="6224"/>
+        <location filename="../settings.qml" line="6257"/>
+        <location filename="../settings.qml" line="6288"/>
+        <location filename="../settings.qml" line="6422"/>
+        <location filename="../settings.qml" line="6460"/>
+        <location filename="../settings.qml" line="6498"/>
+        <location filename="../settings.qml" line="6532"/>
+        <location filename="../settings.qml" line="6566"/>
+        <location filename="../settings.qml" line="6604"/>
+        <location filename="../settings.qml" line="6641"/>
+        <location filename="../settings.qml" line="6680"/>
+        <location filename="../settings.qml" line="6718"/>
+        <location filename="../settings.qml" line="6756"/>
+        <location filename="../settings.qml" line="6906"/>
+        <location filename="../settings.qml" line="6946"/>
+        <location filename="../settings.qml" line="6984"/>
+        <location filename="../settings.qml" line="7155"/>
+        <location filename="../settings.qml" line="7195"/>
+        <location filename="../settings.qml" line="7336"/>
+        <location filename="../settings.qml" line="7658"/>
+        <location filename="../settings.qml" line="7685"/>
+        <location filename="../settings.qml" line="8431"/>
+        <location filename="../settings.qml" line="8466"/>
+        <location filename="../settings.qml" line="8488"/>
+        <location filename="../settings.qml" line="8579"/>
+        <location filename="../settings.qml" line="8616"/>
+        <location filename="../settings.qml" line="8653"/>
+        <location filename="../settings.qml" line="8690"/>
+        <location filename="../settings.qml" line="8727"/>
+        <location filename="../settings.qml" line="8767"/>
+        <location filename="../settings.qml" line="8804"/>
+        <location filename="../settings.qml" line="8853"/>
+        <location filename="../settings.qml" line="8878"/>
+        <location filename="../settings.qml" line="8903"/>
+        <location filename="../settings.qml" line="8928"/>
+        <location filename="../settings.qml" line="8953"/>
+        <location filename="../settings.qml" line="8978"/>
+        <location filename="../settings.qml" line="9003"/>
+        <location filename="../settings.qml" line="9028"/>
+        <location filename="../settings.qml" line="9215"/>
+        <location filename="../settings.qml" line="9252"/>
+        <location filename="../settings.qml" line="9288"/>
+        <location filename="../settings.qml" line="9324"/>
+        <location filename="../settings.qml" line="9360"/>
+        <location filename="../settings.qml" line="9398"/>
+        <location filename="../settings.qml" line="9485"/>
+        <location filename="../settings.qml" line="9839"/>
+        <location filename="../settings.qml" line="9863"/>
+        <location filename="../settings.qml" line="10257"/>
+        <location filename="../settings.qml" line="10280"/>
+        <location filename="../settings.qml" line="10303"/>
+        <location filename="../settings.qml" line="10326"/>
+        <location filename="../settings.qml" line="10349"/>
+        <location filename="../settings.qml" line="10569"/>
+        <location filename="../settings.qml" line="10741"/>
+        <location filename="../settings.qml" line="10764"/>
+        <location filename="../settings.qml" line="10787"/>
+        <location filename="../settings.qml" line="10810"/>
+        <location filename="../settings.qml" line="10833"/>
+        <location filename="../settings.qml" line="11276"/>
+        <location filename="../settings.qml" line="11304"/>
+        <location filename="../settings.qml" line="11383"/>
+        <location filename="../settings.qml" line="11427"/>
+        <location filename="../settings.qml" line="11470"/>
+        <location filename="../settings.qml" line="11498"/>
+        <location filename="../settings.qml" line="11615"/>
+        <location filename="../settings.qml" line="11731"/>
+        <location filename="../settings.qml" line="11803"/>
+        <location filename="../settings.qml" line="11841"/>
+        <location filename="../settings.qml" line="11879"/>
+        <location filename="../settings.qml" line="11918"/>
+        <location filename="../settings.qml" line="11956"/>
+        <location filename="../settings.qml" line="11994"/>
+        <location filename="../settings.qml" line="12040"/>
+        <location filename="../settings.qml" line="12064"/>
+        <location filename="../settings.qml" line="12367"/>
+        <location filename="../settings.qml" line="12405"/>
+        <location filename="../settings.qml" line="12441"/>
+        <location filename="../settings.qml" line="12479"/>
+        <location filename="../settings.qml" line="12597"/>
+        <location filename="../settings.qml" line="12633"/>
+        <location filename="../settings.qml" line="12760"/>
+        <location filename="../settings.qml" line="12805"/>
+        <location filename="../settings.qml" line="13290"/>
+        <location filename="../settings.qml" line="13356"/>
+        <location filename="../settings.qml" line="13387"/>
+        <location filename="../settings.qml" line="13424"/>
+        <location filename="../settings.qml" line="13471"/>
+        <location filename="../settings.qml" line="13518"/>
+        <location filename="../settings.qml" line="13542"/>
+        <location filename="../settings.qml" line="13566"/>
+        <location filename="../settings.qml" line="13599"/>
+        <location filename="../settings.qml" line="13622"/>
+        <location filename="../settings.qml" line="13646"/>
+        <location filename="../settings.qml" line="13669"/>
+        <location filename="../settings.qml" line="13693"/>
+        <location filename="../settings.qml" line="13716"/>
+        <location filename="../settings.qml" line="13740"/>
+        <location filename="../settings.qml" line="13763"/>
+        <location filename="../settings.qml" line="13818"/>
+        <location filename="../settings.qml" line="13842"/>
+        <location filename="../settings.qml" line="13866"/>
+        <location filename="../settings.qml" line="13915"/>
+        <location filename="../settings.qml" line="13937"/>
+        <location filename="../settings.qml" line="13959"/>
+        <location filename="../settings.qml" line="14008"/>
+        <location filename="../settings.qml" line="14030"/>
+        <location filename="../settings.qml" line="14052"/>
+        <location filename="../settings.qml" line="14359"/>
+        <location filename="../settings.qml" line="14422"/>
+        <location filename="../settings.qml" line="14915"/>
+        <location filename="../settings.qml" line="14952"/>
+        <location filename="../settings.qml" line="14987"/>
+        <location filename="../settings.qml" line="15023"/>
+        <location filename="../settings.qml" line="15059"/>
+        <location filename="../settings.qml" line="15096"/>
+        <location filename="../settings.qml" line="15132"/>
+        <location filename="../settings.qml" line="15179"/>
+        <location filename="../settings.qml" line="15203"/>
         <source>OK</source>
-        <translation type="vanished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2049"/>
+        <location filename="../settings.qml" line="2099"/>
+        <location filename="../settings.qml" line="2137"/>
+        <location filename="../settings.qml" line="2195"/>
+        <location filename="../settings.qml" line="2233"/>
+        <location filename="../settings.qml" line="2273"/>
+        <location filename="../settings.qml" line="2312"/>
+        <location filename="../settings.qml" line="2348"/>
+        <location filename="../settings.qml" line="2385"/>
+        <location filename="../settings.qml" line="2422"/>
+        <location filename="../settings.qml" line="2738"/>
+        <location filename="../settings.qml" line="2791"/>
+        <location filename="../settings.qml" line="2816"/>
+        <location filename="../settings.qml" line="2841"/>
+        <location filename="../settings.qml" line="2866"/>
+        <location filename="../settings.qml" line="2940"/>
+        <location filename="../settings.qml" line="2978"/>
+        <location filename="../settings.qml" line="3026"/>
+        <location filename="../settings.qml" line="3051"/>
+        <location filename="../settings.qml" line="3076"/>
+        <location filename="../settings.qml" line="3101"/>
+        <location filename="../settings.qml" line="3236"/>
+        <location filename="../settings.qml" line="3274"/>
+        <location filename="../settings.qml" line="3306"/>
+        <location filename="../settings.qml" line="3344"/>
+        <location filename="../settings.qml" line="3368"/>
+        <location filename="../settings.qml" line="3420"/>
+        <location filename="../settings.qml" line="3458"/>
+        <location filename="../settings.qml" line="3496"/>
+        <location filename="../settings.qml" line="3534"/>
+        <location filename="../settings.qml" line="3572"/>
+        <location filename="../settings.qml" line="3610"/>
+        <location filename="../settings.qml" line="3648"/>
+        <location filename="../settings.qml" line="3686"/>
+        <location filename="../settings.qml" line="3722"/>
+        <location filename="../settings.qml" line="3766"/>
+        <location filename="../settings.qml" line="3870"/>
+        <location filename="../settings.qml" line="3894"/>
+        <location filename="../settings.qml" line="3918"/>
+        <location filename="../settings.qml" line="3942"/>
+        <location filename="../settings.qml" line="3976"/>
+        <location filename="../settings.qml" line="4000"/>
+        <location filename="../settings.qml" line="4024"/>
+        <location filename="../settings.qml" line="4048"/>
+        <location filename="../settings.qml" line="4082"/>
+        <location filename="../settings.qml" line="4106"/>
+        <location filename="../settings.qml" line="4130"/>
+        <location filename="../settings.qml" line="4154"/>
+        <location filename="../settings.qml" line="4182"/>
+        <location filename="../settings.qml" line="4290"/>
+        <location filename="../settings.qml" line="4334"/>
+        <location filename="../settings.qml" line="4373"/>
+        <location filename="../settings.qml" line="4397"/>
+        <location filename="../settings.qml" line="4421"/>
+        <location filename="../settings.qml" line="4779"/>
+        <location filename="../settings.qml" line="4841"/>
+        <location filename="../settings.qml" line="4973"/>
+        <location filename="../settings.qml" line="5151"/>
+        <location filename="../settings.qml" line="5176"/>
+        <location filename="../settings.qml" line="5200"/>
+        <location filename="../settings.qml" line="5260"/>
+        <location filename="../settings.qml" line="5294"/>
+        <location filename="../settings.qml" line="5322"/>
+        <location filename="../settings.qml" line="5377"/>
+        <location filename="../settings.qml" line="5402"/>
+        <location filename="../settings.qml" line="5510"/>
+        <location filename="../settings.qml" line="5628"/>
+        <location filename="../settings.qml" line="5665"/>
+        <location filename="../settings.qml" line="5717"/>
+        <location filename="../settings.qml" line="5834"/>
+        <location filename="../settings.qml" line="5884"/>
+        <location filename="../settings.qml" line="5921"/>
+        <location filename="../settings.qml" line="5958"/>
+        <location filename="../settings.qml" line="6030"/>
+        <location filename="../settings.qml" line="6145"/>
+        <location filename="../settings.qml" line="6179"/>
+        <location filename="../settings.qml" line="6226"/>
+        <location filename="../settings.qml" line="6259"/>
+        <location filename="../settings.qml" line="6290"/>
+        <location filename="../settings.qml" line="6424"/>
+        <location filename="../settings.qml" line="6462"/>
+        <location filename="../settings.qml" line="6500"/>
+        <location filename="../settings.qml" line="6534"/>
+        <location filename="../settings.qml" line="6568"/>
+        <location filename="../settings.qml" line="6606"/>
+        <location filename="../settings.qml" line="6643"/>
+        <location filename="../settings.qml" line="6682"/>
+        <location filename="../settings.qml" line="6720"/>
+        <location filename="../settings.qml" line="6758"/>
+        <location filename="../settings.qml" line="6908"/>
+        <location filename="../settings.qml" line="6948"/>
+        <location filename="../settings.qml" line="6986"/>
+        <location filename="../settings.qml" line="7157"/>
+        <location filename="../settings.qml" line="7197"/>
+        <location filename="../settings.qml" line="7338"/>
+        <location filename="../settings.qml" line="7663"/>
+        <location filename="../settings.qml" line="7690"/>
+        <location filename="../settings.qml" line="8433"/>
+        <location filename="../settings.qml" line="8468"/>
+        <location filename="../settings.qml" line="8490"/>
+        <location filename="../settings.qml" line="8581"/>
+        <location filename="../settings.qml" line="8618"/>
+        <location filename="../settings.qml" line="8655"/>
+        <location filename="../settings.qml" line="8692"/>
+        <location filename="../settings.qml" line="8729"/>
+        <location filename="../settings.qml" line="8769"/>
+        <location filename="../settings.qml" line="8806"/>
+        <location filename="../settings.qml" line="8855"/>
+        <location filename="../settings.qml" line="8880"/>
+        <location filename="../settings.qml" line="8905"/>
+        <location filename="../settings.qml" line="8930"/>
+        <location filename="../settings.qml" line="8955"/>
+        <location filename="../settings.qml" line="8980"/>
+        <location filename="../settings.qml" line="9005"/>
+        <location filename="../settings.qml" line="9030"/>
+        <location filename="../settings.qml" line="9217"/>
+        <location filename="../settings.qml" line="9254"/>
+        <location filename="../settings.qml" line="9290"/>
+        <location filename="../settings.qml" line="9326"/>
+        <location filename="../settings.qml" line="9362"/>
+        <location filename="../settings.qml" line="9400"/>
+        <location filename="../settings.qml" line="9487"/>
+        <location filename="../settings.qml" line="9841"/>
+        <location filename="../settings.qml" line="9865"/>
+        <location filename="../settings.qml" line="10259"/>
+        <location filename="../settings.qml" line="10282"/>
+        <location filename="../settings.qml" line="10305"/>
+        <location filename="../settings.qml" line="10328"/>
+        <location filename="../settings.qml" line="10351"/>
+        <location filename="../settings.qml" line="10571"/>
+        <location filename="../settings.qml" line="10743"/>
+        <location filename="../settings.qml" line="10766"/>
+        <location filename="../settings.qml" line="10789"/>
+        <location filename="../settings.qml" line="10812"/>
+        <location filename="../settings.qml" line="10835"/>
+        <location filename="../settings.qml" line="11278"/>
+        <location filename="../settings.qml" line="11306"/>
+        <location filename="../settings.qml" line="11385"/>
+        <location filename="../settings.qml" line="11429"/>
+        <location filename="../settings.qml" line="11472"/>
+        <location filename="../settings.qml" line="11500"/>
+        <location filename="../settings.qml" line="11617"/>
+        <location filename="../settings.qml" line="11733"/>
+        <location filename="../settings.qml" line="11805"/>
+        <location filename="../settings.qml" line="11843"/>
+        <location filename="../settings.qml" line="11881"/>
+        <location filename="../settings.qml" line="11920"/>
+        <location filename="../settings.qml" line="11958"/>
+        <location filename="../settings.qml" line="11996"/>
+        <location filename="../settings.qml" line="12042"/>
+        <location filename="../settings.qml" line="12066"/>
+        <location filename="../settings.qml" line="12369"/>
+        <location filename="../settings.qml" line="12407"/>
+        <location filename="../settings.qml" line="12443"/>
+        <location filename="../settings.qml" line="12481"/>
+        <location filename="../settings.qml" line="12599"/>
+        <location filename="../settings.qml" line="12635"/>
+        <location filename="../settings.qml" line="12762"/>
+        <location filename="../settings.qml" line="12807"/>
+        <location filename="../settings.qml" line="13292"/>
+        <location filename="../settings.qml" line="13358"/>
+        <location filename="../settings.qml" line="13389"/>
+        <location filename="../settings.qml" line="13426"/>
+        <location filename="../settings.qml" line="13473"/>
+        <location filename="../settings.qml" line="13520"/>
+        <location filename="../settings.qml" line="13544"/>
+        <location filename="../settings.qml" line="13568"/>
+        <location filename="../settings.qml" line="13601"/>
+        <location filename="../settings.qml" line="13624"/>
+        <location filename="../settings.qml" line="13648"/>
+        <location filename="../settings.qml" line="13671"/>
+        <location filename="../settings.qml" line="13695"/>
+        <location filename="../settings.qml" line="13718"/>
+        <location filename="../settings.qml" line="13742"/>
+        <location filename="../settings.qml" line="13765"/>
+        <location filename="../settings.qml" line="13820"/>
+        <location filename="../settings.qml" line="13844"/>
+        <location filename="../settings.qml" line="13868"/>
+        <location filename="../settings.qml" line="13917"/>
+        <location filename="../settings.qml" line="13939"/>
+        <location filename="../settings.qml" line="13961"/>
+        <location filename="../settings.qml" line="14010"/>
+        <location filename="../settings.qml" line="14032"/>
+        <location filename="../settings.qml" line="14054"/>
+        <location filename="../settings.qml" line="14361"/>
+        <location filename="../settings.qml" line="14424"/>
+        <location filename="../settings.qml" line="14917"/>
+        <location filename="../settings.qml" line="14954"/>
+        <location filename="../settings.qml" line="14989"/>
+        <location filename="../settings.qml" line="15025"/>
+        <location filename="../settings.qml" line="15061"/>
+        <location filename="../settings.qml" line="15098"/>
+        <location filename="../settings.qml" line="15134"/>
+        <location filename="../settings.qml" line="15181"/>
+        <location filename="../settings.qml" line="15205"/>
         <source>Setting saved!</source>
-        <translation type="vanished">Eingestellt!</translation>
+        <translation>Eingestellt!</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2053"/>
         <source>This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol</source>
-        <translation type="vanished">Dies ändert die Größe der Kacheln, die Ihre Metriken anzeigen. Der Standardwert ist 100%. Um mehr Kacheln auf Ihrem Bildschirm unterzubringen, wählen Sie einen kleineren Prozentsatz. Um sie größer zu machen, wählen Sie einen Prozentsatz über 100%. Geben Sie kein Prozentzeichen ein</translation>
+        <translation>Dies ändert die Größe der Kacheln, die Ihre Metriken anzeigen. Der Standardwert ist 100%. Um mehr Kacheln auf Ihrem Bildschirm unterzubringen, wählen Sie einen kleineren Prozentsatz. Um sie größer zu machen, wählen Sie einen Prozentsatz über 100%. Geben Sie kein Prozentzeichen ein</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2120"/>
         <source>Player Weight</source>
-        <translation type="vanished">Gewicht des Spielers</translation>
+        <translation>Gewicht des Spielers</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2157"/>
         <source>Player Height</source>
-        <translation type="vanished">Spielergröße</translation>
+        <translation>Spielergröße</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2200"/>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
-        <translation type="vanished">Geben Sie Ihre Größe ein, um eine genauere Berechnung des BMR und der aktiven Kalorien zu erhalten. Verwenden Sie Zentimeter für das metrische System oder das Format Fuß&apos;Zoll (z. B. 5&apos;10&quot;) für imperiale Einheiten.</translation>
+        <translation>Geben Sie Ihre Größe ein, um eine genauere Berechnung des BMR und der aktiven Kalorien zu erhalten. Verwenden Sie Zentimeter für das metrische System oder das Format Fuß&apos;Zoll (z. B. 5&apos;10&quot;) für imperiale Einheiten.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2216"/>
         <source>Player Age:</source>
-        <translation type="vanished">Alter des Spielers:</translation>
+        <translation>Alter des Spielers:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2238"/>
         <source>Enter your age so that calories burned can be more accurately calculated.</source>
-        <translation type="vanished">Geben Sie Ihr Alter ein, damit die verbrannten Kalorien genauer berechnet werden können.</translation>
+        <translation>Geben Sie Ihr Alter ein, damit die verbrannten Kalorien genauer berechnet werden können.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2254"/>
         <source>Gender:</source>
-        <translation type="vanished">Geschlecht:</translation>
+        <translation>Geschlecht:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2278"/>
         <source>Select your gender so that calories burned can be more accurately calculated.</source>
-        <translation type="vanished">Wählen Sie Ihr Geschlecht aus, damit die verbrannten Kalorien genauer berechnet werden können.</translation>
+        <translation>Wählen Sie Ihr Geschlecht aus, damit die verbrannten Kalorien genauer berechnet werden können.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2295"/>
         <source>FTP value:</source>
-        <translation type="vanished">FTP-Wert:</translation>
+        <translation>FTP-Wert:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2317"/>
         <source>If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).</source>
-        <translation type="vanished">Wenn Sie zu bestimmten Leistungsniveaus (oder Watt) trainieren, wie z. B. in Peloton Power Zone Kursen, und einen FTP-Test (Functional Threshold Power) durchgeführt haben, geben Sie Ihren FTP hier ein. Diese Zahl wird zur Berechnung Ihrer Power Zones verwendet (Zonen 1 bis 7 für Peloton und 1 bis 6 für Zwift).</translation>
+        <translation>Wenn Sie zu bestimmten Leistungsniveaus (oder Watt) trainieren, wie z. B. in Peloton Power Zone Kursen, und einen FTP-Test (Functional Threshold Power) durchgeführt haben, geben Sie Ihren FTP hier ein. Diese Zahl wird zur Berechnung Ihrer Power Zones verwendet (Zonen 1 bis 7 für Peloton und 1 bis 6 für Zwift).</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2332"/>
         <source>Critical Power Run value:</source>
-        <translation type="vanished">Wert der kritischen Leistung:</translation>
+        <translation>Wert der kritischen Leistung:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2353"/>
         <source>If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.</source>
-        <translation type="vanished">Wenn Sie zu bestimmten Ausgangs- (oder Watt-) Niveaus trainieren (z. B. mit Stryd) und einen CP-Test (Critical Power Test) durchgeführt haben, geben Sie Ihren CP hier ein. Diese Zahl wird zur Berechnung Ihres RSS verwendet.</translation>
+        <translation>Wenn Sie zu bestimmten Ausgangs- (oder Watt-) Niveaus trainieren (z. B. mit Stryd) und einen CP-Test (Critical Power Test) durchgeführt haben, geben Sie Ihren CP hier ein. Diese Zahl wird zur Berechnung Ihres RSS verwendet.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2369"/>
         <source>Nickname:</source>
-        <translation type="vanished">Spitzname:</translation>
+        <translation>Spitzname:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2390"/>
         <source>No need to enter data here. It is for a possible future QZ feature.</source>
-        <translation type="vanished">Hier müssen keine Daten eingegeben werden. Dies ist für ein mögliches zukünftiges QZ-Feature.</translation>
+        <translation>Hier müssen keine Daten eingegeben werden. Dies ist für ein mögliches zukünftiges QZ-Feature.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2406"/>
         <source>Email:</source>
-        <translation type="vanished">E-Mail:</translation>
+        <translation>E-Mail:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2427"/>
         <source>Enter your email address to receive an automated email with stats and charts when you hit STOP at the end of each workout. Make sure there are no spaces before or after the email address; this is the most common reason the automated email is not sent. Privacy Note: Email addresses are not collected by the developer and are only saved locally on your device.</source>
-        <translation type="vanished">Geben Sie Ihre E-Mail-Adresse ein, um eine automatische E-Mail mit Statistiken und Diagrammen zu erhalten, wenn Sie am Ende jedes Workouts STOP drücken. Achten Sie darauf, dass vor oder nach der E-Mail-Adresse keine Leerzeichen stehen; dies ist der häufigste Grund, warum die automatische E-Mail nicht gesendet wird. Datenschutzhinweis: E-Mail-Adressen werden nicht vom Entwickler gesammelt und werden nur lokal auf Ihrem Gerät gespeichert.</translation>
+        <translation>Geben Sie Ihre E-Mail-Adresse ein, um eine automatische E-Mail mit Statistiken und Diagrammen zu erhalten, wenn Sie am Ende jedes Workouts STOP drücken. Achten Sie darauf, dass vor oder nach der E-Mail-Adresse keine Leerzeichen stehen; dies ist der häufigste Grund, warum die automatische E-Mail nicht gesendet wird. Datenschutzhinweis: E-Mail-Adressen werden nicht vom Entwickler gesammelt und werden nur lokal auf Ihrem Gerät gespeichert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2441"/>
         <source>Use Miles unit in UI</source>
-        <translation type="vanished">Verwende Meilen-Einheit in der Benutzeroberfläche</translation>
+        <translation>Verwende Meilen-Einheit in der Benutzeroberfläche</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2455"/>
         <source>Turn on if you want QZ to display distance traveled in miles. Default is off and set to kilometers.</source>
-        <translation type="vanished">Aktivieren Sie dies, wenn QZ die zurückgelegte Distanz in Meilen anzeigen soll. Standardmäßig ist es deaktiviert und auf Kilometer eingestellt.</translation>
+        <translation>Aktivieren Sie dies, wenn QZ die zurückgelegte Distanz in Meilen anzeigen soll. Standardmäßig ist es deaktiviert und auf Kilometer eingestellt.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2499"/>
+        <location filename="../settings.qml" line="9114"/>
         <source>Pause when App Starts</source>
-        <translation type="vanished">Pause beim Start der App</translation>
+        <translation>Pause beim Start der App</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2513"/>
         <source>Turn on to set QZ to always open in PAUSE mode. This is important for Peloton classes so that you can sync the start of your QZ workout with the start of the Peloton class. Turn off to have QZ start tracking and timing your workout as soon as it opens.</source>
-        <translation type="vanished">Aktivieren, um QZ immer im PAUSE-Modus zu öffnen. Dies ist wichtig für Peloton-Kurse, damit Sie den Start Ihres QZ-Workouts mit dem Start des Peloton-Kurses synchronisieren können. Deaktivieren, damit QZ Ihr Workout sofort nach dem Öffnen verfolgt und timt.</translation>
+        <translation>Aktivieren, um QZ immer im PAUSE-Modus zu öffnen. Dies ist wichtig für Peloton-Kurse, damit Sie den Start Ihres QZ-Workouts mit dem Start des Peloton-Kurses synchronisieren können. Deaktivieren, damit QZ Ihr Workout sofort nach dem Öffnen verfolgt und timt.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2527"/>
         <source>Continuous Moving</source>
-        <translation type="vanished">Durchgehend bewegend</translation>
+        <translation>Durchgehend bewegend</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2541"/>
         <source>Turn this on for: - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment. - Capturing non-equipment-based workouts, such as yoga or strength training. NOTE: All such workouts are labeled as “Rides” in Strava, but you can edit the label in Strava.</source>
-        <translation type="vanished">Aktivieren Sie dies für: - Peloton Bootcamp Kurse oder andere Workouts, die auf und ab dem Fahrrad oder Laufband durchgeführt werden. QZ verfolgt Ihr Training weiter, auch wenn Sie Ihr Gerät verlassen. - Aufzeichnen von Workouts, die nicht auf Ausrüstung basieren, wie z. B. Yoga oder Krafttraining. HINWEIS: Alle solchen Workouts werden in Strava als „Rides“ gekennzeichnet, aber Sie können das Label in Strava bearbeiten.</translation>
+        <translation>Aktivieren Sie dies für: - Peloton Bootcamp Kurse oder andere Workouts, die auf und ab dem Fahrrad oder Laufband durchgeführt werden. QZ verfolgt Ihr Training weiter, auch wenn Sie Ihr Gerät verlassen. - Aufzeichnen von Workouts, die nicht auf Ausrüstung basieren, wie z. B. Yoga oder Krafttraining. HINWEIS: Alle solchen Workouts werden in Strava als „Rides“ gekennzeichnet, aber Sie können das Label in Strava bearbeiten.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2569"/>
         <source>Heart Rate Options</source>
-        <translation type="vanished">Herzfrequenzoptionen</translation>
+        <translation>Herzfrequenzoptionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2576"/>
         <source>Heart Rate service outside FTMS</source>
-        <translation type="vanished">Herzfrequenzdienst außerhalb von FTMS</translation>
+        <translation>Herzfrequenzdienst außerhalb von FTMS</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2590"/>
         <source>(For Android Version 10 and above, this setting cannot be changed. This setting can be changed for Android Version 9 and below and for iOS.) When this setting is turned off, QZ sends heart rate data in a format designed to improve compatibility with third-party apps, such as Zwift and Peloton. Default is off.</source>
-        <translation type="vanished">(Für Android Version 10 und höher kann diese Einstellung nicht geändert werden. Diese Einstellung kann für Android Version 9 und darunter sowie für iOS geändert werden.) Wenn diese Einstellung deaktiviert ist, sendet QZ Herzfrequenzdaten in einem Format, das die Kompatibilität mit Drittanbieter-Apps wie Zwift und Peloton verbessert. Standardmäßig ist es aus.</translation>
+        <translation>(Für Android Version 10 und höher kann diese Einstellung nicht geändert werden. Diese Einstellung kann für Android Version 9 und darunter sowie für iOS geändert werden.) Wenn diese Einstellung deaktiviert ist, sendet QZ Herzfrequenzdaten in einem Format, das die Kompatibilität mit Drittanbieter-Apps wie Zwift und Peloton verbessert. Standardmäßig ist es aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2604"/>
         <source>Disable HRM from Machinery</source>
-        <translation type="vanished">Deaktiviere HRM von Maschinen</translation>
+        <translation>Deaktiviere HRM von Maschinen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2618"/>
         <source>Turn this on to prevent a built-in heart rate monitor (HRM) on your exercise equipment from sending that data to QZ. This allows QZ to connect to your external HRM, such as a chest band or Apple Watch.</source>
-        <translation type="vanished">Schalten Sie dies ein, um zu verhindern, dass ein integrierter Herzfrequenzmesser (HRM) an Ihrem Trainingsgerät diese Daten an QZ sendet. Dies ermöglicht es QZ, sich mit Ihrem externen HRM zu verbinden, wie z. B. einem Brustgurt oder einer Apple Watch.</translation>
+        <translation>Schalten Sie dies ein, um zu verhindern, dass ein integrierter Herzfrequenzmesser (HRM) an Ihrem Trainingsgerät diese Daten an QZ sendet. Dies ermöglicht es QZ, sich mit Ihrem externen HRM zu verbinden, wie z. B. einem Brustgurt oder einer Apple Watch.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2632"/>
         <source>Disable KCal from Machinery</source>
-        <translation type="vanished">Deaktiviere KCal von Machinery</translation>
+        <translation>Deaktiviere KCal von Machinery</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2646"/>
         <source>This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ&apos;s more accurate calculation.</source>
-        <translation type="vanished">Dies verhindert, dass Ihr Fahrrad oder Laufband seine Kalorienverbrauchsberechnung an QZ sendet, und verwendet stattdessen die genauere Berechnung von QZ.</translation>
+        <translation>Dies verhindert, dass Ihr Fahrrad oder Laufband seine Kalorienverbrauchsberechnung an QZ sendet, und verwendet stattdessen die genauere Berechnung von QZ.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2660"/>
         <source>Calculate Active Calories Only</source>
-        <translation type="vanished">Berechne nur aktive Kalorien</translation>
+        <translation>Berechne nur aktive Kalorien</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2674"/>
         <source>Enable to calculate only active calories (excluding basal metabolic rate) similar to Apple Watch. When disabled, total calories including BMR are calculated. This affects both display and Apple Health integration.</source>
-        <translation type="vanished">Aktiviert nur aktive Kalorien (ohne Grundumsatz), ähnlich wie Apple Watch. Deaktiviert werden Gesamtkalorien inklusive BMR berechnet. Dies beeinflusst sowohl die Anzeige als auch die Apple Health Integration.</translation>
+        <translation>Aktiviert nur aktive Kalorien (ohne Grundumsatz), ähnlich wie Apple Watch. Deaktiviert werden Gesamtkalorien inklusive BMR berechnet. Dies beeinflusst sowohl die Anzeige als auch die Apple Health Integration.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2688"/>
         <source>Calculate Calories from Heart Rate</source>
-        <translation type="vanished">Berechne Kalorien aus der Herzfrequenz</translation>
+        <translation>Berechne Kalorien aus der Herzfrequenz</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2702"/>
         <source>Enable to calculate calories based on heart rate data instead of power. Requires heart rate sensor connection for accurate calorie estimation.</source>
-        <translation type="vanished">Berechnet Kalorien basierend auf Herzfrequenzdaten statt Leistung. Erfordert eine Herzfrequenzsensorverbindung für eine genaue Kalorienabschätzung.</translation>
+        <translation>Berechnet Kalorien basierend auf Herzfrequenzdaten statt Leistung. Erfordert eine Herzfrequenzsensorverbindung für eine genaue Kalorienabschätzung.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2716"/>
         <source>Heart Belt Name:</source>
-        <translation type="vanished">Name des Herzgurts:</translation>
+        <translation>Name des Herzgurts:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2744"/>
         <source>Apple Watch users: leave it disabled! Just open the app on your watch</source>
-        <translation type="vanished">Apple Watch-Nutzer: Deaktivieren Sie es! Öffnen Sie einfach die App auf Ihrer Uhr</translation>
+        <translation>Apple Watch-Nutzer: Deaktivieren Sie es! Öffnen Sie einfach die App auf Ihrer Uhr</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2764"/>
         <source>Heart Rate Zone Options</source>
-        <translation type="vanished">Herzfrequenzzonen-Optionen</translation>
+        <translation>Herzfrequenzzonen-Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2871"/>
         <source>Zone 5 will be calculated automatically based on Zone 4 end percentage and max HR.</source>
-        <translation type="vanished">Zone 5 wird automatisch basierend auf dem Endprozentsatz von Zone 4 und der maximalen Herzfrequenz berechnet.</translation>
+        <translation>Zone 5 wird automatisch basierend auf dem Endprozentsatz von Zone 4 und der maximalen Herzfrequenz berechnet.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2884"/>
         <source>Choose the percentages for where you want your zones 1-4 to end and click OK.</source>
-        <translation type="vanished">Wählen Sie die Prozentsätze, an denen Ihre Zonen 1-4 enden sollen, und klicken Sie auf OK.</translation>
+        <translation>Wählen Sie die Prozentsätze, an denen Ihre Zonen 1-4 enden sollen, und klicken Sie auf OK.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2898"/>
         <source>Heart Rate Max Override</source>
-        <translation type="vanished">Herzfrequenz-Max-Überschreibung</translation>
+        <translation>Herzfrequenz-Max-Überschreibung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2906"/>
         <source>Override Heart Rate Max Calc.</source>
-        <translation type="vanished">Herzfrequenz-Max-Berechnung überschreiben</translation>
+        <translation>Herzfrequenz-Max-Berechnung überschreiben</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2923"/>
         <source>Max Heart Rate</source>
-        <translation type="vanished">Maximale Herzfrequenz</translation>
+        <translation>Maximale Herzfrequenz</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2945"/>
         <source>QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.</source>
-        <translation type="vanished">QZ verwendet eine standardmäßige, altersbasierte Berechnung für die maximale Herzfrequenz und bestimmt dann die Herzfrequenzzonen basierend auf dieser Max-Herzfrequenz. Wenn Sie Ihre tatsächliche Max-Herzfrequenz kennen (die höchste, die Ihre Herzfrequenz erreicht), aktivieren Sie diese Option und geben Sie Ihre tatsächliche Max-Herzfrequenz ein. Klicken Sie dann auf OK.</translation>
+        <translation>QZ verwendet eine standardmäßige, altersbasierte Berechnung für die maximale Herzfrequenz und bestimmt dann die Herzfrequenzzonen basierend auf dieser Max-Herzfrequenz. Wenn Sie Ihre tatsächliche Max-Herzfrequenz kennen (die höchste, die Ihre Herzfrequenz erreicht), aktivieren Sie diese Option und geben Sie Ihre tatsächliche Max-Herzfrequenz ein. Klicken Sie dann auf OK.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2999"/>
         <source>Power from Heart Rate Options</source>
-        <translation type="vanished">Leistung aus Herzfrequenzoptionen</translation>
+        <translation>Leistung aus Herzfrequenzoptionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3009"/>
         <source>Session 1 Watt:</source>
-        <translation type="vanished">Sitzung 1 Watt:</translation>
+        <translation>Sitzung 1 Watt:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3034"/>
         <source>Session 1 HR:</source>
-        <translation type="vanished">Sitzung 1 HF:</translation>
+        <translation>Sitzung 1 HF:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3059"/>
         <source>Session 2 Watt:</source>
-        <translation type="vanished">Sitzung 2 Watt:</translation>
+        <translation>Sitzung 2 Watt:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3084"/>
         <source>Session 2 HR:</source>
-        <translation type="vanished">Sitzung 2 HR:</translation>
+        <translation>Sitzung 2 HR:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3107"/>
         <source>Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.</source>
-        <translation type="vanished">Erweitern Sie die Balken nach rechts, um die Optionen unter dieser Einstellung anzuzeigen. Diese Einstellungen werden verwendet, um die Leistung (Watt) für Fahrräder zu berechnen, die keine Leistungsmesser haben. Stattdessen schätzt QZ die Leistung anhand Ihrer Trittfrequenz und Herzfrequenz. Sie können kalibrieren, wie QZ Ihre Leistung aus der Herzfrequenz berechnet, wie folgt: Wenn Sie wissen, dass Sie bei einem gleichmäßigen Tempo 100W Leistung bei einer Herzfrequenz von 150 BPM und 150W bei 170 BPM erzeugen, können Sie diese Werte unter Sessions 1 und 2 Watt und HR hinzufügen, und QZ berechnet Ihre Leistung basierend auf dieser Trendlinie.</translation>
+        <translation>Erweitern Sie die Balken nach rechts, um die Optionen unter dieser Einstellung anzuzeigen. Diese Einstellungen werden verwendet, um die Leistung (Watt) für Fahrräder zu berechnen, die keine Leistungsmesser haben. Stattdessen schätzt QZ die Leistung anhand Ihrer Trittfrequenz und Herzfrequenz. Sie können kalibrieren, wie QZ Ihre Leistung aus der Herzfrequenz berechnet, wie folgt: Wenn Sie wissen, dass Sie bei einem gleichmäßigen Tempo 100W Leistung bei einer Herzfrequenz von 150 BPM und 150W bei 170 BPM erzeugen, können Sie diese Werte unter Sessions 1 und 2 Watt und HR hinzufügen, und QZ berechnet Ihre Leistung basierend auf dieser Trendlinie.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3125"/>
         <source>Bike Options</source>
-        <translation type="vanished">Fahrradoptionen</translation>
+        <translation>Fahrradoptionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3136"/>
         <source>Speed calculates on Power</source>
-        <translation type="vanished">Geschwindigkeit wird auf Leistung berechnet</translation>
+        <translation>Geschwindigkeit wird auf Leistung berechnet</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3149"/>
         <source>QZ calculates speed based on your pedal cadence (RPMs). Enable this setting if you want your speed to be calculated based on your power output (watts), as Zwift and some other apps do. Default is off.</source>
-        <translation type="vanished">QZ berechnet die Geschwindigkeit basierend auf Ihrer Trittfrequenz (U/Min). Aktivieren Sie diese Einstellung, wenn Sie möchten, dass Ihre Geschwindigkeit basierend auf Ihrer Leistung (Watt) berechnet wird, wie es Zwift und einige andere Apps tun. Standardmäßig ist dies deaktiviert.</translation>
+        <translation>QZ berechnet die Geschwindigkeit basierend auf Ihrer Trittfrequenz (U/Min). Aktivieren Sie diese Einstellung, wenn Sie möchten, dass Ihre Geschwindigkeit basierend auf Ihrer Leistung (Watt) berechnet wird, wie es Zwift und einige andere Apps tun. Standardmäßig ist dies deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3163"/>
         <source>Restore Gears on Startup</source>
-        <translation type="vanished">Gears beim Start wiederherstellen</translation>
+        <translation>Gears beim Start wiederherstellen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3178"/>
         <source>QZ will remember the last Gears value and it will restore on startup</source>
-        <translation type="vanished">QZ speichert den letzten Gears-Wert und stellt ihn beim Start wieder her</translation>
+        <translation>QZ speichert den letzten Gears-Wert und stellt ihn beim Start wieder her</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3193"/>
         <source>Restore Specific Gear Value</source>
-        <translation type="vanished">Werte für spezifische Ausrüstung wiederherstellen</translation>
+        <translation>Werte für spezifische Ausrüstung wiederherstellen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3217"/>
         <source>Gear Value:</source>
-        <translation type="vanished">Gangwert:</translation>
+        <translation>Gangwert:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3242"/>
         <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
-        <translation type="vanished">Geben Sie einen bestimmten Gangwert an, der beim Start wiederhergestellt werden soll. Dies überschreibt die Einstellung &apos;Gänge beim Start wiederherstellen&apos;.</translation>
+        <translation>Geben Sie einen bestimmten Gangwert an, der beim Start wiederhergestellt werden soll. Dies überschreibt die Einstellung &apos;Gänge beim Start wiederherstellen&apos;.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3257"/>
         <source>Rolling Resistance Factor</source>
-        <translation type="vanished">Rollwiderstandsbeiwert</translation>
+        <translation>Rollwiderstandsbeiwert</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3279"/>
         <source>0.005 = Clinchers
 0.004 = Tubulars
 0.012 = MTB</source>
-        <translation type="vanished">0.005 = Clincher
+        <translation>0.005 = Clincher
 0.004 = Tubus
 0.012 = MTB</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3289"/>
         <source>Bike Weight</source>
-        <translation type="vanished">Gewicht des Fahrrads</translation>
+        <translation>Gewicht des Fahrrads</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3327"/>
         <source>Rolling Res. Gain</source>
-        <translation type="vanished">Rollwiderstandssteigerung</translation>
+        <translation>Rollwiderstandssteigerung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3351"/>
         <source>Wind Res. Gain</source>
-        <translation type="vanished">Windwiderstandsgewinn</translation>
+        <translation>Windwiderstandsgewinn</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3373"/>
         <source>Zwift Workout/Erg Mode</source>
-        <translation type="vanished">Zwift Workout/Erg Modus</translation>
+        <translation>Zwift Workout/Erg Modus</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3387"/>
         <source>Enable this setting ONLY when using Zwift in ERG (workout) Mode. QZ will communicate the target resistance (or automatically adjust your resistance if your bike has this capability) to match the target watts based on your cadence (RPM). In ERG Mode, the changes in road slope will not affect target resistance, as is the case in Simulation Mode. Default is off.</source>
-        <translation type="vanished">Aktivieren Sie diese Einstellung NUR bei Verwendung von Zwift im ERG (Workout) Modus. QZ übermittelt den Zielwiderstand (oder passt Ihren Widerstand automatisch an, wenn Ihr Fahrrad diese Funktion hat), um die Zielwattzahl basierend auf Ihrer Trittfrequenz (RPM) zu erreichen. Im ERG-Modus beeinflussen Änderungen des Straßenprofils nicht den Zielwiderstand, wie es im Simulation Mode der Fall ist. Standardmäßig ist dies deaktiviert.</translation>
+        <translation>Aktivieren Sie diese Einstellung NUR bei Verwendung von Zwift im ERG (Workout) Modus. QZ übermittelt den Zielwiderstand (oder passt Ihren Widerstand automatisch an, wenn Ihr Fahrrad diese Funktion hat), um die Zielwattzahl basierend auf Ihrer Trittfrequenz (RPM) zu erreichen. Im ERG-Modus beeinflussen Änderungen des Straßenprofils nicht den Zielwiderstand, wie es im Simulation Mode der Fall ist. Standardmäßig ist dies deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3403"/>
         <source>Zwift Resistance Offset:</source>
-        <translation type="vanished">Zwift Widerstandsoffset:</translation>
+        <translation>Zwift Widerstandsoffset:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3425"/>
         <source>This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.</source>
-        <translation type="vanished">Dieses Setting legt deine „flache Straße“ in Zwift fest. Alle übermittelten Widerstandsänderungen basieren auf diesem Setting. Der eingegebene Wert ist eine persönliche Präferenz und hängt von deinem Fitnesslevel ab. Der empfohlene Wert für Echelon Bikes liegt zwischen 18 und 20. Standard ist 4.</translation>
+        <translation>Dieses Setting legt deine „flache Straße“ in Zwift fest. Alle übermittelten Widerstandsänderungen basieren auf diesem Setting. Der eingegebene Wert ist eine persönliche Präferenz und hängt von deinem Fitnesslevel ab. Der empfohlene Wert für Echelon Bikes liegt zwischen 18 und 20. Standard ist 4.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3441"/>
         <source>Zwift Power Offset (W):</source>
-        <translation type="vanished">Zwift Leistungsversatz (W):</translation>
+        <translation>Zwift Leistungsversatz (W):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3463"/>
         <source>Add an offset in watts to the requested power from apps like Zwift. Positive values increase power, negative values decrease it. Default is 0.</source>
-        <translation type="vanished">Fügt einen Offset in Watt zur angeforderten Leistung von Apps wie Zwift hinzu. Positive Werte erhöhen die Leistung, negative Werte verringern sie. Standard ist 0.</translation>
+        <translation>Fügt einen Offset in Watt zur angeforderten Leistung von Apps wie Zwift hinzu. Positive Werte erhöhen die Leistung, negative Werte verringern sie. Standard ist 0.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3479"/>
         <source>Zwift Resistance Gain:</source>
-        <translation type="vanished">Zwift Widerstandsgewinn:</translation>
+        <translation>Zwift Widerstandsgewinn:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3501"/>
         <source>(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.</source>
-        <translation type="vanished">(für Fahrräder und Laufbänder bei Verwendung der Einstellung „Laufband als Fahrrad“). Dieses Setting skaliert den Widerstand von Ihrem Fahrrad oder die Geschwindigkeit von Ihrem Laufband, bevor es an Zwift gesendet wird. Standard ist 1.</translation>
+        <translation>(für Fahrräder und Laufbänder bei Verwendung der Einstellung „Laufband als Fahrrad“). Dieses Setting skaliert den Widerstand von Ihrem Fahrrad oder die Geschwindigkeit von Ihrem Laufband, bevor es an Zwift gesendet wird. Standard ist 1.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3517"/>
         <source>Zwift ERG Watt Up Filter:</source>
-        <translation type="vanished">Zwift ERG Watt Filter:</translation>
+        <translation>Zwift ERG Watt Filter:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3539"/>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
-        <translation type="vanished">Im ERG-Modus oder während eines Power Zone Workouts auf Peloton sendet die App eine „Zielleistung“-Anforderung. Stimmt die angeforderte Leistung nicht mit Ihrer aktuellen Leistung (berechnet anhand der Trittfrequenz und des Widerstands) überein, ändert sich Ihr Zielwiderstand, um Ihnen zu helfen, der Zielleistung näher zu kommen. Ist der Filter auf höhere Werte eingestellt, erhalten Sie weniger Anpassung des Zielwiderstands und müssen Ihre Trittfrequenz erhöhen, um der Zielleistung zu entsprechen. Die Up and Down Watt Filter Einstellungen sind die obere und untere Marge, bevor eine Widerstandsanpassung kommuniziert wird. Beispiel: Wenn die Up and Down Filter auf 10 eingestellt sind und die Zielleistung 100 Watt beträgt, wird eine Änderung Ihres Widerstands nur kommuniziert, wenn Ihr Fahrrad weniger als 90 Watt oder mehr als 110 Watt erzeugt. Standard ist 10.</translation>
+        <translation>Im ERG-Modus oder während eines Power Zone Workouts auf Peloton sendet die App eine „Zielleistung“-Anforderung. Stimmt die angeforderte Leistung nicht mit Ihrer aktuellen Leistung (berechnet anhand der Trittfrequenz und des Widerstands) überein, ändert sich Ihr Zielwiderstand, um Ihnen zu helfen, der Zielleistung näher zu kommen. Ist der Filter auf höhere Werte eingestellt, erhalten Sie weniger Anpassung des Zielwiderstands und müssen Ihre Trittfrequenz erhöhen, um der Zielleistung zu entsprechen. Die Up and Down Watt Filter Einstellungen sind die obere und untere Marge, bevor eine Widerstandsanpassung kommuniziert wird. Beispiel: Wenn die Up and Down Filter auf 10 eingestellt sind und die Zielleistung 100 Watt beträgt, wird eine Änderung Ihres Widerstands nur kommuniziert, wenn Ihr Fahrrad weniger als 90 Watt oder mehr als 110 Watt erzeugt. Standard ist 10.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3577"/>
         <source>See above. Default is 10.</source>
-        <translation type="vanished">Siehe oben. Standard ist 10.</translation>
+        <translation>Siehe oben. Standard ist 10.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3593"/>
         <source>Min. Resistance:</source>
-        <translation type="vanished">Min. Widerstand:</translation>
+        <translation>Min. Widerstand:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3615"/>
         <source>Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.</source>
-        <translation type="vanished">Verwenden Sie diese Einstellung, um einen minimalen Zielwiderstand festzulegen. Wenn Sie beispielsweise keinen Widerstand unter 25 fahren möchten, geben Sie 25 ein, und QZ wird keinen Zielwiderstand unter 25 festlegen. Standard ist 0.</translation>
+        <translation>Verwenden Sie diese Einstellung, um einen minimalen Zielwiderstand festzulegen. Wenn Sie beispielsweise keinen Widerstand unter 25 fahren möchten, geben Sie 25 ein, und QZ wird keinen Zielwiderstand unter 25 festlegen. Standard ist 0.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3631"/>
         <source>Max. Resistance:</source>
-        <translation type="vanished">Max. Widerstand:</translation>
+        <translation>Max. Widerstand:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3653"/>
         <source>Similar to the above, but sets a maximum target resistance. Default is 999.</source>
-        <translation type="vanished">Ähnlich wie oben, aber es setzt einen maximalen Zielwiderstand. Standard ist 999.</translation>
+        <translation>Ähnlich wie oben, aber es setzt einen maximalen Zielwiderstand. Standard ist 999.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3669"/>
         <source>Resistance at Startup:</source>
-        <translation type="vanished">Widerstand beim Start:</translation>
+        <translation>Widerstand beim Start:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3691"/>
         <source>(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.</source>
-        <translation type="vanished">(nur für Fahrräder mit elektronisch geregeltem Widerstand): Geben Sie das Widerstandsniveau ein, das QZ beim Start einstellen soll. Standard ist 1.</translation>
+        <translation>(nur für Fahrräder mit elektronisch geregeltem Widerstand): Geben Sie das Widerstandsniveau ein, das QZ beim Start einstellen soll. Standard ist 1.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3706"/>
         <source>Gears Gain:</source>
-        <translation type="vanished">Gängegewinn:</translation>
+        <translation>Gängegewinn:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3727"/>
         <source>Applies a multiplier to the gears. Default is 1.</source>
-        <translation type="vanished">Wendet einen Multiplikator auf die Gänge an. Standard ist 1.</translation>
+        <translation>Wendet einen Multiplikator auf die Gänge an. Standard ist 1.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3750"/>
         <source>Gears Offset:</source>
-        <translation type="vanished">Gangschaltwerk Versatz:</translation>
+        <translation>Gangschaltwerk Versatz:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3771"/>
         <source>Applies an offset to the gears. Default is 0.</source>
-        <translation type="vanished">Wendet einen Versatz auf die Gänge an. Standard ist 0.</translation>
+        <translation>Wendet einen Versatz auf die Gänge an. Standard ist 0.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3785"/>
         <source>Automatic Virtual Shifting</source>
-        <translation type="vanished">Automatisches Virtuelles Schalten</translation>
+        <translation>Automatisches Virtuelles Schalten</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3794"/>
         <source>Enable Automatic Virtual Shifting</source>
-        <translation type="vanished">Aktivieren Sie das automatische virtuelle Schalten</translation>
+        <translation>Aktivieren Sie das automatische virtuelle Schalten</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3808"/>
         <source>Enable automatic gear shifting based on cadence thresholds. When enabled, QZ will automatically shift gears up or down based on your pedaling cadence.</source>
-        <translation type="vanished">Aktivieren Sie das automatische Gangschalten basierend auf Trittfrequenzschwellenwerten. Wenn aktiviert, schaltet QZ die Gänge automatisch hoch oder runter, basierend auf Ihrer Trittfrequenz.</translation>
+        <translation>Aktivieren Sie das automatische Gangschalten basierend auf Trittfrequenzschwellenwerten. Wenn aktiviert, schaltet QZ die Gänge automatisch hoch oder runter, basierend auf Ihrer Trittfrequenz.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3825"/>
         <source>Profile:</source>
-        <translation type="vanished">Profil:</translation>
+        <translation>Profil:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3841"/>
         <source>Cruise Profile Settings</source>
-        <translation type="vanished">Profil-Einstellungen</translation>
+        <translation>Profil-Einstellungen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3854"/>
         <source>Cruise - Gear Up Cadence (RPM):</source>
-        <translation type="vanished">Cruise - Steigerung der Trittfrequenz (RPM):</translation>
+        <translation>Cruise - Steigerung der Trittfrequenz (RPM):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3878"/>
         <source>Cruise - Gear Up Time (seconds):</source>
-        <translation type="vanished">Cruise - Vorbereitungszeit (Sekunden):</translation>
+        <translation>Cruise - Vorbereitungszeit (Sekunden):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3902"/>
         <source>Cruise - Gear Down Cadence (RPM):</source>
-        <translation type="vanished">Kadenz im niedrigen Gang (U/min):</translation>
+        <translation>Kadenz im niedrigen Gang (U/min):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3926"/>
         <source>Cruise - Gear Down Time (seconds):</source>
-        <translation type="vanished">Cruise - Zeit bei reduziertem Tempo (Sekunden):</translation>
+        <translation>Cruise - Zeit bei reduziertem Tempo (Sekunden):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3947"/>
         <source>Climb Profile Settings</source>
-        <translation type="vanished">Profil-Einstellungen für den Anstieg</translation>
+        <translation>Profil-Einstellungen für den Anstieg</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3960"/>
         <source>Climb - Gear Up Cadence (RPM):</source>
-        <translation type="vanished">Anstieg - Trittfrequenz (RPM):</translation>
+        <translation>Anstieg - Trittfrequenz (RPM):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3984"/>
         <source>Climb - Gear Up Time (seconds):</source>
-        <translation type="vanished">Anstieg - Vorbereitungszeit (Sekunden):</translation>
+        <translation>Anstieg - Vorbereitungszeit (Sekunden):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4008"/>
         <source>Climb - Gear Down Cadence (RPM):</source>
-        <translation type="vanished">Anstieg - Trittfrequenz (RPM):</translation>
+        <translation>Anstieg - Trittfrequenz (RPM):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4032"/>
         <source>Climb - Gear Down Time (seconds):</source>
-        <translation type="vanished">Anstieg - Zeit bei geringerem Tempo (Sekunden):</translation>
+        <translation>Anstieg - Zeit bei geringerem Tempo (Sekunden):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4053"/>
         <source>Sprint Profile Settings</source>
-        <translation type="vanished">Sprintprofil-Einstellungen</translation>
+        <translation>Sprintprofil-Einstellungen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4066"/>
         <source>Sprint - Gear Up Cadence (RPM):</source>
-        <translation type="vanished">Sprint - Steigere die Trittfrequenz (U/Min):</translation>
+        <translation>Sprint - Steigere die Trittfrequenz (U/Min):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4090"/>
         <source>Sprint - Gear Up Time (seconds):</source>
-        <translation type="vanished">Sprint - Zeit bis zum Start (Sekunden):</translation>
+        <translation>Sprint - Zeit bis zum Start (Sekunden):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4114"/>
         <source>Sprint - Gear Down Cadence (RPM):</source>
-        <translation type="vanished">Sprint - Trittfrequenz (U/Min):</translation>
+        <translation>Sprint - Trittfrequenz (U/Min):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4138"/>
         <source>Sprint - Gear Down Time (seconds):</source>
-        <translation type="vanished">Sprint - Zeit mit reduzierter Leistung (Sekunden):</translation>
+        <translation>Sprint - Zeit mit reduzierter Leistung (Sekunden):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4187"/>
         <source>If you have a generic FTMS bike and the tiles don&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
-        <translation type="vanished">Wenn Sie ein generisches FTMS-Fahrrad haben und die Kacheln nicht auf dem Hauptbildschirm von QZ erscheinen, wählen Sie hier den Bluetooth-Namen Ihres Fahrrads aus.</translation>
+        <translation>Wenn Sie ein generisches FTMS-Fahrrad haben und die Kacheln nicht auf dem Hauptbildschirm von QZ erscheinen, wählen Sie hier den Bluetooth-Namen Ihres Fahrrads aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4200"/>
         <source>Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about the QZ settings for your equipment, open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.</source>
-        <translation type="vanished">Erweitern Sie die Balken nach rechts, um die Optionen unter dieser Einstellung anzuzeigen. Wählen Sie Ihr spezifisches Modell (falls aufgeführt) und lassen Sie alle anderen Einstellungen auf Standard. Wenn Sie Probleme oder Fragen zu den QZ-Einstellungen für Ihr Gerät haben, eröffnen Sie ein Support-Ticket auf GitHub oder fragen Sie die QZ-Community in der QZ Facebook Group.</translation>
+        <translation>Erweitern Sie die Balken nach rechts, um die Optionen unter dieser Einstellung anzuzeigen. Wählen Sie Ihr spezifisches Modell (falls aufgeführt) und lassen Sie alle anderen Einstellungen auf Standard. Wenn Sie Probleme oder Fragen zu den QZ-Einstellungen für Ihr Gerät haben, eröffnen Sie ein Support-Ticket auf GitHub oder fragen Sie die QZ-Community in der QZ Facebook Group.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4213"/>
         <source>Wahoo Options</source>
-        <translation type="vanished">Wahoo Optionen</translation>
+        <translation>Wahoo Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4222"/>
         <source>Schwinn Bike Options</source>
-        <translation type="vanished">Schwinn Fahrrad Optionen</translation>
+        <translation>Schwinn Fahrrad Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4230"/>
         <source>Calc. Resistance</source>
-        <translation type="vanished">Berechneter Widerstand</translation>
+        <translation>Berechneter Widerstand</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4244"/>
         <source>Res. Alternative Calc. v2</source>
-        <translation type="vanished">Res. Alternative Berechnung v2</translation>
+        <translation>Res. Alternative Berechnung v2</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4257"/>
         <source>Res. Alternative Calc. v3</source>
-        <translation type="vanished">Ress. Alternative Berechn. v3</translation>
+        <translation>Ress. Alternative Berechn. v3</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4273"/>
         <source>Resistance Smoothing:</source>
-        <translation type="vanished">Widerstandsglättung:</translation>
+        <translation>Widerstandsglättung:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4294"/>
         <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
-        <translation type="vanished">Da dieses Fahrrad keinen Widerstand über Bluetooth sendet, berechnet QZ diesen mithilfe von Kadenz und Watt. Das Ergebnis kann etwas &apos;sprunghaft&apos; sein, daher können Sie mit dieser Einstellung den Widerstandswert filtern. Die Einheit ist ein reiner Widerstandswert, daher bedeutet die Eingabe von 5, dass Sie eine Widerstandsänderung nur sehen, wenn der Widerstand um 5 Stufen wechselt.</translation>
+        <translation>Da dieses Fahrrad keinen Widerstand über Bluetooth sendet, berechnet QZ diesen mithilfe von Kadenz und Watt. Das Ergebnis kann etwas &apos;sprunghaft&apos; sein, daher können Sie mit dieser Einstellung den Widerstandswert filtern. Die Einheit ist ein reiner Widerstandswert, daher bedeutet die Eingabe von 5, dass Sie eine Widerstandsänderung nur sehen, wenn der Widerstand um 5 Stufen wechselt.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4309"/>
         <source>Horizon Bike Options</source>
-        <translation type="vanished">Horizon Bike Optionen</translation>
+        <translation>Horizon Bike Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4317"/>
         <source>GR7 Cadence Multiplier:</source>
-        <translation type="vanished">GR7 Trittfrequenz-Multiplikator:</translation>
+        <translation>GR7 Trittfrequenz-Multiplikator:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4341"/>
         <source>Echelon Bike Options</source>
-        <translation type="vanished">Echelon Bike Optionen</translation>
+        <translation>Echelon Bike Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4354"/>
         <source>Watt Profile:</source>
-        <translation type="vanished">Watt-Profil:</translation>
+        <translation>Watt-Profil:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4380"/>
         <source>Resistance Gain:</source>
-        <translation type="vanished">Widerstandszuwachs:</translation>
+        <translation>Widerstandszuwachs:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4404"/>
         <source>Resistance Offset:</source>
-        <translation type="vanished">Widerstandsversatz:</translation>
+        <translation>Widerstandsversatz:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4425"/>
         <source>Change gears using knob (Experimental)</source>
-        <translation type="vanished">Schalten Sie die Gänge mit dem Drehknopf (Experimentell)</translation>
+        <translation>Schalten Sie die Gänge mit dem Drehknopf (Experimentell)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4442"/>
         <source>Inspire Bike Options</source>
-        <translation type="vanished">Bike-Optionen inspirieren</translation>
+        <translation>Bike-Optionen inspirieren</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4450"/>
         <source>Advanced Formula (15/3/2021)</source>
-        <translation type="vanished">Erweiterte Formel (15/3/2021)</translation>
+        <translation>Erweiterte Formel (15/3/2021)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4464"/>
         <source>Advanced Formula (14/7/2021)</source>
-        <translation type="vanished">Erweiterte Formel (14/7/2021)</translation>
+        <translation>Erweiterte Formel (14/7/2021)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4481"/>
         <source>Renpho Bike Options</source>
-        <translation type="vanished">Renpho Bike Optionen</translation>
+        <translation>Renpho Bike Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4489"/>
         <source>New Peloton Formula (11/02/2022)</source>
-        <translation type="vanished">Neues Peloton Formula (11/02/2022)</translation>
+        <translation>Neues Peloton Formula (11/02/2022)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4502"/>
         <source>Use 0.5 resistance lvls</source>
-        <translation type="vanished">Verwenden Sie 0,5 Widerstandslevel</translation>
+        <translation>Verwenden Sie 0,5 Widerstandslevel</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4519"/>
         <source>Hammer Racer Bike Options</source>
-        <translation type="vanished">Hammer Racer Bike Optionen</translation>
+        <translation>Hammer Racer Bike Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4525"/>
+        <location filename="../settings.qml" line="4545"/>
         <source>Enable support</source>
-        <translation type="vanished">Aktivieren Sie die Unterstützung</translation>
+        <translation>Aktivieren Sie die Unterstützung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4540"/>
         <source>Saris/Cycleops Hammer trainer Options</source>
-        <translation type="vanished">Saris/Cycleops Hammer-Trainer Optionen</translation>
+        <translation>Saris/Cycleops Hammer-Trainer Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4561"/>
         <source>CardioFIT Bike Options</source>
-        <translation type="vanished">CardioFIT Fahrradoptionen</translation>
+        <translation>CardioFIT Fahrradoptionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4582"/>
         <source>Yesoul Bike Options</source>
-        <translation type="vanished">Yesoul Bike Optionen</translation>
+        <translation>Yesoul Bike Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4588"/>
         <source>Yesoul New Peloton Formula</source>
-        <translation type="vanished">Yesoul neue Peloton Formel</translation>
+        <translation>Yesoul neue Peloton Formel</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4604"/>
         <source>Snode Bike Options</source>
-        <translation type="vanished">Snode Bike Optionen</translation>
+        <translation>Snode Bike Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4625"/>
         <source>Skandika Bike Options</source>
-        <translation type="vanished">Skandika Fahrrad Optionen</translation>
+        <translation>Skandika Fahrrad Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4633"/>
         <source>Skandika X-2000 Protocol</source>
-        <translation type="vanished">Skandika X-2000 Protokoll</translation>
+        <translation>Skandika X-2000 Protokoll</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4646"/>
         <source>Enable this for Skandika X-2000 bikes. Disable for other Skandika models (e.g., HT211212095)</source>
-        <translation type="vanished">Aktivieren Sie dies für Skandika X-2000 Fahrräder. Deaktivieren Sie es für andere Skandika Modelle (z. B. HT211212095)</translation>
+        <translation>Aktivieren Sie dies für Skandika X-2000 Fahrräder. Deaktivieren Sie es für andere Skandika Modelle (z. B. HT211212095)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4661"/>
         <source>Fitplus Bike Options</source>
-        <translation type="vanished">Bike-Optionen für Fitplus</translation>
+        <translation>Bike-Optionen für Fitplus</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4684"/>
         <source>Virtufit Etappe 2.0 Bike</source>
-        <translation type="vanished">Virtufit Etappe 2.0 Fahrrad</translation>
+        <translation>Virtufit Etappe 2.0 Fahrrad</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4698"/>
         <source>Sportstech SX600 bike</source>
-        <translation type="vanished">Sportstech SX600 Fahrrad</translation>
+        <translation>Sportstech SX600 Fahrrad</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4752"/>
         <source>Flywheel Bike Options</source>
-        <translation type="vanished">Flywheel Bike Optionen</translation>
+        <translation>Flywheel Bike Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4814"/>
         <source>Domyos Bike Options</source>
-        <translation type="vanished">Domyos Bike Optionen</translation>
+        <translation>Domyos Bike Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4824"/>
         <source>Cadence Filter:</source>
-        <translation type="vanished">Kadenzfilter:</translation>
+        <translation>Kadenzfilter:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4845"/>
         <source>Ignore FTMS</source>
-        <translation type="vanished">FTMS ignorieren</translation>
+        <translation>FTMS ignorieren</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4858"/>
         <source>Fix Calories/Km to Console</source>
-        <translation type="vanished">Kalorien/Km in Konsole anzeigen</translation>
+        <translation>Kalorien/Km in Konsole anzeigen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4871"/>
         <source>Bike 500 wattage profile</source>
-        <translation type="vanished">500 Watt Fahrradprofil</translation>
+        <translation>500 Watt Fahrradprofil</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4884"/>
         <source>Bike 500 wattage profile v2</source>
-        <translation type="vanished">Bike 500 Watt-Profil v2</translation>
+        <translation>Bike 500 Watt-Profil v2</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4899"/>
         <source>Tacx Neo Options</source>
-        <translation type="vanished">Tacx Neo Optionen</translation>
+        <translation>Tacx Neo Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4905"/>
         <source>Peloton Configuration</source>
-        <translation type="vanished">Peloton Konfiguration</translation>
+        <translation>Peloton Konfiguration</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4919"/>
         <source>Disable Negative Inclination due to gear</source>
-        <translation type="vanished">Deaktivieren Sie die negative Neigung aufgrund des Zahnrads</translation>
+        <translation>Deaktivieren Sie die negative Neigung aufgrund des Zahnrads</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4932"/>
         <source>Enabling this QZ will ignore changing gears if the value is too low for this trainer. Default: disabled.</source>
-        <translation type="vanished">Durch Aktivieren dieses QZ werden Gangwechsel ignoriert, wenn der Wert für diesen Trainer zu niedrig ist. Standard: deaktiviert.</translation>
+        <translation>Durch Aktivieren dieses QZ werden Gangwechsel ignoriert, wenn der Wert für diesen Trainer zu niedrig ist. Standard: deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4947"/>
         <source>Proform/Norditrack Options</source>
-        <translation type="vanished">Proform/Norditrack Optionen</translation>
+        <translation>Proform/Norditrack Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4956"/>
+        <location filename="../settings.qml" line="12790"/>
         <source>Wheel Ratio:</source>
-        <translation type="vanished">Radverhältnis:</translation>
+        <translation>Radverhältnis:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4978"/>
+        <location filename="../settings.qml" line="9526"/>
         <source>Specific Model:</source>
-        <translation type="vanished">Spezifisches Modell:</translation>
+        <translation>Spezifisches Modell:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5119"/>
         <source>TDF CBC Jonseed watt table</source>
-        <translation type="vanished">TDF CBC Jonseed Watt Tabelle</translation>
+        <translation>TDF CBC Jonseed Watt Tabelle</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5218"/>
         <source>Use Resistance instead of Inc.</source>
-        <translation type="vanished">Verwenden Sie Widerstand anstelle von Inc.</translation>
+        <translation>Verwenden Sie Widerstand anstelle von Inc.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5235"/>
         <source>Computrainer Bike Options</source>
-        <translation type="vanished">Computrainer Bike Einstellungen</translation>
+        <translation>Computrainer Bike Einstellungen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5243"/>
+        <location filename="../settings.qml" line="5278"/>
+        <location filename="../settings.qml" line="11262"/>
+        <location filename="../settings.qml" line="11456"/>
         <source>Serial Port:</source>
-        <translation type="vanished">Serieller Port:</translation>
+        <translation>Serieller Port:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5268"/>
         <source>Kettler USB Bike Options</source>
-        <translation type="vanished">Kettler USB Bike Optionen</translation>
+        <translation>Kettler USB Bike Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5332"/>
         <source>M3i Bike Options</source>
-        <translation type="vanished">M3i Bike Optionen</translation>
+        <translation>M3i Bike Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5343"/>
         <source>Use QT search on Android / iOS</source>
-        <translation type="vanished">Verwenden Sie QT Suche auf Android / iOS</translation>
+        <translation>Verwenden Sie QT Suche auf Android / iOS</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5385"/>
         <source>Speed Buffer Size:</source>
-        <translation type="vanished">Geschwindigkeits-Puffergröße:</translation>
+        <translation>Geschwindigkeits-Puffergröße:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5408"/>
         <source>Use KCal from the Bike</source>
-        <translation type="vanished">Nutze KCal vom Bike</translation>
+        <translation>Nutze KCal vom Bike</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5425"/>
         <source>Sole Bike Options</source>
-        <translation type="vanished">Sole Bike Optionen</translation>
+        <translation>Sole Bike Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5432"/>
+        <location filename="../settings.qml" line="9955"/>
+        <location filename="../settings.qml" line="10406"/>
+        <location filename="../settings.qml" line="10538"/>
         <source>Miles unit from the device</source>
-        <translation type="vanished">Meilen-Einheit vom Gerät</translation>
+        <translation>Meilen-Einheit vom Gerät</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5449"/>
         <source>Technogym Bike Options</source>
-        <translation type="vanished">Technogym Fahrrad Optionen</translation>
+        <translation>Technogym Fahrrad Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5471"/>
         <source>Group Cycle</source>
-        <translation type="vanished">Gruppenradfahren</translation>
+        <translation>Gruppenradfahren</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5493"/>
         <source>ANT+ Bike Device Number (0=Auto):</source>
-        <translation type="vanished">ANT+ Fahrradgerät-Nummer (0=Auto):</translation>
+        <translation>ANT+ Fahrradgerät-Nummer (0=Auto):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5558"/>
         <source>Ant+ Options (only for some Android)</source>
-        <translation type="vanished">Ant+ Optionen (nur für einige Android-Geräte)</translation>
+        <translation>Ant+ Optionen (nur für einige Android-Geräte)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5570"/>
         <source>Set 100mm as wheel circumference in settings of ant+ speed sensor</source>
-        <translation type="vanished">Setze 100mm als Laufradumfang in den ant+ Geschwindigkeitssensor-Einstellungen</translation>
+        <translation>Setze 100mm als Laufradumfang in den ant+ Geschwindigkeitssensor-Einstellungen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5583"/>
         <source>Ant+ Cadence</source>
-        <translation type="vanished">Ant+ Trittfrequenz</translation>
+        <translation>Ant+ Trittfrequenz</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5597"/>
         <source>Turn this on if you need to use ANT+ along with Bluetooth. Power is also sent.</source>
-        <translation type="vanished">Aktivieren Sie dies, wenn Sie ANT+ zusammen mit Bluetooth nutzen möchten. Auch die Leistung wird übertragen.</translation>
+        <translation>Aktivieren Sie dies, wenn Sie ANT+ zusammen mit Bluetooth nutzen möchten. Auch die Leistung wird übertragen.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5612"/>
         <source>ANT+ Speed Offset</source>
-        <translation type="vanished">ANT+ Geschwindigkeitsversatz</translation>
+        <translation>ANT+ Geschwindigkeitsversatz</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5633"/>
         <source>You can increase/decrease your speed sent over ANT+. The number you enter as an Offset adds that amount to your speed.</source>
-        <translation type="vanished">Sie können Ihre über ANT+ gesendete Geschwindigkeit erhöhen/verringern. Die Zahl, die Sie als Offset eingeben, addiert diesen Betrag zu Ihrer Geschwindigkeit.</translation>
+        <translation>Sie können Ihre über ANT+ gesendete Geschwindigkeit erhöhen/verringern. Die Zahl, die Sie als Offset eingeben, addiert diesen Betrag zu Ihrer Geschwindigkeit.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5649"/>
         <source>ANT+ Speed Gain:</source>
-        <translation type="vanished">ANT+ Geschwindigkeitsgewinn:</translation>
+        <translation>ANT+ Geschwindigkeitsgewinn:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5670"/>
         <source>You can increase/decrease your speed output sent over ANT+. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
-        <translation type="vanished">Sie können Ihren Geschwindigkeitsausgang, der über ANT+ gesendet wird, erhöhen/verringern. Zum Beispiel können Sie, um einen Ruderergometer für das Radfahren in Zwift zu nutzen, Ihren Geschwindigkeitsausgang verdoppeln, um besser auf Ihre Radgeschwindigkeit abgestimmt zu sein. Die eingegebene Zahl ist ein Multiplikator, der auf Ihre tatsächliche Geschwindigkeit angewendet wird.</translation>
+        <translation>Sie können Ihren Geschwindigkeitsausgang, der über ANT+ gesendet wird, erhöhen/verringern. Zum Beispiel können Sie, um einen Ruderergometer für das Radfahren in Zwift zu nutzen, Ihren Geschwindigkeitsausgang verdoppeln, um besser auf Ihre Radgeschwindigkeit abgestimmt zu sein. Die eingegebene Zahl ist ein Multiplikator, der auf Ihre tatsächliche Geschwindigkeit angewendet wird.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5684"/>
         <source>Ant+ Heart</source>
-        <translation type="vanished">Ant+ Herz</translation>
+        <translation>Ant+ Herz</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5700"/>
         <source>ANT+ Heart Device Number (0=Auto):</source>
-        <translation type="vanished">ANT+ Herzgerät-Nummer (0=Auto):</translation>
+        <translation>ANT+ Herzgerät-Nummer (0=Auto):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5722"/>
         <source>This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.</source>
-        <translation type="vanished">Diese Einstellung ermöglicht das Empfangen der Herzfrequenz von einem externen HRM über ANT+ anstelle von QZ.</translation>
+        <translation>Diese Einstellung ermöglicht das Empfangen der Herzfrequenz von einem externen HRM über ANT+ anstelle von QZ.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5735"/>
         <source>Ant+ Bike</source>
-        <translation type="vanished">Ant+ Fahrrad</translation>
+        <translation>Ant+ Fahrrad</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5749"/>
         <source>Use this to connect to your bike using ANT+ instead of Bluetooth. Default: Disabled</source>
-        <translation type="vanished">Verwenden Sie dies, um sich über ANT+ an Ihr Fahrrad anzuschließen, anstatt über Bluetooth. Standard: Deaktiviert</translation>
+        <translation>Verwenden Sie dies, um sich über ANT+ an Ihr Fahrrad anzuschließen, anstatt über Bluetooth. Standard: Deaktiviert</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5780"/>
         <source>Tiles Options</source>
-        <translation type="vanished">Fliesen Optionen</translation>
+        <translation>Fliesen Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5789"/>
         <source>General UI Options</source>
-        <translation type="vanished">Allgemeine UI-Optionen</translation>
+        <translation>Allgemeine UI-Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5800"/>
         <source>Top Bar Enabled</source>
-        <translation type="vanished">Obere Leiste aktiviert</translation>
+        <translation>Obere Leiste aktiviert</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5817"/>
         <source>Floating Window Type:</source>
-        <translation type="vanished">Schwebender Fenstertyp:</translation>
+        <translation>Schwebender Fenstertyp:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5839"/>
         <source>Choose the floating window layout type. Classic uses the standard floating.htm file, while Horizontal uses the hfloating.htm file for horizontal layout.</source>
-        <translation type="vanished">Wählen Sie den Typ des schwebenden Fensterlayouts. Classic verwendet die Standarddatei floating.htm, während Horizontal die Datei hfloating.htm für das horizontale Layout verwendet.</translation>
+        <translation>Wählen Sie den Typ des schwebenden Fensterlayouts. Classic verwendet die Standarddatei floating.htm, während Horizontal die Datei hfloating.htm für das horizontale Layout verwendet.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5852"/>
         <source>Allows continuous display of the Start/Pause and Stop buttons across the top of the screen during your workouts. Default is on.</source>
-        <translation type="vanished">Ermöglicht die kontinuierliche Anzeige der Start/Pause- und Stopp-Buttons oben auf dem Bildschirm während des Trainings. Standardmäßig aktiviert.</translation>
+        <translation>Ermöglicht die kontinuierliche Anzeige der Start/Pause- und Stopp-Buttons oben auf dem Bildschirm während des Trainings. Standardmäßig aktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5868"/>
         <source>Floating Window Width:</source>
-        <translation type="vanished">Breite des Schwebfensters:</translation>
+        <translation>Breite des Schwebfensters:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5889"/>
         <source>Android Only: width of the floating window.</source>
-        <translation type="vanished">Android nur: Breite des Floating-Fensters.</translation>
+        <translation>Android nur: Breite des Floating-Fensters.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5905"/>
         <source>Floating Window Height:</source>
-        <translation type="vanished">Höhe des schwebenden Fensters:</translation>
+        <translation>Höhe des schwebenden Fensters:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5926"/>
         <source>Android Only: height of the floating window.</source>
-        <translation type="vanished">Android nur: Höhe des Floating-Fensters.</translation>
+        <translation>Android nur: Höhe des Floating-Fensters.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5942"/>
         <source>Floating Window % Transparency:</source>
-        <translation type="vanished">Schwebendes Fenster % Transparency:</translation>
+        <translation>Schwebendes Fenster % Transparency:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5963"/>
         <source>Android Only: transparency percentage of the floating window.</source>
-        <translation type="vanished">Nur Android: Transparenzprozentsatz des schwebenden Fensters.</translation>
+        <translation>Nur Android: Transparenzprozentsatz des schwebenden Fensters.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5977"/>
         <source>Floating Window Startup</source>
-        <translation type="vanished">Start des schwebenden Fensters</translation>
+        <translation>Start des schwebenden Fensters</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5991"/>
         <source>Android Only: if enabled the floating window will start as soon as the fitness devices is connected.</source>
-        <translation type="vanished">Nur Android: Wenn aktiviert, startet das Floating-Fenster, sobald das Fitnessgerät verbunden ist.</translation>
+        <translation>Nur Android: Wenn aktiviert, startet das Floating-Fenster, sobald das Fitnessgerät verbunden ist.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6013"/>
         <source>Chart Display Mode:</source>
-        <translation type="vanished">Anzeigemodus des Diagramms:</translation>
+        <translation>Anzeigemodus des Diagramms:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6035"/>
         <source>Choose which charts to display in the footer: both heart rate and power charts, only heart rate chart, or only power chart.</source>
-        <translation type="vanished">Wählen Sie aus, welche Diagramme in der Fußzeile angezeigt werden sollen: Herzfrequenz- und Leistungsdiagramme, nur Herzfrequenzdiagramm oder nur Leistungsdiagramm.</translation>
+        <translation>Wählen Sie aus, welche Diagramme in der Fußzeile angezeigt werden sollen: Herzfrequenz- und Leistungsdiagramme, nur Herzfrequenzdiagramm oder nur Leistungsdiagramm.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6104"/>
         <source>UI Themes</source>
-        <translation type="vanished">UI-Themen</translation>
+        <translation>UI-Themen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6112"/>
         <source>Tiles Icons</source>
-        <translation type="vanished">Fliesen-Symbole</translation>
+        <translation>Fliesen-Symbole</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6128"/>
         <source>Background Color:</source>
-        <translation type="vanished">Hintergrundfarbe:</translation>
+        <translation>Hintergrundfarbe:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6162"/>
         <source>Tiles Background Color:</source>
-        <translation type="vanished">Hintergrundfarbe der Kacheln:</translation>
+        <translation>Hintergrundfarbe der Kacheln:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6209"/>
         <source>Tiles Shadow Color:</source>
-        <translation type="vanished">Fliesen Schattenfarbe:</translation>
+        <translation>Fliesen Schattenfarbe:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6242"/>
         <source>Statusbar Background Color:</source>
-        <translation type="vanished">Hintergrundfarbe der Statusleiste:</translation>
+        <translation>Hintergrundfarbe der Statusleiste:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6275"/>
         <source>2nd line tile text size:</source>
-        <translation type="vanished">Textgröße der 2. Zeile:</translation>
+        <translation>Textgröße der 2. Zeile:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6300"/>
         <source>Peloton Options</source>
-        <translation type="vanished">Peloton Optionen</translation>
+        <translation>Peloton Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6405"/>
         <source>Difficulty:</source>
-        <translation type="vanished">Schwierigkeit:</translation>
+        <translation>Schwierigkeit:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6429"/>
         <source>Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.</source>
-        <translation type="vanished">Normalerweise nennen Peloton-Trainer einen Bereich für die Zielneigung, den Widerstand und/oder die Geschwindigkeit. Verwenden Sie diese Einstellung, um die Schwierigkeit des Ziels zu wählen, das QZ mitteilt. Das Schwierigkeitsniveau kann auf niedriger, höher oder durchschnittlich eingestellt werden. Klicken Sie auf OK.</translation>
+        <translation>Normalerweise nennen Peloton-Trainer einen Bereich für die Zielneigung, den Widerstand und/oder die Geschwindigkeit. Verwenden Sie diese Einstellung, um die Schwierigkeit des Ziels zu wählen, das QZ mitteilt. Das Schwierigkeitsniveau kann auf niedriger, höher oder durchschnittlich eingestellt werden. Klicken Sie auf OK.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6444"/>
         <source>Treadmill Level:</source>
-        <translation type="vanished">Laufbandstufe:</translation>
+        <translation>Laufbandstufe:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6467"/>
         <source>Difficulty level for Peloton treadmill classes. 1 is easy 10 is hard.</source>
-        <translation type="vanished">Schwierigkeitsgrad für Peloton Laufbandkurse. 1 ist einfach, 10 ist schwer.</translation>
+        <translation>Schwierigkeitsgrad für Peloton Laufbandkurse. 1 ist einfach, 10 ist schwer.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6482"/>
         <source>Treadmill Walk Level:</source>
-        <translation type="vanished">Laufbandgangstufe:</translation>
+        <translation>Laufbandgangstufe:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6505"/>
         <source>Difficulty level for Peloton treadmill walking classes. 1 is easy 10 is hard.</source>
-        <translation type="vanished">Schwierigkeitsgrad für Peloton Laufband-Gehkurse. 1 ist einfach, 10 ist schwer.</translation>
+        <translation>Schwierigkeitsgrad für Peloton Laufband-Gehkurse. 1 ist einfach, 10 ist schwer.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6588"/>
         <source>Rower Level:</source>
-        <translation type="vanished">Rader-Level:</translation>
+        <translation>Rader-Level:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6611"/>
         <source>Difficulty level for Peloton rower classes. 1 is easy 10 is hard.</source>
-        <translation type="vanished">Schwierigkeitsgrad für Peloton Ruder-Kurse. 1 ist einfach, 10 ist schwer.</translation>
+        <translation>Schwierigkeitsgrad für Peloton Ruder-Kurse. 1 ist einfach, 10 ist schwer.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6627"/>
         <source>PZP Username:</source>
-        <translation type="vanished">Benutzername:</translation>
+        <translation>Benutzername:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6648"/>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.</source>
-        <translation type="vanished">Seit dem 01.04.2022 ist diese Funktion aufgrund einer Änderung der Power Zone Pack (PZP) Website defekt. Lassen Sie (oder ändern Sie zurück auf) den Standardwert „username“ (ohne Anführungszeichen, alles klein und ein Wort) bis auf Weiteres.</translation>
+        <translation>Seit dem 01.04.2022 ist diese Funktion aufgrund einer Änderung der Power Zone Pack (PZP) Website defekt. Lassen Sie (oder ändern Sie zurück auf) den Standardwert „username“ (ohne Anführungszeichen, alles klein und ein Wort) bis auf Weiteres.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6664"/>
         <source>PZP Password:</source>
-        <translation type="vanished">PZP Passwort:</translation>
+        <translation>PZP Passwort:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6687"/>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave this setting blank until further notice.</source>
-        <translation type="vanished">Ab dem 01.04.2022 ist dieses Feature aufgrund einer Änderung der Power Zone Pack (PZP) Website defekt. Lassen Sie diese Einstellung bis auf Weiteres leer.</translation>
+        <translation>Ab dem 01.04.2022 ist dieses Feature aufgrund einer Änderung der Power Zone Pack (PZP) Website defekt. Lassen Sie diese Einstellung bis auf Weiteres leer.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6703"/>
         <source>Conversion Gain:</source>
-        <translation type="vanished">Konversionsgewinn:</translation>
+        <translation>Konversionsgewinn:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6725"/>
         <source>Conversion gain is a multiplier. Use this setting to align the Peloton resistance calculated by QZ with the relative effort required by your bike. In most cases the default values will be correct.</source>
-        <translation type="vanished">Der Konversionsgewinn ist ein Multiplikator. Verwenden Sie diese Einstellung, um den von QZ berechneten Peloton-Widerstand mit der relativen Anstrengung Ihres Fahrrads abzustimmen. In den meisten Fällen sind die Standardwerte korrekt.</translation>
+        <translation>Der Konversionsgewinn ist ein Multiplikator. Verwenden Sie diese Einstellung, um den von QZ berechneten Peloton-Widerstand mit der relativen Anstrengung Ihres Fahrrads abzustimmen. In den meisten Fällen sind die Standardwerte korrekt.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6741"/>
         <source>Conversion Offset:</source>
-        <translation type="vanished">Konversionsversatz:</translation>
+        <translation>Konversionsversatz:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6763"/>
         <source>Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)</source>
-        <translation type="vanished">Erhöht den Widerstand, den QZ in der Peloton Resistance Kachel anzeigt. Wenn die berechnete Umrechnung von QZ von der Widerstandsskala Ihres Fahrrads auf die von Peloton zu niedrig erscheint, wird die Zahl, die Sie hier eingeben, zum berechneten Widerstand addiert, ohne Ihre Anstrengung oder den tatsächlichen Widerstand zu erhöhen. (Beispiel: Wenn QZ einen Peloton-Widerstand von 30 anzeigt und Sie 5 eingeben, zeigt QZ 35 an.)</translation>
+        <translation>Erhöht den Widerstand, den QZ in der Peloton Resistance Kachel anzeigt. Wenn die berechnete Umrechnung von QZ von der Widerstandsskala Ihres Fahrrads auf die von Peloton zu niedrig erscheint, wird die Zahl, die Sie hier eingeben, zum berechneten Widerstand addiert, ohne Ihre Anstrengung oder den tatsächlichen Widerstand zu erhöhen. (Beispiel: Wenn QZ einen Peloton-Widerstand von 30 anzeigt und Sie 5 eingeben, zeigt QZ 35 an.)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2141"/>
         <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;.</source>
-        <translation type="vanished">Geben Sie Ihr Gewicht in Kilogramm ein, damit QZ die verbrannten Kalorien genauer berechnen kann. HINWEIS: Wenn Sie sich entscheiden, Meilen als Einheit für die zurückgelegte Strecke zu verwenden, werden Sie aufgefordert, Ihr Gewicht in Pfund (lbs) einzugeben, es sei denn, Sie aktivieren „kg für Gewicht verwenden“.</translation>
+        <translation>Geben Sie Ihr Gewicht in Kilogramm ein, damit QZ die verbrannten Kalorien genauer berechnen kann. HINWEIS: Wenn Sie sich entscheiden, Meilen als Einheit für die zurückgelegte Strecke zu verwenden, werden Sie aufgefordert, Ihr Gewicht in Pfund (lbs) einzugeben, es sei denn, Sie aktivieren „kg für Gewicht verwenden“.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="203"/>
         <source>General</source>
-        <translation type="vanished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1724"/>
         <source>Auto (System)</source>
-        <translation type="vanished">Automatisch (System)</translation>
+        <translation>Automatisch (System)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1725"/>
         <source>English</source>
-        <translation type="vanished">Englisch</translation>
+        <translation>Englisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1726"/>
         <source>Italian</source>
-        <translation type="vanished">Italienisch</translation>
+        <translation>Italienisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1727"/>
         <source>German</source>
-        <translation type="vanished">Deutsch</translation>
+        <translation>Deutsch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1728"/>
         <source>French</source>
-        <translation type="vanished">Französisch</translation>
+        <translation>Französisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1729"/>
         <source>Spanish</source>
-        <translation type="vanished">Spanisch</translation>
+        <translation>Spanisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1730"/>
         <source>Portuguese</source>
-        <translation type="vanished">Portugiesisch</translation>
+        <translation>Portugiesisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1731"/>
         <source>Portuguese (Brazil)</source>
-        <translation type="vanished">Portugiesisch (Brasilien)</translation>
+        <translation>Portugiesisch (Brasilien)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1732"/>
         <source>Russian</source>
-        <translation type="vanished">Russisch</translation>
+        <translation>Russisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1733"/>
+        <source>Chinese (Simplified)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="1734"/>
         <source>Chinese (Traditional)</source>
-        <translation type="vanished">Chinesisch (Traditionell)</translation>
+        <translation>Chinesisch (Traditionell)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1735"/>
         <source>Japanese</source>
-        <translation type="vanished">Japanisch</translation>
+        <translation>Japanisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1736"/>
         <source>Korean</source>
-        <translation type="vanished">Koreanisch</translation>
+        <translation>Koreanisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1737"/>
         <source>Arabic</source>
-        <translation type="vanished">Arabisch</translation>
+        <translation>Arabisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1739"/>
         <source>Turkish</source>
-        <translation type="vanished">Türkisch</translation>
+        <translation>Türkisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1740"/>
         <source>Vietnamese</source>
-        <translation type="vanished">Vietnamesisch</translation>
+        <translation>Vietnamesisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1741"/>
         <source>Polish</source>
-        <translation type="vanished">Polnisch</translation>
+        <translation>Polnisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1742"/>
         <source>Ukrainian</source>
-        <translation type="vanished">Ukrainisch</translation>
+        <translation>Ukrainisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1743"/>
         <source>Dutch</source>
-        <translation type="vanished">Niederländisch</translation>
+        <translation>Niederländisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1744"/>
+        <source>Thai</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="1745"/>
         <source>Indonesian</source>
-        <translation type="vanished">Indonesisch</translation>
+        <translation>Indonesisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1746"/>
         <source>Romanian</source>
-        <translation type="vanished">Rumänisch</translation>
+        <translation>Rumänisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1747"/>
         <source>Czech</source>
-        <translation type="vanished">Tschechisch</translation>
+        <translation>Tschechisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1748"/>
         <source>Greek</source>
-        <translation type="vanished">Griechisch</translation>
+        <translation>Griechisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1749"/>
         <source>Swedish</source>
-        <translation type="vanished">Schwedisch</translation>
+        <translation>Schwedisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1750"/>
         <source>Hungarian</source>
-        <translation type="vanished">Ungarisch</translation>
+        <translation>Ungarisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1751"/>
         <source>Finnish</source>
-        <translation type="vanished">Finnisch</translation>
+        <translation>Finnisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1752"/>
         <source>Norwegian</source>
-        <translation type="vanished">Norwegisch</translation>
+        <translation>Norwegisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1753"/>
         <source>Danish</source>
-        <translation type="vanished">Dänisch</translation>
+        <translation>Dänisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1754"/>
         <source>Hebrew</source>
-        <translation type="vanished">Hebräisch</translation>
+        <translation>Hebräisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1755"/>
         <source>Catalan</source>
-        <translation type="vanished">Katalanisch</translation>
+        <translation>Katalanisch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1778"/>
         <source>Search settings</source>
-        <translation type="vanished">Suchen Einstellungen</translation>
+        <translation>Suchen Einstellungen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1797"/>
         <source>Clear</source>
-        <translation type="vanished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1818"/>
         <source>Loading settings...</source>
-        <translation type="vanished">Lade Einstellungen...</translation>
+        <translation>Lade Einstellungen...</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1819"/>
         <source>Searching...</source>
-        <translation type="vanished">Suche...</translation>
+        <translation>Suche...</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1820"/>
         <source>No settings found</source>
-        <translation type="vanished">Keine Einstellungen gefunden</translation>
+        <translation>Keine Einstellungen gefunden</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1821"/>
         <source>Search results</source>
-        <translation type="vanished">Suchergebnisse</translation>
+        <translation>Suchergebnisse</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="1893"/>
         <source>Open</source>
-        <translation type="vanished">Öffnen</translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2032"/>
+        <source>UI Zoom:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2070"/>
         <source>App Language:</source>
-        <translation type="vanished">Sprache der App:</translation>
+        <translation>Sprache der App:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2104"/>
         <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation type="vanished">Wählen Sie Auto, um die Sprache Ihres Geräts zu übernehmen, oder wählen Sie eine bestimmte Sprache für QZ. Neustart erforderlich.</translation>
+        <translation>Wählen Sie Auto, um die Sprache Ihres Geräts zu übernehmen, oder wählen Sie eine bestimmte Sprache für QZ. Neustart erforderlich.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2189"/>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
-        <translation type="vanished">Ungültiges Format! Verwenden Sie Fuß&apos;Zoll (z. B. 6&apos;2&quot;)</translation>
+        <translation>Ungültiges Format! Verwenden Sie Fuß&apos;Zoll (z. B. 6&apos;2&quot;)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2469"/>
         <source>Use kg for weight</source>
-        <translation type="vanished">Verwenden Sie kg für Gewicht</translation>
+        <translation>Verwenden Sie kg für Gewicht</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2484"/>
         <source>Turn on if you want to use kilograms (kg) for weight instead of pounds (lbs). Useful for UK users who use miles for distance but kg for weight.</source>
-        <translation type="vanished">Aktivieren, wenn Sie Kilogramm (kg) statt Pfund (lbs) für das Gewicht verwenden möchten. Nützlich für britische Benutzer, die Meilen für die Distanz, aber kg für das Gewicht verwenden.</translation>
+        <translation>Aktivieren, wenn Sie Kilogramm (kg) statt Pfund (lbs) für das Gewicht verwenden möchten. Nützlich für britische Benutzer, die Meilen für die Distanz, aber kg für das Gewicht verwenden.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2757"/>
+        <location filename="../settings.qml" line="11311"/>
+        <location filename="../settings.qml" line="11505"/>
+        <location filename="../settings.qml" line="11739"/>
+        <location filename="../settings.qml" line="12768"/>
+        <location filename="../settings.qml" line="13298"/>
+        <location filename="../settings.qml" line="13364"/>
+        <location filename="../settings.qml" line="13432"/>
+        <location filename="../settings.qml" line="13479"/>
         <source>Refresh Devices List</source>
-        <translation type="vanished">Aktualisieren der Geräte-Liste</translation>
+        <translation>Aktualisieren der Geräte-Liste</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2774"/>
+        <source>Zone 1 %:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2799"/>
+        <source>Zone 2 %:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2824"/>
+        <source>Zone 3 %:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2849"/>
+        <source>Zone 4 %:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="2961"/>
         <source>Resting Heart Rate</source>
-        <translation type="vanished">Ruheherzfrequenz</translation>
+        <translation>Ruheherzfrequenz</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="2983"/>
         <source>Enter your resting heart rate (the lowest your heart rate reaches when fully rested). This is used for accurate training load calculations. Default is 60 bpm.</source>
-        <translation type="vanished">Geben Sie Ihre Ruheherzfrequenz ein (die niedrigste Frequenz, die Ihr Herzschlag im vollständigen Ruhezustand erreicht). Dies wird für genaue Trainingsbelastungsberechnungen verwendet. Standard ist 60 bpm.</translation>
+        <translation>Geben Sie Ihre Ruheherzfrequenz ein (die niedrigste Frequenz, die Ihr Herzschlag im vollständigen Ruhezustand erreicht). Dies wird für genaue Trainingsbelastungsberechnungen verwendet. Standard ist 60 bpm.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3311"/>
         <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will &apos;level the playing field&apos; against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;. Default unit is kilograms (kgs).</source>
-        <translation type="vanished">Ermöglicht QZ, das Gewicht Ihres Fahrrads bei der Geschwindigkeitsberechnung zu berücksichtigen. Zum Beispiel gleicht das Hinzufügen des Fahrradgewichts auf VZfit das Spielfeld gegenüber Ihrem virtuellen Ich aus. Wenn Sie QZ für die Berechnung der Entfernung in Meilen eingestellt haben, geben Sie das Fahrradgewicht in Pfund (lbs) ein, es sei denn, Sie aktivieren &apos;Use kg for weight&apos;. Die Standardeinheit sind Kilogramm (kgs).</translation>
+        <translation>Ermöglicht QZ, das Gewicht Ihres Fahrrads bei der Geschwindigkeitsberechnung zu berücksichtigen. Zum Beispiel gleicht das Hinzufügen des Fahrradgewichts auf VZfit das Spielfeld gegenüber Ihrem virtuellen Ich aus. Wenn Sie QZ für die Berechnung der Entfernung in Meilen eingestellt haben, geben Sie das Fahrradgewicht in Pfund (lbs) ein, es sei denn, Sie aktivieren &apos;Use kg for weight&apos;. Die Standardeinheit sind Kilogramm (kgs).</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="3555"/>
+        <source>Zwift ERG Watt Down Filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="3740"/>
         <source>Custom Gear Table</source>
-        <translation type="vanished">Benutzerdefiniertes Zahnrad-Tabelle</translation>
+        <translation>Benutzerdefiniertes Zahnrad-Tabelle</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4161"/>
         <source>FTMS Bike:</source>
-        <translation type="vanished">FTMS Fahrrad:</translation>
+        <translation>FTMS Fahrrad:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4567"/>
+        <source>SP-HT-9600iE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4610"/>
+        <source>Snode Bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4670"/>
+        <source>Fit Plus Bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4712"/>
         <source>Sportstech ESX500 bike</source>
-        <translation type="vanished">Sportstech ESX500 Fahrrad</translation>
+        <translation>Sportstech ESX500 Fahrrad</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4728"/>
         <source>LifeSpan Bike Options</source>
-        <translation type="vanished">LifeSpan Bike Optionen</translation>
+        <translation>LifeSpan Bike Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4736"/>
+        <source>LifeSpan C7000i Bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4762"/>
         <source>Samples Filter:</source>
-        <translation type="vanished">Beispiele Filter:</translation>
+        <translation>Beispiele Filter:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="4784"/>
+        <source>Life Fitness IC8</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="4798"/>
+        <source>Life Fitness IC5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5135"/>
+        <source>TDF1 IP:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5159"/>
+        <source>TDF4 IP:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5183"/>
+        <source>TDF Companion IP:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5205"/>
+        <location filename="../settings.qml" line="9870"/>
+        <location filename="../settings.qml" line="11621"/>
         <source>ADB Remote</source>
-        <translation type="vanished">ADB Fern</translation>
+        <translation>ADB Fern</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5360"/>
         <source>Bike ID:</source>
-        <translation type="vanished">Fahrrad-ID:</translation>
+        <translation>Fahrrad-ID:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5457"/>
         <source>Technogym Bike (BIKE 1, BIKE 2, etc)</source>
-        <translation type="vanished">Technogym Fahrrad (BIKE 1, BIKE 2, etc)</translation>
+        <translation>Technogym Fahrrad (BIKE 1, BIKE 2, etc)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="5518"/>
+        <source>Toputure Bikes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5526"/>
+        <source>Toputure TEB1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="5540"/>
         <source>Enable the special SPORT01 instant power formula only for the Toputure TEB1 bike. Leave disabled to use the standard FTMS instant power reported by the device.</source>
-        <translation type="vanished">Aktivieren Sie die spezielle SPORT01 Instant Power Formel nur für das Toputure TEB1 Fahrrad. Lassen Sie es deaktiviert, um die vom Gerät gemeldete standardmäßige FTMS Instant Power zu verwenden.</translation>
+        <translation>Aktivieren Sie die spezielle SPORT01 Instant Power Formel nur für das Toputure TEB1 Fahrrad. Lassen Sie es deaktiviert, um die vom Gerät gemeldete standardmäßige FTMS Instant Power zu verwenden.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6004"/>
         <source>Open Floating on a Browser</source>
-        <translation type="vanished">Schwebend im Browser</translation>
+        <translation>Schwebend im Browser</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6050"/>
         <source>iOS Live Activity Left Metric:</source>
-        <translation type="vanished">iOS Live Activity Linke Metrik:</translation>
+        <translation>iOS Live Activity Linke Metrik:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6071"/>
         <source>iOS Live Activity Right Metric:</source>
-        <translation type="vanished">iOS Live Activity Richtige Metrik:</translation>
+        <translation>iOS Live Activity Richtige Metrik:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6090"/>
         <source>iOS only: choose which two metrics are shown in the compact Dynamic Island bar for Live Activities. Default is Heart Rate on the left and Watt on the right.</source>
-        <translation type="vanished">Nur iOS: Wählen Sie aus, welche zwei Metriken in der kompakten Dynamic Island Leiste für Live Activities angezeigt werden sollen. Standardmäßig ist links die Herzfrequenz und rechts die Wattzahl.</translation>
+        <translation>Nur iOS: Wählen Sie aus, welche zwei Metriken in der kompakten Dynamic Island Leiste für Live Activities angezeigt werden sollen. Standardmäßig ist links die Herzfrequenz und rechts die Wattzahl.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6149"/>
+        <location filename="../settings.qml" line="6183"/>
+        <location filename="../settings.qml" line="6230"/>
+        <location filename="../settings.qml" line="6263"/>
         <source>Please choose a color</source>
-        <translation type="vanished">Bitte wählen Sie eine Farbe</translation>
+        <translation>Bitte wählen Sie eine Farbe</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6193"/>
+        <source>Tiles Shadow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6520"/>
         <source>Walking Min Speed:</source>
-        <translation type="vanished">Gehen Min. Geschwindigkeit:</translation>
+        <translation>Gehen Min. Geschwindigkeit:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6539"/>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
-        <translation type="vanished">Mindestgeschwindigkeit für Peloton Walking-Einheiten. Auf 0 setzen, um zu deaktivieren. Gilt für alle Geschwindigkeitsziele in Walking-Workouts.</translation>
+        <translation>Mindestgeschwindigkeit für Peloton Walking-Einheiten. Auf 0 setzen, um zu deaktivieren. Gilt für alle Geschwindigkeitsziele in Walking-Workouts.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6554"/>
         <source>Running Min Speed:</source>
-        <translation type="vanished">Lauf-Min-Geschw.:</translation>
+        <translation>Lauf-Min-Geschw.:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6573"/>
         <source>Minimum speed for Peloton running sessions. Set to 0 to disable. Applied to all speed targets in running workouts.</source>
-        <translation type="vanished">Mindestgeschwindigkeit für Peloton Lauf-Sessions. Auf 0 setzen, um zu deaktivieren. Gilt für alle Geschwindigkeitsziele in Lauf-Workouts.</translation>
+        <translation>Mindestgeschwindigkeit für Peloton Lauf-Sessions. Auf 0 setzen, um zu deaktivieren. Gilt für alle Geschwindigkeitsziele in Lauf-Workouts.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6777"/>
         <source>Cycling/Running Sensor (Peloton compatibility)</source>
-        <translation type="vanished">Fahrrad-/Laufsensor (Peloton Kompatibilität)</translation>
+        <translation>Fahrrad-/Laufsensor (Peloton Kompatibilität)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6791"/>
         <source>Turn this on compatibility to Peloton over Bluetooth. Default is off.</source>
-        <translation type="vanished">Kompatibilität zu Peloton über Bluetooth aktivieren. Standardmäßig aus.</translation>
+        <translation>Kompatibilität zu Peloton über Bluetooth aktivieren. Standardmäßig aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6804"/>
         <source>Auto Start (with intro)</source>
-        <translation type="vanished">Auto Start (mit Einführung)</translation>
+        <translation>Auto Start (mit Einführung)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6818"/>
         <source>Turn this on to start a workout automatically when you start a workout on Peloton (waiting the intro). Default is off.</source>
-        <translation type="vanished">Aktivieren Sie dies, um ein Workout automatisch zu starten, wenn Sie ein Workout auf Peloton starten (während der Intro-Phase). Standardmäßig ist es aus.</translation>
+        <translation>Aktivieren Sie dies, um ein Workout automatisch zu starten, wenn Sie ein Workout auf Peloton starten (während der Intro-Phase). Standardmäßig ist es aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6831"/>
         <source>Auto Start (without intro)</source>
-        <translation type="vanished">Auto Start (ohne Intro)</translation>
+        <translation>Auto Start (ohne Intro)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6845"/>
         <source>Turn this on to start a workout automatically when you start a workout on Peloton (skipping the intro). Default is off.</source>
-        <translation type="vanished">Aktivieren Sie dies, um ein Workout automatisch zu starten, wenn Sie ein Workout auf Peloton starten (Intro überspringen). Standardmäßig aus.</translation>
+        <translation>Aktivieren Sie dies, um ein Workout automatisch zu starten, wenn Sie ein Workout auf Peloton starten (Intro überspringen). Standardmäßig aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6889"/>
         <source>Override HR Metric:</source>
-        <translation type="vanished">Überschreiben der HR-Metrik:</translation>
+        <translation>Überschreiben der HR-Metrik:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6913"/>
         <source>By default, QZ communicates heart rate to Peloton. Use this setting to change the metric that appears on the Peloton screen.</source>
-        <translation type="vanished">Standardmäßig sendet QZ die Herzfrequenz an Peloton. Verwenden Sie diese Einstellung, um die Metrik zu ändern, die auf dem Peloton-Bildschirm angezeigt wird.</translation>
+        <translation>Standardmäßig sendet QZ die Herzfrequenz an Peloton. Verwenden Sie diese Einstellung, um die Metrik zu ändern, die auf dem Peloton-Bildschirm angezeigt wird.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6929"/>
         <source>Date on Strava:</source>
-        <translation type="vanished">Datum auf Strava:</translation>
+        <translation>Datum auf Strava:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6953"/>
         <source>Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.</source>
-        <translation type="vanished">Ermöglicht die Auswahl, ob das Peloton-Klassen-Air-Datum vor oder nach dem Klassentitel auf Strava angezeigt werden soll.</translation>
+        <translation>Ermöglicht die Auswahl, ob das Peloton-Klassen-Air-Datum vor oder nach dem Klassentitel auf Strava angezeigt werden soll.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6968"/>
         <source>Date Format:</source>
-        <translation type="vanished">Datumsformat:</translation>
+        <translation>Datumsformat:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="6992"/>
         <source>Activity Link in Strava</source>
-        <translation type="vanished">Aktivitäts-Link in Strava</translation>
+        <translation>Aktivitäts-Link in Strava</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7006"/>
         <source>Turn this on if you want QZ to capture a link to the Peloton class and display it in Strava.</source>
-        <translation type="vanished">Aktivieren Sie dies, wenn Sie möchten, dass QZ einen Link zur Peloton-Klasse erfasst und ihn in Strava anzeigt.</translation>
+        <translation>Aktivieren Sie dies, wenn Sie möchten, dass QZ einen Link zur Peloton-Klasse erfasst und ihn in Strava anzeigt.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7019"/>
         <source>Spinups Autoresistance</source>
-        <translation type="vanished">Spinups Autoresistenz</translation>
+        <translation>Spinups Autoresistenz</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7033"/>
         <source>By default, QZ treats Spin-UPS in Power Zone rides as an increasing ramp to warm you up. You can disable this, to leave the resistance up to you.</source>
-        <translation type="vanished">Standardmäßig behandelt QZ Spin-UPS in Power Zone Fahrten als eine ansteigende Rampe, um Sie aufzuwärmen. Sie können dies deaktivieren, um den Widerstand selbst bestimmen zu können.</translation>
+        <translation>Standardmäßig behandelt QZ Spin-UPS in Power Zone Fahrten als eine ansteigende Rampe, um Sie aufzuwärmen. Sie können dies deaktivieren, um den Widerstand selbst bestimmen zu können.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7047"/>
         <source>Peloton Auto Sync (Experimental)</source>
-        <translation type="vanished">Peloton Auto-Sync (Experimentell)</translation>
+        <translation>Peloton Auto-Sync (Experimentell)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7061"/>
         <source>Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.</source>
-        <translation type="vanished">Nur für Android, wenn QZ auf demselben Peloton-Gerät läuft. Diese Einstellung aktiviert die KI (Künstliche Intelligenz) in QZ, die den Peloton-Workout-Bildschirm liest und den Peloton-Offset anpasst, um in Echtzeit mit Ihrem Peloton-Workout synchron zu bleiben. Ein Pop-up zu Screen-Recording wird angezeigt, um Sie darüber zu informieren.</translation>
+        <translation>Nur für Android, wenn QZ auf demselben Peloton-Gerät läuft. Diese Einstellung aktiviert die KI (Künstliche Intelligenz) in QZ, die den Peloton-Workout-Bildschirm liest und den Peloton-Offset anpasst, um in Echtzeit mit Ihrem Peloton-Workout synchron zu bleiben. Ein Pop-up zu Screen-Recording wird angezeigt, um Sie darüber zu informieren.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7074"/>
         <source>Peloton Auto Sync Companion (Exp.)</source>
-        <translation type="vanished">Peloton Auto-Sync-Begleiter (Exp.)</translation>
+        <translation>Peloton Auto-Sync-Begleiter (Exp.)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7088"/>
         <source>This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the Peloton workout screen and will adjust the Peloton offset in order to stay in sync in realtime with your Peloton workout.</source>
-        <translation type="vanished">Diese Einstellung aktiviert die KI (Künstliche Intelligenz) in der QZ Companion AI App. Sie liest den Peloton-Workout-Bildschirm und passt den Peloton-Offset an, um eine Echtzeit-Synchronisierung mit Ihrem Peloton-Workout zu gewährleisten.</translation>
+        <translation>Diese Einstellung aktiviert die KI (Künstliche Intelligenz) in der QZ Companion AI App. Sie liest den Peloton-Workout-Bildschirm und passt den Peloton-Offset an, um eine Echtzeit-Synchronisierung mit Ihrem Peloton-Workout zu gewährleisten.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7131"/>
         <source>Zwift Options</source>
-        <translation type="vanished">Zwift Optionen</translation>
+        <translation>Zwift Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7141"/>
+        <location filename="../settings.qml" line="15046"/>
         <source>Username:</source>
-        <translation type="vanished">Benutzername:</translation>
+        <translation>Benutzername:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7163"/>
         <source>Enter the email address you use to login to Zwift. Ensure there are no spaces before or after your email. Click OK.</source>
-        <translation type="vanished">Geben Sie die E-Mail-Adresse ein, die Sie zum Einloggen bei Zwift verwenden. Stellen Sie sicher, dass vor oder nach Ihrer E-Mail keine Leerzeichen stehen. Klicken Sie auf OK.</translation>
+        <translation>Geben Sie die E-Mail-Adresse ein, die Sie zum Einloggen bei Zwift verwenden. Stellen Sie sicher, dass vor oder nach Ihrer E-Mail keine Leerzeichen stehen. Klicken Sie auf OK.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7179"/>
+        <location filename="../settings.qml" line="15082"/>
         <source>Password:</source>
-        <translation type="vanished">Passwort:</translation>
+        <translation>Passwort:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7203"/>
         <source>Enter the password you use to login to Zwift. Click OK.</source>
-        <translation type="vanished">Geben Sie das Passwort ein, das Sie zum Einloggen bei Zwift verwenden. Klicken Sie auf OK.</translation>
+        <translation>Geben Sie das Passwort ein, das Sie zum Einloggen bei Zwift verwenden. Klicken Sie auf OK.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7217"/>
         <source>Zwift Play &amp; Click Settings</source>
-        <translation type="vanished">Zwift Play &amp; Einstellungen</translation>
+        <translation>Zwift Play &amp; Einstellungen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7218"/>
         <source>Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with &apos;Get gears from Zwift&apos; may cause conflicts.</source>
-        <translation type="vanished">Möchten Sie die Einstellungen für Zwift Play und Zwift Click deaktivieren? Die gleichzeitige Aktivierung zusammen mit „Get gears from Zwift“ kann zu Konflikten führen.</translation>
+        <translation>Möchten Sie die Einstellungen für Zwift Play und Zwift Click deaktivieren? Die gleichzeitige Aktivierung zusammen mit „Get gears from Zwift“ kann zu Konflikten führen.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7230"/>
         <source>Get Gears from Zwift</source>
-        <translation type="vanished">Holen Sie sich Gears von Zwift</translation>
+        <translation>Holen Sie sich Gears von Zwift</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7253"/>
         <source>This setting bring virtual gearing from zwift to all the bikes directly from the Zwift interface. You have to configure Zwift: Wahoo virtual device from QZ as for power and cadence, and your QZ device as resistance. MUST be disabled for Mywhoosh app. Default: disabled.</source>
-        <translation type="vanished">Diese Einstellung überträgt die virtuelle Übersetzung von zwift auf alle Fahrräder direkt über die Zwift-Schnittstelle. Sie müssen Zwift konfigurieren: Das Wahoo-virtuelle Gerät von QZ für Leistung und Trittfrequenz und Ihr QZ-Gerät für den Widerstand. Muss für die Mywhoosh App deaktiviert sein. Standard: deaktiviert.</translation>
+        <translation>Diese Einstellung überträgt die virtuelle Übersetzung von zwift auf alle Fahrräder direkt über die Zwift-Schnittstelle. Sie müssen Zwift konfigurieren: Das Wahoo-virtuelle Gerät von QZ für Leistung und Trittfrequenz und Ihr QZ-Gerät für den Widerstand. Muss für die Mywhoosh App deaktiviert sein. Standard: deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7294"/>
         <source>Align Gear Value on Both Zwift and QZ</source>
-        <translation type="vanished">Gangwert auf Zwift und QZ angleichen</translation>
+        <translation>Gangwert auf Zwift und QZ angleichen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7308"/>
         <source>By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn&apos;t affect the real gear value one the bike. Default: disabled.</source>
-        <translation type="vanished">Standardmäßig zeigt QZ die tatsächlichen Gänge des Fahrrads. Wenn dies aktiviert wird, zeigt QZ die gleichen Gänge, die Sie auf Zwift sehen. Dies beeinflusst den tatsächlichen Gangwert am Fahrrad nicht. Standard: deaktiviert.</translation>
+        <translation>Standardmäßig zeigt QZ die tatsächlichen Gänge des Fahrrads. Wenn dies aktiviert wird, zeigt QZ die gleichen Gänge, die Sie auf Zwift sehen. Dies beeinflusst den tatsächlichen Gangwert am Fahrrad nicht. Standard: deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7323"/>
         <source>Poll Time:</source>
-        <translation type="vanished">Abfragezeit:</translation>
+        <translation>Abfragezeit:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7344"/>
         <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
-        <translation type="vanished">Definiere die Verzögerungssekunden zwischen jeder Neigungsänderung von Zwift. Dieser Wert muss mindestens 5 betragen. Standard: 5</translation>
+        <translation>Definiere die Verzögerungssekunden zwischen jeder Neigungsänderung von Zwift. Dieser Wert muss mindestens 5 betragen. Standard: 5</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7357"/>
+        <location filename="../settings.qml" line="7384"/>
         <source>Zwift Treadmill Auto Inclination</source>
-        <translation type="vanished">Zwift Laufband automatische Neigung</translation>
+        <translation>Zwift Laufband automatische Neigung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7371"/>
         <source>Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn&apos;t work on workout</source>
-        <translation type="vanished">Nur für Android und iOS: QZ liest die Neigung in Echtzeit von der Zwift App und passt die Neigung auf Ihrem Laufband an. Es funktioniert nicht bei Workouts</translation>
+        <translation>Nur für Android und iOS: QZ liest die Neigung in Echtzeit von der Zwift App und passt die Neigung auf Ihrem Laufband an. Es funktioniert nicht bei Workouts</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7398"/>
         <source>Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.</source>
-        <translation type="vanished">Nur für PCs, auf denen QZ auf demselben Zwift-Gerät läuft. Diese Einstellung aktiviert die KI (Künstliche Intelligenz) in QZ, die die Zwift-Neigung aus der Zwift-App liest und die Neigung auf Ihrem Laufband anpasst. Ein Popup zu Screen-Recordings wird angezeigt, um Sie darüber zu informieren.</translation>
+        <translation>Nur für PCs, auf denen QZ auf demselben Zwift-Gerät läuft. Diese Einstellung aktiviert die KI (Künstliche Intelligenz) in QZ, die die Zwift-Neigung aus der Zwift-App liest und die Neigung auf Ihrem Laufband anpasst. Ein Popup zu Screen-Recordings wird angezeigt, um Sie darüber zu informieren.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7411"/>
         <source>Zwift Treadmill Climb Portal</source>
-        <translation type="vanished">Zwift Laufband-Kletter-Portal</translation>
+        <translation>Zwift Laufband-Kletter-Portal</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7425"/>
         <source>Zwift Treadmill Auto Workout</source>
-        <translation type="vanished">Zwift Laufband Auto-Workout</translation>
+        <translation>Zwift Laufband Auto-Workout</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7439"/>
         <source>Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination and speed from the Zwift app during a workout and will adjust the inclination and the speed on your treadmill. A popup about screen recording will appear in order to notify this.</source>
-        <translation type="vanished">Nur für PCs, auf denen QZ auf demselben Zwift-Gerät läuft. Diese Einstellung aktiviert die KI (Künstliche Intelligenz) in QZ, die die Zwift-Neigung und -Geschwindigkeit während eines Workouts aus der Zwift-App liest und die Neigung und Geschwindigkeit auf Ihrem Laufband anpasst. Ein Pop-up zu Screen-Recording wird angezeigt, um Sie darüber zu informieren.</translation>
+        <translation>Nur für PCs, auf denen QZ auf demselben Zwift-Gerät läuft. Diese Einstellung aktiviert die KI (Künstliche Intelligenz) in QZ, die die Zwift-Neigung und -Geschwindigkeit während eines Workouts aus der Zwift-App liest und die Neigung und Geschwindigkeit auf Ihrem Laufband anpasst. Ein Pop-up zu Screen-Recording wird angezeigt, um Sie darüber zu informieren.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7454"/>
         <source>Rouvy Options</source>
-        <translation type="vanished">Rouvy Optionen</translation>
+        <translation>Rouvy Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7462"/>
         <source>Rouvy Compatibility</source>
-        <translation type="vanished">Rouvy Kompatibilität</translation>
+        <translation>Rouvy Kompatibilität</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7476"/>
         <source>Wifi Compatibility for Rouvy</source>
-        <translation type="vanished">Wifi Kompatibilität für Rouvy</translation>
+        <translation>Wifi Kompatibilität für Rouvy</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7492"/>
         <source>Garmin Options</source>
-        <translation type="vanished">Garmin Optionen</translation>
+        <translation>Garmin Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7500"/>
+        <source>Garmin Bluetooth Sensor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="7514"/>
         <source>If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.</source>
-        <translation type="vanished">Wenn Sie Metriken von Ihrem Mac auf Ihr Garmin-Gerät senden möchten, aktivieren Sie dies. Andernfalls lassen Sie es deaktiviert.</translation>
+        <translation>Wenn Sie Metriken von Ihrem Mac auf Ihr Garmin-Gerät senden möchten, aktivieren Sie dies. Andernfalls lassen Sie es deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7527"/>
         <source>Enable Companion App</source>
-        <translation type="vanished">Akkompanying App aktivieren</translation>
+        <translation>Akkompanying App aktivieren</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7541"/>
         <source>You have to install the QZ Companion App on your Garmin Watch/Computer first.</source>
-        <translation type="vanished">Du musst die QZ Companion App zuerst auf deine Garmin Uhr/deinen Computer installieren.</translation>
+        <translation>Du musst die QZ Companion App zuerst auf deine Garmin Uhr/deinen Computer installieren.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7554"/>
         <source>Ant+ Bike Over Garmin Watch</source>
-        <translation type="vanished">Ant+ Bike über Garmin Watch</translation>
+        <translation>Ant+ Bike über Garmin Watch</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7568"/>
         <source>Use your garmin watch to get the ANT+ metrics from a bike</source>
-        <translation type="vanished">Verwenden Sie Ihre Garmin Uhr, um die ANT+-Metriken von einem Fahrrad zu erhalten</translation>
+        <translation>Verwenden Sie Ihre Garmin Uhr, um die ANT+-Metriken von einem Fahrrad zu erhalten</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7589"/>
         <source>Enable Garmin Upload</source>
-        <translation type="vanished">Aktivieren Sie Garmin Upload</translation>
+        <translation>Aktivieren Sie Garmin Upload</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7603"/>
         <source>Enable automatic upload of FIT files to Garmin Connect after workouts.</source>
-        <translation type="vanished">Aktivieren Sie den automatischen Upload von FIT-Dateien zu Garmin Connect nach dem Training.</translation>
+        <translation>Aktivieren Sie den automatischen Upload von FIT-Dateien zu Garmin Connect nach dem Training.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7616"/>
+        <source>Fetch Garmin Workouts on Startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="7630"/>
+        <source>Enable automatic download of today&apos;s Garmin workout when QZ starts. Default: enabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="7645"/>
         <source>Garmin Email:</source>
-        <translation type="vanished">Garmin E-Mail:</translation>
+        <translation>Garmin E-Mail:</translation>
     </message>
     <message>
         <source>Garmin Password:</source>
         <translation type="vanished">Garmin Passwort:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7719"/>
         <source>Test Garmin Login</source>
-        <translation type="vanished">Test Garmin Anmeldung</translation>
+        <translation>Test Garmin Anmeldung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7740"/>
         <source>Garmin MFA Required</source>
-        <translation type="vanished">Garmin MFA erforderlich</translation>
+        <translation>Garmin MFA erforderlich</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7748"/>
         <source>Garmin has sent a verification code to your email.
 Please enter it below:</source>
-        <translation type="vanished">Garmin hat einen Verifizierungscode an Ihre E-Mail geschickt.
+        <translation>Garmin hat einen Verifizierungscode an Ihre E-Mail geschickt.
 Bitte geben Sie ihn unten ein:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7755"/>
         <source>If you don&apos;t receive the code, please enable 2FA in your Garmin profile privacy settings.</source>
-        <translation type="vanished">Wenn Sie den Code nicht erhalten, aktivieren Sie bitte 2FA in Ihren Garmin-Profil-Datenschutz-Einstellungen.</translation>
+        <translation>Wenn Sie den Code nicht erhalten, aktivieren Sie bitte 2FA in Ihren Garmin-Profil-Datenschutz-Einstellungen.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7766"/>
         <source>Enter MFA code</source>
-        <translation type="vanished">Geben Sie den MFA-Code ein</translation>
+        <translation>Geben Sie den MFA-Code ein</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7785"/>
         <source>Cancel</source>
-        <translation type="vanished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7794"/>
         <source>Submit</source>
-        <translation type="vanished">Senden</translation>
+        <translation>Senden</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7814"/>
         <source>Enter your Garmin Connect credentials to enable automatic upload. Your password is stored locally and securely.</source>
-        <translation type="vanished">Geben Sie Ihre Garmin Connect Anmeldedaten ein, um den automatischen Upload zu aktivieren. Ihr Passwort wird lokal und sicher gespeichert.</translation>
+        <translation>Geben Sie Ihre Garmin Connect Anmeldedaten ein, um den automatischen Upload zu aktivieren. Ihr Passwort wird lokal und sicher gespeichert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7827"/>
         <source>Use Garmin device in the FIT file</source>
-        <translation type="vanished">Verwenden Sie das Garmin-Gerät in der FIT-Datei</translation>
+        <translation>Verwenden Sie das Garmin-Gerät in der FIT-Datei</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7841"/>
         <source>With this enabled, QZ will write the FIT file as a Garmin device so Garmin will consider this fit file for the training effect. Default: disabled.</source>
-        <translation type="vanished">Wenn dies aktiviert ist, schreibt QZ die FIT-Datei als Garmin-Gerät, sodass Garmin diese FIT-Datei für den Trainingseffekt berücksichtigt. Standard: deaktiviert.</translation>
+        <translation>Wenn dies aktiviert ist, schreibt QZ die FIT-Datei als Garmin-Gerät, sodass Garmin diese FIT-Datei für den Trainingseffekt berücksichtigt. Standard: deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="7854"/>
         <source>Garmin device for FIT file</source>
-        <translation type="vanished">Garmin Gerät für FIT file</translation>
+        <translation>Garmin Gerät für FIT file</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8252"/>
         <source>Garmin device UNIT ID</source>
-        <translation type="vanished">Garmin Gerät UNIT ID</translation>
+        <translation>Garmin Gerät UNIT ID</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8273"/>
         <source>IMPORTANT: You must set your real Garmin device UNIT ID here to see your actual device in Garmin Connect. You can find your device UNIT ID in the Garmin Connect app. The default value (3313379353) is just a placeholder. If you want to see also the Acute load in Garmin Connect leave the default Unit ID here.</source>
-        <translation type="vanished">WICHTIG: Sie müssen hier Ihre echte Garmin-Gerät-UNIT ID einstellen, um Ihr tatsächliches Gerät in Garmin Connect zu sehen. Ihre Geräte-UNIT ID finden Sie in der Garmin Connect App. Der Standardwert (3313379353) ist nur ein Platzhalter. Wenn Sie auch die Acute load in Garmin Connect sehen möchten, lassen Sie die Standard-Unit ID hier.</translation>
+        <translation>WICHTIG: Sie müssen hier Ihre echte Garmin-Gerät-UNIT ID einstellen, um Ihr tatsächliches Gerät in Garmin Connect zu sehen. Ihre Geräte-UNIT ID finden Sie in der Garmin Connect App. Der Standardwert (3313379353) ist nur ein Platzhalter. Wenn Sie auch die Acute load in Garmin Connect sehen möchten, lassen Sie die Standard-Unit ID hier.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8289"/>
         <source>Training Program Options</source>
-        <translation type="vanished">Trainingsprogramm-Optionen</translation>
+        <translation>Trainingsprogramm-Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8302"/>
         <source>Stop Treadmill at the End</source>
-        <translation type="vanished">Stell das Laufband am Ende an</translation>
+        <translation>Stell das Laufband am Ende an</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8316"/>
         <source>Treadmill only: enabling this if you want that QZ will stop the tape at the end of the current train program.</source>
-        <translation type="vanished">Nur Laufband: Aktivieren Sie dies, wenn Sie möchten, dass QZ das Laufband am Ende des aktuellen Trainingsprogramms stoppt.</translation>
+        <translation>Nur Laufband: Aktivieren Sie dies, wenn Sie möchten, dass QZ das Laufband am Ende des aktuellen Trainingsprogramms stoppt.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8329"/>
+        <source>Enable Clipboard Workouts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="8343"/>
+        <source>Enable detection of ZWO/XML workouts copied to the clipboard. Default: disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="8357"/>
         <source>Auto Lap on Segment</source>
-        <translation type="vanished">Auto Lap auf Segment</translation>
+        <translation>Auto Lap auf Segment</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8371"/>
         <source>Automatically trigger a lap when completing each workout segment/row. For ramp segments, lap is triggered only at the end of the ramp to avoid creating a lap every second.</source>
-        <translation type="vanished">Löst automatisch eine Runde aus, wenn jedes Trainingssegment/Reihe abgeschlossen wird. Bei Steigungsabschnitten wird die Runde nur am Ende der Rampe ausgelöst, um zu verhindern, dass jede Sekunde eine Runde erstellt wird.</translation>
+        <translation>Löst automatisch eine Runde aus, wenn jedes Trainingssegment/Reihe abgeschlossen wird. Bei Steigungsabschnitten wird die Runde nur am Ende der Rampe ausgelöst, um zu verhindern, dass jede Sekunde eine Runde erstellt wird.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8384"/>
         <source>Treadmill Auto-adjust speed by power</source>
-        <translation type="vanished">Laufband: Geschwindigkeit automatisch nach Leistung anpassen</translation>
+        <translation>Laufband: Geschwindigkeit automatisch nach Leistung anpassen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8398"/>
         <source>Treadmill only: Automatically adjusts speed to maintain consistent power output. Speed adjustments occur on incline changes and adapt to manual speed modifications.</source>
-        <translation type="vanished">Nur Laufband: Passt die Geschwindigkeit automatisch an, um eine konstante Leistung zu gewährleisten. Geschwindigkeitsanpassungen erfolgen bei Steigungsänderungen und passen sich manuellen Geschwindigkeitsanpassungen an.</translation>
+        <translation>Nur Laufband: Passt die Geschwindigkeit automatisch an, um eine konstante Leistung zu gewährleisten. Geschwindigkeitsanpassungen erfolgen bei Steigungsänderungen und passen sich manuellen Geschwindigkeitsanpassungen an.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8414"/>
         <source>PID on Heart Zone:</source>
-        <translation type="vanished">PID bei Herzzone:</translation>
+        <translation>PID bei Herzzone:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8438"/>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation type="vanished">QZ steuert Ihr Laufband oder Fahrrad, um Sie in einer gewählten Herzfrequenzzone zu halten. Schalten Sie es ein, stellen Sie eine Zielherzfrequenz (HR) Zone ein, in der Sie trainieren möchten, und klicken Sie auf OK. Geben Sie beispielsweise 2 ein, um in HR Zone 2 zu trainieren; das Laufband passt die Geschwindigkeit (oder den Widerstand am Fahrrad) automatisch an, um Ihre Herzfrequenz in Zone 2 zu halten. QZ erhöht oder verringert Ihre Geschwindigkeit (oder den Fahrradwiderstand) allmählich in kleinen Schritten alle 40 Sekunden, um Ihre Ziel-HR-Zone zu erreichen und zu halten. Während eines Trainings können Sie die Tasten ‘+’ und ‘-’ auf der PID HR Zone Kachel anzeigen und verwenden, um die Ziel-HR-Zone zu ändern.</translation>
+        <translation>QZ steuert Ihr Laufband oder Fahrrad, um Sie in einer gewählten Herzfrequenzzone zu halten. Schalten Sie es ein, stellen Sie eine Zielherzfrequenz (HR) Zone ein, in der Sie trainieren möchten, und klicken Sie auf OK. Geben Sie beispielsweise 2 ein, um in HR Zone 2 zu trainieren; das Laufband passt die Geschwindigkeit (oder den Widerstand am Fahrrad) automatisch an, um Ihre Herzfrequenz in Zone 2 zu halten. QZ erhöht oder verringert Ihre Geschwindigkeit (oder den Fahrradwiderstand) allmählich in kleinen Schritten alle 40 Sekunden, um Ihre Ziel-HR-Zone zu erreichen und zu halten. Während eines Trainings können Sie die Tasten ‘+’ und ‘-’ auf der PID HR Zone Kachel anzeigen und verwenden, um die Ziel-HR-Zone zu ändern.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8453"/>
         <source>PID on HR min:</source>
-        <translation type="vanished">PID bei HR Min:</translation>
+        <translation>PID bei HR Min:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8475"/>
         <source>PID on HR max:</source>
-        <translation type="vanished">PID bei HR max:</translation>
+        <translation>PID bei HR max:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8495"/>
         <source>Alternatively to &apos;PID on Heart Zone&apos; setting you can use this couple of settings in order to specify a HR range.</source>
-        <translation type="vanished">Alternativ zur Einstellung &apos;PID auf Herzzone&apos; können Sie diese Einstellungen verwenden, um einen HR-Bereich festzulegen.</translation>
+        <translation>Alternativ zur Einstellung &apos;PID auf Herzzone&apos; können Sie diese Einstellungen verwenden, um einen HR-Bereich festzulegen.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8508"/>
+        <source>PID &apos;Pushy&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="8522"/>
         <source>Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.</source>
-        <translation type="vanished">Wenn dies aktiviert ist, versucht das PID, Sie zu motivieren, die Anstrengung kontinuierlich leicht zu steigern und Sie trotzdem in der Zone zu halten. Standard: Aktiviert.</translation>
+        <translation>Wenn dies aktiviert ist, versucht das PID, Sie zu motivieren, die Anstrengung kontinuierlich leicht zu steigern und Sie trotzdem in der Zone zu halten. Standard: Aktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8535"/>
         <source>PID Ignore Inclination</source>
-        <translation type="vanished">PID Neigung ignorieren</translation>
+        <translation>PID Neigung ignorieren</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8549"/>
         <source>Enabling this the PID will ignore the inclination changes. Default: Disabled.</source>
-        <translation type="vanished">Bei Aktivierung ignoriert das PID die Neigungsänderungen. Standard: Deaktiviert.</translation>
+        <translation>Bei Aktivierung ignoriert das PID die Neigungsänderungen. Standard: Deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8565"/>
         <source>1 mile pace (total time):</source>
-        <translation type="vanished">1 Meile Tempo (Gesamtzeit):</translation>
+        <translation>1 Meile Tempo (Gesamtzeit):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8586"/>
         <source>Enter your 1 mile time goal, click OK. This setting will be used when you’re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.</source>
-        <translation type="vanished">Geben Sie Ihr 1-Meilen-Zeitziel ein und klicken Sie auf OK. Diese Einstellung wird verwendet, wenn Sie ein Trainingsprogramm mit Geschwindigkeitskontrolle durchführen. Bitte stellen Sie sicher, dass diese Einstellungen auch mit den Zwift App-Einstellungen übereinstimmen. Mehr Infos: https://github.com/cagnulein/qdomyos-zwift/issues/609.</translation>
+        <translation>Geben Sie Ihr 1-Meilen-Zeitziel ein und klicken Sie auf OK. Diese Einstellung wird verwendet, wenn Sie ein Trainingsprogramm mit Geschwindigkeitskontrolle durchführen. Bitte stellen Sie sicher, dass diese Einstellungen auch mit den Zwift App-Einstellungen übereinstimmen. Mehr Infos: https://github.com/cagnulein/qdomyos-zwift/issues/609.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8602"/>
         <source>5 km pace (total time):</source>
-        <translation type="vanished">5 km Tempo (Gesamtzeit):</translation>
+        <translation>5 km Tempo (Gesamtzeit):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8623"/>
         <source>See 1 Mile Pace above; same except 5 km instead of 1 mile.</source>
-        <translation type="vanished">Siehe 1 Meilen Pace oben; gleich, außer 5 km statt 1 Meile.</translation>
+        <translation>Siehe 1 Meilen Pace oben; gleich, außer 5 km statt 1 Meile.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8639"/>
         <source>10 km pace (total time):</source>
-        <translation type="vanished">10 km Tempo (Gesamtzeit):</translation>
+        <translation>10 km Tempo (Gesamtzeit):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8660"/>
         <source>See 1 Mile Pace above; same except 10 km instead of 1 mile.</source>
-        <translation type="vanished">Siehe 1 Meilen Pace oben; gleich, außer 10 km statt 1 Meile.</translation>
+        <translation>Siehe 1 Meilen Pace oben; gleich, außer 10 km statt 1 Meile.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8676"/>
         <source>Half Marathon pace (total time):</source>
-        <translation type="vanished">Halbmarathon-Tempo (Gesamtzeit):</translation>
+        <translation>Halbmarathon-Tempo (Gesamtzeit):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8697"/>
         <source>See 1 Mile Pace above; same except half marathon distance instead of 1 mile.</source>
-        <translation type="vanished">Siehe 1 Meilen Pace oben; gleich, außer bei der Halbmarathon-Distanz statt 1 Meile.</translation>
+        <translation>Siehe 1 Meilen Pace oben; gleich, außer bei der Halbmarathon-Distanz statt 1 Meile.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8713"/>
         <source>Marathon pace (total time):</source>
-        <translation type="vanished">Marathon-Tempo (Gesamtzeit):</translation>
+        <translation>Marathon-Tempo (Gesamtzeit):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8734"/>
         <source>See 1 Mile Pace above; same except marathon distance instead of 1 mile.</source>
-        <translation type="vanished">Siehe 1 Meilen Pace oben; gleich, außer bei Marathon-Distanz statt 1 Meile.</translation>
+        <translation>Siehe 1 Meilen Pace oben; gleich, außer bei Marathon-Distanz statt 1 Meile.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8750"/>
         <source>Default Pace:</source>
-        <translation type="vanished">Standardtempo:</translation>
+        <translation>Standardtempo:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8774"/>
         <source>Select the default Pace to be used when the ZWO file does not indicate a precise pace.</source>
-        <translation type="vanished">Wählen Sie das Standard-Tempo, das verwendet werden soll, wenn die ZWO-Datei kein genaues Tempo angibt.</translation>
+        <translation>Wählen Sie das Standard-Tempo, das verwendet werden soll, wenn die ZWO-Datei kein genaues Tempo angibt.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8790"/>
         <source>ERG Mode Watt Step:</source>
-        <translation type="vanished">ERG Modus Watt Schritt:</translation>
+        <translation>ERG Modus Watt Schritt:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8811"/>
         <source>Set the wattage step increment for ERG mode heart rate zone training. Default: 5 watts.</source>
-        <translation type="vanished">Watt-Schrittweite für Herzfrequenzzonentraining im ERG-Modus festlegen. Standard: 5 Watt.</translation>
+        <translation>Watt-Schrittweite für Herzfrequenzzonentraining im ERG-Modus festlegen. Standard: 5 Watt.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8825"/>
         <source>Training Program Random</source>
-        <translation type="vanished">Trainingsprogramm Zufällig</translation>
+        <translation>Trainingsprogramm Zufällig</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8838"/>
         <source>Duration (minutes):</source>
-        <translation type="vanished">Dauer (Minuten):</translation>
+        <translation>Dauer (Minuten):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8863"/>
         <source>Period (seconds):</source>
-        <translation type="vanished">Periode (Sekunden):</translation>
+        <translation>Periode (Sekunden):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8888"/>
         <source>Speed min.:</source>
-        <translation type="vanished">Geschwindigkeit min.:</translation>
+        <translation>Geschwindigkeit min.:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8913"/>
         <source>Speed max.:</source>
-        <translation type="vanished">Max. Geschwindigkeit:</translation>
+        <translation>Max. Geschwindigkeit:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8938"/>
         <source>Incline min.:</source>
-        <translation type="vanished">Min. Steigung:</translation>
+        <translation>Min. Steigung:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8963"/>
         <source>Incline max.:</source>
-        <translation type="vanished">Max. Steigung:</translation>
+        <translation>Max. Steigung:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="8988"/>
         <source>Resistance min.:</source>
-        <translation type="vanished">Widerstand min.:</translation>
+        <translation>Widerstand min.:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9013"/>
         <source>Resistance max.:</source>
-        <translation type="vanished">Max. Widerstand:</translation>
+        <translation>Max. Widerstand:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9035"/>
         <source>Turn on and enter your choices for workout time (in minutes and seconds) and the maximum and minimum speed, incline (treadmill), and resistance (bike) and QZ will randomly change your speed and resistance or incline accordingly for the period of time you have selected.</source>
-        <translation type="vanished">Schalten Sie ein und geben Sie Ihre gewünschte Trainingszeit (in Minuten und Sekunden) sowie die maximalen und minimalen Werte für Geschwindigkeit, Steigung (Laufband) und Widerstand (Fahrrad) ein. QZ passt Ihre Geschwindigkeit, Ihren Widerstand oder die Steigung entsprechend für den gewählten Zeitraum zufällig an.</translation>
+        <translation>Schalten Sie ein und geben Sie Ihre gewünschte Trainingszeit (in Minuten und Sekunden) sowie die maximalen und minimalen Werte für Geschwindigkeit, Steigung (Laufband) und Widerstand (Fahrrad) ein. QZ passt Ihre Geschwindigkeit, Ihren Widerstand oder die Steigung entsprechend für den gewählten Zeitraum zufällig an.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9051"/>
         <source>Treadmill Options</source>
-        <translation type="vanished">Laufbandoptionen</translation>
+        <translation>Laufbandoptionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9059"/>
         <source>Treadmill as a Bike</source>
-        <translation type="vanished">Laufband als Fahrrad</translation>
+        <translation>Laufband als Fahrrad</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9072"/>
         <source>Turn on to convert your treadmill output to bike output when riding on Zwift. QZ sends your treadmill metrics to Zwift over Bluetooth so that you can participate as a bike rider. Default is off.</source>
-        <translation type="vanished">Aktivieren, um Ihre Laufbanddaten in Fahrraddaten umzuwandeln, wenn Sie auf Zwift fahren. QZ sendet Ihre Laufbandmetriken über Bluetooth an Zwift, damit Sie als Radfahrer teilnehmen können. Standardmäßig ist dies deaktiviert.</translation>
+        <translation>Aktivieren, um Ihre Laufbanddaten in Fahrraddaten umzuwandeln, wenn Sie auf Zwift fahren. QZ sendet Ihre Laufbandmetriken über Bluetooth an Zwift, damit Sie als Radfahrer teilnehmen können. Standardmäßig ist dies deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9086"/>
         <source>Treadmill Speed Forcing</source>
-        <translation type="vanished">Geschwindigkeitserhöhung des Laufbands</translation>
+        <translation>Geschwindigkeitserhöhung des Laufbands</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9100"/>
         <source>Turn this on to have QZ control the speed of your treadmill during, for example, Peloton classes based on the coach’s speed callouts. Your speed will be in the low, upper or average range based on your Peloton Options &gt; Difficulty setting. Default is off.</source>
-        <translation type="vanished">Schalten Sie dies ein, damit QZ die Geschwindigkeit Ihres Laufbands während beispielsweise Peloton-Kursen basierend auf den Geschwindigkeitsanweisungen des Trainers steuert. Ihre Geschwindigkeit wird je nach Ihren Peloton Options &gt; Difficulty setting im niedrigen, oberen oder durchschnittlichen Bereich liegen. Standardmäßig ist es aus.</translation>
+        <translation>Schalten Sie dies ein, damit QZ die Geschwindigkeit Ihres Laufbands während beispielsweise Peloton-Kursen basierend auf den Geschwindigkeitsanweisungen des Trainers steuert. Ihre Geschwindigkeit wird je nach Ihren Peloton Options &gt; Difficulty setting im niedrigen, oberen oder durchschnittlichen Bereich liegen. Standardmäßig ist es aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9128"/>
         <source>Turn this on to have QZ go into Pause mode upon opening when using a treadmill. This is for treadmills only. Default is off.</source>
-        <translation type="vanished">Aktivieren Sie dies, damit QZ beim Öffnen in den Pausemodus geht, wenn Sie ein Laufband verwenden. Dies gilt nur für Laufbänder. Standardmäßig ist es deaktiviert.</translation>
+        <translation>Aktivieren Sie dies, damit QZ beim Öffnen in den Pausemodus geht, wenn Sie ein Laufband verwenden. Dies gilt nur für Laufbänder. Standardmäßig ist es deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9142"/>
         <source>Direct Distance from Treadmill</source>
-        <translation type="vanished">Direkte Distanz vom Laufband</translation>
+        <translation>Direkte Distanz vom Laufband</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9156"/>
         <source>Turn this on to read the distance directly from the treadmill instead of calculating it from speed. Some treadmills report distance more accurately than the speed-based calculation. Default is off.</source>
-        <translation type="vanished">Schalten Sie dies ein, um die Distanz direkt vom Laufband zu lesen, anstatt sie aus der Geschwindigkeit zu berechnen. Einige Laufbänder melden die Distanz genauer als die geschwindigkeitsbasierte Berechnung. Standardmäßig ist es aus.</translation>
+        <translation>Schalten Sie dies ein, um die Distanz direkt vom Laufband zu lesen, anstatt sie aus der Geschwindigkeit zu berechnen. Einige Laufbänder melden die Distanz genauer als die geschwindigkeitsbasierte Berechnung. Standardmäßig ist es aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9170"/>
         <source>Difficulty offset based</source>
-        <translation type="vanished">Schwierigkeitsgrad-Offset basierend</translation>
+        <translation>Schwierigkeitsgrad-Offset basierend</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9184"/>
         <source>Target Speed and Target Incline tile offer a way to increase/decrease the current difficulty with the plus/minus buttons. By default, with this setting disabled, the speed and the inclination change with a 3% gain for every pressure. Switching this ON, QZ will add a 0.1 speed offset or a 0.5 incline offset instead.</source>
-        <translation type="vanished">Die Kacheln für Zielgeschwindigkeit und Zielneigung ermöglichen es, die aktuelle Schwierigkeit mit den Plus-/Minus-Tasten zu erhöhen oder zu verringern. Standardmäßig ändert sich bei Deaktivierung dieser Einstellung die Geschwindigkeit und die Neigung mit einem 3%-Gewinn bei jedem Druck. Bei Aktivierung fügt QZ stattdessen einen Geschwindigkeits-Offset von 0,1 oder einen Neigungs-Offset von 0,5 hinzu.</translation>
+        <translation>Die Kacheln für Zielgeschwindigkeit und Zielneigung ermöglichen es, die aktuelle Schwierigkeit mit den Plus-/Minus-Tasten zu erhöhen oder zu verringern. Standardmäßig ändert sich bei Deaktivierung dieser Einstellung die Geschwindigkeit und die Neigung mit einem 3%-Gewinn bei jedem Druck. Bei Aktivierung fügt QZ stattdessen einen Geschwindigkeits-Offset von 0,1 oder einen Neigungs-Offset von 0,5 hinzu.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9200"/>
         <source>Speed Step:</source>
-        <translation type="vanished">Geschwindigkeit Schritt:</translation>
+        <translation>Geschwindigkeit Schritt:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9222"/>
         <source>(Speed Tile) This controls the amount of the increase or decrease in the speed (in kph/mph) when you press the plus or minus button in the Speed Tile. Default is 0.5 kph.</source>
-        <translation type="vanished">(Speed Tile) Steuert die Menge der Geschwindigkeitszunahme oder -abnahme (in kph/mph), wenn Sie die Plus- oder Minus-Taste in der Speed Tile drücken. Standard ist 0,5 kph.</translation>
+        <translation>(Speed Tile) Steuert die Menge der Geschwindigkeitszunahme oder -abnahme (in kph/mph), wenn Sie die Plus- oder Minus-Taste in der Speed Tile drücken. Standard ist 0,5 kph.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9238"/>
         <source>Min. Inclination:</source>
-        <translation type="vanished">Min. Neigung:</translation>
+        <translation>Min. Neigung:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9259"/>
         <source>This overrides the minimum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100</source>
-        <translation type="vanished">Dies überschreibt den minimalen Neigungswert Ihres Laufbands (um die Neigungsbewegung zu reduzieren). Standard ist -100</translation>
+        <translation>Dies überschreibt den minimalen Neigungswert Ihres Laufbands (um die Neigungsbewegung zu reduzieren). Standard ist -100</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9274"/>
         <source>Max. Inclination:</source>
-        <translation type="vanished">Max. Neigung:</translation>
+        <translation>Max. Neigung:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9295"/>
         <source>This overrides the maximum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100</source>
-        <translation type="vanished">Dies überschreibt den maximalen Neigungswert Ihres Laufbands (um die Neigungsbewegung zu reduzieren). Standard ist -100</translation>
+        <translation>Dies überschreibt den maximalen Neigungswert Ihres Laufbands (um die Neigungsbewegung zu reduzieren). Standard ist -100</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9310"/>
         <source>Max. Speed:</source>
-        <translation type="vanished">Max. Geschwindigkeit:</translation>
+        <translation>Max. Geschwindigkeit:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9331"/>
         <source>This overrides the maximum speed value of your treadmill (in order to limit the max speed). Default is 100 km/h (62.1 mph)</source>
-        <translation type="vanished">Dies überschreibt den Maximalgeschwindigkeitswert Ihres Laufbands (um die Max. Geschwindigkeit zu begrenzen). Standard ist 100 km/h (62.1 mph)</translation>
+        <translation>Dies überschreibt den Maximalgeschwindigkeitswert Ihres Laufbands (um die Max. Geschwindigkeit zu begrenzen). Standard ist 100 km/h (62.1 mph)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9346"/>
         <source>Min. Speed:</source>
-        <translation type="vanished">Min. Geschwindigkeit:</translation>
+        <translation>Min. Geschwindigkeit:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9367"/>
         <source>This overrides the minimum speed value of your treadmill (in order to limit the min speed). Default is 0 km/h (0 mph)</source>
-        <translation type="vanished">Dies überschreibt den Mindestgeschwindigkeitswert Ihres Laufbands (um die Mindestgeschwindigkeit zu begrenzen). Standard ist 0 km/h (0 mph)</translation>
+        <translation>Dies überschreibt den Mindestgeschwindigkeitswert Ihres Laufbands (um die Mindestgeschwindigkeit zu begrenzen). Standard ist 0 km/h (0 mph)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9383"/>
         <source>Step Count Gain:</source>
-        <translation type="vanished">Schrittzahlzuwachs:</translation>
+        <translation>Schrittzahlzuwachs:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9405"/>
         <source>Multiplier applied to the step count calculated from cadence for calibration. Increase above 1.0 to count more steps, decrease below 1.0 to count fewer steps. Default is 1.0.</source>
-        <translation type="vanished">Multiplikator für die aus der Kadenz berechnete Schrittzahl zur Kalibrierung. Erhöhen Sie ihn über 1,0, um mehr Schritte zu zählen, oder verringern Sie ihn unter 1,0, um weniger Schritte zu zählen. Standardwert: 1,0.</translation>
+        <translation>Multiplikator für die aus der Kadenz berechnete Schrittzahl zur Kalibrierung. Erhöhen Sie ihn über 1,0, um mehr Schritte zu zählen, oder verringern Sie ihn unter 1,0, um weniger Schritte zu zählen. Standardwert: 1,0.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9418"/>
         <source>Inclination Overrides</source>
-        <translation type="vanished">Neigung überschreiben</translation>
+        <translation>Neigung überschreiben</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9426"/>
         <source>Overrides the default inclination values sent from the treadmill</source>
-        <translation type="vanished">Überschreibt die Standardneigungswerte, die vom Laufband gesendet werden</translation>
+        <translation>Überschreibt die Standardneigungswerte, die vom Laufband gesendet werden</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9439"/>
         <source>Simulate Inclination with Speed</source>
-        <translation type="vanished">Simuliere Neigung mit Geschwindigkeit</translation>
+        <translation>Simuliere Neigung mit Geschwindigkeit</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9453"/>
         <source>For treadmills without inclination: turning this on and QZ will transform inclination requests into speed changes.</source>
-        <translation type="vanished">Für Laufbänder ohne Neigung: Durch Aktivierung wandelt QZ Neigungsanfragen in Geschwindigkeitsänderungen um.</translation>
+        <translation>Für Laufbänder ohne Neigung: Durch Aktivierung wandelt QZ Neigungsanfragen in Geschwindigkeitsänderungen um.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9466"/>
         <source>FTMS Treadmill:</source>
-        <translation type="vanished">Laufband FTMS:</translation>
+        <translation>Laufband FTMS:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9492"/>
         <source>If you have a generic FTMS bike and the tiles doesn&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
-        <translation type="vanished">Wenn Sie ein generisches FTMS-Bike haben und das Tile nicht auf dem Hauptbildschirm von QZ erscheint, wählen Sie hier den Bluetooth-Namen Ihres Bikes aus.</translation>
+        <translation>Wenn Sie ein generisches FTMS-Bike haben und das Tile nicht auf dem Hauptbildschirm von QZ erscheint, wählen Sie hier den Bluetooth-Namen Ihres Bikes aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9505"/>
         <source>Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about settings for your specific equipment with QZ, click here to open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.</source>
-        <translation type="vanished">Erweitern Sie die Balken nach rechts, um die Optionen unter dieser Einstellung anzuzeigen. Wählen Sie Ihr spezifisches Modell (falls aufgeführt) und lassen Sie alle anderen Einstellungen auf Standard. Wenn Sie Probleme oder Fragen zu den Einstellungen für Ihre spezifische Ausrüstung mit QZ haben, klicken Sie hier, um ein Support-Ticket auf GitHub zu erstellen, oder fragen Sie die QZ Community in der QZ Facebook Group.</translation>
+        <translation>Erweitern Sie die Balken nach rechts, um die Optionen unter dieser Einstellung anzuzeigen. Wählen Sie Ihr spezifisches Modell (falls aufgeführt) und lassen Sie alle anderen Einstellungen auf Standard. Wenn Sie Probleme oder Fragen zu den Einstellungen für Ihre spezifische Ausrüstung mit QZ haben, klicken Sie hier, um ein Support-Ticket auf GitHub zu erstellen, oder fragen Sie die QZ Community in der QZ Facebook Group.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9519"/>
         <source>Proform/Nordictrack Options</source>
-        <translation type="vanished">Proform/Nordictrack Optionen</translation>
+        <translation>Proform/Nordictrack Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9824"/>
+        <source>Proform IP:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="9848"/>
+        <source>Nordictrack 2950 IP:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="9887"/>
         <source>Pafers Options</source>
-        <translation type="vanished">Pafers Optionen</translation>
+        <translation>Pafers Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9895"/>
         <source>Pafers Treadmill</source>
-        <translation type="vanished">Pafers Laufband</translation>
+        <translation>Pafers Laufband</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9925"/>
         <source>GEM Module Options</source>
-        <translation type="vanished">GEM Moduloptionen</translation>
+        <translation>GEM Moduloptionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9932"/>
         <source>Inclination</source>
-        <translation type="vanished">Neigung</translation>
+        <translation>Neigung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9948"/>
         <source>Echelon Options</source>
-        <translation type="vanished">Echelon Optionen</translation>
+        <translation>Echelon Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9972"/>
         <source>KingSmith Options</source>
-        <translation type="vanished">KingSmith Optionen</translation>
+        <translation>KingSmith Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="9980"/>
+        <source>WalkingPad X21</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="9995"/>
+        <source>WalkingPad X21 v2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10010"/>
+        <source>WalkingPad X21 v3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10024"/>
+        <source>WalkingPad X21 v4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10038"/>
+        <source>WalkingPad G1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10052"/>
         <source>Hardware Buttons</source>
-        <translation type="vanished">Hardware-Tasten</translation>
+        <translation>Hardware-Tasten</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10066"/>
         <source>Enable handling of physical Start/Pause/Stop buttons on the treadmill hardware</source>
-        <translation type="vanished">Aktivieren der physischen Start/Pause/Stopp-Tasten am Laufband-Hardware</translation>
+        <translation>Aktivieren der physischen Start/Pause/Stopp-Tasten am Laufband-Hardware</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10082"/>
         <source>RunnerT Options</source>
-        <translation type="vanished">RunnerT Optionen</translation>
+        <translation>RunnerT Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10103"/>
+        <source>Zero ZT-2500</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10116"/>
+        <source>UMAY S100</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10133"/>
         <source>Domyos Treadmill Options</source>
-        <translation type="vanished">Domyos Laufband Optionen</translation>
+        <translation>Domyos Laufband Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10141"/>
         <source>Speed/Inclination Buttons</source>
-        <translation type="vanished">Geschwindigkeit/Neigung-Tasten</translation>
+        <translation>Geschwindigkeit/Neigung-Tasten</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10155"/>
+        <source>T900</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10169"/>
         <source>TS100 (Fixed 15° Inclination)</source>
-        <translation type="vanished">TS100 (feste 15° Neigung)</translation>
+        <translation>TS100 (feste 15° Neigung)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10183"/>
         <source>RUN100E (Use Requested Inclination)</source>
-        <translation type="vanished">RUN100E (Verwendete Steigung)</translation>
+        <translation>RUN100E (Verwendete Steigung)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10197"/>
         <source>Sync Start (Old Behavior)</source>
-        <translation type="vanished">Sync Start (Altes Verhalten)</translation>
+        <translation>Sync Start (Altes Verhalten)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10212"/>
         <source>Distance on Console</source>
-        <translation type="vanished">Distanz auf der Konsole</translation>
+        <translation>Distanz auf der Konsole</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10227"/>
         <source>Fix Distance on Display</source>
-        <translation type="vanished">Distanz auf Anzeige fixieren</translation>
+        <translation>Distanz auf Anzeige fixieren</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10243"/>
         <source>Remap 5 km/h button:</source>
-        <translation type="vanished">Zuordnung der 5 km/h Taste ändern:</translation>
+        <translation>Zuordnung der 5 km/h Taste ändern:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10266"/>
         <source>Remap 10 km/h button:</source>
-        <translation type="vanished">Ummappe den 10 km/h Knopf:</translation>
+        <translation>Ummappe den 10 km/h Knopf:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10289"/>
         <source>Remap 16 km/h button:</source>
-        <translation type="vanished">Taste 16 km/h neu zuordnen:</translation>
+        <translation>Taste 16 km/h neu zuordnen:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10312"/>
         <source>Remap 22 km/h button:</source>
-        <translation type="vanished">Zuordnung des 22 km/h Buttons ändern:</translation>
+        <translation>Zuordnung des 22 km/h Buttons ändern:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10335"/>
+        <location filename="../settings.qml" line="14345"/>
         <source>Pool time (ms):</source>
-        <translation type="vanished">Poolzeit (ms):</translation>
+        <translation>Poolzeit (ms):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10355"/>
         <source>Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)</source>
-        <translation type="vanished">Standardmäßig: 200. Ändern Sie dies nur, wenn Sie zufällige Probleme mit Geschwindigkeit oder Neigung haben (versuchen Sie, 300 einzustellen)</translation>
+        <translation>Standardmäßig: 200. Ändern Sie dies nur, wenn Sie zufällige Probleme mit Geschwindigkeit oder Neigung haben (versuchen Sie, 300 einzustellen)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10371"/>
         <source>Sole Treadmill Options</source>
-        <translation type="vanished">Sole Laufband Optionen</translation>
+        <translation>Sole Laufband Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10379"/>
         <source>Inclination (experimental)</source>
-        <translation type="vanished">Neigung (experimentell)</translation>
+        <translation>Neigung (experimentell)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10392"/>
         <source>Fast Inclination (experimental)</source>
-        <translation type="vanished">Schnelle Neigung (experimentell)</translation>
+        <translation>Schnelle Neigung (experimentell)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10420"/>
+        <source>Sole F63</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10434"/>
+        <source>Sole F65</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10448"/>
+        <source>Sole TT8</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10465"/>
         <source>Technogym Options</source>
-        <translation type="vanished">Technogym Optionen</translation>
+        <translation>Technogym Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10473"/>
         <source>MyRun Experimental</source>
-        <translation type="vanished">MyRun Experimentell</translation>
+        <translation>MyRun Experimentell</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10490"/>
         <source>Fitshow Treadmill Options</source>
-        <translation type="vanished">Fitshow Laufband Optionen</translation>
+        <translation>Fitshow Laufband Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10524"/>
         <source>True timer</source>
-        <translation type="vanished">Echter Timer</translation>
+        <translation>Echter Timer</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10554"/>
         <source>User ID:</source>
-        <translation type="vanished">Benutzer-ID:</translation>
+        <translation>Benutzer-ID:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10579"/>
         <source>ESLinker Treadmill Options</source>
-        <translation type="vanished">ESLinker Laufband Optionen</translation>
+        <translation>ESLinker Laufband Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10586"/>
         <source>Cadenza Treadmill (Bodytone)</source>
-        <translation type="vanished">Cadenza Laufband (Bodytone)</translation>
+        <translation>Cadenza Laufband (Bodytone)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10600"/>
         <source>YPOO Mini Change</source>
-        <translation type="vanished">YPOO Mini Änderung</translation>
+        <translation>YPOO Mini Änderung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10613"/>
         <source>Costaway Folding</source>
-        <translation type="vanished">Costaway Zusammenklappbar</translation>
+        <translation>Costaway Zusammenklappbar</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10630"/>
         <source>Horizon Treadmill Options</source>
-        <translation type="vanished">Horizon Laufband Optionen</translation>
+        <translation>Horizon Laufband Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10638"/>
+        <source>Paragon X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10652"/>
+        <location filename="../settings.qml" line="10849"/>
         <source>Force Using FTMS</source>
-        <translation type="vanished">Erzwingt die Nutzung von FTMS</translation>
+        <translation>Erzwingt die Nutzung von FTMS</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10666"/>
         <source>Horizon 7.8 start issue</source>
-        <translation type="vanished">Horizon 7.8 Startproblem</translation>
+        <translation>Horizon 7.8 Startproblem</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10680"/>
+        <source>Omega Z</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10695"/>
         <source>Disable Pause</source>
-        <translation type="vanished">Deaktivieren der Pause</translation>
+        <translation>Deaktivieren der Pause</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10710"/>
         <source>Supends stats while paused</source>
-        <translation type="vanished">Statistiken werden bei Pause pausiert</translation>
+        <translation>Statistiken werden bei Pause pausiert</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10727"/>
         <source>User 1:</source>
-        <translation type="vanished">Benutzer 1:</translation>
+        <translation>Benutzer 1:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10750"/>
         <source>User 2:</source>
-        <translation type="vanished">Benutzer 2:</translation>
+        <translation>Benutzer 2:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10773"/>
         <source>User 3:</source>
-        <translation type="vanished">Benutzer 3:</translation>
+        <translation>Benutzer 3:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10796"/>
         <source>User 4:</source>
-        <translation type="vanished">Nutzer 4:</translation>
+        <translation>Nutzer 4:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10819"/>
         <source>User 5:</source>
-        <translation type="vanished">Benutzer 5:</translation>
+        <translation>Benutzer 5:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10842"/>
         <source>Bodytone Treadmill Options</source>
-        <translation type="vanished">Bodytone Laufband Optionen</translation>
+        <translation>Bodytone Laufband Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10866"/>
         <source>Bowflex Treadmill Options</source>
-        <translation type="vanished">Bowflex Laufband Optionen</translation>
+        <translation>Bowflex Laufband Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10874"/>
         <source>T9 mi/h speed</source>
-        <translation type="vanished">T9 mi/h Geschwindigkeit</translation>
+        <translation>T9 mi/h Geschwindigkeit</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10893"/>
         <source>Toorx/iConsole Options</source>
-        <translation type="vanished">Toorx/iConsole Optionen</translation>
+        <translation>Toorx/iConsole Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10901"/>
         <source>TRX ROUTE KEY Compatibility</source>
-        <translation type="vanished">TRX ROUTE KEY Kompatibilität</translation>
+        <translation>TRX ROUTE KEY Kompatibilität</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10915"/>
+        <source>TRX 65s EVO</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10930"/>
         <source>BH SPADA Compatibility</source>
-        <translation type="vanished">BH SPADA Kompatibilität</translation>
+        <translation>BH SPADA Kompatibilität</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10944"/>
         <source>BH SPADA wattage</source>
-        <translation type="vanished">BH SPADA Wattzahl</translation>
+        <translation>BH SPADA Wattzahl</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="10958"/>
+        <source>Toorx SRX 500</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="10973"/>
+        <source>Toorx SRX 3500</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11015"/>
+        <source>Taurua IC90 Bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11030"/>
         <source>JTX Fitness Sprint Treadmill</source>
-        <translation type="vanished">JTX Fitness Sprint Laufband</translation>
+        <translation>JTX Fitness Sprint Laufband</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11045"/>
         <source>Reebok FR30 Treadmill</source>
-        <translation type="vanished">Reebok FR30 Laufband</translation>
+        <translation>Reebok FR30 Laufband</translation>
     </message>
     <message>
         <source>DKN Endurn Treadmill</source>
         <translation type="vanished">DKN Endurn Laufband</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11075"/>
         <source>Toorx 3.0 Compatibility</source>
-        <translation type="vanished">Toorx 3.0 Kompatibilität</translation>
+        <translation>Toorx 3.0 Kompatibilität</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11090"/>
+        <source>Toorx/iConsole Bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11105"/>
         <source>Toorx FTMS Treadmill</source>
-        <translation type="vanished">Toorx FTMS Laufband</translation>
+        <translation>Toorx FTMS Laufband</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11120"/>
         <source>IConcept FTMS Treadmill</source>
-        <translation type="vanished">IConcept FTMS Laufband</translation>
+        <translation>IConcept FTMS Laufband</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11135"/>
         <source>Toorx FTMS Bike</source>
-        <translation type="vanished">Toorx FTMS Fahrrad</translation>
+        <translation>Toorx FTMS Fahrrad</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11150"/>
+        <source>JLL IC400 Bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11164"/>
+        <source>Fytter RI08 Bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11178"/>
         <source>Asviva Bike</source>
-        <translation type="vanished">Asviva Fahrrad</translation>
+        <translation>Asviva Fahrrad</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11205"/>
         <source>iConsole Elliptical</source>
-        <translation type="vanished">iConsole Crosstrainer</translation>
+        <translation>iConsole Crosstrainer</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11218"/>
+        <source>iConsole Rower</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11231"/>
         <source>Toorx Treadmill Discovery Completed</source>
-        <translation type="vanished">Toorx Laufband Entdeckung abgeschlossen</translation>
+        <translation>Toorx Laufband Entdeckung abgeschlossen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11247"/>
         <source>Rower Options</source>
-        <translation type="vanished">Raderoptionen</translation>
+        <translation>Raderoptionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11254"/>
         <source>PM3, PM4 Options</source>
-        <translation type="vanished">PM3, PM4 Optionen</translation>
+        <translation>PM3, PM4 Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11285"/>
         <source>FTMS Rower:</source>
-        <translation type="vanished">FTMS Rudergerät:</translation>
+        <translation>FTMS Rudergerät:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11317"/>
         <source>Allows you to force QZ to connect to your FTMS Rower. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is “Disabled.”</source>
-        <translation type="vanished">Ermöglicht die erzwungene Verbindung von QZ mit Ihrem FTMS Rower. Bei Unsicherheit lassen Sie dies auf Deaktiviert und senden Sie eine E-Mail an den QZ Support. Standardmäßig ist es auf Deaktiviert eingestellt.</translation>
+        <translation>Ermöglicht die erzwungene Verbindung von QZ mit Ihrem FTMS Rower. Bei Unsicherheit lassen Sie dies auf Deaktiviert und senden Sie eine E-Mail an den QZ Support. Standardmäßig ist es auf Deaktiviert eingestellt.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11330"/>
         <source>Proform/Nordictrack Rower Options</source>
-        <translation type="vanished">Proform/Nordictrack Rower Optionen</translation>
+        <translation>Proform/Nordictrack Rower Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11336"/>
+        <source>Proform Sport RL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11349"/>
+        <source>Proform Rower 750R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11370"/>
+        <source>ProForm Rower IP:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11395"/>
         <source>Elliptical Options</source>
-        <translation type="vanished">Elliptische Optionen</translation>
+        <translation>Elliptische Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11404"/>
         <source>Domyos Elliptical Options</source>
-        <translation type="vanished">Domyos Elliptical Optionen</translation>
+        <translation>Domyos Elliptical Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11412"/>
         <source>Speed Ratio:</source>
-        <translation type="vanished">Geschwindigkeitsverhältnis:</translation>
+        <translation>Geschwindigkeitsverhältnis:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11434"/>
+        <location filename="../settings.qml" line="11645"/>
         <source>Inclination Supported</source>
-        <translation type="vanished">Neigung unterstützt</translation>
+        <translation>Neigung unterstützt</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11448"/>
+        <source>Life Fitness 95xi (CSAFE)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11479"/>
         <source>FTMS Elliptical:</source>
-        <translation type="vanished">FTMS Elliptisch:</translation>
+        <translation>FTMS Elliptisch:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11511"/>
         <source>Allows you to force QZ to connect to your FTMS Elliptical. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is Disabled.</source>
-        <translation type="vanished">Ermöglicht die erzwungene Verbindung von QZ mit Ihrem FTMS Elliptical. Bei Unsicherheit lassen Sie dies deaktiviert und senden Sie eine E-Mail an den QZ Support. Standardmäßig ist dies deaktiviert.</translation>
+        <translation>Ermöglicht die erzwungene Verbindung von QZ mit Ihrem FTMS Elliptical. Bei Unsicherheit lassen Sie dies deaktiviert und senden Sie eine E-Mail an den QZ Support. Standardmäßig ist dies deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11539"/>
         <source>Proform/Nordictrack Elliptical Options</source>
-        <translation type="vanished">Proform/Nordictrack Elliptical Optionen</translation>
+        <translation>Proform/Nordictrack Elliptical Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11546"/>
+        <source>Proform Hybrid Trainer XT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11560"/>
+        <source>Proform Hybrid Trainer PFEL03815</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11573"/>
+        <source>Nordictrack C7.5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11586"/>
+        <source>NordicTrack Elliptical SE7i</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="11601"/>
         <source>Companion IP:</source>
-        <translation type="vanished">IP des Begleitgeräts:</translation>
+        <translation>IP des Begleitgeräts:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11638"/>
         <source>Sole Elliptical Options</source>
-        <translation type="vanished">Sole Elliptische Optionen</translation>
+        <translation>Sole Elliptische Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11659"/>
         <source>E55 elliptical</source>
-        <translation type="vanished">E55 Crosstrainer</translation>
+        <translation>E55 Crosstrainer</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11675"/>
         <source>iConcept Elliptical Options</source>
-        <translation type="vanished">iConcept Elliptical Optionen</translation>
+        <translation>iConcept Elliptical Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11681"/>
         <source>iConcept elliptical</source>
-        <translation type="vanished">iConcept Crosstrainer</translation>
+        <translation>iConcept Crosstrainer</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11700"/>
         <source>Advanced Settings</source>
-        <translation type="vanished">Erweiterte Einstellungen</translation>
+        <translation>Erweiterte Einstellungen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11711"/>
         <source>Manual Device:</source>
-        <translation type="vanished">Manuelles Gerät:</translation>
+        <translation>Manuelles Gerät:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11745"/>
         <source>Allows you to force QZ to connect to your equipment (see “Bluetooth Troubleshooting” below). Default is “Disabled.”</source>
-        <translation type="vanished">Erzwingt die Verbindung von QZ mit Ihrer Ausrüstung (siehe „Bluetooth Fehlerbehebung“ unten). Standardmäßig ist dies „Deaktiviert“.</translation>
+        <translation>Erzwingt die Verbindung von QZ mit Ihrer Ausrüstung (siehe „Bluetooth Fehlerbehebung“ unten). Standardmäßig ist dies „Deaktiviert“.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11758"/>
         <source>Confirm Stop Workout</source>
-        <translation type="vanished">Bestätigen Sie Beendigung des Trainings</translation>
+        <translation>Bestätigen Sie Beendigung des Trainings</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11772"/>
         <source>Shows a confirmation popup before stopping the workout from the UI.</source>
-        <translation type="vanished">Zeigt ein Bestätigungs-Popup, bevor das Workout über die Benutzeroberfläche gestoppt wird.</translation>
+        <translation>Zeigt ein Bestätigungs-Popup, bevor das Workout über die Benutzeroberfläche gestoppt wird.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11788"/>
         <source>Watt Offset:</source>
-        <translation type="vanished">Watt-Offset:</translation>
+        <translation>Watt-Offset:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11810"/>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. The number you enter as an Offset adds that amount to your watts.</source>
-        <translation type="vanished">Sie können Ihren Watt-Output erhöhen/verringern, um Ihren Avatar in Zwift oder ähnlichen Apps schneller/langsamer zu bewegen, was eine Möglichkeit zur Kalibrierung Ihrer Ausrüstung ist. Die als Offset eingegebene Zahl addiert diesen Betrag zu Ihren Watt.</translation>
+        <translation>Sie können Ihren Watt-Output erhöhen/verringern, um Ihren Avatar in Zwift oder ähnlichen Apps schneller/langsamer zu bewegen, was eine Möglichkeit zur Kalibrierung Ihrer Ausrüstung ist. Die als Offset eingegebene Zahl addiert diesen Betrag zu Ihren Watt.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11826"/>
         <source>Watt Gain:</source>
-        <translation type="vanished">Wattgewinn:</translation>
+        <translation>Wattgewinn:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11848"/>
         <source>You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.</source>
-        <translation type="vanished">Sie können Ihre Watt-Ausgabe erhöhen/verringern, um Ihren Avatar in Zwift oder ähnlichen Apps schneller/langsamer zu bewegen, was eine Art der Ausrüstungskalibrierung ist. Zum Beispiel könnten Sie, um einen Ruderergometer zum Radfahren in Zwift zu nutzen, Ihre Watt-Ausgabe verdoppeln, indem Sie 2 eingeben, um besser auf Ihre Radgeschwindigkeit abgestimmt zu sein. Die eingegebene Zahl ist ein Multiplikator, der auf Ihre tatsächlichen Watt angewendet wird.</translation>
+        <translation>Sie können Ihre Watt-Ausgabe erhöhen/verringern, um Ihren Avatar in Zwift oder ähnlichen Apps schneller/langsamer zu bewegen, was eine Art der Ausrüstungskalibrierung ist. Zum Beispiel könnten Sie, um einen Ruderergometer zum Radfahren in Zwift zu nutzen, Ihre Watt-Ausgabe verdoppeln, indem Sie 2 eingeben, um besser auf Ihre Radgeschwindigkeit abgestimmt zu sein. Die eingegebene Zahl ist ein Multiplikator, der auf Ihre tatsächlichen Watt angewendet wird.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11864"/>
         <source>Speed Offset</source>
-        <translation type="vanished">Geschwindigkeitsabweichung</translation>
+        <translation>Geschwindigkeitsabweichung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11886"/>
         <source>You can increase/decrease your speed for moving your avatar faster/slower in Zwift if your equipment outputs speed but not watts. The number you enter as an Offset adds that amount to your speed.</source>
-        <translation type="vanished">Du kannst deine Geschwindigkeit erhöhen/verringern, um deinen Avatar in Zwift schneller/langsamer zu bewegen, wenn dein Gerät Geschwindigkeit, aber keine Watt ausgibt. Die Zahl, die du als Offset eingibst, addiert diesen Betrag zu deiner Geschwindigkeit.</translation>
+        <translation>Du kannst deine Geschwindigkeit erhöhen/verringern, um deinen Avatar in Zwift schneller/langsamer zu bewegen, wenn dein Gerät Geschwindigkeit, aber keine Watt ausgibt. Die Zahl, die du als Offset eingibst, addiert diesen Betrag zu deiner Geschwindigkeit.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11903"/>
         <source>Speed Gain:</source>
-        <translation type="vanished">Geschwindigkeitszuwachs:</translation>
+        <translation>Geschwindigkeitszuwachs:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11925"/>
         <source>You can increase/decrease your speed output for moving your avatar faster/slower in Zwift or other apps as a way of calibrating your equipment if your equipment outputs speed but not watts. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.</source>
-        <translation type="vanished">Sie können Ihre Geschwindigkeitseingabe erhöhen/verringern, um Ihren Avatar in Zwift oder anderen Apps schneller/langsamer zu bewegen. Dies dient der Kalibrierung Ihres Geräts, falls dieses nur Geschwindigkeit, aber keine Watt ausgibt. Zum Beispiel können Sie, um einen Ruderergometer zum Radfahren in Zwift zu nutzen, Ihre Geschwindigkeitseingabe verdoppeln, um besser Ihrer Radgeschwindigkeit zu entsprechen. Die eingegebene Zahl ist ein Multiplikator für Ihre tatsächliche Geschwindigkeit.</translation>
+        <translation>Sie können Ihre Geschwindigkeitseingabe erhöhen/verringern, um Ihren Avatar in Zwift oder anderen Apps schneller/langsamer zu bewegen. Dies dient der Kalibrierung Ihres Geräts, falls dieses nur Geschwindigkeit, aber keine Watt ausgibt. Zum Beispiel können Sie, um einen Ruderergometer zum Radfahren in Zwift zu nutzen, Ihre Geschwindigkeitseingabe verdoppeln, um besser Ihrer Radgeschwindigkeit zu entsprechen. Die eingegebene Zahl ist ein Multiplikator für Ihre tatsächliche Geschwindigkeit.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11941"/>
         <source>Cadence Offset</source>
-        <translation type="vanished">Kadenz-Offset</translation>
+        <translation>Kadenz-Offset</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11963"/>
         <source>You can increase/decrease your cadence output. The number you enter as an Offset adds that amount to your cadence.</source>
-        <translation type="vanished">Sie können die Trittfrequenz-Ausgabe erhöhen oder verringern. Der als Offset eingegebene Wert wird zu Ihrer Trittfrequenz addiert.</translation>
+        <translation>Sie können die Trittfrequenz-Ausgabe erhöhen oder verringern. Der als Offset eingegebene Wert wird zu Ihrer Trittfrequenz addiert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="11979"/>
         <source>Cadence Gain:</source>
-        <translation type="vanished">Kadenzgewinn:</translation>
+        <translation>Kadenzgewinn:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12001"/>
         <source>You can increase/decrease your cadence output as a way of calibrating your equipment if your equipment outputs cadence but not watts. The number you enter is a multiplier applied to your actual cadence.</source>
-        <translation type="vanished">Sie können Ihre Trittfrequenz-Ausgabe erhöhen oder verringern, um Ihre Ausrüstung zu kalibrieren, falls diese nur die Trittfrequenz, aber keine Watt ausgibt. Die eingegebene Zahl ist ein Multiplikator, der auf Ihre tatsächliche Trittfrequenz angewendet wird.</translation>
+        <translation>Sie können Ihre Trittfrequenz-Ausgabe erhöhen oder verringern, um Ihre Ausrüstung zu kalibrieren, falls diese nur die Trittfrequenz, aber keine Watt ausgibt. Die eingegebene Zahl ist ein Multiplikator, der auf Ihre tatsächliche Trittfrequenz angewendet wird.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12015"/>
         <source>Strava</source>
-        <translation type="vanished">Strava</translation>
+        <translation>Strava</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12024"/>
         <source>Strava Upload:</source>
-        <translation type="vanished">Strava Hochladen:</translation>
+        <translation>Strava Hochladen:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12050"/>
         <source>Suffix activity:</source>
-        <translation type="vanished">Aktivität-Suffix:</translation>
+        <translation>Aktivität-Suffix:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12071"/>
         <source>Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.</source>
-        <translation type="vanished">Standard ist „QZ.“ Bitte lassen Sie dies auf Standard, damit andere Strava-Nutzer das QZ sehen; ein kleines Stück Werbung, das hilft, die App zu bewerben und ihre Entwicklung zu unterstützen. Wenn Sie es entfernen möchten, denken Sie bitte daran, den Entwickler über Patreon oder Buy Me a Coffee zu unterstützen oder abonnieren Sie einfach die Swag bag in der linken Seitenleiste, damit ich die Entwicklung und Unterstützung der App fortsetzen kann.</translation>
+        <translation>Standard ist „QZ.“ Bitte lassen Sie dies auf Standard, damit andere Strava-Nutzer das QZ sehen; ein kleines Stück Werbung, das hilft, die App zu bewerben und ihre Entwicklung zu unterstützen. Wenn Sie es entfernen möchten, denken Sie bitte daran, den Entwickler über Patreon oder Buy Me a Coffee zu unterstützen oder abonnieren Sie einfach die Swag bag in der linken Seitenleiste, damit ich die Entwicklung und Unterstützung der App fortsetzen kann.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12084"/>
         <source>Strava External Browser Auth</source>
-        <translation type="vanished">Strava Externe Browser-Authentifizierung</translation>
+        <translation>Strava Externe Browser-Authentifizierung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12098"/>
         <source>QZ can open an external browser to authorize Strava. Default: disabled.</source>
-        <translation type="vanished">QZ kann einen externen Browser öffnen, um Strava zu autorisieren. Standard: deaktiviert.</translation>
+        <translation>QZ kann einen externen Browser öffnen, um Strava zu autorisieren. Standard: deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12112"/>
         <source>Strava Virtual Activity Tag</source>
-        <translation type="vanished">Strava Virtuelle Aktivität Tag</translation>
+        <translation>Strava Virtuelle Aktivität Tag</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12126"/>
         <source>Append the Virtual Tag to the Strava Activity</source>
-        <translation type="vanished">Virtual Tag zu der Strava Aktivität anhängen</translation>
+        <translation>Virtual Tag zu der Strava Aktivität anhängen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12139"/>
         <source>Strava Treadmill Tag</source>
-        <translation type="vanished">Strava Laufband Tag</translation>
+        <translation>Strava Laufband Tag</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12153"/>
         <source>Append the Treadmill Tag to the Strava Activity when you are using a treadmill. If you want to see the elevation on Strava, you need to disable this.</source>
-        <translation type="vanished">Füge den Laufband-Tag zur Strava-Aktivität hinzu, wenn du ein Laufband benutzt. Wenn du die Höhe auf Strava sehen möchtest, musst du dies deaktivieren.</translation>
+        <translation>Füge den Laufband-Tag zur Strava-Aktivität hinzu, wenn du ein Laufband benutzt. Wenn du die Höhe auf Strava sehen möchtest, musst du dies deaktivieren.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12166"/>
         <source>Date Prefix on Strava Workout</source>
-        <translation type="vanished">Datumsvorfix auf Strava Workout</translation>
+        <translation>Datumsvorfix auf Strava Workout</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12180"/>
         <source>Append the Date to the Strava Activity as a prefix only for non-Peloton workout</source>
-        <translation type="vanished">Datum als Präfix zur Strava-Aktivität hinzufügen, nur für Nicht-Peloton-Workouts</translation>
+        <translation>Datum als Präfix zur Strava-Aktivität hinzufügen, nur für Nicht-Peloton-Workouts</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12194"/>
         <source>Volume buttons change gears</source>
-        <translation type="vanished">Die Drehregler ändern die Gänge</translation>
+        <translation>Die Drehregler ändern die Gänge</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12208"/>
         <source>Allows you to change resistance during auto-follow mode using the volume buttons of the device running QZ, Bluetooth headphones or a Bluetooth remote. Changes made using these external controls will be visible in the Gears tile. This is a VERY USEFUL feature! Default is off.</source>
-        <translation type="vanished">Ermöglicht die Änderung des Widerstands im Auto-Follow-Modus über die Lautstärkeknöpfe des Geräts, auf dem QZ läuft, Bluetooth-Kopfhörer oder eine Bluetooth-Fernbedienung. Änderungen, die mit diesen externen Bedienelementen vorgenommen werden, sind in der Gears-Kachel sichtbar. Dies ist eine SEHR NÜTZLICHE Funktion! Standardmäßig ist es deaktiviert.</translation>
+        <translation>Ermöglicht die Änderung des Widerstands im Auto-Follow-Modus über die Lautstärkeknöpfe des Geräts, auf dem QZ läuft, Bluetooth-Kopfhörer oder eine Bluetooth-Fernbedienung. Änderungen, die mit diesen externen Bedienelementen vorgenommen werden, sind in der Gears-Kachel sichtbar. Dies ist eine SEHR NÜTZLICHE Funktion! Standardmäßig ist es deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12221"/>
         <source>Volume buttons debouncing</source>
-        <translation type="vanished">Debouncing der Lautstärkeregler</translation>
+        <translation>Debouncing der Lautstärkeregler</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12235"/>
         <source>Debounce the volume buttons, so you will only see 1 gear step if there are 2 or more volume near steps.  Default is off.</source>
-        <translation type="vanished">Debouncing der Lautstärkeknöpfe, sodass Sie nur 1 Gangstufe sehen, wenn 2 oder mehr Lautstärke-Näherungsstufen vorhanden sind. Standardmäßig aus.</translation>
+        <translation>Debouncing der Lautstärkeknöpfe, sodass Sie nur 1 Gangstufe sehen, wenn 2 oder mehr Lautstärke-Näherungsstufen vorhanden sind. Standardmäßig aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12251"/>
         <source>Power Averaging Mode:</source>
-        <translation type="vanished">Leistungsdurchschnittsmodus:</translation>
+        <translation>Leistungsdurchschnittsmodus:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12280"/>
         <source>If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Uses harmonic averaging which smooths power spikes better than arithmetic averaging. If any reading is 0, power immediately becomes 0. Default is Off.
 
 IMPORTANT NOTES:
@@ -3984,7 +5215,7 @@ IMPORTANT NOTES:
 - Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app!
 - Need to use QZ in bridge mode!
 - For Elite home trainers or those who have a race mode (10hz), if it&apos;s not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.</source>
-        <translation type="vanished">Wenn die Leistung/Watt, die Ihr Gerät an QZ sendet, sehr variabel ist, sorgt diese Einstellung für glattere Power Zone Graphen. Dies ist auch nützlich bei der Verwendung mit Power Meter Pedals. Verwendet harmonisches Mitteln, das Leistungsspitzen besser glättet als arithmetisches Mittel. Bei einem Messwert von 0 beträgt die Leistung sofort 0. Standardmäßig ist es Aus.
+        <translation>Wenn die Leistung/Watt, die Ihr Gerät an QZ sendet, sehr variabel ist, sorgt diese Einstellung für glattere Power Zone Graphen. Dies ist auch nützlich bei der Verwendung mit Power Meter Pedals. Verwendet harmonisches Mitteln, das Leistungsspitzen besser glättet als arithmetisches Mittel. Bei einem Messwert von 0 beträgt die Leistung sofort 0. Standardmäßig ist es Aus.
 
 WICHTIGE HINWEISE:
 - Kein Average/smooth in der Hometrainer-Konfiguration für Standard-Hometrainer, die mit 1hz arbeiten (Kein Rennmodus verfügbar)
@@ -3993,226 +5224,297 @@ WICHTIGE HINWEISE:
 - Für Elite-Hometrainer oder solche mit einem Rennmodus (10hz): Wenn es für einige Benutzer nicht ausreicht, verbessert die Verwendung von Elite/Hometrainer-Glättung zusätzlich zur QZ-Glättung die Ergebnisse.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12294"/>
         <source>Instant Power on Pause</source>
-        <translation type="vanished">Sofortige Leistung bei Pause</translation>
+        <translation>Sofortige Leistung bei Pause</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12308"/>
         <source>Enables the calculation of watts, even while in Pause mode. Default is off.</source>
-        <translation type="vanished">Ermöglicht die Berechnung von Watt, auch im Pause-Modus. Standardmäßig aus.</translation>
+        <translation>Ermöglicht die Berechnung von Watt, auch im Pause-Modus. Standardmäßig aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12322"/>
         <source>Double Negative Inclination</source>
-        <translation type="vanished">Doppelt negativer Neigungswinkel</translation>
+        <translation>Doppelt negativer Neigungswinkel</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12336"/>
         <source>Turn this on if you have a bike with inclination capabilities to fix Zwift’s bug that sends half-negative downhill inclination</source>
-        <translation type="vanished">Schalte dies ein, wenn dein Fahrrad Neigungsmessungen unterstützt, um den Zwift-Bug zu beheben, der eine halb-negative Abhangneigung sendet</translation>
+        <translation>Schalte dies ein, wenn dein Fahrrad Neigungsmessungen unterstützt, um den Zwift-Bug zu beheben, der eine halb-negative Abhangneigung sendet</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12352"/>
         <source>Zwift Inclination Offset:</source>
-        <translation type="vanished">Zwift Neigungsoffset:</translation>
+        <translation>Zwift Neigungsoffset:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12374"/>
         <source>Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.</source>
-        <translation type="vanished">Inclination Offset und Gain dienen zur Anpassung der von Zwift eingestellten Steigung, entweder anstelle oder zusätzlich zur QZ Zwift Gain Einstellung. Wenn Zwift beispielsweise die Steigung auf 1% ändert, kann Ihr Laufband auf 2% angepasst werden. Die eingegebene Zahl als Offset wird zur Steigung addiert, die von Zwift oder einer anderen Drittanbieter-App gesendet wird. Standard ist 0.</translation>
+        <translation>Inclination Offset und Gain dienen zur Anpassung der von Zwift eingestellten Steigung, entweder anstelle oder zusätzlich zur QZ Zwift Gain Einstellung. Wenn Zwift beispielsweise die Steigung auf 1% ändert, kann Ihr Laufband auf 2% angepasst werden. Die eingegebene Zahl als Offset wird zur Steigung addiert, die von Zwift oder einer anderen Drittanbieter-App gesendet wird. Standard ist 0.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12390"/>
         <source>Zwift Inclination Gain:</source>
-        <translation type="vanished">Zwift Neigungsgewinn:</translation>
+        <translation>Zwift Neigungsgewinn:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12412"/>
         <source>The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.</source>
-        <translation type="vanished">Die Zahl, die Sie als Gain eingeben, ist ein Multiplikator, der auf die Neigung angewendet wird, die von Zwift oder jeder anderen Drittanbieter-App gesendet wird. Standardmäßig ist der Wert 1.</translation>
+        <translation>Die Zahl, die Sie als Gain eingeben, ist ein Multiplikator, der auf die Neigung angewendet wird, die von Zwift oder jeder anderen Drittanbieter-App gesendet wird. Standardmäßig ist der Wert 1.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12427"/>
         <source>Minimum Inclination:</source>
-        <translation type="vanished">Mindestneigung:</translation>
+        <translation>Mindestneigung:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12448"/>
         <source>If you don&apos;t want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
-        <translation type="vanished">Wenn Sie nicht unter einen bestimmten Neigungswert für Fahrräder und Laufband fallen möchten, setzen Sie hier den Mindestwert. Standard: -999.</translation>
+        <translation>Wenn Sie nicht unter einen bestimmten Neigungswert für Fahrräder und Laufband fallen möchten, setzen Sie hier den Mindestwert. Standard: -999.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12464"/>
         <source>Inclination Step:</source>
-        <translation type="vanished">Neigungsschritt:</translation>
+        <translation>Neigungsschritt:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12486"/>
         <source>(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile for both treadmills and bikes. Default is 0.5.</source>
-        <translation type="vanished">(Neigungstafel) Steuert den Betrag der Neigungszunahme oder -abnahme, wenn Sie in der Neigungstafel den Plus- oder Minus-Knopf für Laufbänder und Fahrräder drücken. Standard ist 0,5.</translation>
+        <translation>(Neigungstafel) Steuert den Betrag der Neigungszunahme oder -abnahme, wenn Sie in der Neigungstafel den Plus- oder Minus-Knopf für Laufbänder und Fahrräder drücken. Standard ist 0,5.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12499"/>
         <source>Send real inclination to virtual bridge</source>
-        <translation type="vanished">Sende reale Neigung an die virtuelle Brücke</translation>
+        <translation>Sende reale Neigung an die virtuelle Brücke</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12513"/>
         <source>By default QZ sends to the virtual Bluetooth/DIRCON bridge the current inclination of the treadmill. Enabling this, it will send instead the one wihtout considering inclination gain or offset. Default: False.</source>
-        <translation type="vanished">Standardmäßig sendet QZ an die virtuelle Bluetooth/DIRCON-Bridge die aktuelle Neigung des Laufbands. Wenn dies aktiviert wird, sendet es stattdessen den Wert, ohne die Neigungsgewinnung oder den Offset zu berücksichtigen. Standard: False.</translation>
+        <translation>Standardmäßig sendet QZ an die virtuelle Bluetooth/DIRCON-Bridge die aktuelle Neigung des Laufbands. Wenn dies aktiviert wird, sendet es stattdessen den Wert, ohne die Neigungsgewinnung oder den Offset zu berücksichtigen. Standard: False.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12527"/>
         <source>Disable wattage from machinery</source>
-        <translation type="vanished">Deaktiviere Wattzahl von Maschinen</translation>
+        <translation>Deaktiviere Wattzahl von Maschinen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12541"/>
         <source>This prevents your fitness device from sending its wattage calculation to QZ and defaults to QZ’s more accurate calculation.</source>
-        <translation type="vanished">Dies verhindert, dass Ihr Fitnessgerät seine Wattberechnung an QZ sendet, und verwendet stattdessen die genauere Berechnung von QZ.</translation>
+        <translation>Dies verhindert, dass Ihr Fitnessgerät seine Wattberechnung an QZ sendet, und verwendet stattdessen die genauere Berechnung von QZ.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12554"/>
         <source>Use Resistance instead of Inclination</source>
-        <translation type="vanished">Verwenden Sie Widerstand anstelle von Neigung</translation>
+        <translation>Verwenden Sie Widerstand anstelle von Neigung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12568"/>
         <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
-        <translation type="vanished">Für smarte Trainer verwenden Sie Widerstand anstelle von Neigung. Das hilft, wenn Sie nicht möchten, dass Wahoo Climb oder Ähnliches die Neigung ändert, wenn Sie die Gänge wechseln. Standard: deaktiviert</translation>
+        <translation>Für smarte Trainer verwenden Sie Widerstand anstelle von Neigung. Das hilft, wenn Sie nicht möchten, dass Wahoo Climb oder Ähnliches die Neigung ändert, wenn Sie die Gänge wechseln. Standard: deaktiviert</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12583"/>
         <source>AutoLap on Distance:</source>
-        <translation type="vanished">AutoLap bei Distanz:</translation>
+        <translation>AutoLap bei Distanz:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12619"/>
         <source>Inclination Delay:</source>
-        <translation type="vanished">Neigungswinkelverzögerung:</translation>
+        <translation>Neigungswinkelverzögerung:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12640"/>
         <source>This slow down the inclination changes adding a delay between each change. This is not applied to all the model of treadmill/bike. Default is 0.</source>
-        <translation type="vanished">Dies verlangsamt die Neigungsänderungen und fügt eine Verzögerung zwischen jeder Änderung hinzu. Dies wird nicht auf alle Modelle von Laufband/Fahrrad angewendet. Standard ist 0.</translation>
+        <translation>Dies verlangsamt die Neigungsänderungen und fügt eine Verzögerung zwischen jeder Änderung hinzu. Dies wird nicht auf alle Modelle von Laufband/Fahrrad angewendet. Standard ist 0.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12656"/>
         <source>Accessories</source>
-        <translation type="vanished">Zubehör</translation>
+        <translation>Zubehör</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12665"/>
         <source>Cadence Sensor Options</source>
-        <translation type="vanished">Kadenzsensor-Optionen</translation>
+        <translation>Kadenzsensor-Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12674"/>
         <source>Don&apos;t touch these settings if your bike works properly!</source>
-        <translation type="vanished">Berühren Sie diese Einstellungen nicht, wenn Ihr Fahrrad einwandfrei funktioniert!</translation>
+        <translation>Berühren Sie diese Einstellungen nicht, wenn Ihr Fahrrad einwandfrei funktioniert!</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12687"/>
         <source>Cadence Sensor as a Bike</source>
-        <translation type="vanished">Kadenzsensor als Fahrrad</translation>
+        <translation>Kadenzsensor als Fahrrad</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12707"/>
         <source>Cadence Sensor as a Treadmill</source>
-        <translation type="vanished">Kadenzsensor als Laufband</translation>
+        <translation>Kadenzsensor als Laufband</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12726"/>
         <source>If your equipment doesn’t have Bluetooth, these settings allow you to use a cadence sensor so it will work with QZ as a bike or treadmill. Default is off.</source>
-        <translation type="vanished">Wenn Ihr Gerät kein Bluetooth hat, ermöglichen diese Einstellungen die Verwendung eines Trittfrequenzsensors, damit es mit QZ als Fahrrad oder Laufband funktioniert. Standardmäßig ist es aus.</translation>
+        <translation>Wenn Ihr Gerät kein Bluetooth hat, ermöglichen diese Einstellungen die Verwendung eines Trittfrequenzsensors, damit es mit QZ als Fahrrad oder Laufband funktioniert. Standardmäßig ist es aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12740"/>
         <source>Cadence Sensor:</source>
-        <translation type="vanished">Kadenzsensor:</translation>
+        <translation>Kadenzsensor:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12774"/>
         <source>Use this setting to connect QZ to your cadence sensor. Default is Disabled.</source>
-        <translation type="vanished">Verwenden Sie diese Einstellung, um QZ mit Ihrem Trittfrequenzsensor zu verbinden. Standard ist Deaktiviert.</translation>
+        <translation>Verwenden Sie diese Einstellung, um QZ mit Ihrem Trittfrequenzsensor zu verbinden. Standard ist Deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12812"/>
         <source>Wheel ratio is the multiplier used by QZ to calculate your speed based on your cadence. For example, if you enter 1 for your wheel ratio and you are riding at a cadence of 30, QZ will display your speed as 30 km/h. The default of 0.33 is correct for most bikes.</source>
-        <translation type="vanished">Das Laufradverhältnis ist der Multiplikator, den QZ verwendet, um Ihre Geschwindigkeit basierend auf Ihrer Trittfrequenz zu berechnen. Wenn Sie beispielsweise 1 für Ihr Laufradverhältnis eingeben und mit einer Trittfrequenz von 30 fahren, zeigt QZ Ihre Geschwindigkeit als 30 km/h an. Der Standardwert von 0.33 ist für die meisten Fahrräder korrekt.</translation>
+        <translation>Das Laufradverhältnis ist der Multiplikator, den QZ verwendet, um Ihre Geschwindigkeit basierend auf Ihrer Trittfrequenz zu berechnen. Wenn Sie beispielsweise 1 für Ihr Laufradverhältnis eingeben und mit einer Trittfrequenz von 30 fahren, zeigt QZ Ihre Geschwindigkeit als 30 km/h an. Der Standardwert von 0.33 ist für die meisten Fahrräder korrekt.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12825"/>
+        <source>Rogue Echo Bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="12839"/>
         <source>Enable special wattage calculation for Rogue Echo Bike: m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404. Default is off.</source>
-        <translation type="vanished">Ermögliche die spezielle Wattzahlberechnung für Rogue Echo Bike: m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404. Standardmäßig aus.</translation>
+        <translation>Ermögliche die spezielle Wattzahlberechnung für Rogue Echo Bike: m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404. Standardmäßig aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12852"/>
         <source>Custom CSC Resistance/Watt Table</source>
-        <translation type="vanished">Benutzerdefinierte CSC Widerstands-/Watt-Tabelle</translation>
+        <translation>Benutzerdefinierte CSC Widerstands-/Watt-Tabelle</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12866"/>
         <source>Enable a custom linear resistance/watt table for CSC bikes. Joroto bikes keep using their dedicated resistance power profile. Resistance is clamped using the existing Min. Resistance and Max. Resistance settings.</source>
-        <translation type="vanished">Aktivieren Sie eine benutzerdefinierte lineare Widerstands-/Watt-Tabelle für CSC Fahrräder. Joroto Fahrräder nutzen weiterhin ihr dediziertes Widerstands-Leistungsprofil. Der Widerstand wird mithilfe der vorhandenen Einstellungen für Min. Resistance und Max. Resistance begrenzt.</translation>
+        <translation>Aktivieren Sie eine benutzerdefinierte lineare Widerstands-/Watt-Tabelle für CSC Fahrräder. Joroto Fahrräder nutzen weiterhin ihr dediziertes Widerstands-Leistungsprofil. Der Widerstand wird mithilfe der vorhandenen Einstellungen für Min. Resistance und Max. Resistance begrenzt.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12881"/>
         <source>Resistance Level 1:</source>
-        <translation type="vanished">Widerstandsstufe 1:</translation>
+        <translation>Widerstandsstufe 1:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12904"/>
+        <source>Watt 1:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="12927"/>
         <source>Resistance Level 2:</source>
-        <translation type="vanished">Widerstandsstufe 2:</translation>
+        <translation>Widerstandsstufe 2:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12950"/>
+        <source>Watt 2:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="12971"/>
         <source>QZ will build a linear equation from the two resistance/watt points and clamp the effective resistance using the existing Min. Resistance and Max. Resistance settings.</source>
-        <translation type="vanished">QZ erstellt eine lineare Gleichung aus den beiden Widerstands-/Watt-Punkten und begrenzt den effektiven Widerstand mithilfe der bestehenden Einstellungen für Min. Widerstand und Max. Widerstand.</translation>
+        <translation>QZ erstellt eine lineare Gleichung aus den beiden Widerstands-/Watt-Punkten und begrenzt den effektiven Widerstand mithilfe der bestehenden Einstellungen für Min. Widerstand und Max. Widerstand.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12987"/>
         <source>Power Sensor Options</source>
-        <translation type="vanished">Leistungs-/Watt-Sensor-Optionen</translation>
+        <translation>Leistungs-/Watt-Sensor-Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="12995"/>
         <source>Power Sensor as a Bike</source>
-        <translation type="vanished">Leistungssensor als Fahrrad</translation>
+        <translation>Leistungssensor als Fahrrad</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13009"/>
         <source>If your bike doesn’t have Bluetooth, this setting allows you to use a power meter pedal sensor so your bike will work with QZ. Default is off.</source>
-        <translation type="vanished">Wenn Ihr Fahrrad kein Bluetooth hat, ermöglicht diese Einstellung die Verwendung eines Leistungsmesser-Pedal-Sensors, damit Ihr Fahrrad mit QZ funktioniert. Standardmäßig ist es aus.</translation>
+        <translation>Wenn Ihr Fahrrad kein Bluetooth hat, ermöglicht diese Einstellung die Verwendung eines Leistungsmesser-Pedal-Sensors, damit Ihr Fahrrad mit QZ funktioniert. Standardmäßig ist es aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13023"/>
         <source>Power Sensor as a Treadmill</source>
-        <translation type="vanished">Leistungssensor als Laufband</translation>
+        <translation>Leistungssensor als Laufband</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13037"/>
         <source>If your treadmill doesn’t have Bluetooth, this setting allows you to use a Stryde sensor (or similar) so your treadmill will work with QZ. Default is off.</source>
-        <translation type="vanished">Wenn Ihr Laufband kein Bluetooth hat, ermöglicht diese Einstellung die Verwendung eines Stryde-Sensors (oder eines ähnlichen), damit Ihr Laufband mit QZ funktioniert. Standardmäßig ist es aus.</translation>
+        <translation>Wenn Ihr Laufband kein Bluetooth hat, ermöglicht diese Einstellung die Verwendung eines Stryde-Sensors (oder eines ähnlichen), damit Ihr Laufband mit QZ funktioniert. Standardmäßig ist es aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13051"/>
         <source>Doubling Cadence for Run</source>
-        <translation type="vanished">Doppeln der Trittfrequenz beim Laufen</translation>
+        <translation>Doppeln der Trittfrequenz beim Laufen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13065"/>
         <source>Some power sensors send cadence divided by 2. This setting will fix this behavior.</source>
-        <translation type="vanished">Einige Leistungssensoren senden die Trittfrequenz geteilt durch 2. Diese Einstellung behebt dieses Verhalten.</translation>
+        <translation>Einige Leistungssensoren senden die Trittfrequenz geteilt durch 2. Diese Einstellung behebt dieses Verhalten.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13079"/>
         <source>Half Cadence on Strava</source>
-        <translation type="vanished">Halbe Trittfrequenz auf Strava</translation>
+        <translation>Halbe Trittfrequenz auf Strava</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13093"/>
         <source>Divide the cadence sent to Strava by 2.</source>
-        <translation type="vanished">Teile die an Strava gesendete Trittfrequenz durch 2.</translation>
+        <translation>Teile die an Strava gesendete Trittfrequenz durch 2.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13106"/>
         <source>Use speed from the power sensor</source>
-        <translation type="vanished">Verwende die Geschwindigkeit des Leistungssensors</translation>
+        <translation>Verwende die Geschwindigkeit des Leistungssensors</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13120"/>
         <source>If you have a Bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.</source>
-        <translation type="vanished">Wenn Sie ein Bluetooth Laufband und ein Stryd Gerät mit QZ verbunden haben und die Geschwindigkeit von Stryd anstelle der Geschwindigkeit des Laufbands verwenden möchten, aktivieren Sie dies. Standardmäßig: deaktiviert.</translation>
+        <translation>Wenn Sie ein Bluetooth Laufband und ein Stryd Gerät mit QZ verbunden haben und die Geschwindigkeit von Stryd anstelle der Geschwindigkeit des Laufbands verwenden möchten, aktivieren Sie dies. Standardmäßig: deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13133"/>
         <source>Use inclination from the power sensor</source>
-        <translation type="vanished">Verwenden Sie die Neigung des Leistungssensors</translation>
+        <translation>Verwenden Sie die Neigung des Leistungssensors</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13147"/>
         <source>If you have a Bluetooth treadmill and also a Runn device connected to QZ and you want to use the inclination from the RUNN instead of the inclination of the treadmill, enable this. Default: disabled.</source>
-        <translation type="vanished">Wenn Sie ein Bluetooth-Laufband und zusätzlich ein Runn-Gerät mit QZ verbunden haben und die Neigung von RUNN anstelle der Neigung des Laufbands verwenden möchten, aktivieren Sie dies. Standard: deaktiviert.</translation>
+        <translation>Wenn Sie ein Bluetooth-Laufband und zusätzlich ein Runn-Gerät mit QZ verbunden haben und die Neigung von RUNN anstelle der Neigung des Laufbands verwenden möchten, aktivieren Sie dies. Standard: deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13160"/>
         <source>Use cadence from the power sensor</source>
-        <translation type="vanished">Verwende die Trittfrequenz des Leistungssensors</translation>
+        <translation>Verwende die Trittfrequenz des Leistungssensors</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13174"/>
         <source>If you have a Bluetooth treadmill and also a power sensor (like Stryd) connected to QZ and you want to use the cadence from the power sensor instead of the cadence of the treadmill, enable this. This is useful when the treadmill cadence sensor is unreliable at low speeds (walking/jogging). Default: disabled.</source>
-        <translation type="vanished">Wenn Sie ein Bluetooth Laufband und einen Leistungssensor (wie Stryd) mit QZ verbunden haben und die Trittfrequenz vom Leistungssensor anstelle der des Laufbands verwenden möchten, aktivieren Sie dies. Dies ist nützlich, wenn der Trittfrequenzsensor des Laufbands bei niedrigen Geschwindigkeiten (Gehen/Joggen) unzuverlässig ist. Standard: deaktiviert.</translation>
+        <translation>Wenn Sie ein Bluetooth Laufband und einen Leistungssensor (wie Stryd) mit QZ verbunden haben und die Trittfrequenz vom Leistungssensor anstelle der des Laufbands verwenden möchten, aktivieren Sie dies. Dies ist nützlich, wenn der Trittfrequenzsensor des Laufbands bei niedrigen Geschwindigkeiten (Gehen/Joggen) unzuverlässig ist. Standard: deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13187"/>
         <source>Add inclination gain factor to the power</source>
-        <translation type="vanished">Neigungsgewinnfaktor zur Leistung hinzufügen</translation>
+        <translation>Neigungsgewinnfaktor zur Leistung hinzufügen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13201"/>
         <source>If you have a Bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can&apos;t get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.</source>
-        <translation type="vanished">Wenn Sie ein Bluetooth-Laufband und ein Stryd-Gerät, das mit QZ verbunden ist, haben, kann Stryd standardmäßig die Neigung nicht vom Laufband erfassen. Durch die Aktivierung dieser Funktion und von QZ wird ein Neigungsgewinn zur von Stryd gelesenen Leistung hinzugefügt. Standard: deaktiviert.</translation>
+        <translation>Wenn Sie ein Bluetooth-Laufband und ein Stryd-Gerät, das mit QZ verbunden ist, haben, kann Stryd standardmäßig die Neigung nicht vom Laufband erfassen. Durch die Aktivierung dieser Funktion und von QZ wird ein Neigungsgewinn zur von Stryd gelesenen Leistung hinzugefügt. Standard: deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13214"/>
         <source>Power Sensor Speed/Incline Coefficient A:</source>
-        <translation type="vanished">Leistungssensor Geschwindigkeit/Steigungskoeffizient A:</translation>
+        <translation>Leistungssensor Geschwindigkeit/Steigungskoeffizient A:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13235"/>
         <source>Power Sensor Speed/Incline Coefficient B:</source>
-        <translation type="vanished">Leistungssensor Geschwindigkeit/Steigungs-Koeffizient B:</translation>
+        <translation>Leistungssensor Geschwindigkeit/Steigungs-Koeffizient B:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13256"/>
         <source>Custom coefficients for power sensor inclination calculation using formula: vwatts = (A + B × speed) × inclination.
 
 For Stryd sensors use: A = -0.96, B = 1.33
@@ -4224,7 +5526,7 @@ Examples with these values:
 If both A and B are 0, QZ will use the default formula: 9.8 × weight × (inclination/100).
 
 Default: A = -0.96, B = 1.33</source>
-        <translation type="vanished">Benutzerdefinierte Koeffizienten für die Neigungsberechnung des Leistungssensors unter Verwendung der Formel: vwatts = (A + B × speed) × inclination.
+        <translation>Benutzerdefinierte Koeffizienten für die Neigungsberechnung des Leistungssensors unter Verwendung der Formel: vwatts = (A + B × speed) × inclination.
 
 Für Stryd Sensoren verwenden Sie: A = -0.96, B = 1.33
 
@@ -4237,484 +5539,652 @@ Wenn A und B beide 0 sind, verwendet QZ die Standardformel: 9.8 × weight × (in
 Standard: A = -0.96, B = 1.33</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13270"/>
         <source>Power Sensor:</source>
-        <translation type="vanished">Leistungssensor:</translation>
+        <translation>Leistungssensor:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13304"/>
         <source>Leave on Disabled or select from list of found Bluetooth devices.</source>
-        <translation type="vanished">Lassen Sie es auf Deaktiviert oder wählen Sie aus der Liste der gefundenen Bluetooth-Geräte.</translation>
+        <translation>Lassen Sie es auf Deaktiviert oder wählen Sie aus der Liste der gefundenen Bluetooth-Geräte.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13320"/>
         <source>Elite™ Products</source>
-        <translation type="vanished">Elite™ Produkte</translation>
+        <translation>Elite™ Produkte</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13328"/>
         <source>Elite Rizer Options</source>
-        <translation type="vanished">Elite Rizer Optionen</translation>
+        <translation>Elite Rizer Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13372"/>
         <source>Difficulty/Gain:</source>
-        <translation type="vanished">Schwierigkeit/Höhenmeter:</translation>
+        <translation>Schwierigkeit/Höhenmeter:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13396"/>
         <source>Elite Sterzo Smart Options</source>
-        <translation type="vanished">Elite Sterzo Smart Optionen</translation>
+        <translation>Elite Sterzo Smart Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13443"/>
         <source>SmartSpin2k Options</source>
-        <translation type="vanished">SmartSpin2k Optionen</translation>
+        <translation>SmartSpin2k Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13451"/>
         <source>SmartSpin2k device:</source>
-        <translation type="vanished">Gerät: SmartSpin2k</translation>
+        <translation>Gerät: SmartSpin2k</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13486"/>
+        <source>Peloton Bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="13503"/>
         <source>Shift Step</source>
-        <translation type="vanished">Schrittwechsel</translation>
+        <translation>Schrittwechsel</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13527"/>
         <source>Max Resistance</source>
-        <translation type="vanished">Max Widerstand</translation>
+        <translation>Max Widerstand</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13551"/>
         <source>Min Resistance</source>
-        <translation type="vanished">Min Widerstand</translation>
+        <translation>Min Widerstand</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13574"/>
         <source>Advanced SmartSpin2k Calibration</source>
-        <translation type="vanished">Advanced SmartSpin2k Kalibrierung</translation>
+        <translation>Advanced SmartSpin2k Kalibrierung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13584"/>
         <source>Resistance Sample 1</source>
-        <translation type="vanished">Widerstandsbeispiel 1</translation>
+        <translation>Widerstandsbeispiel 1</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13607"/>
         <source>Shift Step Sample 1</source>
-        <translation type="vanished">Shift Step Beispiel 1</translation>
+        <translation>Shift Step Beispiel 1</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13631"/>
         <source>Resistance Sample 2</source>
-        <translation type="vanished">Widerstandsbeispiel 2</translation>
+        <translation>Widerstandsbeispiel 2</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13654"/>
         <source>Shift Step Sample 2</source>
-        <translation type="vanished">Shift Step Beispiel 2</translation>
+        <translation>Shift Step Beispiel 2</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13678"/>
         <source>Resistance Sample 3</source>
-        <translation type="vanished">Widerstandsbeispiel 3</translation>
+        <translation>Widerstandsbeispiel 3</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13701"/>
         <source>Shift Step Sample 3</source>
-        <translation type="vanished">Verschieben Schritt Beispiel 3</translation>
+        <translation>Verschieben Schritt Beispiel 3</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13725"/>
         <source>Resistance Sample 4</source>
-        <translation type="vanished">Widerstandsbeispiel 4</translation>
+        <translation>Widerstandsbeispiel 4</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13748"/>
         <source>Shift Step Sample 4</source>
-        <translation type="vanished">Schrittmuster 4</translation>
+        <translation>Schrittmuster 4</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13775"/>
         <source>Fitmetria Fitfan™ Options</source>
-        <translation type="vanished">Fitmetria Fitfan™ Optionen</translation>
+        <translation>Fitmetria Fitfan™ Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13784"/>
+        <location filename="../settings.qml" line="13883"/>
+        <location filename="../settings.qml" line="13976"/>
         <source>Enable</source>
-        <translation type="vanished">Aktivieren</translation>
+        <translation>Aktivieren</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13801"/>
+        <location filename="../settings.qml" line="13899"/>
+        <location filename="../settings.qml" line="13992"/>
         <source>Mode:</source>
-        <translation type="vanished">Modus:</translation>
+        <translation>Modus:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13827"/>
+        <location filename="../settings.qml" line="13923"/>
+        <location filename="../settings.qml" line="14016"/>
         <source>Min. value (0-100):</source>
-        <translation type="vanished">Min. Wert (0-100):</translation>
+        <translation>Min. Wert (0-100):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13851"/>
+        <location filename="../settings.qml" line="13945"/>
+        <location filename="../settings.qml" line="14038"/>
         <source>Max value (0-100):</source>
-        <translation type="vanished">Maximalwert (0-100):</translation>
+        <translation>Maximalwert (0-100):</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13875"/>
         <source>Wahoo Kickr HeadWind Options</source>
-        <translation type="vanished">Wahoo Kickr HeadWind Optionen</translation>
+        <translation>Wahoo Kickr HeadWind Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="13968"/>
         <source>Elite Aria Options</source>
-        <translation type="vanished">Elite Aria Optionen</translation>
+        <translation>Elite Aria Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14099"/>
         <source>Thinkrider Options</source>
-        <translation type="vanished">Thinkrider Optionen</translation>
+        <translation>Thinkrider Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14107"/>
         <source>Thinkrider Controller</source>
-        <translation type="vanished">Thinkrider Steuerung</translation>
+        <translation>Thinkrider Steuerung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14121"/>
         <source>Thinkrider VS200 remote controller. Use it to change gears on QZ!</source>
-        <translation type="vanished">Thinkrider VS200 Fernbedienung. Benutze sie, um die Gänge an QZ zu wechseln!</translation>
+        <translation>Thinkrider VS200 Fernbedienung. Benutze sie, um die Gänge an QZ zu wechseln!</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14136"/>
         <source>CYCPLUS Options</source>
-        <translation type="vanished">CYCPLUS Optionen</translation>
+        <translation>CYCPLUS Optionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14158"/>
         <source>CYCPLUS BC2 virtual shifter. Use it to change gears on QZ!</source>
-        <translation type="vanished">CYCPLUS BC2 Virtual Schifter. Benutze ihn, um die Gänge auf QZ zu wechseln!</translation>
+        <translation>CYCPLUS BC2 Virtual Schifter. Benutze ihn, um die Gänge auf QZ zu wechseln!</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14173"/>
         <source>Zwift Devices Options</source>
-        <translation type="vanished">Zwift Geräteoptionen</translation>
+        <translation>Zwift Geräteoptionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14181"/>
         <source>Zwift Click</source>
-        <translation type="vanished">Zwift Klick</translation>
+        <translation>Zwift Klick</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14195"/>
         <source>Use it to change the gears on QZ!</source>
-        <translation type="vanished">Verwende es, um die Gänge an QZ zu wechseln!</translation>
+        <translation>Verwende es, um die Gänge an QZ zu wechseln!</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14208"/>
         <source>Zwift Play</source>
-        <translation type="vanished">Zwift Spielen</translation>
+        <translation>Zwift Spielen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14222"/>
         <source>Also for Elite Square. Use it to change the gears on QZ!</source>
-        <translation type="vanished">Auch für Elite Square. Benutze es, um die Gänge an QZ zu ändern!</translation>
+        <translation>Auch für Elite Square. Benutze es, um die Gänge an QZ zu ändern!</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14235"/>
         <source>Zwift Play Vibration</source>
-        <translation type="vanished">Zwift Spiel Vibration</translation>
+        <translation>Zwift Spiel Vibration</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14249"/>
         <source>Enable vibration feedback on Zwift Play controllers when changing gears. Default: enabled.</source>
-        <translation type="vanished">Vibration Feedback auf Zwift Play Controllern beim Gangwechsel aktivieren. Standard: aktiviert.</translation>
+        <translation>Vibration Feedback auf Zwift Play Controllern beim Gangwechsel aktivieren. Standard: aktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14262"/>
         <source>Buttons debouncing</source>
-        <translation type="vanished">Debouncing von Buttons</translation>
+        <translation>Debouncing von Buttons</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14276"/>
         <source>Debounce the buttons, so you will only see 1 gear step even if you are keep pressing the buttons.  Default is off.</source>
-        <translation type="vanished">Tasten-Debouncing aktivieren, sodass Sie nur einen Gangschritt sehen, auch wenn Sie die Tasten weiter drücken. Standardmäßig ist dies deaktiviert.</translation>
+        <translation>Tasten-Debouncing aktivieren, sodass Sie nur einen Gangschritt sehen, auch wenn Sie die Tasten weiter drücken. Standardmäßig ist dies deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14289"/>
         <source>Swap sides</source>
-        <translation type="vanished">Wechsel der Seiten</translation>
+        <translation>Wechsel der Seiten</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14303"/>
         <source>You can swap the left to the right controller and viceversa.  Default is off.</source>
-        <translation type="vanished">Sie können den linken und den rechten Controller tauschen und umgekehrt. Standardmäßig ist dies deaktiviert.</translation>
+        <translation>Sie können den linken und den rechten Controller tauschen und umgekehrt. Standardmäßig ist dies deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14316"/>
         <source>Use Zwift app ratio for gears (Experimental)</source>
-        <translation type="vanished">Verwende das Zwift-App-Verhältnis für die Gänge (Experimentell)</translation>
+        <translation>Verwende das Zwift-App-Verhältnis für die Gänge (Experimentell)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14330"/>
         <source>Use the zwift gears table instead of the QZ classic gears algorithm.  Default is off.</source>
-        <translation type="vanished">Verwenden Sie die Zwift-Gang-Tabelle anstelle des QZ-Klassik-Gang-Algorithmus. Standardmäßig aus.</translation>
+        <translation>Verwenden Sie die Zwift-Gang-Tabelle anstelle des QZ-Klassik-Gang-Algorithmus. Standardmäßig aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14365"/>
         <source>Default: 200ms. Lower it if you want to improve the gear reactivity. Warning: lowering this value will cause more power used on the QZ device</source>
-        <translation type="vanished">Standard: 200ms. Senken Sie diesen Wert, wenn Sie die Gangreaktivität verbessern möchten. Warnung: Ein niedrigerer Wert erhöht den Stromverbrauch des QZ-Geräts.</translation>
+        <translation>Standard: 200ms. Senken Sie diesen Wert, wenn Sie die Gangreaktivität verbessern möchten. Warnung: Ein niedrigerer Wert erhöht den Stromverbrauch des QZ-Geräts.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14383"/>
         <source>TTS (Text to Speech) Settings 🔊</source>
-        <translation type="vanished">Einstellungen für Text-zu-Sprache 🔊</translation>
+        <translation>Einstellungen für Text-zu-Sprache 🔊</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14392"/>
         <source>Maps 🗺️</source>
-        <translation type="vanished">Karten 🗺️</translation>
+        <translation>Karten 🗺️</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14405"/>
         <source>Maps Type:</source>
-        <translation type="vanished">Kartentyp:</translation>
+        <translation>Kartentyp:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14429"/>
         <source>Loop Start-End-Start</source>
-        <translation type="vanished">Schleife Start-End-Start</translation>
+        <translation>Schleife Start-End-Start</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14486"/>
         <source>Experimental Features</source>
-        <translation type="vanished">Experimentelle Funktionen</translation>
+        <translation>Experimentelle Funktionen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14497"/>
         <source>Gym Mode</source>
-        <translation type="vanished">Fitnessmodus</translation>
+        <translation>Fitnessmodus</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14511"/>
         <source>Useful in gyms with multiple similar machines. When enabled, QZ scans nearby equipment at startup and asks you which trainer to use before opening any Bluetooth connection.</source>
-        <translation type="vanished">Nützlich in Fitnessstudios mit mehreren ähnlichen Geräten. Wenn aktiviert, scannt QZ beim Start die nahegelegene Ausrüstung und fragt Sie, welchen Trainer Sie verwenden möchten, bevor eine Bluetooth-Verbindung geöffnet wird.</translation>
+        <translation>Nützlich in Fitnessstudios mit mehreren ähnlichen Geräten. Wenn aktiviert, scannt QZ beim Start die nahegelegene Ausrüstung und fragt Sie, welchen Trainer Sie verwenden möchten, bevor eine Bluetooth-Verbindung geöffnet wird.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14525"/>
         <source>Relaxed Bluetooth for mad devices</source>
-        <translation type="vanished">Entspanntes Bluetooth für verrückte Geräte</translation>
+        <translation>Entspanntes Bluetooth für verrückte Geräte</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14539"/>
         <source>Leave this setting off unless the Support staff asks you to turn it on during troubleshooting. Can improve the Android Bluetooth connection to Zwift. Default is off.</source>
-        <translation type="vanished">Lassen Sie diese Einstellung deaktiviert, es sei denn, das Support-Personal bittet Sie während der Fehlerbehebung, sie zu aktivieren. Kann die Android Bluetooth-Verbindung zu Zwift verbessern. Standardmäßig ist es deaktiviert.</translation>
+        <translation>Lassen Sie diese Einstellung deaktiviert, es sei denn, das Support-Personal bittet Sie während der Fehlerbehebung, sie zu aktivieren. Kann die Android Bluetooth-Verbindung zu Zwift verbessern. Standardmäßig ist es deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14553"/>
         <source>Bluetooth hangs after 30 m</source>
-        <translation type="vanished">Bluetooth hängt nach 30 m</translation>
+        <translation>Bluetooth hängt nach 30 m</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14567"/>
         <source>Same as “Relaxed Bluetooth for mad devices”. Leave off unless the Support staff asks you to turn it on. Default is off.</source>
-        <translation type="vanished">Gleich wie „Relaxed Bluetooth für verrückte Geräte“. Deaktivieren, es sei denn, das Support-Personal bittet Sie, es einzuschalten. Standardmäßig ist es aus.</translation>
+        <translation>Gleich wie „Relaxed Bluetooth für verrückte Geräte“. Deaktivieren, es sei denn, das Support-Personal bittet Sie, es einzuschalten. Standardmäßig ist es aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14581"/>
         <source>Simulate Battery Service</source>
-        <translation type="vanished">Simuliere Batteriedienst</translation>
+        <translation>Simuliere Batteriedienst</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14595"/>
         <source>Leave this off unless the Support staff asks you to turn it on. Enables a new Bluetooth service, indicating the battery level of your device. Default is off.</source>
-        <translation type="vanished">Deaktivieren Sie dies, es sei denn, das Support-Personal bittet Sie, es einzuschalten. Ermöglicht einen neuen Bluetooth-Dienst, der den Batteriestand Ihres Geräts anzeigt. Standardmäßig aus.</translation>
+        <translation>Deaktivieren Sie dies, es sei denn, das Support-Personal bittet Sie, es einzuschalten. Ermöglicht einen neuen Bluetooth-Dienst, der den Batteriestand Ihres Geräts anzeigt. Standardmäßig aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14624"/>
         <source>Enable Virtual Device</source>
-        <translation type="vanished">Avirtuelles Gerät aktivieren</translation>
+        <translation>Avirtuelles Gerät aktivieren</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14630"/>
         <source>Virtual Device Bluetooth</source>
-        <translation type="vanished">Virtuelles Gerät Bluetooth</translation>
+        <translation>Virtuelles Gerät Bluetooth</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14636"/>
         <source>Virtual Heart Only</source>
-        <translation type="vanished">Virtuelles Herz nur</translation>
+        <translation>Virtuelles Herz nur</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14650"/>
         <source>Forces QZ to communicate ONLY the Heart Rate metric to third-party apps. Default is off.</source>
-        <translation type="vanished">Erzwingt, dass QZ NUR die Herzfrequenz-Metrik an Drittanbieter-Apps sendet. Standardmäßig aus.</translation>
+        <translation>Erzwingt, dass QZ NUR die Herzfrequenz-Metrik an Drittanbieter-Apps sendet. Standardmäßig aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14664"/>
         <source>Virtual Echelon</source>
-        <translation type="vanished">Virtuelles Echelon</translation>
+        <translation>Virtuelles Echelon</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14678"/>
         <source>Enables QZ to communicate with the Echelon app. This setting can only be used with iOS running QZ and iOS running the Echelon app. Default is off.</source>
-        <translation type="vanished">Ermöglicht QZ die Kommunikation mit der Echelon App. Diese Einstellung kann nur mit iOS, auf dem QZ und die Echelon App laufen, verwendet werden. Standardmäßig aus.</translation>
+        <translation>Ermöglicht QZ die Kommunikation mit der Echelon App. Diese Einstellung kann nur mit iOS, auf dem QZ und die Echelon App laufen, verwendet werden. Standardmäßig aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14692"/>
         <source>Virtual Rower</source>
-        <translation type="vanished">Virtueller Ruderer</translation>
+        <translation>Virtueller Ruderer</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14706"/>
         <source>Enables QZ to send a rower Bluetooth profile instead of a bike profile to third party apps that support rowing (examples: Kinomap and BitGym). This should be off for Zwift. Default is off.</source>
-        <translation type="vanished">Ermöglicht QZ, ein Ruder-Bluetooth-Profil anstelle eines Fahrradprofils an Drittanbieter-Apps zu senden, die Rudern unterstützen (Beispiele: Kinomap und BitGym). Dies sollte für Zwift deaktiviert sein. Standardmäßig ist es deaktiviert.</translation>
+        <translation>Ermöglicht QZ, ein Ruder-Bluetooth-Profil anstelle eines Fahrradprofils an Drittanbieter-Apps zu senden, die Rudern unterstützen (Beispiele: Kinomap und BitGym). Dies sollte für Zwift deaktiviert sein. Standardmäßig ist es deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14720"/>
         <source>Virtual Rower as PM5</source>
-        <translation type="vanished">Virtueller Ruderer als PM5</translation>
+        <translation>Virtueller Ruderer als PM5</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14735"/>
         <source>When enabled, the virtual rower will use the Concept2 PM5 protocol instead of FTMS. This provides compatibility with apps like Mywhoosh that only support PM5 rowers. Default is off.</source>
-        <translation type="vanished">Wenn aktiviert, verwendet der virtuelle Ruderergometer das Concept2 PM5 Protokoll anstelle von FTMS. Dies gewährleistet die Kompatibilität mit Apps wie Mywhoosh, die nur PM5 Ruderergometer unterstützen. Standardmäßig ist es deaktiviert.</translation>
+        <translation>Wenn aktiviert, verwendet der virtuelle Ruderergometer das Concept2 PM5 Protokoll anstelle von FTMS. Dies gewährleistet die Kompatibilität mit Apps wie Mywhoosh, die nur PM5 Ruderergometer unterstützen. Standardmäßig ist es deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14750"/>
         <source>Force Virtual Treadmill</source>
-        <translation type="vanished">Virtuelles Laufband</translation>
+        <translation>Virtuelles Laufband</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14764"/>
         <source>When enabled, forces QZ to impersonate a virtual treadmill regardless of the original device type. This allows any device (bike, rower, elliptical, etc.) to appear as a treadmill to third party apps. Default is off.</source>
-        <translation type="vanished">Wenn aktiviert, zwingt dies QZ, sich unabhängig vom ursprünglichen Gerätetyp als virtuelles Laufband auszugeben. Dies ermöglicht jedem Gerät (Fahrrad, Rudergerät, Crosstrainer usw.), für Drittanbieter-Apps als Laufband zu erscheinen. Standardmäßig ist es deaktiviert.</translation>
+        <translation>Wenn aktiviert, zwingt dies QZ, sich unabhängig vom ursprünglichen Gerätetyp als virtuelles Laufband auszugeben. Dies ermöglicht jedem Gerät (Fahrrad, Rudergerät, Crosstrainer usw.), für Drittanbieter-Apps als Laufband zu erscheinen. Standardmäßig ist es deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14778"/>
         <source>Zwift Force Resistance</source>
-        <translation type="vanished">Zwift Widerstandskraft</translation>
+        <translation>Zwift Widerstandskraft</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14792"/>
         <source>Enables third-party apps to change the resistance of your equipment. Default is on.</source>
-        <translation type="vanished">Ermöglicht Drittanbieter-Apps, den Widerstand Ihres Geräts zu ändern. Standardmäßig aktiviert.</translation>
+        <translation>Ermöglicht Drittanbieter-Apps, den Widerstand Ihres Geräts zu ändern. Standardmäßig aktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14807"/>
         <source>Bike Power Sensor</source>
-        <translation type="vanished">Leistungssensor</translation>
+        <translation>Leistungssensor</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14821"/>
         <source>This changes the virtual Bluetooth bridge from the standard FMTS to the Power Sensor interface. Default is off.</source>
-        <translation type="vanished">Dies ändert die virtuelle Bluetooth-Brücke vom Standard-FMTS auf die Power Sensor Schnittstelle. Standardmäßig aus.</translation>
+        <translation>Dies ändert die virtuelle Bluetooth-Brücke vom Standard-FMTS auf die Power Sensor Schnittstelle. Standardmäßig aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14835"/>
         <source>Virtual iFit</source>
-        <translation type="vanished">Virtuell iFit</translation>
+        <translation>Virtuell iFit</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14849"/>
         <source>Enables a virtual Bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android. On Android remember to rename your device into I_EL into the android settings and reboot your device.</source>
-        <translation type="vanished">Ermöglicht eine virtuelle Bluetooth-Verbindung zur iFit App. Diese Einstellung erfordert, dass mindestens ein Gerät Android ist. Zum Beispiel funktioniert diese Einstellung NICHT mit QZ auf iOS und iFit zu iOS, sondern funktioniert mit QZ auf iOS und iFit zu Android. Auf Android denken Sie daran, Ihr Gerät in den Android-Einstellungen in I_EL umzubenennen und Ihr Gerät neu zu starten.</translation>
+        <translation>Ermöglicht eine virtuelle Bluetooth-Verbindung zur iFit App. Diese Einstellung erfordert, dass mindestens ein Gerät Android ist. Zum Beispiel funktioniert diese Einstellung NICHT mit QZ auf iOS und iFit zu iOS, sondern funktioniert mit QZ auf iOS und iFit zu Android. Auf Android denken Sie daran, Ihr Gerät in den Android-Einstellungen in I_EL umzubenennen und Ihr Gerät neu zu starten.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14864"/>
+        <source>Wahoo direct connect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="14872"/>
         <source>MyWhoosh Compatibility</source>
-        <translation type="vanished">MyWhoosh Kompatibilität</translation>
+        <translation>MyWhoosh Kompatibilität</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14886"/>
         <source>Enables the compatibility of the Wahoo KICKR protocol to MyWhoosh app. Leave the MyWhoosh compatibility disabled in order to use Zwift.</source>
-        <translation type="vanished">Ermöglicht die Kompatibilität des Wahoo KICKR Protokolls mit der MyWhoosh App. Deaktivieren Sie die MyWhoosh Kompatibilität, um Zwift zu nutzen.</translation>
+        <translation>Ermöglicht die Kompatibilität des Wahoo KICKR Protokolls mit der MyWhoosh App. Deaktivieren Sie die MyWhoosh Kompatibilität, um Zwift zu nutzen.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14901"/>
+        <source>ID:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="14922"/>
         <source>If you have multiple QZ instances, you can change the id of the virtual wahoo device. Default: 0</source>
-        <translation type="vanished">Wenn Sie mehrere QZ-Instanzen haben, können Sie die ID des virtuellen wahoo-Geräts ändern. Standardmäßig: 0</translation>
+        <translation>Wenn Sie mehrere QZ-Instanzen haben, können Sie die ID des virtuellen wahoo-Geräts ändern. Standardmäßig: 0</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14938"/>
         <source>Server Port:</source>
-        <translation type="vanished">Server-Port:</translation>
+        <translation>Server-Port:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14964"/>
         <source>MQTT Settings</source>
-        <translation type="vanished">MQTT Einstellungen</translation>
+        <translation>MQTT Einstellungen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="14974"/>
+        <source>MQTT Host:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="14994"/>
         <source>Enter the MQTT broker hostname or IP address</source>
-        <translation type="vanished">Geben Sie den MQTT-Broker-Hostname oder die IP-Adresse ein</translation>
+        <translation>Geben Sie den MQTT-Broker-Hostname oder die IP-Adresse ein</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15009"/>
+        <source>MQTT Port:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="15030"/>
         <source>Enter the MQTT broker port (default: 1883)</source>
-        <translation type="vanished">Geben Sie den MQTT-Broker-Port ein (Standard: 1883)</translation>
+        <translation>Geben Sie den MQTT-Broker-Port ein (Standard: 1883)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15066"/>
         <source>Enter the MQTT broker username (if required)</source>
-        <translation type="vanished">Geben Sie den MQTT Broker-Benutzernamen ein (falls erforderlich)</translation>
+        <translation>Geben Sie den MQTT Broker-Benutzernamen ein (falls erforderlich)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15103"/>
         <source>Enter the MQTT broker password (if required)</source>
-        <translation type="vanished">Geben Sie das MQTT Broker-Passwort ein (falls erforderlich)</translation>
+        <translation>Geben Sie das MQTT Broker-Passwort ein (falls erforderlich)</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15119"/>
         <source>Device ID:</source>
-        <translation type="vanished">Geräte-ID:</translation>
+        <translation>Geräte-ID:</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15139"/>
         <source>Enter a unique device identifier for MQTT client</source>
-        <translation type="vanished">Geben Sie eine eindeutige Geräte-ID für den MQTT-Client ein</translation>
+        <translation>Geben Sie eine eindeutige Geräte-ID für den MQTT-Client ein</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15155"/>
         <source>OSC Settings</source>
-        <translation type="vanished">OSC Einstellungen</translation>
+        <translation>OSC Einstellungen</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15165"/>
+        <source>OSC IP:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="15188"/>
+        <source>OSC Port:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="15212"/>
         <source>Race Mode</source>
-        <translation type="vanished">Rennmodus</translation>
+        <translation>Rennmodus</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15226"/>
         <source>By default QZ sends the info to Zwift or any other 3rd party apps with a 1000ms interval rate. Enabling the Race Mode setting will cause QZ to send them to 100ms (10hz). Of course the bottleneck will be always your bike/treadmill.</source>
-        <translation type="vanished">Standardmäßig sendet QZ die Infos an Zwift oder andere 3rd-Party-Apps mit einer Intervallrate von 1000ms. Durch Aktivierung des Race Mode wird QZ sie auf 100ms (10hz) senden. Natürlich wird der Engpass immer Ihr Fahrrad/Laufband sein.</translation>
+        <translation>Standardmäßig sendet QZ die Infos an Zwift oder andere 3rd-Party-Apps mit einer Intervallrate von 1000ms. Durch Aktivierung des Race Mode wird QZ sie auf 100ms (10hz) senden. Natürlich wird der Engpass immer Ihr Fahrrad/Laufband sein.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15240"/>
         <source>Run Cadence Sensor</source>
-        <translation type="vanished">Lauf-Kadenzsensor</translation>
+        <translation>Lauf-Kadenzsensor</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15254"/>
         <source>Forces the virtual Bluetooth bridge to send only the cadence information instead of the full FTMS metrics. Default is off.</source>
-        <translation type="vanished">Erzwingt, dass die virtuelle Bluetooth-Brücke nur die Trittfrequenzinformation sendet, anstelle der vollständigen FTMS-Metriken. Standardmäßig aus.</translation>
+        <translation>Erzwingt, dass die virtuelle Bluetooth-Brücke nur die Trittfrequenzinformation sendet, anstelle der vollständigen FTMS-Metriken. Standardmäßig aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15268"/>
         <source>Template Settings</source>
-        <translation type="vanished">Einstellungs-Vorlage</translation>
+        <translation>Einstellungs-Vorlage</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15313"/>
+        <source>Android WakeLock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="15327"/>
         <source>Forces Android devices to remain awake while QZ is running. Default is on.</source>
-        <translation type="vanished">Hält Android-Geräte aktiv, während QZ läuft. Standardmäßig an.</translation>
+        <translation>Hält Android-Geräte aktiv, während QZ läuft. Standardmäßig an.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15341"/>
         <source>iOS Peloton Workaround</source>
-        <translation type="vanished">iOS Peloton Umgehung</translation>
+        <translation>iOS Peloton Umgehung</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15355"/>
         <source>This MUST be always ON on an iOS device. Turning it OFF will lead to unexpected crashes of QZ. Default is on.</source>
-        <translation type="vanished">Dies MUSS auf einem iOS-Gerät immer AN sein. Das Ausschalten führt zu unerwarteten Abstürzen von QZ. Standardmäßig ist es an.</translation>
+        <translation>Dies MUSS auf einem iOS-Gerät immer AN sein. Das Ausschalten führt zu unerwarteten Abstürzen von QZ. Standardmäßig ist es an.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15368"/>
         <source>iOS Bluetooth Device Native</source>
-        <translation type="vanished">iOS Bluetooth Gerät Nativ</translation>
+        <translation>iOS Bluetooth Gerät Nativ</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15382"/>
         <source>If you are experiencing crash on iOS midride, try to turn this on. Default is off.</source>
-        <translation type="vanished">Wenn Sie während einer Fahrt auf iOS einen Absturz erleben, versuchen Sie, dies zu aktivieren. Standardmäßig ist es deaktiviert.</translation>
+        <translation>Wenn Sie während einer Fahrt auf iOS einen Absturz erleben, versuchen Sie, dies zu aktivieren. Standardmäßig ist es deaktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15396"/>
         <source>Fake Device</source>
-        <translation type="vanished">Faktes Gerät</translation>
+        <translation>Faktes Gerät</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15410"/>
         <source>Simulates QZ being connected to a bike. When this is turned on QZ will calculate KCal based on your heart rate. Examples of when to use this setting: ○ To capture Peloton class data for classes without connected equipment (e.g., a strength or yoga workout).. ○ To arrange tiles on the QZ dashboard without connecting to your equipment. ○ To use the QZ Apple Watch app without connecting to your equipment.</source>
-        <translation type="vanished">Simuliert, dass QZ mit einem Fahrrad verbunden ist. Wenn dies aktiviert ist, berechnet QZ die KCal basierend auf Ihrer Herzfrequenz. Beispiele, wann Sie diese Einstellung verwenden können: ○ Um Peloton-Klassendaten für Kurse ohne angeschlossene Ausrüstung zu erfassen (z. B. ein Kraft- oder Yoga-Workout). ○ Um Kacheln auf dem QZ-Dashboard anzuordnen, ohne mit Ihrer Ausrüstung verbunden zu sein. ○ Um die QZ Apple Watch App zu verwenden, ohne mit Ihrer Ausrüstung verbunden zu sein.</translation>
+        <translation>Simuliert, dass QZ mit einem Fahrrad verbunden ist. Wenn dies aktiviert ist, berechnet QZ die KCal basierend auf Ihrer Herzfrequenz. Beispiele, wann Sie diese Einstellung verwenden können: ○ Um Peloton-Klassendaten für Kurse ohne angeschlossene Ausrüstung zu erfassen (z. B. ein Kraft- oder Yoga-Workout). ○ Um Kacheln auf dem QZ-Dashboard anzuordnen, ohne mit Ihrer Ausrüstung verbunden zu sein. ○ Um die QZ Apple Watch App zu verwenden, ohne mit Ihrer Ausrüstung verbunden zu sein.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15424"/>
         <source>Fake Treadmill</source>
-        <translation type="vanished">Fake Laufband</translation>
+        <translation>Fake Laufband</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15438"/>
         <source>Same as Fake Device but instead of simulating a bike it simulates a treadmill.</source>
-        <translation type="vanished">Gleich wie Fake Device, simuliert aber anstelle eines Fahrrads ein Laufband.</translation>
+        <translation>Gleich wie Fake Device, simuliert aber anstelle eines Fahrrads ein Laufband.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15452"/>
         <source>Use Apple Watch Cadence for Fake Treadmill Speed</source>
-        <translation type="vanished">Nutze Apple Watch Cadence für gefälschte Laufbandgeschwindigkeit</translation>
+        <translation>Nutze Apple Watch Cadence für gefälschte Laufbandgeschwindigkeit</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15466"/>
         <source>iOS only. For Fake Treadmill mode: when no physical treadmill is connected, derives Speed from Apple Watch step cadence using the Wheel Ratio under Accessories &gt; Cadence Sensor Options. The cycling default is far too high for running - try 0.04-0.15 depending on pace, from walking to running, and tune to taste. Useful with apps like Kinomap or Zwift. Default is off.</source>
-        <translation type="vanished">Nur iOS. Für den Fake Treadmill Modus: Wenn kein physisches Laufband angeschlossen ist, wird die Geschwindigkeit aus der Schrittkadenz der Apple Watch unter Verwendung des Wheel Ratio unter Accessories &gt; Cadence Sensor Options abgeleitet. Der Fahrrad-Standard ist für Laufen viel zu hoch – versuchen Sie es mit 0,04–0,15, je nach Tempo, von Gehen bis Laufen, und passen Sie es nach Geschmack an. Nützlich mit Apps wie Kinomap oder Zwift. Standard ist aus.</translation>
+        <translation>Nur iOS. Für den Fake Treadmill Modus: Wenn kein physisches Laufband angeschlossen ist, wird die Geschwindigkeit aus der Schrittkadenz der Apple Watch unter Verwendung des Wheel Ratio unter Accessories &gt; Cadence Sensor Options abgeleitet. Der Fahrrad-Standard ist für Laufen viel zu hoch – versuchen Sie es mit 0,04–0,15, je nach Tempo, von Gehen bis Laufen, und passen Sie es nach Geschmack an. Nützlich mit Apps wie Kinomap oder Zwift. Standard ist aus.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15480"/>
         <source>Fake Elliptical</source>
-        <translation type="vanished">Schein-Elliptical</translation>
+        <translation>Schein-Elliptical</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15494"/>
         <source>Same as Fake Device but instead of simulating a bike it simulates an elliptical.</source>
-        <translation type="vanished">Gleich wie Fake Device, simuliert aber anstelle eines Fahrrads ein Crosstrainer.</translation>
+        <translation>Gleich wie Fake Device, simuliert aber anstelle eines Fahrrads ein Crosstrainer.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15507"/>
         <source>Fake Rower</source>
-        <translation type="vanished">Falscher Rower</translation>
+        <translation>Falscher Rower</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15521"/>
         <source>Same as Fake Device but instead of simulating a bike it simulates a rower.</source>
-        <translation type="vanished">Gleich wie Fake Device, simuliert aber anstelle eines Fahrrads ein Rudergerät.</translation>
+        <translation>Gleich wie Fake Device, simuliert aber anstelle eines Fahrrads ein Rudergerät.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15535"/>
         <source>iOS Heart Caching</source>
-        <translation type="vanished">iOS Herz-Caching</translation>
+        <translation>iOS Herz-Caching</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15549"/>
         <source>Leave this on unless you have issues connecting your Bluetooth HRM to QZ. If turning this off does not solve the connection issue, open a support ticket on GitHub. Default is on.</source>
-        <translation type="vanished">Lassen Sie dies aktiviert, es sei denn, Sie haben Probleme, Ihr Bluetooth HRM mit QZ zu verbinden. Wenn das Deaktivieren das Verbindungsproblem nicht behebt, erstellen Sie ein Support-Ticket auf GitHub. Standardmäßig ist es aktiviert.</translation>
+        <translation>Lassen Sie dies aktiviert, es sei denn, Sie haben Probleme, Ihr Bluetooth HRM mit QZ zu verbinden. Wenn das Deaktivieren das Verbindungsproblem nicht behebt, erstellen Sie ein Support-Ticket auf GitHub. Standardmäßig ist es aktiviert.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15563"/>
         <source>Android Notification</source>
-        <translation type="vanished">Benachrichtigung von Android</translation>
+        <translation>Benachrichtigung von Android</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15577"/>
         <source>Android Only: enable this to force Android to don&apos;t kill QZ when it&apos;s running on background</source>
-        <translation type="vanished">Nur Android: Dies aktivieren, damit Android QZ nicht beendet, wenn es im Hintergrund läuft</translation>
+        <translation>Nur Android: Dies aktivieren, damit Android QZ nicht beendet, wenn es im Hintergrund läuft</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15590"/>
         <source>Android Force Documents/QZ Folder</source>
-        <translation type="vanished">Android Erzwinge Dokumente/QZ Ordner</translation>
+        <translation>Android Erzwinge Dokumente/QZ Ordner</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15604"/>
         <source>Android Only: force QZ to use the /Documents/QZ folder for debug log and fit files</source>
-        <translation type="vanished">Android nur: Erzwingt die Verwendung des Ordners /Documents/QZ für Debug-Protokolle und fit-Dateien</translation>
+        <translation>Android nur: Erzwingt die Verwendung des Ordners /Documents/QZ für Debug-Protokolle und fit-Dateien</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15618"/>
         <source>Debug Log</source>
-        <translation type="vanished">Debug-Protokoll</translation>
+        <translation>Debug-Protokoll</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15632"/>
         <source>Turn this on to save a debug log to your device for use when requesting help with a bug.</source>
-        <translation type="vanished">Schalten Sie dies ein, um einen Debug-Log auf Ihrem Gerät zu speichern, falls Sie Hilfe bei einem Fehler benötigen.</translation>
+        <translation>Schalten Sie dies ein, um einen Debug-Log auf Ihrem Gerät zu speichern, falls Sie Hilfe bei einem Fehler benötigen.</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15649"/>
         <source>Clear History</source>
-        <translation type="vanished">Löschen des Verlaufs</translation>
+        <translation>Löschen des Verlaufs</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15655"/>
         <source>Show Logs Folder</source>
-        <translation type="vanished">Anzeigen des Protokollordners</translation>
+        <translation>Anzeigen des Protokollordners</translation>
     </message>
     <message>
+        <location filename="../settings.qml" line="15664"/>
         <source>Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.</source>
-        <translation type="vanished">Löscht alle QZ-Protokolle, QZ .fit Dateien und QZ Bilder (diese Dateien werden von QZ für jede Sitzung gespeichert) von Ihrem Gerät, wobei Ihre gespeicherten Profile und Einstellungen erhalten bleiben.</translation>
+        <translation>Löscht alle QZ-Protokolle, QZ .fit Dateien und QZ Bilder (diese Dateien werden von QZ für jede Sitzung gespeichert) von Ihrem Gerät, wobei Ihre gespeicherten Profile und Einstellungen erhalten bleiben.</translation>
     </message>
 </context>
 <context>
