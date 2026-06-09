@@ -451,7 +451,9 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         double watt =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
-        if (!filterWattNull || watt != 0) {
+        if (WDK_PACE_POWER && instantPace > 0 && instantPace != 65535 && Cadence.value() > 0) {
+            m_watt = rower::calculateWattsFromPace(instantPace);
+        } else if (!filterWattNull || watt != 0) {
             if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
                 m_watt = watt;
         }        
@@ -482,8 +484,14 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     }
 
+    const bool ignoreBuiltinKCal =
+        settings.value(QZSettings::kcal_ignore_builtin, QZSettings::default_kcal_ignore_builtin).toBool();
+
+    bool useCalculatedKCal = true;
+
     if (Flags.expEnergy && index + 1 < newValue.length()) {
-        KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+        const double builtinKCal =
+            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
 
         // energy per hour
@@ -491,16 +499,21 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
         // energy per minute
         index += 1;
-    } else {
-        if (watts())
-            KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) *
-                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                  200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  // kg * 3.5) / 200 ) / 60
+
+        if (!ignoreBuiltinKCal) {
+            KCal = FITSHOW ? (builtinKCal / 10.0) : builtinKCal;
+            useCalculatedKCal = false;
+        }
     }
+
+    if (useCalculatedKCal && watts())
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) *
+               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+              200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
 
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -826,6 +839,7 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        const QString deviceName = device.name().trimmed().toUpper();
 
         if (device.name().trimmed().toUpper().startsWith("WHIPR")) {
             filterWattNull = true;
@@ -870,6 +884,11 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("DOMYOS-ROW-"))) {
             DOMYOS = true;
             qDebug() << "DOMYOS found!";
+        } else if (deviceName.size() >= 7 && deviceName.startsWith(QStringLiteral("WDK")) &&
+                   deviceName.at(3).isDigit() && deviceName.at(4).isDigit() &&
+                   deviceName.at(5).isDigit() && deviceName.at(6).isDigit()) {
+            WDK_PACE_POWER = true;
+            qDebug() << "WDK rower found! estimating wattage from pace";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

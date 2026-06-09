@@ -595,13 +595,19 @@ void virtualtreadmill::treadmillProvider() {
         if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
             writeP2AD9->changeSlope(h->virtualtreadmill_getCurrentSlope(), 0, 0);
         
-        // Check for requested speed from FTMS and apply it
+        // Treat FTMS speed requests as edge-triggered events. A repeated value sent later
+        // must still be honored, but the same request must not be re-applied on every tick.
+        uint64_t speedChanged = h->virtualtreadmill_lastChangeRequestedSpeed();
         double requestedSpeed = h->virtualtreadmill_getRequestedSpeed();
-        if (requestedSpeed > 0 && requestedSpeed != treadMill->currentSpeed().value()) {
+        if (speedChanged != 0 && speedChanged != lastSpeedChanged &&
+            requestedSpeed > 0 && requestedSpeed != treadMill->currentSpeed().value()) {
+            lastSpeedChanged = speedChanged;
             if (treadMill->deviceType() == TREADMILL) {
                 ((treadmill *)treadMill)->changeSpeed(requestedSpeed);
                 qDebug() << "virtualtreadmill: Applied requested speed from FTMS:" << requestedSpeed;
             }
+        } else if (speedChanged != 0 && speedChanged != lastSpeedChanged) {
+            lastSpeedChanged = speedChanged;
         }
         }
         return;
