@@ -1689,7 +1689,9 @@ import Qt.labs.platform 1.1
             property string app_language: "auto"
 
             property bool garmin_download_workouts_on_start: true
-            property bool trainprogram_clipboard_workout_enabled: false            
+            property bool trainprogram_clipboard_workout_enabled: false
+            property bool ui_custom_dashboard_enabled: false
+            property string ui_custom_dashboard_name: "bike-pro"
         }
 
 
