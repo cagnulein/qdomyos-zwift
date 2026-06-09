@@ -105,6 +105,9 @@ void skandikawiribike::update() {
             }
 
             writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), true, true);
+
+            // this bike can take a long time to update the resistance, so we are refreshing the UI with this value
+            Resistance = lastRequestedResistance().value();
         }
 
         if (requestResistance != -1) {
@@ -253,11 +256,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            if (X2000 || delightechBike) {
-                Heart = newValue.at(8); // X-2000 or delightech app/protocol compatible bike (e.g. Skandika Morpheus)
-            } else {
-                Heart = 0;
-            }
+            Heart = newValue.at(8); // X-2000 or delightech app/protocol compatible bike (e.g. Skandika Morpheus)
         }
     }
 

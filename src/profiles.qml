@@ -29,7 +29,7 @@ ColumnLayout {
 
     FileDialog {
         id: fileDialogTrainProgram
-        title: "Please choose a file"
+        title: qsTr("Please choose a file")
         currentFolder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
         onAccepted: {
             console.log("You chose: " + fileDialogTrainProgram.selectedFile)
@@ -44,9 +44,9 @@ ColumnLayout {
 
     MessageDialog {
         id: quitDialog
-        title: "Profile loaded"
-        text: "Would you like to quit?"
-        informativeText: "You must quit and restart for changes to take effect."
+        title: qsTr("Profile loaded")
+        text: qsTr("Would you like to quit?")
+        informativeText: qsTr("You must quit and restart for changes to take effect.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onAccepted: {
             if (quitDialog.clickedButton === MessageDialog.Yes) {
@@ -60,8 +60,8 @@ ColumnLayout {
     MessageDialog {
         id: deleteDialog
         property string fileUrl
-        title: "Delete profile"
-        text: "Would you like to delete this profile?"
+        title: qsTr("Delete profile")
+        text: qsTr("Would you like to delete this profile?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onAccepted: {
             if (deleteDialog.clickedButton === MessageDialog.Yes) {
@@ -74,8 +74,8 @@ ColumnLayout {
 
     MessageDialog {
         id: saveDialog
-        title: "Profile Saved"
-        text: "Profile saved correctly!"
+        title: qsTr("Profile Saved")
+        text: qsTr("Profile saved correctly!")
         buttons: (MessageDialog.Ok)
         onAccepted: {
             stackView.pop();
@@ -84,8 +84,8 @@ ColumnLayout {
 
     MessageDialog {
         id: restoreSettingsDialog
-        title: "New Profile"
-        text: "New Profile Created with default values. Save it with a name and restart the app to apply them."
+        title: qsTr("New Profile")
+        text: qsTr("New Profile Created with default values. Save it with a name and restart the app to apply them.")
         buttons: (MessageDialog.Ok)
         onAccepted: {
             restoreSettingsDialog.visible = false
@@ -94,13 +94,13 @@ ColumnLayout {
 
     MessageDialog {
         id: newProfileDialog
-        title: "Save Current Profile?"
-        text: "You're creating a new profile with the default values, would you like to save the current one before?"
+        title: qsTr("Save Current Profile?")
+        text: qsTr("You're creating a new profile with the default values, would you like to save the current one before?")
         buttons: (MessageDialog.Yes | MessageDialog.No | MessageDialog.Abort)
         onAccepted: {
             if (newProfileDialog.clickedButton === MessageDialog.Yes) {
                 if (profileNameTextField.text.length == 0)
-                    profileNameTextField.text = "OldProfile"
+                    profileNameTextField.text = qsTr("OldProfile")
 
                 saveProfile(profileNameTextField.text);
                 restoreSettings()

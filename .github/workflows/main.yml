@@ -4,14 +4,13 @@ env:
   DISPLAY: ':99'
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
+# Controls when the action will run. Triggers the workflow on push, pull request,
+# scheduled nightly, or manual workflow dispatch events.
 on:
   workflow_dispatch:
   push:
     branches: [ master,  github-workflow-playground ]
   pull_request:
-    branches: [ master ]
   schedule:
     - cron: "0 0 * * *"
 
@@ -127,6 +126,7 @@ jobs:
           cd ..  
       - name: Build
         run: |
+            lrelease src/qdomyos-zwift.pri
             qmake
             make -j8
             cd src/debug
@@ -149,11 +149,12 @@ jobs:
             cp ../../adb/* adb/
             cd ..
             cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
         if: matrix.config.python
-            
+
       - name: Build without python
         run: |
+            lrelease src/qdomyos-zwift.pri
             qmake
             make -j8
             cd src/debug
@@ -249,7 +250,7 @@ jobs:
       #     asset_content_type: application/zip        
 
 #  window-steam-build:
-#    runs-on: windows-latest
+#    runs-on: windows-2022
 #
 #    steps:
 #      - uses: actions/checkout@v2
@@ -701,9 +702,33 @@ jobs:
           echo "#define LICENSE" >> secret.h
 
       - name: Prepare Android signing key
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_ALIAS: ${{ secrets.ALIAS }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          printf '%s' "${{ secrets.SIGNING_KEY }}" | base64 --decode > ${{ github.workspace }}/src/android/ci-signing-key.jks
-          echo "CI_ANDROID_SIGNING_KEYSTORE=${{ github.workspace }}/src/android/ci-signing-key.jks" >> $GITHUB_ENV
+          if [ -z "$SIGNING_KEY" ] || [ -z "$SIGNING_ALIAS" ] || [ -z "$KEY_STORE_PASSWORD" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo "Android signing secrets are not available; APK re-signing will be skipped."
+            echo "CI_ANDROID_RESIGN_APK=false" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          KEYSTORE="${{ github.workspace }}/src/android/ci-signing-key.jks"
+          if ! printf '%s' "$SIGNING_KEY" | base64 --decode > "$KEYSTORE"; then
+            echo "Failed to decode Android signing key."
+            rm -f "$KEYSTORE"
+            exit 1
+          fi
+
+          if [ ! -s "$KEYSTORE" ]; then
+            echo "Decoded Android signing key is empty."
+            rm -f "$KEYSTORE"
+            exit 1
+          fi
+
+          echo "CI_ANDROID_SIGNING_KEYSTORE=$KEYSTORE" >> "$GITHUB_ENV"
+          echo "CI_ANDROID_RESIGN_APK=true" >> "$GITHUB_ENV"
 
       - name: Build qthttpserver for Android
         run: |
@@ -714,6 +739,7 @@ jobs:
 
       - name: Build QZ for Android (4 ABIs)
         run: |
+          lrelease src/qdomyos-zwift.pri
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
@@ -733,8 +759,14 @@ jobs:
 
       - name: Re-sign APK for stable App Links fingerprint
         run: |
+          if [ "$CI_ANDROID_RESIGN_APK" != "true" ]; then
+            echo "Skipping APK re-signing because Android signing secrets are not available."
+            exit 0
+          fi
+
           APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
           SIGNED_APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-signed.apk"
+          trap 'rm -f "$CI_ANDROID_SIGNING_KEYSTORE" "$SIGNED_APK_PATH"' EXIT
           APKSIGNER=$(find /usr/local/lib/android/sdk/build-tools -name apksigner | sort | tail -n 1)
           if [ -z "$APKSIGNER" ]; then
             echo "apksigner not found"
@@ -1129,10 +1161,11 @@ jobs:
   
       - name: Build
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
         run: |
-            qmake            
+            lrelease src/qdomyos-zwift.pri
+            qmake
             nmake
             cd src/debug
             mkdir output
@@ -1158,10 +1191,11 @@ jobs:
             
       - name: Build without python
 #            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
-#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose     
-        run: |          
-            qmake           
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+        run: |
+            lrelease src/qdomyos-zwift.pri
+            qmake
             nmake
             cd src/debug
             mkdir output
