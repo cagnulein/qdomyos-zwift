@@ -1234,7 +1234,7 @@ const QString QZSettings::ui_custom_dashboard_enabled = QStringLiteral("ui_custo
 const QString QZSettings::ui_custom_dashboard_name = QStringLiteral("ui_custom_dashboard_name");
 const QString QZSettings::default_ui_custom_dashboard_name = QStringLiteral("bike-pro");
 
-const uint32_t allSettingsCount = 961;
+const uint32_t allSettingsCount = 963;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
