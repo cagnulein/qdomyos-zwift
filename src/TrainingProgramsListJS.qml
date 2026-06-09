@@ -3,9 +3,9 @@ import Qt.labs.folderlistmodel 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
-import QtQuick.Dialogs 1.0
+import QtQuick.Dialogs
 import Qt.labs.settings 1.0
-import Qt.labs.platform 1.1
+import Qt.labs.platform 1.1 as LabsPlatform
 import QtWebView 1.1
 
 ColumnLayout {
@@ -53,13 +53,13 @@ ColumnLayout {
         id: fileDialogLoader
         active: false
         sourceComponent: Component {
-            FileDialog {
+            LabsPlatform.FileDialog {
                 id: fileDialog
                 title: "Please choose a file"
-                folder: shortcuts.home
+                folder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
                 visible: true
                 onAccepted: {
-                    var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")
+                    var chosenFile = fileDialog.file
                     console.log("You chose: " + chosenFile)
                     selectedFileUrl = chosenFile
                     if(OS_VERSION === "Android") {

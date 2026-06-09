@@ -1,0 +1,97 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "android-multi-abi-debug",
+            "displayName": "Android Multi-ABI Debug",
+            "description": "Build for all Android architectures (Debug)",
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build-android-multi-debug",
+            "toolchainFile": "$env{ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_PREFIX_PATH": "C:/Qt/6.8.2/android_arm64_v8a",
+                "QT_HOST_PATH": "C:/Qt/6.8.2/msvc2022_64",
+                "QT_ANDROID_BUILD_ALL_ABIS": "TRUE",
+                "QT_ANDROID_ABIS": "armeabi-v7a;arm64-v8a;x86;x86_64",
+                "ANDROID_ABI": "arm64-v8a",
+                "ANDROID_PLATFORM": "android-23",
+                "ANDROID_STL": "c++_shared",
+                "ANDROID_CPP_FEATURES": "rtti exceptions",
+                "CMAKE_FIND_ROOT_PATH_MODE_PACKAGE": "BOTH"
+            },
+            "environment": {
+                "ANDROID_SDK_ROOT": "C:/Users/$env{USERNAME}/AppData/Local/Android/Sdk",
+                "ANDROID_NDK_ROOT": "C:/Users/$env{USERNAME}/AppData/Local/Android/Sdk/ndk/21.4.7075529"
+            }
+        },
+        {
+            "name": "android-multi-abi-release",
+            "displayName": "Android Multi-ABI Release",
+            "description": "Build for all Android architectures (Release)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build-android-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_PREFIX_PATH": "C:/Qt/6.8.2/android_armv7;C:/Qt/6.8.2/android_arm64_v8a;C:/Qt/6.8.2/android_x86;C:/Qt/6.8.2/android_x86_64",
+                "QT_HOST_PATH": "C:/Qt/6.8.2/msvc2022_64",
+                "QT_ANDROID_BUILD_ALL_ABIS": "ON",
+                "QT_ANDROID_ABIS": "armeabi-v7a;arm64-v8a;x86;x86_64",
+                "ANDROID_PLATFORM": "android-23",
+                "ANDROID_STL": "c++_shared"
+            },
+            "environment": {
+                "ANDROID_SDK_ROOT": "$env{ANDROID_SDK_ROOT}",
+                "ANDROID_NDK_ROOT": "$env{ANDROID_NDK_ROOT}",
+                "JAVA_HOME": "$env{JAVA_HOME}"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "android-arm64-debug",
+            "displayName": "Android ARM64 Debug (Single ABI)",
+            "description": "Build for ARM64 only (Debug)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build-android-arm64-debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_PREFIX_PATH": "C:/Qt/6.8.2/android_arm64_v8a",
+                "QT_HOST_PATH": "C:/Qt/6.8.2/msvc2022_64",
+                "ANDROID_ABI": "arm64-v8a",
+                "ANDROID_PLATFORM": "android-23",
+                "ANDROID_STL": "c++_shared"
+            },
+            "environment": {
+                "ANDROID_SDK_ROOT": "$env{ANDROID_SDK_ROOT}",
+                "ANDROID_NDK_ROOT": "$env{ANDROID_NDK_ROOT}",
+                "JAVA_HOME": "$env{JAVA_HOME}"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "android-multi-abi-debug",
+            "configurePreset": "android-multi-abi-debug",
+            "displayName": "Build Android Multi-ABI Debug"
+        },
+        {
+            "name": "android-multi-abi-release",
+            "configurePreset": "android-multi-abi-release",
+            "displayName": "Build Android Multi-ABI Release"
+        },
+        {
+            "name": "android-arm64-debug",
+            "configurePreset": "android-arm64-debug",
+            "displayName": "Build Android ARM64 Debug"
+        }
+    ]
+}

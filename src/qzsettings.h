@@ -973,7 +973,7 @@ class QZSettings {
     static constexpr bool default_cadence_sensor_as_treadmill = false;
 
     static const QString cadence_sensor_speed_ratio;
-    static constexpr float default_cadence_sensor_speed_ratio = 0.33;
+    static constexpr float default_cadence_sensor_speed_ratio = 0.33f;
 
     static const QString cscbike_custom_resistance_power_table;
     static constexpr bool default_cscbike_custom_resistance_power_table = false;
@@ -991,16 +991,16 @@ class QZSettings {
     static constexpr float default_cscbike_custom_watt_2 = 300;
 
     static const QString power_hr_pwr1;
-    static constexpr float default_power_hr_pwr1 = 200;
+    static constexpr float default_power_hr_pwr1 = 200.0f;
 
     static const QString power_hr_hr1;
-    static constexpr float default_power_hr_hr1 = 150;
+    static constexpr float default_power_hr_hr1 = 150.0f;
 
     static const QString power_hr_pwr2;
-    static constexpr float default_power_hr_pwr2 = 230;
+    static constexpr float default_power_hr_pwr2 = 230.0f;
 
     static const QString power_hr_hr2;
-    static constexpr float default_power_hr_hr2 = 170;
+    static constexpr float default_power_hr_hr2 = 170.0f;
 
     static const QString power_sensor_name;
     static const QString default_power_sensor_name;

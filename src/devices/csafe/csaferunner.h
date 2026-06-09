@@ -1,3 +1,6 @@
+#ifndef CSAFERUNNER_H
+#define CSAFERUNNER_H
+
 #include "csafe.h"
 #include "qzsettings.h"
 #include "serialhandler.h"
@@ -42,3 +45,5 @@ class CsafeRunnerThread : public QThread {
     QQueue<QStringList> commandQueue;
     QMutex mutex;
 };
+
+#endif // CSAFERUNNER_H
