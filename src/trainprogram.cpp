@@ -1415,6 +1415,24 @@ void trainprogram::goToPreviousRow() {
     currentStep--;
 }
 
+int trainprogram::currentLogicalStep() const {
+    int step = 0;
+    for (int i = 0; i <= (int)currentStep && i < rows.count(); i++) {
+        if (rows.at(i).rampElapsed == QTime(0, 0, 0))
+            step++;
+    }
+    return step;
+}
+
+int trainprogram::totalLogicalSteps() const {
+    int total = 0;
+    for (const auto &r : rows) {
+        if (r.rampElapsed == QTime(0, 0, 0))
+            total++;
+    }
+    return total;
+}
+
 void trainprogram::onTapeStarted() { started = true; }
 
 void trainprogram::restart() {
