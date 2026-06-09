@@ -1385,12 +1385,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.ui_zoom = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("UI Zoom")
                         }
                         Button {
                             id: okUiZoomButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ui_zoom = uiZoomTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save UI Zoom")
                         }
                     }
                     Label {
@@ -1423,12 +1427,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.weight = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Player Weight")
                         }
                         Button {
                             id: okWeightButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?weightTextField.text / 2.20462:weightTextField.text); toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Player Weight")
                         }
                     }
                     Label {
@@ -1469,6 +1477,8 @@ import Qt.labs.platform 1.1
                                 }
                             }
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Player Height")
                         }
                         Button {
                             id: okHeightButton
@@ -1488,6 +1498,8 @@ import Qt.labs.platform 1.1
                                 }
                                 toast.show("Setting saved!");
                             }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Player Height")
                         }
                     }
                     Label {
@@ -1519,12 +1531,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.age = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Player Age")
                         }
                         Button {
                             id: okAgeButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.age = ageTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Player Age")
                         }
                     }
 
@@ -1559,12 +1575,16 @@ import Qt.labs.platform 1.1
                                 displayText = sexTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Gender")
                         }
                         Button {
                             id: okSex
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.sex = sexTextField.displayText; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Gender")
                         }
                     }
 
@@ -1598,12 +1618,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.ftp = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("FTP value")
                         }
                         Button {
                             id: okFTPButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ftp = ftpTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save FTP value")
                         }
                     }
 
@@ -1635,11 +1659,15 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.ftp_run = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Critical Power Run value")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ftp_run = ftpRunTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Critical Power Run value")
                         }
                     }
 
@@ -1671,12 +1699,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.user_nickname = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Nickname")
                         }
                         Button {
                             id: okNicknameButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.user_nickname = nicknameTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Nickname")
                         }
                     }
 
@@ -1708,12 +1740,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.user_email = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Email")
                         }
                         Button {
                             id: okEmailButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.user_email = emailTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Email")
                         }
                     }
 
@@ -2077,12 +2113,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.heart_rate_zone1 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Zone 1 %")
                                 }
                                 Button {
                                     id: okHeartRateZone1Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.heart_rate_zone1 = heartRateZone1TextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Zone 1 %")
                                 }
                             }
 
@@ -2102,12 +2142,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.heart_rate_zone2 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Zone 2 %")
                                 }
                                 Button {
                                     id: okHeartRateZone2Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.heart_rate_zone2 = heartRateZone2TextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Zone 2 %")
                                 }
                             }
 
@@ -2127,12 +2171,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.heart_rate_zone3 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Zone 3 %")
                                 }
                                 Button {
                                     id: okHeartRateZone3Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.heart_rate_zone3 = heartRateZone3TextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Zone 3 %")
                                 }
                             }
 
@@ -2152,12 +2200,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.heart_rate_zone4 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Zone 4 %")
                                 }
                                 Button {
                                     id: okHeartRateZone4Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.heart_rate_zone4 = heartRateZone4TextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Zone 4 %")
                                 }
                             }
 
@@ -2226,12 +2278,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: settings.heart_max_override_value = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Max Heart Rate")
                                         }
                                         Button {
                                             id: okHeartRateMaxOverrideValue
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.heart_max_override_value = heartRateMaxOverrideValueTextField.text; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Max Heart Rate")
                                         }
                                     }
 
@@ -2264,12 +2320,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: settings.heart_rate_resting = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Resting Heart Rate")
                                         }
                                         Button {
                                             id: okHeartRateRestingValue
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.heart_rate_resting = heartRateRestingValueTextField.text; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Resting Heart Rate")
                                         }
                                     }
 
@@ -2312,12 +2372,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                                             onAccepted: settings.power_hr_pwr1 = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Session 1 Watt")
                                         }
                                         Button {
                                             id: okPowerFromHeartPWR1
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.power_hr_pwr1 = powerFromHeartPWR1TextField.text; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Session 1 Watt")
                                         }
                                     }
 
@@ -2337,12 +2401,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                                             onAccepted: settings.power_hr_hr1 = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Session 1 HR")
                                         }
                                         Button {
                                             id: okPowerFromHeartHR1
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.power_hr_hr1 = powerFromHeartHR1TextField.text; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Session 1 HR")
                                         }
                                     }
 
@@ -2362,12 +2430,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                                             onAccepted: settings.power_hr_pwr2 = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Session 2 Watt")
                                         }
                                         Button {
                                             id: okPowerFromHeartPWR2
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.power_hr_pwr2 = powerFromHeartPWR2TextField.text; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Session 2 Watt")
                                         }
                                     }
 
@@ -2387,12 +2459,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                                             onAccepted: settings.power_hr_hr2 = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Session 2 HR")
                                         }
                                         Button {
                                             id: okPowerFromHeartHR2
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.power_hr_hr2 = powerFromHeartHR2TextField.text; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Session 2 HR")
                                         }
                                     }
                                 }
@@ -2520,6 +2596,8 @@ import Qt.labs.platform 1.1
                             enabled: gearsRestoreValueDelegate.checked
                             onAccepted: settings.gears_current_value_f = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Gear Value")
                         }
                         Button {
                             text: "OK"
@@ -2529,6 +2607,8 @@ import Qt.labs.platform 1.1
                                 settings.gears_current_value_f = specificGearValueField.text
                                 toast.show("Setting saved!")
                             }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Gear Value")
                         }
                     }
 
@@ -2560,12 +2640,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.rolling_resistance = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Rolling Resistance Factor")
                         }
                         Button {
                             id: okRollingResistanceButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.rolling_resistance = rollingreistanceTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Rolling Resistance Factor")
                         }
                     }
                     Label {
@@ -2592,12 +2676,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.bike_weight = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Bike Weight")
                         }
                         Button {
                             id: okBikeWeightButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.bike_weight = ((settings.miles_unit && !settings.weight_kg_unit)?bikeweightTextField.text / 2.20462:bikeweightTextField.text); toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Bike Weight")
                         }
                     }
 
@@ -2630,12 +2718,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.crrGain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Rolling Res. Gain")
                         }
                         Button {
                             id: okCRRGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.crrGain = crrGainTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Rolling Res. Gain")
                         }
                     }
                     RowLayout {
@@ -2654,12 +2746,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.cwGain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Wind Res. Gain")
                         }
                         Button {
                             id: okCWGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.cwGain = cwGainTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Wind Res. Gain")
                         }
                     }
                     IndicatorOnlySwitch {
@@ -2706,12 +2802,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.bike_resistance_offset = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift Resistance Offset")
                         }
                         Button {
                             id: okBikeResistanceOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.bike_resistance_offset = bikeResistanceOffsetTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift Resistance Offset")
                         }
                     }
 
@@ -2744,12 +2844,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.bike_power_offset = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift Power Offset (W)")
                         }
                         Button {
                             id: okBikePowerOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.bike_power_offset = bikePowerOffsetTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift Power Offset (W)")
                         }
                     }
 
@@ -2782,12 +2886,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.bike_resistance_gain_f = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift Resistance Gain")
                         }
                         Button {
                             id: okBikeResistanceGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.bike_resistance_gain_f = bikeResistanceGainTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift Resistance Gain")
                         }
                     }
 
@@ -2820,12 +2928,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_erg_filter = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift ERG Watt Up Filter")
                         }
                         Button {
                             id: okzwiftErgFilterButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_erg_filter = zwiftErgFilterTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift ERG Watt Up Filter")
                         }
                     }
 
@@ -2858,12 +2970,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_erg_filter_down = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift ERG Watt Down Filter")
                         }
                         Button {
                             id: okzwiftErgDownFilterButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_erg_filter_down = zwiftErgDownFilterTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift ERG Watt Down Filter")
                         }
                     }
 
@@ -2896,12 +3012,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_erg_resistance_down = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Min. Resistance")
                         }
                         Button {
                             id: okzwiftErgResistanceDownButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_erg_resistance_down = zwiftErgResistanceDownTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Min. Resistance")
                         }
                     }
 
@@ -2934,12 +3054,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_erg_resistance_up = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Max. Resistance")
                         }
                         Button {
                             id: okzwiftErgResistanceUpButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_erg_resistance_up = zwiftErgResistanceUpTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Max. Resistance")
                         }
                     }
 
@@ -2972,12 +3096,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.bike_resistance_start = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Resistance at Startup")
                         }
                         Button {
                             id: okBikeResistanceStartButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.bike_resistance_start = bikeResistanceStartTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Resistance at Startup")
                         }
                     }
 
@@ -3009,11 +3137,15 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.gears_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Gears Gain")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.gears_gain = gearsGainTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Gears Gain")
                         }
                     }
 
@@ -3053,11 +3185,15 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.gears_offset = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Gears Offset")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.gears_offset = gearsOffsetTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Gears Offset")
                         }
                     }
 
@@ -3128,6 +3264,8 @@ import Qt.labs.platform 1.1
                                     onActivated: {
                                         settings.automatic_virtual_shifting_profile = currentIndex
                                     }
+                                    Accessible.role: Accessible.ComboBox
+                                    Accessible.name: qsTr("Profile")
                                 }
                             }
 
@@ -3157,11 +3295,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.automatic_virtual_shifting_gear_up_cadence = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Cruise - Gear Up Cadence (RPM)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_gear_up_cadence = automaticVirtualShiftingGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Cruise - Gear Up Cadence (RPM)")
                                 }
                             }
 
@@ -3181,11 +3323,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.automatic_virtual_shifting_gear_up_time = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Cruise - Gear Up Time (seconds)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_gear_up_time = automaticVirtualShiftingGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Cruise - Gear Up Time (seconds)")
                                 }
                             }
 
@@ -3205,11 +3351,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.automatic_virtual_shifting_gear_down_cadence = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Cruise - Gear Down Cadence (RPM)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_gear_down_cadence = automaticVirtualShiftingGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Cruise - Gear Down Cadence (RPM)")
                                 }
                             }
 
@@ -3229,11 +3379,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.automatic_virtual_shifting_gear_down_time = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Cruise - Gear Down Time (seconds)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_gear_down_time = automaticVirtualShiftingGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Cruise - Gear Down Time (seconds)")
                                 }
                             }
 
@@ -3263,11 +3417,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.automatic_virtual_shifting_climb_gear_up_cadence = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Climb - Gear Up Cadence (RPM)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_climb_gear_up_cadence = automaticVirtualShiftingClimbGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Climb - Gear Up Cadence (RPM)")
                                 }
                             }
 
@@ -3287,11 +3445,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.automatic_virtual_shifting_climb_gear_up_time = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Climb - Gear Up Time (seconds)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_climb_gear_up_time = automaticVirtualShiftingClimbGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Climb - Gear Up Time (seconds)")
                                 }
                             }
 
@@ -3311,11 +3473,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.automatic_virtual_shifting_climb_gear_down_cadence = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Climb - Gear Down Cadence (RPM)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_climb_gear_down_cadence = automaticVirtualShiftingClimbGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Climb - Gear Down Cadence (RPM)")
                                 }
                             }
 
@@ -3335,11 +3501,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.automatic_virtual_shifting_climb_gear_down_time = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Climb - Gear Down Time (seconds)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_climb_gear_down_time = automaticVirtualShiftingClimbGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Climb - Gear Down Time (seconds)")
                                 }
                             }
 
@@ -3369,11 +3539,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_cadence = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Sprint - Gear Up Cadence (RPM)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_cadence = automaticVirtualShiftingSprintGearUpCadenceTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Sprint - Gear Up Cadence (RPM)")
                                 }
                             }
 
@@ -3393,11 +3567,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_time = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Sprint - Gear Up Time (seconds)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_sprint_gear_up_time = automaticVirtualShiftingSprintGearUpTimeTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Sprint - Gear Up Time (seconds)")
                                 }
                             }
 
@@ -3417,11 +3595,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_cadence = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Sprint - Gear Down Cadence (RPM)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_cadence = automaticVirtualShiftingSprintGearDownCadenceTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Sprint - Gear Down Cadence (RPM)")
                                 }
                             }
 
@@ -3441,11 +3623,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_time = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Sprint - Gear Down Time (seconds)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.automatic_virtual_shifting_sprint_gear_down_time = automaticVirtualShiftingSprintGearDownTimeTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Sprint - Gear Down Time (seconds)")
                                 }
                             }
                         }
@@ -3576,12 +3762,16 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.schwinn_resistance_smooth = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Resistance Smoothing")
                                 }
                                 Button {
                                     id: okschwinnResistanceSmoothButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.schwinn_resistance_smooth = scwhinnResistanceSmoothTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Resistance Smoothing")
                                 }
                             }
                             Label {
@@ -3620,12 +3810,16 @@ import Qt.labs.platform 1.1
                                 //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.horizon_gr7_cadence_multiplier = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                Accessible.role: Accessible.EditableText
+                                Accessible.name: qsTr("GR7 Cadence Multiplier")
                             }
                             Button {
                                 id: okhorizonGr7CadenceMultiplierButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: { settings.horizon_gr7_cadence_multiplier = horizonGr7CadenceMultiplierTextField.text; toast.show("Setting saved!"); }
+                                Accessible.role: Accessible.Button
+                                Accessible.name: qsTr("Save GR7 Cadence Multiplier")
                             }
                         }
                     }
@@ -3659,12 +3853,16 @@ import Qt.labs.platform 1.1
                                         displayText = echelonWattTableTextField.currentValue
                                     }
 
+                                    Accessible.role: Accessible.ComboBox
+                                    Accessible.name: qsTr("Watt Profile")
                                 }
                                 Button {
                                     id: okEchelonWattTable
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.echelon_watttable = echelonWattTableTextField.displayText; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Watt Profile")
                                 }
                             }
                             RowLayout {
@@ -3683,12 +3881,16 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.echelon_resistance_gain = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Resistance Gain")
                                 }
                                 Button {
                                     id: okechelonResistanceGainButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.echelon_resistance_gain = echelonResistanceGainTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Resistance Gain")
                                 }
                             }
                             RowLayout {
@@ -3707,12 +3909,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.echelon_resistance_offset = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Resistance Offset")
                                 }
                                 Button {
                                     id: okechelonResistanceOffsetButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.echelon_resistance_offset = echelonResistanceOffsetTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Resistance Offset")
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -4065,12 +4271,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.flywheel_filter = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Samples Filter")
                                 }
                                 Button {
                                     id: okflywheelBikeFilterButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.flywheel_filter = flywheelBikeFilterTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Samples Filter")
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -4127,12 +4337,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.domyos_bike_cadence_filter = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Cadence Filter")
                                 }
                                 Button {
                                     id: okDomyosBikeCadenceFilter
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Cadence Filter")
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -4259,12 +4473,16 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.proform_wheel_ratio = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Wheel Ratio")
                                 }
                                 Button {
                                     id: okproformBikeWheelRatioButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Wheel Ratio")
                                 }
                             }
 
@@ -4438,11 +4656,15 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.proformtdf1ip = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("TDF1 IP")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proformtdf1ip = proformTDF1IPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save TDF1 IP")
                                 }
                             }
 
@@ -4462,12 +4684,16 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.proformtdf4ip = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("TDF4 IP")
                                 }
                                 Button {
                                     id: okproformTDF4IPButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proformtdf4ip = proformTDF4IPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save TDF4 IP")
                                 }
                             }
                             RowLayout {
@@ -4486,12 +4712,16 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.tdf_10_ip = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("TDF Companion IP")
                                 }
                                 Button {
                                     id: okproformTDFCompanionIPButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.tdf_10_ip = proformTDFCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save TDF Companion IP")
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -4546,12 +4776,16 @@ import Qt.labs.platform 1.1
                                 //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.computrainer_serialport = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                Accessible.role: Accessible.EditableText
+                                Accessible.name: qsTr("Serial Port")
                             }
                             Button {
                                 id: okcomputrainerSerialPortButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: { settings.computrainer_serialport = computrainerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                Accessible.role: Accessible.Button
+                                Accessible.name: qsTr("Save Serial Port")
                             }
                         }
                     }
@@ -4580,12 +4814,16 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onAccepted: settings.kettler_usb_serialport = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                Accessible.role: Accessible.EditableText
+                                Accessible.name: qsTr("Serial Port")
                             }
                             Button {
                                 id: okKettlerUsbSerialPortButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: { settings.kettler_usb_serialport = kettlerUsbSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                Accessible.role: Accessible.Button
+                                Accessible.name: qsTr("Save Serial Port")
                             }
                         }
                         RowLayout {
@@ -4605,6 +4843,8 @@ import Qt.labs.platform 1.1
                                     console.log("kettler baudrate combobox activated" + kettlerUsbBaudrateComboBox.currentIndex)
                                     displayText = kettlerUsbBaudrateComboBox.currentValue
                                 }
+                                Accessible.role: Accessible.ComboBox
+                                Accessible.name: qsTr("Baudrate")
                             }
                             Button {
                                 id: okKettlerUsbBaudrateButton
@@ -4615,6 +4855,8 @@ import Qt.labs.platform 1.1
                                     window.settings_restart_to_apply = true;
                                     toast.show("Setting saved!");
                                 }
+                                Accessible.role: Accessible.Button
+                                Accessible.name: qsTr("Save Baudrate")
                             }
                         }
                     }
@@ -4663,12 +4905,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.m3i_bike_id = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Bike ID")
                                 }
                                 Button {
                                     id: okm3iBikeIdButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.m3i_bike_id = m3iBikeIdTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Bike ID")
                                 }
                             }
 
@@ -4688,12 +4934,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.m3i_bike_speed_buffsize = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Speed Buffer Size")
                                 }
                                 Button {
                                     id: okm3iBikeSpeedBuffsizeButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Speed Buffer Size")
                                 }
                             }
 
@@ -4796,12 +5046,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.ant_bike_device_number = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("ANT+ Bike Device Number (0=Auto)")
                                 }
                                 Button {
                                     id: okAntBikeDeviceNumberButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.ant_bike_device_number = antBikeDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save ANT+ Bike Device Number (0=Auto)")
                                 }
                             }
                         }
@@ -4915,11 +5169,15 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.ant_speed_offset = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("ANT+ Speed Offset")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ant_speed_offset = antspeedOffsetTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save ANT+ Speed Offset")
                         }
                     }
 
@@ -4952,11 +5210,15 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.ant_speed_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("ANT+ Speed Gain")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ant_speed_gain = antspeedGainTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save ANT+ Speed Gain")
                         }
                     }
 
@@ -5003,12 +5265,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.ant_heart_device_number = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("ANT+ Heart Device Number (0=Auto)")
                         }
                         Button {
                             id: okAntHeartDeviceNumberButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ant_heart_device_number = antHeartDeviceNumberTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save ANT+ Heart Device Number (0=Auto)")
                         }
                     }
 
@@ -5120,12 +5386,16 @@ import Qt.labs.platform 1.1
                             onActivated: {
                                 console.log("floatingwindow_type activated" + floatingWindowTypeComboBox.currentIndex)
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Floating Window Type")
                         }
                         Button {
                             id: okFloatingWindowTypeButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.floatingwindow_type = floatingWindowTypeComboBox.currentIndex; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Floating Window Type")
                         }
                     }
 
@@ -5170,12 +5440,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.floating_width = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Floating Window Width")
                         }
                         Button {
                             id: okFloatingWidthButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.floating_width = floatingWidthField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Floating Window Width")
                         }
                     }
 
@@ -5207,12 +5481,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.floating_height = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Floating Window Height")
                         }
                         Button {
                             id: okFloatingHeightButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.floating_height = floatingHeightField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Floating Window Height")
                         }
                     }
 
@@ -5244,12 +5522,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.floating_transparency = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Floating Window % Transparency")
                         }
                         Button {
                             id: okFloatingTransparencyButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.floating_transparency = floatingTransparencyField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Floating Window % Transparency")
                         }
                     }
 
@@ -5316,12 +5598,16 @@ import Qt.labs.platform 1.1
                             onActivated: {
                                 console.log("chart_display_mode activated" + chartDisplayModeComboBox.currentIndex)
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Chart Display Mode")
                         }
                         Button {
                             id: okChartDisplayModeButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.chart_display_mode = chartDisplayModeComboBox.currentIndex; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Chart Display Mode")
                         }
                     }
 
@@ -5351,11 +5637,15 @@ import Qt.labs.platform 1.1
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: displayText = currentValue
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("iOS Live Activity Left Metric")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ios_live_activity_compact_leading_metric = iosLiveActivityCompactLeadingMetricComboBox.displayText; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save iOS Live Activity Left Metric")
                         }
                     }
 
@@ -5372,11 +5662,15 @@ import Qt.labs.platform 1.1
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: displayText = currentValue
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("iOS Live Activity Right Metric")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ios_live_activity_compact_trailing_metric = iosLiveActivityCompactTrailingMetricComboBox.displayText; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save iOS Live Activity Right Metric")
                         }
                     }
 
@@ -5431,12 +5725,16 @@ import Qt.labs.platform 1.1
                                       onPressed: {
                                           if(OS_VERSION !== "Android") backgroundColorDialog.visible = true
                                       }
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Background Color")
                                 }
                                 Button {
                                     id: okBackgroundColor
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_background_color = backgroundColorTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Background Color")
                                 }
                                 ColorDialog {
                                     id: backgroundColorDialog
@@ -5465,12 +5763,16 @@ import Qt.labs.platform 1.1
                                       onPressed: {
                                           if(OS_VERSION !== "Android") tilebackgroundColorDialog.visible = true
                                       }
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Tiles Background Color")
                                 }
                                 Button {
                                     id: oktileBackgroundColor
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_tile_background_color = tilebackgroundColorTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Tiles Background Color")
                                 }
                                 ColorDialog {
                                     id: tilebackgroundColorDialog
@@ -5512,12 +5814,16 @@ import Qt.labs.platform 1.1
                                       onPressed: {
                                           if(OS_VERSION !== "Android") tileShadowColorDialog.visible = true
                                       }
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Tiles Shadow Color")
                                 }
                                 Button {
                                     id: oktileShadowColor
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_tile_shadow_color = tileShadowColorTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Tiles Shadow Color")
                                 }
                                 ColorDialog {
                                     id: tileShadowColorDialog
@@ -5545,12 +5851,16 @@ import Qt.labs.platform 1.1
                                       onPressed: {
                                           if(OS_VERSION !== "Android") statusbarbackgroundColorDialog.visible = true
                                       }
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Statusbar Background Color")
                                 }
                                 Button {
                                     id: okStatusbarBackgroundColor
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_status_bar_background_color = statusbarbackgroundColorTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Statusbar Background Color")
                                 }
                                 ColorDialog {
                                     id: statusbarbackgroundColorDialog
@@ -5577,11 +5887,15 @@ import Qt.labs.platform 1.1
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.theme_tile_secondline_textsize = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("2nd line tile text size")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_tile_secondline_textsize = secondLineTextSizeField.text; window.settings_restart_to_apply = true;  toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save 2nd line tile text size")
                                 }
                             }
                         }
@@ -5613,12 +5927,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.peloton_username = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Username")
                         }
                         Button {
                             id: okPelotonUsernameButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_username = pelotonUsernameTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Username")
                         }
                     }
 
@@ -5653,12 +5971,16 @@ import Qt.labs.platform 1.1
                             echoMode: TextInput.PasswordEchoOnEdit
                             onAccepted: settings.peloton_password = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Password")
                         }
                         Button {
                             id: okPelotonPasswordButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_password = pelotonPasswordTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Password")
                         }
                     }
 
@@ -5710,12 +6032,16 @@ import Qt.labs.platform 1.1
                                 displayText = pelotonDifficultyTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Difficulty")
                         }
                         Button {
                             id: okPelotonDifficultyButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_difficulty = pelotonDifficultyTextField.displayText; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Difficulty")
                         }
                     }
 
@@ -5749,11 +6075,15 @@ import Qt.labs.platform 1.1
                                 displayText = pelotonTreadmillLevelTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Treadmill Level")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_treadmill_level = parseInt(pelotonTreadmillLevelTextField.displayText); toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Treadmill Level")
                         }
                     }
 
@@ -5787,11 +6117,15 @@ import Qt.labs.platform 1.1
                                 displayText = pelotonTreadmillWalkLevelTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Treadmill Walk Level")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_treadmill_walk_level = parseInt(pelotonTreadmillWalkLevelTextField.displayText); toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Treadmill Walk Level")
                         }
                     }
 
@@ -5821,11 +6155,15 @@ import Qt.labs.platform 1.1
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Walking Min Speed")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_treadmill_walking_min_speed = (settings.miles_unit ? pelotonTreadmillWalkingMinSpeedTextField.text / 0.621371 : pelotonTreadmillWalkingMinSpeedTextField.text); toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Walking Min Speed")
                         }
                     }
 
@@ -5855,11 +6193,15 @@ import Qt.labs.platform 1.1
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Running Min Speed")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_treadmill_running_min_speed = (settings.miles_unit ? pelotonTreadmillRunningMinSpeedTextField.text / 0.621371 : pelotonTreadmillRunningMinSpeedTextField.text); toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Running Min Speed")
                         }
                     }
 
@@ -5893,11 +6235,15 @@ import Qt.labs.platform 1.1
                                 displayText = pelotonRowerLevelTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Rower Level")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_rower_level = parseInt(pelotonRowerLevelTextField.displayText); toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Rower Level")
                         }
                     }
 
@@ -5929,12 +6275,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.pzp_username = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("PZP Username")
                         }
                         Button {
                             id: okPZPUsernameButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pzp_username = pzpUsernameTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save PZP Username")
                         }
                     }
 
@@ -5968,12 +6318,16 @@ import Qt.labs.platform 1.1
                             echoMode: TextInput.PasswordEchoOnEdit
                             onAccepted: settings.pzp_password = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("PZP Password")
                         }
                         Button {
                             id: okPZPPasswordButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pzp_password = pzpPasswordTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save PZP Password")
                         }
                     }
 
@@ -6006,12 +6360,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.peloton_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Conversion Gain")
                         }
                         Button {
                             id: okPelotonGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_gain = pelotonGainTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Conversion Gain")
                         }
                     }
 
@@ -6044,12 +6402,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.peloton_offset = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Conversion Offset")
                         }
                         Button {
                             id: okPelotonOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_offset = pelotonOffsetTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Conversion Offset")
                         }
                     }
 
@@ -6167,12 +6529,16 @@ import Qt.labs.platform 1.1
                                 displayText = pelotonCadenceMetricTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Override Cadence Metric")
                         }
                         Button {
                             id: okPelotonCadenceMetric
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.peloton_cadence_metric = pelotonCadenceMetricTextField.displayText;
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Override Cadence Metric")
                         }
                     }*/
 
@@ -6194,12 +6560,16 @@ import Qt.labs.platform 1.1
                                 displayText = pelotonHeartRateMetricTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Override HR Metric")
                         }
                         Button {
                             id: okPelotonHeartRateMetric
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_heartrate_metric = pelotonHeartRateMetricTextField.displayText; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Override HR Metric")
                         }
                     }
 
@@ -6234,12 +6604,16 @@ import Qt.labs.platform 1.1
                                 displayText = pelotonDateOnStravaTextField.currentValue
                             }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Date on Strava")
                         }
                         Button {
                             id: okPelotonDateOnStrava
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_date = pelotonDateOnStravaTextField.displayText; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Date on Strava")
                         }
                     }
 
@@ -6273,11 +6647,15 @@ import Qt.labs.platform 1.1
                                 displayText = pelotonDateFormatTextField.currentValue
                             }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Date Format")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_date_format = pelotonDateFormatTextField.displayText; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Date Format")
                         }
                     }
 
@@ -6443,12 +6821,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.zwift_username = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Username")
                         }
                         Button {
                             id: okZwiftUsernameButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_username = zwiftUsernameTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Username")
                         }
                     }
 
@@ -6483,12 +6865,16 @@ import Qt.labs.platform 1.1
                             echoMode: TextInput.PasswordEchoOnEdit
                             onAccepted: settings.zwift_password = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Password")
                         }
                         Button {
                             id: okZwiftPasswordButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_password = zwiftPasswordTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Password")
                         }
                     }
 
@@ -6625,11 +7011,15 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.zwift_api_poll = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Poll Time")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Poll Time")
                         }
                     }
 
@@ -6920,6 +7310,8 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.garmin_email = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Garmin Email")
                         }
                         Button {
                             text: "OK"
@@ -6929,6 +7321,8 @@ import Qt.labs.platform 1.1
                                 settings.garmin_email = garminEmailTextField.text;
                                 toast.show("Setting saved!");
                             }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Garmin Email")
                         }
                     }
 
@@ -6947,6 +7341,8 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.garmin_password = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Garmin Password")
                         }
                         Button {
                             text: "OK"
@@ -6956,6 +7352,8 @@ import Qt.labs.platform 1.1
                                 settings.garmin_password = garminPasswordTextField.text;
                                 toast.show("Setting saved!");
                             }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Garmin Password")
                         }
                     }
 
@@ -6979,6 +7377,8 @@ import Qt.labs.platform 1.1
                                     window.settings_restart_to_apply = true;
                                 }
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Garmin Server")
                         }
                     }
 
@@ -7665,12 +8065,16 @@ import Qt.labs.platform 1.1
                                 displayText = treadmillPidHRTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("PID on Heart Zone")
                         }
                         Button {
                             id: okTreadmillPidHR
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_pid_heart_zone = treadmillPidHRTextField.displayText; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save PID on Heart Zone")
                         }
                     }
 
@@ -7701,11 +8105,15 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("PID on HR min")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_pid_heart_min = treadmillPidHRminTextField.text ; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save PID on HR min")
                         }
                     }
 
@@ -7723,11 +8131,15 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("PID on HR max")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_pid_heart_max = treadmillPidHRmaxTextField.text ; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save PID on HR max")
                         }
                     }
 
@@ -7813,12 +8225,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("1 mile pace (total time)")
                         }
                         Button {
                             id: okTrainProgramPace1Mile
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_1mile = (((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]))) / 1.60934; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save 1 mile pace (total time)")
                         }
                     }
 
@@ -7850,12 +8266,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("5 km pace (total time)")
                         }
                         Button {
                             id: okTrainProgramPace5km
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_5km = (((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]))) / 5; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save 5 km pace (total time)")
                         }
                     }
 
@@ -7887,12 +8307,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("10 km pace (total time)")
                         }
                         Button {
                             id: okTrainProgramPace10KM
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_10km = (((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]))) / 10; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save 10 km pace (total time)")
                         }
                     }
 
@@ -7924,12 +8348,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Half Marathon pace (total time)")
                         }
                         Button {
                             id: okTrainProgramPaceHalfMarathon
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_halfmarathon = (((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]))) / 21; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Half Marathon pace (total time)")
                         }
                     }
 
@@ -7961,12 +8389,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Marathon pace (total time)")
                         }
                         Button {
                             id: okTrainProgramPaceMarathon
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_marathon = (((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]))) / 42; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Marathon pace (total time)")
                         }
                     }
 
@@ -8001,12 +8433,16 @@ import Qt.labs.platform 1.1
                                 displayText = treadmillPaceDefaultTextField.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Default Pace")
                         }
                         Button {
                             id: okTreadmillPaceDefault
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pace_default = treadmillPaceDefaultTextField.displayText; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Default Pace")
                         }
                     }
 
@@ -8038,12 +8474,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("ERG Mode Watt Step")
                         }
                         Button {
                             id: okPidHeartZoneErgModeWattStep
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pid_heart_zone_erg_mode_watt_step = parseInt(pidHeartZoneErgModeWattStepTextField.text); toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save ERG Mode Watt Step")
                         }
                     }
 
@@ -8087,12 +8527,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.trainprogram_total = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Duration (minutes)")
                         }
                         Button {
                             id: okTrainProgramRandomDuration
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_total = trainProgramRandomDurationTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Duration (minutes)")
                         }
                     }
 
@@ -8112,12 +8556,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.trainprogram_period_seconds = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Period (seconds)")
                         }
                         Button {
                             id: okTrainProgramRandomPeriod
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Period (seconds)")
                         }
                     }
 
@@ -8137,12 +8585,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.trainprogram_speed_min = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Speed min.")
                         }
                         Button {
                             id: okTrainProgramRandomSpeedMin
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Speed min.")
                         }
                     }
 
@@ -8162,12 +8614,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.trainprogram_speed_max = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Speed max.")
                         }
                         Button {
                             id: okTrainProgramRandomSpeedMax
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Speed max.")
                         }
                     }
 
@@ -8187,12 +8643,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.trainprogram_incline_min = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Incline min.")
                         }
                         Button {
                             id: okTrainProgramRandomInclineMin
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Incline min.")
                         }
                     }
 
@@ -8212,12 +8672,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.trainprogram_incline_max = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Incline max.")
                         }
                         Button {
                             id: okTrainProgramRandomInclineMax
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Incline max.")
                         }
                     }
 
@@ -8237,12 +8701,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.trainprogram_resistance_min = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Resistance min.")
                         }
                         Button {
                             id: okTrainProgramRandomResistanceMin
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Resistance min.")
                         }
                     }
 
@@ -8262,12 +8730,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.trainprogram_resistance_max = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Resistance max.")
                         }
                         Button {
                             id: okTrainProgramRandomResistanceMax
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Resistance max.")
                         }
                     }
 
@@ -8449,12 +8921,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.treadmill_step_speed = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Speed Step")
                         }
                         Button {
                             id: okTreadmillSpeedStepButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.text * 1.60934:treadmillSpeedStepTextField.text); toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Speed Step")
                         }
                     }
 
@@ -8487,11 +8963,15 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.treadmill_incline_min = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Min. Inclination")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_incline_min = treadmillInclinationMinTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Min. Inclination")
                         }
                     }
 
@@ -8523,11 +9003,15 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.treadmill_incline_max = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Max. Inclination")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_incline_max = treadmillInclinationMaxTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Max. Inclination")
                         }
                     }
 
@@ -8559,11 +9043,15 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.treadmill_speed_max = (settings.miles_unit?text * 1.60934:text)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Max. Speed")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_speed_max = (settings.miles_unit?treadmillSpeedMaxTextField.text * 1.60934:treadmillSpeedMaxTextField.text); toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Max. Speed")
                         }
                     }
 
@@ -8595,11 +9083,15 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.treadmill_speed_min = (settings.miles_unit?text * 1.60934:text)
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Min. Speed")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_speed_min = (settings.miles_unit?treadmillSpeedMinTextField.text * 1.60934:treadmillSpeedMinTextField.text); toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Min. Speed")
                         }
                     }
 
@@ -8632,12 +9124,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.step_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Step Count Gain")
                         }
                         Button {
                             id: okStepGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.step_gain = stepGainTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Step Count Gain")
                         }
                     }
 
@@ -9073,12 +9569,16 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.proformtreadmillip = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Proform IP")
                                 }
                                 Button {
                                     id: okproformtreadmillIPButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proformtreadmillip = proformtreadmillIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Proform IP")
                                 }
                             }
                             RowLayout {
@@ -9097,12 +9597,16 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.nordictrack_2950_ip = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Nordictrack 2950 IP")
                                 }
                                 Button {
                                     id: oknordictrack2950IPButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.nordictrack_2950_ip = nordictrack2950IPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Nordictrack 2950 IP")
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -9492,11 +9996,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.domyos_treadmill_button_5kmh = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Remap 5 km/h button")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.domyos_treadmill_button_5kmh = domyosTreadmillButton5KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Remap 5 km/h button")
                                 }
                             }
 
@@ -9515,11 +10023,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.domyos_treadmill_button_10kmh = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Remap 10 km/h button")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.domyos_treadmill_button_10kmh = domyosTreadmillButton10KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Remap 10 km/h button")
                                 }
                             }
 
@@ -9538,11 +10050,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.domyos_treadmill_button_16kmh = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Remap 16 km/h button")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.domyos_treadmill_button_16kmh = domyosTreadmillButton16KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Remap 16 km/h button")
                                 }
                             }
 
@@ -9561,11 +10077,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.domyos_treadmill_button_22kmh = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Remap 22 km/h button")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.domyos_treadmill_button_22kmh = domyosTreadmillButton22KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Remap 22 km/h button")
                                 }
                             }
 
@@ -9584,11 +10104,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.poll_device_time = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Pool time (ms)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.poll_device_time = pollDeviceTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Pool time (ms)")
                                 }
                             }
                             Label {
@@ -9803,12 +10327,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.fitshow_user_id = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("User ID")
                                 }
                                 Button {
                                     id: okfitshowTreadmillUserIdButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save User ID")
                                 }
                             }
                         }
@@ -9961,12 +10489,16 @@ import Qt.labs.platform 1.1
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.horizon_treadmill_profile_user1 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("User 1")
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile1Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user1 = horizonTreadmillProfile1TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save User 1")
                                 }
                             }
                             RowLayout {
@@ -9984,12 +10516,16 @@ import Qt.labs.platform 1.1
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.horizon_treadmill_profile_user2 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("User 2")
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile2Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user2 = horizonTreadmillProfile2TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save User 2")
                                 }
                             }
                             RowLayout {
@@ -10007,12 +10543,16 @@ import Qt.labs.platform 1.1
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.horizon_treadmill_profile_user3 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("User 3")
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile3Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user3 = horizonTreadmillProfile3TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save User 3")
                                 }
                             }
                             RowLayout {
@@ -10030,12 +10570,16 @@ import Qt.labs.platform 1.1
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.horizon_treadmill_profile_user4 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("User 4")
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile4Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user4 = horizonTreadmillProfile4TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save User 4")
                                 }
                             }
                             RowLayout {
@@ -10053,12 +10597,16 @@ import Qt.labs.platform 1.1
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.horizon_treadmill_profile_user5 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("User 5")
                                 }
                                 Button {
                                     id: okhorizonTreadmillProfile5Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user5 = horizonTreadmillProfile5TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save User 5")
                                 }
                             }
                         }
@@ -10497,11 +11045,15 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.csafe_rower = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Serial Port")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.csafe_rower = csaferowerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Serial Port")
                                 }
                             }
                         }
@@ -10604,11 +11156,15 @@ import Qt.labs.platform 1.1
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.proform_rower_ip = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("ProForm Rower IP")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proform_rower_ip = proformRowerIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save ProForm Rower IP")
                                 }
                             }
                         }
@@ -10647,12 +11203,16 @@ import Qt.labs.platform 1.1
                                 inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.domyos_elliptical_speed_ratio = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                Accessible.role: Accessible.EditableText
+                                Accessible.name: qsTr("Speed Ratio")
                             }
                             Button {
                                 id: okDomyosEllipticalRatioButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text; toast.show("Setting saved!"); }
+                                Accessible.role: Accessible.Button
+                                Accessible.name: qsTr("Save Speed Ratio")
                             }
                         }
                         IndicatorOnlySwitch {
@@ -10691,11 +11251,15 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.csafe_elliptical_port = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Serial Port")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.csafe_elliptical_port = csafeellipticalSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Serial Port")
                                 }
                             }
                         }
@@ -10836,11 +11400,15 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.proform_elliptical_ip = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Companion IP")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proform_elliptical_ip = proformEllipticalCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Companion IP")
                                 }
                             }
                             IndicatorOnlySwitch {
@@ -11023,12 +11591,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.watt_offset = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Watt Offset")
                         }
                         Button {
                             id: okwattOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.watt_offset = wattOffsetTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Watt Offset")
                         }
                     }
 
@@ -11061,12 +11633,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.watt_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Watt Gain")
                         }
                         Button {
                             id: okWattGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.watt_gain = wattGainTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Watt Gain")
                         }
                     }
 
@@ -11099,12 +11675,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.speed_offset = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Speed Offset")
                         }
                         Button {
                             id: okspeedOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.speed_offset = speedOffsetTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Speed Offset")
                         }
                     }
 
@@ -11138,12 +11718,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.speed_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Speed Gain")
                         }
                         Button {
                             id: okSpeedGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.speed_gain = speedGainTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Speed Gain")
                         }
                     }
 
@@ -11176,12 +11760,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.cadence_offset = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Cadence Offset")
                         }
                         Button {
                             id: okcadenceOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.cadence_offset = cadenceOffsetTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Cadence Offset")
                         }
                     }
 
@@ -11214,12 +11802,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.cadence_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Cadence Gain")
                         }
                         Button {
                             id: okCadenceGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.cadence_gain = cadenceGainTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Cadence Gain")
                         }
                     }
 
@@ -11261,11 +11853,15 @@ import Qt.labs.platform 1.1
                                 displayText = stravaUploadMode.currentValue
                              }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Strava Upload")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.strava_upload_mode = stravaUploadMode.displayText; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Strava Upload")
                         }
                     }
 
@@ -11284,12 +11880,16 @@ import Qt.labs.platform 1.1
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.strava_suffix = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Suffix activity")
                         }
                         Button {
                             id: okStravaSuffixButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.strava_suffix = stravaSuffixTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Suffix activity")
                         }
                     }
 
@@ -11499,6 +12099,8 @@ import Qt.labs.platform 1.1
                                     settings.power_avg_5s = true;
                                 }
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Power Averaging Mode")
                         }
                     }
 
@@ -11587,12 +12189,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.zwift_inclination_offset = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift Inclination Offset")
                         }
                         Button {
                             id: okTreadmillInclinationOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_inclination_offset = treadmillInclinationOffsetTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift Inclination Offset")
                         }
                     }
 
@@ -11625,12 +12231,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_inclination_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Zwift Inclination Gain")
                         }
                         Button {
                             id: okTreadmillInclinationGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_inclination_gain = treadmillInclinationGainTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Zwift Inclination Gain")
                         }
                     }
 
@@ -11662,11 +12272,15 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.min_inclination = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Minimum Inclination")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.min_inclination = minInclinationTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Minimum Inclination")
                         }
                     }
 
@@ -11699,12 +12313,16 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.treadmill_step_incline = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Inclination Step")
                         }
                         Button {
                             id: okInclinationStepButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_step_incline = inclinationStepTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Inclination Step")
                         }
                     }
 
@@ -11818,11 +12436,15 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.autolap_distance = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("AutoLap on Distance")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.autolap_distance = (settings.miles_unit?autoLapOnDistanceTextField.text * 1.60934:autoLapOnDistanceTextField.text); toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save AutoLap on Distance")
                         }
                     }
 
@@ -11854,11 +12476,15 @@ import Qt.labs.platform 1.1
                             //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.inclination_delay_seconds = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Inclination Delay")
                         }
                         Button {
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.inclination_delay_seconds = treadmillInclinationDelayTextField.text; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Inclination Delay")
                         }
                     }
 
@@ -12025,12 +12651,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.cadence_sensor_speed_ratio = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Wheel Ratio")
                                 }
                                 Button {
                                     id: okCadenceSpeedRatio
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.cadence_sensor_speed_ratio = cadenceSpeedRatioTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Wheel Ratio")
                                 }
                             }
 
@@ -12116,11 +12746,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.cscbike_custom_resistance_level_1 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Resistance Level 1")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.cscbike_custom_resistance_level_1 = cscBikeCustomResistanceLevel1TextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Resistance Level 1")
                                 }
                             }
 
@@ -12139,11 +12773,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.cscbike_custom_watt_1 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Watt 1")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.cscbike_custom_watt_1 = cscBikeCustomWatt1TextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Watt 1")
                                 }
                             }
 
@@ -12162,11 +12800,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.cscbike_custom_resistance_level_2 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Resistance Level 2")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.cscbike_custom_resistance_level_2 = cscBikeCustomResistanceLevel2TextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Resistance Level 2")
                                 }
                             }
 
@@ -12185,11 +12827,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.cscbike_custom_watt_2 = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Watt 2")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.cscbike_custom_watt_2 = cscBikeCustomWatt2TextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Watt 2")
                                 }
                             }
 
@@ -12607,12 +13253,16 @@ import Qt.labs.platform 1.1
                                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                             onAccepted: settings.elite_rizer_gain = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Difficulty/Gain")
                                         }
                                         Button {
                                             id: okEliteRizerGainButton
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.elite_rizer_gain = eliteRizerGainTextField.text; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Difficulty/Gain")
                                         }
                                     }                                    
                                 }                                
@@ -12738,12 +13388,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.ss2k_shift_step = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Shift Step")
                                 }
                                 Button {
                                     id: okSS2kShiftStep
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.ss2k_shift_step = ss2kShiftStepTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Shift Step")
                                 }
                             }
                             RowLayout {
@@ -12762,12 +13416,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.ss2k_max_resistance = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Max Resistance")
                                 }
                                 Button {
                                     id: okSS2kMaxResistance
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.ss2k_max_resistance = ss2kMaxResistanceTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Max Resistance")
                                 }
                             }
                             RowLayout {
@@ -12786,12 +13444,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.ss2k_min_resistance = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Min Resistance")
                                 }
                                 Button {
                                     id: okSS2kMinResistance
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.ss2k_min_resistance = ss2kMinResistanceTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Min Resistance")
                                 }
                             }
 
@@ -12819,12 +13481,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: settings.resistance_sample_1 = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Resistance Sample 1")
                                         }
                                         Button {
                                             id: okSS2kResistanceSample1
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_resistance_sample_1 = ss2kResistanceSample1TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Resistance Sample 1")
                                         }
                                     }
                                     RowLayout {
@@ -12842,12 +13508,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: settings.ss2k_shift_step_sample_1 = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Shift Step Sample 1")
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample1
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_shift_step_sample_1 = ss2kShiftStepSample1TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Shift Step Sample 1")
                                         }
                                     }
                                     RowLayout {
@@ -12866,12 +13536,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: settings.resistance_sample_2 = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Resistance Sample 2")
                                         }
                                         Button {
                                             id: okSS2kResistanceSample2
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_resistance_sample_2 = ss2kResistanceSample2TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Resistance Sample 2")
                                         }
                                     }
                                     RowLayout {
@@ -12889,12 +13563,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: settings.ss2k_shift_step_sample_2 = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Shift Step Sample 2")
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample2
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_shift_step_sample_2 = ss2kShiftStepSample2TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Shift Step Sample 2")
                                         }
                                     }
                                     RowLayout {
@@ -12913,12 +13591,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: settings.resistance_sample_3 = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Resistance Sample 3")
                                         }
                                         Button {
                                             id: okSS2kResistanceSample3
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_resistance_sample_3 = ss2kResistanceSample3TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Resistance Sample 3")
                                         }
                                     }
                                     RowLayout {
@@ -12936,12 +13618,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: settings.ss2k_shift_step_sample_3 = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Shift Step Sample 3")
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample3
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_shift_step_sample_3 = ss2kShiftStepSample3TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Shift Step Sample 3")
                                         }
                                     }
                                     RowLayout {
@@ -12960,12 +13646,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: settings.resistance_sample_4 = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Resistance Sample 4")
                                         }
                                         Button {
                                             id: okSS2kResistanceSample4
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_resistance_sample_4 = ss2kResistanceSample4TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Resistance Sample 4")
                                         }
                                     }
                                     RowLayout {
@@ -12983,12 +13673,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: settings.ss2k_shift_step_sample_4 = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Shift Step Sample 4")
                                         }
                                         Button {
                                             id: okSS2kShiftStepSample4
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.ss2k_shift_step_sample_4 = ss2kShiftStepSample4TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Shift Step Sample 4")
                                         }
                                     }
                                 }
@@ -13038,12 +13732,16 @@ import Qt.labs.platform 1.1
                                         displayText = fitmetriaFanFitModeTextField.currentValue
                                     }
 
+                                    Accessible.role: Accessible.ComboBox
+                                    Accessible.name: qsTr("Mode")
                                 }
                                 Button {
                                     id: okFitmetriaFanFitModeTextField
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.displayText; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Mode")
                                 }
                             }
                             RowLayout {
@@ -13062,12 +13760,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.fitmetria_fanfit_min = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Min. value (0-100)")
                                 }
                                 Button {
                                     id: okFitmetriaFanFitMin
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_min = fitmetriaFanFitMinTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Min. value (0-100)")
                                 }
                             }
                             RowLayout {
@@ -13086,12 +13788,16 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.fitmetria_fanfit_max = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Max value (0-100)")
                                 }
                                 Button {
                                     id: okFitmetriaFanFitMax
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_max = fitmetriaFanFitMaxTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Max value (0-100)")
                                 }
                             }
                         }
@@ -13136,11 +13842,15 @@ import Qt.labs.platform 1.1
                                         displayText = headWindModeTextField.currentValue
                                     }
 
+                                    Accessible.role: Accessible.ComboBox
+                                    Accessible.name: qsTr("Mode")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_mode = headWindModeTextField.displayText; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Mode")
                                 }
                             }
                             RowLayout {
@@ -13158,11 +13868,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.fitmetria_fanfit_min = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Min. value (0-100)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_min = headWindMinTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Min. value (0-100)")
                                 }
                             }
                             RowLayout {
@@ -13180,11 +13894,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.fitmetria_fanfit_max = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Max value (0-100)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_max = headWindMaxTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Max value (0-100)")
                                 }
                             }
                         }
@@ -13229,11 +13947,15 @@ import Qt.labs.platform 1.1
                                         displayText = eliteAriaModeTextField.currentValue
                                     }
 
+                                    Accessible.role: Accessible.ComboBox
+                                    Accessible.name: qsTr("Mode")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_mode = eliteAriaModeTextField.displayText; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Mode")
                                 }
                             }
                             RowLayout {
@@ -13251,11 +13973,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.fitmetria_fanfit_min = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Min. value (0-100)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_min = eliteAriaMinTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Min. value (0-100)")
                                 }
                             }
                             RowLayout {
@@ -13273,11 +13999,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.fitmetria_fanfit_max = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Max value (0-100)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_max = eliteAriaMaxTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Max value (0-100)")
                                 }
                             }
                         }
@@ -13580,11 +14310,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.poll_device_time = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Pool time (ms)")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.poll_device_time = zwiftDevPollTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Pool time (ms)")
                                 }
                             }
                             Label {
@@ -13642,12 +14376,16 @@ import Qt.labs.platform 1.1
                                 displayText = mapsTypeTextField.currentValue
                             }
 
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Maps Type")
                         }
                         Button {
                             id: okMapsType
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.maps_type = mapsTypeTextField.displayText; toast.show("Setting saved!"); }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Maps Type")
                         }
                     }
                     IndicatorOnlySwitch {
@@ -13695,12 +14433,16 @@ import Qt.labs.platform 1.1
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.video_playback_window_s = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            Accessible.role: Accessible.EditableText
+                            Accessible.name: qsTr("Window Time (sec.)")
                         }
                         Button {
                             id: okVideoWindow
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.video_playback_window_s = videoWindowTextField.text
+                            Accessible.role: Accessible.Button
+                            Accessible.name: qsTr("Save Window Time (sec.)")
                         }
                     }
                 }
@@ -14136,11 +14878,16 @@ import Qt.labs.platform 1.1
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                                             onAccepted: settings.dircon_id = text
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Wahoo device ID")
+                                            Accessible.description: qsTr("Virtual Wahoo device ID. Change if you have multiple QZ instances. Default: 0")
                                         }
                                         Button {
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.dircon_id = dirconIdTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true; }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save Wahoo device ID")
                                         }
                                     }
 
@@ -14172,12 +14919,17 @@ import Qt.labs.platform 1.1
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: settings.dircon_server_base_port = text
+                                            Accessible.role: Accessible.EditableText
+                                            Accessible.name: qsTr("Wahoo direct connect server port")
+                                            Accessible.description: qsTr("TCP port for the Wahoo direct connect server. Default: 36866")
                                         }
                                         Button {
                                             id: okDirconServerPort
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.dircon_server_base_port = dirconServerPortTextField.text; toast.show("Setting saved!"); }
+                                            Accessible.role: Accessible.Button
+                                            Accessible.name: qsTr("Save server port")
                                         }
                                     }
                                 }
@@ -14208,11 +14960,15 @@ import Qt.labs.platform 1.1
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.mqtt_host = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("MQTT Host")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_host = mqttHostTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save MQTT Host")
                                 }
                             }
 
@@ -14244,11 +15000,15 @@ import Qt.labs.platform 1.1
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     onAccepted: settings.mqtt_port = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("MQTT Port")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_port = mqttPortTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save MQTT Port")
                                 }
                             }
 
@@ -14280,11 +15040,15 @@ import Qt.labs.platform 1.1
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.mqtt_username = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Username")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_username = mqttUsernameTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Username")
                                 }
                             }
 
@@ -14317,11 +15081,15 @@ import Qt.labs.platform 1.1
                                     echoMode: TextInput.Password
                                     onAccepted: settings.mqtt_password = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Password")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_password = mqttPasswordTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Password")
                                 }
                             }
 
@@ -14353,11 +15121,15 @@ import Qt.labs.platform 1.1
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onAccepted: settings.mqtt_deviceid = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("Device ID")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_deviceid = mqttDeviceIdTextField.text; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save Device ID")
                                 }
                             }
 
@@ -14400,11 +15172,15 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.osc_ip = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("OSC IP")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.osc_ip = oscIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save OSC IP")
                                 }
                             }
 
@@ -14424,11 +15200,15 @@ import Qt.labs.platform 1.1
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.osc_port = text
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    Accessible.role: Accessible.EditableText
+                                    Accessible.name: qsTr("OSC Port")
                                 }
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.osc_port = oscPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    Accessible.role: Accessible.Button
+                                    Accessible.name: qsTr("Save OSC Port")
                                 }
                             }
                         }

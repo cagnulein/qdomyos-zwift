@@ -611,6 +611,7 @@ class homeform : public QObject {
 
 private:
     void clearWebViewCache();
+    void announceToVoiceOver(const QString &text);
 
 public:
     void setGeneralPopupVisible(bool value);
