@@ -86,7 +86,7 @@ double zwiftworkout::normalizeIncline(double incline) {
 
     // Zwift workout files may store incline either as a fraction (0.02 = 2%)
     // or as a percent value (2.0 = 2%). QZ trainrows use percent values.
-    if (qAbs(incline) <= 0.60)
+    if (qAbs(incline) <= 0.40)
         return incline * 100.0;
 
     return incline;

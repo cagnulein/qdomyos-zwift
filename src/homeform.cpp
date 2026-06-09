@@ -5764,6 +5764,12 @@ void homeform::Stop() {
     if (trainProgram) {
         trainProgram->clearRows();
     }
+
+    if (!m_activeClipboardWorkoutFile.isEmpty() &&
+        settings.value(QZSettings::trainprogram_clipboard_workout_enabled,
+                       QZSettings::default_trainprogram_clipboard_workout_enabled).toBool()) {
+        setClipboardWorkoutDeletePromptRequested(true);
+    }
 }
 
 void homeform::Lap() {
@@ -8611,11 +8617,29 @@ void homeform::checkClipboardForWorkout() {
     setClipboardWorkoutPromptRequested(true);
 }
 
+void homeform::clipboard_accept_workout_prompt() {
+    m_activeClipboardWorkoutFile = m_clipboardWorkoutPromptFile;
+    clipboard_dismiss_workout_prompt();
+}
+
 void homeform::clipboard_dismiss_workout_prompt() {
     m_clipboardWorkoutPromptFile.clear();
     m_clipboardWorkoutPromptName.clear();
     emit clipboardWorkoutPromptNameChanged(m_clipboardWorkoutPromptName);
     setClipboardWorkoutPromptRequested(false);
+}
+
+void homeform::clipboard_delete_finished_workout() {
+    if (!m_activeClipboardWorkoutFile.isEmpty()) {
+        QFile::remove(m_activeClipboardWorkoutFile);
+        m_activeClipboardWorkoutFile.clear();
+    }
+    setClipboardWorkoutDeletePromptRequested(false);
+}
+
+void homeform::clipboard_keep_finished_workout() {
+    m_activeClipboardWorkoutFile.clear();
+    setClipboardWorkoutDeletePromptRequested(false);
 }
 
 void homeform::handleOAuthCallbackUrl(const QString &callbackUrl) {

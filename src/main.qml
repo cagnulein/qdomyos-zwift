@@ -734,7 +734,7 @@ ApplicationWindow {
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             var workoutUrl = rootItem.clipboard_workout_url()
-            rootItem.clipboard_dismiss_workout_prompt()
+            rootItem.clipboard_accept_workout_prompt()
             var page = CHARTJS
                     ? stackView.push("TrainingProgramsListJS.qml", { initialWorkoutUrl: workoutUrl })
                     : stackView.push("TrainingProgramsList.qml", { initialWorkoutUrl: workoutUrl })
@@ -750,6 +750,15 @@ ApplicationWindow {
         }
         onNoClicked: { rootItem.clipboard_dismiss_workout_prompt(); }
         visible: rootItem.clipboardWorkoutPromptRequested
+    }
+
+    MessageDialog {
+        text: "Clipboard Workout"
+        informativeText: "The clipboard workout has ended.\n\nDo you want to delete the file?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: rootItem.clipboard_delete_finished_workout()
+        onNoClicked: rootItem.clipboard_keep_finished_workout()
+        visible: rootItem.clipboardWorkoutDeletePromptRequested
     }
 
     MessageDialog {

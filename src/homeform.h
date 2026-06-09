@@ -197,6 +197,7 @@ class homeform : public QObject {
     Q_PROPERTY(QString garminWorkoutPromptDate READ garminWorkoutPromptDate NOTIFY garminWorkoutPromptDateChanged)
     Q_PROPERTY(bool clipboardWorkoutPromptRequested READ clipboardWorkoutPromptRequested NOTIFY clipboardWorkoutPromptRequestedChanged WRITE setClipboardWorkoutPromptRequested)
     Q_PROPERTY(QString clipboardWorkoutPromptName READ clipboardWorkoutPromptName NOTIFY clipboardWorkoutPromptNameChanged)
+    Q_PROPERTY(bool clipboardWorkoutDeletePromptRequested READ clipboardWorkoutDeletePromptRequested NOTIFY clipboardWorkoutDeletePromptRequestedChanged WRITE setClipboardWorkoutDeletePromptRequested)
     Q_PROPERTY(bool echelonBridgeSwitchPromptRequested READ echelonBridgeSwitchPromptRequested NOTIFY echelonBridgeSwitchPromptRequestedChanged WRITE setEchelonBridgeSwitchPromptRequested)
     Q_PROPERTY(bool echelonEnablePromptRequested READ echelonEnablePromptRequested NOTIFY echelonEnablePromptRequestedChanged WRITE setEchelonEnablePromptRequested)
 
@@ -569,6 +570,14 @@ class homeform : public QObject {
         m_clipboardWorkoutPromptRequested = value;
         emit clipboardWorkoutPromptRequestedChanged(value);
     }
+    bool clipboardWorkoutDeletePromptRequested() const { return m_clipboardWorkoutDeletePromptRequested; }
+    void setClipboardWorkoutDeletePromptRequested(bool value) {
+        if (m_clipboardWorkoutDeletePromptRequested == value) {
+            return;
+        }
+        m_clipboardWorkoutDeletePromptRequested = value;
+        emit clipboardWorkoutDeletePromptRequestedChanged(value);
+    }
     void setEchelonBridgeSwitchPromptRequested(bool value) {
         if (m_echelonBridgeSwitchPromptRequested == value) {
             return;
@@ -589,7 +598,10 @@ class homeform : public QObject {
     Q_INVOKABLE void garmin_start_downloaded_workout();
     Q_INVOKABLE void garmin_dismiss_downloaded_workout_prompt();
     Q_INVOKABLE QUrl clipboard_workout_url() const { return QUrl::fromLocalFile(m_clipboardWorkoutPromptFile); }
+    Q_INVOKABLE void clipboard_accept_workout_prompt();
     Q_INVOKABLE void clipboard_dismiss_workout_prompt();
+    Q_INVOKABLE void clipboard_delete_finished_workout();
+    Q_INVOKABLE void clipboard_keep_finished_workout();
     Q_INVOKABLE void echelon_switch_to_classic_bridge();
     Q_INVOKABLE void echelon_dismiss_bridge_switch_prompt();
     Q_INVOKABLE void echelon_enable_virtual_bridge();
@@ -965,6 +977,7 @@ public:
     bool m_garminMfaRequested = false;
     bool m_garminWorkoutPromptRequested = false;
     bool m_clipboardWorkoutPromptRequested = false;
+    bool m_clipboardWorkoutDeletePromptRequested = false;
     bool m_echelonBridgeSwitchPromptRequested = false;
     bool m_echelonEnablePromptRequested = false;
     QString m_garminWorkoutPromptName = QStringLiteral("");
@@ -972,6 +985,7 @@ public:
     QString m_garminWorkoutPromptFile = QStringLiteral("");
     QString m_clipboardWorkoutPromptName = QStringLiteral("");
     QString m_clipboardWorkoutPromptFile = QStringLiteral("");
+    QString m_activeClipboardWorkoutFile = QStringLiteral("");
     QByteArray m_lastClipboardWorkoutHash;
     QStringList m_pendingGarminWorkoutPromptFiles;
     QStringList m_pendingGarminWorkoutPromptNames;
@@ -1212,6 +1226,7 @@ public:
     void garminWorkoutPromptDateChanged(QString value);
     void clipboardWorkoutPromptRequestedChanged(bool value);
     void clipboardWorkoutPromptNameChanged(QString value);
+    void clipboardWorkoutDeletePromptRequestedChanged(bool value);
     void echelonBridgeSwitchPromptRequestedChanged(bool value);
     void echelonEnablePromptRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
