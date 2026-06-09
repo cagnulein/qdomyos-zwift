@@ -35,7 +35,7 @@ static void updateDiscoveredDevice(QList<QBluetoothDeviceInfo> &devices, const Q
 #else
                 updated.setServiceUuids(device.serviceUuids().toVector());
 #endif
-                const QHash<quint16, QByteArray> manufacturerData = device.manufacturerData();
+                const QMultiHash<quint16, QByteArray> manufacturerData = device.manufacturerData();
                 for (auto it = manufacturerData.cbegin(); it != manufacturerData.cend(); ++it) {
                     updated.setManufacturerData(it.key(), it.value());
                 }
