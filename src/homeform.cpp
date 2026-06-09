@@ -23,6 +23,8 @@
 #include <QAbstractOAuth2>
 #include <QApplication>
 #include <QByteArray>
+#include <QClipboard>
+#include <QCryptographicHash>
 #include <QDesktopServices>
 #include <QDir>
 #include <QDirIterator>
@@ -31,7 +33,9 @@
 #include <QGeoCoordinate>
 #include <QHttpMultiPart>
 #include <QImageWriter>
+#include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QNetworkCookieJar>
 #include <QNetworkInterface>
@@ -51,6 +55,7 @@
 #include <QUuid>
 #include <QUrlQuery>
 #include <QRegularExpression>
+#include <QXmlStreamReader>
 #include <algorithm>
 #include <chrono>
 
@@ -68,6 +73,111 @@ QString uploadActivityLabelFromSport(FIT_SPORT sport) {
     default:
         return QStringLiteral("Ride");
     }
+}
+
+QString sanitizeClipboardWorkoutName(const QString &input) {
+    QString trimmed = input.trimmed();
+    if (trimmed.isEmpty()) {
+        trimmed = QStringLiteral("Clipboard_Workout");
+    }
+    QRegularExpression invalid(QStringLiteral("[^A-Za-z0-9_\\- ]"));
+    trimmed.replace(invalid, QStringLiteral("_"));
+    trimmed.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
+    return trimmed;
+}
+
+QString uniqueClipboardWorkoutPath(const QString &extension, QString *displayName) {
+    const QString trainingDir = homeform::getWritableAppDir() + QStringLiteral("training/");
+    QDir dir(trainingDir);
+    if (!dir.exists()) {
+        dir.mkpath(QStringLiteral("."));
+    }
+
+    const QString baseName = sanitizeClipboardWorkoutName(
+        QStringLiteral("Clipboard_Workout_%1")
+            .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss"))));
+    QString candidate = baseName;
+    int suffix = 2;
+    while (QFile::exists(trainingDir + candidate + QStringLiteral(".") + extension)) {
+        candidate = QStringLiteral("%1_%2").arg(baseName).arg(suffix++);
+    }
+    if (displayName) {
+        *displayName = candidate + QStringLiteral(".") + extension;
+    }
+    return trainingDir + candidate + QStringLiteral(".") + extension;
+}
+
+QString firstXmlElementName(const QString &xml) {
+    QXmlStreamReader reader(xml);
+    while (!reader.atEnd()) {
+        reader.readNext();
+        if (reader.isStartElement()) {
+            return reader.name().toString();
+        }
+    }
+    return QString();
+}
+
+bool writeClipboardWorkoutFile(const QString &path, const QString &content) {
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+        return false;
+    }
+    file.write(content.toUtf8());
+    file.close();
+    return true;
+}
+
+QString workoutFileSuffixFromSportText(const QString &sportText) {
+    const QString sport = sportText.trimmed().toLower();
+    if (sport.contains(QStringLiteral("run")) ||
+        sport.contains(QStringLiteral("tread")) ||
+        sport.contains(QStringLiteral("walk"))) {
+        return QStringLiteral("Run");
+    }
+    if (sport.contains(QStringLiteral("cycl")) ||
+        sport.contains(QStringLiteral("bike")) ||
+        sport.contains(QStringLiteral("ride"))) {
+        return QStringLiteral("Ride");
+    }
+    if (sport.contains(QStringLiteral("row"))) {
+        return QStringLiteral("Row");
+    }
+    if (sport.contains(QStringLiteral("swim"))) {
+        return QStringLiteral("Swim");
+    }
+    return QStringLiteral("Workout");
+}
+
+QString intervalsWorkoutFileSuffix(const QJsonObject &event, const QByteArray &zwoContent) {
+    const QStringList eventSportKeys = {
+        QStringLiteral("type"),
+        QStringLiteral("sport"),
+        QStringLiteral("sportType"),
+        QStringLiteral("sport_type"),
+        QStringLiteral("activityType"),
+        QStringLiteral("activity_type")
+    };
+
+    for (const QString &key : eventSportKeys) {
+        const QString suffix = workoutFileSuffixFromSportText(event.value(key).toString());
+        if (suffix != QStringLiteral("Workout")) {
+            return suffix;
+        }
+    }
+
+    const QString zwoText = QString::fromUtf8(zwoContent);
+    const QRegularExpression sportTypeExpression(QStringLiteral("<sportType>\\s*([^<]+)\\s*</sportType>"),
+                                                 QRegularExpression::CaseInsensitiveOption);
+    const QRegularExpressionMatch match = sportTypeExpression.match(zwoText);
+    if (match.hasMatch()) {
+        const QString suffix = workoutFileSuffixFromSportText(match.captured(1));
+        if (suffix != QStringLiteral("Workout")) {
+            return suffix;
+        }
+    }
+
+    return QStringLiteral("Workout");
 }
 
 QString uploadActivityLabelFromFitFile(const QString &fitFilePath) {
@@ -706,6 +816,14 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         automaticShiftingTimer->start(100); // 100ms = 10Hz
     }
 
+    if (settings.value(QZSettings::trainprogram_clipboard_workout_enabled,
+                       QZSettings::default_trainprogram_clipboard_workout_enabled)
+            .toBool()) {
+        clipboardWorkoutTimer = new QTimer(this);
+        connect(clipboardWorkoutTimer, &QTimer::timeout, this, &homeform::checkClipboardForWorkout);
+        clipboardWorkoutTimer->start(5s);
+    }
+
     // Initialize FIT backup thread
     fitBackupThread = new QThread(this);
     fitBackupWriter = new FitBackupWriter();
@@ -1030,9 +1148,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QTimer::singleShot(15000, this, [this]() {
         QSettings settings;
         bool garmin_enabled = settings.value(QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled).toBool();
+        bool garmin_download_workouts_on_start = settings.value(QZSettings::garmin_download_workouts_on_start,
+                                                                 QZSettings::default_garmin_download_workouts_on_start)
+                                                     .toBool();
         QString token = settings.value(QZSettings::garmin_access_token).toString();
 
-        if (garmin_enabled && !token.isEmpty()) {
+        if (garmin_enabled && garmin_download_workouts_on_start && !token.isEmpty()) {
             qDebug() << "Garmin Connect: Auto-downloading today's workout...";
             garmin_download_todays_workout();
         } else {
@@ -5640,6 +5761,12 @@ void homeform::Stop() {
     if (trainProgram) {
         trainProgram->clearRows();
     }
+
+    if (!m_activeClipboardWorkoutFile.isEmpty() &&
+        settings.value(QZSettings::trainprogram_clipboard_workout_enabled,
+                       QZSettings::default_trainprogram_clipboard_workout_enabled).toBool()) {
+        setClipboardWorkoutDeletePromptRequested(true);
+    }
 }
 
 void homeform::Lap() {
@@ -8320,6 +8447,42 @@ bool homeform::startTrainingProgramFromFile(const QString &filePath) {
     return true;
 }
 
+bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
+    if (fileUrl.isEmpty()) {
+        return false;
+    }
+
+    QUrl url(fileUrl);
+    if (!url.isValid() || (!url.isLocalFile() && url.scheme().isEmpty())) {
+        url = QUrl::fromLocalFile(fileUrl);
+    }
+
+    const QString localPath = QQmlFile::urlToLocalFileOrQrc(url);
+    QFileInfo fileInfo(localPath);
+    if (!fileInfo.exists() || !fileInfo.isFile()) {
+        return false;
+    }
+
+    const QString trainingRoot = QDir(homeform::getWritableAppDir() + QStringLiteral("training")).canonicalPath();
+    const QString canonicalFilePath = fileInfo.canonicalFilePath();
+    if (trainingRoot.isEmpty() || canonicalFilePath.isEmpty() ||
+        !canonicalFilePath.startsWith(trainingRoot + QStringLiteral("/"), Qt::CaseInsensitive)) {
+        qDebug() << "deleteTrainingProgramFile: refusing to delete outside training folder" << localPath;
+        return false;
+    }
+
+    if (!QFile::remove(canonicalFilePath)) {
+        return false;
+    }
+
+    QFile markerFile(fileInfo.absolutePath() + QStringLiteral("/.deleted_") + fileInfo.fileName());
+    if (markerFile.open(QIODevice::WriteOnly)) {
+        markerFile.write("This file was intentionally deleted by the user");
+        markerFile.close();
+    }
+    return true;
+}
+
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
@@ -8385,6 +8548,95 @@ void homeform::trainprogram_autostart_requested() {
         // Device is paused/stopped, call Start() once
         QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
     }
+}
+
+void homeform::checkClipboardForWorkout() {
+    QClipboard *clipboard = QApplication::clipboard();
+    const QString clipboardText = clipboard ? clipboard->text().trimmed() : QString();
+    const QByteArray currentHash = QCryptographicHash::hash(clipboardText.toUtf8(), QCryptographicHash::Sha1);
+
+    if (currentHash == m_lastClipboardWorkoutHash) {
+        return;
+    }
+
+    m_lastClipboardWorkoutHash = currentHash;
+    m_clipboardWorkoutPromptFile.clear();
+    m_clipboardWorkoutPromptName.clear();
+    emit clipboardWorkoutPromptNameChanged(m_clipboardWorkoutPromptName);
+    setClipboardWorkoutPromptRequested(false);
+
+    if (clipboardText.isEmpty()) {
+        return;
+    }
+
+    const QString rootName = firstXmlElementName(clipboardText);
+    if (rootName.isEmpty()) {
+        return;
+    }
+
+    QString displayName;
+    QString filePath;
+    QList<trainrow> rows;
+    const bool looksLikeZwo = rootName.compare(QStringLiteral("workout_file"), Qt::CaseInsensitive) == 0 ||
+                              rootName.compare(QStringLiteral("Workout"), Qt::CaseInsensitive) == 0;
+
+    if (looksLikeZwo) {
+        QString description;
+        QString tags;
+        rows = zwiftworkout::load(clipboardText.toUtf8(), &description, &tags);
+        if (rows.isEmpty()) {
+            return;
+        }
+        filePath = uniqueClipboardWorkoutPath(QStringLiteral("zwo"), &displayName);
+        if (!writeClipboardWorkoutFile(filePath, clipboardText)) {
+            return;
+        }
+    } else {
+        filePath = uniqueClipboardWorkoutPath(QStringLiteral("xml"), &displayName);
+        if (!writeClipboardWorkoutFile(filePath, clipboardText)) {
+            return;
+        }
+
+        BLUETOOTH_TYPE dtype = BLUETOOTH_TYPE::BIKE;
+        if (bluetoothManager && bluetoothManager->device()) {
+            dtype = bluetoothManager->device()->deviceType();
+        }
+        rows = trainprogram::loadXML(filePath, dtype);
+        if (rows.isEmpty()) {
+            QFile::remove(filePath);
+            return;
+        }
+    }
+
+    m_clipboardWorkoutPromptFile = filePath;
+    m_clipboardWorkoutPromptName = displayName;
+    emit clipboardWorkoutPromptNameChanged(m_clipboardWorkoutPromptName);
+    setClipboardWorkoutPromptRequested(true);
+}
+
+void homeform::clipboard_accept_workout_prompt() {
+    m_activeClipboardWorkoutFile = m_clipboardWorkoutPromptFile;
+    clipboard_dismiss_workout_prompt();
+}
+
+void homeform::clipboard_dismiss_workout_prompt() {
+    m_clipboardWorkoutPromptFile.clear();
+    m_clipboardWorkoutPromptName.clear();
+    emit clipboardWorkoutPromptNameChanged(m_clipboardWorkoutPromptName);
+    setClipboardWorkoutPromptRequested(false);
+}
+
+void homeform::clipboard_delete_finished_workout() {
+    if (!m_activeClipboardWorkoutFile.isEmpty()) {
+        QFile::remove(m_activeClipboardWorkoutFile);
+        m_activeClipboardWorkoutFile.clear();
+    }
+    setClipboardWorkoutDeletePromptRequested(false);
+}
+
+void homeform::clipboard_keep_finished_workout() {
+    m_activeClipboardWorkoutFile.clear();
+    setClipboardWorkoutDeletePromptRequested(false);
 }
 
 void homeform::handleOAuthCallbackUrl(const QString &callbackUrl) {
@@ -9245,11 +9497,6 @@ void homeform::garmin_connect_login() {
         connect(garminConnect, &GarminConnect::workoutDownloaded, this,
                 [this](const QString &filename, const QString &workoutName) {
                     setToastRequested(QString("Garmin workout saved: %1").arg(workoutName));
-                    m_garminWorkoutPromptFile = filename;
-                    if (m_garminWorkoutPromptName != workoutName) {
-                        m_garminWorkoutPromptName = workoutName;
-                        emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
-                    }
                     QString workoutDate;
                     const QString baseName = QFileInfo(filename).completeBaseName();
                     const int separatorPos = baseName.indexOf(QStringLiteral(" - "));
@@ -9260,11 +9507,11 @@ void homeform::garmin_connect_login() {
                             workoutDate = candidateDate;
                         }
                     }
-                    if (m_garminWorkoutPromptDate != workoutDate) {
-                        m_garminWorkoutPromptDate = workoutDate;
-                        emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
-                    }
-                    setGarminWorkoutPromptRequested(true);
+
+                    m_pendingGarminWorkoutPromptFiles.append(filename);
+                    m_pendingGarminWorkoutPromptNames.append(workoutName);
+                    m_pendingGarminWorkoutPromptDates.append(workoutDate);
+                    showNextGarminWorkoutPrompt();
                 });
 
         connect(garminConnect, &GarminConnect::workoutDownloadFailed, this,
@@ -9333,6 +9580,24 @@ void homeform::garmin_connect_logout() {
     }
 }
 
+void homeform::showNextGarminWorkoutPrompt() {
+    if (m_garminWorkoutPromptRequested || m_pendingGarminWorkoutPromptFiles.isEmpty()) {
+        return;
+    }
+
+    m_garminWorkoutPromptFile = m_pendingGarminWorkoutPromptFiles.takeFirst();
+    m_garminWorkoutPromptName = m_pendingGarminWorkoutPromptNames.isEmpty()
+                                    ? QStringLiteral("Workout")
+                                    : m_pendingGarminWorkoutPromptNames.takeFirst();
+    m_garminWorkoutPromptDate = m_pendingGarminWorkoutPromptDates.isEmpty()
+                                    ? QString()
+                                    : m_pendingGarminWorkoutPromptDates.takeFirst();
+
+    emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
+    emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
+    setGarminWorkoutPromptRequested(true);
+}
+
 void homeform::garmin_start_downloaded_workout() {
     const QString workoutFile = m_garminWorkoutPromptFile;
     const QString workoutName = m_garminWorkoutPromptName;
@@ -9342,6 +9607,7 @@ void homeform::garmin_start_downloaded_workout() {
     emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
     emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
     setGarminWorkoutPromptRequested(false);
+    showNextGarminWorkoutPrompt();
 
     if (workoutFile.isEmpty()) {
         setToastRequested("No Garmin workout file available");
@@ -9364,6 +9630,7 @@ void homeform::garmin_dismiss_downloaded_workout_prompt() {
     emit garminWorkoutPromptNameChanged(m_garminWorkoutPromptName);
     emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
     setGarminWorkoutPromptRequested(false);
+    showNextGarminWorkoutPrompt();
 }
 
 void homeform::echelon_switch_to_classic_bridge() {
@@ -10932,7 +11199,7 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
         QNetworkAccessManager *downloadManager = new QNetworkAccessManager(this);
         QNetworkReply *downloadReply = downloadManager->get(downloadRequest);
 
-        connect(downloadReply, &QNetworkReply::finished, this, [this, downloadReply, workoutName, eventId]() {
+        connect(downloadReply, &QNetworkReply::finished, this, [this, downloadReply, workoutName, event, eventId]() {
             QByteArray zwoContent = downloadReply->readAll();
             int statusCode = downloadReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
@@ -10953,7 +11220,8 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
 
                 // Add date prefix
                 QString today = QDate::currentDate().toString("yyyy-MM-dd");
-                QString filename = QString("%1/%2_%3.zwo").arg(intervalsDir).arg(today).arg(safeName);
+                const QString sportSuffix = intervalsWorkoutFileSuffix(event, zwoContent);
+                QString filename = QString("%1/%2_%3_%4.zwo").arg(intervalsDir).arg(today).arg(safeName).arg(sportSuffix);
 
                 // Save ZWO file
                 QFile file(filename);
@@ -11064,5 +11332,4 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
-
 

@@ -1584,7 +1584,7 @@ bool trainprogram::hasTargetPower(const QString &filename) {
 void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
-    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))
+    if (zwiftworkout::isZwiftWorkoutFile(filename, Extension)
 #ifdef Q_OS_ANDROID
             || filename.toUpper().contains(".ZWO")
 #endif
