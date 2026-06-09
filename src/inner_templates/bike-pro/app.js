@@ -201,9 +201,9 @@ function connectWS(port) {
   wsSocket.onmessage = (ev) => {
     try {
       const msg = JSON.parse(ev.data);
-      // QZ sends a flat object with all metrics
-      if (typeof msg === 'object' && !Array.isArray(msg)) {
-        applyData(msg);
+      // QZ sends {msg: "workout", content: {...metrics...}}
+      if (msg && msg.msg === 'workout' && msg.content) {
+        applyData(msg.content);
       }
     } catch(_) {}
   };
