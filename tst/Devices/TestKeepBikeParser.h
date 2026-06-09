@@ -44,9 +44,9 @@ TEST(KeepBikeNewProtocolRegressionTest, ResistanceComesFromLoggedStatusFrame) {
 
 TEST(KeepBikeNewProtocolRegressionTest, BuildsResistanceWritePayload) {
     EXPECT_EQ(keepbike::buildNewProtocolResistancePayload(4),
-              QByteArray::fromHex("02b53130362f34ff0804"));
-    EXPECT_EQ(keepbike::buildNewProtocolResistancePayload(36),
-              QByteArray::fromHex("02b53130362f34ff0824"));
+              QByteArray::fromHex("01b53130362f37ff20a01f"));
+    EXPECT_EQ(keepbike::buildNewProtocolResistancePayload(12),
+              QByteArray::fromHex("01b53130362f37ff20e05d"));
 }
 
 TEST(KeepBikeNewProtocolRegressionTest, RejectsCorruptMetricsFrame) {
@@ -66,11 +66,11 @@ TEST(KeepBikeNewProtocolRegressionTest, BuildsFramesWithValidNewProtocolCrc) {
     EXPECT_TRUE(frame.startsWith(QByteArray::fromHex("a5a5a00013003216ef235501c2c4040000")));
 }
 
-TEST(KeepBikeNewProtocolRegressionTest, ResistanceWriteFrameUsesCommandMessageType) {
+TEST(KeepBikeNewProtocolRegressionTest, ResistanceWriteFrameUsesMetricsCommandType) {
     const QByteArray frame = keepbike::buildNewProtocolFrame(
         0x36a0, 0x04d7f9c2, keepbike::buildNewProtocolResistancePayload(4));
 
     EXPECT_TRUE(keepbike::isNewProtocolFrame(frame));
-    EXPECT_TRUE(frame.startsWith(QByteArray::fromHex("a5a5a03616003216ef235503c2f9d7040000")));
-    EXPECT_TRUE(frame.contains(QByteArray::fromHex("02b53130362f34ff0804")));
+    EXPECT_TRUE(frame.startsWith(QByteArray::fromHex("a5a5a03617003216ef235501c2f9d7040000")));
+    EXPECT_TRUE(frame.contains(QByteArray::fromHex("01b53130362f37ff20a01f")));
 }

@@ -109,9 +109,9 @@ QByteArray keepbike::buildNewProtocolFrame(uint16_t sequence, quint32 session, c
 }
 
 QByteArray keepbike::buildNewProtocolResistancePayload(resistance_t resistance) {
-    QByteArray payload = QByteArray::fromHex("02b53130362f34ff");
-    appendVarint(payload, 0x08);
-    appendVarint(payload, resistance);
+    QByteArray payload = QByteArray::fromHex("01b53130362f37ff");
+    appendVarint(payload, 0x20);
+    appendVarint(payload, resistance * 1000);
     return payload;
 }
 
