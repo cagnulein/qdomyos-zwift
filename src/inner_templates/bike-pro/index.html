@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Bike Pro · QZ Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- STATUS BAR -->
+    <div id="statusbar">
+      <div id="live-badge">
+        <div id="live-dot"></div>
+        LIVE
+      </div>
+      <div id="elapsed">00:00</div>
+      <div id="connection-status">CONNECTING…</div>
+    </div>
+
+    <!-- MAIN METRICS -->
+    <div id="metrics">
+      <div class="metric-card" id="card-power">
+        <div class="metric-label">Power</div>
+        <div class="metric-value" id="val-power">–</div>
+        <div class="metric-unit">watts</div>
+      </div>
+      <div class="metric-card" id="card-cadence">
+        <div class="metric-label">Cadence</div>
+        <div class="metric-value" id="val-cadence">–</div>
+        <div class="metric-unit">rpm</div>
+      </div>
+      <div class="metric-card" id="card-speed">
+        <div class="metric-label">Speed</div>
+        <div class="metric-value" id="val-speed">–</div>
+        <div class="metric-unit">km/h</div>
+      </div>
+    </div>
+
+    <!-- POWER ZONE -->
+    <div id="zone-section">
+      <div id="zone-header">
+        <div id="zone-title">Power Zone</div>
+        <div id="zone-label">–</div>
+      </div>
+      <div id="zone-bar-track">
+        <div id="zone-bar-fill"></div>
+      </div>
+      <div id="zone-segments">
+        <div class="zone-seg z1"></div>
+        <div class="zone-seg z2"></div>
+        <div class="zone-seg z3"></div>
+        <div class="zone-seg z4"></div>
+        <div class="zone-seg z5"></div>
+        <div class="zone-seg z6"></div>
+        <div class="zone-seg z7"></div>
+      </div>
+    </div>
+
+    <!-- CHART -->
+    <div id="chart-section">
+      <div id="chart-header">
+        <div id="chart-title">Last 60 s</div>
+        <div id="chart-legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#ff9f0a"></div>
+            Power
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#0a84ff"></div>
+            Cadence
+          </div>
+        </div>
+      </div>
+      <div id="chart-canvas-wrap">
+        <canvas id="chart-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- BOTTOM STATS -->
+    <div id="bottom-stats">
+      <div class="stat-pill">
+        <div class="stat-icon">♥</div>
+        <div class="stat-value" id="val-hr">–</div>
+        <div class="stat-label">bpm</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-icon">📍</div>
+        <div class="stat-value" id="val-dist">–</div>
+        <div class="stat-label">km</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-value" id="val-kcal">–</div>
+        <div class="stat-label">kcal</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Chart.js — inlined CDN-less build served by the same QZ webserver -->
+  <script src="../chartjs/chartjs.3.4.1.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

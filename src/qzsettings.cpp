@@ -1227,8 +1227,11 @@ const QString QZSettings::shortcut_lap = QStringLiteral("shortcut_lap");
 const QString QZSettings::default_shortcut_lap = QStringLiteral("");
 const QString QZSettings::shortcut_start_stop = QStringLiteral("shortcut_start_stop");
 const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
+const QString QZSettings::ui_custom_dashboard_enabled = QStringLiteral("ui_custom_dashboard_enabled");
+const QString QZSettings::ui_custom_dashboard_name = QStringLiteral("ui_custom_dashboard_name");
+const QString QZSettings::default_ui_custom_dashboard_name = QStringLiteral("bike-pro");
 
-const uint32_t allSettingsCount = 959;
+const uint32_t allSettingsCount = 961;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2211,6 +2214,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_cst_505_pftl59420_0, QZSettings::default_proform_treadmill_cst_505_pftl59420_0},
     {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
     {QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z},
+    {QZSettings::ui_custom_dashboard_enabled, QZSettings::default_ui_custom_dashboard_enabled},
+    {QZSettings::ui_custom_dashboard_name, QZSettings::default_ui_custom_dashboard_name},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

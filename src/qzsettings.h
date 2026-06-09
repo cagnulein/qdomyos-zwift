@@ -3179,6 +3179,12 @@ class QZSettings {
     static const QString horizon_treadmill_omega_z;
     static constexpr bool default_horizon_treadmill_omega_z = false;
 
+    static const QString ui_custom_dashboard_enabled;
+    static constexpr bool default_ui_custom_dashboard_enabled = false;
+
+    static const QString ui_custom_dashboard_name;
+    static const QString default_ui_custom_dashboard_name;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
