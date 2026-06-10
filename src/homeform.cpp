@@ -4951,6 +4951,8 @@ bool homeform::handleKeyboardShortcut(const QString &sequence) {
         Lap();
     } else if (matches(QZSettings::shortcut_start_stop, QZSettings::default_shortcut_start_stop)) {
         StartRequested();
+    } else if (matches(QZSettings::shortcut_stop, QZSettings::default_shortcut_stop)) {
+        StopRequested();
     } else {
         return false;
     }
@@ -5525,10 +5527,7 @@ void homeform::Minus(const QString &name) {
         }
     } else if (name.contains(QStringLiteral("remainingtimetrainprogramrow"))) {
         if (bluetoothManager->device() && trainProgram) {
-            // Offset:
-            // 1. To account for current tick
-            // 2. To bounce back to previous
-            trainProgram->decreaseElapsedTime(QTime(0, 0, 0).secsTo(trainProgram->currentRowElapsedTime()) + 2);
+            trainProgram->goToPreviousRow();
         }
     } else if (name.contains(QStringLiteral("peloton_offset")) || name.contains(QStringLiteral("peloton_remaining"))) {
         if (bluetoothManager->device() && trainProgram) {
@@ -6099,7 +6098,10 @@ void homeform::update() {
             remaningTimeTrainingProgramCurrentRow->setValue(
                 trainProgram->currentRowRemainingTime().toString(QStringLiteral("h:mm:ss")));
             remaningTimeTrainingProgramCurrentRow->setSecondLine(
-                trainProgram->currentRowElapsedTime().toString(QStringLiteral("h:mm:ss")));
+                trainProgram->currentRowElapsedTime().toString(QStringLiteral("h:mm:ss")) +
+                QStringLiteral(" (") + QString::number(trainProgram->currentLogicalStep()) +
+                QStringLiteral("/") + QString::number(trainProgram->totalLogicalSteps()) +
+                QStringLiteral(")"));
             targetMets->setValue(QString::number(trainProgram->currentTargetMets(), 'f', 1));
             trainrow next = trainProgram->getRowFromCurrent(1);
             trainrow next_1 = trainProgram->getRowFromCurrent(2);
