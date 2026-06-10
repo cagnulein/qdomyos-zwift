@@ -4951,6 +4951,8 @@ bool homeform::handleKeyboardShortcut(const QString &sequence) {
         Lap();
     } else if (matches(QZSettings::shortcut_start_stop, QZSettings::default_shortcut_start_stop)) {
         StartRequested();
+    } else if (matches(QZSettings::shortcut_stop, QZSettings::default_shortcut_stop)) {
+        StopRequested();
     } else {
         return false;
     }
