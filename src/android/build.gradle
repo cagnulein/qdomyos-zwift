@@ -156,6 +156,16 @@ android {
         noCompress += 'rcc'
     }
 
+    // AGP 8.x defaults to useLegacyPackaging=false (extractNativeLibs=false),
+    // overriding the android:extractNativeLibs="true" in AndroidManifest.xml.
+    // Qt 5.15's QtLoader.java finds libraries via nativeLibraryDir on the
+    // filesystem, not from inside the APK, so we must force extraction.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     defaultConfig {
         applicationId = "org.cagnulen.qdomyoszwift"
         resConfig "en"
