@@ -9,96 +9,103 @@
 <body>
   <div id="app">
 
-    <!-- PROGRAM HEADER -->
-    <div id="program-header" class="program-hidden">
-      <div id="program-top">
-        <div id="program-name">–</div>
-        <div id="program-interval"></div>
+    <!-- TIMELINE -->
+    <div id="timeline-section">
+      <div id="timeline-header">
+        <span id="timeline-title">Timeline</span>
+        <span id="workout-name">–</span>
       </div>
-      <div id="program-row-info"></div>
-      <div id="progress-track">
-        <div id="progress-fill"></div>
-        <div id="progress-glow"></div>
+      <div id="timeline-track">
+        <div id="timeline-bar">
+          <div id="tl-completed"></div>
+          <div id="tl-current"></div>
+          <div id="tl-remaining"></div>
+        </div>
+        <div id="tl-runner">&#x1F3C3;</div>
       </div>
-      <div id="progress-footer">
-        <span id="prog-label">Session progress</span>
-        <span id="row-remaining"></span>
+      <div id="timeline-times">
+        <span id="tl-elapsed">0:00</span>
+        <span id="tl-remain-label"></span>
       </div>
     </div>
 
-    <!-- SPEED HERO -->
-    <div id="speed-hero">
-      <div id="speed-label">CURRENT SPEED</div>
-      <div id="speed-number-wrap">
+    <!-- INTERVAL INFO -->
+    <div id="interval-info">
+      <div id="interval-title-row">
+        <span id="interval-name">–</span>
+        <span id="interval-badge"></span>
+      </div>
+      <div id="interval-detail">–</div>
+    </div>
+
+    <!-- SPEED + WAVEFORM (side by side) -->
+    <div id="speed-section">
+      <div id="speed-left">
+        <div class="section-label">Current Speed</div>
         <div id="speed-value">0.0</div>
-        <div id="speed-unit">km/h</div>
+        <div id="speed-stats">
+          Avg: <span id="speed-avg">–</span> &nbsp;|&nbsp; Max: <span id="speed-max">–</span>
+        </div>
       </div>
-      <canvas id="sparkline"></canvas>
-      <div id="speed-subrow">
-        <div class="sub-stat">
-          <span class="sub-val" id="speed-avg">–</span>
-          <span class="sub-lbl">AVG</span>
-        </div>
-        <div id="speed-divider"></div>
-        <div class="sub-stat">
-          <span class="sub-val" id="speed-max">–</span>
-          <span class="sub-lbl">MAX</span>
-        </div>
-        <div id="speed-divider2"></div>
-        <div class="sub-stat" id="target-wrap" style="display:none">
-          <span class="sub-val" id="speed-target">–</span>
-          <span class="sub-lbl">TARGET</span>
-        </div>
+      <div id="speed-right">
+        <canvas id="sparkline"></canvas>
       </div>
     </div>
 
-    <!-- METRIC TILES -->
-    <div id="metrics">
-      <div class="tile tile-pace">
-        <div class="tile-icon">⏱</div>
-        <div class="tile-value" id="val-pace">–</div>
-        <div class="tile-label">PACE  min/km</div>
+    <!-- 2×2 METRIC GRID -->
+    <div id="metrics-grid">
+      <div class="metric-card card-cadence">
+        <div class="card-top">
+          <span class="card-icon">&#x1F6B6;</span>
+          <span class="card-label">Cadence</span>
+        </div>
+        <div class="card-value" id="val-cadence">0</div>
+        <div class="card-unit">rpm</div>
       </div>
-      <div class="tile tile-incline">
-        <div class="tile-icon">⛰</div>
-        <div class="tile-value" id="val-incline">0.0</div>
-        <div class="tile-label">INCLINE  %</div>
+      <div class="metric-card card-watts">
+        <div class="card-top">
+          <span class="card-icon">&#x26A1;</span>
+          <span class="card-label">AVG Watt</span>
+        </div>
+        <div class="card-value" id="val-watts">–</div>
       </div>
-      <div class="tile tile-cadence">
-        <div class="tile-icon">👟</div>
-        <div class="tile-value" id="val-cadence">–</div>
-        <div class="tile-label">CADENCE  spm</div>
+      <div class="metric-card card-hr">
+        <div class="card-top">
+          <span class="card-icon hr-beat">&#x2665;</span>
+          <span class="card-label">Heart Rate</span>
+        </div>
+        <div class="card-value" id="val-hr">0</div>
+        <div class="card-unit">bpm</div>
       </div>
-      <div class="tile tile-hr">
-        <div class="tile-icon hr-icon">♥</div>
-        <div class="tile-value" id="val-hr">–</div>
-        <div class="tile-label">HEART RATE  bpm</div>
-      </div>
-    </div>
-
-    <!-- BOTTOM ROW -->
-    <div id="bottom">
-      <div class="bottom-stat">
-        <div class="bottom-val" id="val-dist">–</div>
-        <div class="bottom-lbl">KM</div>
-      </div>
-      <div class="bottom-sep"></div>
-      <div class="bottom-stat">
-        <div class="bottom-val" id="val-watts">–</div>
-        <div class="bottom-lbl">WATTS</div>
-      </div>
-      <div class="bottom-sep"></div>
-      <div class="bottom-stat">
-        <div class="bottom-val" id="val-kcal">–</div>
-        <div class="bottom-lbl">KCAL</div>
+      <div class="metric-card card-kcal">
+        <div class="card-top">
+          <span class="card-icon">&#x1F525;</span>
+          <span class="card-label">Total KCal</span>
+        </div>
+        <div class="card-value" id="val-kcal">–</div>
       </div>
     </div>
 
-    <!-- STATUS STRIP -->
+    <!-- ODOMETER -->
+    <div id="odometer-row">
+      <div id="odo-icon">&#x1F4CD;</div>
+      <div id="odo-content">
+        <div class="section-label">Odometer</div>
+        <div id="odo-value"><span id="val-dist">0.00</span><span id="odo-unit"> km</span></div>
+      </div>
+    </div>
+
+    <!-- STATUS BAR -->
     <div id="statusbar">
-      <div id="live-badge"><span id="live-dot"></span>LIVE</div>
-      <div id="elapsed">00:00</div>
-      <div id="conn-status">CONNECTING…</div>
+      <div id="status-left">
+        <span id="device-name">QZ Fitness</span>
+      </div>
+      <div id="status-center">
+        Total: <span id="elapsed">00:00:00</span>
+      </div>
+      <div id="status-right">
+        <span id="conn-status">Connecting…</span>
+      </div>
     </div>
 
   </div>
