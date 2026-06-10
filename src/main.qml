@@ -360,8 +360,8 @@ ApplicationWindow {
 
     MessageDialog {
            id: popupPelotonAuth
-           text: "Peloton Authentication Change"
-           informativeText: "Peloton has moved to a new authentication system. Username and password are no longer required.\n\nWould you like to switch to the new authentication method now?"
+           text: qsTr("Peloton Authentication Change")
+           informativeText: qsTr("Peloton has moved to a new authentication system. Username and password are no longer required.\n\nWould you like to switch to the new authentication method now?")
            buttons: (MessageDialog.Yes | MessageDialog.No)
            onYesClicked: {
                settings.peloton_username = "username"
@@ -699,8 +699,8 @@ ApplicationWindow {
 
     MessageDialog {
         id: popupRestartApp
-        text: "Settings changed"
-        informativeText: "In order to apply the changes you need to restart the app.\nDo you want to do it now?"
+        text: qsTr("Settings changed")
+        informativeText: qsTr("In order to apply the changes you need to restart the app.\nDo you want to do it now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
@@ -708,8 +708,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Strava"
-        informativeText: "Do you want to upload the workout to Strava?"
+        text: qsTr("Strava")
+        informativeText: qsTr("Do you want to upload the workout to Strava?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {strava_upload_file_prepare(); rootItem.stravaUploadRequested = false;}
         onNoClicked: {rootItem.stravaUploadRequested = false;}
@@ -717,14 +717,48 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Garmin Workout Planned"
-        informativeText: "Workout found:\n" + rootItem.garminWorkoutPromptName +
-                         (rootItem.garminWorkoutPromptDate.length > 0 ? "\nDate: " + rootItem.garminWorkoutPromptDate : "") +
-                         "\n\nDo you want to start it now?"
+        text: qsTr("Garmin Workout Planned")
+        informativeText: qsTr("Workout found:\n") + rootItem.garminWorkoutPromptName +
+                         (rootItem.garminWorkoutPromptDate.length > 0 ? qsTr("\nDate: ") + rootItem.garminWorkoutPromptDate : "") +
+                         qsTr("\n\nDo you want to start it now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.garmin_start_downloaded_workout(); }
         onNoClicked: { rootItem.garmin_dismiss_downloaded_workout_prompt(); }
         visible: rootItem.garminWorkoutPromptRequested
+    }
+
+    MessageDialog {
+        text: "Clipboard Workout"
+        informativeText: "Workout found in clipboard:\n" + rootItem.clipboardWorkoutPromptName +
+                         "\n\nDo you want to open the workout preview?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            var workoutUrl = rootItem.clipboard_workout_url()
+            rootItem.clipboard_accept_workout_prompt()
+            var page = CHARTJS
+                    ? stackView.push("TrainingProgramsListJS.qml", { initialWorkoutUrl: workoutUrl })
+                    : stackView.push("TrainingProgramsList.qml", { initialWorkoutUrl: workoutUrl })
+            page.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+            page.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
+            page.trainprogram_preview.connect(trainprogram_preview)
+            if (page.trainprogram_autostart_requested) {
+                page.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
+            }
+            page.trainprogram_open_clicked.connect(function(url) {
+                stackView.pop();
+            });
+        }
+        onNoClicked: { rootItem.clipboard_dismiss_workout_prompt(); }
+        visible: rootItem.clipboardWorkoutPromptRequested
+    }
+
+    MessageDialog {
+        text: "Clipboard Workout"
+        informativeText: "The clipboard workout has ended.\n\nDo you want to delete the file?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: rootItem.clipboard_delete_finished_workout()
+        onNoClicked: rootItem.clipboard_keep_finished_workout()
+        visible: rootItem.clipboardWorkoutDeletePromptRequested
     }
 
     MessageDialog {
