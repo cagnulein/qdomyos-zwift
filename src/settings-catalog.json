@@ -13454,6 +13454,19 @@
       "options": null
     },
     {
+      "key": "shortcut_stop",
+      "name": "Stop",
+      "description": null,
+      "parent": "Keyboard Shortcuts",
+      "type": "string",
+      "qmlType": "string",
+      "control": "text",
+      "visible": true,
+      "defaultValue": "",
+      "defaultExpression": "\"\"",
+      "options": null
+    },
+    {
       "key": "garmin_download_workouts_on_start",
       "name": "Fetch Garmin Workouts on Startup",
       "description": "Enable automatic download of today's Garmin workout when QZ starts. Default: enabled.",
