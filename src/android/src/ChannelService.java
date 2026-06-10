@@ -353,30 +353,27 @@ public class ChannelService extends Service {
                         @Override
                         public void onResistanceChangeRequested(int resistance) {
                             QLog.d(TAG, "ChannelService: ANT+ Resistance change requested: " + resistance);
-                            // Send broadcast intent to notify the main application
                             Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_RESISTANCE_CHANGE");
                             intent.putExtra("resistance", resistance);
-                            nativeSetResistance(resistance);
+                            try { nativeSetResistance(resistance); } catch (UnsatisfiedLinkError ignored) {}
                             sendBroadcast(intent);
                         }
 
                         @Override
                         public void onPowerChangeRequested(int power) {
                             QLog.d(TAG, "ChannelService: ANT+ Power change requested: " + power + "W");
-                            // Send broadcast intent to notify the main application
                             Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_POWER_CHANGE");
                             intent.putExtra("power", power);
-                            nativeSetPower(power);
+                            try { nativeSetPower(power); } catch (UnsatisfiedLinkError ignored) {}
                             sendBroadcast(intent);
                         }
 
                         @Override
                         public void onInclinationChangeRequested(double inclination) {
                             QLog.d(TAG, "ChannelService: ANT+ Inclination change requested: " + inclination + "%");
-                            // Send broadcast intent to notify the main application
                             Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_INCLINATION_CHANGE");
                             intent.putExtra("inclination", inclination);
-                            nativeSetInclination(inclination);
+                            try { nativeSetInclination(inclination); } catch (UnsatisfiedLinkError ignored) {}
                             sendBroadcast(intent);
                         }
                     });
