@@ -70,6 +70,11 @@ Page {
                  horizontalAlignment: Text.AlignHCenter
                  verticalAlignment: Text.AlignVCenter
              }
+             // VoiceOver: contentItem override breaks Qt's default bridge,
+             // so we re-declare the accessible properties explicitly here.
+             Accessible.role: Accessible.Button
+             Accessible.name: text
+             Accessible.onPressAction: clicked()
      }
 
     Component {
@@ -94,6 +99,7 @@ Page {
                         source: "qrc:/inner_templates/chartjs/qzlogo.png" // Replace with your logo path
                         width: 100
                         height: 100
+                        Accessible.ignored: true
                     }
 
                     Text {
@@ -359,22 +365,26 @@ Page {
                         color: "white"
                     }
 
-                    Image {
+                    Button {
                         Layout.alignment: Qt.AlignHCenter
-                        source: "icons/icons/Button_Connect_Rect_DarkMode.png"
-                        fillMode: Image.PreserveAspectFit
-                        width: parent.width * 0.8
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                stackViewLocal.push("WebPelotonAuth.qml")
-                                stackViewLocal.currentItem.goBack.connect(function() {
-                                            stackViewLocal.pop();
-                                            stackViewLocal.push(pelotonDifficultyComponent)
-                                        })
-                                peloton_connect_clicked()
-                            }
+                        Layout.preferredWidth: parent.width * 0.8
+                        Layout.preferredHeight: implicitHeight
+                        background: Image {
+                            source: "icons/icons/Button_Connect_Rect_DarkMode.png"
+                            fillMode: Image.PreserveAspectFit
+                        }
+                        contentItem: null
+                        Accessible.role: Accessible.Button
+                        Accessible.name: qsTr("Connect to Peloton")
+                        Accessible.description: qsTr("Opens the Peloton login page")
+                        Accessible.onPressAction: clicked()
+                        onClicked: {
+                            stackViewLocal.push("WebPelotonAuth.qml")
+                            stackViewLocal.currentItem.goBack.connect(function() {
+                                        stackViewLocal.pop();
+                                        stackViewLocal.push(pelotonDifficultyComponent)
+                                    })
+                            peloton_connect_clicked()
                         }
                     }
 
@@ -446,6 +456,9 @@ Page {
                             displayText = pelotonDifficultyTextField.currentValue
                             settings.peloton_difficulty = pelotonDifficultyTextField.displayText;
                         }
+                        Accessible.role: Accessible.ComboBox
+                        Accessible.name: qsTr("Peloton difficulty level")
+                        Accessible.description: qsTr("Choose whether QZ targets the lower, upper or average of the instructor's range")
                     }
 
                     WizardButton {
@@ -514,6 +527,8 @@ Page {
                         to: 100
                         value: 18
                         editable: true
+                        Accessible.name: qsTr("Resistance level for flat road")
+                        Accessible.description: qsTr("Resistance level that feels like riding on flat ground. Range 0 to 100.")
                     }
 
                     Item {
@@ -711,6 +726,8 @@ Page {
                         Layout.fillHeight: false
                         onAccepted: settings.zwift_username = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        Accessible.role: Accessible.EditableText
+                        Accessible.name: qsTr("Zwift username")
                     }
 
                     Text {
@@ -731,6 +748,8 @@ Page {
                         echoMode: TextInput.PasswordEchoOnEdit
                         onAccepted: settings.zwift_password = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        Accessible.role: Accessible.EditableText
+                        Accessible.name: qsTr("Zwift password")
                     }
 
                     Item {
@@ -1063,12 +1082,15 @@ Page {
                                 console.log("combomodel activated" + filterDeviceTextField.currentIndex)
                                 displayText = filterDeviceTextField.currentValue
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Fitness device")
+                            Accessible.description: qsTr("Select your fitness device from the list of nearby Bluetooth devices. Tap Refresh to scan again.")
                         }
                     }
 
                     WizardButton {
                         id: refreshFilterDeviceButton
-                        text: "Refresh"
+                        text: qsTr("Refresh")
                         Layout.alignment: Qt.AlignHCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
@@ -1134,6 +1156,9 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         model: ["Metric", "Imperial"]
                         currentIndex: settings.miles_unit ? 1 : 0
+                        Accessible.role: Accessible.ComboBox
+                        Accessible.name: qsTr("Unit system")
+                        Accessible.description: qsTr("Metric uses kilometers and kilograms. Imperial uses miles and pounds.")
                     }
 
                     Item {
@@ -1214,6 +1239,9 @@ Page {
                         onValueChanged: {
                             settings.weight = realValue
                         }
+
+                        Accessible.name: qsTr("Body weight")
+                        Accessible.description: (settings.miles_unit && !settings.weight_kg_unit) ? qsTr("Your weight in pounds") : qsTr("Your weight in kilograms")
                     }
 
                     Text {
@@ -1230,6 +1258,8 @@ Page {
                         to: 120
                         value: settings.age
                         editable: true
+                        Accessible.name: qsTr("Age")
+                        Accessible.description: qsTr("Your age in years. Used for heart rate zone calculations.")
                     }
 
                     Text {
@@ -1244,6 +1274,9 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         model: ["Male", "Female"]
                         currentIndex: settings.sex === "Male" ? 0 : 1
+                        Accessible.role: Accessible.ComboBox
+                        Accessible.name: qsTr("Gender")
+                        Accessible.description: qsTr("Used for calorie calculations")
                     }
 
                     Item {
@@ -1321,13 +1354,16 @@ Page {
                                 console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
                                 displayText = heartBeltNameTextField.currentValue
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Heart rate belt")
+                            Accessible.description: qsTr("Select your Bluetooth heart rate belt from the list. Tap Refresh to scan again. Choose Disabled if using a smartwatch.")
                         }
                     }
 
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         id: refreshHeartBeltNameButton
-                        text: "Refresh"
+                        text: qsTr("Refresh")
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
 
