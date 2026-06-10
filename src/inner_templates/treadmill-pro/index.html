@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Treadmill Pro · QZ Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- STATUS BAR -->
+    <div id="statusbar">
+      <div id="live-badge">
+        <div id="live-dot"></div>
+        LIVE
+      </div>
+      <div id="elapsed">00:00</div>
+      <div id="connection-status">CONNECTING…</div>
+    </div>
+
+    <!-- TRAINING PROGRAM HEADER (hidden when no workout loaded) -->
+    <div id="program-header" class="program-hidden">
+      <div id="program-top">
+        <div id="program-name">–</div>
+        <div id="program-interval" style="display:none"></div>
+      </div>
+      <div id="program-row-info"></div>
+      <div id="progress-bar-track">
+        <div id="progress-bar-fill"></div>
+      </div>
+      <div id="row-timer">
+        <div id="row-elapsed-label">Session progress</div>
+        <div id="row-remaining-value" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- SPEED HERO -->
+    <div id="speed-hero">
+      <div id="speed-label">Current Speed</div>
+      <div id="speed-value">0.0</div>
+      <div id="speed-unit">km/h</div>
+
+      <div id="speed-subline">
+        <div class="speed-sub">
+          <span id="speed-avg">–</span>
+          Avg
+        </div>
+        <div class="speed-sub">
+          <span id="speed-max">–</span>
+          Max (session)
+        </div>
+      </div>
+
+      <!-- Target speed progress bar -->
+      <div id="target-speed-bar" style="display:none">
+        <div id="target-speed-label">
+          <span id="current-label">0.0 km/h</span>
+          <span id="target-label">Target –</span>
+        </div>
+        <div id="target-speed-track">
+          <div id="target-speed-fill"></div>
+          <div id="target-speed-marker"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECONDARY METRICS -->
+    <div id="metrics">
+      <div class="metric-card" id="card-pace">
+        <div class="metric-label">Pace</div>
+        <div class="metric-value" id="val-pace">–</div>
+        <div class="metric-unit">min/km</div>
+      </div>
+      <div class="metric-card" id="card-incline">
+        <div class="metric-label">Incline</div>
+        <div class="metric-value" id="val-incline">0.0</div>
+        <div class="metric-unit">%</div>
+      </div>
+      <div class="metric-card" id="card-cadence">
+        <div class="metric-label">Cadence</div>
+        <div class="metric-value" id="val-cadence">–</div>
+        <div class="metric-unit">spm</div>
+      </div>
+      <div class="metric-card" id="card-hr">
+        <div class="metric-label">Heart Rate</div>
+        <div class="metric-value" id="val-hr">–</div>
+        <div class="metric-unit">bpm</div>
+      </div>
+    </div>
+
+    <!-- BOTTOM STATS -->
+    <div id="bottom-stats">
+      <div class="stat-pill">
+        <div class="stat-icon">📍</div>
+        <div class="stat-value" id="val-dist">–</div>
+        <div class="stat-label">km</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-value" id="val-watts">–</div>
+        <div class="stat-label">watts</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-value" id="val-kcal">–</div>
+        <div class="stat-label">kcal</div>
+      </div>
+    </div>
+
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

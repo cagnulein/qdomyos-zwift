@@ -138,5 +138,8 @@
         <file>inner_templates/bike-pro/index.html</file>
         <file>inner_templates/bike-pro/style.css</file>
         <file>inner_templates/bike-pro/app.js</file>
+        <file>inner_templates/treadmill-pro/index.html</file>
+        <file>inner_templates/treadmill-pro/style.css</file>
+        <file>inner_templates/treadmill-pro/app.js</file>
     </qresource>
 </RCC>
