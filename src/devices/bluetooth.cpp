@@ -1769,6 +1769,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("THINK-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("THINK_")) ||
                         b.name().toUpper().startsWith(QStringLiteral("53997-")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("NOZA-ONE ")) || // Xplova Noza One trainer
                         (b.name().toUpper().startsWith("VANRYSEL-HT")) ||
                         b.address() == QBluetoothAddress("C1:14:D9:9C:FB:01") || // specific TACX NEO 2 #1707
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
@@ -1920,6 +1921,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("SMARTBIKE-")) ||
                         (b.name().toUpper().startsWith("D500V2")) ||
+                        (b.name().toUpper().startsWith("FBIKE-HEAVY-PRO")) ||
                         (b.name().toUpper().startsWith("NEO BIKE PLUS ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) && !b.name().toUpper().endsWith(QStringLiteral("SKI")) && !b.name().toUpper().endsWith(QStringLiteral("ROW"))) || 
                         (b.name().toUpper().startsWith("L-") && b.name().length() == 11) ||
@@ -1933,6 +1935,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith("SPORT01-") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // Labgrey Magnetic Exercise Bike https://www.amazon.co.uk/dp/B0CXMF1NPY?_encoding=UTF8&psc=1&ref=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&ref_=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&social_share=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&skipTwisterOG=1
                         (b.name().toUpper().startsWith("FS-YK-")) ||
+						(b.name().toUpper().startsWith("T600E_")) ||
                         (b.name().toUpper().startsWith("SPEEDBIKE S2")) || // Maxxus Speedbike S2
 						(b.name().toUpper().startsWith("B56-")) || // Titan Life B56 bike
                         ((b.name().toUpper().startsWith(QStringLiteral("HT")) && (b.name().length() == 10) &&
@@ -2240,6 +2243,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(lifespanTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("ECH-ROW")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROWSPORT")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ROW-7S-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROW-S"))) &&
                        !echelonRower && filter) {
                 this->setLastBluetoothDevice(b);
@@ -3092,7 +3096,7 @@ void bluetooth::connectedAndDiscovered() {
 
         if (fitmetriaFanfitEnabled) {
             for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-                if (((b.name().startsWith("FITFAN-"))) && !fitmetria_fanfit_isconnected(b.name())) {
+                if (((b.name().startsWith("FITFAN-"))) && !fitmetria_fanfit_isconnected(b)) {
                     fitmetria_fanfit *f = new fitmetria_fanfit(this->device());
 
                     connect(f, &fitmetria_fanfit::debug, this, &bluetooth::debug);
@@ -3102,7 +3106,7 @@ void bluetooth::connectedAndDiscovered() {
                     f->deviceDiscovered(b);
                     fitmetriaFanfit.append(f);
                     break;
-                } else if (((b.name().toUpper().startsWith("HEADWIND "))) && !fitmetria_fanfit_isconnected(b.name())) {
+                } else if (((b.name().toUpper().startsWith("HEADWIND "))) && !fitmetria_fanfit_isconnected(b)) {
                     wahookickrheadwind *f = new wahookickrheadwind(this->device());
 
                     connect(f, &wahookickrheadwind::debug, this, &bluetooth::debug);
@@ -3111,8 +3115,8 @@ void bluetooth::connectedAndDiscovered() {
 
                     f->deviceDiscovered(b);
                     wahookickrHeadWind.append(f);
-                    break;
-                } else if (((b.name().toUpper().startsWith("ARIA")) && b.name().length() == 4) && !fitmetria_fanfit_isconnected(b.name())) {
+                    continue;
+                } else if (((b.name().toUpper().startsWith("ARIA")) && b.name().length() == 4) && !fitmetria_fanfit_isconnected(b)) {
                     eliteariafan *f = new eliteariafan(this->device());
 
                     connect(f, &eliteariafan::debug, this, &bluetooth::debug);
@@ -3267,28 +3271,40 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 
-    if(settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool()) {
+    if(settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool() && !zwiftClickRemote &&
+            this->device() && this->device()->deviceType() == BIKE) {
+        QBluetoothDeviceInfo zwiftClickDevice;
+        bool zwiftClickDeviceFound = false;
+
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-            if (((b.name().toUpper().startsWith("ZWIFT CLICK"))) && !zwiftClickRemote && this->device() &&
-                    this->device()->deviceType() == BIKE) {
+            if (b.name().toUpper().startsWith("ZWIFT CLICK")) {
+                if(!zwiftClickDeviceFound) {
+                    zwiftClickDevice = b;
+                    zwiftClickDeviceFound = true;
+                }
 
                 if(b.manufacturerData(2378).size() > 0) {
-                    qDebug() << "this should be 9. is it? " << int(b.manufacturerData(2378).at(0));
+                    qDebug() << "Zwift Click manufacturer type" << int(b.manufacturerData(2378).at(0));
+                    if(int(b.manufacturerData(2378).at(0)) == 11) {
+                        zwiftClickDevice = b;
+                        break;
+                    }
                 } else {
                     qDebug() << "manufacturer not found for ZWIFT CLICK";
                 }
-
-                zwiftClickRemote = new zwiftclickremote(this->device(), AbstractZapDevice::ZWIFT_PLAY_TYPE::NONE);
-                // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
-
-                connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
-                connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
-                connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
-                zwiftClickRemote->deviceDiscovered(b);
-                if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Zwift Click Connected!");
-                break;
             }
+        }
+
+        if(zwiftClickDeviceFound) {
+            zwiftClickRemote = new zwiftclickremote(this->device(), AbstractZapDevice::ZWIFT_PLAY_TYPE::NONE);
+            // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+            connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
+            connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
+            connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+            zwiftClickRemote->deviceDiscovered(zwiftClickDevice);
+            if(homeform::singleton())
+                homeform::singleton()->setToastRequested("Zwift Click Connected!");
         }
     }
 
@@ -4504,17 +4520,17 @@ void bluetooth::inclinationChanged(double grade, double inclination) {
     stateFileUpdate();
 }
 
-bool bluetooth::fitmetria_fanfit_isconnected(QString name) {
+bool bluetooth::fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device) {
     foreach (fitmetria_fanfit *f, fitmetriaFanfit) {
-        if (!name.compare(f->bluetoothDevice.name()))
+        if (SAME_BLUETOOTH_DEVICE(device, f->bluetoothDevice))
             return true;
     }
     foreach (wahookickrheadwind *f, wahookickrHeadWind) {
-        if (!name.compare(f->bluetoothDevice.name()))
+        if (SAME_BLUETOOTH_DEVICE(device, f->bluetoothDevice))
             return true;
     }
     foreach (eliteariafan *f, eliteAriaFan) {
-        if (!name.compare(f->bluetoothDevice.name()))
+        if (SAME_BLUETOOTH_DEVICE(device, f->bluetoothDevice))
             return true;
     }
     return false;

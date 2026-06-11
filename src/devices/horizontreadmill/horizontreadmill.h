@@ -80,6 +80,7 @@ class horizontreadmill : public treadmill {
     bool horizonPaused = false;
     double lastHorizonForceSpeed = 0;
     double minInclination = 0.0;
+    double maxInclination = 15.0;
 
     bool initDone = false;
     bool initRequest = false;
@@ -124,6 +125,7 @@ class horizontreadmill : public treadmill {
     bool TM4800 = false;
     bool TM4500 = false;
     bool TM6500 = false;
+    bool FS_TREADMILL = false;
     bool WT_TREADMILL = false;
     bool THERUN_T15 = false;
     bool MERACH_TREADMILL = false;

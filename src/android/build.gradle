@@ -1,30 +1,36 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        gradlePluginPortal()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
+        classpath 'com.android.tools.build:gradle:8.13.2'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.5'
     }
-}
-
-plugins {
-  id "com.google.protobuf" version "0.9.4"
 }
 
 repositories {
     google()
-    jcenter()
-    maven { url 'https://jitpack.io' }
+    mavenCentral()
+    maven { url = 'https://jitpack.io' }
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'com.google.protobuf'
 
 def amazon = System.getenv('AMAZON')
+def androidCompileSdk = (project.findProperty('androidCompileSdkVersion') ?: '35').toString()
+def qtAndroidDir = project.findProperty('qt5AndroidDir') ?: System.getenv('QT_ANDROID_DIR')
 println(amazon)
+def qtAndroidBaseDir = qtAndroidDir ? qtAndroidDir.toString().replaceAll('/src/android/java/?$', '') : null
+def qtAndroidJavaRootDir = qtAndroidDir?.toString()?.endsWith('/src/android/java') ? qtAndroidDir.toString() : (qtAndroidBaseDir ? qtAndroidBaseDir + '/src/android/java' : null)
+def qtAndroidJarDir = qtAndroidBaseDir ? qtAndroidBaseDir + '/jar' : null
+def qtAndroidJavaSrcDir = qtAndroidJavaRootDir ? qtAndroidJavaRootDir + '/src' : 'qt-android-missing/src/android/java/src'
+def qtAndroidJavaResDir = qtAndroidJavaRootDir ? qtAndroidJavaRootDir + '/res' : 'qt-android-missing/src/android/java/res'
 
 // FIXED: Force resolution con versioni consistenti
 configurations.all {
@@ -41,7 +47,12 @@ configurations.all {
 }
 
 dependencies {
+    if (qtAndroidJarDir) {
+        implementation fileTree(dir: qtAndroidJarDir, include: ['*.jar'])
+    }
+
     implementation "androidx.core:core:1.12.0"
+    implementation "androidx.activity:activity-ktx:1.9.3"
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     
@@ -59,26 +70,28 @@ dependencies {
     } else {
         // google play store
         implementation 'com.google.android.gms:play-services-mlkit-text-recognition:18.0.2'
+        implementation 'com.google.android.play:age-signals:0.0.3'
+        implementation 'androidx.health.connect:connect-client:1.1.0-alpha11'
     }
-
-    implementation 'com.google.android.play:core:1.8.2'
 
     def appcompat_version = "1.3.1"
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-         implementation "com.android.billingclient:billing:8.0.0"
-         implementation 'com.android.support:appcompat-v7:28.0.0'
-
-         implementation "androidx.appcompat:appcompat:$appcompat_version"
-         implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
-         implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-         implementation files('libs/usb-serial-for-android-3.8.1.aar')
-	 androidTestImplementation "com.android.support:support-annotations:28.0.0"
-	      implementation 'com.google.android.gms:play-services-wearable:19.0.0'
+    implementation "com.android.billingclient:billing:8.0.0"
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation files('libs/usb-serial-for-android-3.8.1.aar')
+    implementation 'com.google.android.gms:play-services-wearable:19.0.0'
 
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
-    implementation("com.garmin.connectiq:ciq-companion-app-sdk:2.2.0@aar")
+    implementation("com.garmin.connectiq:ciq-companion-app-sdk:2.3.0@aar")
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:2.1.20'
+    testImplementation 'androidx.health.connect:connect-client:1.1.0-alpha11'
+    testImplementation 'org.json:json:20231013'
 }
 
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -124,44 +137,71 @@ android {
      * updated by QtCreator and androiddeployqt tools.
      * Changing them manually might break the compilation!
      *******************************************************/
-
-    compileSdkVersion androidCompileSdkVersion.toInteger()
-
-    buildToolsVersion '29.0.2'
+    namespace = 'org.cagnulen.qdomyoszwift'
+    compileSdk androidCompileSdk.toInteger()
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
-            aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
-            res.srcDirs = [qt5AndroidDir + '/res', 'res']
+            java.srcDirs = [qtAndroidJavaSrcDir, 'src', 'java']
+            kotlin.srcDirs = ['src', 'java']
+            aidl.srcDirs = [qtAndroidJavaSrcDir, 'src', 'aidl']
+            res.srcDirs = [qtAndroidJavaResDir, 'res']
             resources.srcDirs = ['resources']
             renderscript.srcDirs = ['src']
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
-       }
+        }
+        debug {
+            java.srcDirs += ["$buildDir/generated/aidl_source_output_dir/debug/out"]
+        }
+        release {
+            java.srcDirs += ["$buildDir/generated/aidl_source_output_dir/release/out"]
+        }
+        test {
+            java.srcDirs = ['tests']
+            kotlin.srcDirs = ['tests']
+        }
     }
 
-    lintOptions {
-        abortOnError false
-        checkReleaseBuilds false
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
+    }
+
+    buildFeatures {
+        aidl = true
     }
 
     // Do not compress Qt binary resources file
-    aaptOptions {
-        noCompress 'rcc'
+    androidResources {
+        noCompress += 'rcc'
+    }
+
+    // AGP 8.x defaults to useLegacyPackaging=false (extractNativeLibs=false),
+    // overriding the android:extractNativeLibs="true" in AndroidManifest.xml.
+    // Qt 5.15's QtLoader.java finds libraries via nativeLibraryDir on the
+    // filesystem, not from inside the APK, so we must force extraction.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 
     defaultConfig {
+        applicationId = "org.cagnulen.qdomyoszwift"
         resConfig "en"
-                  compileSdkVersion 33
-		  minSdkVersion = 21
-                  targetSdkVersion = 36
+        minSdk 21
+        targetSdk 36
     }
 
     // FIXED: Packaging options ottimizzato per gestire i conflitti protobuf
@@ -193,6 +233,17 @@ android {
         pickFirst '**/META-INF/services/**'
         pickFirst '**/kotlin/**'
     }
+    tasks.all { task ->
+        if (task.name == 'compileDebugJavaWithJavac' && amazon == "1") {
+            task.dependsOn copyArm64Directory
+            task.dependsOn copyArm32Directory
+        }
+    }
+
+    if (!qtAndroidDir) {
+        throw new GradleException("qt5AndroidDir is not set. Install Qt for Android and set qt5AndroidDir in gradle.properties or via the QT_ANDROID_DIR environment variable.")
+    }
+}
 
     tasks.all { task ->
          if (task.name == 'compileDebugJavaWithJavac' && amazon == "1") {
