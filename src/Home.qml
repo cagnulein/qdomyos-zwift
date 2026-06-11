@@ -91,6 +91,14 @@ HomeForm {
                         dashboardPortPoller.start()
                     }
                 }
+                Screen.orientationUpdateMask: Qt.LandscapeOrientation | Qt.PortraitOrientation
+                Screen.onPrimaryOrientationChanged: {
+                    if (url != "") {
+                        var saved = url
+                        url = ""
+                        url = saved
+                    }
+                }
             }
 
             BusyIndicator {
