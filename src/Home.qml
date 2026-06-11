@@ -48,7 +48,7 @@ HomeForm {
         id: customDashboardLoader
         active: settings.ui_custom_dashboard_enabled
         anchors.fill: parent
-        anchors.topMargin: rootItem.topBarHeight
+        anchors.topMargin: 0
         z: 10
 
         sourceComponent: Item {
