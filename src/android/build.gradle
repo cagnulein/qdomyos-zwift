@@ -55,7 +55,10 @@ dependencies {
     implementation "androidx.activity:activity-ktx:1.9.3"
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
-    
+
+    // FitPro USB-HID hardware adapter (vendored from Hyperborea, MIT) uses coroutines/Flow
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
+
     // FIXED: Una sola versione di protobuf-javalite
     implementation 'com.google.protobuf:protobuf-javalite:3.25.3'
         
@@ -152,8 +155,8 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = [qtAndroidJavaSrcDir, 'src', 'java']
-            kotlin.srcDirs = ['src', 'java']
+            java.srcDirs = [qtAndroidJavaSrcDir, 'src', 'java', 'fitpro']
+            kotlin.srcDirs = ['src', 'java', 'fitpro']
             aidl.srcDirs = [qtAndroidJavaSrcDir, 'src', 'aidl']
             res.srcDirs = [qtAndroidJavaResDir, 'res']
             resources.srcDirs = ['resources']

@@ -1109,7 +1109,7 @@ DISTFILES += \
     $$PWD/android/src/ContentHelper.java \
     $$PWD/android/src/CustomQtActivity.java \
     $$PWD/android/src/Garmin.java \
-    $$PWD/android/src/GrpcTreadmillService.java \
+    $$PWD/android/src/FitProDeviceService.kt \
    $$PWD/android/src/HidBridge.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/LocationHelper.java \

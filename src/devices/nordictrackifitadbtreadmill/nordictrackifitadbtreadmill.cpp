@@ -672,7 +672,7 @@ void nordictrackifitadbtreadmill::update() {
             if (isPaused()) {
                 // Resume from pause
                 QAndroidJniObject::callStaticMethod<void>(
-                    "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                    "org/cagnulen/qdomyoszwift/FitProDeviceService",
                     "resumeWorkout",
                     "()V"
                 );
@@ -680,7 +680,7 @@ void nordictrackifitadbtreadmill::update() {
             } else {
                 // Start new workout
                 QAndroidJniObject::callStaticMethod<void>(
-                    "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                    "org/cagnulen/qdomyoszwift/FitProDeviceService",
                     "startWorkout",
                     "()V"
                 );
@@ -725,7 +725,7 @@ void nordictrackifitadbtreadmill::update() {
         // Stop workout via gRPC WorkoutService (only if not originated from gRPC)
         if (grpcInitialized && requestStopOrigin != ORIGIN_GRPC) {
             QAndroidJniObject::callStaticMethod<void>(
-                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "org/cagnulen/qdomyoszwift/FitProDeviceService",
                 "stopWorkout",
                 "()V"
             );
@@ -746,7 +746,7 @@ void nordictrackifitadbtreadmill::update() {
         // Pause workout via gRPC WorkoutService (only if not originated from gRPC)
         if (grpcInitialized && requestPauseOrigin != ORIGIN_GRPC) {
             QAndroidJniObject::callStaticMethod<void>(
-                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "org/cagnulen/qdomyoszwift/FitProDeviceService",
                 "pauseWorkout",
                 "()V"
             );
@@ -830,7 +830,7 @@ void nordictrackifitadbtreadmill::update() {
         // Get next state transition from queue (returns null if queue empty)
         QAndroidJniEnvironment env;
         QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getNextWorkoutStateChange",
             "()[I"
         );
@@ -1143,7 +1143,7 @@ void nordictrackifitadbtreadmill::initializeGrpcService() {
             
             // Set Android context first
             QAndroidJniObject::callStaticMethod<void>(
-                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "org/cagnulen/qdomyoszwift/FitProDeviceService",
                 "setContext",
                 "(Landroid/content/Context;)V",
                 QtAndroid::androidContext().object()
@@ -1152,7 +1152,7 @@ void nordictrackifitadbtreadmill::initializeGrpcService() {
             // Now initialize the service with the host IP
             QAndroidJniObject hostObj = QAndroidJniObject::fromString(ip);
             QAndroidJniObject::callStaticMethod<void>(
-                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "org/cagnulen/qdomyoszwift/FitProDeviceService",
                 "initialize",
                 "(Ljava/lang/String;)V",
                 hostObj.object<jstring>()
@@ -1171,7 +1171,7 @@ void nordictrackifitadbtreadmill::startGrpcMetricsUpdates() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "startMetricsUpdates",
             "()V"
         );
@@ -1184,7 +1184,7 @@ void nordictrackifitadbtreadmill::stopGrpcMetricsUpdates() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "stopMetricsUpdates",
             "()V"
         );
@@ -1197,7 +1197,7 @@ double nordictrackifitadbtreadmill::getGrpcSpeed() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         return QAndroidJniObject::callStaticMethod<jdouble>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentSpeed",
             "()D"
         );
@@ -1210,7 +1210,7 @@ double nordictrackifitadbtreadmill::getGrpcIncline() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         return QAndroidJniObject::callStaticMethod<jdouble>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentIncline",
             "()D"
         );
@@ -1223,7 +1223,7 @@ double nordictrackifitadbtreadmill::getGrpcWatts() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         return QAndroidJniObject::callStaticMethod<jdouble>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentWatts",
             "()D"
         );
@@ -1236,7 +1236,7 @@ double nordictrackifitadbtreadmill::getGrpcCadence() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         return QAndroidJniObject::callStaticMethod<jdouble>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentCadence",
             "()D"
         );
@@ -1249,7 +1249,7 @@ double nordictrackifitadbtreadmill::getGrpcHeartRate() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         return QAndroidJniObject::callStaticMethod<jdouble>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentHeartRate",
             "()D"
         );
@@ -1262,7 +1262,7 @@ void nordictrackifitadbtreadmill::setGrpcSpeed(double speed) {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "adjustSpeed",
             "(D)V",
             speed - Speed.value()
@@ -1276,7 +1276,7 @@ void nordictrackifitadbtreadmill::setGrpcIncline(double incline) {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "adjustIncline",
             "(D)V",
             incline - Inclination.value()
@@ -1291,7 +1291,7 @@ void nordictrackifitadbtreadmill::startGrpcWorkoutStateMonitoring() {
     emit debug(QString("startGrpcWorkoutStateMonitoring() called, grpcInitialized=%1").arg(grpcInitialized));
     if (grpcInitialized) {
         QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "startWorkoutStateMonitoring",
             "()V"
         );
@@ -1329,7 +1329,7 @@ int nordictrackifitadbtreadmill::getGrpcWorkoutState() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         return QAndroidJniObject::callStaticMethod<jint>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getWorkoutState",
             "()I"
         );
@@ -1359,7 +1359,7 @@ void nordictrackifitadbtreadmill::setGrpcFanSpeed(int fanSpeed) {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "setFanSpeed",
             "(I)V",
             fanSpeed
@@ -1373,7 +1373,7 @@ int nordictrackifitadbtreadmill::getGrpcFanSpeed() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         return QAndroidJniObject::callStaticMethod<jint>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentFanSpeed",
             "()I"
         );

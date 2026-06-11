@@ -526,7 +526,7 @@ void nordictrackifitadbrower::initializeGrpcService() {
 
             // Set Android context first
             QAndroidJniObject::callStaticMethod<void>(
-                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "org/cagnulen/qdomyoszwift/FitProDeviceService",
                 "setContext",
                 "(Landroid/content/Context;)V",
                 QtAndroid::androidContext().object()
@@ -535,7 +535,7 @@ void nordictrackifitadbrower::initializeGrpcService() {
             // Now initialize the service with the host IP
             QAndroidJniObject hostObj = QAndroidJniObject::fromString(ip);
             QAndroidJniObject::callStaticMethod<void>(
-                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "org/cagnulen/qdomyoszwift/FitProDeviceService",
                 "initialize",
                 "(Ljava/lang/String;)V",
                 hostObj.object<jstring>()
@@ -554,7 +554,7 @@ void nordictrackifitadbrower::startGrpcMetricsUpdates() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "startMetricsUpdates",
             "()V"
         );
@@ -567,7 +567,7 @@ void nordictrackifitadbrower::stopGrpcMetricsUpdates() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "stopMetricsUpdates",
             "()V"
         );
@@ -582,7 +582,7 @@ double nordictrackifitadbrower::getGrpcSpeed() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         double speed = QAndroidJniObject::callStaticMethod<jdouble>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentSpeed",
             "()D"
         );
@@ -597,7 +597,7 @@ double nordictrackifitadbrower::getGrpcResistance() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         double resistance = QAndroidJniObject::callStaticMethod<jdouble>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentResistance",
             "()D"
         );
@@ -612,7 +612,7 @@ double nordictrackifitadbrower::getGrpcWatts() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         double watts = QAndroidJniObject::callStaticMethod<jdouble>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentWatts",
             "()D"
         );
@@ -627,7 +627,7 @@ double nordictrackifitadbrower::getGrpcCadence() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         double cadence = QAndroidJniObject::callStaticMethod<jdouble>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentCadence",
             "()D"
         );
@@ -642,7 +642,7 @@ double nordictrackifitadbrower::getGrpcStrokesCount() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         double strokesCount = QAndroidJniObject::callStaticMethod<jdouble>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentStrokesCount",
             "()D"
         );
@@ -657,7 +657,7 @@ double nordictrackifitadbrower::getGrpcStrokesLength() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         double strokesLength = QAndroidJniObject::callStaticMethod<jdouble>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentStrokesLength",
             "()D"
         );
@@ -672,7 +672,7 @@ int nordictrackifitadbrower::getGrpcPaceSeconds() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         int paceSeconds = QAndroidJniObject::callStaticMethod<jint>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentPaceSeconds",
             "()I"
         );
@@ -687,7 +687,7 @@ int nordictrackifitadbrower::getGrpcLast500mPaceSeconds() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         int last500mPaceSeconds = QAndroidJniObject::callStaticMethod<jint>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentLast500mPaceSeconds",
             "()I"
         );
@@ -702,7 +702,7 @@ int nordictrackifitadbrower::getGrpcFanSpeed() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         int fanSpeed = QAndroidJniObject::callStaticMethod<jint>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "getCurrentFanSpeed",
             "()I"
         );
@@ -719,7 +719,7 @@ void nordictrackifitadbrower::setGrpcResistance(double resistance) {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "adjustResistance",
             "(D)V",
             resistance - Resistance.value()
@@ -733,7 +733,7 @@ void nordictrackifitadbrower::setGrpcFanSpeed(int fanSpeed) {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
         QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
             "setFanSpeed",
             "(I)V",
             fanSpeed
