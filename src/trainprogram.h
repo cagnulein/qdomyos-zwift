@@ -98,6 +98,10 @@ class trainprogram : public QObject {
     trainrow getRowFromCurrent(uint32_t offset);
     void increaseElapsedTime(int32_t i);
     void decreaseElapsedTime(int32_t i);
+    void goToPreviousRow();
+    void applyCurrentStepSettings();
+    int currentLogicalStep() const;
+    int totalLogicalSteps() const;
     int32_t offsetElapsedTime() { return offset; }
     void clearRows();
     double avgSpeedFromGpxStep(int gpxStep, int seconds);

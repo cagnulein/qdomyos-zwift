@@ -535,6 +535,7 @@
 		87CC3B9E25A08812001EC5A8 /* moc_elliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3B9C25A08812001EC5A8 /* moc_elliptical.cpp */; };
 		87CC3BA325A0885F001EC5A8 /* domyoselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3B9F25A0885D001EC5A8 /* domyoselliptical.cpp */; };
 		87CC3BA425A0885F001EC5A8 /* elliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3BA025A0885D001EC5A8 /* elliptical.cpp */; };
+		87CCCC942FD2C32200CA53BD /* qrc_translations.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CCCC932FD2C32200CA53BD /* qrc_translations.cpp */; };
 		87CF5169293C879800A7CABC /* characteristicwriteprocessore005.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CF5167293C879700A7CABC /* characteristicwriteprocessore005.cpp */; };
 		87CF516B293C87B000A7CABC /* moc_characteristicwriteprocessore005.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CF516A293C87AF00A7CABC /* moc_characteristicwriteprocessore005.cpp */; };
 		87D10552290996EA00B3935B /* mepanelbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D10550290996EA00B3935B /* mepanelbike.cpp */; };
@@ -1648,6 +1649,7 @@
 		87CC3BA025A0885D001EC5A8 /* elliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = elliptical.cpp; path = ../src/devices/elliptical.cpp; sourceTree = "<group>"; };
 		87CC3BA125A0885E001EC5A8 /* elliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = elliptical.h; path = ../src/devices/elliptical.h; sourceTree = "<group>"; };
 		87CC3BA225A0885E001EC5A8 /* domyoselliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = domyoselliptical.h; path = ../src/devices/domyoselliptical/domyoselliptical.h; sourceTree = "<group>"; };
+		87CCCC932FD2C32200CA53BD /* qrc_translations.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = qrc_translations.cpp; sourceTree = "<group>"; };
 		87CF5167293C879700A7CABC /* characteristicwriteprocessore005.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicwriteprocessore005.cpp; path = ../src/characteristics/characteristicwriteprocessore005.cpp; sourceTree = "<group>"; };
 		87CF5168293C879700A7CABC /* characteristicwriteprocessore005.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = characteristicwriteprocessore005.h; path = ../src/characteristics/characteristicwriteprocessore005.h; sourceTree = "<group>"; };
 		87CF516A293C87AF00A7CABC /* moc_characteristicwriteprocessore005.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_characteristicwriteprocessore005.cpp; sourceTree = "<group>"; };
@@ -2385,6 +2387,7 @@
 			children = (
 				87937ED62FBCEA77007DF753 /* ios_accessibility_helper.h */,
 				87937ED72FBCEA77007DF753 /* ios_accessibility_helper.mm */,
+				87CCCC932FD2C32200CA53BD /* qrc_translations.cpp */,
 				877486E12FA8E79800A02AFD /* iconsolebike.h */,
 				877486E22FA8E79800A02AFD /* iconsolebike.cpp */,
 				877486DF2FA8E78600A02AFD /* moc_iconsolebike.cpp */,
@@ -4267,6 +4270,7 @@
 				873824BF27E64707004F1B46 /* moc_abstractserver.cpp in Compile Sources */,
 				87C5F0BA26285E5F0067A1B5 /* mimefile.cpp in Compile Sources */,
 				879E5AA8289C057E00FEA38A /* proformwifitreadmill.cpp in Compile Sources */,
+				87CCCC942FD2C32200CA53BD /* qrc_translations.cpp in Compile Sources */,
 				873824B227E64706004F1B46 /* moc_hostname.cpp in Compile Sources */,
 				873824EB27E647A8004F1B46 /* prober.cpp in Compile Sources */,
 				875CA9462D0C740000667EE6 /* moc_kineticinroadbike.cpp in Compile Sources */,

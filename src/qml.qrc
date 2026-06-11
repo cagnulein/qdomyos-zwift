@@ -7,6 +7,7 @@
         <file>qtquickcontrols2.conf</file>
         <file>Home.qml</file>
         <file>settings.qml</file>
+        <file>settings-catalog.json</file>
         <file>AccordionElement.qml</file>
         <file>AccordionCheckElement.qml</file>
         <file>icons/arrow-collapse-vertical.png</file>
@@ -99,6 +100,7 @@
         <file>inner_templates/floating/jquery-3.6.0.min.js</file>
         <file>inner_templates/floating/main_ws_manager.js</file>
         <file>inner_templates/floating/radikalmedium.otf</file>
+        <file>settings-shortcuts.qml</file>
         <file>settings-treadmill-inclination-override.qml</file>
         <file>WebStravaAuth.qml</file>
         <file>Toast.qml</file>
