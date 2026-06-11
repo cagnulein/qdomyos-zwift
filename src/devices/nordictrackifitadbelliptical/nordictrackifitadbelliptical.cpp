@@ -536,7 +536,6 @@ void nordictrackifitadbelliptical::update() {
 
         if (currentResistance != Resistance.value()) {
             Resistance = currentResistance;
-            emit resistanceRead(Resistance.value());
         }
         if (currentCadence > 0)
             Cadence = currentCadence;
