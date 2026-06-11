@@ -199,6 +199,7 @@
         selectors.repeatSelection = document.getElementById('repeatSelection');
         selectors.clearIntervals = document.getElementById('clearIntervals');
         selectors.newWorkout = document.getElementById('newWorkout');
+        selectors.pasteClipboard = document.getElementById('pasteClipboard');
         selectors.saveWorkout = document.getElementById('saveWorkout');
         selectors.saveStartWorkout = document.getElementById('saveStartWorkout');
         selectors.programSelect = document.getElementById('programSelect');
@@ -262,6 +263,7 @@
             updateControls();
             announce('New workout ready');
         });
+        selectors.pasteClipboard.addEventListener('click', () => pasteXmlFromClipboard());
         selectors.saveWorkout.addEventListener('click', () => saveWorkflow(false));
         selectors.saveStartWorkout.addEventListener('click', () => saveWorkflow(true));
         selectors.loadProgram.addEventListener('click', () => {
@@ -406,16 +408,7 @@
                         announce('Workout is empty or cannot be read', true);
                         return;
                     }
-                    state.intervals = rows.map((row, idx) => convertRow(row, idx));
-                    state.device = detectDevice(state.intervals) || state.device;
-                    selectors.device.value = state.device;
-                    selectors.name.value = name;
-                    state.lastSaved = name;
-                    renderIntervals();
-                    updateChart();
-                    updateStatus();
-                    updateControls();
-                    announce(`Loaded ${name}`);
+                    applyLoadedRows(rows, name, `Loaded ${name}`);
                 })
                 .catch(err => {
                     console.error(err);
@@ -423,6 +416,50 @@
                 })
                 .finally(() => setWorking(false));
         }, 300); // Give backend time to load the file
+    }
+
+    function applyLoadedRows(rows, name, message) {
+        state.intervals = rows.map((row, idx) => convertRow(row, idx));
+        state.device = detectDevice(state.intervals) || state.device;
+        selectors.device.value = state.device;
+        selectors.name.value = name;
+        state.lastSaved = name;
+        renderIntervals();
+        updateChart();
+        updateStatus();
+        updateControls();
+        announce(message || `Loaded ${name}`);
+    }
+
+    function pasteXmlFromClipboard() {
+        if (window.QZ_OFFLINE) {
+            announce('Offline: cannot read clipboard', true);
+            return;
+        }
+
+        const fallbackName = selectors.name.value.trim() || state.lastSaved || '';
+        setWorking(true);
+        sendMessage('pastetrainingprogramclipboard', { name: fallbackName }, 'R_pastetrainingprogramclipboard')
+            .then(content => {
+                if (!content || !content.ok) {
+                    announce((content && content.message) || 'Unable to paste XML from clipboard', true);
+                    return;
+                }
+
+                const rows = Array.isArray(content.list) ? content.list : [];
+                if (!rows.length) {
+                    announce('Clipboard XML is empty or cannot be read', true);
+                    return;
+                }
+
+                applyLoadedRows(rows, content.name || fallbackName || 'Clipboard_Workout.xml', 'Workout pasted from clipboard');
+                refreshProgramList();
+            })
+            .catch(err => {
+                console.error(err);
+                announce('Unable to paste XML from clipboard', true);
+            })
+            .finally(() => setWorking(false));
     }
 
     async function deleteProgram(name) {
@@ -538,6 +575,7 @@
                 out['__enabled_' + def.key] = false;
             }
         });
+        out.__enabled_duration = out.__enabled_distance === true ? false : true;
         out.__selected = false;
         return out;
     }
@@ -753,13 +791,11 @@
                                 row['__enabled_forcespeed'] = true;
                                 row['forcespeed'] = false; // default to false
                             }
-                            // For treadmill: duration and distance are mutually exclusive
-                            if (state.device === 'treadmill') {
-                                if (field.key === 'distance') {
-                                    row['__enabled_duration'] = false;
-                                } else if (field.key === 'duration') {
-                                    row['__enabled_distance'] = false;
-                                }
+                            // Duration and distance are mutually exclusive.
+                            if (field.key === 'distance') {
+                                row['__enabled_duration'] = false;
+                            } else if (field.key === 'duration') {
+                                row['__enabled_distance'] = false;
                             }
                         } else {
                             fieldWrap.classList.add('disabled');
@@ -1172,14 +1208,23 @@
         }
         const list = [];
         for (const interval of state.intervals) {
-            const durationSec = parseDuration(interval.duration);
-            if (!durationSec) {
-                announce('Invalid duration in intervals', true);
-                return null;
+            const durationEnabled = interval.__enabled_duration !== false;
+            const distanceEnabled = interval.__enabled_distance !== false;
+            const row = {};
+            if (durationEnabled) {
+                const durationSec = parseDuration(interval.duration);
+                if (!durationSec) {
+                    announce('Invalid duration in intervals', true);
+                    return null;
+                }
+                row.duration = formatDuration(durationSec);
+            } else {
+                const distance = Number(interval.distance);
+                if (!distanceEnabled || !isFinite(distance) || distance <= 0) {
+                    announce('Enable duration or enter a valid distance', true);
+                    return null;
+                }
             }
-            const row = {
-                duration: formatDuration(durationSec)
-            };
             // Add interval name/label as textEvent with timeoffset=0 if present
             if (interval.name && interval.name.trim() !== '') {
                 row.textEvents = [{
@@ -1215,6 +1260,9 @@
                 // Skip disabled fields
                 const isEnabled = interval['__enabled_' + field.key] !== false;
                 if (!isEnabled) {
+                    return;
+                }
+                if (field.key === 'distance' && durationEnabled) {
                     return;
                 }
                 const value = interval[field.key];
@@ -1448,7 +1496,7 @@
 
     function setWorking(active) {
         state.loading = active;
-        [selectors.saveWorkout, selectors.saveStartWorkout, selectors.loadProgram, selectors.deleteProgram, selectors.refreshPrograms, selectors.addInterval, selectors.clearIntervals]
+        [selectors.saveWorkout, selectors.saveStartWorkout, selectors.loadProgram, selectors.deleteProgram, selectors.refreshPrograms, selectors.addInterval, selectors.clearIntervals, selectors.pasteClipboard]
             .forEach(btn => btn && (btn.disabled = active));
         updateControls();
     }
@@ -1565,6 +1613,9 @@
         }
         if (selectors.refreshPrograms) {
             selectors.refreshPrograms.disabled = state.loading || offline;
+        }
+        if (selectors.pasteClipboard) {
+            selectors.pasteClipboard.disabled = state.loading || offline;
         }
         if (selectors.programSelect) {
             selectors.programSelect.disabled = offline || state.loading || !state.programs.length;

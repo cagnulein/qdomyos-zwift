@@ -409,24 +409,16 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                     if (inc != currentInclination().value()) {
                         bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
                         int x1 = 75;
-                        
-                        // In gear resistance mode, gears control resistance separately via gRPC, so don't add to inclination
-                        double inclinationValue = nordictrackadbbike_gear_resistance_mode ? inc : (inc + gears());
-                        
-                        if (nordictrackadbbike_gear_resistance_mode) {
-                            qDebug() << "Gear resistance mode: setting inclination to" << inc << "(not adding gears)";
-                        }
-                        
-                        int y2 = (int)(616.18 - (17.223 * inclinationValue));
+                        int y2 = (int)(616.18 - (17.223 * (inc + gearsModifier())));
                         int y1Resistance = (int)(616.18 - (17.223 * currentInclination().value()));
 
                         if(proform_studio || freemotion_coachbike_b22_7) {
                             x1 = 1827;
-                            y2 = (int)(806 - (21.375 * inclinationValue));
+                            y2 = (int)(806 - (21.375 * (inc + gearsModifier())));
                             y1Resistance = (int)(806 - (21.375 * currentInclination().value()));
                         } else if(proform_tdf_10_0) {
                             x1 = 75;
-                            y2 = (int)(477 - (12.5 * inclinationValue));
+                            y2 = (int)(477 - (12.5 * (inc + gearsModifier())));
                             y1Resistance = (int)(477 - (12.5 * currentInclination().value()));
                         }
 
@@ -450,14 +442,24 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 }
                 requestInclination = -100;
             }
-
-            // In gear resistance mode, gears control resistance separately via gRPC, so don't add to message resistance
-            double gearValue = nordictrackadbbike_gear_resistance_mode ? 0 : gears();
-            double r = currentResistance().value() + difficult() + gearValue; // the inclination here is like the resistance for the other bikes
-            QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";" + QString::number(r).toLocal8Bit();
-            requestInclination = -100;
-            int ret = socket->writeDatagram(message, message.size(), sender, 8003);
-            qDebug() << QString::number(ret) + " >> " + message;
+        } else {
+            // Non-ADB mode: handle via UDP socket as before
+            // only resistance
+            if(proform_studio_NTEX71021 || nordictrackadbbike_resistance) {
+                QByteArray message = (QString::number(requestResistance).toLocal8Bit()) + ";";
+                requestResistance = -1;
+                int ret = socket->writeDatagram(message, message.size(), sender, 8003);
+                qDebug() << QString::number(ret) + " >> " + message;
+            }
+            // inclination
+            else if (lastInclinationChanged.secsTo(now) > inclination_delay_seconds) {
+                lastInclinationChanged = now;
+                double r = currentResistance().value() + difficult() + gearsModifier();
+                QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";" + QString::number(r).toLocal8Bit();
+                requestInclination = -100;
+                int ret = socket->writeDatagram(message, message.size(), sender, 8003);
+                qDebug() << QString::number(ret) + " >> " + message;
+            }
         }
 
         if (watts())

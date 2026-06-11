@@ -584,6 +584,7 @@ void DeviceTestDataIndex::Initialize() {
         "MRK-S26S-",
         "MRK-S26C-",
         "MRK-S28-",
+        "MRK-S38-",
         "SMB1",
         "UBIKE FTMS",
         "INRIDE"
