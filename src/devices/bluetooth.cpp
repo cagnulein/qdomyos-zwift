@@ -1937,6 +1937,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith("SPORT01-") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // Labgrey Magnetic Exercise Bike https://www.amazon.co.uk/dp/B0CXMF1NPY?_encoding=UTF8&psc=1&ref=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&ref_=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&social_share=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&skipTwisterOG=1
                         (b.name().toUpper().startsWith("FS-YK-")) ||
+						(b.name().toUpper().startsWith("T600E_")) ||
                         (b.name().toUpper().startsWith("SPEEDBIKE S2")) || // Maxxus Speedbike S2
 						(b.name().toUpper().startsWith("B56-")) || // Titan Life B56 bike
                         ((b.name().toUpper().startsWith(QStringLiteral("HT")) && (b.name().length() == 10) &&
@@ -2244,6 +2245,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(lifespanTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("ECH-ROW")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROWSPORT")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ROW-7S-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROW-S"))) &&
                        !echelonRower && filter) {
                 this->setLastBluetoothDevice(b);
@@ -3096,7 +3098,7 @@ void bluetooth::connectedAndDiscovered() {
 
         if (fitmetriaFanfitEnabled) {
             for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-                if (((b.name().startsWith("FITFAN-"))) && !fitmetria_fanfit_isconnected(b.name())) {
+                if (((b.name().startsWith("FITFAN-"))) && !fitmetria_fanfit_isconnected(b)) {
                     fitmetria_fanfit *f = new fitmetria_fanfit(this->device());
 
                     connect(f, &fitmetria_fanfit::debug, this, &bluetooth::debug);
@@ -3106,7 +3108,7 @@ void bluetooth::connectedAndDiscovered() {
                     f->deviceDiscovered(b);
                     fitmetriaFanfit.append(f);
                     break;
-                } else if (((b.name().toUpper().startsWith("HEADWIND "))) && !fitmetria_fanfit_isconnected(b.name())) {
+                } else if (((b.name().toUpper().startsWith("HEADWIND "))) && !fitmetria_fanfit_isconnected(b)) {
                     wahookickrheadwind *f = new wahookickrheadwind(this->device());
 
                     connect(f, &wahookickrheadwind::debug, this, &bluetooth::debug);
@@ -3115,8 +3117,8 @@ void bluetooth::connectedAndDiscovered() {
 
                     f->deviceDiscovered(b);
                     wahookickrHeadWind.append(f);
-                    break;
-                } else if (((b.name().toUpper().startsWith("ARIA")) && b.name().length() == 4) && !fitmetria_fanfit_isconnected(b.name())) {
+                    continue;
+                } else if (((b.name().toUpper().startsWith("ARIA")) && b.name().length() == 4) && !fitmetria_fanfit_isconnected(b)) {
                     eliteariafan *f = new eliteariafan(this->device());
 
                     connect(f, &eliteariafan::debug, this, &bluetooth::debug);
@@ -4520,17 +4522,17 @@ void bluetooth::inclinationChanged(double grade, double inclination) {
     stateFileUpdate();
 }
 
-bool bluetooth::fitmetria_fanfit_isconnected(QString name) {
+bool bluetooth::fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device) {
     foreach (fitmetria_fanfit *f, fitmetriaFanfit) {
-        if (!name.compare(f->bluetoothDevice.name()))
+        if (SAME_BLUETOOTH_DEVICE(device, f->bluetoothDevice))
             return true;
     }
     foreach (wahookickrheadwind *f, wahookickrHeadWind) {
-        if (!name.compare(f->bluetoothDevice.name()))
+        if (SAME_BLUETOOTH_DEVICE(device, f->bluetoothDevice))
             return true;
     }
     foreach (eliteariafan *f, eliteAriaFan) {
-        if (!name.compare(f->bluetoothDevice.name()))
+        if (SAME_BLUETOOTH_DEVICE(device, f->bluetoothDevice))
             return true;
     }
     return false;
