@@ -247,15 +247,6 @@ android {
         throw new GradleException("qt5AndroidDir is not set. Install Qt for Android and set qt5AndroidDir in gradle.properties or via the QT_ANDROID_DIR environment variable.")
     }
 }
-
-    tasks.all { task ->
-         if (task.name == 'compileDebugJavaWithJavac' && amazon == "1") {
-            task.dependsOn copyArm64Directory
-            task.dependsOn copyArm32Directory
-            }
-    }
-}
-
 task copyArm64Directory(type: Copy) {
     from "libs/arm64-v8a/"
     include '*arm64-v8a.so'
