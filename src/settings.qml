@@ -2575,7 +2575,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Turn this on for: - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment. - Capturing non-equipment-based workouts, such as yoga or strength training. NOTE: All such workouts are labeled as â€œRidesâ€ in Strava, but you can edit the label in Strava.")
+                        text: qsTr("Turn this on for: - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment. - Capturing non-equipment-based workouts, such as yoga or strength training. NOTE: All such workouts are labeled as “Rides” in Strava, but you can edit the label in Strava.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -3523,7 +3523,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("This setting sets your â€œflat roadâ€ in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.")
+                        text: qsTr("This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -3607,7 +3607,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("(for bikes and treadmills when using â€œtreadmill as a bikeâ€ setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.")
+                        text: qsTr("(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -3649,7 +3649,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("In ERG Mode or during a Power Zone workout on Peloton, the app sends a â€œtarget outputâ€ request. If the output requested doesnâ€™t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.")
+                        text: qsTr("In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -6996,7 +6996,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of â€œusernameâ€ (without quotation marks, all lowercase and all one word) until further notice.")
+                        text: qsTr("As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -7123,7 +7123,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Increases the resistance that QZ displays in the Peloton Resistance tile. If QZâ€™s calculated conversion from your bikeâ€™s resistance scale to Pelotonâ€™s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)")
+                        text: qsTr("Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -8840,7 +8840,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the â€˜+â€™ and â€˜-â€™ button on the PID HR Zone tile to change the target HR zone.")
+                        text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9000,7 +9000,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Enter your 1 mile time goal, click OK. This setting will be used when youâ€™re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.")
+                        text: qsTr("Enter your 1 mile time goal, click OK. This setting will be used when you’re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9570,7 +9570,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Turn this on to have QZ control the speed of your treadmill during, for example, Peloton classes based on the coachâ€™s speed callouts. Your speed will be in the low, upper or average range based on your Peloton Options > Difficulty setting. Default is off.")
+                        text: qsTr("Turn this on to have QZ control the speed of your treadmill during, for example, Peloton classes based on the coach’s speed callouts. Your speed will be in the low, upper or average range based on your Peloton Options > Difficulty setting. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10671,7 +10671,7 @@ import Qt.labs.platform 1.1
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("TS100 (Fixed 15Â° Inclination)")
+                                text: qsTr("TS100 (Fixed 15° Inclination)")
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11867,7 +11867,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Allows you to force QZ to connect to your FTMS Rower. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is â€œDisabled.â€")
+                        text: qsTr("Allows you to force QZ to connect to your FTMS Rower. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is “Disabled.”")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -12311,7 +12311,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Allows you to force QZ to connect to your equipment (see â€œBluetooth Troubleshootingâ€ below). Default is â€œDisabled.â€")
+                        text: qsTr("Allows you to force QZ to connect to your equipment (see “Bluetooth Troubleshooting” below). Default is “Disabled.”")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -12669,7 +12669,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Default is â€œQZ.â€ Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developerâ€™s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.")
+                        text: qsTr("Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -12936,7 +12936,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Turn this on if you have a bike with inclination capabilities to fix Zwiftâ€™s bug that sends half-negative downhill inclination")
+                        text: qsTr("Turn this on if you have a bike with inclination capabilities to fix Zwift’s bug that sends half-negative downhill inclination")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -13157,7 +13157,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("This prevents your fitness device from sending its wattage calculation to QZ and defaults to QZâ€™s more accurate calculation.")
+                        text: qsTr("This prevents your fitness device from sending its wattage calculation to QZ and defaults to QZ’s more accurate calculation.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -13350,7 +13350,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("If your equipment doesnâ€™t have Bluetooth, these settings allow you to use a cadence sensor so it will work with QZ as a bike or treadmill. Default is off.")
+                                text: qsTr("If your equipment doesn’t have Bluetooth, these settings allow you to use a cadence sensor so it will work with QZ as a bike or treadmill. Default is off.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -13653,7 +13653,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("If your bike doesnâ€™t have Bluetooth, this setting allows you to use a power meter pedal sensor so your bike will work with QZ. Default is off.")
+                                text: qsTr("If your bike doesn’t have Bluetooth, this setting allows you to use a power meter pedal sensor so your bike will work with QZ. Default is off.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -13681,7 +13681,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("If your treadmill doesnâ€™t have Bluetooth, this setting allows you to use a Stryde sensor (or similar) so your treadmill will work with QZ. Default is off.")
+                                text: qsTr("If your treadmill doesn’t have Bluetooth, this setting allows you to use a Stryde sensor (or similar) so your treadmill will work with QZ. Default is off.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -13900,7 +13900,7 @@ import Qt.labs.platform 1.1
                             }
 
                             Label {
-                                text: qsTr("Custom coefficients for power sensor inclination calculation using formula: vwatts = (A + B Ã— speed) Ã— inclination.\n\nFor Stryd sensors use: A = -0.96, B = 1.33\n\nExamples with these values:\nâ€¢ 8 km/h, 10% incline: (-0.96 + 1.33Ã—8) Ã— 10 = 97W added\nâ€¢ 11 km/h, 10% incline: (-0.96 + 1.33Ã—11) Ã— 10 = 137W added\n\nIf both A and B are 0, QZ will use the default formula: 9.8 Ã— weight Ã— (inclination/100).\n\nDefault: A = -0.96, B = 1.33")
+                                text: qsTr("Custom coefficients for power sensor inclination calculation using formula: vwatts = (A + B × speed) × inclination.\n\nFor Stryd sensors use: A = -0.96, B = 1.33\n\nExamples with these values:\n• 8 km/h, 10% incline: (-0.96 + 1.33×8) × 10 = 97W added\n• 11 km/h, 10% incline: (-0.96 + 1.33×11) × 10 = 137W added\n\nIf both A and B are 0, QZ will use the default formula: 9.8 × weight × (inclination/100).\n\nDefault: A = -0.96, B = 1.33")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -13964,7 +13964,7 @@ import Qt.labs.platform 1.1
 
                     AccordionElement {
                         id: eliteAccesoriesAccordion
-                        title: qsTr("Eliteâ„¢ Products")
+                        title: qsTr("Elite™ Products")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -14467,7 +14467,7 @@ import Qt.labs.platform 1.1
 
                     AccordionElement {
                         id: fitmetriaFanFitOptionsAccordion
-                        title: qsTr("Fitmetria Fitfanâ„¢ Options")
+                        title: qsTr("Fitmetria Fitfan™ Options")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -15115,7 +15115,7 @@ import Qt.labs.platform 1.1
 
             NewPageElement {
                 id: labelTTSSettings
-                title: qsTr("TTS (Text to Speech) Settings ðŸ”Š")
+                title: qsTr("TTS (Text to Speech) Settings 🔊")
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
@@ -15124,7 +15124,7 @@ import Qt.labs.platform 1.1
 
             AccordionElement {
                 id: mapsAccordion
-                title: qsTr("Maps ðŸ—ºï¸")
+                title: qsTr("Maps 🗺️")
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
@@ -15183,7 +15183,7 @@ import Qt.labs.platform 1.1
             /*
             AccordionElement {
                 id: videoAccordion
-                title: qsTr("Video ðŸŽ¥")
+                title: qsTr("Video 🎥")
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
@@ -15307,7 +15307,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Same as â€œRelaxed Bluetooth for mad devicesâ€. Leave off unless the Support staff asks you to turn it on. Default is off.")
+                        text: qsTr("Same as “Relaxed Bluetooth for mad devices”. Leave off unless the Support staff asks you to turn it on. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -16188,7 +16188,7 @@ import Qt.labs.platform 1.1
                     }
 
                     Label {
-                        text: qsTr("Simulates QZ being connected to a bike. When this is turned on QZ will calculate KCal based on your heart rate. Examples of when to use this setting: â—‹ To capture Peloton class data for classes without connected equipment (e.g., a strength or yoga workout).. â—‹ To arrange tiles on the QZ dashboard without connecting to your equipment. â—‹ To use the QZ Apple Watch app without connecting to your equipment.")
+                        text: qsTr("Simulates QZ being connected to a bike. When this is turned on QZ will calculate KCal based on your heart rate. Examples of when to use this setting: ○ To capture Peloton class data for classes without connected equipment (e.g., a strength or yoga workout).. ○ To arrange tiles on the QZ dashboard without connecting to your equipment. ○ To use the QZ Apple Watch app without connecting to your equipment.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
