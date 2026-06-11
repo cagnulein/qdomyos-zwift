@@ -1690,8 +1690,9 @@ import Qt.labs.platform 1.1
 
             property bool garmin_download_workouts_on_start: true
             property bool trainprogram_clipboard_workout_enabled: false
+            property string shortcut_stop: ""   
             property bool ui_custom_dashboard_enabled: false
-            property string ui_custom_dashboard_name: "bike-pro"
+            property string ui_custom_dashboard_name: "bike-pro"            
         }
 
 

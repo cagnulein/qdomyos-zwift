@@ -3157,7 +3157,10 @@ class QZSettings {
 
     static const QString shortcut_start_stop;
     static const QString default_shortcut_start_stop;
-    
+
+    static const QString shortcut_stop;
+    static const QString default_shortcut_stop;
+
     /*
      * @brief Gain multiplier applied to step count calculated from cadence for calibration purposes
      */

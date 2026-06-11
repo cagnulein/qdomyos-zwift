@@ -1233,8 +1233,10 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::ui_custom_dashboard_enabled = QStringLiteral("ui_custom_dashboard_enabled");
 const QString QZSettings::ui_custom_dashboard_name = QStringLiteral("ui_custom_dashboard_name");
 const QString QZSettings::default_ui_custom_dashboard_name = QStringLiteral("bike-pro");
+const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
+const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 963;
+const uint32_t allSettingsCount = 964;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2213,6 +2215,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::shortcut_auto_resistance, QZSettings::default_shortcut_auto_resistance},
     {QZSettings::shortcut_lap, QZSettings::default_shortcut_lap},
     {QZSettings::shortcut_start_stop, QZSettings::default_shortcut_start_stop},
+    {QZSettings::shortcut_stop, QZSettings::default_shortcut_stop},
     {QZSettings::step_gain, QZSettings::default_step_gain},
     {QZSettings::proform_carbon_tlx_treadmill, QZSettings::default_proform_carbon_tlx_treadmill},
     {QZSettings::proform_carbon_tlx_v84_314_treadmill, QZSettings::default_proform_carbon_tlx_v84_314_treadmill},
