@@ -6295,7 +6295,6 @@ import Qt.labs.platform 1.1
                             }
                         }
                     }
-                }
 
                     IndicatorOnlySwitch {
                         text: qsTr("Custom Web Dashboard")
