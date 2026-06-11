@@ -7449,6 +7449,69 @@ import Qt.labs.platform 1.1
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Custom Web Dashboard")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ui_custom_dashboard_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.ui_custom_dashboard_enabled = checked
+                    }
+
+                    Label {
+                        text: qsTr("Replace the home screen with a custom web dashboard. Place your dashboard folder inside the 'dashboards' folder in the QZ data directory, or pick one of the built-in dashboards.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Dashboard:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: customDashboardCombo
+                            model: rootItem.availableDashboards()
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: displayText = currentText
+                            Component.onCompleted: {
+                                var dashboards = rootItem.availableDashboards()
+                                var current = settings.ui_custom_dashboard_name
+                                for (var i = 0; i < dashboards.length; i++) {
+                                    if (dashboards[i] === current) {
+                                        currentIndex = i
+                                        return
+                                    }
+                                }
+                                currentIndex = 0
+                            }
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                var dashboards = rootItem.availableDashboards()
+                                if (customDashboardCombo.currentIndex >= 0 && customDashboardCombo.currentIndex < dashboards.length)
+                                    settings.ui_custom_dashboard_name = dashboards[customDashboardCombo.currentIndex]
+                                toast.show(qsTr("Setting saved!"))
+                            }
+                        }
+                    }
                 }
             }
 
