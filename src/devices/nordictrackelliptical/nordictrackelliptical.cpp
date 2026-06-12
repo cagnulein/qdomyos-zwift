@@ -281,11 +281,11 @@ void nordictrackelliptical::forceIncline(double requestIncline) {
             break;
         }
     } else if (nordictrack_e400) {
-        uint16_t incValue = (uint16_t)qRound(requestIncline * 100.0);
-        uint8_t incCmd[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                            0x02, (uint8_t)(incValue & 0xFF), (uint8_t)((incValue >> 8) & 0xFF), 0x00,
+        uint8_t incValue = (uint8_t)qRound(requestIncline);
+        uint8_t incCmd[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x02,
+                            0x00, 0x10, incValue, 0x00,
                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-        incCmd[14] = incCmd[11] + incCmd[12] + 0x14;
+        incCmd[14] = incCmd[11] + incCmd[12] + 0x13;
         writeCharacteristic(incCmd, sizeof(incCmd), QStringLiteral("incline_e400"), false, true);
     } else if (nordictrack_se7i) {
         // SE7i uses ff 0d packet with byte[10]=0x02 for incline
@@ -422,7 +422,7 @@ void nordictrackelliptical::forceResistance(resistance_t requestResistance) {
     } else if (nordictrack_e400) {
         if (requestResistance < 1)
             requestResistance = 1;
-        uint16_t resValue = ((uint16_t)requestResistance * 500) - 50;
+        uint16_t resValue = ((uint16_t)requestResistance * 500) - 1;
         uint8_t resCmd[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
                             0x04, (uint8_t)(resValue & 0xFF), (uint8_t)((resValue >> 8) & 0xFF), 0x00,
                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -777,6 +777,66 @@ void nordictrackelliptical::update() {
             }
             counterPoll++;
             if (counterPoll > 4) {
+                counterPoll = 0;
+            }
+        } else if (nordictrack_e400) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00,
+                                   0x0d, 0x3c, 0x96, 0x71, 0x00, 0x10, 0x40, 0x40, 0x00, 0x80};
+            uint8_t noOpData3[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x81, 0xfc, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x0b, 0x02};
+            uint8_t noOpData5[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x06, 0x07, 0x02, 0x00,
+                                   0x01, 0x80, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData6[] = {0xfe, 0x02, 0x0c, 0x02};
+            uint8_t noOpData7[] = {0xff, 0x0c, 0x02, 0x04, 0x02, 0x08, 0x06, 0x08, 0x02, 0x00,
+                                   0x02, 0x00, 0x10, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
+                if (requestResistance != -1) {
+                    if (requestResistance < 0)
+                        requestResistance = 0;
+                    if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
+                        requestResistance <= max_resistance) {
+                        emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                        forceResistance(requestResistance);
+                    }
+                    requestResistance = -1;
+                }
+                if (requestInclination != -1) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= max_inclination) {
+                        emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -1;
+                }
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+                break;
+            case 6:
+                writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 6) {
                 counterPoll = 0;
             }
         } else if (nordictrack_se7i) {
@@ -1396,6 +1456,131 @@ void nordictrackelliptical::btinit() {
                                 0x0d, 0x3e, 0x96, 0x31, 0x00, 0x00, 0x40, 0x50, 0x00, 0x80};
         uint8_t noOpData10c[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x85, 0xc2, 0x00, 0x00, 0x00,
                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        if (nordictrack_e400) {
+            max_resistance = 22;
+            max_inclination = 20;
+
+            uint8_t e400InitData1[] = {0xfe, 0x02, 0x08, 0x02};
+            uint8_t e400InitData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
+                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x80, 0x8a,
+                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x88, 0x92,
+                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData5[] = {0xfe, 0x02, 0x0b, 0x02};
+            uint8_t e400InitData6[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00,
+                                       0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData7[] = {0xfe, 0x02, 0x0a, 0x02};
+            uint8_t e400InitData8[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
+                                       0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData9[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
+                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData10[] = {0xfe, 0x02, 0x2c, 0x04};
+            uint8_t e400InitData11[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x06, 0x28, 0x90, 0x04,
+                                        0x00, 0x1d, 0x28, 0x39, 0x48, 0x65, 0x70, 0x99, 0xa0, 0xcd};
+            uint8_t e400InitData12[] = {0x01, 0x12, 0xe8, 0x09, 0x28, 0x45, 0x60, 0x89, 0xd0, 0xfd,
+                                        0x08, 0x59, 0x68, 0xa5, 0xf0, 0x39, 0x40, 0x8d, 0xc8, 0x09};
+            uint8_t e400InitData13[] = {0xff, 0x08, 0x48, 0x85, 0xc0, 0x80, 0x02, 0x00, 0x00, 0xbb,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData14[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t e400InitData15[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x06, 0x15, 0x02, 0x0e,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData16[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3c, 0x00,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData17[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t e400InitData18[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x0c,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData19[] = {0xff, 0x05, 0x00, 0x80, 0x01, 0x00, 0xa8, 0x00, 0x00, 0x00,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData20[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00,
+                                        0x0d, 0x00, 0x10, 0x00, 0xc0, 0x1c, 0x4c, 0x00, 0x00, 0xe0};
+            uint8_t e400InitData21[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x10, 0x50, 0x00, 0x00, 0x00,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData22[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00,
+                                        0x0d, 0x3c, 0x96, 0x71, 0x00, 0x10, 0x40, 0x40, 0x00, 0x80};
+            uint8_t e400InitData23[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x81, 0xfc, 0x00, 0x00, 0x00,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t e400InitData24[] = {0xfe, 0x02, 0x10, 0x02};
+            uint8_t e400InitData25[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x06, 0x0c, 0x02, 0x04,
+                                        0x00, 0x00, 0x00, 0x02, 0x8c, 0x23, 0x00, 0xc9, 0x00, 0x00};
+            uint8_t e400InitData26[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x06, 0x0c, 0x02, 0x05,
+                                        0x00, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x2a, 0x00, 0x00};
+
+            writeCharacteristic(e400InitData1, sizeof(e400InitData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData2, sizeof(e400InitData2), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData1, sizeof(e400InitData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData3, sizeof(e400InitData3), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData1, sizeof(e400InitData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData4, sizeof(e400InitData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData5, sizeof(e400InitData5), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData6, sizeof(e400InitData6), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData7, sizeof(e400InitData7), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData8, sizeof(e400InitData8), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData1, sizeof(e400InitData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData9, sizeof(e400InitData9), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData10, sizeof(e400InitData10), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData11, sizeof(e400InitData11), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData12, sizeof(e400InitData12), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData13, sizeof(e400InitData13), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData14, sizeof(e400InitData14), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData15, sizeof(e400InitData15), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData16, sizeof(e400InitData16), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData17, sizeof(e400InitData17), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData18, sizeof(e400InitData18), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData19, sizeof(e400InitData19), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData17, sizeof(e400InitData17), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData20, sizeof(e400InitData20), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData21, sizeof(e400InitData21), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData17, sizeof(e400InitData17), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData22, sizeof(e400InitData22), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData23, sizeof(e400InitData23), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData24, sizeof(e400InitData24), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData25, sizeof(e400InitData25), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData14, sizeof(e400InitData14), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData15, sizeof(e400InitData15), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData16, sizeof(e400InitData16), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData24, sizeof(e400InitData24), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(e400InitData26, sizeof(e400InitData26), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+
+            initDone = true;
+            return;
+        }
 
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         QThread::msleep(400);
