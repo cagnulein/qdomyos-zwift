@@ -589,6 +589,16 @@ Desideri farlo ora?</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="37"/>
+        <source>Jump Rope</source>
+        <translation>Corda</translation>
+    </message>
+    <message>
+        <location filename="../webtranslation.cpp" line="38"/>
+        <source>Stair Climber</source>
+        <translation>Stepper</translation>
+    </message>
+    <message>
+        <location filename="../webtranslation.cpp" line="37"/>
         <source>Workout Editor</source>
         <translation>Editor di allenamento</translation>
     </message>

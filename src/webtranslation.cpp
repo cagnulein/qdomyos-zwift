@@ -34,6 +34,8 @@ const WebTranslationEntry entries[] = {
     {"device.treadmill", QT_TRANSLATE_NOOP("WebTranslations", "Treadmill")},
     {"device.elliptical", QT_TRANSLATE_NOOP("WebTranslations", "Elliptical")},
     {"device.rower", QT_TRANSLATE_NOOP("WebTranslations", "Rower")},
+    {"device.jumprope", QT_TRANSLATE_NOOP("WebTranslations", "Jump Rope")},
+    {"device.stairclimber", QT_TRANSLATE_NOOP("WebTranslations", "Stair Climber")},
     {"workoutEditor.title", QT_TRANSLATE_NOOP("WebTranslations", "Workout Editor")},
     {"workoutEditor.name", QT_TRANSLATE_NOOP("WebTranslations", "Name")},
     {"workoutEditor.newWorkoutPlaceholder", QT_TRANSLATE_NOOP("WebTranslations", "New workout")},

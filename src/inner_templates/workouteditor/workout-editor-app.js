@@ -12,6 +12,7 @@
     };
 
     const selectors = {};
+    const DEVICE_KEYS = ['bike', 'treadmill', 'elliptical', 'rower', 'jumprope', 'stairclimber'];
 
     function t(key, fallback) {
         if (window.qzTranslate) {
@@ -60,7 +61,9 @@
         rower: [
             { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#fb8c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), axisPosition: 'left' },
             { key: 'cadence', label: () => t('workoutEditor.strokeRate', 'Stroke Rate'), color: '#26a69a', unit: () => 'spm', axis: 'cadenceAxis', axisLabel: () => t('workoutEditor.strokesPerMinute', 'Strokes/min'), axisPosition: 'right' }
-        ]
+        ],
+        jumprope: [],
+        stairclimber: []
     };
 
     // Default values that indicate a field should not be enabled
@@ -341,8 +344,9 @@
             if (window.qzSetTranslations) {
                 window.qzSetTranslations(state.translations);
             }
-            if (content.device) {
-                state.device = content.device;
+            const envDevice = normalizeDevice(content.device);
+            if (envDevice) {
+                state.device = envDevice;
             }
             selectors.device.value = state.device;
         }).catch(err => {
@@ -420,7 +424,7 @@
                         announce(t('workoutEditor.workoutEmptyCannotRead', 'Workout is empty or cannot be read'), true);
                         return;
                     }
-                    applyLoadedRows(rows, name, `Loaded ${name}`);
+                    applyLoadedRows(rows, name, `Loaded ${name}`, normalizeDevice(content.device));
                 })
                 .catch(err => {
                     console.error(err);
@@ -430,9 +434,9 @@
         }, 300); // Give backend time to load the file
     }
 
-    function applyLoadedRows(rows, name, message) {
+    function applyLoadedRows(rows, name, message, deviceHint) {
         state.intervals = rows.map((row, idx) => convertRow(row, idx));
-        state.device = detectDevice(state.intervals) || state.device;
+        state.device = deviceHint || detectDevice(state.intervals) || state.device;
         selectors.device.value = state.device;
         selectors.name.value = name;
         state.lastSaved = name;
@@ -605,6 +609,14 @@
             return true;
         };
 
+        // Check for elliptical before treadmill because elliptical rows also use inclination.
+        for (const row of rows) {
+            if ((hasValidValue(row, 'resistance') || hasValidValue(row, 'maxResistance')) &&
+                hasValidValue(row, 'inclination')) {
+                return 'elliptical';
+            }
+        }
+
         // Check for treadmill: has speed or inclination
         for (const row of rows) {
             if (hasValidValue(row, 'speed') || hasValidValue(row, 'inclination')) {
@@ -612,12 +624,9 @@
             }
         }
 
-        // Check for bike/elliptical: has resistance
+        // Check for bike: has resistance without treadmill-style incline
         for (const row of rows) {
             if (hasValidValue(row, 'resistance') || hasValidValue(row, 'maxResistance')) {
-                if (hasValidValue(row, 'inclination')) {
-                    return 'elliptical';
-                }
                 return 'bike';
             }
         }
@@ -636,7 +645,7 @@
     }
 
     function setDevice(key) {
-        if (!key) {
+        if (!normalizeDevice(key)) {
             return;
         }
         state.device = key;
@@ -693,12 +702,17 @@
             base.cadence = 28;
             base.__enabled_cadence = true;
             break;
-        default:
-            // treadmill - duration is enabled by default, distance is disabled (mutually exclusive)
+        case 'treadmill':
             base.speed = state.miles ? 6.0 : 9.5;
             base.__enabled_speed = true;
             base.inclination = 1.0;
             base.__enabled_inclination = true;
+            base.__enabled_duration = true;
+            base.__enabled_distance = false;
+            break;
+        case 'jumprope':
+        case 'stairclimber':
+        default:
             base.__enabled_duration = true;
             base.__enabled_distance = false;
             break;
@@ -1297,6 +1311,7 @@
         }
         return {
             name: sanitized,
+            device: state.device,
             list: list
         };
     }
@@ -1310,6 +1325,10 @@
             baseName = baseName.slice(0, -4);
         }
         return baseName.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, '_');
+    }
+
+    function normalizeDevice(key) {
+        return DEVICE_KEYS.indexOf(key) >= 0 ? key : null;
     }
 
     function isFieldValidForDevice(field, deviceType) {
@@ -1493,6 +1512,10 @@
             return t('device.elliptical', 'Elliptical');
         case 'rower':
             return t('device.rower', 'Rower');
+        case 'jumprope':
+            return t('device.jumprope', 'Jump Rope');
+        case 'stairclimber':
+            return t('device.stairclimber', 'Stair Climber');
         default:
             return t('device.treadmill', 'Treadmill');
         }
