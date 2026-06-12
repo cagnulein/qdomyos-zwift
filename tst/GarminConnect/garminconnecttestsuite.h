@@ -111,6 +111,18 @@ public:
      * Verifies that time-based pace.zone targets serialize to speed bounds and forcespeed.
      */
     void test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
+
+    /**
+     * @brief Test calendar workout filenames include sport suffixes.
+     *
+     * Verifies that same-day run and ride workouts with the same title do not collide.
+     */
+    void test_workoutFileName_appendsSportSuffix();
+
+    /**
+     * @brief Test calendar workout filenames are sanitized.
+     */
+    void test_workoutFileName_sanitizesUnsafeCharacters();
 };
 
 // Register individual tests with Google Test
@@ -156,6 +168,14 @@ TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogDistanceWorkoutUsesDistanceOnl
 
 TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogEasyRunPaceZoneSetsSpeedAndForceSpeed) {
     this->test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutFileNameAppendsSportSuffix) {
+    this->test_workoutFileName_appendsSportSuffix();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutFileNameSanitizesUnsafeCharacters) {
+    this->test_workoutFileName_sanitizesUnsafeCharacters();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H

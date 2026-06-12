@@ -2275,6 +2275,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(lifespanTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("ECH-ROW")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROWSPORT")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ROW-7S-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROW-S"))) &&
                        !echelonRower && filter) {
                 this->setLastBluetoothDevice(b);

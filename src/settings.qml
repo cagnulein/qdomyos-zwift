@@ -1686,7 +1686,11 @@ import Qt.labs.platform 1.1
             property string shortcut_start_stop: ""            
             property bool horizon_treadmill_omega_z: false
 
-            property string app_language: "auto"
+            property string app_language: "auto"                     
+
+            property bool garmin_download_workouts_on_start: true
+            property bool trainprogram_clipboard_workout_enabled: false         
+            property string shortcut_stop: ""   
             
             property real trainprogram_pid_hr_pushy_zone_limit: 0.8
         }
@@ -1734,7 +1738,7 @@ import Qt.labs.platform 1.1
             { label: qsTr("Japanese"), value: "ja" },
             { label: qsTr("Korean"), value: "ko" },
             { label: qsTr("Arabic"), value: "ar" },
-            { label: qsTr("Hindi"), value: "hi" },
+            { label: "Hindi", value: "hi" },
             { label: qsTr("Turkish"), value: "tr" },
             { label: qsTr("Vietnamese"), value: "vi" },
             { label: qsTr("Polish"), value: "pl" },
@@ -5297,7 +5301,7 @@ import Qt.labs.platform 1.1
                             spacing: 10
                             Label {
                                 id: labelKettlerUsbBaudrate
-                                text: qsTr("Baudrate:")
+                                text: "Baudrate:"
                                 Layout.fillWidth: true
                             }
                             ComboBox {
@@ -7578,7 +7582,7 @@ import Qt.labs.platform 1.1
 
                     Label {
                         id: garminConnectLabel
-                        text: qsTr("Garmin Connect")
+                        text: "Garmin Connect"
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7600,6 +7604,33 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Enable automatic upload of FIT files to Garmin Connect after workouts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Fetch Garmin Workouts on Startup")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.garmin_download_workouts_on_start
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.garmin_download_workouts_on_start = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("Enable automatic download of today's Garmin workout when QZ starts. Default: enabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -7640,7 +7671,7 @@ import Qt.labs.platform 1.1
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: qsTr("Garmin Password:")
+                            text: "Garmin Password:"
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -7667,7 +7698,7 @@ import Qt.labs.platform 1.1
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: qsTr("Garmin Server:")
+                            text: "Garmin Server:"
                             Layout.fillWidth: true
                         }
                         ComboBox {
@@ -8286,6 +8317,33 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Treadmill only: enabling this if you want that QZ will stop the tape at the end of the current train program.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Enable Clipboard Workouts")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trainprogram_clipboard_workout_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trainprogram_clipboard_workout_enabled = checked
+                    }
+
+                    Label {
+                        text: qsTr("Enable detection of ZWO/XML workouts copied to the clipboard. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9885,7 +9943,7 @@ import Qt.labs.platform 1.1
                             }
                             IndicatorOnlySwitch {
                                 id: bhIboxsterPlusDelegate
-                                text: qsTr("BH IBoxster Plus")
+                                text: "BH IBoxster Plus"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10066,7 +10124,7 @@ import Qt.labs.platform 1.1
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: fitfiuMCV460TreadmillDelegate
-                                text: qsTr("Fitfiu MC-460")
+                                text: "Fitfiu MC-460"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10473,7 +10531,7 @@ import Qt.labs.platform 1.1
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
                                 id: fitshowAnyrunDelegate
-                                text: qsTr("AnyRun")
+                                text: "AnyRun"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10486,7 +10544,7 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.fitshow_anyrun = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Atletica Lightspeed")
+                                text: "Atletica Lightspeed"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10963,7 +11021,7 @@ import Qt.labs.platform 1.1
                     } 
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Enerfit SPX 9500 / Toorx SRX 500")
+                        text: "Enerfit SPX 9500 / Toorx SRX 500"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -10977,7 +11035,7 @@ import Qt.labs.platform 1.1
                     } 
 
                     IndicatorOnlySwitch {
-                        text: qsTr("HOP-Sport HS-090h")
+                        text: "HOP-Sport HS-090h"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11036,7 +11094,7 @@ import Qt.labs.platform 1.1
 
                     IndicatorOnlySwitch {
                         id: dknEndurunTreadmillDelegate
-                        text: qsTr("DKN Endurn Treadmill")
+                        text: "DKN Endurn Treadmill"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11168,7 +11226,7 @@ import Qt.labs.platform 1.1
                     }
                     IndicatorOnlySwitch {
                         id: toorxBikeHertzXR770Delegate
-                        text: qsTr("Hertz XR 770 Bike")
+                        text: "Hertz XR 770 Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11500,7 +11558,7 @@ import Qt.labs.platform 1.1
                     }
                     IndicatorOnlySwitch {
                         id: gymstickGX60EllipticalDelegate
-                        text: qsTr("Gymstick GX6.0")
+                        text: "Gymstick GX6.0"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -13312,7 +13370,7 @@ import Qt.labs.platform 1.1
                                     spacing: 0
                                     Label {
                                         id: labelEliteRizerName
-                                        text: qsTr("Elite Rizer:")
+                                        text: "Elite Rizer:"
                                         Layout.fillWidth: true
                                     }
                                     RowLayout {
@@ -13380,7 +13438,7 @@ import Qt.labs.platform 1.1
                                     spacing: 0
                                     Label {
                                         id: labelEliteSterzoSmartName
-                                        text: qsTr("Elite Sterzo Smart:")
+                                        text: "Elite Sterzo Smart:"
                                         Layout.fillWidth: true
                                     }
                                     RowLayout {
@@ -14120,7 +14178,7 @@ import Qt.labs.platform 1.1
                         accordionContent: ColumnLayout {
                             spacing: 0
                             IndicatorOnlySwitch {
-                                text: qsTr("CYCPLUS BC2 Controller")
+                                text: "CYCPLUS BC2 Controller"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0

@@ -207,7 +207,8 @@ ApplicationWindow {
         property string shortcut_preset_powerzone_7: ""
         property string shortcut_auto_resistance: ""
         property string shortcut_lap: ""
-        property string shortcut_start_stop: ""        
+        property string shortcut_start_stop: ""
+        property string shortcut_stop: ""
     }
 
 
@@ -725,6 +726,40 @@ ApplicationWindow {
         onYesClicked: { rootItem.garmin_start_downloaded_workout(); }
         onNoClicked: { rootItem.garmin_dismiss_downloaded_workout_prompt(); }
         visible: rootItem.garminWorkoutPromptRequested
+    }
+
+    MessageDialog {
+        text: "Clipboard Workout"
+        informativeText: "Workout found in clipboard:\n" + rootItem.clipboardWorkoutPromptName +
+                         "\n\nDo you want to open the workout preview?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            var workoutUrl = rootItem.clipboard_workout_url()
+            rootItem.clipboard_accept_workout_prompt()
+            var page = CHARTJS
+                    ? stackView.push("TrainingProgramsListJS.qml", { initialWorkoutUrl: workoutUrl })
+                    : stackView.push("TrainingProgramsList.qml", { initialWorkoutUrl: workoutUrl })
+            page.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+            page.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
+            page.trainprogram_preview.connect(trainprogram_preview)
+            if (page.trainprogram_autostart_requested) {
+                page.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
+            }
+            page.trainprogram_open_clicked.connect(function(url) {
+                stackView.pop();
+            });
+        }
+        onNoClicked: { rootItem.clipboard_dismiss_workout_prompt(); }
+        visible: rootItem.clipboardWorkoutPromptRequested
+    }
+
+    MessageDialog {
+        text: "Clipboard Workout"
+        informativeText: "The clipboard workout has ended.\n\nDo you want to delete the file?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: rootItem.clipboard_delete_finished_workout()
+        onNoClicked: rootItem.clipboard_keep_finished_workout()
+        visible: rootItem.clipboardWorkoutDeletePromptRequested
     }
 
     MessageDialog {
@@ -1267,7 +1302,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.21.2"
+                    text: "version 2.21.5"
                     width: parent.width
                 }
 
@@ -1480,6 +1515,7 @@ ApplicationWindow {
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_auto_resistance; enabled: shortcutReady(sequence); onActivated: rootItem.setAutoResistance(!rootItem.autoResistance) }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_lap; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLap() }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_start_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStartStop() }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStop() }
         }
     }
 }
