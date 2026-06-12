@@ -2,16 +2,20 @@
 #include "devices/bike.h"
 #include "treadmill.h"
 #include <QDirIterator>
+#include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QGuiApplication>
+#include <QClipboard>
 #include <QRegularExpression>
 #include <QNetworkInterface>
 #include <QStandardPaths>
 #include <QTime>
 #include <QQmlFile>
+#include <algorithm>
 #include <limits>
 #ifdef Q_HTTPSERVER
 #include "webserverinfosender.h"
@@ -69,6 +73,15 @@ QString sanitizeTrainingProgramName(const QString &input) {
     trimmed.replace(invalid, QStringLiteral("_"));
     trimmed.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
     return trimmed;
+}
+
+QString uniqueTrainingProgramName(const QString &trainingDir, const QString &baseName) {
+    QString candidate = baseName;
+    int suffix = 2;
+    while (QFile::exists(trainingDir + candidate + QStringLiteral(".xml"))) {
+        candidate = QStringLiteral("%1_%2").arg(baseName).arg(suffix++);
+    }
+    return candidate;
 }
 
 } // namespace
@@ -484,17 +497,31 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
     QString basePath = homeform::getWritableAppDir() + QStringLiteral("training");
     QString fullPath = path.isEmpty() ? basePath : (basePath + QStringLiteral("/") + path);
 
-    // Iterate through directory
-    QDir dir(fullPath);
-    dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-    dir.setSorting(QDir::DirsFirst | QDir::Name);
-    dir.setNameFilters(QStringList() << "*.xml" << "*.zwo");
+    // The Workout Editor needs to see workouts saved in source/type subfolders
+    // such as ride/Garmin and run/Garmin, not only files in training/.
+    QDirIterator it(fullPath,
+                    QStringList() << QStringLiteral("*.xml") << QStringLiteral("*.zwo"),
+                    QDir::Files | QDir::NoDotAndDotDot,
+                    QDirIterator::Subdirectories);
+    QList<QFileInfo> files;
+    while (it.hasNext()) {
+        it.next();
+        files.append(it.fileInfo());
+    }
+    std::sort(files.begin(), files.end(), [](const QFileInfo &a, const QFileInfo &b) {
+        return a.absoluteFilePath().compare(b.absoluteFilePath(), Qt::CaseInsensitive) < 0;
+    });
 
-    QFileInfoList list = dir.entryInfoList();
-    for (const QFileInfo &fileInfo : list) {
+    QDir baseDir(basePath);
+    for (const QFileInfo &fileInfo : qAsConst(files)) {
+        QString relativePath = baseDir.relativeFilePath(fileInfo.absoluteFilePath());
+        relativePath.replace(QStringLiteral("\\"), QStringLiteral("/"));
+
         QJsonObject item;
-        item[QStringLiteral("name")] = fileInfo.fileName();
-        item[QStringLiteral("isFolder")] = fileInfo.isDir();
+        item[QStringLiteral("name")] = relativePath;
+        item[QStringLiteral("fileName")] = fileInfo.fileName();
+        item[QStringLiteral("relativePath")] = relativePath;
+        item[QStringLiteral("isFolder")] = false;
         item[QStringLiteral("path")] = fileInfo.absoluteFilePath();
         item[QStringLiteral("url")] = QUrl::fromLocalFile(fileInfo.absoluteFilePath()).toString();
         outArr.append(item);
@@ -544,13 +571,13 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
     QString filePath = QQmlFile::urlToLocalFileOrQrc(url);
     QString extension = QFileInfo(filePath).suffix().toUpper();
 
-    // Load the training program - use zwiftworkout::load for ZWO files
+    // Load the training program - use zwiftworkout::load for ZWO/ZWO-like files
     QList<trainrow> rows;
     QString description, tags;
     QJsonObject main;
     QJsonObject outObj;
 
-    if (extension == QStringLiteral("ZWO")) {
+    if (zwiftworkout::isZwiftWorkoutFile(filePath, extension)) {
         rows = zwiftworkout::load(filePath, &description, &tags);
     } else {
         const BLUETOOTH_TYPE fallback = device ? device->deviceType() : BIKE;
@@ -1078,6 +1105,68 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onPasteTrainingProgramFromClipboard(const QJsonValue &msgContent,
+                                                                    TemplateInfoSender *tempSender) {
+    QJsonObject main, outObj;
+    outObj[QStringLiteral("ok")] = false;
+
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    const QString xml = clipboard ? clipboard->text().trimmed() : QString();
+    if (xml.isEmpty()) {
+        outObj[QStringLiteral("message")] = QStringLiteral("Clipboard is empty");
+    } else {
+        QString requestedName;
+        if (msgContent.isObject()) {
+            requestedName = msgContent.toObject().value(QStringLiteral("name")).toString();
+        }
+        if (requestedName.endsWith(QStringLiteral(".xml"), Qt::CaseInsensitive)) {
+            requestedName.chop(4);
+        }
+        if (requestedName.trimmed().isEmpty()) {
+            requestedName = QStringLiteral("Clipboard_Workout_%1")
+                                .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss")));
+        }
+
+        const QString trainingDir = homeform::getWritableAppDir() + QStringLiteral("training/");
+        QDir dir(trainingDir);
+        if (!dir.exists()) {
+            dir.mkpath(QStringLiteral("."));
+        }
+        const QString fileName = uniqueTrainingProgramName(trainingDir, sanitizeTrainingProgramName(requestedName));
+
+        const QString fullPath = trainingDir + fileName + QStringLiteral(".xml");
+        QFile file(fullPath);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+            outObj[QStringLiteral("message")] = QStringLiteral("Unable to create workout file");
+        } else {
+            file.write(xml.toUtf8());
+            file.close();
+
+            QList<trainrow> rows = trainprogram::loadXML(fullPath, device ? device->deviceType() : TREADMILL);
+            if (rows.isEmpty()) {
+                QFile::remove(fullPath);
+                outObj[QStringLiteral("message")] = QStringLiteral("Clipboard XML is not a valid QZ workout");
+            } else {
+                QJsonArray outArr;
+                for (auto &row : rows) {
+                    QJsonObject item;
+                    TRAINPROGRAM_FIELD_TO_STRING();
+                    outArr.append(item);
+                }
+                outObj[QStringLiteral("ok")] = true;
+                outObj[QStringLiteral("name")] = fileName + QStringLiteral(".xml");
+                outObj[QStringLiteral("path")] = fullPath;
+                outObj[QStringLiteral("list")] = outArr;
+            }
+        }
+    }
+
+    main[QStringLiteral("content")] = outObj;
+    main[QStringLiteral("msg")] = QStringLiteral("R_pastetrainingprogramclipboard");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onDeleteTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject content;
     QString fileUrl;
@@ -1382,6 +1471,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("savetrainingprogram")) {
                     onSaveTrainingProgram(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("pastetrainingprogramclipboard")) {
+                    onPasteTrainingProgramFromClipboard(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("deletetrainingprogram")) {
                     onDeleteTrainingProgram(jsonObject[QStringLiteral("content")], sender);
