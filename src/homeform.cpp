@@ -8671,6 +8671,8 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
     Q_UNUSED(requestCode)
     Q_UNUSED(localPath)
 #endif
+}
+
 bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
     if (fileUrl.isEmpty()) {
         return false;
