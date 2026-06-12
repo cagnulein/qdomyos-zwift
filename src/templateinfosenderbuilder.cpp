@@ -1,4 +1,5 @@
 #include "templateinfosenderbuilder.h"
+#include "webtranslation.h"
 #include "devices/bike.h"
 #include "treadmill.h"
 #include <QDirIterator>
@@ -807,6 +808,7 @@ void TemplateInfoSenderBuilder::onWorkoutEditorEnv(TemplateInfoSender *tempSende
     } else {
         outObj[QStringLiteral("device")] = QStringLiteral("treadmill");
     }
+    outObj[QStringLiteral("translations")] = WebTranslation::translations();
     QJsonObject main;
     main[QStringLiteral("content")] = outObj;
     main[QStringLiteral("msg")] = QStringLiteral("R_workouteditor_env");
@@ -875,6 +877,14 @@ void TemplateInfoSenderBuilder::onWorkoutEditorStart(const QJsonValue &msgConten
     QJsonObject main;
     main[QStringLiteral("content")] = outObj;
     main[QStringLiteral("msg")] = QStringLiteral("R_workouteditor_start");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onWebTranslations(TemplateInfoSender *tempSender) {
+    QJsonObject main;
+    main[QStringLiteral("content")] = WebTranslation::translations();
+    main[QStringLiteral("msg")] = QStringLiteral("R_webtranslations");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -1465,6 +1475,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("workouteditor_start")) {
                     onWorkoutEditorStart(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("webtranslations")) {
+                    onWebTranslations(sender);
                     return;
                 } else if (msg == QStringLiteral("appendactivitydescription")) {
                     onAppendActivityDescription(jsonObject[QStringLiteral("content")], sender);
