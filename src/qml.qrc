@@ -115,6 +115,7 @@
         <file>inner_templates/chartjs/dochartlive.js</file>
         <file>inner_templates/chartjs/chartlive.htm</file>
         <file>inner_templates/i18n.js</file>
+        <file alias="inner_templates/i18n/i18n.js">inner_templates/i18n.js</file>
         <file>inner_templates/workouteditor/index.html</file>
         <file>inner_templates/workouteditor/workout-editor.css</file>
         <file>inner_templates/workouteditor/workout-editor.js</file>
