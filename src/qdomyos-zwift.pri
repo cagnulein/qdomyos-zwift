@@ -325,6 +325,7 @@ devices/technogymmyruntreadmill/technogymmyruntreadmill.cpp \
 devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.cpp \
 templateinfosender.cpp \
 templateinfosenderbuilder.cpp \
+webtranslation.cpp \
 devices/stagesbike/stagesbike.cpp \
 devices/toorxtreadmill/toorxtreadmill.cpp \
 devices/iconsolebike/iconsolebike.cpp \
@@ -849,6 +850,7 @@ devices/technogymmyruntreadmill/technogymmyruntreadmill.h \
 devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.h \
 templateinfosender.h \
 templateinfosenderbuilder.h \
+webtranslation.h \
 devices/stagesbike/stagesbike.h \
 devices/toorxtreadmill/toorxtreadmill.h \
 devices/iconsolebike/iconsolebike.h \
