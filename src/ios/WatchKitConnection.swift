@@ -150,6 +150,7 @@ extension WatchKitConnection: WCSessionDelegate {
         
         replyValues["distance"] = WatchKitConnection.distance
         replyValues["kcal"] = WatchKitConnection.kcal
+        replyValues["totalKcal"] = WatchKitConnection.totalKcal
         replyValues["cadence"] = WatchKitConnection.cadence
         replyValues["power"] = WatchKitConnection.power
         replyValues["speed"] = WatchKitConnection.speed
