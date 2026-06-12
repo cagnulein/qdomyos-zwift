@@ -84,20 +84,6 @@ QString uniqueTrainingProgramName(const QString &trainingDir, const QString &bas
     return candidate;
 }
 
-QString deviceTypeToKey(BLUETOOTH_TYPE type) {
-    switch (type) {
-    case TREADMILL:
-        return QStringLiteral("treadmill");
-    case BIKE:
-        return QStringLiteral("bike");
-    case ELLIPTICAL:
-        return QStringLiteral("elliptical");
-    case ROWING:
-        return QStringLiteral("rower");
-    default:
-        return QStringLiteral("treadmill");
-    }
-}
 } // namespace
 
 
@@ -562,6 +548,8 @@ void TemplateInfoSenderBuilder::onGetTrainingProgram(const QJsonValue &msgConten
             TRAINPROGRAM_FIELD_TO_STRING();
             outArr.append(item);
         }
+        outObj[QStringLiteral("device")] =
+            trainprogram::deviceTypeToXmlKey(homeform::singleton()->trainingProgram()->loadedDeviceType);
     }
     outObj[QStringLiteral("list")] = outArr;
     outObj[QStringLiteral("name")] = fileXml;
@@ -586,16 +574,19 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
     // Load the training program - use zwiftworkout::load for ZWO/ZWO-like files
     QList<trainrow> rows;
     QString description, tags;
+    QJsonObject main;
+    QJsonObject outObj;
 
     if (zwiftworkout::isZwiftWorkoutFile(filePath, extension)) {
         rows = zwiftworkout::load(filePath, &description, &tags);
     } else {
-        rows = trainprogram::loadXML(filePath, (device ? device->deviceType() : BIKE));
+        const BLUETOOTH_TYPE fallback = device ? device->deviceType() : BIKE;
+        const BLUETOOTH_TYPE programDevice = trainprogram::xmlDeviceType(filePath, fallback);
+        rows = trainprogram::loadXML(filePath, programDevice);
+        outObj[QStringLiteral("device")] = trainprogram::deviceTypeToXmlKey(programDevice);
     }
 
     // Build workout preview data
-    QJsonObject main;
-    QJsonObject outObj;
     QJsonArray watts, speed, inclination, resistance, cadence;
 
     if (!rows.isEmpty()) {
@@ -812,7 +803,7 @@ void TemplateInfoSenderBuilder::onWorkoutEditorEnv(TemplateInfoSender *tempSende
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     outObj[QStringLiteral("miles")] = miles;
     if (device) {
-        outObj[QStringLiteral("device")] = deviceTypeToKey(device->deviceType());
+        outObj[QStringLiteral("device")] = trainprogram::deviceTypeToXmlKey(device->deviceType());
     } else {
         outObj[QStringLiteral("device")] = QStringLiteral("treadmill");
     }
@@ -1001,6 +992,11 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
         fileName.chop(4);
     }
     fileName = sanitizeTrainingProgramName(fileName);
+    BLUETOOTH_TYPE programDevice =
+        trainprogram::deviceTypeFromXmlKey(content.value(QStringLiteral("device")).toString());
+    if (programDevice == UNKNOWN && device) {
+        programDevice = device->deviceType();
+    }
     QList<trainrow> trainRows;
     trainRows.reserve(rows.size() + 1);
     for (const auto &r : qAsConst(rows)) {
@@ -1097,8 +1093,9 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
         dir.mkpath(QStringLiteral("."));
     }
     outObj[QStringLiteral("name")] = fileName;
-    if (trainprogram::saveXML(trainingDir + fileName + QStringLiteral(".xml"), trainRows)) {
+    if (trainprogram::saveXML(trainingDir + fileName + QStringLiteral(".xml"), trainRows, programDevice)) {
         outObj[QStringLiteral("list")] = trainRows.size();
+        outObj[QStringLiteral("device")] = trainprogram::deviceTypeToXmlKey(programDevice);
     } else {
         outObj[QStringLiteral("list")] = 0;
     }
