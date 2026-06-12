@@ -3,102 +3,95 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Treadmill Pro · QZ Dashboard</title>
+  <title>Treadmill Pro · QZ</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app">
 
-    <!-- PROGRAM HEADER -->
-    <div id="program-header" class="program-hidden">
-      <div id="program-top">
-        <div id="program-name">–</div>
-        <div id="program-interval"></div>
+    <!-- TOP BAR -->
+    <div id="topbar">
+      <span id="conn-status">CONNECTING…</span>
+      <span id="elapsed">00:00</span>
+      <span id="topbar-right"></span>
+    </div>
+
+    <!-- CURRENT SEGMENT -->
+    <div id="segment-section">
+      <div id="segment-label">CURRENT</div>
+      <div id="segment-name">–</div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div id="stats-row">
+      <div class="stat-item">
+        <div class="stat-value" id="val-dist">–</div>
+        <div class="stat-label">DISTANCE</div>
       </div>
-      <div id="program-row-info"></div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <div class="stat-value" id="val-time">00:00</div>
+        <div class="stat-label">TIME</div>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <div class="stat-value" id="val-avg-speed">–</div>
+        <div class="stat-label">AVG SPEED</div>
+      </div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div id="progress-section">
       <div id="progress-track">
+        <div id="progress-dots"></div>
         <div id="progress-fill"></div>
-        <div id="progress-glow"></div>
-      </div>
-      <div id="progress-footer">
-        <span id="prog-label">Session progress</span>
-        <span id="row-remaining"></span>
       </div>
     </div>
 
-    <!-- SPEED HERO -->
-    <div id="speed-hero">
-      <div id="speed-label">CURRENT SPEED</div>
-      <div id="speed-number-wrap">
-        <div id="speed-value">0.0</div>
-        <div id="speed-unit">km/h</div>
-      </div>
+    <!-- NEXT LAP / MIDDLE SECTION -->
+    <div id="middle-section">
       <canvas id="sparkline"></canvas>
-      <div id="speed-subrow">
-        <div class="sub-stat">
-          <span class="sub-val" id="speed-avg">–</span>
-          <span class="sub-lbl">AVG</span>
+      <div id="next-lap-label">NEXT LAP</div>
+      <div id="lap-stats">
+        <div class="lap-item">
+          <div class="lap-value" id="val-pace">–</div>
+          <div class="lap-label">PACE min/km</div>
         </div>
-        <div id="speed-divider"></div>
-        <div class="sub-stat">
-          <span class="sub-val" id="speed-max">–</span>
-          <span class="sub-lbl">MAX</span>
+        <div class="lap-item lap-hr">
+          <div class="lap-value" id="val-hr">–</div>
+          <div class="lap-label"><span class="hr-icon">♥</span> HEART RATE</div>
         </div>
-        <div id="speed-divider2"></div>
-        <div class="sub-stat" id="target-wrap" style="display:none">
-          <span class="sub-val" id="speed-target">–</span>
-          <span class="sub-lbl">TARGET</span>
+        <div class="lap-item">
+          <div class="lap-value" id="val-cadence">–</div>
+          <div class="lap-label">CADENCE spm</div>
         </div>
       </div>
     </div>
 
-    <!-- METRIC TILES -->
-    <div id="metrics">
-      <div class="tile tile-pace">
-        <div class="tile-icon">⏱</div>
-        <div class="tile-value" id="val-pace">–</div>
-        <div class="tile-label">PACE  min/km</div>
+    <!-- SPEED CONTROL -->
+    <div id="speed-control" class="control-row control-speed">
+      <button class="ctrl-btn ctrl-minus" onclick="sendCmd('speed-')">−</button>
+      <div class="ctrl-center">
+        <div class="ctrl-value" id="val-speed">0.0</div>
+        <div class="ctrl-sub" id="val-target-speed"></div>
       </div>
-      <div class="tile tile-incline">
-        <div class="tile-icon">⛰</div>
-        <div class="tile-value" id="val-incline">0.0</div>
-        <div class="tile-label">INCLINE  %</div>
-      </div>
-      <div class="tile tile-cadence">
-        <div class="tile-icon">👟</div>
-        <div class="tile-value" id="val-cadence">–</div>
-        <div class="tile-label">CADENCE  spm</div>
-      </div>
-      <div class="tile tile-hr">
-        <div class="tile-icon hr-icon">♥</div>
-        <div class="tile-value" id="val-hr">–</div>
-        <div class="tile-label">HEART RATE  bpm</div>
-      </div>
+      <button class="ctrl-btn ctrl-plus" onclick="sendCmd('speed+')">+</button>
     </div>
 
-    <!-- BOTTOM ROW -->
-    <div id="bottom">
-      <div class="bottom-stat">
-        <div class="bottom-val" id="val-dist">–</div>
-        <div class="bottom-lbl">KM</div>
+    <!-- INCLINE CONTROL -->
+    <div id="incline-control" class="control-row control-incline">
+      <button class="ctrl-btn ctrl-minus" onclick="sendCmd('inclination-')">−</button>
+      <div class="ctrl-center">
+        <div class="ctrl-value" id="val-incline">0.0</div>
+        <div class="ctrl-sub">INCLINE</div>
       </div>
-      <div class="bottom-sep"></div>
-      <div class="bottom-stat">
-        <div class="bottom-val" id="val-watts">–</div>
-        <div class="bottom-lbl">WATTS</div>
-      </div>
-      <div class="bottom-sep"></div>
-      <div class="bottom-stat">
-        <div class="bottom-val" id="val-kcal">–</div>
-        <div class="bottom-lbl">KCAL</div>
-      </div>
+      <button class="ctrl-btn ctrl-plus" onclick="sendCmd('inclination+')">+</button>
     </div>
 
-    <!-- STATUS STRIP -->
-    <div id="statusbar">
-      <div id="live-badge"><span id="live-dot"></span>LIVE</div>
-      <div id="elapsed">00:00</div>
-      <div id="conn-status">CONNECTING…</div>
+    <!-- ACTION BUTTONS -->
+    <div id="action-row">
+      <button class="action-btn action-secondary" onclick="sendCmd('lap')">↺ Next Lap</button>
+      <button class="action-btn action-primary" id="pause-btn" onclick="togglePause()">⏸ Pause</button>
     </div>
 
   </div>

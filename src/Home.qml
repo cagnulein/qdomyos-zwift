@@ -47,6 +47,7 @@ HomeForm {
     Loader {
         id: customDashboardLoader
         active: settings.ui_custom_dashboard_enabled
+        visible: !window.sideBarVisible
         anchors.fill: parent
         anchors.topMargin: 0
         z: 10

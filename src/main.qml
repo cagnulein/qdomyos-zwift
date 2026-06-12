@@ -132,6 +132,7 @@ ApplicationWindow {
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
     property bool gymModePopupDismissed: false
+    property bool sideBarVisible: false
 
     Settings {
         id: settings
@@ -1107,6 +1108,8 @@ ApplicationWindow {
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
         Accessible.ignored: !drawer.opened
+        onOpened: window.sideBarVisible = true
+        onClosed: window.sideBarVisible = false
 
         ScrollView {
             contentWidth: -1

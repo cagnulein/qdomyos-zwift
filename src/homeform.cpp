@@ -10566,17 +10566,22 @@ void homeform::clearFiles() {
 }
 
 QStringList homeform::availableDashboards() {
+    static const QStringList excluded = {
+        QStringLiteral("chartjs"),       QStringLiteral("googlemaps"),
+        QStringLiteral("maps2d"),        QStringLiteral("floating"),
+        QStringLiteral("previewchart"),  QStringLiteral("workouteditor"),
+        QStringLiteral("workoutpreview"),QStringLiteral("trainingbrowser"),
+    };
     QStringList result;
-    // built-in dashboards from Qt resources
     QDir resDir(QStringLiteral(":/inner_templates"));
     for (const QString &name : resDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-        if (QFile::exists(QStringLiteral(":/inner_templates/") + name + QStringLiteral("/index.html")))
+        if (!excluded.contains(name) &&
+            QFile::exists(QStringLiteral(":/inner_templates/") + name + QStringLiteral("/index.html")))
             result << name;
     }
-    // user dashboards from writable storage
     QDir userDir(getWritableAppDir() + QStringLiteral("dashboards"));
     for (const QString &name : userDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-        if (!result.contains(name) &&
+        if (!excluded.contains(name) && !result.contains(name) &&
             QFile::exists(userDir.filePath(name + QStringLiteral("/index.html"))))
             result << name;
     }
