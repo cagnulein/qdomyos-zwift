@@ -4951,6 +4951,8 @@ bool homeform::handleKeyboardShortcut(const QString &sequence) {
         Lap();
     } else if (matches(QZSettings::shortcut_start_stop, QZSettings::default_shortcut_start_stop)) {
         StartRequested();
+    } else if (matches(QZSettings::shortcut_stop, QZSettings::default_shortcut_stop)) {
+        StopRequested();
     } else {
         return false;
     }
@@ -5525,10 +5527,7 @@ void homeform::Minus(const QString &name) {
         }
     } else if (name.contains(QStringLiteral("remainingtimetrainprogramrow"))) {
         if (bluetoothManager->device() && trainProgram) {
-            // Offset:
-            // 1. To account for current tick
-            // 2. To bounce back to previous
-            trainProgram->decreaseElapsedTime(QTime(0, 0, 0).secsTo(trainProgram->currentRowElapsedTime()) + 2);
+            trainProgram->goToPreviousRow();
         }
     } else if (name.contains(QStringLiteral("peloton_offset")) || name.contains(QStringLiteral("peloton_remaining"))) {
         if (bluetoothManager->device() && trainProgram) {
@@ -6099,7 +6098,10 @@ void homeform::update() {
             remaningTimeTrainingProgramCurrentRow->setValue(
                 trainProgram->currentRowRemainingTime().toString(QStringLiteral("h:mm:ss")));
             remaningTimeTrainingProgramCurrentRow->setSecondLine(
-                trainProgram->currentRowElapsedTime().toString(QStringLiteral("h:mm:ss")));
+                trainProgram->currentRowElapsedTime().toString(QStringLiteral("h:mm:ss")) +
+                QStringLiteral(" (") + QString::number(trainProgram->currentLogicalStep()) +
+                QStringLiteral("/") + QString::number(trainProgram->totalLogicalSteps()) +
+                QStringLiteral(")"));
             targetMets->setValue(QString::number(trainProgram->currentTargetMets(), 'f', 1));
             trainrow next = trainProgram->getRowFromCurrent(1);
             trainrow next_1 = trainProgram->getRowFromCurrent(2);
@@ -8783,11 +8785,85 @@ void homeform::saveSessionAsTrainingProgram() {
     }
 
     // Save the XML file
-    if (trainprogram::saveXML(filename, rows)) {
+    if (trainprogram::saveXML(filename, rows, dev ? dev->deviceType() : UNKNOWN)) {
         lastTrainProgramFileSaved = filename;
         qDebug() << "Session saved as training program:" << filename;
     }
 }
+
+#ifdef Q_OS_ANDROID
+static void healthConnectWriteWorkout(const QList<SessionLine> &session, bluetoothdevice *dev, const QString &workoutName) {
+    if (!dev || session.isEmpty()) {
+        return;
+    }
+
+    QJsonArray samples;
+    for (const SessionLine &line : session) {
+        if (!line.time.isValid()) {
+            continue;
+        }
+
+        QJsonObject sample;
+        sample.insert(QStringLiteral("time"), static_cast<double>(line.time.toMSecsSinceEpoch()));
+        sample.insert(QStringLiteral("speed"), line.speed);
+        sample.insert(QStringLiteral("inclination"), line.inclination);
+        sample.insert(QStringLiteral("distance"), line.distance);
+        sample.insert(QStringLiteral("watt"), static_cast<int>(line.watt));
+        sample.insert(QStringLiteral("resistance"), line.resistance);
+        sample.insert(QStringLiteral("peloton_resistance"), line.peloton_resistance);
+        sample.insert(QStringLiteral("heart"), static_cast<int>(line.heart));
+        sample.insert(QStringLiteral("pace"), line.pace);
+        sample.insert(QStringLiteral("cadence"), static_cast<int>(line.cadence));
+        sample.insert(QStringLiteral("calories"), line.calories);
+        sample.insert(QStringLiteral("elevationGain"), line.elevationGain);
+        sample.insert(QStringLiteral("negativeElevationGain"), line.negativeElevationGain);
+        sample.insert(QStringLiteral("elapsedTime"), static_cast<int>(line.elapsedTime));
+        sample.insert(QStringLiteral("totalStrokes"), static_cast<int>(line.totalStrokes));
+        sample.insert(QStringLiteral("avgStrokesRate"), line.avgStrokesRate);
+        sample.insert(QStringLiteral("maxStrokesRate"), line.maxStrokesRate);
+        sample.insert(QStringLiteral("avgStrokesLength"), line.avgStrokesLength);
+        sample.insert(QStringLiteral("instantaneousStrideLengthCM"), line.instantaneousStrideLengthCM);
+        sample.insert(QStringLiteral("groundContactMS"), line.groundContactMS);
+        sample.insert(QStringLiteral("verticalOscillationMM"), line.verticalOscillationMM);
+        sample.insert(QStringLiteral("stepCount"), line.stepCount);
+        sample.insert(QStringLiteral("coreTemp"), line.coreTemp);
+        sample.insert(QStringLiteral("bodyTemp"), line.bodyTemp);
+        sample.insert(QStringLiteral("heatStrainIndex"), line.heatStrainIndex);
+        sample.insert(QStringLiteral("hrv"), line.hrv);
+
+        if (line.coordinate.isValid()) {
+            sample.insert(QStringLiteral("latitude"), line.coordinate.latitude());
+            sample.insert(QStringLiteral("longitude"), line.coordinate.longitude());
+            sample.insert(QStringLiteral("altitude"), line.coordinate.altitude());
+        }
+
+        samples.append(sample);
+    }
+
+    if (samples.isEmpty()) {
+        return;
+    }
+
+    QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod(
+        "org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+    if (!activity.isValid()) {
+        qDebug() << "Health Connect upload skipped: Android activity is not available";
+        return;
+    }
+
+    const QString title = workoutName.isEmpty() ? QStringLiteral("QZ workout") : workoutName;
+    QAndroidJniObject jTitle = QAndroidJniObject::fromString(title);
+    QAndroidJniObject jDeviceName = QAndroidJniObject::fromString(dev->bluetoothDevice.name());
+    QAndroidJniObject jSamplesJson =
+        QAndroidJniObject::fromString(QString::fromUtf8(QJsonDocument(samples).toJson(QJsonDocument::Compact)));
+
+    QAndroidJniObject::callStaticMethod<void>(
+        "org/cagnulen/qdomyoszwift/HealthConnectHelper", "writeWorkoutJson",
+        "(Landroid/content/Context;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;)V",
+        activity.object<jobject>(), jTitle.object<jstring>(), static_cast<jint>(dev->deviceType()),
+        jDeviceName.object<jstring>(), jSamplesJson.object<jstring>());
+}
+#endif
 
 void homeform::fit_save_clicked() {
 
@@ -8833,6 +8909,10 @@ void homeform::fit_save_clicked() {
             fitProcessor->processFile(filename);
             workoutModel->refresh();
         }
+
+#ifdef Q_OS_ANDROID
+        healthConnectWriteWorkout(Session, dev, workoutName);
+#endif
 
         QSettings settings;
         if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken)

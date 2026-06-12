@@ -13464,6 +13464,16 @@
       "visible": true,
       "defaultValue": true,
       "defaultExpression": "true",
+      "key": "shortcut_stop",
+      "name": "Stop",
+      "description": null,
+      "parent": "Keyboard Shortcuts",
+      "type": "string",
+      "qmlType": "string",
+      "control": "text",
+      "visible": true,
+      "defaultValue": "",
+      "defaultExpression": "\"\"",
       "options": null
     },
     {
