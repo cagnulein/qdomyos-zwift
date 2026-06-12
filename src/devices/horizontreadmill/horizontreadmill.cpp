@@ -1285,6 +1285,12 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                 requestSpeed *= miles_conversion;   // these treadmills want the speed in miles when miles_unit is enabled
             }
         }
+        if(settings.value(QZSettings::horizon_treadmill_7_0_at_24, QZSettings::default_horizon_treadmill_7_0_at_24).toBool()) {
+            bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+            if(!miles) {
+                requestSpeed *= miles_conversion;   // this treadmill interprets FTMS speed commands as mph even in km/h mode
+            }
+        }
         uint16_t speed_int = round(requestSpeed * 100);
         writeS[1] = speed_int & 0xFF;
         writeS[2] = speed_int >> 8;

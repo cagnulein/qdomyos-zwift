@@ -1449,7 +1449,7 @@ import Qt.labs.platform 1.1
             property bool ios_btdevice_native: false            
             property string inclinationResistancePoints: ""
             property int floatingwindow_type: 0
-            property bool horizon_treadmill_7_0_at_24: false  // not used
+            property bool horizon_treadmill_7_0_at_24: false
 
             property bool nordictrack_treadmill_ultra_le: false            
 
@@ -10661,6 +10661,20 @@ import Qt.labs.platform 1.1
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                id: horizon7_0ATTreadmillDelegate
+                                text: qsTr("Horizon 7.0AT speed fix (FTMS)")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.horizon_treadmill_7_0_at_24
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.horizon_treadmill_7_0_at_24 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
                                 id: horizon78TreadmillDelegate
