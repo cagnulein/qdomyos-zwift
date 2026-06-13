@@ -7794,6 +7794,7 @@ void homeform::update() {
             uint8_t delta = 10;
             bool trainprogram_pid_pushy = settings.value(QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy).toBool();
             double trainprogram_pid_hr_pushy_zone_limit = settings.value(QZSettings::trainprogram_pid_hr_pushy_zone_limit, QZSettings::default_trainprogram_pid_hr_pushy_zone_limit).toDouble();
+            double trainprogram_pid_hr_recovery_zone_limit = settings.value(QZSettings::trainprogram_pid_hr_recovery_zone_limit, QZSettings::default_trainprogram_pid_hr_recovery_zone_limit).toDouble();
             bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR >= 0;
             double maxSpeed = 30;
             double minSpeed = 0;
@@ -7893,11 +7894,7 @@ void homeform::update() {
                                 double zone1Limit =
                                     settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
                                         .toDouble();
-                                double zone2Limit =
-                                    settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2)
-                                        .toDouble();
-                                double zoneWidth = qMax(1.0, zone2Limit - zone1Limit);
-                                double zone1LowerLimit = qMax(0.0, zone1Limit - zoneWidth);
+                                double zone1LowerLimit = qBound(0.0, trainprogram_pid_hr_recovery_zone_limit, zone1Limit - 1.0);
                                 double effectiveZone1Width = zone1Limit - zone1LowerLimit;
                                 if (effectiveZone1Width > 0.0) {
                                     double maxHeartRate = heartRateMax();

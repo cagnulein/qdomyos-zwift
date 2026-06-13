@@ -2479,6 +2479,9 @@ class QZSettings {
     static const QString trainprogram_pid_hr_pushy_zone_limit;
     static constexpr double default_trainprogram_pid_hr_pushy_zone_limit = 0.8;
 
+    static const QString trainprogram_pid_hr_recovery_zone_limit;
+    static constexpr double default_trainprogram_pid_hr_recovery_zone_limit = 60.0;
+
     static const QString min_inclination;
     static constexpr double default_min_inclination = -999.0;
 
