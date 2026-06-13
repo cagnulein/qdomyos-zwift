@@ -209,8 +209,8 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
 void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt,
                                        unsigned short currentCalories, unsigned long long currentSteps,
                                        unsigned char deviceType, double currentDistance, double totalKcal,
-                                       bool useMiles, unsigned char heartRate, const char *compactLeadingMetric,
-                                       int liveActivityHeartRate, int compactLeadingValue, const char *compactTrailingMetric,
+                                       bool useMiles, unsigned char heartRate, int liveActivityHeartRate,
+                                       const char *compactLeadingMetric, int compactLeadingValue, const char *compactTrailingMetric,
                                        int compactTrailingValue) {
     const double healthCadence = (deviceType == BIKE) ? cadence : cadence * 2.0;
     if(workoutTracking != nil && !appleWatchAppInstalled())
