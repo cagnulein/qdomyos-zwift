@@ -117,7 +117,7 @@ void domyoselliptical::updateDisplay(uint16_t elapsed) {
 void domyoselliptical::forceInclination(int8_t requestInclination) {
     uint8_t write[] = {0xf0, 0xe3, 0x00, 0x00};
 
-    write[2] = requestInclination;
+    write[2] = requestInclination + 1;
 
     for (uint8_t i = 0; i < sizeof(write) - 1; i++) {
 
@@ -220,8 +220,7 @@ void domyoselliptical::update() {
                 forceResistance(requestResistance);
             }
             requestResistance = -1;
-        }
-        if (requestInclination != -100 && inclinationAvailableByHardware()) {
+        } else if (requestInclination != -100 && inclinationAvailableByHardware()) {
             if (requestInclination > 15) {
                 requestInclination = 15;
             } else if (requestInclination == 0) {
