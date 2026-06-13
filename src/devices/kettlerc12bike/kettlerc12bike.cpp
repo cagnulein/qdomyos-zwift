@@ -289,6 +289,7 @@ void kettlerc12bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         const uint16_t flags = readUInt16LE(newValue, 0);
         int index = 4;
         m_watt = (int16_t)readUInt16LE(newValue, 2);
+        lastCyclingPower = now;
         emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
         if (flags & 0x01) {
@@ -385,8 +386,13 @@ void kettlerc12bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         const QBluetoothUuid uuid = characteristic.uuid();
 
         if (uuid == KETTLER_POWER_CHAR_UUID || handle == 0x3e) {
-            m_watt = value;
-            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+            const bool hasRecentCyclingPower =
+                lastCyclingPower.isValid() && lastCyclingPower.msecsTo(now) < 3000;
+
+            if (!hasRecentCyclingPower) {
+                m_watt = value;
+                emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+            }
         } else if (uuid == KETTLER_SPEED_CHAR_UUID || handle == 0x48) {
             Speed = value / 10.0;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));

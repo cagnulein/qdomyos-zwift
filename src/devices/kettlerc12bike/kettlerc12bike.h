@@ -80,6 +80,7 @@ class kettlerc12bike : public bike {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
+    QDateTime lastCyclingPower;
     uint8_t firstStateChanged = 0;
     uint16_t oldLastCrankEventTime = 0;
     double oldCrankRevs = 0;
