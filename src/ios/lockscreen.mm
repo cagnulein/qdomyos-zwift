@@ -210,7 +210,7 @@ void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, uns
                                        unsigned short currentCalories, unsigned long long currentSteps,
                                        unsigned char deviceType, double currentDistance, double totalKcal,
                                        bool useMiles, unsigned char heartRate, const char *compactLeadingMetric,
-                                       int compactLeadingValue, const char *compactTrailingMetric,
+                                       int liveActivityHeartRate, int compactLeadingValue, const char *compactTrailingMetric,
                                        int compactTrailingValue) {
     const double healthCadence = (deviceType == BIKE) ? cadence : cadence * 2.0;
     if(workoutTracking != nil && !appleWatchAppInstalled())
@@ -220,7 +220,7 @@ void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, uns
     if (!ios_liveactivity::isLiveActivityRunning()) {
         ios_liveactivity::startLiveActivity("QZ", useMiles, compactLeadingMetric, compactTrailingMetric);
     }
-    ios_liveactivity::updateLiveActivity(speed, cadence, watt, heartRate, currentDistance, currentCalories, useMiles,
+    ios_liveactivity::updateLiveActivity(speed, cadence, watt, liveActivityHeartRate, currentDistance, currentCalories, useMiles,
                                          compactLeadingMetric, compactLeadingValue, compactTrailingMetric,
                                          compactTrailingValue);
 }
