@@ -46,18 +46,17 @@
 
 #include <QtNetwork/QAbstractSocket>
 
-#include <private/qobject_p.h>
-
 QT_BEGIN_NAMESPACE
 
-class QMqttClientPrivate : public QObjectPrivate
+class QMqttClientPrivate
 {
     Q_DECLARE_PUBLIC(QMqttClient)
 public:
     QMqttClientPrivate(QMqttClient *c);
-    ~QMqttClientPrivate() override;
+    ~QMqttClientPrivate();
     void setStateAndError(QMqttClient::ClientState s, QMqttClient::ClientError e = QMqttClient::NoError);
     void setClientId(const QString &id);
+    QMqttClient *q_ptr{nullptr};
     QMqttClient *m_client{nullptr};
     QString m_hostname;
     quint16 m_port{0};

@@ -340,11 +340,15 @@ Q_LOGGING_CATEGORY(lcMqttClient, "qt.mqtt.client")
 /*
     Creates a new MQTT client instance with the specified \a parent.
  */
-QMqttClient::QMqttClient(QObject *parent) : QObject(*(new QMqttClientPrivate(this)), parent)
+QMqttClient::QMqttClient(QObject *parent)
+    : QObject(parent)
+    , d_ptr(new QMqttClientPrivate(this))
 {
     Q_D(QMqttClient);
     d->m_connection.setClientPrivate(d);
 }
+
+QMqttClient::~QMqttClient() = default;
 
 /*!
     Sets the transport to \a device. A transport can be either a socket type
@@ -1044,7 +1048,7 @@ void QMqttClient::setError(ClientError e)
 }
 
 QMqttClientPrivate::QMqttClientPrivate(QMqttClient *c)
-    : QObjectPrivate()
+    : q_ptr(c)
 {
     m_client = c;
     m_clientId = QUuid::createUuid().toString();

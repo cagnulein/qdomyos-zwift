@@ -42,16 +42,16 @@
 //
 
 #include "qmqttsubscription.h"
-#include <QtCore/private/qobject_p.h>
 
 QT_BEGIN_NAMESPACE
 
-class QMqttSubscriptionPrivate : public QObjectPrivate
+class QMqttSubscriptionPrivate
 {
     Q_DECLARE_PUBLIC(QMqttSubscription)
 public:
-    QMqttSubscriptionPrivate();
-    ~QMqttSubscriptionPrivate() override = default;
+    QMqttSubscriptionPrivate(QMqttSubscription *q);
+    ~QMqttSubscriptionPrivate() = default;
+    QMqttSubscription *q_ptr{nullptr};
     QMqttClient *m_client{nullptr};
     QMqttTopicFilter m_topic;
     QString m_reasonString;

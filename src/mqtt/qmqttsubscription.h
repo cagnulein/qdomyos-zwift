@@ -35,6 +35,7 @@
 #include "qmqtttopicfilter.h"
 
 #include <QtCore/QObject>
+#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 
@@ -92,6 +93,7 @@ private:
     friend class QMqttConnection;
     friend class QMqttClient;
     explicit QMqttSubscription(QObject *parent = nullptr);
+    QScopedPointer<QMqttSubscriptionPrivate> d_ptr;
 };
 
 QT_END_NAMESPACE

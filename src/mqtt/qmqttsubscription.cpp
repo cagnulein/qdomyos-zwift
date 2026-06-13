@@ -116,7 +116,9 @@ QT_BEGIN_NAMESPACE
     \brief This property holds the name of the shared subscription.
 */
 
-QMqttSubscription::QMqttSubscription(QObject *parent) : QObject(*(new QMqttSubscriptionPrivate), parent)
+QMqttSubscription::QMqttSubscription(QObject *parent)
+    : QObject(parent)
+    , d_ptr(new QMqttSubscriptionPrivate(this))
 {
 
 }
@@ -241,8 +243,8 @@ void QMqttSubscription::setSharedSubscriptionName(const QString &name)
     d->m_sharedSubscriptionName = name;
 }
 
-QMqttSubscriptionPrivate::QMqttSubscriptionPrivate()
-    : QObjectPrivate()
+QMqttSubscriptionPrivate::QMqttSubscriptionPrivate(QMqttSubscription *q)
+    : q_ptr(q)
 {
 
 }

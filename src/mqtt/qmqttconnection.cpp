@@ -36,6 +36,7 @@
 #include "qmqttclient_p.h"
 
 #include <QtCore/QLoggingCategory>
+#include <QtCore/QTimerEvent>
 #include <QtNetwork/QSslSocket>
 #include <QtNetwork/QTcpSocket>
 

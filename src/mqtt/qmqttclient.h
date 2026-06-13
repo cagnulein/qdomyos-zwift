@@ -41,6 +41,7 @@
 #include <QtCore/QIODevice>
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QScopedPointer>
 #include <QtNetwork/QTcpSocket>
 #ifndef QT_NO_SSL
 #include <QtNetwork/QSslConfiguration>
@@ -111,6 +112,7 @@ private:
     Q_PROPERTY(bool autoKeepAlive READ autoKeepAlive WRITE setAutoKeepAlive NOTIFY autoKeepAliveChanged)
 public:
     explicit QMqttClient(QObject *parent = nullptr);
+    ~QMqttClient() override;
 
     void setTransport(QIODevice *device, TransportType transport);
     QIODevice *transport() const;
@@ -217,6 +219,7 @@ private:
     void connectToHost(bool encrypted, const QString &sslPeerName);
     Q_DISABLE_COPY(QMqttClient)
     Q_DECLARE_PRIVATE(QMqttClient)
+    QScopedPointer<QMqttClientPrivate> d_ptr;
 };
 
 Q_DECLARE_TYPEINFO(QMqttClient::TransportType, Q_PRIMITIVE_TYPE);
