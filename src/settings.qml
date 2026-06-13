@@ -1693,6 +1693,7 @@ import Qt.labs.platform 1.1
             property string shortcut_stop: ""   
             
             property real trainprogram_pid_hr_pushy_zone_limit: 0.8
+            property real trainprogram_pid_hr_recovery_zone_limit: 60.0
         }
 
 
@@ -8523,6 +8524,40 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("PID Recovery Zone Lower Limit (%):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pidHrRecoveryZoneLimitTextField
+                            text: settings.trainprogram_pid_hr_recovery_zone_limit
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_pid_hr_recovery_zone_limit = parseFloat(pidHrRecoveryZoneLimitTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Lower HR boundary (% of max HR) that defines the bottom of Zone 1 for 'Pushy' mode. Below this percentage the treadmill is at the bottom of the recovery area. Default: 60.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
