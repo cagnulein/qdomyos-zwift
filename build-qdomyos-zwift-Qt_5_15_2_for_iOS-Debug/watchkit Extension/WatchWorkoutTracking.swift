@@ -252,6 +252,8 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     
     func stopWorkOut() {
         print("Stop workout")
+        WorkoutTracking.kcal = WatchKitConnection.kcal
+        WorkoutTracking.totalKcal = WatchKitConnection.totalKcal
         workoutSession.stopActivity(with: Date())
         workoutSession.end()
         

@@ -72,8 +72,10 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
             WatchKitConnection.distance = dDistance
             let dKcal = Double(result["kcal"] as! Double)
             WatchKitConnection.kcal = dKcal
+            WorkoutTracking.kcal = dKcal
             if let totalKcalDouble = result["totalKcal"] as? Double {
                 WatchKitConnection.totalKcal = totalKcalDouble
+                WorkoutTracking.totalKcal = totalKcalDouble
             }
             
             let dSpeed = Double(result["speed"] as! Double)
