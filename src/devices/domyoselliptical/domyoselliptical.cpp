@@ -207,6 +207,7 @@ void domyoselliptical::update() {
             writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), true, true);
         }
 
+        bool forceWritten = false;
         if (requestResistance != -1) {
             if (requestResistance > 15) {
                 requestResistance = 15;
@@ -218,9 +219,11 @@ void domyoselliptical::update() {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
 
                 forceResistance(requestResistance);
+                forceWritten = true;
             }
             requestResistance = -1;
-        } else if (requestInclination != -100 && inclinationAvailableByHardware()) {
+        }
+        if (!forceWritten && requestInclination != -100 && inclinationAvailableByHardware()) {
             if (requestInclination > 15) {
                 requestInclination = 15;
             } else if (requestInclination == 0) {
