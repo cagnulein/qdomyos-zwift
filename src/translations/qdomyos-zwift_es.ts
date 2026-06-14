@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="es_ES">
 <context>
@@ -151,8 +151,8 @@ Would you like to do that now?</source>
     </message>
     <message>
         <location filename="../HomeForm.ui.qml" line="206"/>
-        <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn't, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the 'virtual device' setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
-        <translation>Esta aplicación debería conectarse automáticamente a su bicicleta/caminadora/máquina de remo. &lt;b&gt;Si no lo hace, compruebe lo siguiente:&lt;/b&gt;:&lt;br&gt;1) Su aplicación Echelon/Domyos DEBE estar cerrada mientras qdomyos-zwift se está ejecutando;&lt;br&gt;2) Tanto Bluetooth como los permisos de Bluetooth DEBEN estar habilitados&lt;br&gt;3) Su bicicleta/caminadora/máquina de remo debe estar encendida ANTES de iniciar esta aplicación&lt;br&gt;4) Intente reiniciar su dispositivo&lt;br&gt;&lt;br&gt;Si su bicicleta/caminadora se desconecta cada 30 segundos, intente desactivar la configuración de 'dispositivo virtual' en la barra izquierda.&lt;br&gt;&lt;br&gt;En caso de problemas, no dude en ponerse en contacto conmigo en roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;¡Que tenga un buen paseo!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ renuncia específicamente a cualquier responsabilidad por&lt;br&gt;daños incidentales o consecuenciales y no asume&lt;br&gt;ninguna responsabilidad ni obligación por cualquier pérdida&lt;br&gt;o daño sufrido por cualquier persona como resultado de&lt;br&gt;el uso o mal uso de la aplicación.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
+        <source>This app should automatically connect to your bike/treadmill/rower. &lt;b&gt;If it doesn&apos;t, please check&lt;/b&gt;:&lt;br&gt;1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;&lt;br&gt;2) both Bluetooth and Bluetooth permissions MUST be enabled&lt;br&gt;3) your bike/treadmill/rower should be turned on BEFORE starting this app&lt;br&gt;4) try to restart your device&lt;br&gt;&lt;br&gt;If your bike/treadmill disconnects every 30 seconds try to disable the &apos;virtual device&apos; setting on the left bar.&lt;br&gt;&lt;br&gt;In case of issues, please feel free to contact me at roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;Have a nice ride!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ specifically disclaims liability for&lt;br&gt;incidental or consequential damages and assumes&lt;br&gt;no responsibility or liability for any loss&lt;br&gt;or damage suffered by any person as a result of&lt;br&gt;the use or misuse of the app.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</source>
+        <translation>Esta aplicación debería conectarse automáticamente a su bicicleta/caminadora/máquina de remo. &lt;b&gt;Si no lo hace, compruebe lo siguiente:&lt;/b&gt;:&lt;br&gt;1) Su aplicación Echelon/Domyos DEBE estar cerrada mientras qdomyos-zwift se está ejecutando;&lt;br&gt;2) Tanto Bluetooth como los permisos de Bluetooth DEBEN estar habilitados&lt;br&gt;3) Su bicicleta/caminadora/máquina de remo debe estar encendida ANTES de iniciar esta aplicación&lt;br&gt;4) Intente reiniciar su dispositivo&lt;br&gt;&lt;br&gt;Si su bicicleta/caminadora se desconecta cada 30 segundos, intente desactivar la configuración de &apos;dispositivo virtual&apos; en la barra izquierda.&lt;br&gt;&lt;br&gt;En caso de problemas, no dude en ponerse en contacto conmigo en roberto.viola83@gmail.com.&lt;br&gt;&lt;br&gt;&lt;b&gt;¡Que tenga un buen paseo!&lt;/b&gt;&lt;br/ &gt;&lt;i&gt;QZ renuncia específicamente a cualquier responsabilidad por&lt;br&gt;daños incidentales o consecuenciales y no asume&lt;br&gt;ninguna responsabilidad ni obligación por cualquier pérdida&lt;br&gt;o daño sufrido por cualquier persona como resultado de&lt;br&gt;el uso o mal uso de la aplicación.&lt;/i&gt;&lt;br&gt;&lt;br&gt;Roberto Viola</translation>
     </message>
 </context>
 <context>
@@ -352,7 +352,7 @@ Would you like to do that now?</source>
     <message>
         <location filename="../mainwindow.ui" line="1109"/>
         <source>&amp;Load</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1116"/>
@@ -367,7 +367,7 @@ Would you like to do that now?</source>
     <message>
         <location filename="../mainwindow.ui" line="1159"/>
         <source>S&amp;top</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="349"/>
@@ -428,13 +428,13 @@ Would you like to do that now?</source>
     <name>SwagBagView</name>
     <message>
         <location filename="../SwagBagView.qml" line="66"/>
-        <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The "Swag Bag" is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
-        <translation>¡Hola! ¿Sabías que QZ es solo una aplicación independiente de código abierto?&lt;br&gt;&lt;br&gt;¡Ninguna gran empresa está detrás de esto!&lt;br&gt;¡La "Swag Bag" es una forma de apoyar el desarrollo, mantenimiento y soporte continuo de QZ Fitness!</translation>
+        <source>Hi! Do you know that QZ is just an Open Source Indie App?&lt;br&gt;&lt;br&gt;No Big Companies are running this!&lt;br&gt;The &quot;Swag Bag&quot; is a way to support the ongoing development, maintenance and support of QZ Fitness!</source>
+        <translation>¡Hola! ¿Sabías que QZ es solo una aplicación independiente de código abierto?&lt;br&gt;&lt;br&gt;¡Ninguna gran empresa está detrás de esto!&lt;br&gt;¡La &quot;Swag Bag&quot; es una forma de apoyar el desarrollo, mantenimiento y soporte continuo de QZ Fitness!</translation>
     </message>
     <message>
         <location filename="../SwagBagView.qml" line="92"/>
-        <source>&lt;html&gt;&lt;style type='text/css'&gt;&lt;/style&gt;Swag bag feature:&lt;br&gt;• an auto-renewable subscription&lt;br&gt;• 1 month ($1.99)&lt;br&gt;• Your subscription will be charged to your iTunes account at confirmation of purchase and will automatically renew (at the duration selected) unless auto-renew is turned off at least 24 hours before the end of the current period.&lt;br&gt;• Current subscription may not be cancelled during the active subscription period; however, you can manage your subscription and/or turn off auto-renewal by visiting your iTunes Account Settings after purchase.&lt;br&gt;• Privacy policy: &lt;a href='https://robertoviola.cloud/privacy-policy-qdomyos-zwift/'&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• Licensed Application end user license agreement: &lt;a href='https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;style type='text/css'&gt;&lt;/style&gt;Función de bolsa de regalos:&lt;br&gt;• una suscripción de auto-renovación&lt;br&gt;• 1 mes ($1.99)&lt;br&gt;• Su suscripción se cargará a su cuenta de iTunes al confirmar la compra y se renovará automáticamente (por la duración seleccionada) a menos que se desactive la renovación automática al menos 24 horas antes de que finalice el período actual.&lt;br&gt;• La suscripción actual no puede cancelarse durante el período de suscripción activo; sin embargo, puede gestionar su suscripción y/o desactivar la renovación automática visitando la Configuración de la cuenta de iTunes después de la compra.&lt;br&gt;• Política de privacidad: &lt;a href='https://robertoviola.cloud/privacy-policy-qdomyos-zwift/'&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• Acuerdo de licencia de usuario final de la aplicación con licencia: &lt;a href='https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;style type=&apos;text/css&apos;&gt;&lt;/style&gt;Swag bag feature:&lt;br&gt;• an auto-renewable subscription&lt;br&gt;• 1 month ($1.99)&lt;br&gt;• Your subscription will be charged to your iTunes account at confirmation of purchase and will automatically renew (at the duration selected) unless auto-renew is turned off at least 24 hours before the end of the current period.&lt;br&gt;• Current subscription may not be cancelled during the active subscription period; however, you can manage your subscription and/or turn off auto-renewal by visiting your iTunes Account Settings after purchase.&lt;br&gt;• Privacy policy: &lt;a href=&apos;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&apos;&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• Licensed Application end user license agreement: &lt;a href=&apos;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&apos;&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;style type=&apos;text/css&apos;&gt;&lt;/style&gt;Función de bolsa de regalos:&lt;br&gt;• una suscripción de auto-renovación&lt;br&gt;• 1 mes ($1.99)&lt;br&gt;• Su suscripción se cargará a su cuenta de iTunes al confirmar la compra y se renovará automáticamente (por la duración seleccionada) a menos que se desactive la renovación automática al menos 24 horas antes de que finalice el período actual.&lt;br&gt;• La suscripción actual no puede cancelarse durante el período de suscripción activo; sin embargo, puede gestionar su suscripción y/o desactivar la renovación automática visitando la Configuración de la cuenta de iTunes después de la compra.&lt;br&gt;• Política de privacidad: &lt;a href=&apos;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&apos;&gt;https://robertoviola.cloud/privacy-policy-qdomyos-zwift/&lt;/a&gt;&lt;br&gt;• Acuerdo de licencia de usuario final de la aplicación con licencia: &lt;a href=&apos;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&apos;&gt;https://www.apple.com/legal/internet-services/itunes/dev/stdeula/&lt;/a&gt;&lt;br&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -565,7 +565,7 @@ Would you like to do that now?</source>
     <message>
         <location filename="../webtranslation.cpp" line="32"/>
         <source>No</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="33"/>
@@ -589,671 +589,681 @@ Would you like to do that now?</source>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="37"/>
+        <source>Jump Rope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../webtranslation.cpp" line="38"/>
+        <source>Stair Climber</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../webtranslation.cpp" line="39"/>
         <source>Workout Editor</source>
         <translation>Editor de entrenamiento</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="38"/>
+        <location filename="../webtranslation.cpp" line="40"/>
         <source>Name</source>
         <translation>Nombre</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="39"/>
+        <location filename="../webtranslation.cpp" line="41"/>
         <source>New workout</source>
         <translation>Nuevo entrenamiento</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="40"/>
+        <location filename="../webtranslation.cpp" line="42"/>
         <source>Device</source>
         <translation>Dispositivo</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="41"/>
+        <location filename="../webtranslation.cpp" line="43"/>
         <source>Paste XML</source>
         <translation>Pegar XML</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="42"/>
+        <location filename="../webtranslation.cpp" line="44"/>
         <source>Save &amp; Start</source>
         <translation>Guardar &amp; Empezar</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="43"/>
+        <location filename="../webtranslation.cpp" line="45"/>
         <source>Advanced</source>
         <translation>Avanzado</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="44"/>
+        <location filename="../webtranslation.cpp" line="46"/>
         <source>Add Interval</source>
         <translation>Añadir Intervalo</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="45"/>
+        <location filename="../webtranslation.cpp" line="47"/>
         <source>Repeat Selection</source>
         <translation>Repetir Selección</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="46"/>
+        <location filename="../webtranslation.cpp" line="48"/>
         <source>Select consecutive rows to repeat them quickly.</source>
         <translation>Selecciona filas consecutivas para repetirlas rápidamente.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="47"/>
+        <location filename="../webtranslation.cpp" line="49"/>
         <source>Workout Preview</source>
         <translation>Vista previa del entrenamiento</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="48"/>
-        <source>Total:</source>
-        <translation type="unfinished"/>
-    </message>
-    <message>
-        <location filename="../webtranslation.cpp" line="49"/>
-        <source>Intervals:</source>
-        <translation type="unfinished"/>
-    </message>
-    <message>
         <location filename="../webtranslation.cpp" line="50"/>
+        <source>Total:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../webtranslation.cpp" line="51"/>
+        <source>Intervals:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../webtranslation.cpp" line="52"/>
         <source>Offline mode: changes not saved</source>
         <translation>Modo sin conexión: los cambios no se guardaron</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="51"/>
+        <location filename="../webtranslation.cpp" line="53"/>
         <source>Select saved workout</source>
         <translation>Seleccionar entrenamiento guardado</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="52"/>
+        <location filename="../webtranslation.cpp" line="54"/>
         <source>No saved workouts</source>
         <translation>No entrenamientos guardados</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="53"/>
+        <location filename="../webtranslation.cpp" line="55"/>
         <source>Label</source>
         <translation>Etiqueta</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="54"/>
+        <location filename="../webtranslation.cpp" line="56"/>
         <source>Duration</source>
         <translation>Duración</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="55"/>
+        <location filename="../webtranslation.cpp" line="57"/>
         <source>Distance</source>
         <translation>Distancia</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="56"/>
-        <location filename="../webtranslation.cpp" line="164"/>
+        <location filename="../webtranslation.cpp" line="58"/>
+        <location filename="../webtranslation.cpp" line="166"/>
         <source>Speed</source>
         <translation>Velocidad</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="57"/>
+        <location filename="../webtranslation.cpp" line="59"/>
         <source>Pace</source>
         <translation>Ritmo</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="58"/>
+        <location filename="../webtranslation.cpp" line="60"/>
         <source>Incline</source>
         <translation>Pendiente</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="59"/>
-        <location filename="../webtranslation.cpp" line="172"/>
+        <location filename="../webtranslation.cpp" line="61"/>
+        <location filename="../webtranslation.cpp" line="174"/>
         <source>Resistance</source>
         <translation>Resistencia</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="60"/>
-        <location filename="../webtranslation.cpp" line="165"/>
+        <location filename="../webtranslation.cpp" line="62"/>
+        <location filename="../webtranslation.cpp" line="167"/>
         <source>Cadence</source>
         <translation>Cadencia</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="61"/>
+        <location filename="../webtranslation.cpp" line="63"/>
         <source>Power</source>
         <translation>Poder</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="62"/>
+        <location filename="../webtranslation.cpp" line="64"/>
         <source>Force Speed</source>
         <translation>Velocidad de fuerza</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="63"/>
+        <location filename="../webtranslation.cpp" line="65"/>
         <source>Fan</source>
         <translation>Ventilador</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="64"/>
+        <location filename="../webtranslation.cpp" line="66"/>
         <source>Peloton Res.</source>
         <translation>Res. Peloton</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="65"/>
+        <location filename="../webtranslation.cpp" line="67"/>
         <source>HR Loop (s)</source>
         <translation>Ciclo de FC (s)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="66"/>
+        <location filename="../webtranslation.cpp" line="68"/>
         <source>HR Zone</source>
         <translation>Zona de FC</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="67"/>
+        <location filename="../webtranslation.cpp" line="69"/>
         <source>HR Min</source>
         <translation>Frecuencia cardíaca Min</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="68"/>
+        <location filename="../webtranslation.cpp" line="70"/>
         <source>HR Max</source>
         <translation>FC Máx</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="69"/>
+        <location filename="../webtranslation.cpp" line="71"/>
         <source>Min Speed</source>
         <translation>Velocidad mínima</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="70"/>
-        <location filename="../webtranslation.cpp" line="144"/>
+        <location filename="../webtranslation.cpp" line="72"/>
+        <location filename="../webtranslation.cpp" line="146"/>
         <source>Max Speed</source>
         <translation>Velocidad máxima</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="71"/>
+        <location filename="../webtranslation.cpp" line="73"/>
         <source>Max Resistance</source>
         <translation>Máxima Resistencia</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="72"/>
+        <location filename="../webtranslation.cpp" line="74"/>
         <source>Ramp</source>
         <translation>Rampa</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="73"/>
+        <location filename="../webtranslation.cpp" line="75"/>
         <source>Stroke Rate</source>
         <translation>Frecuencia de brazada</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="74"/>
+        <location filename="../webtranslation.cpp" line="76"/>
         <source>Strokes/min</source>
         <translation>Golpes/min</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="75"/>
+        <location filename="../webtranslation.cpp" line="77"/>
         <source>Speed (mph)</source>
         <translation>Velocidad (mph)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="76"/>
+        <location filename="../webtranslation.cpp" line="78"/>
         <source>Speed (km/h)</source>
         <translation>Velocidad (km/h)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="77"/>
+        <location filename="../webtranslation.cpp" line="79"/>
         <source>Incline (%)</source>
         <translation>Pendiente (%)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="78"/>
+        <location filename="../webtranslation.cpp" line="80"/>
         <source>Cadence (rpm)</source>
         <translation>Cadencia (rpm)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="79"/>
+        <location filename="../webtranslation.cpp" line="81"/>
         <source>Power (W)</source>
         <translation>Potencia (W)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="80"/>
+        <location filename="../webtranslation.cpp" line="82"/>
         <source>Ramp (%)</source>
         <translation>Pendiente (%)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="81"/>
+        <location filename="../webtranslation.cpp" line="83"/>
         <source>Offline mode: load/save/start disabled</source>
         <translation>Modo sin conexión: cargar/guardar/iniciar deshabilitado</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="82"/>
+        <location filename="../webtranslation.cpp" line="84"/>
         <source>Interval added</source>
         <translation>Interval añadido</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="83"/>
+        <location filename="../webtranslation.cpp" line="85"/>
         <source>Remove all intervals?</source>
         <translation>Eliminar todos los intervalos?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="84"/>
+        <location filename="../webtranslation.cpp" line="86"/>
         <source>Offline: cannot delete workouts</source>
         <translation>Sin conexión: no se pueden eliminar entrenamientos</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="85"/>
+        <location filename="../webtranslation.cpp" line="87"/>
         <source>Offline: cannot load workouts</source>
         <translation>Sin conexión: no se pueden cargar entrenamientos</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="86"/>
+        <location filename="../webtranslation.cpp" line="88"/>
         <source>Offline: cannot save workouts</source>
         <translation>Sin conexión: no se pueden guardar entrenamientos</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="87"/>
+        <location filename="../webtranslation.cpp" line="89"/>
         <source>Offline: cannot start workouts</source>
         <translation>Sin conexión: no se pueden iniciar entrenamientos</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="88"/>
+        <location filename="../webtranslation.cpp" line="90"/>
         <source>Offline: cannot read clipboard</source>
         <translation>Sin conexión: no se puede leer el portapapeles</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="89"/>
+        <location filename="../webtranslation.cpp" line="91"/>
         <source>Select a workout to load</source>
         <translation>Selecciona un entrenamiento para cargar</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="90"/>
+        <location filename="../webtranslation.cpp" line="92"/>
         <source>Select a workout to delete</source>
         <translation>Selecciona un entrenamiento para eliminar</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="91"/>
+        <location filename="../webtranslation.cpp" line="93"/>
         <source>Offline: cannot refresh list</source>
         <translation>Sin conexión: no se puede actualizar la lista</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="92"/>
+        <location filename="../webtranslation.cpp" line="94"/>
         <source>Environment not available</source>
         <translation>Entorno no disponible</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="93"/>
+        <location filename="../webtranslation.cpp" line="95"/>
         <source>Cannot load program list</source>
         <translation>No se puede cargar la lista de programas</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="94"/>
+        <location filename="../webtranslation.cpp" line="96"/>
         <source>Cannot find workout file</source>
         <translation>No se puede encontrar el archivo de entrenamiento</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="95"/>
+        <location filename="../webtranslation.cpp" line="97"/>
         <source>New workout ready</source>
         <translation>Nuevo entrenamiento listo</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="96"/>
+        <location filename="../webtranslation.cpp" line="98"/>
         <source>Workout is empty or cannot be read</source>
         <translation>El entrenamiento está vacío o no se puede leer</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="97"/>
+        <location filename="../webtranslation.cpp" line="99"/>
         <source>Unable to load workout</source>
         <translation>No se pudo cargar el entrenamiento</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="98"/>
+        <location filename="../webtranslation.cpp" line="100"/>
         <source>Unable to paste XML from clipboard</source>
         <translation>No se pudo pegar XML del portapapeles</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="99"/>
+        <location filename="../webtranslation.cpp" line="101"/>
         <source>Clipboard XML is empty or cannot be read</source>
         <translation>El portapapeles XML está vacío o no se puede leer</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="100"/>
+        <location filename="../webtranslation.cpp" line="102"/>
         <source>Workout pasted from clipboard</source>
         <translation>Entrenamiento pegado del portapapeles</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="101"/>
-        <source>Are you sure you want to delete "{name}"? This cannot be undone.</source>
-        <translation>¿Está seguro de que desea eliminar "{name}"? Esta acción no se puede deshacer.</translation>
+        <location filename="../webtranslation.cpp" line="103"/>
+        <source>Are you sure you want to delete &quot;{name}&quot;? This cannot be undone.</source>
+        <translation>¿Está seguro de que desea eliminar &quot;{name}&quot;? Esta acción no se puede deshacer.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="102"/>
+        <location filename="../webtranslation.cpp" line="104"/>
         <source>Delete Workout</source>
         <translation>Eliminar entrenamiento</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="103"/>
+        <location filename="../webtranslation.cpp" line="105"/>
         <source>Failed to delete workout</source>
         <translation>No se pudo eliminar el entrenamiento</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="104"/>
+        <location filename="../webtranslation.cpp" line="106"/>
         <source>Unable to delete workout</source>
         <translation>No se puede eliminar el entrenamiento</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="105"/>
+        <location filename="../webtranslation.cpp" line="107"/>
         <source>Select interval</source>
         <translation>Seleccionar intervalo</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="106"/>
+        <location filename="../webtranslation.cpp" line="108"/>
         <source>Interval {number}</source>
         <translation>Intervalo {number}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="107"/>
+        <location filename="../webtranslation.cpp" line="109"/>
         <source>Cannot remove the only interval</source>
         <translation>No se puede eliminar el único intervalo</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="108"/>
+        <location filename="../webtranslation.cpp" line="110"/>
         <source>Save failed</source>
         <translation>Guardar falló</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="109"/>
+        <location filename="../webtranslation.cpp" line="111"/>
         <source>Saved {name}</source>
         <translation>Guardado {name}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="110"/>
+        <location filename="../webtranslation.cpp" line="112"/>
         <source>Workout file not ready, please try again</source>
         <translation>El archivo de entrenamiento no está listo, por favor inténtalo de nuevo</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="111"/>
+        <location filename="../webtranslation.cpp" line="113"/>
         <source>Unable to save workout</source>
         <translation>No se pudo guardar el entrenamiento</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="112"/>
+        <location filename="../webtranslation.cpp" line="114"/>
         <source>Workout started</source>
         <translation>Entrenamiento iniciado</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="113"/>
+        <location filename="../webtranslation.cpp" line="115"/>
         <source>Add at least one interval</source>
         <translation>Añadir al menos un intervalo</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="114"/>
+        <location filename="../webtranslation.cpp" line="116"/>
         <source>Invalid duration in intervals</source>
         <translation>Duración no válida en intervalos</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="115"/>
+        <location filename="../webtranslation.cpp" line="117"/>
         <source>Enable duration or enter a valid distance</source>
         <translation>Habilitar duración o introducir una distancia válida</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="116"/>
+        <location filename="../webtranslation.cpp" line="118"/>
         <source>Select one or more consecutive intervals first</source>
         <translation>Selecciona uno o más intervalos consecutivos primero</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="117"/>
+        <location filename="../webtranslation.cpp" line="119"/>
         <source>Selection must be consecutive</source>
         <translation>Selección debe ser consecutiva</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="118"/>
+        <location filename="../webtranslation.cpp" line="120"/>
         <source>Repeat block how many times (total cycles)?</source>
         <translation>Repetir bloque ¿cuántas veces (ciclos totales)?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="119"/>
+        <location filename="../webtranslation.cpp" line="121"/>
         <source>Repeat cancelled</source>
         <translation>Repetir cancelado</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="120"/>
+        <location filename="../webtranslation.cpp" line="122"/>
         <source>Enter a number greater than 1</source>
         <translation>Ingresa un número mayor que 1</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="121"/>
+        <location filename="../webtranslation.cpp" line="123"/>
         <source>Error repeating selection: {message}</source>
         <translation>Error al repetir selección: {message}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="122"/>
+        <location filename="../webtranslation.cpp" line="124"/>
         <source>Training Programs Browser</source>
         <translation>Catálogo de Programas de Entrenamiento</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="123"/>
+        <location filename="../webtranslation.cpp" line="125"/>
         <source>Filter:</source>
         <translation>Filtro:</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="124"/>
+        <location filename="../webtranslation.cpp" line="126"/>
         <source>Search...</source>
         <translation>Buscar...</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="125"/>
+        <location filename="../webtranslation.cpp" line="127"/>
         <source>Select a workout to preview</source>
         <translation>Selecciona un entrenamiento para previsualizar</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="126"/>
+        <location filename="../webtranslation.cpp" line="128"/>
         <source>Other Folders</source>
         <translation>Otras carpetas</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="127"/>
+        <location filename="../webtranslation.cpp" line="129"/>
         <source>Start Workout?</source>
         <translation>¿Empezar entrenamiento?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="128"/>
+        <location filename="../webtranslation.cpp" line="130"/>
         <source>Do you want to automatically start this workout?</source>
         <translation>¿Quieres iniciar este entrenamiento automáticamente?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="129"/>
+        <location filename="../webtranslation.cpp" line="131"/>
         <source>Line Chart</source>
         <translation>Gráfico de líneas</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="130"/>
+        <location filename="../webtranslation.cpp" line="132"/>
         <source>Time (seconds)</source>
         <translation>Tiempo (segundos)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="131"/>
+        <location filename="../webtranslation.cpp" line="133"/>
         <source>Value</source>
         <translation>Valor</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="132"/>
+        <location filename="../webtranslation.cpp" line="134"/>
         <source>Cadence (RPM)</source>
         <translation>Cadencia (RPM)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="133"/>
+        <location filename="../webtranslation.cpp" line="135"/>
         <source>Inclination (%)</source>
         <translation>Inclinación (%)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="134"/>
+        <location filename="../webtranslation.cpp" line="136"/>
         <source>Avg Output</source>
         <translation>Potencia promedio</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="135"/>
+        <location filename="../webtranslation.cpp" line="137"/>
         <source>Max Output</source>
         <translation>Máx. Potencia</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="136"/>
+        <location filename="../webtranslation.cpp" line="138"/>
         <source>Total Output</source>
         <translation>Potencia total</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="137"/>
-        <location filename="../webtranslation.cpp" line="167"/>
+        <location filename="../webtranslation.cpp" line="139"/>
+        <location filename="../webtranslation.cpp" line="169"/>
         <source>Calories</source>
         <translation>Calorías</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="138"/>
+        <location filename="../webtranslation.cpp" line="140"/>
         <source>AVG Cadence</source>
         <translation>Promedio Cadencia</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="139"/>
+        <location filename="../webtranslation.cpp" line="141"/>
         <source>Max Cadence</source>
         <translation>Cadencia máxima</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="140"/>
+        <location filename="../webtranslation.cpp" line="142"/>
         <source>AVG Resistance</source>
         <translation>Resistencia promedio</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="141"/>
+        <location filename="../webtranslation.cpp" line="143"/>
         <source>AVG Heart Rate</source>
         <translation>Frecuencia cardíaca promedio</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="142"/>
+        <location filename="../webtranslation.cpp" line="144"/>
         <source>Max Heart Rate</source>
         <translation>Frecuencia cardíaca máxima</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="143"/>
+        <location filename="../webtranslation.cpp" line="145"/>
         <source>AVG Speed</source>
         <translation>Velocidad promedio</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="145"/>
+        <location filename="../webtranslation.cpp" line="147"/>
         <source>Watts</source>
         <translation>Vatios</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="146"/>
+        <location filename="../webtranslation.cpp" line="148"/>
         <source>Req. Watts</source>
         <translation>Requis. Vatios</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="147"/>
+        <location filename="../webtranslation.cpp" line="149"/>
         <source>Target R.</source>
         <translation>Objetivo R.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="148"/>
+        <location filename="../webtranslation.cpp" line="150"/>
         <source>Target C.</source>
         <translation>Objetivo C.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="149"/>
+        <location filename="../webtranslation.cpp" line="151"/>
         <source>Target Speed (km/h)</source>
         <translation>Velocidad objetivo (km/h)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="150"/>
+        <location filename="../webtranslation.cpp" line="152"/>
         <source>Target Speed (mph)</source>
         <translation>Velocidad objetivo (mph)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="151"/>
+        <location filename="../webtranslation.cpp" line="153"/>
         <source>Target Incline</source>
         <translation>Inclinación objetivo</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="152"/>
+        <location filename="../webtranslation.cpp" line="154"/>
         <source>Peloton Workout in progress!</source>
         <translation>Entrenamiento de Peloton en curso!</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="153"/>
+        <location filename="../webtranslation.cpp" line="155"/>
         <source>Do you want to follow the resistance?</source>
         <translation>¿Deseas seguir la resistencia?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="154"/>
+        <location filename="../webtranslation.cpp" line="156"/>
         <source>SPEED</source>
         <translation>VELOCIDAD</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="155"/>
+        <location filename="../webtranslation.cpp" line="157"/>
         <source>INCLINE</source>
         <translation>Pendiente</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="156"/>
+        <location filename="../webtranslation.cpp" line="158"/>
         <source>PACE</source>
         <translation>Ritmo</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="157"/>
+        <location filename="../webtranslation.cpp" line="159"/>
         <source>ELEV.</source>
         <translation>ALT.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="158"/>
+        <location filename="../webtranslation.cpp" line="160"/>
         <source>CADENCE</source>
         <translation>Cadencia</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="159"/>
+        <location filename="../webtranslation.cpp" line="161"/>
         <source>PULSE</source>
         <translation>PULSO</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="160"/>
+        <location filename="../webtranslation.cpp" line="162"/>
         <source>POWER</source>
         <translation>Potencia</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="161"/>
+        <location filename="../webtranslation.cpp" line="163"/>
         <source>RESISTANCE</source>
         <translation>Resistencia</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="162"/>
+        <location filename="../webtranslation.cpp" line="164"/>
         <source>CALORIES</source>
         <translation>CALORÍAS</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="163"/>
+        <location filename="../webtranslation.cpp" line="165"/>
         <source>DISTANCE</source>
         <translation>DISTANCIA</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="166"/>
+        <location filename="../webtranslation.cpp" line="168"/>
         <source>Heart</source>
         <translation>Corazón</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="168"/>
+        <location filename="../webtranslation.cpp" line="170"/>
         <source>Odometer</source>
         <translation>Odómetro</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="169"/>
+        <location filename="../webtranslation.cpp" line="171"/>
         <source>Watt</source>
         <translation>Watt</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="170"/>
+        <location filename="../webtranslation.cpp" line="172"/>
         <source>Elapsed</source>
         <translation>Tiempo transcurrido</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="171"/>
+        <location filename="../webtranslation.cpp" line="173"/>
         <source>Inclination</source>
         <translation>Inclinación</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="173"/>
+        <location filename="../webtranslation.cpp" line="175"/>
         <source>Altitude</source>
         <translation>Altitud</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="174"/>
+        <location filename="../webtranslation.cpp" line="176"/>
         <source>Elevation</source>
         <translation>Elevación</translation>
     </message>
@@ -1301,12 +1311,12 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     </message>
     <message>
         <location filename="../Wizard.qml" line="181"/>
-        <source>I'm fine, thanks.</source>
+        <source>I&apos;m fine, thanks.</source>
         <translation>Estoy bien, gracias.</translation>
     </message>
     <message>
         <location filename="../Wizard.qml" line="211"/>
-        <source>What's your fitness device?</source>
+        <source>What&apos;s your fitness device?</source>
         <translation>¿Cuál es tu dispositivo de fitness?</translation>
     </message>
     <message>
@@ -1436,7 +1446,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     </message>
     <message>
         <location filename="../Wizard.qml" line="690"/>
-        <source>QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout</source>
+        <source>QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn&apos;t work on workout</source>
         <translation>QZ leerá la inclinación en tiempo real desde la aplicación Zwift y ajustará la inclinación en su caminadora. No funciona en entrenamiento</translation>
     </message>
     <message>
@@ -1467,7 +1477,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     <message>
         <location filename="../Wizard.qml" line="814"/>
         <source>Zwift Play</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../Wizard.qml" line="831"/>
@@ -1571,7 +1581,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     <message>
         <location filename="../Wizard.qml" line="1361"/>
         <source>Wear OS watch</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../Wizard.qml" line="1378"/>
@@ -1741,7 +1751,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     <message>
         <location filename="../homeform.cpp" line="434"/>
         <source>Peloton R(%)</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="437"/>
@@ -1751,7 +1761,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     <message>
         <location filename="../homeform.cpp" line="440"/>
         <source>T.Peloton R(%)</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="442"/>
@@ -1766,7 +1776,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     <message>
         <location filename="../homeform.cpp" line="446"/>
         <source>T.Zone</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="448"/>
@@ -1821,7 +1831,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     <message>
         <location filename="../homeform.cpp" line="472"/>
         <source>KJouls</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="475"/>
@@ -1856,7 +1866,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     <message>
         <location filename="../homeform.cpp" line="494"/>
         <source>METS</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="496"/>
@@ -1866,7 +1876,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     <message>
         <location filename="../homeform.cpp" line="498"/>
         <source>RSS</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="500"/>
@@ -1881,7 +1891,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     <message>
         <location filename="../homeform.cpp" line="506"/>
         <source>Peloton Rem.</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="508"/>
@@ -1921,7 +1931,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     <message>
         <location filename="../homeform.cpp" line="522"/>
         <source>Sprint</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="524"/>
@@ -1946,7 +1956,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
     <message>
         <location filename="../homeform.cpp" line="535"/>
         <source>Ground C.(ms)</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="538"/>
@@ -2036,7 +2046,7 @@ Las siguientes preguntas personalizarán QZ para tu equipo y tus objetivos.</tra
         <location filename="../homeform.cpp" line="6581"/>
         <location filename="../homeform.cpp" line="6746"/>
         <source>N/A</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="8006"/>
@@ -2348,7 +2358,7 @@ reinicia la aplicación.</translation>
     </message>
     <message>
         <location filename="../main.qml" line="530"/>
-        <source>Browse the What's on Zwift workout library&lt;br&gt;and choose your workout. It will&lt;br&gt; be automatically loaded on QZ when you will&lt;br&gt;press the load button on the top!&lt;br&gt;&lt;br&gt;QZ is not affiliated with Zwift&lt;br&gt;or https://whatsonzwift.com/ website.</source>
+        <source>Browse the What&apos;s on Zwift workout library&lt;br&gt;and choose your workout. It will&lt;br&gt; be automatically loaded on QZ when you will&lt;br&gt;press the load button on the top!&lt;br&gt;&lt;br&gt;QZ is not affiliated with Zwift&lt;br&gt;or https://whatsonzwift.com/ website.</source>
         <translation>Explora la biblioteca de entrenamientos de Zwift&lt;br&gt;y elige tu entrenamiento. Se cargará&lt;br&gt;automáticamente en QZ cuando pulses el botón&lt;br&gt;de carga en la parte superior!&lt;br&gt;&lt;br&gt;QZ no está afiliado con Zwift&lt;br&gt;ni con el sitio web https://whatsonzwift.com/</translation>
     </message>
     <message>
@@ -2408,20 +2418,20 @@ Do you want to do it now?</source>
         <location filename="../main.qml" line="722"/>
         <source>Workout found:
 </source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main.qml" line="723"/>
         <source>
 Date: </source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main.qml" line="724"/>
         <source>
 
 Do you want to start it now?</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main.qml" line="846"/>
@@ -2617,7 +2627,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../profiles.qml" line="98"/>
-        <source>You're creating a new profile with the default values, would you like to save the current one before?</source>
+        <source>You&apos;re creating a new profile with the default values, would you like to save the current one before?</source>
         <translation>Estás creando un perfil nuevo con los valores predeterminados. ¿Quieres guardar el actual antes?</translation>
     </message>
     <message>
@@ -3063,8 +3073,8 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="2201"/>
-        <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet'inches" format (e.g., 5'10") for imperial units.</source>
-        <translation>Introduce tu altura para un cálculo más preciso de BMR y calorías activas. Usa centímetros para el sistema métrico o el formato pies'pulgadas (ej., 5'10") para unidades imperiales.</translation>
+        <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
+        <translation>Introduce tu altura para un cálculo más preciso de BMR y calorías activas. Usa centímetros para el sistema métrico o el formato pies&apos;pulgadas (ej., 5&apos;10&quot;) para unidades imperiales.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="2217"/>
@@ -3155,7 +3165,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="2542"/>
         <source>Turn this on for: - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment. - Capturing non-equipment-based workouts, such as yoga or strength training. NOTE: All such workouts are labeled as “Rides” in Strava, but you can edit the label in Strava.</source>
-        <translation>Activa esto para: - Clases de Peloton Bootcamp u otros entrenamientos que se realizan en la bicicleta o la caminadora, o que no están en ellas. QZ seguirá rastreando tu entrenamiento incluso cuando te alejes de tu equipo. - Capturar entrenamientos que no se basan en equipos, como yoga o entrenamiento de fuerza. NOTA: Todos estos entrenamientos se etiquetan como "Rides" en Strava, pero puedes editar la etiqueta en Strava.</translation>
+        <translation>Activa esto para: - Clases de Peloton Bootcamp u otros entrenamientos que se realizan en la bicicleta o la caminadora, o que no están en ellas. QZ seguirá rastreando tu entrenamiento incluso cuando te alejes de tu equipo. - Capturar entrenamientos que no se basan en equipos, como yoga o entrenamiento de fuerza. NOTA: Todos estos entrenamientos se etiquetan como &quot;Rides&quot; en Strava, pero puedes editar la etiqueta en Strava.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="2570"/>
@@ -3189,7 +3199,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="2647"/>
-        <source>This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ's more accurate calculation.</source>
+        <source>This prevents your bike or treadmill from sending its calories-burned calculation to QZ and defaults to QZ&apos;s more accurate calculation.</source>
         <translation>Esto evita que tu bicicleta o caminadora envíen su cálculo de calorías quemadas a QZ y utiliza el cálculo más preciso de QZ.</translation>
     </message>
     <message>
@@ -3344,8 +3354,8 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="3243"/>
-        <source>Specify a particular gear value to be restored at startup. This will override the 'Restore Gears on Startup' setting.</source>
-        <translation>Especificar un valor de marchas particular para restaurar al inicio. Esto anulará la configuración 'Restaurar marchas al inicio'.</translation>
+        <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
+        <translation>Especificar un valor de marchas particular para restaurar al inicio. Esto anulará la configuración &apos;Restaurar marchas al inicio&apos;.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="3258"/>
@@ -3394,7 +3404,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="3426"/>
         <source>This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.</source>
-        <translation>Este ajuste establece tu "carretera plana" en Zwift. Todos los cambios de resistencia comunicados se basarán en este ajuste. El valor introducido es una preferencia personal y dependerá de tu nivel de fitness. El valor sugerido para bicicletas Echelon está entre 18 y 20. Predeterminado es 4.</translation>
+        <translation>Este ajuste establece tu &quot;carretera plana&quot; en Zwift. Todos los cambios de resistencia comunicados se basarán en este ajuste. El valor introducido es una preferencia personal y dependerá de tu nivel de fitness. El valor sugerido para bicicletas Echelon está entre 18 y 20. Predeterminado es 4.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="3442"/>
@@ -3414,7 +3424,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="3502"/>
         <source>(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.</source>
-        <translation>(para bicicletas y cintas de correr al usar la configuración "cinta de correr como bicicleta"). Esta configuración escala la resistencia de tu bicicleta o la velocidad de tu cinta de correr antes de enviarla a Zwift. Por defecto es 1.</translation>
+        <translation>(para bicicletas y cintas de correr al usar la configuración &quot;cinta de correr como bicicleta&quot;). Esta configuración escala la resistencia de tu bicicleta o la velocidad de tu cinta de correr antes de enviarla a Zwift. Por defecto es 1.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="3518"/>
@@ -3424,7 +3434,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="3540"/>
         <source>In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.</source>
-        <translation>En Modo ERG o durante un entrenamiento de Zona de Potencia en Peloton, la aplicación envía una solicitud de "salida objetivo". Si la salida solicitada no coincide con su salida actual (calculada usando cadencia y nivel de resistencia), su resistencia objetivo cambiará para ayudarle a acercarse a la salida objetivo. Si el filtro está configurado en valores más altos, recibirá menos ajuste de la resistencia objetivo y tendrá que aumentar su cadencia para igualar la salida objetivo. Los ajustes del Filtro de Vatios Arriba y Abajo son el margen superior e inferior antes de que se comunique el ajuste de resistencia. Ejemplo: si los filtros de arriba y abajo están configurados en 10 y la salida objetivo es de 100 vatios, un cambio en su resistencia solo se comunicará si su bicicleta produce menos de 90 vatios o más de 110 vatios. El valor predeterminado es 10.</translation>
+        <translation>En Modo ERG o durante un entrenamiento de Zona de Potencia en Peloton, la aplicación envía una solicitud de &quot;salida objetivo&quot;. Si la salida solicitada no coincide con su salida actual (calculada usando cadencia y nivel de resistencia), su resistencia objetivo cambiará para ayudarle a acercarse a la salida objetivo. Si el filtro está configurado en valores más altos, recibirá menos ajuste de la resistencia objetivo y tendrá que aumentar su cadencia para igualar la salida objetivo. Los ajustes del Filtro de Vatios Arriba y Abajo son el margen superior e inferior antes de que se comunique el ajuste de resistencia. Ejemplo: si los filtros de arriba y abajo están configurados en 10 y la salida objetivo es de 100 vatios, un cambio en su resistencia solo se comunicará si su bicicleta produce menos de 90 vatios o más de 110 vatios. El valor predeterminado es 10.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="3556"/>
@@ -3588,7 +3598,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="4188"/>
-        <source>If you have a generic FTMS bike and the tiles don't appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
+        <source>If you have a generic FTMS bike and the tiles don&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
         <translation>Si tienes una bicicleta FTMS genérica y los azulejos no aparecen en la pantalla principal de QZ, selecciona aquí el nombre Bluetooth de tu bicicleta.</translation>
     </message>
     <message>
@@ -3628,7 +3638,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="4295"/>
-        <source>Since this bike doesn't send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little 'jumpy' and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
+        <source>Since this bike doesn&apos;t send resistance over Bluetooth, QZ is calculating it using cadence and wattage. The result could be a little &apos;jumpy&apos; and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.</source>
         <translation>Dado que esta bicicleta no envía resistencia por Bluetooth, QZ la calcula usando cadencia y potencia. El resultado puede ser un poco irregular, por lo que, con esta configuración, puedes filtrar el valor de la resistencia. La unidad es un nivel de resistencia puro, por lo que establecer 5 significa que verás un cambio de resistencia solo cuando la resistencia cambie en 5 niveles.</translation>
     </message>
     <message>
@@ -4160,7 +4170,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="6649"/>
         <source>As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.</source>
-        <translation>A partir del 4/1/2022, esta función está inoperativa debido a un cambio en el sitio web de Power Zone Pack (PZP). Deja (o cambia de nuevo a) el valor predeterminado de "username" (sin comillas, todo en minúsculas y una sola palabra) hasta nuevo aviso.</translation>
+        <translation>A partir del 4/1/2022, esta función está inoperativa debido a un cambio en el sitio web de Power Zone Pack (PZP). Deja (o cambia de nuevo a) el valor predeterminado de &quot;username&quot; (sin comillas, todo en minúsculas y una sola palabra) hasta nuevo aviso.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="6665"/>
@@ -4194,13 +4204,13 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="2142"/>
-        <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable 'Use kg for weight'.</source>
-        <translation>Introduce tu peso en kilogramos para que QZ pueda calcular con más precisión las calorías quemadas. NOTA: Si eliges usar millas como unidad de distancia recorrida, se te pedirá que introduzcas tu peso en libras (lbs) a menos que actives 'Usar kg para peso'.</translation>
+        <source>Enter your weight in kilograms so QZ can more accurately calculate calories burned. NOTE: If you choose to use miles as the unit for distance traveled, you will be asked to enter your weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;.</source>
+        <translation>Introduce tu peso en kilogramos para que QZ pueda calcular con más precisión las calorías quemadas. NOTA: Si eliges usar millas como unidad de distancia recorrida, se te pedirá que introduzcas tu peso en libras (lbs) a menos que actives &apos;Usar kg para peso&apos;.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="203"/>
         <source>General</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1725"/>
@@ -4230,7 +4240,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="1730"/>
         <source>Spanish</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="1731"/>
@@ -4404,8 +4414,8 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="2190"/>
-        <source>Invalid format! Use feet'inches (e.g., 6'2")</source>
-        <translation>Formato no válido! Use pies'pulgadas (ej. 6'2")</translation>
+        <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
+        <translation>Formato no válido! Use pies&apos;pulgadas (ej. 6&apos;2&quot;)</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="2470"/>
@@ -4442,8 +4452,8 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="3312"/>
-        <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will 'level the playing field' against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable 'Use kg for weight'. Default unit is kilograms (kgs).</source>
-        <translation>Permite que QZ incluya el peso de tu bicicleta al calcular la velocidad. Por ejemplo, si compites contra ti mismo en VZfit, añadir el peso de la bicicleta 'nivelará el campo de juego' contra tu yo virtual. Si has configurado QZ para calcular la distancia en millas, introduce el peso de la bicicleta en libras (lbs) a menos que actives 'Usar kg para peso'. La unidad predeterminada es kilogramos (kgs).</translation>
+        <source>Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will &apos;level the playing field&apos; against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs) unless you enable &apos;Use kg for weight&apos;. Default unit is kilograms (kgs).</source>
+        <translation>Permite que QZ incluya el peso de tu bicicleta al calcular la velocidad. Por ejemplo, si compites contra ti mismo en VZfit, añadir el peso de la bicicleta &apos;nivelará el campo de juego&apos; contra tu yo virtual. Si has configurado QZ para calcular la distancia en millas, introduce el peso de la bicicleta en libras (lbs) a menos que actives &apos;Usar kg para peso&apos;. La unidad predeterminada es kilogramos (kgs).</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="3741"/>
@@ -4453,12 +4463,12 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="4568"/>
         <source>SP-HT-9600iE</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="4611"/>
         <source>Snode Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="4671"/>
@@ -4468,7 +4478,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="4685"/>
         <source>Virtufit Etappe 2.0 Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="4713"/>
@@ -4488,22 +4498,22 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="4785"/>
         <source>Life Fitness IC8</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="4799"/>
         <source>Life Fitness IC5</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5136"/>
         <source>TDF1 IP:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5160"/>
         <source>TDF4 IP:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5458"/>
@@ -4513,12 +4523,12 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="5519"/>
         <source>Toputure Bikes</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5527"/>
         <source>Toputure TEB1</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5541"/>
@@ -4707,8 +4717,8 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7219"/>
-        <source>Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts.</source>
-        <translation>¿Desea deshabilitar la configuración de Zwift Play y Zwift Click? Tenerlas habilitadas juntas con 'Obtener marchas de Zwift' puede causar conflictos.</translation>
+        <source>Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with &apos;Get gears from Zwift&apos; may cause conflicts.</source>
+        <translation>¿Desea deshabilitar la configuración de Zwift Play y Zwift Click? Tenerlas habilitadas juntas con &apos;Obtener marchas de Zwift&apos; puede causar conflictos.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7231"/>
@@ -4727,7 +4737,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7309"/>
-        <source>By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn't affect the real gear value one the bike. Default: disabled.</source>
+        <source>By default QZ is showing the actual gears from the bike. Enabling this, QZ will show the same gears that you see on Zwift. This doesn&apos;t affect the real gear value one the bike. Default: disabled.</source>
         <translation>Por defecto, QZ muestra los engranajes reales de la bicicleta. Al habilitar esto, QZ mostrará los mismos engranajes que ves en Zwift. Esto no afecta el valor real del engranaje en la bicicleta. Por defecto: deshabilitado.</translation>
     </message>
     <message>
@@ -4737,7 +4747,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7345"/>
-        <source>Define the number of delay seconds between each inclination change from Zwift. This value can't be less than 5. Default: 5</source>
+        <source>Define the number of delay seconds between each inclination change from Zwift. This value can&apos;t be less than 5. Default: 5</source>
         <translation>Define el número de segundos de retraso entre cada cambio de inclinación de Zwift. Este valor no puede ser menor a 5. Predeterminado: 5</translation>
     </message>
     <message>
@@ -4748,7 +4758,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7372"/>
-        <source>Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout</source>
+        <source>Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn&apos;t work on workout</source>
         <translation>Solo para Android y iOS: QZ leerá la inclinación en tiempo real desde la aplicación Zwift y ajustará la inclinación en su caminadora. No funciona en entrenamiento</translation>
     </message>
     <message>
@@ -4794,7 +4804,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="7501"/>
         <source>Garmin Bluetooth Sensor</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7515"/>
@@ -4838,7 +4848,7 @@ Do you want to start it now?</source>
     </message>
     <message>
         <location filename="../settings.qml" line="7631"/>
-        <source>Enable automatic download of today's Garmin workout when QZ starts. Default: enabled.</source>
+        <source>Enable automatic download of today&apos;s Garmin workout when QZ starts. Default: enabled.</source>
         <translation>Habilitar la descarga automática del entrenamiento de Garmin de hoy cuando QZ inicie. Predeterminado: habilitado.</translation>
     </message>
     <message>
@@ -4873,7 +4883,7 @@ Por favor, ingrésalo a continuación:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7756"/>
-        <source>If you don't receive the code, please enable 2FA in your Garmin profile privacy settings.</source>
+        <source>If you don&apos;t receive the code, please enable 2FA in your Garmin profile privacy settings.</source>
         <translation>Si no recibes el código, por favor activa la autenticación de dos factores en la configuración de privacidad de tu perfil de Garmin.</translation>
     </message>
     <message>
@@ -4988,13 +4998,13 @@ Por favor, ingrésalo a continuación:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="8496"/>
-        <source>Alternatively to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.</source>
-        <translation>Alternativamente a la configuración 'PID en Zona de Corazón' puedes usar estos ajustes para especificar un rango de FC.</translation>
+        <source>Alternatively to &apos;PID on Heart Zone&apos; setting you can use this couple of settings in order to specify a HR range.</source>
+        <translation>Alternativamente a la configuración &apos;PID en Zona de Corazón&apos; puedes usar estos ajustes para especificar un rango de FC.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="8509"/>
-        <source>PID 'Pushy'</source>
-        <translation type="unfinished"/>
+        <source>PID &apos;Pushy&apos;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="8523"/>
@@ -5268,7 +5278,7 @@ Por favor, ingrésalo a continuación:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="9493"/>
-        <source>If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
+        <source>If you have a generic FTMS bike and the tiles doesn&apos;t appear on the main QZ screen, select here the Bluetooth name of your bike.</source>
         <translation>Si tienes una bicicleta FTMS genérica y el cuadro no aparece en la pantalla principal de QZ, selecciona aquí el nombre Bluetooth de tu bicicleta.</translation>
     </message>
     <message>
@@ -5284,12 +5294,12 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="9825"/>
         <source>Proform IP:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="9849"/>
         <source>Nordictrack 2950 IP:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="9888"/>
@@ -5324,27 +5334,27 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="9981"/>
         <source>WalkingPad X21</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="9996"/>
         <source>WalkingPad X21 v2</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10011"/>
         <source>WalkingPad X21 v3</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10025"/>
         <source>WalkingPad X21 v4</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10039"/>
         <source>WalkingPad G1</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10053"/>
@@ -5364,12 +5374,12 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="10104"/>
         <source>Zero ZT-2500</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10117"/>
         <source>UMAY S100</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10134"/>
@@ -5384,7 +5394,7 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="10156"/>
         <source>T900</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10170"/>
@@ -5460,17 +5470,17 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="10421"/>
         <source>Sole F63</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10435"/>
         <source>Sole F65</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10449"/>
         <source>Sole TT8</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10466"/>
@@ -5480,7 +5490,7 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="10474"/>
         <source>MyRun Experimental</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10491"/>
@@ -5525,7 +5535,7 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="10639"/>
         <source>Paragon X</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10653"/>
@@ -5541,7 +5551,7 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="10681"/>
         <source>Omega Z</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10696"/>
@@ -5606,7 +5616,7 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="10916"/>
         <source>TRX 65s EVO</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10931"/>
@@ -5621,17 +5631,17 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="10959"/>
         <source>Toorx SRX 500</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="10974"/>
         <source>Toorx SRX 3500</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11016"/>
         <source>Taurua IC90 Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11031"/>
@@ -5655,7 +5665,7 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="11091"/>
         <source>Toorx/iConsole Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11106"/>
@@ -5675,12 +5685,12 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="11151"/>
         <source>JLL IC400 Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11165"/>
         <source>Fytter RI08 Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11179"/>
@@ -5695,7 +5705,7 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="11219"/>
         <source>iConsole Rower</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11232"/>
@@ -5730,12 +5740,12 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="11337"/>
         <source>Proform Sport RL</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11350"/>
         <source>Proform Rower 750R</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11371"/>
@@ -5766,7 +5776,7 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="11449"/>
         <source>Life Fitness 95xi (CSAFE)</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11480"/>
@@ -5786,22 +5796,22 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="11547"/>
         <source>Proform Hybrid Trainer XT</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11561"/>
         <source>Proform Hybrid Trainer PFEL03815</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11574"/>
         <source>Nordictrack C7.5</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11587"/>
         <source>NordicTrack Elliptical SE7i</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11602"/>
@@ -5826,7 +5836,7 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="11682"/>
         <source>iConcept elliptical</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11701"/>
@@ -5841,7 +5851,7 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="11746"/>
         <source>Allows you to force QZ to connect to your equipment (see “Bluetooth Troubleshooting” below). Default is “Disabled.”</source>
-        <translation>Permite forzar la conexión de QZ a tu equipo (consulta la sección "Solución de problemas de Bluetooth" a continuación). Predeterminado: "Desactivado".</translation>
+        <translation>Permite forzar la conexión de QZ a tu equipo (consulta la sección &quot;Solución de problemas de Bluetooth&quot; a continuación). Predeterminado: &quot;Desactivado&quot;.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="11759"/>
@@ -5931,7 +5941,7 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <location filename="../settings.qml" line="12072"/>
         <source>Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.</source>
-        <translation>El valor predeterminado es "QZ". Por favor, déjalo en predeterminado para que otros usuarios de Strava vean el QZ; un pequeño anuncio que ayuda a promocionar la aplicación y a apoyar su desarrollo. Si decides eliminarlo, considera contribuir a las cuentas de Patreon o Buy Me a Coffee del desarrollador, o simplemente suscríbete a la bolsa de artículos (Swag bag) en la barra lateral izquierda para que pueda seguir desarrollando y apoyando la aplicación.</translation>
+        <translation>El valor predeterminado es &quot;QZ&quot;. Por favor, déjalo en predeterminado para que otros usuarios de Strava vean el QZ; un pequeño anuncio que ayuda a promocionar la aplicación y a apoyar su desarrollo. Si decides eliminarlo, considera contribuir a las cuentas de Patreon o Buy Me a Coffee del desarrollador, o simplemente suscríbete a la bolsa de artículos (Swag bag) en la barra lateral izquierda para que pueda seguir desarrollando y apoyando la aplicación.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="12085"/>
@@ -6006,7 +6016,7 @@ IMPORTANT NOTES:
 - No Average/smooth in Hometrainer config for standard home trainers which work at 1hz (No race mode available)
 - Disable Average on 3rd party apps (Rouvy/Zwift/MyWhoosh etc) or select 1sec in the app!
 - Need to use QZ in bridge mode!
-- For Elite home trainers or those who have a race mode (10hz), if it's not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.</source>
+- For Elite home trainers or those who have a race mode (10hz), if it&apos;s not sufficient for some users, using Elite/Hometrainer smoothing in addition to QZ smoothing will improve it.</source>
         <translation>Si la potencia/vatios que su equipo envía a QZ es muy variable, esta configuración resultará en gráficos de Power Zone más suaves. Esto también es útil para usar con Pedales medidores de potencia. Utiliza la promediación armónica, que suaviza mejor los picos de potencia que la promediación aritmética. Si cualquier lectura es 0, la potencia se convierte inmediatamente en 0. Predeterminado: Desactivado.
 
 NOTAS IMPORTANTES:
@@ -6062,7 +6072,7 @@ NOTAS IMPORTANTES:
     </message>
     <message>
         <location filename="../settings.qml" line="12449"/>
-        <source>If you don't want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
+        <source>If you don&apos;t want to go below a certain inclination value for bikes and treadmill set the min. value here. Default: -999.</source>
         <translation>Si no quieres bajar de un valor de inclinación determinado para bicicletas y caminadora, establece el valor mínimo aquí. Predeterminado: -999.</translation>
     </message>
     <message>
@@ -6102,7 +6112,7 @@ NOTAS IMPORTANTES:
     </message>
     <message>
         <location filename="../settings.qml" line="12569"/>
-        <source>For the smart trainers, use resistance instead of inclination. This should help if you don't want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
+        <source>For the smart trainers, use resistance instead of inclination. This should help if you don&apos;t want to have the Wahoo Climb or similar to change inclination when you change gears. Default: disabled</source>
         <translation>Para los smart trainers, usa resistencia en lugar de inclinación. Esto debería ayudar si no quieres que Wahoo Climb o similar cambie la inclinación al cambiar de marchas. Predeterminado: deshabilitado</translation>
     </message>
     <message>
@@ -6132,7 +6142,7 @@ NOTAS IMPORTANTES:
     </message>
     <message>
         <location filename="../settings.qml" line="12675"/>
-        <source>Don't touch these settings if your bike works properly!</source>
+        <source>Don&apos;t touch these settings if your bike works properly!</source>
         <translation>No toques estas configuraciones si tu bicicleta funciona correctamente!</translation>
     </message>
     <message>
@@ -6168,7 +6178,7 @@ NOTAS IMPORTANTES:
     <message>
         <location filename="../settings.qml" line="12826"/>
         <source>Rogue Echo Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="12840"/>
@@ -6292,7 +6302,7 @@ NOTAS IMPORTANTES:
     </message>
     <message>
         <location filename="../settings.qml" line="13202"/>
-        <source>If you have a Bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.</source>
+        <source>If you have a Bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can&apos;t get the inclination from the treadmill. Enabling this and QZ will add an inclination gain to the power read from the Stryd. Default: disabled.</source>
         <translation>Si tienes una caminadora Bluetooth y un dispositivo Stryd conectado a QZ, por defecto Stryd no puede obtener la inclinación de la caminadora. Habilitar esto y QZ añadirá una ganancia de inclinación a la potencia leída de Stryd. Predeterminado: deshabilitado.</translation>
     </message>
     <message>
@@ -6373,7 +6383,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings.qml" line="13487"/>
         <source>Peloton Bike</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="13504"/>
@@ -6525,7 +6535,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings.qml" line="14209"/>
         <source>Zwift Play</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14223"/>
@@ -6630,7 +6640,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings.qml" line="14568"/>
         <source>Same as “Relaxed Bluetooth for mad devices”. Leave off unless the Support staff asks you to turn it on. Default is off.</source>
-        <translation>Igual que "Bluetooth Relajado para dispositivos de mad". Desactivar a menos que el personal de soporte le pida que lo active. Por defecto está apagado.</translation>
+        <translation>Igual que &quot;Bluetooth Relajado para dispositivos de mad&quot;. Desactivar a menos que el personal de soporte le pida que lo active. Por defecto está apagado.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14582"/>
@@ -6725,7 +6735,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings.qml" line="14836"/>
         <source>Virtual iFit</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14850"/>
@@ -6750,7 +6760,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings.qml" line="14902"/>
         <source>ID:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14923"/>
@@ -6815,7 +6825,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings.qml" line="15166"/>
         <source>OSC IP:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="15189"/>
@@ -6850,7 +6860,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings.qml" line="15314"/>
         <source>Android WakeLock</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings.qml" line="15328"/>
@@ -6944,7 +6954,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="15578"/>
-        <source>Android Only: enable this to force Android to don't kill QZ when it's running on background</source>
+        <source>Android Only: enable this to force Android to don&apos;t kill QZ when it&apos;s running on background</source>
         <translation>Solo Android: habilita esto para forzar a Android a no matar QZ cuando se ejecuta en segundo plano</translation>
     </message>
     <message>
@@ -7003,7 +7013,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-shortcuts.qml" line="129"/>
         <source>None</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings-shortcuts.qml" line="178"/>
@@ -7957,7 +7967,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="2101"/>
         <source>METS</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2132"/>
@@ -8153,7 +8163,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
         <location filename="../settings-tiles.qml" line="4935"/>
         <location filename="../settings-tiles.qml" line="5036"/>
         <source>color:</source>
-        <translation type="unfinished"/>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2788"/>
