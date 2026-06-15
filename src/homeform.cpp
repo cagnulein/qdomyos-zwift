@@ -4768,14 +4768,13 @@ void homeform::Plus(const QString &name) {
         if (bluetoothManager->device()) {
             auto dev = bluetoothManager->device();
             double current = dev->currentResistance().value();
-            bool useRequestedResistance = !dev->currentResistanceValueAvailable();
             double diff = dev->difficult();
             if (diff == 0) diff = 1.0; // safety
             resistance_t maxRes = dev->maxResistance();
 
             if (dev->deviceType() == BIKE) {
                 double requested = ((bike *)dev)->lastRequestedResistance().value();
-                if (useRequestedResistance && requested > 0) {
+                if (requested > 0) {
                     current = requested;
                 }
                 double g = ((bike *)dev)->gears();
@@ -4786,7 +4785,7 @@ void homeform::Plus(const QString &name) {
                 ((bike *)dev)->changeResistance(raw);
             } else if (dev->deviceType() == ROWING) {
                 double requested = ((rower *)dev)->lastRequestedResistance().value();
-                if (useRequestedResistance && requested > 0) {
+                if (requested > 0) {
                     current = requested;
                 }
                 double g = ((rower *)dev)->gears();
@@ -4797,7 +4796,7 @@ void homeform::Plus(const QString &name) {
                 ((rower *)dev)->changeResistance(raw);
             } else if (dev->deviceType() == ELLIPTICAL) {
                 double requested = ((elliptical *)dev)->lastRequestedResistance().value();
-                if (useRequestedResistance && requested > 0) {
+                if (requested > 0) {
                     current = requested;
                 }
                 double g = ((elliptical *)dev)->gears();
@@ -5079,14 +5078,13 @@ void homeform::Minus(const QString &name) {
         if (bluetoothManager->device()) {
             auto dev = bluetoothManager->device();
             double current = dev->currentResistance().value();
-            bool useRequestedResistance = !dev->currentResistanceValueAvailable();
             double diff = dev->difficult();
             if (diff == 0) diff = 1.0; // safety
             resistance_t maxRes = dev->maxResistance();
 
             if (dev->deviceType() == BIKE) {
                 double requested = ((bike *)dev)->lastRequestedResistance().value();
-                if (useRequestedResistance && requested > 0) {
+                if (requested > 0) {
                     current = requested;
                 }
                 double g = ((bike *)dev)->gears();
@@ -5097,7 +5095,7 @@ void homeform::Minus(const QString &name) {
                 ((bike *)dev)->changeResistance(raw);
             } else if (dev->deviceType() == ROWING) {
                 double requested = ((rower *)dev)->lastRequestedResistance().value();
-                if (useRequestedResistance && requested > 0) {
+                if (requested > 0) {
                     current = requested;
                 }
                 double g = ((rower *)dev)->gears();
@@ -5108,7 +5106,7 @@ void homeform::Minus(const QString &name) {
                 ((rower *)dev)->changeResistance(raw);
             } else if (dev->deviceType() == ELLIPTICAL) {
                 double requested = ((elliptical *)dev)->lastRequestedResistance().value();
-                if (useRequestedResistance && requested > 0) {
+                if (requested > 0) {
                     current = requested;
                 }
                 double g = ((elliptical *)dev)->gears();
