@@ -9,6 +9,8 @@
 #endif
 #endif
 #include <QQmlContext>
+#include <QTranslator>
+#include <QLocale>
 #include "logwriter.h"
 #include "bluetooth.h"
 #include "devices/domyostreadmill/domyostreadmill.h"
@@ -138,6 +140,10 @@ static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandle
 
 // Function to display help information and exit
 void displayHelp() {
+    // Test string for translation workflow - will be extracted by lupdate
+    QString testTranslation = QCoreApplication::translate("main", "QDomyos-Zwift - Fitness Equipment Bridge");
+    Q_UNUSED(testTranslation); // Suppress unused variable warning
+
     printf("qDomyos-Zwift Usage:\n");
     printf("General options:\n");
     printf("  -h, --help                    Display this help message and exit\n");
@@ -873,7 +879,7 @@ int main(int argc, char *argv[]) {
     QString mqtt_username = settings.value(QZSettings::mqtt_username, QZSettings::default_mqtt_username).toString();
     QString mqtt_password = settings.value(QZSettings::mqtt_password, QZSettings::default_mqtt_password).toString();
     if(mqtt_host.length() > 0) {
-        MQTTPublisher* mqtt = new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl);
+        new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl, &bl);
     }
 
     QString OSC_ip = settings.value(QZSettings::OSC_ip, QZSettings::default_OSC_ip).toString();
@@ -893,11 +899,47 @@ int main(int argc, char *argv[]) {
 #endif
     {
         AndroidStatusBar::registerQmlType();
-        
+
 #ifdef Q_OS_ANDROID
         FontManager fontManager;
         fontManager.initializeEmojiFont();
 #endif
+
+        // Load translations based on explicit app setting or system locale.
+        QTranslator *translator = new QTranslator(app.data());
+        QString configuredLanguage =
+            settings.value(QZSettings::app_language, QZSettings::default_app_language).toString().trimmed();
+        QString locale = configuredLanguage.compare(QStringLiteral("auto"), Qt::CaseInsensitive) == 0 ||
+                                 configuredLanguage.isEmpty()
+                             ? QLocale::system().name()
+                             : configuredLanguage;
+        locale.replace(QLatin1Char('-'), QLatin1Char('_'));
+
+        auto tryLoadTranslation = [&](const QString &localeKey, const QString &sourceLabel) -> bool {
+            if (localeKey.isEmpty()) {
+                return false;
+            }
+            if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + localeKey)) {
+                app->installTranslator(translator);
+                qDebug() << "Translation loaded successfully for" << sourceLabel << ":" << localeKey;
+                return true;
+            }
+            return false;
+        };
+
+        // "en" is the built-in source language, so we don't load any translator for it.
+        if (locale.startsWith(QStringLiteral("en"), Qt::CaseInsensitive)) {
+            qDebug() << "Language setting resolves to English. Using built-in source strings.";
+        } else {
+            bool loaded = tryLoadTranslation(locale, QStringLiteral("locale"));
+            if (!loaded && locale.contains(QLatin1Char('_'))) {
+                loaded = tryLoadTranslation(locale.section(QLatin1Char('_'), 0, 0), QStringLiteral("language"));
+            }
+            if (!loaded) {
+                qDebug() << "No translation available for locale:" << locale << "- using default (English)";
+            }
+        }
+
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(

@@ -195,6 +195,11 @@ class homeform : public QObject {
     Q_PROPERTY(bool garminWorkoutPromptRequested READ garminWorkoutPromptRequested NOTIFY garminWorkoutPromptRequestedChanged WRITE setGarminWorkoutPromptRequested)
     Q_PROPERTY(QString garminWorkoutPromptName READ garminWorkoutPromptName NOTIFY garminWorkoutPromptNameChanged)
     Q_PROPERTY(QString garminWorkoutPromptDate READ garminWorkoutPromptDate NOTIFY garminWorkoutPromptDateChanged)
+    Q_PROPERTY(bool clipboardWorkoutPromptRequested READ clipboardWorkoutPromptRequested NOTIFY clipboardWorkoutPromptRequestedChanged WRITE setClipboardWorkoutPromptRequested)
+    Q_PROPERTY(QString clipboardWorkoutPromptName READ clipboardWorkoutPromptName NOTIFY clipboardWorkoutPromptNameChanged)
+    Q_PROPERTY(bool clipboardWorkoutDeletePromptRequested READ clipboardWorkoutDeletePromptRequested NOTIFY clipboardWorkoutDeletePromptRequestedChanged WRITE setClipboardWorkoutDeletePromptRequested)
+    Q_PROPERTY(bool echelonBridgeSwitchPromptRequested READ echelonBridgeSwitchPromptRequested NOTIFY echelonBridgeSwitchPromptRequestedChanged WRITE setEchelonBridgeSwitchPromptRequested)
+    Q_PROPERTY(bool echelonEnablePromptRequested READ echelonEnablePromptRequested NOTIFY echelonEnablePromptRequestedChanged WRITE setEchelonEnablePromptRequested)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -486,6 +491,8 @@ class homeform : public QObject {
     bool garminWorkoutPromptRequested() { return m_garminWorkoutPromptRequested; }
     QString garminWorkoutPromptName() { return m_garminWorkoutPromptName; }
     QString garminWorkoutPromptDate() { return m_garminWorkoutPromptDate; }
+    bool echelonBridgeSwitchPromptRequested() { return m_echelonBridgeSwitchPromptRequested; }
+    bool echelonEnablePromptRequested() { return m_echelonEnablePromptRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool pelotonPopupVisible();
@@ -554,22 +561,70 @@ class homeform : public QObject {
         m_garminWorkoutPromptRequested = value;
         emit garminWorkoutPromptRequestedChanged(value);
     }
+    bool clipboardWorkoutPromptRequested() const { return m_clipboardWorkoutPromptRequested; }
+    QString clipboardWorkoutPromptName() const { return m_clipboardWorkoutPromptName; }
+    void setClipboardWorkoutPromptRequested(bool value) {
+        if (m_clipboardWorkoutPromptRequested == value) {
+            return;
+        }
+        m_clipboardWorkoutPromptRequested = value;
+        emit clipboardWorkoutPromptRequestedChanged(value);
+    }
+    bool clipboardWorkoutDeletePromptRequested() const { return m_clipboardWorkoutDeletePromptRequested; }
+    void setClipboardWorkoutDeletePromptRequested(bool value) {
+        if (m_clipboardWorkoutDeletePromptRequested == value) {
+            return;
+        }
+        m_clipboardWorkoutDeletePromptRequested = value;
+        emit clipboardWorkoutDeletePromptRequestedChanged(value);
+    }
+    void setEchelonBridgeSwitchPromptRequested(bool value) {
+        if (m_echelonBridgeSwitchPromptRequested == value) {
+            return;
+        }
+        m_echelonBridgeSwitchPromptRequested = value;
+        emit echelonBridgeSwitchPromptRequestedChanged(value);
+    }
+    void setEchelonEnablePromptRequested(bool value) {
+        if (m_echelonEnablePromptRequested == value) {
+            return;
+        }
+        m_echelonEnablePromptRequested = value;
+        emit echelonEnablePromptRequestedChanged(value);
+    }
     Q_INVOKABLE void garmin_connect_login();
     Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
     Q_INVOKABLE void garmin_connect_logout();
     Q_INVOKABLE void garmin_start_downloaded_workout();
     Q_INVOKABLE void garmin_dismiss_downloaded_workout_prompt();
+    Q_INVOKABLE QUrl clipboard_workout_url() const { return QUrl::fromLocalFile(m_clipboardWorkoutPromptFile); }
+    Q_INVOKABLE void clipboard_accept_workout_prompt();
+    Q_INVOKABLE void clipboard_dismiss_workout_prompt();
+    Q_INVOKABLE void clipboard_delete_finished_workout();
+    Q_INVOKABLE void clipboard_keep_finished_workout();
+    Q_INVOKABLE void echelon_switch_to_classic_bridge();
+    Q_INVOKABLE void echelon_dismiss_bridge_switch_prompt();
+    Q_INVOKABLE void echelon_enable_virtual_bridge();
+    Q_INVOKABLE void echelon_dismiss_enable_prompt();
 
     Q_INVOKABLE bool isStravaLoggedIn();
     Q_INVOKABLE bool isPelotonLoggedIn();
     Q_INVOKABLE bool isIntervalsICULoggedIn();
+    Q_INVOKABLE bool isGarminUploadConfigured();
+    Q_INVOKABLE bool isIntervalsICUUploadConfigured();
+    Q_INVOKABLE void uploadHistoricalWorkoutToStrava(const QString &filePath);
+    Q_INVOKABLE void uploadHistoricalWorkoutToGarmin(const QString &filePath);
+    Q_INVOKABLE void uploadHistoricalWorkoutToIntervalsICU(const QString &filePath);
     Q_INVOKABLE void strava_logout();
     Q_INVOKABLE void peloton_logout();
     Q_INVOKABLE void intervalsicu_logout();
     Q_INVOKABLE void handleOAuthCallbackFromQml(const QString &callbackUrl);
+    Q_INVOKABLE void selectGymModeDevice(const QString &deviceName);
+    Q_INVOKABLE bool hasConnectedDevice() const;
 
 private:
     void clearWebViewCache();
+    void showNextGarminWorkoutPrompt();
 
 public:
     void setGeneralPopupVisible(bool value);
@@ -585,6 +640,7 @@ public:
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
     Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
+    Q_INVOKABLE bool deleteTrainingProgramFile(const QString &fileUrl);
 
     double wattMaxChart() {
         QSettings settings;
@@ -598,6 +654,17 @@ public:
     }
 
     Q_INVOKABLE void sendMail();
+
+    Q_INVOKABLE void keyboardStartStop() { StartRequested(); }
+    Q_INVOKABLE void keyboardStop() { StopRequested(); }
+    Q_INVOKABLE void keyboardLap() { Lap(); }
+    Q_INVOKABLE void keyboardPlus(const QString &name) { Plus(name); }
+    Q_INVOKABLE void keyboardMinus(const QString &name) { Minus(name); }
+    Q_INVOKABLE void keyboardLargeButton(const QString &name) { LargeButton(name); }
+    Q_INVOKABLE bool handleKeyboardShortcut(const QString &sequence);
+    Q_INVOKABLE void setNativeShortcutCaptureSuspended(bool suspended) {
+        m_nativeShortcutCaptureSuspended = suspended;
+    }
 
     Q_INVOKABLE void sortTiles();
     Q_INVOKABLE void moveTile(QString name, int newIndex, int oldIndex);
@@ -768,6 +835,7 @@ public:
     DataObject *odometer;
     DataObject *pace;
     DataObject *avg_pace;
+    DataObject *grade_adjusted_pace;
     DataObject *datetime;
     DataObject *resistance;
     DataObject *watt;
@@ -909,9 +977,20 @@ public:
     bool m_stravaUploadRequested = false;
     bool m_garminMfaRequested = false;
     bool m_garminWorkoutPromptRequested = false;
+    bool m_clipboardWorkoutPromptRequested = false;
+    bool m_clipboardWorkoutDeletePromptRequested = false;
+    bool m_echelonBridgeSwitchPromptRequested = false;
+    bool m_echelonEnablePromptRequested = false;
     QString m_garminWorkoutPromptName = QStringLiteral("");
     QString m_garminWorkoutPromptDate = QStringLiteral("");
     QString m_garminWorkoutPromptFile = QStringLiteral("");
+    QString m_clipboardWorkoutPromptName = QStringLiteral("");
+    QString m_clipboardWorkoutPromptFile = QStringLiteral("");
+    QString m_activeClipboardWorkoutFile = QStringLiteral("");
+    QByteArray m_lastClipboardWorkoutHash;
+    QStringList m_pendingGarminWorkoutPromptFiles;
+    QStringList m_pendingGarminWorkoutPromptNames;
+    QStringList m_pendingGarminWorkoutPromptDates;
     FitDatabaseProcessor *fitProcessor = nullptr;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
@@ -937,10 +1016,15 @@ public:
     bool m_stopRequested = false;
     bool m_startRequested = false;
     bool m_overridePower = false;
+    bool m_nativeShortcutCaptureSuspended = false;
 
     QTimer *timer;
     QTimer *backupTimer;
     QTimer *automaticShiftingTimer;
+    QTimer *clipboardWorkoutTimer = nullptr;
+
+    // HR PID controller state - tracks when training program changes speed to prevent race conditions
+    QDateTime lastTrainingProgramSpeedChange = QDateTime::fromMSecsSinceEpoch(0);
 
     // FIT backup threading
     QThread *fitBackupThread;
@@ -974,6 +1058,7 @@ public:
 
     void update();
     void ten_hz();
+    void checkClipboardForWorkout();
     double heartRateMax();
     void backup();
     bool getDevice();
@@ -1057,6 +1142,7 @@ public:
     void saveSessionAsTrainingProgram();
     void strava_connect_clicked();
     void trainProgramSignals();
+    void onTrainingProgramSpeedChanged(double speed);
     void refresh_bluetooth_devices_clicked();
     void onStravaGranted();
     void onStravaAuthorizeWithBrowser(const QUrl &url);
@@ -1139,6 +1225,11 @@ public:
     void garminWorkoutPromptRequestedChanged(bool value);
     void garminWorkoutPromptNameChanged(QString value);
     void garminWorkoutPromptDateChanged(QString value);
+    void clipboardWorkoutPromptRequestedChanged(bool value);
+    void clipboardWorkoutPromptNameChanged(QString value);
+    void clipboardWorkoutDeletePromptRequestedChanged(bool value);
+    void echelonBridgeSwitchPromptRequestedChanged(bool value);
+    void echelonEnablePromptRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
@@ -1149,6 +1240,7 @@ public:
     void videoRateChanged(double value);
     void chartIconVisibleChanged(bool value);
     void chartFooterVisibleChanged(bool value);
+    void manualCscBikeResistanceAdjusted(resistance_t resistance);
     void currentSpeedChanged(double value);
     void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
@@ -1183,3 +1275,4 @@ public:
 };
 
 #endif // HOMEFORM_H
+

@@ -94,6 +94,7 @@ SOURCES += \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/kineticinroadbike/SmartControl.cpp \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.cpp \
+    $$PWD/devices/lifespanbike/lifespanbike.cpp \
     $$PWD/devices/lifespantreadmill/lifespantreadmill.cpp \
     $$PWD/devices/moxy5sensor/moxy5sensor.cpp \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.cpp \
@@ -103,6 +104,7 @@ SOURCES += \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
     $$PWD/devices/sportstechrower/sportstechrower.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
+    $$PWD/devices/cycplusbc2controller/cycplusbc2controller.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
     $$PWD/devices/thinkridercontroller/thinkridercontroller.cpp \
     $$PWD/devices/stairclimber.cpp \
@@ -325,6 +327,7 @@ templateinfosender.cpp \
 templateinfosenderbuilder.cpp \
 devices/stagesbike/stagesbike.cpp \
 devices/toorxtreadmill/toorxtreadmill.cpp \
+devices/iconsolebike/iconsolebike.cpp \
 devices/treadmill.cpp \
 devices/truetreadmill/truetreadmill.cpp \
 devices/trxappgateusbbike/trxappgateusbbike.cpp \
@@ -376,6 +379,7 @@ HEADERS += \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/kineticinroadbike/SmartControl.h \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.h \
+    $$PWD/devices/lifespanbike/lifespanbike.h \
     $$PWD/devices/lifespantreadmill/lifespantreadmill.h \
     $$PWD/devices/moxy5sensor/moxy5sensor.h \
     $$PWD/devices/nordictrackifitadbelliptical/nordictrackifitadbelliptical.h \
@@ -385,6 +389,7 @@ HEADERS += \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \
     $$PWD/devices/sportstechrower/sportstechrower.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
+    $$PWD/devices/cycplusbc2controller/cycplusbc2controller.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
     $$PWD/devices/thinkridercontroller/thinkridercontroller.h \
     $$PWD/devices/stairclimber.h \
@@ -846,6 +851,7 @@ templateinfosender.h \
 templateinfosenderbuilder.h \
 devices/stagesbike/stagesbike.h \
 devices/toorxtreadmill/toorxtreadmill.h \
+devices/iconsolebike/iconsolebike.h \
 gpx.h \
 devices/treadmill.h \
 mainwindow.h \
@@ -875,9 +881,49 @@ exists(secret.h): HEADERS += secret.h
    charts.ui \
 	mainwindow.ui
 
+# Translation files - 30 most used languages worldwide
+CONFIG += lrelease
+LRELEASE_DIR = $$PWD/translations
+
+TRANSLATIONS += \
+    $$PWD/translations/qdomyos-zwift_it.ts \
+    $$PWD/translations/qdomyos-zwift_de.ts \
+    $$PWD/translations/qdomyos-zwift_fr.ts \
+    $$PWD/translations/qdomyos-zwift_es.ts \
+    $$PWD/translations/qdomyos-zwift_pt.ts \
+    $$PWD/translations/qdomyos-zwift_pt_BR.ts \
+    $$PWD/translations/qdomyos-zwift_ru.ts \
+    $$PWD/translations/qdomyos-zwift_zh_CN.ts \
+    $$PWD/translations/qdomyos-zwift_zh_TW.ts \
+    $$PWD/translations/qdomyos-zwift_ja.ts \
+    $$PWD/translations/qdomyos-zwift_ko.ts \
+    $$PWD/translations/qdomyos-zwift_ar.ts \
+    $$PWD/translations/qdomyos-zwift_hi.ts \
+    $$PWD/translations/qdomyos-zwift_tr.ts \
+    $$PWD/translations/qdomyos-zwift_vi.ts \
+    $$PWD/translations/qdomyos-zwift_pl.ts \
+    $$PWD/translations/qdomyos-zwift_uk.ts \
+    $$PWD/translations/qdomyos-zwift_nl.ts \
+    $$PWD/translations/qdomyos-zwift_th.ts \
+    $$PWD/translations/qdomyos-zwift_id.ts \
+    $$PWD/translations/qdomyos-zwift_ro.ts \
+    $$PWD/translations/qdomyos-zwift_cs.ts \
+    $$PWD/translations/qdomyos-zwift_el.ts \
+    $$PWD/translations/qdomyos-zwift_sv.ts \
+    $$PWD/translations/qdomyos-zwift_hu.ts \
+    $$PWD/translations/qdomyos-zwift_fi.ts \
+    $$PWD/translations/qdomyos-zwift_no.ts \
+    $$PWD/translations/qdomyos-zwift_da.ts \
+    $$PWD/translations/qdomyos-zwift_he.ts \
+    $$PWD/translations/qdomyos-zwift_ca.ts
+
+# Qt compiles .ts to .qm files before building the resource file.
+# .qm files are ignored by git and embedded through translations.qrc.
+
 RESOURCES += \
    icons.qrc \
-	qml.qrc
+	qml.qrc \
+	translations.qrc
 
 DISTFILES += \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
@@ -1016,4 +1062,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.20.30
+VERSION = 2.21.5

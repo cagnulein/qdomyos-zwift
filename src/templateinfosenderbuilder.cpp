@@ -2,16 +2,20 @@
 #include "devices/bike.h"
 #include "treadmill.h"
 #include <QDirIterator>
+#include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QGuiApplication>
+#include <QClipboard>
 #include <QRegularExpression>
 #include <QNetworkInterface>
 #include <QStandardPaths>
 #include <QTime>
 #include <QQmlFile>
+#include <algorithm>
 #include <limits>
 #ifdef Q_HTTPSERVER
 #include "webserverinfosender.h"
@@ -30,12 +34,14 @@ using namespace std::chrono_literals;
     item[QStringLiteral("duration_s")] = QTime(0,0,0).secsTo(row.duration);                                 \
     item[QStringLiteral("distance")] = row.distance;                                                        \
     item[QStringLiteral("speed")] = row.speed;                                                              \
-    item[QStringLiteral("minspeed")] = row.minSpeed;                                                        \
-    item[QStringLiteral("maxspeed")] = row.maxSpeed;                                                        \
+    item[QStringLiteral("minSpeed")] = row.minSpeed;                                                        \
+    item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
     item[QStringLiteral("fanspeed")] = row.fanspeed;                                                        \
-    item[QStringLiteral("inclination")] = row.inclination;                                                  \
+    if (row.inclination >= -50) {\
+        item[QStringLiteral("inclination")] = row.inclination;\
+    }\
     item[QStringLiteral("resistance")] = row.resistance;                                                    \
-    item[QStringLiteral("maxresistance")] = row.maxResistance;                                              \
+    item[QStringLiteral("maxResistance")] = row.maxResistance;                                              \
     item[QStringLiteral("mets")] = row.mets;                                                                \
     item[QStringLiteral("pace_intensity")] = row.pace_intensity;                                            \
     item[QStringLiteral("lower_resistance")] = row.lower_resistance;                                        \
@@ -52,7 +58,6 @@ using namespace std::chrono_literals;
     item[QStringLiteral("zoneHR")] = row.zoneHR;                                                            \
     item[QStringLiteral("HRmin")] = row.HRmin;                                                              \
     item[QStringLiteral("HRmax")] = row.HRmax;                                                              \
-    item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
     item[QStringLiteral("latitude")] = row.latitude;                                                        \
     item[QStringLiteral("longitude")] = row.longitude;                                                      \
     item[QStringLiteral("altitude")] = row.altitude;                                                        \
@@ -68,6 +73,15 @@ QString sanitizeTrainingProgramName(const QString &input) {
     trimmed.replace(invalid, QStringLiteral("_"));
     trimmed.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
     return trimmed;
+}
+
+QString uniqueTrainingProgramName(const QString &trainingDir, const QString &baseName) {
+    QString candidate = baseName;
+    int suffix = 2;
+    while (QFile::exists(trainingDir + candidate + QStringLiteral(".xml"))) {
+        candidate = QStringLiteral("%1_%2").arg(baseName).arg(suffix++);
+    }
+    return candidate;
 }
 
 QString deviceTypeToKey(BLUETOOTH_TYPE type) {
@@ -497,17 +511,31 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
     QString basePath = homeform::getWritableAppDir() + QStringLiteral("training");
     QString fullPath = path.isEmpty() ? basePath : (basePath + QStringLiteral("/") + path);
 
-    // Iterate through directory
-    QDir dir(fullPath);
-    dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-    dir.setSorting(QDir::DirsFirst | QDir::Name);
-    dir.setNameFilters(QStringList() << "*.xml" << "*.zwo");
+    // The Workout Editor needs to see workouts saved in source/type subfolders
+    // such as ride/Garmin and run/Garmin, not only files in training/.
+    QDirIterator it(fullPath,
+                    QStringList() << QStringLiteral("*.xml") << QStringLiteral("*.zwo"),
+                    QDir::Files | QDir::NoDotAndDotDot,
+                    QDirIterator::Subdirectories);
+    QList<QFileInfo> files;
+    while (it.hasNext()) {
+        it.next();
+        files.append(it.fileInfo());
+    }
+    std::sort(files.begin(), files.end(), [](const QFileInfo &a, const QFileInfo &b) {
+        return a.absoluteFilePath().compare(b.absoluteFilePath(), Qt::CaseInsensitive) < 0;
+    });
 
-    QFileInfoList list = dir.entryInfoList();
-    for (const QFileInfo &fileInfo : list) {
+    QDir baseDir(basePath);
+    for (const QFileInfo &fileInfo : qAsConst(files)) {
+        QString relativePath = baseDir.relativeFilePath(fileInfo.absoluteFilePath());
+        relativePath.replace(QStringLiteral("\\"), QStringLiteral("/"));
+
         QJsonObject item;
-        item[QStringLiteral("name")] = fileInfo.fileName();
-        item[QStringLiteral("isFolder")] = fileInfo.isDir();
+        item[QStringLiteral("name")] = relativePath;
+        item[QStringLiteral("fileName")] = fileInfo.fileName();
+        item[QStringLiteral("relativePath")] = relativePath;
+        item[QStringLiteral("isFolder")] = false;
         item[QStringLiteral("path")] = fileInfo.absoluteFilePath();
         item[QStringLiteral("url")] = QUrl::fromLocalFile(fileInfo.absoluteFilePath()).toString();
         outArr.append(item);
@@ -555,11 +583,11 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
     QString filePath = QQmlFile::urlToLocalFileOrQrc(url);
     QString extension = QFileInfo(filePath).suffix().toUpper();
 
-    // Load the training program - use zwiftworkout::load for ZWO files
+    // Load the training program - use zwiftworkout::load for ZWO/ZWO-like files
     QList<trainrow> rows;
     QString description, tags;
 
-    if (extension == QStringLiteral("ZWO")) {
+    if (zwiftworkout::isZwiftWorkoutFile(filePath, extension)) {
         rows = zwiftworkout::load(filePath, &description, &tags);
     } else {
         rows = trainprogram::loadXML(filePath, (device ? device->deviceType() : BIKE));
@@ -603,7 +631,7 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
                 }
 
                 // Inclination
-                if (r.inclination > -200) {
+                if (r.inclination >= -50) {
                     QJsonObject incPoint;
                     incPoint[QStringLiteral("x")] = currentSecond;
                     incPoint[QStringLiteral("y")] = r.inclination;
@@ -695,7 +723,7 @@ void TemplateInfoSenderBuilder::onGetWorkoutPreview(TemplateInfoSender *tempSend
             }
 
             // Inclination
-            if (i < inclinationData.size()) {
+            if (i < inclinationData.size() && inclinationData[i] >= -50) {
                 QJsonObject incPoint;
                 incPoint[QStringLiteral("x")] = i;
                 incPoint[QStringLiteral("y")] = inclinationData[i];
@@ -978,8 +1006,10 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
     for (const auto &r : qAsConst(rows)) {
         QJsonObject row = r.toObject();
         trainrow tR;
-        if (row.contains(QStringLiteral("duration"))) {
-            tR.duration = QTime::fromString(row[QStringLiteral("duration")].toString(), QStringLiteral("hh:mm:ss"));
+        if (row.contains(QStringLiteral("duration")) || row.contains(QStringLiteral("distance"))) {
+            if (row.contains(QStringLiteral("duration"))) {
+                tR.duration = QTime::fromString(row[QStringLiteral("duration")].toString(), QStringLiteral("hh:mm:ss"));
+            }
             if (row.contains(QStringLiteral("distance"))) {
                 tR.distance = row[QStringLiteral("distance")].toDouble();
             }
@@ -1074,6 +1104,68 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
     }
     main[QStringLiteral("content")] = outObj;
     main[QStringLiteral("msg")] = QStringLiteral("R_savetrainingprogram");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onPasteTrainingProgramFromClipboard(const QJsonValue &msgContent,
+                                                                    TemplateInfoSender *tempSender) {
+    QJsonObject main, outObj;
+    outObj[QStringLiteral("ok")] = false;
+
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    const QString xml = clipboard ? clipboard->text().trimmed() : QString();
+    if (xml.isEmpty()) {
+        outObj[QStringLiteral("message")] = QStringLiteral("Clipboard is empty");
+    } else {
+        QString requestedName;
+        if (msgContent.isObject()) {
+            requestedName = msgContent.toObject().value(QStringLiteral("name")).toString();
+        }
+        if (requestedName.endsWith(QStringLiteral(".xml"), Qt::CaseInsensitive)) {
+            requestedName.chop(4);
+        }
+        if (requestedName.trimmed().isEmpty()) {
+            requestedName = QStringLiteral("Clipboard_Workout_%1")
+                                .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss")));
+        }
+
+        const QString trainingDir = homeform::getWritableAppDir() + QStringLiteral("training/");
+        QDir dir(trainingDir);
+        if (!dir.exists()) {
+            dir.mkpath(QStringLiteral("."));
+        }
+        const QString fileName = uniqueTrainingProgramName(trainingDir, sanitizeTrainingProgramName(requestedName));
+
+        const QString fullPath = trainingDir + fileName + QStringLiteral(".xml");
+        QFile file(fullPath);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+            outObj[QStringLiteral("message")] = QStringLiteral("Unable to create workout file");
+        } else {
+            file.write(xml.toUtf8());
+            file.close();
+
+            QList<trainrow> rows = trainprogram::loadXML(fullPath, device ? device->deviceType() : TREADMILL);
+            if (rows.isEmpty()) {
+                QFile::remove(fullPath);
+                outObj[QStringLiteral("message")] = QStringLiteral("Clipboard XML is not a valid QZ workout");
+            } else {
+                QJsonArray outArr;
+                for (auto &row : rows) {
+                    QJsonObject item;
+                    TRAINPROGRAM_FIELD_TO_STRING();
+                    outArr.append(item);
+                }
+                outObj[QStringLiteral("ok")] = true;
+                outObj[QStringLiteral("name")] = fileName + QStringLiteral(".xml");
+                outObj[QStringLiteral("path")] = fullPath;
+                outObj[QStringLiteral("list")] = outArr;
+            }
+        }
+    }
+
+    main[QStringLiteral("content")] = outObj;
+    main[QStringLiteral("msg")] = QStringLiteral("R_pastetrainingprogramclipboard");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -1382,6 +1474,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("savetrainingprogram")) {
                     onSaveTrainingProgram(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("pastetrainingprogramclipboard")) {
+                    onPasteTrainingProgramFromClipboard(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("deletetrainingprogram")) {
                     onDeleteTrainingProgram(jsonObject[QStringLiteral("content")], sender);
