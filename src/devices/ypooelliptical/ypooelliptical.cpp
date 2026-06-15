@@ -217,10 +217,9 @@ void ypooelliptical::update() {
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
-            if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS || SOLE_E25 || TRUE_ELLIPTICAL) {
-                uint8_t write[] = {FTMS_START_RESUME};
-                writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write), "startResume", false, true);
-            }
+
+            // btinit();
+
             requestStart = -1;
             emit bikeStarted();
         }
