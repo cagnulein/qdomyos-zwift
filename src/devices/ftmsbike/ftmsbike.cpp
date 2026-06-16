@@ -700,10 +700,11 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         const uint8_t resultCode = (uint8_t)newValue.at(2);
 
         if (DOMYOS && responseCode == FTMS_RESPONSE_CODE && requestCode == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
-            if (resultCode == FTMS_CONTROL_NOT_PERMITTED) {
+            if (resultCode == FTMS_CONTROL_NOT_PERMITTED || resultCode == FTMS_INVALID_PARAMETER) {
                 domyosResistanceRetryAfter = now.addMSecs(3000);
                 initDone = false;
-                qDebug() << "DOMYOS resistance command rejected with CONTROL_NOT_PERMITTED"
+                qDebug() << "DOMYOS resistance command rejected with retryable result"
+                         << "resultCode:" << resultCode
                          << "lastRequestedResistance:" << lastDomyosRequestedResistance
                          << "backoffUntil:" << domyosResistanceRetryAfter;
             } else if (resultCode == FTMS_SUCCESS) {
