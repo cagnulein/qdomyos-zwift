@@ -422,10 +422,6 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     if (Flags.instantPace) {
         instantPace =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-        if (ROWTECH_12001 && instantPace != 0 && instantPace != 65535) {
-            // RowTech 12001 reports pace in tenths of a second per 500m.
-            instantPace /= 10.0;
-        }
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
@@ -445,9 +441,6 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         double avgPace;
         avgPace =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-        if (ROWTECH_12001 && avgPace != 0 && avgPace != 65535) {
-            avgPace /= 10.0;
-        }
         index += 2;
         emit debug(QStringLiteral("Current Average Pace: ") + QString::number(avgPace));
     }
