@@ -409,12 +409,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             qDebug() << QString::number(ret) + " >> " + message;
         }
 
-        if (watts(weight))
-            KCal +=
-                ((((0.048 * ((double)watts(weight)) + 1.19) * weight * 3.5) / 200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  // kg * 3.5) / 200 ) / 60
+        KCal += calculateKCalChange(weight, lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()));
         // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
@@ -488,11 +483,7 @@ void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclin
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
-    if (watts(weight))
-        KCal += ((((0.048 * ((double)watts(weight)) + 1.19) * weight * 3.5) / 200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  // kg * 3.5) / 200 ) / 60
+    KCal += calculateKCalChange(weight, lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()));
     // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));

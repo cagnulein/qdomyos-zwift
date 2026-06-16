@@ -396,17 +396,8 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
         if (firstDistanceCalculated) {
             Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
-            if(watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal +=
-                    ((((0.048 *
-                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                        1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                            // kg * 3.5) / 200 ) / 60
+            KCal += calculateKCalChange(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                        lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()));
         }
 
 #ifdef Q_OS_ANDROID
@@ -510,18 +501,9 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
             // energy per minute
             index += 1;
         } else {
-            if (firstDistanceCalculated &&
-                watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal +=
-                    ((((0.048 *
-                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                        1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                            // kg * 3.5) / 200 ) / 60
+            if (firstDistanceCalculated)
+                KCal += calculateKCalChange(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                            lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()));
             distanceEval = true;
         }
 
@@ -687,18 +669,9 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
             // energy per minute
             index += 1;
         } else {
-            if (firstDistanceCalculated &&
-                watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal +=
-                    ((((0.048 *
-                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                        1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                            // kg * 3.5) / 200 ) / 60
+            if (firstDistanceCalculated)
+                KCal += calculateKCalChange(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                            lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()));
             distanceEval = true;
         }
 

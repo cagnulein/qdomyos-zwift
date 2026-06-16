@@ -535,15 +535,8 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
-        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-            KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                    1.19) *
-                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                  200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                         // kg * 3.5) / 200 ) / 60
+        KCal += calculateKCalChange(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                    lastRefreshCharacteristicChanged.msecsTo(now));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         lastRefreshCharacteristicChanged = now;
@@ -650,17 +643,8 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             // energy per minute
             index += 1;
         } else {
-            if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal +=
-                    ((((0.048 *
-                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                        1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                            // kg * 3.5) / 200 ) / 60
+            KCal += calculateKCalChange(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                        lastRefreshCharacteristicChanged.msecsTo(now));
         }
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
