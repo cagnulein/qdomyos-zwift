@@ -1293,7 +1293,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                 horizon_7at_ceil = true;   // treadmill truncates mph→km/h, so ceil avoids landing one tick below
             }
         }
-        uint16_t speed_int = horizon_7at_ceil ? (uint16_t)ceil(requestSpeed * 100) : (uint16_t)round(requestSpeed * 100);
+        uint16_t speed_int = horizon_7at_ceil ? ((uint16_t)ceil(requestSpeed * 100)) + 1 : (uint16_t)round(requestSpeed * 100);
         writeS[1] = speed_int & 0xFF;
         writeS[2] = speed_int >> 8;
 
