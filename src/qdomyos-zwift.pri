@@ -150,6 +150,7 @@ virtualdevices/virtualdevice.cpp \
 androidactivityresultreceiver.cpp \
 androidadblog.cpp \
 devices/apexbike/apexbike.cpp \
+devices/volavabike/volavabike.cpp \
 handleurl.cpp \
 devices/iconceptelliptical/iconceptelliptical.cpp \
 localipaddress.cpp \
@@ -461,6 +462,7 @@ virtualdevices/virtualdevice.h \
 androidactivityresultreceiver.h \
 androidadblog.h \
 devices/apexbike/apexbike.h \
+devices/volavabike/volavabike.h \
 devices/discoveryoptions.h \
 handleurl.h \
 devices/iconceptelliptical/iconceptelliptical.h \

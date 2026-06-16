@@ -2278,6 +2278,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(apexBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
                 apexBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(apexBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("XQ")) && b.name().length() == 12 &&
+                       deviceHasService(b, QBluetoothUuid((quint16)0xfeb9)) && !volavaBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                volavaBike = new volavabike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(volavaBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                volavaBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(volavaBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("BKOOLSMARTPRO")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BKOOLFBIKE")) ||            
                         b.name().toUpper().startsWith(QStringLiteral("BKOOLFITNESSBIKE"))) && !bkoolBike && filter) {
@@ -3633,6 +3642,10 @@ void bluetooth::restart() {
         delete apexBike;
         apexBike = nullptr;
     }
+    if (volavaBike) {
+        delete volavaBike;
+        volavaBike = nullptr;
+    }
     if (bkoolBike) {
         delete bkoolBike;
         bkoolBike = nullptr;
@@ -4267,6 +4280,8 @@ bluetoothdevice *bluetooth::device() {
         return keepBike;
     } else if (apexBike) {
         return apexBike;
+    } else if (volavaBike) {
+        return volavaBike;
     } else if (bkoolBike) {
         return bkoolBike;
     } else if (ultraSportBike) {
