@@ -146,8 +146,31 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     return true;
 }
 
+void ftmsbike::sendStartSimulation() {
+    // Guard against double sends (ack + fallback timeout racing).
+    if (!initInProgress)
+        return;
+    initInProgress = false;
+
+    bool ret;
+    if (USDC_D700) {
+        // Kinomap keeps this bike streaming by following request-control with STOP/PAUSE(0x01)
+        // instead of the usual START/RESUME opcode.
+        uint8_t usdcStart[] = {FTMS_STOP_PAUSE, 0x01};
+        ret = writeCharacteristic(usdcStart, sizeof(usdcStart), "usdc d700 start workaround", false, true);
+    } else {
+        uint8_t write[] = {FTMS_START_RESUME};
+        ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+    }
+
+    if (ret) {
+        initDone = true;
+        initRequest = false;
+    }
+}
+
 void ftmsbike::init() {
-    if (initDone)
+    if (initDone || initInProgress)
         return;
 
     if(ICSE || HAMMER) {
@@ -156,23 +179,17 @@ void ftmsbike::init() {
         write[0] = {FTMS_RESET};
         ret = writeCharacteristic(write, sizeof(write), "reset", false, true);
     }
-    
-    uint8_t write[] = {FTMS_REQUEST_CONTROL};
-    bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
-    if (USDC_D700) {
-        // Kinomap keeps this bike streaming by following request-control with STOP/PAUSE(0x01)
-        // instead of the usual START/RESUME opcode.
-        uint8_t usdcStart[] = {FTMS_STOP_PAUSE, 0x01};
-        ret = writeCharacteristic(usdcStart, sizeof(usdcStart), "usdc d700 start workaround", false, true);
-    } else {
-        write[0] = {FTMS_START_RESUME};
-        ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
-    }
 
-    if(ret) {
-        initDone = true;
-        initRequest = false;
-    }
+    uint8_t write[] = {FTMS_REQUEST_CONTROL};
+    requestControlSucceeded = false;
+    initInProgress = true;
+    requestControlSentAt = QDateTime::currentDateTime();
+    writeCharacteristic(write, sizeof(write), "requestControl", false, true);
+
+    // Some trainers (e.g. Magene T600) are slow to send the OK response to REQUEST_CONTROL:
+    // sending START_RESUME before they granted control makes them ignore it. So START_RESUME
+    // is not sent here: update() will send it once the ack is received (recorded by
+    // characteristicChanged) or, as a fallback, after the requestControlTimeoutMs timeout.
 }
 
 ftmsbike::~ftmsbike() {
@@ -404,6 +421,19 @@ void ftmsbike::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
+    }
+
+    // Finish the async init: send START_RESUME once REQUEST_CONTROL was acknowledged, or
+    // after the fallback timeout if the trainer is slow/never answers. Polling it here keeps
+    // the write out of the BLE receive handler.
+    if (initInProgress) {
+        if (requestControlSucceeded) {
+            qDebug() << QStringLiteral("REQUEST_CONTROL acknowledged, sending start simulation");
+            sendStartSimulation();
+        } else if (requestControlSentAt.msecsTo(QDateTime::currentDateTime()) >= requestControlTimeoutMs) {
+            qDebug() << QStringLiteral("requestControl not acknowledged within timeout, proceeding anyway");
+            sendStartSimulation();
+        }
     }
 
     if (initRequest) {
@@ -699,10 +729,19 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         const uint8_t requestCode = (uint8_t)newValue.at(1);
         const uint8_t resultCode = (uint8_t)newValue.at(2);
 
+        if (responseCode == FTMS_RESPONSE_CODE && requestCode == FTMS_REQUEST_CONTROL &&
+            resultCode == FTMS_SUCCESS) {
+            requestControlSucceeded = true;
+            qDebug() << QStringLiteral("REQUEST_CONTROL acknowledged with SUCCESS");
+            // START_RESUME is sent by update() once it sees this flag, so we never trigger a
+            // write from within a receive handler.
+        }
+
         if (DOMYOS && responseCode == FTMS_RESPONSE_CODE && requestCode == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
             if (resultCode == FTMS_CONTROL_NOT_PERMITTED) {
                 domyosResistanceRetryAfter = now.addMSecs(3000);
                 initDone = false;
+                initInProgress = false;
                 qDebug() << "DOMYOS resistance command rejected with CONTROL_NOT_PERMITTED"
                          << "lastRequestedResistance:" << lastDomyosRequestedResistance
                          << "backoffUntil:" << domyosResistanceRetryAfter;
@@ -2219,6 +2258,7 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        initInProgress = false;
         gearInclinationSent = false;
         m_control->connectToDevice();
     }

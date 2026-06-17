@@ -133,6 +133,16 @@ class ftmsbike : public bike {
     bool initDone = false;
     bool initRequest = false;
 
+    // Some trainers (e.g. Magene T600) are slow to acknowledge the REQUEST_CONTROL
+    // command: we must wait for its OK response before sending START_RESUME. The init
+    // sequence is therefore asynchronous (no nested event loop): characteristicChanged
+    // only records the ack, and update() sends START_RESUME once the ack arrived or the
+    // fallback timeout elapsed.
+    bool requestControlSucceeded = false;
+    bool initInProgress = false;
+    QDateTime requestControlSentAt;
+    static const int requestControlTimeoutMs = 2000;
+
     bool noWriteResistance = false;
     bool noHeartService = false;
 
@@ -231,6 +241,7 @@ class ftmsbike : public bike {
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     bool shouldUseCalculatedResistanceFallback(const QDateTime &now);
+    void sendStartSimulation();
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
