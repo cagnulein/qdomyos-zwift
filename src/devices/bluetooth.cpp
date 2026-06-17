@@ -2279,7 +2279,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 apexBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(apexBike);
             } else if (b.name().toUpper().startsWith(QStringLiteral("XQ")) && b.name().length() == 12 &&
-                       deviceHasService(b, QBluetoothUuid((quint16)0xfeb9)) && !volavaBike && filter) {
+                       !volavaBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 volavaBike = new volavabike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
