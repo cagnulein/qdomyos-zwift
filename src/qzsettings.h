@@ -91,6 +91,9 @@ class QZSettings {
     static const QString garmin_upload_enabled;
     static constexpr bool default_garmin_upload_enabled = false;
 
+    static const QString garmin_download_workouts_on_start;
+    static constexpr bool default_garmin_download_workouts_on_start = true;
+
     static const QString garmin_access_token;
     static const QString default_garmin_access_token;
 
@@ -143,6 +146,12 @@ class QZSettings {
      */
     static const QString ui_zoom;
     static constexpr float default_ui_zoom = 100.0;
+
+    /**
+     *@brief Preferred application language. Use "auto" to follow system locale.
+     */
+    static const QString app_language;
+    static const QString default_app_language;
 
     /**
      *@brief Disable (true) or use (false) the device's heart rate service.
@@ -1755,6 +1764,9 @@ class QZSettings {
     static const QString trainprogram_stop_at_end;
     static constexpr bool default_trainprogram_stop_at_end = false;
 
+    static const QString trainprogram_clipboard_workout_enabled;
+    static constexpr bool default_trainprogram_clipboard_workout_enabled = false;
+
     static const QString domyos_elliptical_inclination;
     static constexpr bool default_domyos_elliptical_inclination = true;
 
@@ -3151,7 +3163,10 @@ class QZSettings {
 
     static const QString shortcut_start_stop;
     static const QString default_shortcut_start_stop;
-    
+
+    static const QString shortcut_stop;
+    static const QString default_shortcut_stop;
+
     /*
      * @brief Gain multiplier applied to step count calculated from cadence for calibration purposes
      */
@@ -3175,6 +3190,9 @@ class QZSettings {
      */
     static const QString applewatch_as_treadmill_speed;
     static constexpr bool default_applewatch_as_treadmill_speed = false;
+
+    static const QString horizon_treadmill_omega_z;
+    static constexpr bool default_horizon_treadmill_omega_z = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

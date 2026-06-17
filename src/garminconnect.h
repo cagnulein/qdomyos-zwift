@@ -287,5 +287,6 @@ private:
 // Exposed for unit tests and internal reuse: convert Garmin workout JSON payload to QZ XML.
 QString garminConnectGenerateWorkoutXml(const QJsonObject &workoutJson,
                                         const QMap<int, double> &powerCurve = QMap<int, double>());
+QString garminConnectWorkoutFileName(const QString &date, const QString &workoutName, const QString &sportTypeKey);
 
 #endif // GARMINCONNECT_H

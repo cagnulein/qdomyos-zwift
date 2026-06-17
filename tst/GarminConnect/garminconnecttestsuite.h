@@ -151,6 +151,18 @@ public:
      * and produced an empty <row/> with no attributes.
      */
     void test_workoutDetailsJson_nestedRepeatGroupIsUnrolled();
+
+    /**
+     * @brief Test calendar workout filenames include sport suffixes.
+     *
+     * Verifies that same-day run and ride workouts with the same title do not collide.
+     */
+    void test_workoutFileName_appendsSportSuffix();
+
+    /**
+     * @brief Test calendar workout filenames are sanitized.
+     */
+    void test_workoutFileName_sanitizesUnsafeCharacters();
 };
 
 // Register individual tests with Google Test
@@ -216,6 +228,14 @@ TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonPowerCurveTargetsSerialize) {
 
 TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonNestedRepeatGroupIsUnrolled) {
     this->test_workoutDetailsJson_nestedRepeatGroupIsUnrolled();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutFileNameAppendsSportSuffix) {
+    this->test_workoutFileName_appendsSportSuffix();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutFileNameSanitizesUnsafeCharacters) {
+    this->test_workoutFileName_sanitizesUnsafeCharacters();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H

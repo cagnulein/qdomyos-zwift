@@ -35,6 +35,10 @@ var miles = 1;
 var powerChart = null;
 var watts_max = 0;
 
+function t(key, fallback) {
+    return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+}
+
 var firstElapsedTargetPower = 0;
 
 function isTrueSetting(value) {
@@ -263,7 +267,7 @@ function process_arr(arr) {
         plugins: [backgroundFill],
         data: {
             datasets: [{
-                label: 'Watts',
+                label: t('chart.watts', 'Watts'),
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 cubicInterpolationMode: 'monotone',
@@ -281,7 +285,7 @@ function process_arr(arr) {
                                                                        window.chartColors.red,
                 }
             }, {
-                label: 'Req. Watts',
+                label: t('chart.requestedWatts', 'Req. Watts'),
                 backgroundColor: window.chartColors.black,
                 borderColor: window.chartColors.black,
                 //cubicInterpolationMode: 'monotone',

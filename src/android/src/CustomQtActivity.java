@@ -34,7 +34,11 @@ public class CustomQtActivity extends QtActivity {
         String url = data.toString();
         if (url.startsWith("https://www.qzfitness.com/peloton/callback")) {
             Log.d(TAG, "dispatchOAuthCallback: https://www.qzfitness.com/peloton/callback?code=XXXX&state=XXXX");
-            nativeOnOAuthCallback(url);
+            try {
+                nativeOnOAuthCallback(url);
+            } catch (UnsatisfiedLinkError e) {
+                Log.w(TAG, "Qt not ready yet for OAuth callback, ignoring: " + e.getMessage());
+            }
         }
     }
 
@@ -44,6 +48,7 @@ public class CustomQtActivity extends QtActivity {
         Log.d(TAG, "onCreate: CustomQtActivity initialized");
         dispatchOAuthCallback(getIntent());
         AgeSignalsHelper.requestAgeSignals(this);
+        HealthConnectHelper.initialize(this);
 
         // This tells the OS that we want to handle the display cutout area ourselves
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -121,8 +126,16 @@ public class CustomQtActivity extends QtActivity {
                     }
                 }
 
-                // Push the new, correct inset values to the C++ layer
-                onInsetsChanged(top, bottom, left, right, waterfallTop, waterfallBottom, waterfallLeft, waterfallRight);
+                // Push the new, correct inset values to the C++ layer.
+                // Guard against the race where Qt's native library hasn't finished
+                // loading yet when Android fires onApplyWindowInsets early (targetSdk>=36
+                // forces edge-to-edge, triggering this before QtActivity finishes
+                // loading libqdomyos-zwift in its background thread).
+                try {
+                    onInsetsChanged(top, bottom, left, right);
+                } catch (UnsatisfiedLinkError ignored) {
+                    // Qt not ready yet; insets will be re-applied once Qt initializes.
+                }
 
                 return v.onApplyWindowInsets(insets);
             }

@@ -42,8 +42,8 @@ HomeForm {
 
     MessageDialog {
         id: messagePelotonAskStart
-        text: "Peloton Workout in progress"
-        informativeText: "Do you want to follow the resistance? " + rootItem.pelotonProvider
+        text: qsTr("Peloton Workout in progress")
+        informativeText: qsTr("Do you want to follow the resistance? ") + rootItem.pelotonProvider
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {rootItem.pelotonAskStart = false; peloton_start_workout();}
         onNoClicked: {rootItem.pelotonAskStart = false; peloton_abort_workout();}
@@ -107,8 +107,8 @@ HomeForm {
 
     MessageDialog {
         id: locationServicesDialog
-        text: "Permissions Required"
-        informativeText: "QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?"
+        text: qsTr("Permissions Required")
+        informativeText: qsTr("QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             locationServiceRequsted = true
@@ -120,8 +120,8 @@ HomeForm {
 
     MessageDialog {
         id: remindLocationServicesDialog
-        text: "Reminder Preference"
-        informativeText: "Would you like to be reminded about enabling Location Services next time?"
+        text: qsTr("Reminder Preference")
+        informativeText: qsTr("Would you like to be reminded about enabling Location Services next time?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: settings.skipLocationServicesDialog = false
         onNoClicked: settings.skipLocationServicesDialog = true
@@ -129,8 +129,8 @@ HomeForm {
     }
 
     MessageDialog {
-        text: "Restart the app"
-        informativeText: "To apply the changes, you need to restart the app.\nWould you like to do that now?"
+        text: qsTr("Restart the app")
+        informativeText: qsTr("To apply the changes, you need to restart the app.\nWould you like to do that now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;

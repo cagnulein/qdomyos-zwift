@@ -103,6 +103,10 @@ function updateHeartThresholdAnnotations(arr) {
     }
 }
 
+function t(key, fallback) {
+    return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+}
+
 function process_trainprogram_heart(arr) {
     let powerWorkout = false;
     let elapsed = 0;
@@ -309,7 +313,7 @@ function process_arr_heart(arr) {
         plugins: [backgroundFill],
         data: {
             datasets: [{
-                label: 'Heart',
+                label: t('metric.heart', 'Heart'),
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 //cubicInterpolationMode: 'monotone',

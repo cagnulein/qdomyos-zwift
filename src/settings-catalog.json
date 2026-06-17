@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 947,
+  "settingCount": 952,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -6034,7 +6034,7 @@
     },
     {
       "key": "tile_preset_resistance_1_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_resistance_1_enabled",
       "type": "string",
@@ -6047,7 +6047,7 @@
     },
     {
       "key": "tile_preset_resistance_2_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_resistance_2_enabled",
       "type": "string",
@@ -6060,7 +6060,7 @@
     },
     {
       "key": "tile_preset_resistance_3_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_resistance_3_enabled",
       "type": "string",
@@ -6073,7 +6073,7 @@
     },
     {
       "key": "tile_preset_resistance_4_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_resistance_4_enabled",
       "type": "string",
@@ -6086,7 +6086,7 @@
     },
     {
       "key": "tile_preset_resistance_5_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_resistance_5_enabled",
       "type": "string",
@@ -6099,7 +6099,7 @@
     },
     {
       "key": "tile_preset_speed_1_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_speed_1_enabled",
       "type": "string",
@@ -6112,7 +6112,7 @@
     },
     {
       "key": "tile_preset_speed_2_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_speed_2_enabled",
       "type": "string",
@@ -6125,7 +6125,7 @@
     },
     {
       "key": "tile_preset_speed_3_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_speed_3_enabled",
       "type": "string",
@@ -6138,7 +6138,7 @@
     },
     {
       "key": "tile_preset_speed_4_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_speed_4_enabled",
       "type": "string",
@@ -6151,7 +6151,7 @@
     },
     {
       "key": "tile_preset_speed_5_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_speed_5_enabled",
       "type": "string",
@@ -6164,7 +6164,7 @@
     },
     {
       "key": "tile_preset_inclination_1_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_inclination_1_enabled",
       "type": "string",
@@ -6177,7 +6177,7 @@
     },
     {
       "key": "tile_preset_inclination_2_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_inclination_2_enabled",
       "type": "string",
@@ -6190,7 +6190,7 @@
     },
     {
       "key": "tile_preset_inclination_3_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_inclination_3_enabled",
       "type": "string",
@@ -6203,7 +6203,7 @@
     },
     {
       "key": "tile_preset_inclination_4_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_inclination_4_enabled",
       "type": "string",
@@ -6216,7 +6216,7 @@
     },
     {
       "key": "tile_preset_inclination_5_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_inclination_5_enabled",
       "type": "string",
@@ -9695,7 +9695,7 @@
     },
     {
       "key": "tile_preset_powerzone_1_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_powerzone_1_enabled",
       "type": "string",
@@ -9763,7 +9763,7 @@
     },
     {
       "key": "tile_preset_powerzone_2_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_powerzone_2_enabled",
       "type": "string",
@@ -9831,7 +9831,7 @@
     },
     {
       "key": "tile_preset_powerzone_3_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_powerzone_3_enabled",
       "type": "string",
@@ -9899,7 +9899,7 @@
     },
     {
       "key": "tile_preset_powerzone_4_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_powerzone_4_enabled",
       "type": "string",
@@ -9967,7 +9967,7 @@
     },
     {
       "key": "tile_preset_powerzone_5_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_powerzone_5_enabled",
       "type": "string",
@@ -10035,7 +10035,7 @@
     },
     {
       "key": "tile_preset_powerzone_6_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": null,
       "parent": "tile_preset_powerzone_6_enabled",
       "type": "string",
@@ -10103,7 +10103,7 @@
     },
     {
       "key": "tile_preset_powerzone_7_color",
-      "name": "color",
+      "name": "Please choose a color",
       "description": "Power zone presets allow quick access to specific training zones with customizable labels and values.",
       "parent": "tile_preset_powerzone_7_enabled",
       "type": "string",
@@ -11316,7 +11316,7 @@
     {
       "key": "height",
       "name": "Player Height",
-      "description": "Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet'inches\" format (e.g., 5'10\") for imperial units.",
+      "description": "Invalid format! Use feet'inches (e.g., 6'2\")",
       "parent": "General Options",
       "type": "number",
       "qmlType": "real",
@@ -13478,6 +13478,74 @@
       "defaultValue": "",
       "defaultExpression": "\"\"",
       "options": null
+    },
+    {
+      "key": "shortcut_stop",
+      "name": "Stop",
+      "description": null,
+      "parent": "Keyboard Shortcuts",
+      "type": "string",
+      "qmlType": "string",
+      "control": "text",
+      "visible": true,
+      "defaultValue": "",
+      "defaultExpression": "\"\"",
+      "options": null
+    },
+    {
+      "key": "garmin_download_workouts_on_start",
+      "name": "Fetch Garmin Workouts on Startup",
+      "description": "Enable automatic download of today's Garmin workout when QZ starts. Default: enabled.",
+      "parent": "Garmin Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
+      "options": null
+    },
+    {
+      "key": "trainprogram_clipboard_workout_enabled",
+      "name": "Enable Clipboard Workouts",
+      "description": "Enable detection of ZWO/XML workouts copied to the clipboard. Default: disabled.",
+      "parent": "Training Program Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null
+    },
+    {
+      "key": "horizon_treadmill_omega_z",
+      "name": "Omega Z",
+      "description": null,
+      "parent": "Horizon Treadmill Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null
+    },
+    {
+      "key": "app_language",
+      "name": "App Language",
+      "description": "Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.",
+      "parent": "General Options",
+      "type": "string",
+      "qmlType": "string",
+      "control": "select",
+      "visible": true,
+      "defaultValue": "auto",
+      "defaultExpression": "\"auto\"",
+      "options": {
+        "source": "expression",
+        "expression": "appLanguageOptions"
+      }
     }
   ]
 }
