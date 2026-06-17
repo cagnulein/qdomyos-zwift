@@ -132,7 +132,7 @@ public class CustomQtActivity extends QtActivity {
                 // forces edge-to-edge, triggering this before QtActivity finishes
                 // loading libqdomyos-zwift in its background thread).
                 try {
-                    onInsetsChanged(top, bottom, left, right);
+                    onInsetsChanged(top, bottom, left, right, waterfallTop, waterfallBottom, waterfallLeft, waterfallRight);
                 } catch (UnsatisfiedLinkError ignored) {
                     // Qt not ready yet; insets will be re-applied once Qt initializes.
                 }
