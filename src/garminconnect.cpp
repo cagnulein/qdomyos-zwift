@@ -2077,32 +2077,59 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent,
     }
 }
 
+static void appendGarminSteps(QString &xml, const QJsonArray &steps, int indent,
+                              const QMap<int, double> &powerCurve) {
+    for (const QJsonValue &stepVal : steps) {
+        const QJsonObject step = stepVal.toObject();
+        if (step[QStringLiteral("type")].toString() != QStringLiteral("RepeatGroupDTO")) {
+            appendGarminStep(xml, step, indent, powerCurve);
+            continue;
+        }
+
+        int iterations = static_cast<int>(step[QStringLiteral("numberOfIterations")].toDouble());
+        if (iterations < 1)
+            iterations = 1;
+
+        const QJsonArray innerSteps = step[QStringLiteral("workoutSteps")].toArray();
+
+        // Check whether any inner step is itself a RepeatGroupDTO. If so we
+        // must unroll this level because loadXML does not support nested
+        // <repeat> blocks.
+        bool hasNestedRepeat = false;
+        for (const QJsonValue &inner : innerSteps) {
+            if (inner.toObject()[QStringLiteral("type")].toString() == QStringLiteral("RepeatGroupDTO")) {
+                hasNestedRepeat = true;
+                break;
+            }
+        }
+
+        if (hasNestedRepeat) {
+            // Unroll: emit the inner steps N times instead of wrapping in <repeat>
+            for (int i = 0; i < iterations; i++) {
+                appendGarminSteps(xml, innerSteps, indent, powerCurve);
+            }
+        } else {
+            // All inner steps are leaf ExecutableStepDTOs — safe to emit <repeat>
+            QString pad(indent * 4, QChar(QLatin1Char(' ')));
+            xml += pad + QString("<repeat times=\"%1\">\n").arg(iterations);
+            for (const QJsonValue &inner : innerSteps) {
+                appendGarminStep(xml, inner.toObject(), indent + 1, powerCurve);
+            }
+            xml += pad + QStringLiteral("</repeat>\n");
+        }
+    }
+}
+
 QString garminConnectGenerateWorkoutXml(const QJsonObject &workoutJson,
                                         const QMap<int, double> &powerCurve) {
     QString xml;
     xml += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     xml += "<rows>\n";
 
-    const QJsonArray segments = workoutJson["workoutSegments"].toArray();
+    const QJsonArray segments = workoutJson[QStringLiteral("workoutSegments")].toArray();
     for (const QJsonValue &segVal : segments) {
-        const QJsonArray steps = segVal.toObject()["workoutSteps"].toArray();
-        for (const QJsonValue &stepVal : steps) {
-            QJsonObject step = stepVal.toObject();
-            if (step["type"].toString() == "RepeatGroupDTO") {
-                int iterations = static_cast<int>(step["numberOfIterations"].toDouble());
-                if (iterations < 1) {
-                    iterations = 1;
-                }
-                xml += QString("    <repeat times=\"%1\">\n").arg(iterations);
-                const QJsonArray innerSteps = step["workoutSteps"].toArray();
-                for (const QJsonValue &inner : innerSteps) {
-                    appendGarminStep(xml, inner.toObject(), 2, powerCurve);
-                }
-                xml += "    </repeat>\n";
-            } else {
-                appendGarminStep(xml, step, 1, powerCurve);
-            }
-        }
+        const QJsonArray steps = segVal.toObject()[QStringLiteral("workoutSteps")].toArray();
+        appendGarminSteps(xml, steps, 1, powerCurve);
     }
 
     xml += "</rows>\n";

@@ -587,3 +587,110 @@ void GarminConnectTestSuite::test_workoutDetailsJson_powerCurveTargetsSerialize(
         settings.remove(QZSettings::ftp);
     }
 }
+
+void GarminConnectTestSuite::test_workoutDetailsJson_nestedRepeatGroupIsUnrolled()
+{
+    // Real Sprint workout: warmup → [2× [12× (10s@497W + 20s@93W)] + 5min rest] → cooldown
+    static const char *kWorkoutJson = R"json({
+        "workoutName": "Sprint",
+        "sportType": {"sportTypeKey": "cycling"},
+        "workoutSegments": [{
+            "workoutSteps": [
+                {
+                    "type": "ExecutableStepDTO",
+                    "endCondition": {"conditionTypeKey": "time"},
+                    "endConditionValue": 1200,
+                    "targetType": {"workoutTargetTypeKey": "power.zone"},
+                    "targetValueOne": 156,
+                    "targetValueTwo": 213
+                },
+                {
+                    "type": "RepeatGroupDTO",
+                    "numberOfIterations": 2,
+                    "endCondition": {"conditionTypeKey": "iterations"},
+                    "workoutSteps": [
+                        {
+                            "type": "RepeatGroupDTO",
+                            "numberOfIterations": 12,
+                            "endCondition": {"conditionTypeKey": "iterations"},
+                            "workoutSteps": [
+                                {
+                                    "type": "ExecutableStepDTO",
+                                    "endCondition": {"conditionTypeKey": "time"},
+                                    "endConditionValue": 10,
+                                    "targetType": {"workoutTargetTypeKey": "power.zone"},
+                                    "targetValueOne": 426,
+                                    "targetValueTwo": 568
+                                },
+                                {
+                                    "type": "ExecutableStepDTO",
+                                    "endCondition": {"conditionTypeKey": "time"},
+                                    "endConditionValue": 20,
+                                    "targetType": {"workoutTargetTypeKey": "power.zone"},
+                                    "targetValueOne": 1,
+                                    "targetValueTwo": 185
+                                }
+                            ]
+                        },
+                        {
+                            "type": "ExecutableStepDTO",
+                            "endCondition": {"conditionTypeKey": "time"},
+                            "endConditionValue": 300,
+                            "targetType": {"workoutTargetTypeKey": "power.zone"},
+                            "targetValueOne": 128,
+                            "targetValueTwo": 185
+                        }
+                    ]
+                },
+                {
+                    "type": "ExecutableStepDTO",
+                    "endCondition": {"conditionTypeKey": "time"},
+                    "endConditionValue": 900,
+                    "targetType": {"workoutTargetTypeKey": "power.zone"},
+                    "targetValueOne": 128,
+                    "targetValueTwo": 185
+                }
+            ]
+        }]
+    })json";
+
+    const QJsonDocument doc = QJsonDocument::fromJson(QByteArray(kWorkoutJson));
+    ASSERT_TRUE(doc.isObject()) << "Sprint workout JSON fixture must be valid";
+
+    const QString xml = garminConnectGenerateWorkoutXml(doc.object());
+
+    // Outer repeat (×2) must be unrolled — no <repeat times="2"> in output
+    EXPECT_FALSE(xml.contains("<repeat times=\"2\">"))
+        << "Outer 2× repeat must be unrolled because loadXML does not support nested <repeat>. XML was:\n"
+        << xml.toStdString();
+
+    // Inner repeat (×12) must be preserved as a <repeat> block
+    EXPECT_EQ(xml.count("<repeat times=\"12\">"), 2)
+        << "Inner 12× repeat must appear twice (once per unrolled outer iteration). XML was:\n"
+        << xml.toStdString();
+
+    // Sprint power: midpoint of [426, 568] = 497W
+    EXPECT_TRUE(xml.contains("duration=\"00:00:10\" power=\"497\""))
+        << "Sprint step must be 10s at 497W (midpoint of [426,568]). XML was:\n"
+        << xml.toStdString();
+
+    // In-set recovery: midpoint of [1, 185] = 93W
+    EXPECT_TRUE(xml.contains("duration=\"00:00:20\" power=\"93\""))
+        << "In-set recovery must be 20s at 93W (midpoint of [1,185]). XML was:\n"
+        << xml.toStdString();
+
+    // Between-set recovery and cooldown: midpoint of [128, 185] = 157W
+    EXPECT_TRUE(xml.contains("duration=\"00:05:00\" power=\"157\""))
+        << "Between-set 5min recovery must be at 157W. XML was:\n"
+        << xml.toStdString();
+
+    // Warmup: midpoint of [156, 213] = 185W
+    EXPECT_TRUE(xml.contains("duration=\"00:20:00\" power=\"185\""))
+        << "Warmup must be 20min at 185W (midpoint of [156,213]). XML was:\n"
+        << xml.toStdString();
+
+    // Cooldown: 15min at 157W
+    EXPECT_TRUE(xml.contains("duration=\"00:15:00\" power=\"157\""))
+        << "Cooldown must be 15min at 157W. XML was:\n"
+        << xml.toStdString();
+}

@@ -140,6 +140,17 @@ public:
      * Verifies power.curve steps use downloaded curve data, with FTP as fallback.
      */
     void test_workoutDetailsJson_powerCurveTargetsSerialize();
+
+    /**
+     * @brief Test nested RepeatGroupDTO (e.g. 2x12x10s sprint) is correctly unrolled.
+     *
+     * Verifies that when a RepeatGroupDTO contains another RepeatGroupDTO as an inner step,
+     * the outer repeat is unrolled (since loadXML does not support nested <repeat> blocks)
+     * while the inner repeat is preserved as a <repeat times="N"> block.
+     * Regression test for the bug where the inner repeat was passed to appendGarminStep()
+     * and produced an empty <row/> with no attributes.
+     */
+    void test_workoutDetailsJson_nestedRepeatGroupIsUnrolled();
 };
 
 // Register individual tests with Google Test
@@ -201,6 +212,10 @@ TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonHeartRateThresholdEndConditions
 
 TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonPowerCurveTargetsSerialize) {
     this->test_workoutDetailsJson_powerCurveTargetsSerialize();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonNestedRepeatGroupIsUnrolled) {
+    this->test_workoutDetailsJson_nestedRepeatGroupIsUnrolled();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H
