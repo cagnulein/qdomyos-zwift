@@ -620,8 +620,6 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
     }
 
     // Build workout preview data
-    QJsonObject main;
-    QJsonObject outObj;
     QJsonArray watts, speed, inclination, resistance, cadence, segments;
 
     if (!rows.isEmpty()) {
