@@ -153,8 +153,9 @@ void volavabike::characteristicChanged(const QLowEnergyCharacteristic &character
         return;
     }
 
-    uint16_t power   = ((uint8_t)newValue[6] << 8) | (uint8_t)newValue[7];
-    uint8_t  cadence = (uint8_t)newValue[11];
+    uint16_t power      = ((uint8_t)newValue[6] << 8) | (uint8_t)newValue[7];
+    uint8_t  cadence    = (uint8_t)newValue[11];
+    uint8_t  resistance = (uint8_t)newValue[14];
 
     if (cadence > 0) {
         Cadence = cadence;
@@ -162,6 +163,7 @@ void volavabike::characteristicChanged(const QLowEnergyCharacteristic &character
         Cadence = 0;
     }
 
+    Resistance = resistance;
     m_watt = power;
 
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based)
@@ -203,6 +205,7 @@ void volavabike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     qDebug() << QStringLiteral("Power: ") + QString::number(power)
              << QStringLiteral("Cadence: ") + QString::number(Cadence.value())
+             << QStringLiteral("Resistance: ") + QString::number(Resistance.value())
              << QStringLiteral("Speed: ") + QString::number(Speed.value())
              << QStringLiteral("KCal: ") + QString::number(KCal.value())
              << QStringLiteral("Distance: ") + QString::number(Distance.value());
