@@ -1,0 +1,15 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.settings.heartrate";
+option java_outer_classname = "HeartRateZoneNumberProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum HeartRateZoneNumber {
+  ZONE_0 = 0;
+  ZONE_1 = 1;
+  ZONE_2 = 2;
+  ZONE_3 = 3;
+  ZONE_4 = 4;
+  ZONE_5 = 5;
+}

@@ -12,6 +12,11 @@
 #include <math.h>
 #include "localipaddress.h"
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
+
 using namespace std::chrono_literals;
 
 pelotonbike::pelotonbike(bool noWriteResistance, bool noHeartService) {
@@ -30,6 +35,12 @@ pelotonbike::pelotonbike(bool noWriteResistance, bool noHeartService) {
     qDebug() << result;
     pelotonOCRprocessPendingDatagrams();
     connect(pelotonOCRsocket, SIGNAL(readyRead()), this, SLOT(pelotonOCRprocessPendingDatagrams()));
+    
+    // ******************************************* Peloton sensor init *************************************
+#ifdef Q_OS_ANDROID
+    initializePelotonSensorService();
+#endif
+    
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()) {
         bool virtual_device_enabled =
@@ -87,6 +98,24 @@ void pelotonbike::pelotonOCRprocessPendingDatagrams() {
 void pelotonbike::update() {
 
     QSettings settings;
+    
+#ifdef Q_OS_ANDROID
+    // Use Peloton sensor data if available, otherwise fall back to OCR
+    if (pelotonSensorInitialized && isPelotonSensorConnected()) {
+        // Read sensor values from Java backend
+        float power = getPelotonPower();
+        float cadence = getPelotonCadence();
+        float resistance = getPelotonResistance();
+        float speed = getPelotonSpeed();
+        
+        // Update metrics with sensor data
+        m_watt = power;
+        Cadence = cadence;
+        Resistance = resistance;
+        Speed = speed;
+    }
+#endif
+    
     update_metrics(false, 0);
 
     if(!initDone) {
@@ -152,6 +181,123 @@ void pelotonbike::changeInclinationRequested(double grade, double percentage) {
     changeInclination(grade, percentage);
 }
 
-bool pelotonbike::connected() { return true; }
+bool pelotonbike::connected() { 
+#ifdef Q_OS_ANDROID
+    return pelotonSensorInitialized && isPelotonSensorConnected();
+#else
+    return true; 
+#endif
+}
+
+#ifdef Q_OS_ANDROID
+// Peloton sensor integration methods (similar to nordictrackadbbike GRPC approach)
+
+void pelotonbike::initializePelotonSensorService() {
+    if (!pelotonSensorInitialized) {
+        try {
+            // Set context for the Java service
+            QAndroidJniObject context = QtAndroid::androidActivity();
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/PelotonSensorHelper",
+                "setContext",
+                "(Landroid/content/Context;)V",
+                context.object<jobject>()
+            );
+            
+            // Initialize the service
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/PelotonSensorHelper",
+                "initialize",
+                "()V"
+            );
+            
+            pelotonSensorInitialized = true;
+            startPelotonSensorUpdates();
+            emit debug("Peloton sensor service initialized successfully");
+            
+        } catch (...) {
+            emit debug("Failed to initialize Peloton sensor service");
+            pelotonSensorInitialized = false;
+        }
+    }
+}
+
+void pelotonbike::startPelotonSensorUpdates() {
+    if (pelotonSensorInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/PelotonSensorHelper",
+            "startSensorUpdates",
+            "()V"
+        );
+        emit debug("Started Peloton sensor updates");
+    }
+}
+
+void pelotonbike::stopPelotonSensorUpdates() {
+    if (pelotonSensorInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/PelotonSensorHelper",
+            "stopSensorUpdates",
+            "()V"
+        );
+        emit debug("Stopped Peloton sensor updates");
+    }
+}
+
+float pelotonbike::getPelotonPower() {
+    if (pelotonSensorInitialized) {
+        return QAndroidJniObject::callStaticMethod<jfloat>(
+            "org/cagnulen/qdomyoszwift/PelotonSensorHelper",
+            "getCurrentPower",
+            "()F"
+        );
+    }
+    return 0.0f;
+}
+
+float pelotonbike::getPelotonCadence() {
+    if (pelotonSensorInitialized) {
+        return QAndroidJniObject::callStaticMethod<jfloat>(
+            "org/cagnulen/qdomyoszwift/PelotonSensorHelper",
+            "getCurrentCadence",
+            "()F"
+        );
+    }
+    return 0.0f;
+}
+
+float pelotonbike::getPelotonResistance() {
+    if (pelotonSensorInitialized) {
+        return QAndroidJniObject::callStaticMethod<jfloat>(
+            "org/cagnulen/qdomyoszwift/PelotonSensorHelper",
+            "getCurrentResistance",
+            "()F"
+        );
+    }
+    return 0.0f;
+}
+
+float pelotonbike::getPelotonSpeed() {
+    if (pelotonSensorInitialized) {
+        return QAndroidJniObject::callStaticMethod<jfloat>(
+            "org/cagnulen/qdomyoszwift/PelotonSensorHelper",
+            "getCurrentSpeed",
+            "()F"
+        );
+    }
+    return 0.0f;
+}
+
+bool pelotonbike::isPelotonSensorConnected() {
+    if (pelotonSensorInitialized) {
+        return QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/PelotonSensorHelper",
+            "isConnected",
+            "()Z"
+        );
+    }
+    return false;
+}
+#endif
 
 

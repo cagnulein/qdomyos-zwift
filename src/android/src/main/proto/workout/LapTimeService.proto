@@ -1,0 +1,34 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "LapTimeServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message LapTimeMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double lastLapTimeSeconds = 3;
+  double maxLapTimeSeconds = 4;
+  double averageLapTimeSeconds = 5;
+  double minLapTimeSeconds = 6;
+}
+
+message LapTimeMetricList {
+  repeated LapTimeMetric metrics = 1;
+}
+
+service LapTimeService {
+  // check whether LapTime is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Lap Time relative to the current workout
+  rpc GetLapTime(Empty) returns (LapTimeMetric) {}
+
+  // subscribe to LapTime updates relative to the current workout
+  rpc LapTimeSubscription(Empty) returns (stream LapTimeMetric) {}
+
+  // gets a list of all of the LapTime changes for the given workout ID
+  rpc GetLapTimeHistory(WorkoutID) returns (LapTimeMetricList) {}
+}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.workout.data.map";
+option java_outer_classname = "MapCoordinateProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message MapCoordinate {
+  double distance = 1;
+  double latitude = 2;
+  double longitude = 3;
+  double heading = 4;
+}
+
+message MapCoordinateList {
+  repeated MapCoordinate coordinates = 1;
+}

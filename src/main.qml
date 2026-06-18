@@ -374,18 +374,6 @@ ApplicationWindow {
            visible: false
        }
 
-    Timer {
-       id: pelotonAuthCheck
-       interval: 1000  // 1 second delay after startup
-       running: true
-       repeat: false
-       onTriggered: {
-           if (settings.peloton_password !== "password") {
-               popupPelotonAuth.visible = true
-           }
-       }
-    }
-
     Popup {
         id: popupClassificaHelper
          parent: Overlay.overlay
@@ -1294,7 +1282,6 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Quit")
                     width: parent.width
-                    visible: OS_VERSION === "Other" ? true : false
                     onClicked: {
                         console.log("closing...")
                         Qt.callLater(Qt.quit)
@@ -1517,6 +1504,11 @@ ApplicationWindow {
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_start_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStartStop() }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStop() }
         }
+    }
+    
+    // Grupetto Legal Disclaimer
+    GrupettoDisclaimer {
+        id: grupettoDisclaimer
     }
 }
 

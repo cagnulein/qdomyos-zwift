@@ -1,0 +1,14 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "workout/data/ItemType.proto";
+import "activitylog/ActivityLogMetadata.proto";
+option java_package = "com.ifit.glassos.workout.data";
+option java_outer_classname = "WorkoutSegmentDescriptorProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message WorkoutSegmentDescriptor {
+  ActivityLogMetadata workoutMetadata = 1;
+  ItemType itemType = 2;
+  double manualWorkoutLengthSeconds = 3;
+}
