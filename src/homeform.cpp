@@ -349,12 +349,15 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 
 #ifdef Q_OS_ANDROID
-    m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
-                                              "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
-    if(m_locationServices) {
-        QSettings settings;
-        // so if someone pressed the skip message but now he forgot to enable GPS it will prompt out
-        settings.setValue(QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog);
+    const bool nordictrack = true; // to replace
+    if(!nordictrack) {
+        m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
+                                                "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
+        if(m_locationServices) {
+            QSettings settings;
+            // so if someone pressed the skip message but now he forgot to enable GPS it will prompt out
+            settings.setValue(QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog);
+        }
     }
 #endif
 
@@ -1027,7 +1030,15 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                          if (f.contains("HR")) {
                                              QStringList values = f.split("=");
                                              if (values.length() > 1) {
-                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
+                                                 uint8_t heart = values[1].toUInt();
+                                                 emit homeform::singleton()->heartRate(heart);
+                                                 QSettings settings;
+                                                 bool iosHeartCompanion = settings.value(QZSettings::ios_heart_companion,
+                                                     QZSettings::default_ios_heart_companion).toBool();
+                                                 if (iosHeartCompanion && heart > 0 && homeform::singleton()->bluetoothManager &&
+                                                     homeform::singleton()->bluetoothManager->device()) {
+                                                     homeform::singleton()->bluetoothManager->device()->heartRate(heart);
+                                                 }
                                              }
                                          }
                                      }
@@ -1067,7 +1078,15 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                          if (f.contains("HR")) {
                                              QStringList values = f.split("=");
                                              if (values.length() > 1) {
-                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
+                                                 uint8_t heart = values[1].toUInt();
+                                                 emit homeform::singleton()->heartRate(heart);
+                                                 QSettings settings;
+                                                 bool iosHeartCompanion = settings.value(QZSettings::ios_heart_companion,
+                                                     QZSettings::default_ios_heart_companion).toBool();
+                                                 if (iosHeartCompanion && heart > 0 && homeform::singleton()->bluetoothManager &&
+                                                     homeform::singleton()->bluetoothManager->device()) {
+                                                     homeform::singleton()->bluetoothManager->device()->heartRate(heart);
+                                                 }
                                              }
                                          }
                                      }

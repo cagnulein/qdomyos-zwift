@@ -1,0 +1,12 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.bluetooth";
+option java_outer_classname = "BluetoothConnectionStateProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum BluetoothConnectionState {
+    BLE_DEVICE_CONNECTED = 0;
+    BLE_DEVICE_CONNECTING = 1;
+    BLE_DEVICE_DISCONNECTED = 2;
+}

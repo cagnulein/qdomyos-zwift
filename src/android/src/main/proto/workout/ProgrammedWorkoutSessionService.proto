@@ -1,0 +1,93 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/NetworkError.proto";
+import "util/Util.proto";
+import "workout/ProgrammedWorkoutSessionError.proto";
+import "workout/WorkoutError.proto";
+import "workout/WorkoutState.proto";
+import "workout/data/Workout.proto";
+import "workout/data/WorkoutSegmentDescriptor.proto";
+import "workout/data/WorkoutSessionItem.proto";
+import "workout/data/WorkoutSessionState.proto";
+import "workout/data/WorkoutTargetType.proto";
+import "workout/data/recovery/RecoveredSession.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "ProgrammedWorkoutSessionServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message AddAllWorkoutSegmentsRequest {
+  repeated WorkoutSegmentDescriptor workoutSegments = 1;
+}
+
+message ProgrammedWorkoutServiceResponse {
+  oneof errorOrSuccess {
+    bool success = 1;
+    ProgrammedWorkoutSessionError programmedSessionError = 2;
+    WorkoutError workoutError = 3;
+    NetworkError networkError = 4;
+  }
+}
+
+message ProgramAtPosition {
+  oneof position {
+    double seconds = 1;
+    double meters = 2;
+    double calories = 3;
+  }
+}
+
+message SetAtPositionRequest {
+  ProgramAtPosition position = 1;
+  string workoutId = 2;
+}
+
+message ProgramPosition {
+  WorkoutTargetType targetType = 1;
+  double at = 2;
+  double elapsed = 3;
+  string workoutId = 4;
+}
+
+message RecoveredSessionResponse {
+    optional RecoveredSession recoveredSession = 1;
+}
+
+service ProgrammedWorkoutSessionService {
+  rpc PreloadWorkout(WorkoutSegmentDescriptor) returns (Empty);
+  rpc PreloadedWorkoutsChangedSubscription(Empty) returns (stream WorkoutList);
+
+  rpc SessionIsStartingSubscription(Empty) returns (stream BooleanResponse);
+  rpc ManualStartRequestedSubscription(Empty) returns (stream BooleanResponse);
+
+  rpc AddAndStart(AddAllWorkoutSegmentsRequest) returns (ProgrammedWorkoutServiceResponse);
+  rpc AddAllWorkoutSegments(AddAllWorkoutSegmentsRequest) returns (ProgrammedWorkoutServiceResponse);
+  rpc ClearRemainingWorkoutSegments(Empty) returns (Empty);
+  rpc Start(Empty) returns (ProgrammedWorkoutServiceResponse);
+  rpc Stop(Empty) returns (ProgrammedWorkoutServiceResponse);
+  rpc Next(Empty) returns (ProgrammedWorkoutServiceResponse);
+  rpc Pause(Empty) returns (ProgrammedWorkoutServiceResponse);
+  rpc Resume(Empty) returns (ProgrammedWorkoutServiceResponse);
+
+  rpc GetCurrentSessionWorkouts(Empty) returns (WorkoutSessionItemList) {}
+  rpc SessionWorkoutsChanged(Empty) returns (stream WorkoutSessionItemList) {}
+
+  rpc GetCurrentWorkoutSessionState(Empty) returns (WorkoutSessionState) {}
+  rpc WorkoutSessionStateChanged(Empty) returns (stream WorkoutSessionState) {}
+
+  rpc AssertPositionControl(Empty) returns (ProgrammedWorkoutServiceResponse);
+  rpc ReleasePositionControl(Empty) returns (Empty);
+  rpc GetPositionController(Empty) returns (StringResponse);
+
+  rpc SetAtPosition(SetAtPositionRequest) returns (ProgrammedWorkoutServiceResponse);
+
+  rpc GetCurrentProgramPosition(Empty) returns (ProgramPosition) {}
+  rpc ProgramPositionChanged(Empty) returns (stream ProgramPosition) {}
+
+  rpc GetLatestUnfinishedWorkoutSession(Empty) returns (RecoveredSessionResponse);
+  rpc HasUnfinishedSessionAvailable(Empty) returns (BooleanResponse);
+  rpc RunUnfinishedSession(RecoveredSession) returns (Empty);
+  rpc MarkUnfinishedSessionAsComplete(RecoveredSession) returns (Empty);
+  rpc ClearUnfinishedSessions(Empty) returns (Empty);
+  rpc GetRunningUnfinishedSession(Empty) returns (RecoveredSessionResponse);
+}

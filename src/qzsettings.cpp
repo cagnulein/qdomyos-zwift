@@ -849,6 +849,8 @@ const QString QZSettings::peloton_treadmill_walk_level = QStringLiteral("peloton
 const QString QZSettings::peloton_treadmill_walking_min_speed = QStringLiteral("peloton_treadmill_walking_min_speed");
 const QString QZSettings::peloton_treadmill_running_min_speed = QStringLiteral("peloton_treadmill_running_min_speed");
 const QString QZSettings::nordictrackadbbike_resistance = QStringLiteral("nordictrackadbbike_resistance");
+const QString QZSettings::nordictrackadbbike_gear_resistance_mode = QStringLiteral("nordictrackadbbike_gear_resistance_mode");
+const QString QZSettings::nordictrackadbbike_gear_debounce_ms = QStringLiteral("nordictrackadbbike_gear_debounce_ms");
 const QString QZSettings::proform_treadmill_carbon_t7 = QStringLiteral("proform_treadmill_carbon_t7");
 const QString QZSettings::nordictrack_treadmill_exp_5i = QStringLiteral("nordictrack_treadmill_exp_5i");
 const QString QZSettings::dircon_id = QStringLiteral("dircon_id");
@@ -1069,6 +1071,8 @@ const QString QZSettings::tile_auto_virtual_shifting_climb_enabled = QStringLite
 const QString QZSettings::tile_auto_virtual_shifting_climb_order = QStringLiteral("tile_auto_virtual_shifting_climb_order");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_enabled = QStringLiteral("tile_auto_virtual_shifting_sprint_enabled");
 const QString QZSettings::tile_auto_virtual_shifting_sprint_order = QStringLiteral("tile_auto_virtual_shifting_sprint_order");
+const QString QZSettings::grupetto_disclaimer_shown = QStringLiteral("grupetto_disclaimer_shown");
+
 const QString QZSettings::tile_power_avg_enabled = QStringLiteral("tile_power_avg_enabled");
 const QString QZSettings::tile_power_avg_order = QStringLiteral("tile_power_avg_order");
 const QString QZSettings::tile_negative_inclination_enabled = QStringLiteral("tile_negative_inclination_enabled");
@@ -1099,6 +1103,7 @@ const QString QZSettings::proform_carbon_tlx_v84_314_treadmill = QStringLiteral(
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 const QString QZSettings::proform_treadmill_cst_505_pftl59420_0 = QStringLiteral("proform_treadmill_cst_505_pftl59420_0");
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
+const QString QZSettings::ios_heart_companion = QStringLiteral("ios_heart_companion");
 const QString QZSettings::horizon_treadmill_omega_z = QStringLiteral("horizon_treadmill_omega_z");
 
 const QString QZSettings::shortcuts_enabled = QStringLiteral("shortcuts_enabled");
@@ -1233,7 +1238,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 962;
+const uint32_t allSettingsCount = 966;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1942,6 +1947,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_treadmill_walking_min_speed, QZSettings::default_peloton_treadmill_walking_min_speed},
     {QZSettings::peloton_treadmill_running_min_speed, QZSettings::default_peloton_treadmill_running_min_speed},
     {QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance},
+    {QZSettings::nordictrackadbbike_gear_resistance_mode, QZSettings::default_nordictrackadbbike_gear_resistance_mode},
+    {QZSettings::nordictrackadbbike_gear_debounce_ms, QZSettings::default_nordictrackadbbike_gear_debounce_ms},
     {QZSettings::proform_treadmill_carbon_t7, QZSettings::default_proform_treadmill_carbon_t7},
     {QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i},
     {QZSettings::dircon_id, QZSettings::default_dircon_id},
@@ -2121,6 +2128,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_auto_virtual_shifting_climb_order, QZSettings::default_tile_auto_virtual_shifting_climb_order},
     {QZSettings::tile_auto_virtual_shifting_sprint_enabled, QZSettings::default_tile_auto_virtual_shifting_sprint_enabled},
     {QZSettings::tile_auto_virtual_shifting_sprint_order, QZSettings::default_tile_auto_virtual_shifting_sprint_order},
+    {QZSettings::grupetto_disclaimer_shown, QZSettings::default_grupetto_disclaimer_shown},
     {QZSettings::tile_power_avg_enabled, QZSettings::default_tile_power_avg_enabled},
     {QZSettings::tile_power_avg_order, QZSettings::default_tile_power_avg_order},
     {QZSettings::tile_negative_inclination_enabled, QZSettings::default_tile_negative_inclination_enabled},
@@ -2219,6 +2227,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6},
     {QZSettings::proform_treadmill_cst_505_pftl59420_0, QZSettings::default_proform_treadmill_cst_505_pftl59420_0},
     {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
+    {QZSettings::ios_heart_companion, QZSettings::default_ios_heart_companion},
     {QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z},
 };
 
