@@ -35,13 +35,40 @@ $ADB shell dumpsys notification | grep -A3 "qdomyos"
 ### Zwift Installed
 
 ```bash
-# Check whether Zwift is installed.
+# Check which Zwift packages are installed.
 $ADB shell pm list packages | grep zwift
-# package:com.zwift.android.prod  (when installed)
+
+# Important:
+# package:com.zwift.android.prod is Zwift Companion, not the Zwift game.
+# Companion is not valid for this test.
 
 # Install from the Play Store. A Zwift account is required.
 # Credentials should stay in the device password manager.
 ```
+
+Set the package name for the Zwift game after installing it:
+```bash
+ZWIFT_PACKAGE=<ZWIFT_GAME_PACKAGE>
+
+# Do not use Companion here.
+test "$ZWIFT_PACKAGE" != "com.zwift.android.prod"
+```
+
+If only `com.zwift.android.prod` appears in `pm list packages`, the emulator only has Zwift Companion installed and this test cannot continue yet.
+
+### Emulator GPU Acceleration
+
+Start the emulator with host GPU acceleration:
+```bash
+~/Library/Android/sdk/emulator/emulator -avd Pixel_8_API_36 -no-snapshot-load -gpu host
+```
+
+Verify the renderer inside Android:
+```bash
+$ADB shell cmd gpu vkjson | grep -E '"deviceName"|"driverName"|SwiftShader'
+```
+
+The tested macOS host reported `driverName=MoltenVK` and `deviceName=Apple M2 Pro` when host GPU acceleration was active. If the output mentions `SwiftShader`, Android is still using software rendering and Zwift is likely to fail.
 
 ## Test Procedure
 
@@ -59,7 +86,7 @@ $ADB shell dumpsys notification | grep "ForegroundServiceChannel"
 ### 2. Start Zwift
 
 ```bash
-$ADB shell monkey -p com.zwift.android.prod -c android.intent.category.LAUNCHER 1
+$ADB shell monkey -p "$ZWIFT_PACKAGE" -c android.intent.category.LAUNCHER 1
 ```
 
 You can also tap the Zwift icon manually.
@@ -133,4 +160,8 @@ setup_qz_for_zwift() {
 }
 
 setup_qz_for_zwift
+
+# Start Zwift after setting ZWIFT_PACKAGE to the Zwift game package.
+test "$ZWIFT_PACKAGE" != "com.zwift.android.prod"
+$ADB shell monkey -p "$ZWIFT_PACKAGE" -c android.intent.category.LAUNCHER 1
 ```

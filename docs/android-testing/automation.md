@@ -12,7 +12,7 @@ $EMULATOR -list-avds
 # Pixel_8_API_36
 
 # Start the emulator.
-$EMULATOR -avd Pixel_8_API_36 -no-snapshot-load &
+$EMULATOR -avd Pixel_8_API_36 -no-snapshot-load -gpu host &
 
 # Wait for boot.
 $ADB wait-for-device shell getprop sys.boot_completed
@@ -20,6 +20,11 @@ $ADB wait-for-device shell getprop sys.boot_completed
 
 # List connected devices, including emulators and physical devices.
 $ADB devices
+
+# Verify that Android sees host GPU acceleration.
+$ADB shell cmd gpu vkjson | grep -E '"deviceName"|"driverName"|SwiftShader'
+# Expected on the tested macOS host: driverName=MoltenVK, deviceName=Apple M2 Pro.
+# SwiftShader means software rendering and is not suitable for Zwift testing.
 ```
 
 ## Screenshots with adb
@@ -168,8 +173,10 @@ $ADB shell dumpsys bluetooth_manager | grep -i "ftms\|fitness"
 # Show active notifications.
 $ADB shell dumpsys notification | grep -A10 "qdomyos"
 
-# Check whether Zwift is connected.
-$ADB shell dumpsys activity | grep "com.zwift.android.prod" | head -5
+# Check whether the Zwift game is running.
+# Do not use com.zwift.android.prod here; that package is Zwift Companion.
+ZWIFT_PACKAGE=<ZWIFT_GAME_PACKAGE>
+$ADB shell dumpsys activity | grep "$ZWIFT_PACKAGE" | head -5
 ```
 
 ## Read logcat
@@ -178,7 +185,7 @@ $ADB shell dumpsys activity | grep "com.zwift.android.prod" | head -5
 # Live QZ logs.
 $ADB logcat | grep -i "qdomyos\|QZFitness\|bluetooth"
 
-# Zwift logs.
+# Zwift logs. Adjust tags after confirming the real Zwift game package/log tags.
 $ADB logcat -s "ZwiftApp"
 
 # Save logs for analysis.
@@ -190,6 +197,12 @@ $ADB logcat -d > /tmp/android_log.txt
 ```bash
 #!/bin/bash
 ADB=~/Library/Android/sdk/platform-tools/adb
+ZWIFT_PACKAGE=<ZWIFT_GAME_PACKAGE>
+
+if [ "$ZWIFT_PACKAGE" = "com.zwift.android.prod" ]; then
+  echo "com.zwift.android.prod is Zwift Companion, not Zwift. Install the Zwift game and set ZWIFT_PACKAGE to its package name."
+  exit 1
+fi
 
 # 1. Configure QZ.
 echo "Configuring QZ..."
@@ -216,6 +229,6 @@ fi
 
 # 4. Start Zwift.
 echo "Starting Zwift..."
-$ADB shell monkey -p com.zwift.android.prod -c android.intent.category.LAUNCHER 1
+$ADB shell monkey -p "$ZWIFT_PACKAGE" -c android.intent.category.LAUNCHER 1
 echo "Done. Go to the sensor pairing screen in Zwift."
 ```

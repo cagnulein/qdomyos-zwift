@@ -13,11 +13,16 @@
 ADB=~/Library/Android/sdk/platform-tools/adb
 
 # Start the emulator if it is not already running.
-~/Library/Android/sdk/emulator/emulator -avd Pixel_8_API_36 -no-snapshot-load &
+~/Library/Android/sdk/emulator/emulator -avd Pixel_8_API_36 -no-snapshot-load -gpu host &
 
 # Wait for the boot to complete.
 $ADB wait-for-device shell getprop sys.boot_completed
 # Returns "1" when it is ready.
+
+# Verify host GPU acceleration.
+$ADB shell cmd gpu vkjson | grep -E '"deviceName"|"driverName"|SwiftShader'
+# Expected on the tested macOS host: driverName=MoltenVK, deviceName=Apple M2 Pro.
+# If this prints SwiftShader, Zwift is likely to fail because rendering is software-only.
 
 # Launch QZ.
 $ADB shell am start -n org.cagnulen.qdomyoszwift/.CustomQtActivity
