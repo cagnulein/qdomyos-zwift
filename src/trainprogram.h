@@ -94,6 +94,7 @@ class trainprogram : public QObject {
     static BLUETOOTH_TYPE deviceTypeFromXmlKey(const QString &key);
     static BLUETOOTH_TYPE xmlDeviceType(const QString &filename, BLUETOOTH_TYPE fallback = UNKNOWN);
     QTime totalElapsedTime();
+    int currentRowElapsedSeconds() const;
     QTime currentRowElapsedTime();
     QTime currentRowRemainingTime();
     QTime remainingTime();
@@ -106,6 +107,7 @@ class trainprogram : public QObject {
     void decreaseElapsedTime(int32_t i);
     void goToPreviousRow();
     void applyCurrentStepSettings();
+    int currentRowIndex() const { return currentStep; }
     int currentLogicalStep() const;
     int totalLogicalSteps() const;
     int32_t offsetElapsedTime() { return offset; }

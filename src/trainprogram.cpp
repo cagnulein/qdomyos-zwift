@@ -2190,6 +2190,14 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
 
 QTime trainprogram::totalElapsedTime() { return QTime(0, 0, ticks); }
 
+int trainprogram::currentRowElapsedSeconds() const {
+    if (!started || currentStep >= rows.length() || !rows.at(currentStep).started.isValid())
+        return 0;
+
+    const QDateTime end = rows.at(currentStep).ended.isValid() ? rows.at(currentStep).ended : QDateTime::currentDateTime();
+    return static_cast<int>(qMax<qint64>(0, rows.at(currentStep).started.secsTo(end)));
+}
+
 trainrow trainprogram::currentRow() {
     if (started && !rows.isEmpty()) {
 

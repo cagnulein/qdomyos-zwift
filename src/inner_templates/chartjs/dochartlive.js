@@ -40,6 +40,8 @@ function t(key, fallback) {
 }
 
 var firstElapsedTargetPower = 0;
+var trainingProgramRows = [];
+var trainingProgramDurations = [];
 
 function isTrueSetting(value) {
     return value === true || value === 'true' || value === 1 || value === '1';
@@ -65,18 +67,40 @@ function openEndedSegmentStyle(ctx) {
            (ctx.p1.raw && ctx.p1.raw.openEnded) ? [6, 5] : undefined;
 }
 
-function process_trainprogram(arr) {
+function trainingProgramBaseDuration(row) {
+    const duration = Number(row.duration_s);
+    const visualDuration = Number(row.visual_duration_s);
+    if (isTrueSetting(row.openEnded)) {
+        const fallbackDuration = Number.isFinite(visualDuration) ? visualDuration :
+                                 Number.isFinite(duration) ? duration : 1;
+        return Math.max(1, fallbackDuration);
+    }
+    const fallbackDuration = Number.isFinite(duration) ? duration :
+                             Number.isFinite(visualDuration) ? visualDuration : 0;
+    return Math.max(0, fallbackDuration);
+}
+
+function latestPowerWorkoutElapsed() {
+    if (!powerChart || !powerChart.data.datasets[0] || !powerChart.data.datasets[0].data.length) {
+        return 0;
+    }
+    return powerChart.data.datasets[0].data[powerChart.data.datasets[0].data.length - 1].x;
+}
+
+function rebuildTrainingProgramTarget(updateChart) {
     let powerWorkout = false;
     let elapsed = 0;
+    let reqpower = [];
 
-    for (let el of arr.list) {
+    for (let rowIndex = 0; rowIndex < trainingProgramRows.length; rowIndex++) {
+        const el = trainingProgramRows[rowIndex];
         // if the power is ok or it was a power zone workout but this segment is a freeride tag...
         if(el.power !== -1 || powerWorkout) {
             powerWorkout = true;
-            const duration = Math.max(0, Number(el.visual_duration_s !== undefined ? el.visual_duration_s : el.duration_s) || 0);
+            const duration = Math.max(0, Math.round(Number(trainingProgramDurations[rowIndex]) || 0));
             const openEnded = isTrueSetting(el.openEnded);
             for (let i=0; i<duration; i++) {
-                powerChart.data.datasets[1].data.push({
+                reqpower.push({
                     x: elapsed++,
                     y: el.power,
                     openEnded: openEnded,
@@ -87,11 +111,67 @@ function process_trainprogram(arr) {
             }
         }
     }
-    setNormalXScale('power', undefined, elapsed);
+
+    powerChart.data.datasets[1].data = reqpower;
+    setNormalXScale('power', undefined, Math.max(elapsed, latestPowerWorkoutElapsed()));
     if (!isZoomedPower) {
         powerChart.options.scales.x.min = undefined;
-        powerChart.options.scales.x.max = elapsed;
-        powerChart.update();
+        powerChart.options.scales.x.max = normalXScales.power.max;
+    }
+    if (updateChart) {
+        powerChart.update('none');
+    }
+}
+
+function process_trainprogram(arr) {
+    trainingProgramRows = arr.list || [];
+    trainingProgramDurations = trainingProgramRows.map(trainingProgramBaseDuration);
+    rebuildTrainingProgramTarget(true);
+}
+
+function syncTrainingProgramTimeline(arr, workoutElapsed) {
+    if (!trainingProgramRows.length || !powerChart) {
+        return;
+    }
+
+    const currentRowIndex = Number(arr.training_row_index);
+    if (!Number.isFinite(currentRowIndex) || currentRowIndex < 0 || currentRowIndex >= trainingProgramRows.length) {
+        return;
+    }
+
+    const currentRowElapsed = Math.max(0, Number(arr.training_row_elapsed) || 0);
+    const currentRow = trainingProgramRows[currentRowIndex];
+    let changed = false;
+
+    const elapsedBeforeCurrent = Math.max(0, workoutElapsed - currentRowElapsed);
+    let timelineBeforeCurrent = 0;
+    let lastCompletedOpenEndedIndex = -1;
+    for (let i = 0; i < currentRowIndex; i++) {
+        timelineBeforeCurrent += Number(trainingProgramDurations[i]) || 0;
+        if (isTrueSetting(trainingProgramRows[i].openEnded)) {
+            lastCompletedOpenEndedIndex = i;
+        }
+    }
+
+    if (lastCompletedOpenEndedIndex >= 0) {
+        const delta = elapsedBeforeCurrent - timelineBeforeCurrent;
+        if (Math.abs(delta) >= 1) {
+            trainingProgramDurations[lastCompletedOpenEndedIndex] =
+                    Math.max(1, (Number(trainingProgramDurations[lastCompletedOpenEndedIndex]) || 1) + delta);
+            changed = true;
+        }
+    }
+
+    if (isTrueSetting(currentRow.openEnded)) {
+        const liveDuration = Math.max(1, currentRowElapsed);
+        if (Math.abs((Number(trainingProgramDurations[currentRowIndex]) || 0) - liveDuration) >= 1) {
+            trainingProgramDurations[currentRowIndex] = liveDuration;
+            changed = true;
+        }
+    }
+
+    if (changed) {
+        rebuildTrainingProgramTarget(false);
     }
 }
 
@@ -591,6 +671,9 @@ function process_workout(arr) {
     }
 
     const workoutElapsed = elapsed - firstElapsedTargetPower;
+    if (arr.target_power > 0) {
+        syncTrainingProgramTimeline(arr, workoutElapsed);
+    }
     powerChart.data.datasets[0].data.push({x: workoutElapsed, y: arr.watts});
     if (normalXScales.power.max !== undefined && workoutElapsed > normalXScales.power.max) {
         setNormalXScale('power', normalXScales.power.min, workoutElapsed);

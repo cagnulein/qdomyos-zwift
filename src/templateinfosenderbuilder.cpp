@@ -1783,11 +1783,21 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("autoresistance"), homeform::singleton()->autoResistance());
         obj.setProperty(QStringLiteral("nextrow"), homeform::singleton()->nextRows->value());
         if (homeform::singleton()->trainingProgram()) {
-            el = homeform::singleton()->trainingProgram()->currentRowRemainingTime();
+            trainprogram *program = homeform::singleton()->trainingProgram();
+            const trainrow currentRow = program->getRowFromCurrent(0);
+            obj.setProperty(QStringLiteral("training_row_index"), program->currentRowIndex());
+            obj.setProperty(QStringLiteral("training_row_elapsed"), program->currentRowElapsedSeconds());
+            obj.setProperty(QStringLiteral("training_row_open_ended"), trainprogram::isBlockingTransitionRow(currentRow));
+            obj.setProperty(QStringLiteral("training_row_wait_for_lap"), currentRow.waitForLap);
+            el = program->currentRowRemainingTime();
             obj.setProperty(QStringLiteral("row_remaining_time_s"), el.second());
             obj.setProperty(QStringLiteral("row_remaining_time_m"), el.minute());
             obj.setProperty(QStringLiteral("row_remaining_time_h"), el.hour());
         } else {
+            obj.setProperty(QStringLiteral("training_row_index"), -1);
+            obj.setProperty(QStringLiteral("training_row_elapsed"), 0);
+            obj.setProperty(QStringLiteral("training_row_open_ended"), false);
+            obj.setProperty(QStringLiteral("training_row_wait_for_lap"), false);
             obj.setProperty(QStringLiteral("row_remaining_time_s"), 0);
             obj.setProperty(QStringLiteral("row_remaining_time_m"), 0);
             obj.setProperty(QStringLiteral("row_remaining_time_h"), 0);
