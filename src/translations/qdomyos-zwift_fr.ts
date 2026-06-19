@@ -4123,7 +4123,7 @@ Do you want to start it now?</source>
     <message>
         <location filename="../settings.qml" line="6704"/>
         <source>Conversion Gain:</source>
-        <translation>Amplification de la conversion</translation>
+        <translation>Amplification de la conversion:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="6726"/>
