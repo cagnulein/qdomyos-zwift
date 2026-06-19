@@ -1042,6 +1042,18 @@ void nordictrackifitadbbike::initializeGrpcService() {
                 "(Ljava/lang/String;)V",
                 hostObj.object<jstring>()
             );
+
+            // Tell the FitPro bridge the machine's real resistance-level count so it can rescale the
+            // console reading off the vendored catalog scale. Reuses the existing "Max. Resistance"
+            // bike option; its large default (999) means "unset" and leaves the reading untouched.
+            int maxResistance =
+                settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toInt();
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/FitProDeviceService",
+                "setMaxResistance",
+                "(I)V",
+                static_cast<jint>(maxResistance)
+            );
             grpcInitialized = true;
             emit debug("gRPC service initialized successfully with host: " + ip);
         } catch (...) {

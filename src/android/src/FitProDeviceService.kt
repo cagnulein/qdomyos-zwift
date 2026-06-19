@@ -77,6 +77,13 @@ object FitProDeviceService {
     @Volatile private var protocolIsV1 = true
     @Volatile private var connected = false
     @Volatile private var latest: ExerciseData = ExerciseData.ZERO
+    // Resistance-scale reconciliation (kept entirely on the QZ side — the vendored FitPro stack is
+    // left untouched). Hyperborea maps the console's raw resistance onto its catalog level count
+    // (sourceMaxResistance, e.g. 24 for a bike); when the actual machine has fewer levels the curve
+    // gains phantom steps and skips one mid-range. qzMaxResistance is the user-configured real level
+    // count (QZ "Max. Resistance" bike option); when set to a sane value we rescale onto it.
+    @Volatile private var sourceMaxResistance: Int = 0
+    @Volatile private var qzMaxResistance: Int = 0
     private var collectJob: Job? = null
 
     // Workout-state machine, fed from the polled WORKOUT_MODE field.
@@ -119,6 +126,7 @@ object FitProDeviceService {
             }
             val (transport, productId) = opened
             val info = DeviceDatabase.fromProductId(productId) ?: DeviceDatabase.fallback()
+            sourceMaxResistance = info.maxResistance
             val accumulator = ExerciseDataAccumulator()
             protocolIsV1 = productId == PRODUCT_ID_V1
             val newSession: FitProSession = if (protocolIsV1) {
@@ -181,10 +189,23 @@ object FitProDeviceService {
     @JvmStatic fun getCurrentWatts(): Double = (latest.power ?: 0).toDouble()
     @JvmStatic fun getCurrentCadence(): Double = (latest.cadence ?: 0).toDouble()
     @JvmStatic fun getCurrentRpm(): Double = (latest.cadence ?: 0).toDouble()
-    // The FitPro console reports a resistance level one step higher than what it shows on screen
-    // (QZ 2 = console 1, QZ 3 = console 2, …), so subtract one for the displayed value. This getter
-    // only feeds the displayed metric; power estimation reads the raw level from the session directly.
-    @JvmStatic fun getCurrentResistance(): Double = (latest.resistance ?: 0).let { if (it > 0) it - 1 else 0 }.toDouble()
+    // Rescale the FitPro level onto the machine's real resistance range when the user has configured
+    // it (QZ "Max. Resistance" bike option). Integer floor division is an exact inverse of the
+    // catalog-scale ceil mapping for every level (verified against hardware logs). When the setting
+    // is left at its large "unset" default (>= the catalog scale) we pass the level through unchanged.
+    @JvmStatic fun getCurrentResistance(): Double {
+        val level = latest.resistance ?: 0
+        val src = sourceMaxResistance
+        val target = qzMaxResistance
+        return if (src > 0 && target in 1 until src) {
+            ((level * target) / src).toDouble()
+        } else {
+            level.toDouble()
+        }
+    }
+
+    /** QZ-side hook: the user-configured real resistance-level count for this machine (0 = unset). */
+    @JvmStatic fun setMaxResistance(max: Int) { qzMaxResistance = max }
     @JvmStatic fun getCurrentHeartRate(): Double = (latest.heartRate ?: 0).toDouble()
     @JvmStatic fun getCurrentFanSpeed(): Int = 0
     @JvmStatic fun getCurrentStrokesCount(): Double = (latest.strokeCount ?: 0).toDouble()

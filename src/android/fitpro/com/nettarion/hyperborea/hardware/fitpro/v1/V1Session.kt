@@ -67,11 +67,7 @@ class V1Session(
     private var lastSentGrade = 0f
     private var lastSentSpeed = 0f
     private var lastKeyCode = -1 // for KEY_OBJECT press-edge detection
-    // Built from the static catalog max, then re-pinned to the console-reported MAX_RESISTANCE_LEVEL
-    // during the handshake (see readStartupFields) — the raw<->level scale is 10000/max, so trusting
-    // a wrong catalog max skews the whole curve. The console is the source of truth, so this
-    // auto-adapts per device without any hardcoded per-model table.
-    private var resistance = ResistanceConverter(deviceInfo.maxResistance)
+    private val resistance = ResistanceConverter(deviceInfo.maxResistance)
     private val gripHeartRate = GripHeartRateFilter()
 
     /** Device capabilities read from MCU during handshake. */
@@ -490,14 +486,6 @@ class V1Session(
             equipmentDeviceId = equipmentDeviceId,
         )
         logger.i(TAG, "Capabilities: $capabilities")
-        // Re-pin the resistance converter to the console's own declared max if it differs from the
-        // static catalog value. Auto-adapts every device from the MCU's own limit — no per-model hack.
-        capabilities?.maxResistance?.let { reportedMax ->
-            if (reportedMax > 0 && reportedMax != deviceInfo.maxResistance) {
-                logger.i(TAG, "Re-pinning resistance scale: catalog max=${deviceInfo.maxResistance} -> console max=$reportedMax")
-                resistance = ResistanceConverter(reportedMax)
-            }
-        }
         // TOTAL_TIME / MOTOR_TOTAL_DISTANCE units are device-dependent: bikes report seconds and
         // metres, but belt machines (e.g. the NordicTrack 2950) report milliseconds and millimetres
         // — which, read as raw s/m, would show a ~13-year runtime and an 833,757 km odometer. Scale
@@ -799,19 +787,7 @@ class V1Session(
                 // surface it as a target — no meaningless blue speed arrow on a bike.
                 V1DataField.ACTUAL_KPH -> if (!detectedDeviceType.isBeltBased) accumulator.updateSpeed(value)
                 V1DataField.KPH -> if (detectedDeviceType.isBeltBased) accumulator.updateSpeed(value)
-                V1DataField.RESISTANCE -> {
-                    // Temporary diagnostic: surface the console's raw resistance vs. the converted
-                    // level so an off-by-one in the scale can be pinned from a logcat. Remove once
-                    // the resistance mapping is confirmed correct on hardware.
-                    val rawResistance = value.toInt()
-                    val resistanceLevel = resistance.rawToLevel(rawResistance)
-                    logger.d(
-                        TAG,
-                        "RESISTANCE raw=$rawResistance -> level=$resistanceLevel " +
-                            "(scaleMax=${capabilities?.maxResistance ?: deviceInfo.maxResistance})",
-                    )
-                    accumulator.updateResistance(resistanceLevel)
-                }
+                V1DataField.RESISTANCE -> accumulator.updateResistance(resistance.rawToLevel(value.toInt()))
                 V1DataField.ACTUAL_INCLINE -> accumulator.updateIncline(value)
                 V1DataField.GRADE -> accumulator.updateTargetIncline(value)
                 // Grip HR is a noisy analog contact reading — gate + smooth it, and clear (null) on
