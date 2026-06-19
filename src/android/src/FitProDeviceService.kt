@@ -181,7 +181,10 @@ object FitProDeviceService {
     @JvmStatic fun getCurrentWatts(): Double = (latest.power ?: 0).toDouble()
     @JvmStatic fun getCurrentCadence(): Double = (latest.cadence ?: 0).toDouble()
     @JvmStatic fun getCurrentRpm(): Double = (latest.cadence ?: 0).toDouble()
-    @JvmStatic fun getCurrentResistance(): Double = (latest.resistance ?: 0).toDouble()
+    // The FitPro console reports a resistance level one step higher than what it shows on screen
+    // (QZ 2 = console 1, QZ 3 = console 2, …), so subtract one for the displayed value. This getter
+    // only feeds the displayed metric; power estimation reads the raw level from the session directly.
+    @JvmStatic fun getCurrentResistance(): Double = (latest.resistance ?: 0).let { if (it > 0) it - 1 else 0 }.toDouble()
     @JvmStatic fun getCurrentHeartRate(): Double = (latest.heartRate ?: 0).toDouble()
     @JvmStatic fun getCurrentFanSpeed(): Int = 0
     @JvmStatic fun getCurrentStrokesCount(): Double = (latest.strokeCount ?: 0).toDouble()
