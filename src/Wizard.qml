@@ -54,14 +54,6 @@ Page {
         anchors.fill: parent
 
         initialItem: welcomeComponent
-        onCurrentItemChanged: wizardPage.focusCurrentStep()
-    }
-
-    function focusCurrentStep() {
-        Qt.callLater(function() {
-            if (stackViewLocal.currentItem)
-                stackViewLocal.currentItem.forceActiveFocus()
-        })
     }
 
     component AccessibleText: Text {
@@ -75,11 +67,7 @@ Page {
         property string accessibleTitle: ""
 
         anchors.fill: parent
-        focus: true
-        Accessible.role: Accessible.Pane
-        Accessible.name: accessibleTitle
-        Accessible.focusable: visible && accessibleTitle !== ""
-        Accessible.ignored: !visible || accessibleTitle === ""
+        Accessible.ignored: true
     }
 
     component WizardButton: Button {
