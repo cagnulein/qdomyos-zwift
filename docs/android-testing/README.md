@@ -48,6 +48,8 @@ During APK testing on Pixel 8a, discovered that `adb input tap` on drawer items 
 
 **Fixed in commit `9791d57`:** constrained the MouseArea to `x: drawer.width`, `width: parent.width - drawer.width` so taps on the drawer area pass through to the drawer's own event handlers.
 
+**Root cause follow-up (fixed in commit `10c87e2`):** even after restricting `drawerInputBlocker`, drawer items in the ApplicationWindow *content area* (y > toolbar boundary ≈ 246 physical px) were still unreachable. Investigation showed the boundary is exact: tapping within the Profile item at y=240 worked; tapping at y=250 (start of the Settings item, first fully-content-area item) did not. Root cause: `dim: false` on the Qt Quick `Drawer` prevents the overlay layer from placing an event-interception item in the content area, so Android touch events at y > toolbar fall through the Drawer popup entirely and hit disabled dashboard controls (no visible effect). Fix: `dim: true` + `Overlay.modal: Rectangle { color: "transparent" }` — the overlay is placed and routes events to Drawer ItemDelegates, but remains visually invisible.
+
 ### Known Issue — Settings Tile Toggles Have No content-desc ⚠️
 
 QML settings toggles (`AccordionCheckElement` in `settings-tiles.qml`, `IndicatorOnlySwitch` in `settings.qml`) do not expose `Accessible.name` to Android, so uiautomator shows no `content-desc` for them and TalkBack cannot announce their label.
