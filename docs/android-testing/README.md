@@ -42,6 +42,12 @@ Screenshots:
 - [`pr4645_drawer_open.png`](pr4645_drawer_open.png) — QZ drawer fully open
 - [`pr4645_drawer_closed_after_back_gesture.png`](pr4645_drawer_closed_after_back_gesture.png) — QZ dashboard after back gesture, drawer closed
 
+### Bug Found During Testing — drawerInputBlocker blocked drawer item taps ⚠️ (Fixed)
+
+During APK testing on Pixel 8a, discovered that `adb input tap` on drawer items below the first item ("Profile: default") had no effect. Root cause: `drawerInputBlocker` MouseArea used `anchors.fill: parent` and covered the full content area (y > toolbar), intercepting all taps before they reached the Drawer's QML overlay. Only the first drawer item (in the toolbar overlap region) was reachable.
+
+**Fixed in commit `9791d57`:** constrained the MouseArea to `x: drawer.width`, `width: parent.width - drawer.width` so taps on the drawer area pass through to the drawer's own event handlers.
+
 ### Known Issue — Settings Tile Toggles Have No content-desc ⚠️
 
 QML settings toggles (`AccordionCheckElement` in `settings-tiles.qml`, `IndicatorOnlySwitch` in `settings.qml`) do not expose `Accessible.name` to Android, so uiautomator shows no `content-desc` for them and TalkBack cannot announce their label.
