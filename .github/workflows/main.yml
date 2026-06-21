@@ -1040,7 +1040,7 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
-          qmake CONFIG+=debug CONFIG+=iphonesimulator \
+          qmake CONFIG+=debug CONFIG+=iphonesimulator "LIBS+=-framework WebKit" \
             && make -j4
 
       - name: Show ccache stats
