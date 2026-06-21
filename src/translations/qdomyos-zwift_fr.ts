@@ -589,671 +589,681 @@ Voulez-vous le faire maintenant ?</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="37"/>
+        <source>Jump Rope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../webtranslation.cpp" line="38"/>
+        <source>Stair Climber</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../webtranslation.cpp" line="39"/>
         <source>Workout Editor</source>
         <translation>Éditeur d&apos;entraînement</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="38"/>
+        <location filename="../webtranslation.cpp" line="40"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="39"/>
+        <location filename="../webtranslation.cpp" line="41"/>
         <source>New workout</source>
         <translation>Nouvel entraînement</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="40"/>
+        <location filename="../webtranslation.cpp" line="42"/>
         <source>Device</source>
         <translation>Appareil</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="41"/>
+        <location filename="../webtranslation.cpp" line="43"/>
         <source>Paste XML</source>
         <translation>Coller XML</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="42"/>
+        <location filename="../webtranslation.cpp" line="44"/>
         <source>Save &amp; Start</source>
         <translation>Enregistrer &amp; Démarrer</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="43"/>
+        <location filename="../webtranslation.cpp" line="45"/>
         <source>Advanced</source>
         <translation>Avancé</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="44"/>
+        <location filename="../webtranslation.cpp" line="46"/>
         <source>Add Interval</source>
         <translation>Ajouter Interval</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="45"/>
+        <location filename="../webtranslation.cpp" line="47"/>
         <source>Repeat Selection</source>
         <translation>Répéter la sélection</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="46"/>
+        <location filename="../webtranslation.cpp" line="48"/>
         <source>Select consecutive rows to repeat them quickly.</source>
         <translation>Sélectionnez des lignes consécutives pour les répéter rapidement.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="47"/>
+        <location filename="../webtranslation.cpp" line="49"/>
         <source>Workout Preview</source>
         <translation>Aperçu de l&apos;entraînement</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="48"/>
+        <location filename="../webtranslation.cpp" line="50"/>
         <source>Total:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="49"/>
+        <location filename="../webtranslation.cpp" line="51"/>
         <source>Intervals:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="50"/>
+        <location filename="../webtranslation.cpp" line="52"/>
         <source>Offline mode: changes not saved</source>
         <translation>Mode hors ligne : les modifications ne sont pas enregistrées</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="51"/>
+        <location filename="../webtranslation.cpp" line="53"/>
         <source>Select saved workout</source>
         <translation>Sélectionner un entraînement enregistré</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="52"/>
+        <location filename="../webtranslation.cpp" line="54"/>
         <source>No saved workouts</source>
         <translation>Aucun entraînement enregistré</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="53"/>
+        <location filename="../webtranslation.cpp" line="55"/>
         <source>Label</source>
         <translation>Étiquette</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="54"/>
+        <location filename="../webtranslation.cpp" line="56"/>
         <source>Duration</source>
         <translation>Durée</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="55"/>
+        <location filename="../webtranslation.cpp" line="57"/>
         <source>Distance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="56"/>
-        <location filename="../webtranslation.cpp" line="164"/>
+        <location filename="../webtranslation.cpp" line="58"/>
+        <location filename="../webtranslation.cpp" line="166"/>
         <source>Speed</source>
         <translation>Vitesse</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="57"/>
+        <location filename="../webtranslation.cpp" line="59"/>
         <source>Pace</source>
         <translation>Allure</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="58"/>
+        <location filename="../webtranslation.cpp" line="60"/>
         <source>Incline</source>
         <translation>Pente</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="59"/>
-        <location filename="../webtranslation.cpp" line="172"/>
+        <location filename="../webtranslation.cpp" line="61"/>
+        <location filename="../webtranslation.cpp" line="174"/>
         <source>Resistance</source>
         <translation>Résistance</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="60"/>
-        <location filename="../webtranslation.cpp" line="165"/>
+        <location filename="../webtranslation.cpp" line="62"/>
+        <location filename="../webtranslation.cpp" line="167"/>
         <source>Cadence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="61"/>
+        <location filename="../webtranslation.cpp" line="63"/>
         <source>Power</source>
         <translation>Puissance</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="62"/>
+        <location filename="../webtranslation.cpp" line="64"/>
         <source>Force Speed</source>
         <translation>Vitesse de force</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="63"/>
+        <location filename="../webtranslation.cpp" line="65"/>
         <source>Fan</source>
         <translation>Ventilateur</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="64"/>
+        <location filename="../webtranslation.cpp" line="66"/>
         <source>Peloton Res.</source>
         <translation>Peloton Rés.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="65"/>
+        <location filename="../webtranslation.cpp" line="67"/>
         <source>HR Loop (s)</source>
         <translation>Boucle FC (s)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="66"/>
+        <location filename="../webtranslation.cpp" line="68"/>
         <source>HR Zone</source>
         <translation>Zone de fréquence cardiaque</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="67"/>
+        <location filename="../webtranslation.cpp" line="69"/>
         <source>HR Min</source>
         <translation>FC Min</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="68"/>
+        <location filename="../webtranslation.cpp" line="70"/>
         <source>HR Max</source>
         <translation>Fréquence Cardiaque Max</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="69"/>
+        <location filename="../webtranslation.cpp" line="71"/>
         <source>Min Speed</source>
         <translation>Vitesse min</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="70"/>
-        <location filename="../webtranslation.cpp" line="144"/>
+        <location filename="../webtranslation.cpp" line="72"/>
+        <location filename="../webtranslation.cpp" line="146"/>
         <source>Max Speed</source>
         <translation>Vitesse max</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="71"/>
+        <location filename="../webtranslation.cpp" line="73"/>
         <source>Max Resistance</source>
         <translation>Résistance maximale</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="72"/>
+        <location filename="../webtranslation.cpp" line="74"/>
         <source>Ramp</source>
         <translation>Pente</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="73"/>
+        <location filename="../webtranslation.cpp" line="75"/>
         <source>Stroke Rate</source>
         <translation>Fréquence de coupée</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="74"/>
+        <location filename="../webtranslation.cpp" line="76"/>
         <source>Strokes/min</source>
         <translation>Coupes/min</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="75"/>
+        <location filename="../webtranslation.cpp" line="77"/>
         <source>Speed (mph)</source>
         <translation>Vitesse (mph)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="76"/>
+        <location filename="../webtranslation.cpp" line="78"/>
         <source>Speed (km/h)</source>
         <translation>Vitesse (km/h)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="77"/>
+        <location filename="../webtranslation.cpp" line="79"/>
         <source>Incline (%)</source>
         <translation>Pente (%)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="78"/>
+        <location filename="../webtranslation.cpp" line="80"/>
         <source>Cadence (rpm)</source>
         <translation>Cadence (tours/min)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="79"/>
+        <location filename="../webtranslation.cpp" line="81"/>
         <source>Power (W)</source>
         <translation>Puissance (W)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="80"/>
+        <location filename="../webtranslation.cpp" line="82"/>
         <source>Ramp (%)</source>
         <translation>Pente (%)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="81"/>
+        <location filename="../webtranslation.cpp" line="83"/>
         <source>Offline mode: load/save/start disabled</source>
         <translation>Mode hors ligne : chargement/sauvegarde/démarrage désactivé</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="82"/>
+        <location filename="../webtranslation.cpp" line="84"/>
         <source>Interval added</source>
         <translation>Intervalle ajouté</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="83"/>
+        <location filename="../webtranslation.cpp" line="85"/>
         <source>Remove all intervals?</source>
         <translation>Supprimer tous les intervalles ?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="84"/>
+        <location filename="../webtranslation.cpp" line="86"/>
         <source>Offline: cannot delete workouts</source>
         <translation>Hors ligne : impossible de supprimer les entraînements</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="85"/>
+        <location filename="../webtranslation.cpp" line="87"/>
         <source>Offline: cannot load workouts</source>
         <translation>Hors ligne : impossible de charger les entraînements</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="86"/>
+        <location filename="../webtranslation.cpp" line="88"/>
         <source>Offline: cannot save workouts</source>
         <translation>Hors ligne : impossible d&apos;enregistrer les entraînements</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="87"/>
+        <location filename="../webtranslation.cpp" line="89"/>
         <source>Offline: cannot start workouts</source>
         <translation>Hors ligne : impossible de démarrer les entraînements</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="88"/>
+        <location filename="../webtranslation.cpp" line="90"/>
         <source>Offline: cannot read clipboard</source>
         <translation>Hors ligne : impossible de lire le presse-papiers</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="89"/>
+        <location filename="../webtranslation.cpp" line="91"/>
         <source>Select a workout to load</source>
         <translation>Sélectionnez un entraînement à charger</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="90"/>
+        <location filename="../webtranslation.cpp" line="92"/>
         <source>Select a workout to delete</source>
         <translation>Sélectionnez un entraînement à supprimer</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="91"/>
+        <location filename="../webtranslation.cpp" line="93"/>
         <source>Offline: cannot refresh list</source>
         <translation>Hors ligne : impossible de rafraîchir la liste</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="92"/>
+        <location filename="../webtranslation.cpp" line="94"/>
         <source>Environment not available</source>
         <translation>Environnement non disponible</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="93"/>
+        <location filename="../webtranslation.cpp" line="95"/>
         <source>Cannot load program list</source>
         <translation>Impossible de charger la liste des programmes</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="94"/>
+        <location filename="../webtranslation.cpp" line="96"/>
         <source>Cannot find workout file</source>
         <translation>Impossible de trouver le fichier d&apos;entraînement</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="95"/>
+        <location filename="../webtranslation.cpp" line="97"/>
         <source>New workout ready</source>
         <translation>Nouvel entraînement prêt</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="96"/>
+        <location filename="../webtranslation.cpp" line="98"/>
         <source>Workout is empty or cannot be read</source>
         <translation>L&apos;entraînement est vide ou ne peut pas être lu</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="97"/>
+        <location filename="../webtranslation.cpp" line="99"/>
         <source>Unable to load workout</source>
         <translation>Impossible de charger l&apos;entraînement</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="98"/>
+        <location filename="../webtranslation.cpp" line="100"/>
         <source>Unable to paste XML from clipboard</source>
         <translation>Impossible de coller le XML du presse-papiers</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="99"/>
+        <location filename="../webtranslation.cpp" line="101"/>
         <source>Clipboard XML is empty or cannot be read</source>
         <translation>Le presse-papiers XML est vide ou ne peut pas être lu</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="100"/>
+        <location filename="../webtranslation.cpp" line="102"/>
         <source>Workout pasted from clipboard</source>
         <translation>Entraînement collé du presse-papiers</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="101"/>
+        <location filename="../webtranslation.cpp" line="103"/>
         <source>Are you sure you want to delete &quot;{name}&quot;? This cannot be undone.</source>
         <translation>Êtes-vous sûr de vouloir supprimer &quot;{name}&quot;? Cette action est irréversible.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="102"/>
+        <location filename="../webtranslation.cpp" line="104"/>
         <source>Delete Workout</source>
         <translation>Supprimer l&apos;entraînement</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="103"/>
+        <location filename="../webtranslation.cpp" line="105"/>
         <source>Failed to delete workout</source>
         <translation>Échec de la suppression de l&apos;entraînement</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="104"/>
+        <location filename="../webtranslation.cpp" line="106"/>
         <source>Unable to delete workout</source>
         <translation>Impossible de supprimer l&apos;entraînement</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="105"/>
+        <location filename="../webtranslation.cpp" line="107"/>
         <source>Select interval</source>
         <translation>Sélectionner l&apos;intervalle</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="106"/>
+        <location filename="../webtranslation.cpp" line="108"/>
         <source>Interval {number}</source>
         <translation>Intervalle {number}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="107"/>
+        <location filename="../webtranslation.cpp" line="109"/>
         <source>Cannot remove the only interval</source>
         <translation>Impossible de supprimer le seul intervalle</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="108"/>
+        <location filename="../webtranslation.cpp" line="110"/>
         <source>Save failed</source>
         <translation>Sauvegarde a échoué</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="109"/>
+        <location filename="../webtranslation.cpp" line="111"/>
         <source>Saved {name}</source>
         <translation>Enregistré {name}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="110"/>
+        <location filename="../webtranslation.cpp" line="112"/>
         <source>Workout file not ready, please try again</source>
         <translation>Le fichier d&apos;entraînement n&apos;est pas prêt, veuillez réessayer</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="111"/>
+        <location filename="../webtranslation.cpp" line="113"/>
         <source>Unable to save workout</source>
         <translation>Impossible d&apos;enregistrer l&apos;entraînement</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="112"/>
+        <location filename="../webtranslation.cpp" line="114"/>
         <source>Workout started</source>
         <translation>Entraînement commencé</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="113"/>
+        <location filename="../webtranslation.cpp" line="115"/>
         <source>Add at least one interval</source>
         <translation>Ajouter au moins un intervalle</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="114"/>
+        <location filename="../webtranslation.cpp" line="116"/>
         <source>Invalid duration in intervals</source>
         <translation>Durée invalide dans les intervalles</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="115"/>
+        <location filename="../webtranslation.cpp" line="117"/>
         <source>Enable duration or enter a valid distance</source>
         <translation>Activer la durée ou entrer une distance valide</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="116"/>
+        <location filename="../webtranslation.cpp" line="118"/>
         <source>Select one or more consecutive intervals first</source>
         <translation>Sélectionnez un ou plusieurs intervalles consécutifs d&apos;abord</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="117"/>
+        <location filename="../webtranslation.cpp" line="119"/>
         <source>Selection must be consecutive</source>
         <translation>Sélection doit être consécutive</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="118"/>
+        <location filename="../webtranslation.cpp" line="120"/>
         <source>Repeat block how many times (total cycles)?</source>
         <translation>Répéter le bloc combien de fois (cycles totaux)?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="119"/>
+        <location filename="../webtranslation.cpp" line="121"/>
         <source>Repeat cancelled</source>
         <translation>Répéter annulé</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="120"/>
+        <location filename="../webtranslation.cpp" line="122"/>
         <source>Enter a number greater than 1</source>
         <translation>Entrez un nombre supérieur à 1</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="121"/>
+        <location filename="../webtranslation.cpp" line="123"/>
         <source>Error repeating selection: {message}</source>
         <translation>Erreur de sélection : {message}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="122"/>
+        <location filename="../webtranslation.cpp" line="124"/>
         <source>Training Programs Browser</source>
         <translation>Navigateur de programmes d&apos;entraînement</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="123"/>
+        <location filename="../webtranslation.cpp" line="125"/>
         <source>Filter:</source>
         <translation>Filtre:</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="124"/>
+        <location filename="../webtranslation.cpp" line="126"/>
         <source>Search...</source>
         <translation>Rechercher...</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="125"/>
+        <location filename="../webtranslation.cpp" line="127"/>
         <source>Select a workout to preview</source>
         <translation>Sélectionnez un entraînement à prévisualiser</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="126"/>
+        <location filename="../webtranslation.cpp" line="128"/>
         <source>Other Folders</source>
         <translation>Autres dossiers</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="127"/>
+        <location filename="../webtranslation.cpp" line="129"/>
         <source>Start Workout?</source>
         <translation>Démarrer l&apos;entraînement ?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="128"/>
+        <location filename="../webtranslation.cpp" line="130"/>
         <source>Do you want to automatically start this workout?</source>
         <translation>Voulez-vous démarrer cet entraînement automatiquement ?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="129"/>
+        <location filename="../webtranslation.cpp" line="131"/>
         <source>Line Chart</source>
         <translation>Graphique linéaire</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="130"/>
+        <location filename="../webtranslation.cpp" line="132"/>
         <source>Time (seconds)</source>
         <translation>Temps (secondes)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="131"/>
+        <location filename="../webtranslation.cpp" line="133"/>
         <source>Value</source>
         <translation>Valeur</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="132"/>
+        <location filename="../webtranslation.cpp" line="134"/>
         <source>Cadence (RPM)</source>
         <translation>Cadence (tours/min)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="133"/>
+        <location filename="../webtranslation.cpp" line="135"/>
         <source>Inclination (%)</source>
         <translation>Pente (%)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="134"/>
+        <location filename="../webtranslation.cpp" line="136"/>
         <source>Avg Output</source>
         <translation>Puissance moyenne</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="135"/>
+        <location filename="../webtranslation.cpp" line="137"/>
         <source>Max Output</source>
         <translation>Puissance Max</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="136"/>
+        <location filename="../webtranslation.cpp" line="138"/>
         <source>Total Output</source>
         <translation>Puissance totale</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="137"/>
-        <location filename="../webtranslation.cpp" line="167"/>
+        <location filename="../webtranslation.cpp" line="139"/>
+        <location filename="../webtranslation.cpp" line="169"/>
         <source>Calories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="138"/>
+        <location filename="../webtranslation.cpp" line="140"/>
         <source>AVG Cadence</source>
         <translation>Cadence moyenne</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="139"/>
+        <location filename="../webtranslation.cpp" line="141"/>
         <source>Max Cadence</source>
         <translation>Cadence max</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="140"/>
+        <location filename="../webtranslation.cpp" line="142"/>
         <source>AVG Resistance</source>
         <translation>Résistance moyenne</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="141"/>
+        <location filename="../webtranslation.cpp" line="143"/>
         <source>AVG Heart Rate</source>
         <translation>Fréquence cardiaque moyenne</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="142"/>
+        <location filename="../webtranslation.cpp" line="144"/>
         <source>Max Heart Rate</source>
         <translation>Fréquence cardiaque maximale</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="143"/>
+        <location filename="../webtranslation.cpp" line="145"/>
         <source>AVG Speed</source>
         <translation>Vitesse moyenne</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="145"/>
+        <location filename="../webtranslation.cpp" line="147"/>
         <source>Watts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="146"/>
+        <location filename="../webtranslation.cpp" line="148"/>
         <source>Req. Watts</source>
         <translation>Watts requis</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="147"/>
+        <location filename="../webtranslation.cpp" line="149"/>
         <source>Target R.</source>
         <translation>Cible R.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="148"/>
+        <location filename="../webtranslation.cpp" line="150"/>
         <source>Target C.</source>
         <translation>Cible</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="149"/>
+        <location filename="../webtranslation.cpp" line="151"/>
         <source>Target Speed (km/h)</source>
         <translation>Vitesse cible (km/h)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="150"/>
+        <location filename="../webtranslation.cpp" line="152"/>
         <source>Target Speed (mph)</source>
         <translation>Vitesse cible (mph)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="151"/>
+        <location filename="../webtranslation.cpp" line="153"/>
         <source>Target Incline</source>
         <translation>Inclinaison cible</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="152"/>
+        <location filename="../webtranslation.cpp" line="154"/>
         <source>Peloton Workout in progress!</source>
         <translation>Entraînement Peloton en cours !</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="153"/>
+        <location filename="../webtranslation.cpp" line="155"/>
         <source>Do you want to follow the resistance?</source>
         <translation>Voulez-vous suivre la résistance ?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="154"/>
+        <location filename="../webtranslation.cpp" line="156"/>
         <source>SPEED</source>
         <translation>Vitesse</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="155"/>
+        <location filename="../webtranslation.cpp" line="157"/>
         <source>INCLINE</source>
         <translation>Pente</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="156"/>
+        <location filename="../webtranslation.cpp" line="158"/>
         <source>PACE</source>
         <translation>Allure</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="157"/>
+        <location filename="../webtranslation.cpp" line="159"/>
         <source>ELEV.</source>
         <translation>Élévation</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="158"/>
+        <location filename="../webtranslation.cpp" line="160"/>
         <source>CADENCE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="159"/>
+        <location filename="../webtranslation.cpp" line="161"/>
         <source>PULSE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="160"/>
+        <location filename="../webtranslation.cpp" line="162"/>
         <source>POWER</source>
         <translation>Puissance</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="161"/>
+        <location filename="../webtranslation.cpp" line="163"/>
         <source>RESISTANCE</source>
         <translation>Résistance</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="162"/>
+        <location filename="../webtranslation.cpp" line="164"/>
         <source>CALORIES</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="163"/>
+        <location filename="../webtranslation.cpp" line="165"/>
         <source>DISTANCE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="166"/>
+        <location filename="../webtranslation.cpp" line="168"/>
         <source>Heart</source>
         <translation>Cœur</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="168"/>
+        <location filename="../webtranslation.cpp" line="170"/>
         <source>Odometer</source>
         <translation>Odomètre</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="169"/>
+        <location filename="../webtranslation.cpp" line="171"/>
         <source>Watt</source>
         <translation>Watt</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="170"/>
+        <location filename="../webtranslation.cpp" line="172"/>
         <source>Elapsed</source>
         <translation>Temps écoulé</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="171"/>
+        <location filename="../webtranslation.cpp" line="173"/>
         <source>Inclination</source>
         <translation>Inclinaison</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="173"/>
+        <location filename="../webtranslation.cpp" line="175"/>
         <source>Altitude</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="174"/>
+        <location filename="../webtranslation.cpp" line="176"/>
         <source>Elevation</source>
         <translation>Élévation</translation>
     </message>
