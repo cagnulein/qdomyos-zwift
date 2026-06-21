@@ -33,6 +33,10 @@ var maxHeartRate = 190;
 var heartZones = [];
 var miles = 1;
 
+function t(key, fallback) {
+    return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+}
+
 function process_arr(arr) {
     let watts = [];
     let reqpower = [];
@@ -201,7 +205,7 @@ function process_arr(arr) {
         plugins: [backgroundFill],
         data: {
             datasets: [{
-                label: 'Watts',
+                label: t('chart.watts', 'Watts'),
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 cubicInterpolationMode: 'monotone',
@@ -219,7 +223,7 @@ function process_arr(arr) {
                                                                        window.chartColors.red,
                 }
             }, {
-                label: 'Req. Watts',
+                label: t('chart.requestedWatts', 'Req. Watts'),
                 backgroundColor: window.chartColors.black,
                 borderColor: window.chartColors.black,
                 //cubicInterpolationMode: 'monotone',
@@ -431,7 +435,7 @@ function process_arr(arr) {
         plugins: [backgroundFill],
         data: {
             datasets: [{
-                label: 'Heart',
+                label: t('metric.heart', 'Heart'),
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 //cubicInterpolationMode: 'monotone',
@@ -595,7 +599,7 @@ function process_arr(arr) {
         data: {
             datasets: [
                 {
-                    label: 'Resistance',
+                    label: t('workoutEditor.resistance', 'Resistance'),
                     //cubicInterpolationMode: 'monotone',
                     data: resistance,
                     fill: false,
@@ -605,7 +609,7 @@ function process_arr(arr) {
                     borderColor: window.chartColors.red,
                 },
                 {
-                    label: 'Target R.',
+                    label: t('chart.targetResistanceShort', 'Target R.'),
                     //cubicInterpolationMode: 'monotone',
                     data: reqresistance,
                     fill: false,
@@ -712,7 +716,7 @@ function process_arr(arr) {
         data: {
             datasets: [
                 {
-                    label: 'Resistance',
+                    label: t('workoutEditor.resistance', 'Resistance'),
                     //cubicInterpolationMode: 'monotone',
                     data: pelotonresistance,
                     fill: false,
@@ -722,7 +726,7 @@ function process_arr(arr) {
                     borderColor: window.chartColors.red,
                 },
                 {
-                    label: 'Target R.',
+                    label: t('chart.targetResistanceShort', 'Target R.'),
                     //cubicInterpolationMode: 'monotone',
                     data: pelotonreqresistance,
                     fill: false,
@@ -831,7 +835,7 @@ function process_arr(arr) {
                 {
                     backgroundColor: window.chartColors.blue,
                     borderColor: window.chartColors.blue,
-                    label: 'Cadence',
+                    label: t('workoutEditor.cadence', 'Cadence'),
                     //cubicInterpolationMode: 'monotone',
                     data: cadence,
                     fill: false,
@@ -841,7 +845,7 @@ function process_arr(arr) {
                 {
                     backgroundColor: window.chartColors.black,
                     borderColor: window.chartColors.black,
-                    label: 'Target C.',
+                    label: t('chart.targetCadenceShort', 'Target C.'),
                     //cubicInterpolationMode: 'monotone',
                     data: reqcadence,
                     fill: false,
@@ -1028,7 +1032,7 @@ function process_arr(arr) {
                 {
                     backgroundColor: window.chartColors.blue,
                     borderColor: window.chartColors.blue,
-                    label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
+                    label: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
                     //cubicInterpolationMode: 'monotone',
                     data: speed,
                     fill: false,
@@ -1038,7 +1042,7 @@ function process_arr(arr) {
                 {
                     backgroundColor: window.chartColors.green,
                     borderColor: window.chartColors.green,
-                    label: 'Inclination',
+                    label: t('metric.inclinationTitle', 'Inclination'),
                     //cubicInterpolationMode: 'monotone',
                     data: inclination,
                     fill: false,

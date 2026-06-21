@@ -413,23 +413,14 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     query.addQueryItem("redirectAfterAccountCreationUrl", ssoEmbedUrl);
     url.setQuery(query);
 
-    // Prepare POST data
-    QUrlQuery postData;
-    postData.addQueryItem("username", email);
-    postData.addQueryItem("password", password);
-    postData.addQueryItem("embed", "true");
-    postData.addQueryItem("_csrf", m_csrfToken);
-
-    QString queryString = postData.query(QUrl::FullyEncoded);
-
-    // CRITICAL: Fix '+' character encoding for usernames like "user+tag@example.com"
-    // QUrlQuery doesn't percent-encode '+' in form data (treats it as space character)
-    // but Garmin authentication requires literal '+' to be encoded as '%2B'
-    // This is safe because in URL-encoded form data, '+' always means space,
-    // so any literal '+' must be encoded as '%2B'
-    queryString.replace("+", "%2B");
-
-    QByteArray data = queryString.toUtf8();
+    // Prepare POST data using QUrl::toPercentEncoding() for each value so that ALL
+    // special characters (^, +, &, =, %, spaces, …) are correctly encoded.
+    // QUrlQuery::query(FullyEncoded) only encodes a subset of special chars and required
+    // a manual '+' → '%2B' patch (see #4121/#4137); this approach supersedes that workaround.
+    QByteArray data = "username=" + QUrl::toPercentEncoding(email) +
+                      "&password=" + QUrl::toPercentEncoding(password) +
+                      "&embed=true" +
+                      "&_csrf=" + QUrl::toPercentEncoding(m_csrfToken);
 
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
