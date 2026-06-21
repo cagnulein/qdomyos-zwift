@@ -1660,7 +1660,12 @@ ApplicationWindow {
 
         MouseArea {
             id: drawerInputBlocker
-            anchors.fill: parent
+            // Cover only the area to the right of the open drawer so that
+            // taps on drawer items still reach the drawer's own event handlers.
+            x: drawer.width
+            y: 0
+            width: parent.width - drawer.width
+            height: parent.height
             visible: drawer.opened
             enabled: drawer.opened
             z: 9999
