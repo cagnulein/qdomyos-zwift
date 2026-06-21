@@ -711,7 +711,6 @@
 		F8B465CE34D8DF87AAE95913 /* CoreFoundation.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 4D765E1B1EA6C757220C63E7 /* CoreFoundation.framework */; };
 		FB2566376FE0FB17ED3DE94D /* FitDeveloperField.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = F291D2A65EBED1D41CE3A6E4 /* FitDeveloperField.mm */; settings = {ATTRIBUTES = (); }; };
 		FE77C778768741F1A161682E /* fit_mesg_definition.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 66675BC7F6B17B0B2434A1F4 /* fit_mesg_definition.cpp */; settings = {ATTRIBUTES = (); }; };
-		AA000001000000000000000A /* QZVoiceOverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000002000000000000000A /* QZVoiceOverTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2002,8 +2001,6 @@
 		FF0F08DEB2E8AF9F68B60D18 /* fit_decode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_decode.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_decode.hpp"; sourceTree = "<absolute>"; };
 		FF43108E31DF70C930B44AE4 /* fit_aviation_attitude_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_aviation_attitude_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_aviation_attitude_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		FF5BDAB0076F3391B219EA52 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
-		AA000002000000000000000A /* QZVoiceOverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QZVoiceOverTests.swift; sourceTree = "<group>"; };
-		AA000003000000000000000A /* QZVoiceOverTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QZVoiceOverTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -2173,13 +2170,6 @@
 				25732265709055CB968558D3 /* Qt5NetworkAuth in Link Binary With Libraries */,
 			);
 			name = "Link Binary With Libraries";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AA000004000000000000000A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -3544,7 +3534,6 @@
 				87EFC5682E918D35005BB573 /* QZWidget */,
 				AF39DD055C3EF8226FBE929D /* Frameworks */,
 				858FCAB0EB1F29CF8B07677C /* Bundle Data */,
-				AA000005000000000000000A /* QZVoiceOverTests */,
 				FE0A091FDBFB3E9C31B7A1BD /* Products */,
 				8798FDCA2D6F338200CF8EE8 /* Recovered References */,
 			);
@@ -3558,17 +3547,8 @@
 				876E4E112594747F00BD5714 /* watchkit.app */,
 				876E4E1A2594748000BD5714 /* watchkit Extension.appex */,
 				87EFC5642E918D35005BB573 /* QZWidgetExtension.appex */,
-				AA000003000000000000000A /* QZVoiceOverTests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		AA000005000000000000000A /* QZVoiceOverTests */ = {
-			isa = PBXGroup;
-			children = (
-				AA000002000000000000000A /* QZVoiceOverTests.swift */,
-			);
-			path = QZVoiceOverTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -3657,22 +3637,6 @@
 			productReference = 87EFC5642E918D35005BB573 /* QZWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		AA000006000000000000000A /* QZVoiceOverTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AA00000A000000000000000A /* Build configuration list for PBXNativeTarget "QZVoiceOverTests" */;
-			buildPhases = (
-				AA000007000000000000000A /* Sources */,
-				AA000004000000000000000A /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = QZVoiceOverTests;
-			productName = QZVoiceOverTests;
-			productReference = AA000003000000000000000A /* QZVoiceOverTests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -3699,11 +3663,6 @@
 					87EFC5632E918D35005BB573 = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
-					AA000006000000000000000A = {
-						CreatedOnToolsVersion = 15.4;
-						DevelopmentTeam = 6335M7T29D;
-						TestTargetID = 799833E5566DEFFC37E4BF1E;
-					};
 				};
 			};
 			buildConfigurationList = DAC4C1AA5EDEA1C85E9CA5E6 /* Build configuration list for PBXProject "qdomyoszwift" */;
@@ -3726,7 +3685,6 @@
 				876E4E102594747F00BD5714 /* watchkit */,
 				876E4E192594748000BD5714 /* watchkit Extension */,
 				87EFC5632E918D35005BB573 /* QZWidgetExtension */,
-				AA000006000000000000000A /* QZVoiceOverTests */,
 			);
 		};
 /* End PBXProject section */
@@ -4352,14 +4310,6 @@
 				8768C8BF2BBC11C80099DBE1 /* transport.c in Compile Sources */,
 			);
 			name = "Compile Sources";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AA000007000000000000000A /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AA000001000000000000000A /* QZVoiceOverTests.swift in Sources */,
-			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
@@ -5695,42 +5645,6 @@
 			};
 			name = Release;
 		};
-		AA000008000000000000000A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6335M7T29D;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.qdomyoszwift.QZVoiceOverTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = qdomyoszwift;
-				UITESTINGHOSTBUNDLEID = "org.cagnulein.qdomyoszwift";
-			};
-			name = Debug;
-		};
-		AA000009000000000000000A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6335M7T29D;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.qdomyoszwift.QZVoiceOverTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = qdomyoszwift;
-				UITESTINGHOSTBUNDLEID = "org.cagnulein.qdomyoszwift";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -5775,15 +5689,6 @@
 			buildConfigurations = (
 				3AA6C32AC930069E80220CF1 /* Debug */,
 				339EE1B2CC4FC24589A0EA95 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		AA00000A000000000000000A /* Build configuration list for PBXNativeTarget "QZVoiceOverTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AA000008000000000000000A /* Debug */,
-				AA000009000000000000000A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
