@@ -1256,12 +1256,14 @@ ApplicationWindow {
                     width: parent.width
                     onClicked: {
                         toolButtonLoadSettings.visible = true;
-                        toolButtonSaveSettings.visible = true;                        
+                        toolButtonSaveSettings.visible = true;
                         stackView.push("settings.qml")
-                        stackView.currentItem.peloton_connect_clicked.connect(function() {
-                            peloton_connect_clicked()
-                         });
-                         drawer.close()
+                        if (stackView.currentItem && stackView.currentItem.peloton_connect_clicked) {
+                            stackView.currentItem.peloton_connect_clicked.connect(function() {
+                                peloton_connect_clicked()
+                            });
+                        }
+                        drawer.close()
                     }
                 }
 
