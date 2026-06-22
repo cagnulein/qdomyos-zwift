@@ -150,6 +150,7 @@ virtualdevices/virtualdevice.cpp \
 androidactivityresultreceiver.cpp \
 androidadblog.cpp \
 devices/apexbike/apexbike.cpp \
+devices/volavabike/volavabike.cpp \
 handleurl.cpp \
 devices/iconceptelliptical/iconceptelliptical.cpp \
 localipaddress.cpp \
@@ -325,6 +326,7 @@ devices/technogymmyruntreadmill/technogymmyruntreadmill.cpp \
 devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.cpp \
 templateinfosender.cpp \
 templateinfosenderbuilder.cpp \
+webtranslation.cpp \
 devices/stagesbike/stagesbike.cpp \
 devices/toorxtreadmill/toorxtreadmill.cpp \
 devices/iconsolebike/iconsolebike.cpp \
@@ -460,6 +462,7 @@ virtualdevices/virtualdevice.h \
 androidactivityresultreceiver.h \
 androidadblog.h \
 devices/apexbike/apexbike.h \
+devices/volavabike/volavabike.h \
 devices/discoveryoptions.h \
 handleurl.h \
 devices/iconceptelliptical/iconceptelliptical.h \
@@ -849,6 +852,7 @@ devices/technogymmyruntreadmill/technogymmyruntreadmill.h \
 devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.h \
 templateinfosender.h \
 templateinfosenderbuilder.h \
+webtranslation.h \
 devices/stagesbike/stagesbike.h \
 devices/toorxtreadmill/toorxtreadmill.h \
 devices/iconsolebike/iconsolebike.h \
@@ -1062,4 +1066,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.21.2
+VERSION = 2.21.5

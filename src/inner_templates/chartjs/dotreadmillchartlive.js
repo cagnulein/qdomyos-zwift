@@ -26,6 +26,10 @@ var speed_max = 0;
 var incline_max = 0;
 var miles = 1; // 1 = km, 0.621371 = miles
 
+function t(key, fallback) {
+    return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+}
+
 // Define speed zones
 const speedZones = [6, 8, 10, 12, 14, 16]; // km/h
 
@@ -84,7 +88,7 @@ function process_arr(arr) {
         plugins: [backgroundFill],
         data: {
             datasets: [{
-                label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
+                label: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 data: speed,
@@ -105,7 +109,7 @@ function process_arr(arr) {
                     }
                 }
             }, {
-                label: 'Target Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
+                label: miles === 1 ? t('chart.targetSpeedKmh', 'Target Speed (km/h)') : t('chart.targetSpeedMph', 'Target Speed (mph)'),
                 backgroundColor: window.chartColors.black,
                 borderColor: window.chartColors.black,
                 data: targetSpeed,
@@ -115,7 +119,7 @@ function process_arr(arr) {
                 yAxisID: 'y-speed',
                 borderDash: [5, 5]
             }, {
-                label: 'Incline',
+                label: t('workoutEditor.incline', 'Incline'),
                 backgroundColor: window.chartColors.orange,
                 borderColor: window.chartColors.orange,
                 data: inclination,
@@ -124,7 +128,7 @@ function process_arr(arr) {
                 borderWidth: 2,
                 yAxisID: 'y-incline'
             }, {
-                label: 'Target Incline',
+                label: t('chart.targetIncline', 'Target Incline'),
                 backgroundColor: window.chartColors.grey,
                 borderColor: window.chartColors.grey,
                 data: targetInclination,
