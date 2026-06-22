@@ -1238,6 +1238,7 @@ ApplicationWindow {
             Column {
                 anchors.fill: parent
                 spacing: 3
+                enabled: drawer.position >= 1
 
                 ItemDelegate {
                     text: qsTr("Profile: ") + settings.profile_name
