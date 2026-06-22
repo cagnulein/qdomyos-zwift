@@ -1184,7 +1184,6 @@ ApplicationWindow {
         height: window.height
         modal: true
         dim: true
-        Overlay.modal: Rectangle { color: "transparent" }
         focus: true
         topPadding: getTopPadding()
         bottomPadding: getBottomPadding()
