@@ -1242,6 +1242,8 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Profile: ") + settings.profile_name
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Profile: ") + settings.profile_name
                     onClicked: {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
@@ -1254,6 +1256,8 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Settings")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Settings")
                     onClicked: {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
@@ -1270,6 +1274,8 @@ ApplicationWindow {
             ItemDelegate {
                 text: qsTr("Workouts History")
                 width: parent.width
+                Accessible.role: Accessible.Button
+                Accessible.name: qsTr("Workouts History")
                 onClicked: {
                     stackView.push("WorkoutsHistory.qml")
                     stackView.currentItem.fitfile_preview_clicked.connect(fitfile_preview_clicked)
@@ -1279,6 +1285,8 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Swag Bag")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Swag Bag")
                     onClicked: {
                         stackView.push("SwagBagView.qml")
                         drawer.close()
@@ -1288,6 +1296,8 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Charts")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Charts")
                     onClicked: {
                         console.log(CHARTJS)
                         if(CHARTJS)
@@ -1301,6 +1311,8 @@ ApplicationWindow {
                     id: gpx_open
                     text: qsTr("Open GPX")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Open GPX")
                     onClicked: {
                         stackView.push("GPXList.qml")
                         stackView.currentItem.trainprogram_open_clicked.connect(gpx_open_clicked)
@@ -1317,6 +1329,8 @@ ApplicationWindow {
                     id: trainprogram_open
                     text: qsTr("Open Train Program")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Open Train Program")
                     onClicked: {
                         if(CHARTJS)
                             stackView.push("TrainingProgramsListJS.qml")
@@ -1335,6 +1349,8 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Workout Editor")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Workout Editor")
                     onClicked: {
                         var editorPage = stackView.push("WorkoutEditor.qml")
                         if (editorPage) {
@@ -1365,6 +1381,8 @@ ApplicationWindow {
                     id: gpx_save
                     text: qsTr("Save GPX")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Save GPX")
                     onClicked: {
                         gpx_save_clicked()
                         drawer.close()
@@ -1375,6 +1393,8 @@ ApplicationWindow {
                     id: fit_save
                     text: qsTr("Save FIT")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Save FIT")
                     onClicked: {
                         fit_save_clicked()
                         drawer.close()
@@ -1385,6 +1405,8 @@ ApplicationWindow {
                     id: wizardItem
                     text: qsTr("Wizard")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Wizard")
                     onClicked: {
                         stackView.push("Wizard.qml")
                         drawer.close()
@@ -1394,6 +1416,8 @@ ApplicationWindow {
                     id: help
                     text: qsTr("Help")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Help")
                     onClicked: {
                         Qt.openUrlExternally("https://robertoviola.cloud/qdomyos-zwift-guide/");
                         drawer.close()
@@ -1403,6 +1427,8 @@ ApplicationWindow {
                     id: community
                     text: qsTr("Community")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Community")
                     onClicked: {
                         Qt.openUrlExternally("https://www.facebook.com/groups/149984563348738");
                         drawer.close()
@@ -1411,6 +1437,8 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Credits")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Credits")
                     onClicked: {
                         stackView.push("Credits.qml")
                         drawer.close()
