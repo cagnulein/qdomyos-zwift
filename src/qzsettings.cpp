@@ -232,6 +232,9 @@ const QString QZSettings::pacef_5km = QStringLiteral("pacef_5km");
 const QString QZSettings::pacef_10km = QStringLiteral("pacef_10km");
 const QString QZSettings::pacef_halfmarathon = QStringLiteral("pacef_halfmarathon");
 const QString QZSettings::pacef_marathon = QStringLiteral("pacef_marathon");
+const QString QZSettings::trainprogram_warmup_speed = QStringLiteral("trainprogram_warmup_speed");
+const QString QZSettings::trainprogram_cooldown_speed = QStringLiteral("trainprogram_cooldown_speed");
+const QString QZSettings::trainprogram_rest_speed = QStringLiteral("trainprogram_rest_speed");
 const QString QZSettings::pace_default = QStringLiteral("pace_default");
 const QString QZSettings::default_pace_default = QStringLiteral("Half Marathon");
 const QString QZSettings::domyos_treadmill_buttons = QStringLiteral("domyos_treadmill_buttons");
@@ -1233,7 +1236,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 962;
+const uint32_t allSettingsCount = 965;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1417,6 +1420,9 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::pacef_10km, QZSettings::default_pacef_10km},
     {QZSettings::pacef_halfmarathon, QZSettings::default_pacef_halfmarathon},
     {QZSettings::pacef_marathon, QZSettings::default_pacef_marathon},
+    {QZSettings::trainprogram_warmup_speed, QZSettings::default_trainprogram_warmup_speed},
+    {QZSettings::trainprogram_cooldown_speed, QZSettings::default_trainprogram_cooldown_speed},
+    {QZSettings::trainprogram_rest_speed, QZSettings::default_trainprogram_rest_speed},
     {QZSettings::pace_default, QZSettings::default_pace_default},
     {QZSettings::domyos_treadmill_buttons, QZSettings::default_domyos_treadmill_buttons},
     {QZSettings::domyos_treadmill_distance_display, QZSettings::default_domyos_treadmill_distance_display},
