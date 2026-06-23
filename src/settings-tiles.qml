@@ -2265,7 +2265,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: targetStrokesLengthAccordion
-            title: qsTr("Strokes Length")
+            title: qsTr("Stroke Length")
             linkedBoolSetting: "tile_strokes_length_enabled"
             settings: settings
             accordionContent: RowLayout {

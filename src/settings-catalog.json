@@ -1863,7 +1863,7 @@
     },
     {
       "key": "tile_strokes_length_enabled",
-      "name": "Strokes Length",
+      "name": "Stroke Length",
       "description": null,
       "parent": "Tiles",
       "type": "boolean",
