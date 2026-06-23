@@ -396,3 +396,30 @@ void GarminConnectTestSuite::test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAn
         << "Expected average pace speed converted to 9.664 km/h. XML was:\n"
         << xml.toStdString();
 }
+
+void GarminConnectTestSuite::test_workoutFileName_appendsSportSuffix()
+{
+    const QString runFileName =
+        garminConnectWorkoutFileName(QStringLiteral("2026-05-28"), QStringLiteral("Base"), QStringLiteral("running"));
+    const QString rideFileName =
+        garminConnectWorkoutFileName(QStringLiteral("2026-05-28"), QStringLiteral("Base"), QStringLiteral("cycling"));
+
+    EXPECT_EQ(runFileName.toStdString(), "2026-05-28 - Base_Run.xml");
+    EXPECT_EQ(rideFileName.toStdString(), "2026-05-28 - Base_Ride.xml");
+    EXPECT_NE(runFileName.toStdString(), rideFileName.toStdString())
+        << "Same-day run and ride workouts with the same title must not overwrite each other";
+}
+
+void GarminConnectTestSuite::test_workoutFileName_sanitizesUnsafeCharacters()
+{
+    const QString fileName = garminConnectWorkoutFileName(
+        QStringLiteral("2026-05-28"),
+        QStringLiteral("QZ: Speed/Incline * Test?"),
+        QStringLiteral("running"));
+
+    EXPECT_EQ(fileName.toStdString(), "2026-05-28 - QZ_ Speed_Incline _ Test__Run.xml");
+    EXPECT_FALSE(fileName.contains(":"));
+    EXPECT_FALSE(fileName.contains("/"));
+    EXPECT_FALSE(fileName.contains("*"));
+    EXPECT_FALSE(fileName.contains("?"));
+}

@@ -1644,6 +1644,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||                        // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI WMTP")) ||                        // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TM4800-")) ||                        // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TM55-")) ||                           // lifesmart tm55
                             b.name().toUpper().startsWith(QStringLiteral("LB600")) ||                        // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-")) ||                     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T90-")) ||                     // FTMS
@@ -1761,6 +1762,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("THINK-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("THINK_")) ||
                         b.name().toUpper().startsWith(QStringLiteral("53997-")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("NOZA-ONE ")) || // Xplova Noza One trainer
                         (b.name().toUpper().startsWith("VANRYSEL-HT")) ||
                         b.address() == QBluetoothAddress("C1:14:D9:9C:FB:01") || // specific TACX NEO 2 #1707
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
@@ -1926,6 +1928,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith("SPORT01-") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // Labgrey Magnetic Exercise Bike https://www.amazon.co.uk/dp/B0CXMF1NPY?_encoding=UTF8&psc=1&ref=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&ref_=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&social_share=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&skipTwisterOG=1
                         (b.name().toUpper().startsWith("FS-YK-")) ||
+						(b.name().toUpper().startsWith("T600E_")) ||
                         (b.name().toUpper().startsWith("SPEEDBIKE S2")) || // Maxxus Speedbike S2
 						(b.name().toUpper().startsWith("B56-")) || // Titan Life B56 bike
                         ((b.name().toUpper().startsWith(QStringLiteral("HT")) && (b.name().length() == 10) &&
@@ -2233,6 +2236,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(lifespanTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("ECH-ROW")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROWSPORT")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ROW-7S-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROW-S"))) &&
                        !echelonRower && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2275,6 +2279,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(apexBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
                 apexBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(apexBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("XQ")) && b.name().length() == 12 &&
+                       !volavaBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                volavaBike = new volavabike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(volavaBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                volavaBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(volavaBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("BKOOLSMARTPRO")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BKOOLFBIKE")) ||            
                         b.name().toUpper().startsWith(QStringLiteral("BKOOLFITNESSBIKE"))) && !bkoolBike && filter) {
@@ -3085,7 +3098,7 @@ void bluetooth::connectedAndDiscovered() {
 
         if (fitmetriaFanfitEnabled) {
             for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-                if (((b.name().startsWith("FITFAN-"))) && !fitmetria_fanfit_isconnected(b.name())) {
+                if (((b.name().startsWith("FITFAN-"))) && !fitmetria_fanfit_isconnected(b)) {
                     fitmetria_fanfit *f = new fitmetria_fanfit(this->device());
 
                     connect(f, &fitmetria_fanfit::debug, this, &bluetooth::debug);
@@ -3095,7 +3108,7 @@ void bluetooth::connectedAndDiscovered() {
                     f->deviceDiscovered(b);
                     fitmetriaFanfit.append(f);
                     break;
-                } else if (((b.name().toUpper().startsWith("HEADWIND "))) && !fitmetria_fanfit_isconnected(b.name())) {
+                } else if (((b.name().toUpper().startsWith("HEADWIND "))) && !fitmetria_fanfit_isconnected(b)) {
                     wahookickrheadwind *f = new wahookickrheadwind(this->device());
 
                     connect(f, &wahookickrheadwind::debug, this, &bluetooth::debug);
@@ -3104,8 +3117,8 @@ void bluetooth::connectedAndDiscovered() {
 
                     f->deviceDiscovered(b);
                     wahookickrHeadWind.append(f);
-                    break;
-                } else if (((b.name().toUpper().startsWith("ARIA")) && b.name().length() == 4) && !fitmetria_fanfit_isconnected(b.name())) {
+                    continue;
+                } else if (((b.name().toUpper().startsWith("ARIA")) && b.name().length() == 4) && !fitmetria_fanfit_isconnected(b)) {
                     eliteariafan *f = new eliteariafan(this->device());
 
                     connect(f, &eliteariafan::debug, this, &bluetooth::debug);
@@ -3629,6 +3642,10 @@ void bluetooth::restart() {
     if (apexBike) {
         delete apexBike;
         apexBike = nullptr;
+    }
+    if (volavaBike) {
+        delete volavaBike;
+        volavaBike = nullptr;
     }
     if (bkoolBike) {
         delete bkoolBike;
@@ -4264,6 +4281,8 @@ bluetoothdevice *bluetooth::device() {
         return keepBike;
     } else if (apexBike) {
         return apexBike;
+    } else if (volavaBike) {
+        return volavaBike;
     } else if (bkoolBike) {
         return bkoolBike;
     } else if (ultraSportBike) {
@@ -4510,17 +4529,17 @@ void bluetooth::inclinationChanged(double grade, double inclination) {
     stateFileUpdate();
 }
 
-bool bluetooth::fitmetria_fanfit_isconnected(QString name) {
+bool bluetooth::fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device) {
     foreach (fitmetria_fanfit *f, fitmetriaFanfit) {
-        if (!name.compare(f->bluetoothDevice.name()))
+        if (SAME_BLUETOOTH_DEVICE(device, f->bluetoothDevice))
             return true;
     }
     foreach (wahookickrheadwind *f, wahookickrHeadWind) {
-        if (!name.compare(f->bluetoothDevice.name()))
+        if (SAME_BLUETOOTH_DEVICE(device, f->bluetoothDevice))
             return true;
     }
     foreach (eliteariafan *f, eliteAriaFan) {
-        if (!name.compare(f->bluetoothDevice.name()))
+        if (SAME_BLUETOOTH_DEVICE(device, f->bluetoothDevice))
             return true;
     }
     return false;

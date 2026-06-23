@@ -143,6 +143,7 @@ jobs:
 
       - name: Build
         run: |
+            lrelease src/qdomyos-zwift.pri
             qmake
             make -j8
             cd src/debug
@@ -165,11 +166,12 @@ jobs:
             cp ../../adb/* adb/
             cd ..
             cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
         if: matrix.config.python
-            
+
       - name: Build without python
         run: |
+            lrelease src/qdomyos-zwift.pri
             qmake
             make -j8
             cd src/debug
@@ -555,7 +557,7 @@ jobs:
           git submodule update --init --recursive 
 
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
@@ -593,15 +595,15 @@ jobs:
           host: 'linux'
           target: 'android'
           arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
+          modules: 'qtcharts qtnetworkauth qtpurchasing'
           dir: '${{ github.workspace }}/output/android/'
           cache: 'false'
 
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
@@ -616,11 +618,10 @@ jobs:
           path: /usr/local/lib/android/sdk/ndk/21.4.7075529
           key: android-ndk-21.4.7075529-${{ runner.os }}
 
-      - name: Install NDK 21
-        if: steps.cache-ndk.outputs.cache-hit != 'true'
+      - name: Install Android SDK packages
         run: |
           SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Setup ccache
         run: |
@@ -672,9 +673,33 @@ jobs:
           echo "#define LICENSE" >> secret.h
 
       - name: Prepare Android signing key
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_ALIAS: ${{ secrets.ALIAS }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          printf '%s' "${{ secrets.SIGNING_KEY }}" | base64 --decode > ${{ github.workspace }}/src/android/ci-signing-key.jks
-          echo "CI_ANDROID_SIGNING_KEYSTORE=${{ github.workspace }}/src/android/ci-signing-key.jks" >> $GITHUB_ENV
+          if [ -z "$SIGNING_KEY" ] || [ -z "$SIGNING_ALIAS" ] || [ -z "$KEY_STORE_PASSWORD" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo "Android signing secrets are not available; APK re-signing will be skipped."
+            echo "CI_ANDROID_RESIGN_APK=false" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          KEYSTORE="${{ github.workspace }}/src/android/ci-signing-key.jks"
+          if ! printf '%s' "$SIGNING_KEY" | base64 --decode > "$KEYSTORE"; then
+            echo "Failed to decode Android signing key."
+            rm -f "$KEYSTORE"
+            exit 1
+          fi
+
+          if [ ! -s "$KEYSTORE" ]; then
+            echo "Decoded Android signing key is empty."
+            rm -f "$KEYSTORE"
+            exit 1
+          fi
+
+          echo "CI_ANDROID_SIGNING_KEYSTORE=$KEYSTORE" >> "$GITHUB_ENV"
+          echo "CI_ANDROID_RESIGN_APK=true" >> "$GITHUB_ENV"
 
       - name: Build qthttpserver for Android
         run: |
@@ -685,6 +710,7 @@ jobs:
 
       - name: Build QZ for Android (4 ABIs)
         run: |
+          lrelease src/qdomyos-zwift.pri
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
@@ -693,19 +719,49 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-android-${{ runner.os }}-v1
+            ${{ github.workspace }}/.gradle-android/caches
+            ${{ github.workspace }}/.gradle-android/wrapper
+          key: gradle-android-${{ runner.os }}-v2
           restore-keys: |
             gradle-android-${{ runner.os }}-
 
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+      - name: Build Android package
+        run: |
+          cd src
+          mkdir -p ${{ github.workspace }}/output/android
+          rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
+          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
+          export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
+          export QT_ANDROID_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
+          mkdir -p "$GRADLE_USER_HOME"
+          rm -f "$GRADLE_USER_HOME/gradle.properties"
+          rm -f "$HOME/.gradle/gradle.properties"
+          find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
+          printf '\nqt5AndroidDir=%s/src/android/java\n' "$QT_ANDROID_DIR" >> ${{ github.workspace }}/output/android/gradle.properties
+          echo "Residual enableUncompressedNativeLibs matches after sanitization:"
+          if grep -RInE "android\\.bundle\\.enableUncompressedNativeLibs|enableUncompressedNativeLibs" ${{ github.workspace }}/output/android "$GRADLE_USER_HOME" "$HOME/.gradle" ; then
+            echo "Unexpected residual matches found"
+            exit 1
+          fi
+          find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
+          if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
+            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
+            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+          fi
+          "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
 
       - name: Re-sign APK for stable App Links fingerprint
         run: |
+          if [ "$CI_ANDROID_RESIGN_APK" != "true" ]; then
+            echo "Skipping APK re-signing because Android signing secrets are not available."
+            exit 0
+          fi
+
           APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
           SIGNED_APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-signed.apk"
+          trap 'rm -f "$CI_ANDROID_SIGNING_KEYSTORE" "$SIGNED_APK_PATH"' EXIT
           APKSIGNER=$(find /usr/local/lib/android/sdk/build-tools -name apksigner | sort | tail -n 1)
           if [ -z "$APKSIGNER" ]; then
             echo "apksigner not found"
@@ -1139,6 +1195,7 @@ jobs:
 
       - name: Build
         run: |
+            lrelease src/qdomyos-zwift.pri
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
@@ -1167,10 +1224,11 @@ jobs:
 
       - name: Build without python
         run: |
+            lrelease src/qdomyos-zwift.pri
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
-            qmake           
+            qmake
             nmake
             cd src/debug
             mkdir output
@@ -1342,6 +1400,7 @@ jobs:
 
       - name: Build
         run: |
+            lrelease src/qdomyos-zwift.pri
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
@@ -1726,10 +1785,11 @@ jobs:
 
       - name: Build
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
             Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
         run: |
-            qmake            
+            lrelease src/qdomyos-zwift.pri
+            qmake
             nmake
             cd src/debug
             mkdir output
@@ -1755,10 +1815,11 @@ jobs:
             
       - name: Build without python
 #            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
-#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose     
-        run: |          
-            qmake           
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
+#            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+        run: |
+            lrelease src/qdomyos-zwift.pri
+            qmake
             nmake
             cd src/debug
             mkdir output
@@ -1935,6 +1996,7 @@ jobs:
 
       - name: Build
         run: |
+          lrelease src/qdomyos-zwift.pri
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
@@ -1963,6 +2025,7 @@ jobs:
 
       - name: Build without python
         run: |
+          lrelease src/qdomyos-zwift.pri
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose
           Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
@@ -2057,16 +2120,16 @@ jobs:
           host: 'linux'
           target: 'android'
           arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
+          modules: 'qtcharts qtnetworkauth qtpurchasing'
           dir: '${{ github.workspace }}/output/android/'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-android'                    
 
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
@@ -2081,7 +2144,7 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2096,18 +2159,19 @@ jobs:
           echo "#define LICENSE" >> secret.h
           # Set variant-specific IP setting
           sed -i 's/property string ${{ matrix.variant.setting_key }}: ""/property string ${{ matrix.variant.setting_key }}: "${{ matrix.variant.setting_value }}"/' settings.qml
-          cd ..          
+          cd ..
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          lrelease src/qdomyos-zwift.pri
 
           # QTHTTPSERVER must use the same NDK
-          cd src/qthttpserver 
+          cd src/qthttpserver
           qmake
           make -j8
           make install
-          cd ../..          
-          
+          cd ../..
+
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           cp src/android-qdomyos-zwift-deployment-settings.json src/android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json
@@ -2115,14 +2179,182 @@ jobs:
           sed -i 's/android-debug\.apk/android-debug-nordictrack-${{ matrix.variant.name }}.apk/g' src/android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json
           cat src/android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json
 
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab; mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
+      - name: Build Android package
+        run: |
+          cd src
+          mkdir -p ${{ github.workspace }}/output/android
+          rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
+          androiddeployqt --input android-qdomyos-zwift-nordictrack-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
+          export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
+          export QT_ANDROID_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
+          mkdir -p "$GRADLE_USER_HOME"
+          rm -f "$GRADLE_USER_HOME/gradle.properties"
+          rm -f "$HOME/.gradle/gradle.properties"
+          find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
+          printf '\nqt5AndroidDir=%s/src/android/java\n' "$QT_ANDROID_DIR" >> ${{ github.workspace }}/output/android/gradle.properties
+          echo "Residual enableUncompressedNativeLibs matches after sanitization:"
+          if grep -RInE "android\\.bundle\\.enableUncompressedNativeLibs|enableUncompressedNativeLibs" ${{ github.workspace }}/output/android "$GRADLE_USER_HOME" "$HOME/.gradle" ; then
+            echo "Unexpected residual matches found"
+            exit 1
+          fi
+          find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
+          if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
+            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
+            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+          fi
+          "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
+          mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
 
       - name: Archive nordictrack binary
         uses: actions/upload-artifact@v4
         with:
           name: nordictrack-${{ matrix.variant.name }}-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-nordictrack-${{ matrix.variant.name }}.apk
+
+  fitpro-build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    strategy:
+      matrix:
+        variant:
+          - name: treadmill
+            setting_key: nordictrack_2950_ip
+            setting_value: localhost
+          - name: bike
+            setting_key: tdf_10_ip
+            setting_value: localhost
+          - name: elliptical
+            setting_key: proform_elliptical_ip
+            setting_value: localhost
+          - name: rower
+            setting_key: proform_rower_ip
+            setting_value: localhost
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Xvfb install and run
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
+
+      - name: Checkout FitPro branch code
+        uses: actions/checkout@v3
+        with:
+          ref: claude/fervent-newton-a25bb2
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: 'false'  # Prima disattiva il checkout automatico dei submodule
+
+      - name: Checkout submodules with specific branches
+        run: |
+          git submodule init
+          git submodule update --init --recursive
+
+      - name: Install packages required to run QZ inside workflow
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+
+      - name: Install Qt Android
+        uses: jdpurcell/install-qt-action@v5
+        with:
+          version: '5.15.0'
+          host: 'linux'
+          target: 'android'
+          arch: 'android'
+          modules: 'qtcharts qtnetworkauth qtpurchasing'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android'
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '17'
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+
+      - name: download 3rd party files for qthttpserver
+        run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      - name: Set Android NDK 21 && build
+        run: |
+          # Install NDK 21 after GitHub update
+          # https://github.com/actions/virtual-environments/issues/5595
+          ANDROID_ROOT="/usr/local/lib/android"
+          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
+          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
+          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
+          export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          echo "#define LICENSE" >> secret.h
+          # Set variant-specific IP setting
+          sed -i 's/property string ${{ matrix.variant.setting_key }}: ""/property string ${{ matrix.variant.setting_key }}: "${{ matrix.variant.setting_value }}"/' settings.qml
+          cd ..
+
+          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
+          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          lrelease src/qdomyos-zwift.pri
+
+          # QTHTTPSERVER must use the same NDK
+          cd src/qthttpserver
+          qmake
+          make -j8
+          make install
+          cd ../..
+
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          cp src/android-qdomyos-zwift-deployment-settings.json src/android-qdomyos-zwift-fitpro-${{ matrix.variant.name }}-deployment-settings.json
+          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-fitpro-${{ matrix.variant.name }}-deployment-settings.json
+          sed -i 's/"android-debug"/"android-fitpro-${{ matrix.variant.name }}"/g' src/android-qdomyos-zwift-fitpro-${{ matrix.variant.name }}-deployment-settings.json
+          sed -i 's/android-debug\.apk/android-debug-fitpro-${{ matrix.variant.name }}.apk/g' src/android-qdomyos-zwift-fitpro-${{ matrix.variant.name }}-deployment-settings.json
+          cat src/android-qdomyos-zwift-fitpro-${{ matrix.variant.name }}-deployment-settings.json
+
+      - name: Build Android package
+        run: |
+          cd src
+          mkdir -p ${{ github.workspace }}/output/android
+          rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
+          androiddeployqt --input android-qdomyos-zwift-fitpro-${{ matrix.variant.name }}-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
+          export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
+          export QT_ANDROID_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
+          mkdir -p "$GRADLE_USER_HOME"
+          rm -f "$GRADLE_USER_HOME/gradle.properties"
+          rm -f "$HOME/.gradle/gradle.properties"
+          find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
+          printf '\nqt5AndroidDir=%s/src/android/java\n' "$QT_ANDROID_DIR" >> ${{ github.workspace }}/output/android/gradle.properties
+          echo "Residual enableUncompressedNativeLibs matches after sanitization:"
+          if grep -RInE "android\\.bundle\\.enableUncompressedNativeLibs|enableUncompressedNativeLibs" ${{ github.workspace }}/output/android "$GRADLE_USER_HOME" "$HOME/.gradle" ; then
+            echo "Unexpected residual matches found"
+            exit 1
+          fi
+          find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
+          if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
+            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
+            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+          fi
+          "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
+          mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-fitpro-${{ matrix.variant.name }}.apk
+
+      - name: Archive fitpro binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: fitpro-${{ matrix.variant.name }}-android-trial
+          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-fitpro-${{ matrix.variant.name }}.apk
 
   peloton-bike-plus-build:
     # The type of runner that the job will run on
@@ -2158,16 +2390,16 @@ jobs:
           host: 'linux'
           target: 'android'
           arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
+          modules: 'qtcharts qtnetworkauth qtpurchasing'
           dir: '${{ github.workspace }}/output/android/'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-android'                    
 
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
@@ -2182,7 +2414,7 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2199,14 +2431,15 @@ jobs:
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          lrelease src/qdomyos-zwift.pri
 
           # QTHTTPSERVER must use the same NDK
-          cd src/qthttpserver 
+          cd src/qthttpserver
           qmake
           make -j8
           make install
-          cd ../..          
-          
+          cd ../..
+
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           cp src/android-qdomyos-zwift-deployment-settings.json src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
@@ -2214,8 +2447,33 @@ jobs:
           sed -i 's/android-debug\.apk/android-debug-peloton-bike-plus.apk/g' src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
           cat src/android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json
 
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab; mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
+      - name: Build Android package
+        run: |
+          cd src
+          mkdir -p ${{ github.workspace }}/output/android
+          rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
+          androiddeployqt --input android-qdomyos-zwift-peloton-bike-plus-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
+          export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
+          export QT_ANDROID_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
+          mkdir -p "$GRADLE_USER_HOME"
+          rm -f "$GRADLE_USER_HOME/gradle.properties"
+          rm -f "$HOME/.gradle/gradle.properties"
+          find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
+          printf '\nqt5AndroidDir=%s/src/android/java\n' "$QT_ANDROID_DIR" >> ${{ github.workspace }}/output/android/gradle.properties
+          echo "Residual enableUncompressedNativeLibs matches after sanitization:"
+          if grep -RInE "android\\.bundle\\.enableUncompressedNativeLibs|enableUncompressedNativeLibs" ${{ github.workspace }}/output/android "$GRADLE_USER_HOME" "$HOME/.gradle" ; then
+            echo "Unexpected residual matches found"
+            exit 1
+          fi
+          find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
+          if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
+            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
+            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+          fi
+          "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
+          mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike-plus.apk
 
       - name: Archive peloton-bike-plus binary
         uses: actions/upload-artifact@v4
@@ -2257,16 +2515,16 @@ jobs:
           host: 'linux'
           target: 'android'
           arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
+          modules: 'qtcharts qtnetworkauth qtpurchasing'
           dir: '${{ github.workspace }}/output/android/'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-android'                    
 
       - name: Install Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11.0.23+9'
+          java-version: '17'
           
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
@@ -2281,7 +2539,7 @@ jobs:
           ANDROID_ROOT="/usr/local/lib/android"
           ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
           SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           cd src
@@ -2298,14 +2556,15 @@ jobs:
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          lrelease src/qdomyos-zwift.pri
 
           # QTHTTPSERVER must use the same NDK
-          cd src/qthttpserver 
+          cd src/qthttpserver
           qmake
           make -j8
           make install
-          cd ../..          
-          
+          cd ../..
+
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           cp src/android-qdomyos-zwift-deployment-settings.json src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
           sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
@@ -2313,8 +2572,33 @@ jobs:
           sed -i 's/android-debug\.apk/android-debug-peloton-bike.apk/g' src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
           cat src/android-qdomyos-zwift-peloton-bike-deployment-settings.json
 
-      - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab; mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
+      - name: Build Android package
+        run: |
+          cd src
+          mkdir -p ${{ github.workspace }}/output/android
+          rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
+          androiddeployqt --input android-qdomyos-zwift-peloton-bike-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
+          export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
+          export QT_ANDROID_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
+          mkdir -p "$GRADLE_USER_HOME"
+          rm -f "$GRADLE_USER_HOME/gradle.properties"
+          rm -f "$HOME/.gradle/gradle.properties"
+          find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
+          printf '\nqt5AndroidDir=%s/src/android/java\n' "$QT_ANDROID_DIR" >> ${{ github.workspace }}/output/android/gradle.properties
+          echo "Residual enableUncompressedNativeLibs matches after sanitization:"
+          if grep -RInE "android\\.bundle\\.enableUncompressedNativeLibs|enableUncompressedNativeLibs" ${{ github.workspace }}/output/android "$GRADLE_USER_HOME" "$HOME/.gradle" ; then
+            echo "Unexpected residual matches found"
+            exit 1
+          fi
+          find ${{ github.workspace }}/output/android -name gradle.properties -print -exec cat {} \;
+          if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
+            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
+            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+          fi
+          "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
+          mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-peloton-bike.apk
 
       - name: Archive peloton-bike binary
         uses: actions/upload-artifact@v4
@@ -2326,7 +2610,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-smoke-test]
+    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-smoke-test]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -2362,9 +2646,22 @@ jobs:
 
             ## Other Platforms:
             - **fdroid-android-trial**: Android build
-            - **nordictrack-treadmill-android-trial**: Nordictrack Treadmill build for iFIT2 Tablets
-            - **nordictrack-bike-android-trial**: Nordictrack Bike build for iFIT2 Tablets
-            - **nordictrack-rower-android-trial**: Nordictrack Rower build for iFIT2 Tablets
+
+            ### NordicTrack / iFIT builds
+            There are two different ways QZ can talk to a NordicTrack / iFIT machine, pick the one that matches your console:
+
+            **gRPC builds** — these rely on the iFIT app: QZ talks to iFIT, which talks to the console. The iFIT app must be installed, running and signed in. They only work on the newer machines (the ones with the new iFIT 3D layout).
+            - **nordictrack-treadmill-android-trial**: Treadmill (gRPC via iFIT, new 3D-layout consoles only)
+            - **nordictrack-bike-android-trial**: Bike (gRPC via iFIT, new 3D-layout consoles only)
+            - **nordictrack-rower-android-trial**: Rower (gRPC via iFIT, new 3D-layout consoles only)
+
+            **FitPro builds** — these access the console directly over USB-HID, without going through iFIT. The iFIT app must be **closed**. They work with every iFIT version (both old and new consoles).
+            - **fitpro-treadmill-android-trial**: Treadmill (direct USB-HID FitPro, iFIT must be closed, all iFIT versions)
+            - **fitpro-bike-android-trial**: Bike (direct USB-HID FitPro, iFIT must be closed, all iFIT versions)
+            - **fitpro-elliptical-android-trial**: Elliptical (direct USB-HID FitPro, iFIT must be closed, all iFIT versions)
+            - **fitpro-rower-android-trial**: Rower (direct USB-HID FitPro, iFIT must be closed, all iFIT versions)
+
+            ### Peloton / Raspberry Pi
             - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
             - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
             - **raspberry-pi-binary-armv6hf**: Raspberry Pi 32-bit (ARMv6 hard-float, Pi Zero W compatible)
@@ -2383,6 +2680,10 @@ jobs:
             nordictrack-treadmill-android-trial/android-debug-nordictrack-treadmill.apk
             nordictrack-bike-android-trial/android-debug-nordictrack-bike.apk
             nordictrack-rower-android-trial/android-debug-nordictrack-rower.apk
+            fitpro-treadmill-android-trial/android-debug-fitpro-treadmill.apk
+            fitpro-bike-android-trial/android-debug-fitpro-bike.apk
+            fitpro-elliptical-android-trial/android-debug-fitpro-elliptical.apk
+            fitpro-rower-android-trial/android-debug-fitpro-rower.apk
             peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
             peloton-bike-android-trial/android-debug-peloton-bike.apk
             raspberry-pi-binary-armv6hf/qdomyos-zwift-armv6hf
