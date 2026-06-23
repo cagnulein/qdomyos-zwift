@@ -11,7 +11,6 @@ import Qt.labs.platform 1.1
         objectName: "settingsPage"
         contentWidth: -1
         focus: true
-        anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
