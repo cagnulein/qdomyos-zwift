@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 950,
+  "settingCount": 952,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -1315,7 +1315,7 @@
     },
     {
       "key": "tile_ftp_enabled",
-      "name": "FTP %",
+      "name": "order index",
       "description": null,
       "parent": "Tiles",
       "type": "boolean",
@@ -2687,7 +2687,7 @@
     },
     {
       "key": "dkn_endurun_treadmill",
-      "name": "DKN Endurn Treadmill",
+      "name": "Reebok FR30 Treadmill",
       "description": null,
       "parent": "Toorx/iConsole Options",
       "type": "boolean",
@@ -2791,7 +2791,7 @@
     },
     {
       "key": "hertz_xr_770",
-      "name": "Hertz XR 770 Bike",
+      "name": "Asviva Bike",
       "description": null,
       "parent": "Toorx/iConsole Options",
       "type": "boolean",
@@ -3405,7 +3405,7 @@
     },
     {
       "key": "elite_rizer_name",
-      "name": "Elite Rizer",
+      "name": "Elite Rizer Options",
       "description": null,
       "parent": "Elite Rizer Options",
       "type": "string",
@@ -3421,7 +3421,7 @@
     },
     {
       "key": "elite_sterzo_smart_name",
-      "name": "Elite Sterzo Smart",
+      "name": "Elite Sterzo Smart Options",
       "description": null,
       "parent": "Elite Sterzo Smart Options",
       "type": "string",
@@ -3798,7 +3798,7 @@
     },
     {
       "key": "fitshow_anyrun",
-      "name": "AnyRun",
+      "name": "Fitshow Treadmill Options",
       "description": null,
       "parent": "Fitshow Treadmill Options",
       "type": "boolean",
@@ -4169,7 +4169,7 @@
     },
     {
       "key": "fitfiu_mc_v460",
-      "name": "Fitfiu MC-460",
+      "name": "RunnerT Options",
       "description": null,
       "parent": "RunnerT Options",
       "type": "boolean",
@@ -6681,7 +6681,7 @@
     },
     {
       "key": "pafers_treadmill_bh_iboxster_plus",
-      "name": "BH IBoxster Plus",
+      "name": "Pafers Treadmill",
       "description": null,
       "parent": "Pafers Options",
       "type": "boolean",
@@ -8311,7 +8311,7 @@
     },
     {
       "key": "enerfit_SPX_9500",
-      "name": "Enerfit SPX 9500 / Toorx SRX 500",
+      "name": "Toorx SRX 3500",
       "description": null,
       "parent": "Toorx/iConsole Options",
       "type": "boolean",
@@ -8379,7 +8379,7 @@
     },
     {
       "key": "hop_sport_hs_090h_bike",
-      "name": "HOP-Sport HS-090h",
+      "name": "Hop Sport Hs 090H Bike",
       "description": null,
       "parent": "Toorx/iConsole Options",
       "type": "boolean",
@@ -8769,7 +8769,7 @@
     },
     {
       "key": "atletica_lightspeed_treadmill",
-      "name": "Atletica Lightspeed",
+      "name": "Fitshow Treadmill Options",
       "description": null,
       "parent": "Fitshow Treadmill Options",
       "type": "boolean",
@@ -11533,7 +11533,7 @@
     },
     {
       "key": "kettler_usb_baudrate",
-      "name": "Baudrate",
+      "name": "Serial Port",
       "description": null,
       "parent": "Kettler USB Bike Options",
       "type": "integer",
@@ -11819,7 +11819,7 @@
     },
     {
       "key": "garmin_domain",
-      "name": "Garmin Server",
+      "name": "Garmin Domain",
       "description": null,
       "parent": "Garmin Options",
       "type": "string",
@@ -12245,7 +12245,7 @@
     },
     {
       "key": "gymstick_gx6_0_elliptical",
-      "name": "Gymstick GX6.0",
+      "name": "Refresh Devices List",
       "description": null,
       "parent": "Elliptical Options",
       "type": "boolean",
@@ -12413,7 +12413,7 @@
     },
     {
       "key": "cycplus_bc2_controller",
-      "name": "CYCPLUS BC2 Controller",
+      "name": "CYCPLUS Options",
       "description": "CYCPLUS BC2 virtual shifter. Use it to change gears on QZ!",
       "parent": "CYCPLUS Options",
       "type": "boolean",
@@ -13442,7 +13442,7 @@
     },
     {
       "key": "shortcut_start_stop",
-      "name": "Start / Stop",
+      "name": "Start / Pause",
       "description": null,
       "parent": "Keyboard Shortcuts",
       "type": "string",
@@ -13451,45 +13451,6 @@
       "visible": true,
       "defaultValue": "",
       "defaultExpression": "\"\"",
-      "options": null
-    },
-    {
-      "key": "shortcut_stop",
-      "name": "Stop",
-      "description": null,
-      "parent": "Keyboard Shortcuts",
-      "type": "string",
-      "qmlType": "string",
-      "control": "text",
-      "visible": true,
-      "defaultValue": "",
-      "defaultExpression": "\"\"",
-      "options": null
-    },
-    {
-      "key": "garmin_download_workouts_on_start",
-      "name": "Fetch Garmin Workouts on Startup",
-      "description": "Enable automatic download of today's Garmin workout when QZ starts. Default: enabled.",
-      "parent": "Garmin Options",
-      "type": "boolean",
-      "qmlType": "bool",
-      "control": "switch",
-      "visible": true,
-      "defaultValue": true,
-      "defaultExpression": "true",
-      "options": null
-    },
-    {
-      "key": "trainprogram_clipboard_workout_enabled",
-      "name": "Enable Clipboard Workouts",
-      "description": "Enable detection of ZWO/XML workouts copied to the clipboard. Default: disabled.",
-      "parent": "Training Program Options",
-      "type": "boolean",
-      "qmlType": "bool",
-      "control": "switch",
-      "visible": true,
-      "defaultValue": false,
-      "defaultExpression": "false",
       "options": null
     },
     {
@@ -13520,6 +13481,71 @@
         "source": "expression",
         "expression": "appLanguageOptions"
       }
+    },
+    {
+      "key": "garmin_download_workouts_on_start",
+      "name": "Fetch Garmin Workouts on Startup",
+      "description": "Enable automatic download of today's Garmin workout when QZ starts. Default: enabled.",
+      "parent": "Garmin Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
+      "options": null
+    },
+    {
+      "key": "trainprogram_clipboard_workout_enabled",
+      "name": "Enable Clipboard Workouts",
+      "description": "Enable detection of ZWO/XML workouts copied to the clipboard. Default: disabled.",
+      "parent": "Training Program Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null
+    },
+    {
+      "key": "shortcut_stop",
+      "name": "Stop",
+      "description": null,
+      "parent": "Keyboard Shortcuts",
+      "type": "string",
+      "qmlType": "string",
+      "control": "text",
+      "visible": true,
+      "defaultValue": "",
+      "defaultExpression": "\"\"",
+      "options": null
+    },
+    {
+      "key": "tile_watt_color_enabled",
+      "name": "Enable Watt color",
+      "description": null,
+      "parent": "tile_watt_enabled",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
+      "options": null
+    },
+    {
+      "key": "tile_pace_color_enabled",
+      "name": "Enable Pace color",
+      "description": null,
+      "parent": "tile_pace_enabled",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
+      "options": null
     }
   ]
 }

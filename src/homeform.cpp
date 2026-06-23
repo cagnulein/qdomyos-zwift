@@ -5929,6 +5929,22 @@ void homeform::update() {
         bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
         bool weight_kg_unit = settings.value(QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit).toBool();
         double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        const bool tileWattColorEnabled =
+            settings.value(QZSettings::tile_watt_color_enabled, QZSettings::default_tile_watt_color_enabled).toBool();
+        const bool tilePaceColorEnabled =
+            settings.value(QZSettings::tile_pace_color_enabled, QZSettings::default_tile_pace_color_enabled).toBool();
+        const auto setWattValueFontColor = [this, tileWattColorEnabled](const QString &color) {
+            watt->setValueFontColor(tileWattColorEnabled ? color : QStringLiteral("white"));
+        };
+        const auto setPaceValueFontColor = [this, tilePaceColorEnabled](const QString &color) {
+            pace->setValueFontColor(tilePaceColorEnabled ? color : QStringLiteral("white"));
+        };
+        if (!tileWattColorEnabled) {
+            setWattValueFontColor(QStringLiteral("white"));
+        }
+        if (!tilePaceColorEnabled) {
+            setPaceValueFontColor(QStringLiteral("white"));
+        }
         double unit_conversion = 1.0;
         double meter_feet_conversion = 1.0;
         double cm_inches_conversion = 1.0;        
@@ -6357,25 +6373,25 @@ void homeform::update() {
             if (!trainProgram || trainProgram->currentRow().speed == -1 || trainProgram->currentRow().upper_speed == -1) {
                 if (bluetoothManager->device()->currentSpeed().value() < 9) {
                     speed->setValueFontColor(QStringLiteral("white"));
-                    this->pace->setValueFontColor(QStringLiteral("white"));
+                    setPaceValueFontColor(QStringLiteral("white"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 10) {
                     speed->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 11) {
                     speed->setValueFontColor(QStringLiteral("gold"));
-                    this->pace->setValueFontColor(QStringLiteral("gold"));
+                    setPaceValueFontColor(QStringLiteral("gold"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 12) {
                     speed->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 13) {
                     speed->setValueFontColor(QStringLiteral("darkorange"));
-                    this->pace->setValueFontColor(QStringLiteral("darkorange"));
+                    setPaceValueFontColor(QStringLiteral("darkorange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 14) {
                     speed->setValueFontColor(QStringLiteral("orangered"));
-                    this->pace->setValueFontColor(QStringLiteral("orangered"));
+                    setPaceValueFontColor(QStringLiteral("orangered"));
                 } else {
                     speed->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             } else {
                 // Round speeds to 1 decimal place before comparison to avoid overly strict matching
@@ -6386,17 +6402,17 @@ void homeform::update() {
                 // Check if speed is in target zone (green)
                 if (currentSpeed <= upperSpeed && currentSpeed >= lowerSpeed) {
                     this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 }
                 // Check if speed is close to target zone (orange)
                 else if (currentSpeed <= (upperSpeed + 0.2) && currentSpeed >= (lowerSpeed - 0.2)) {
                     this->target_zone->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 }
                 // Speed is out of range (red)
                 else {
                     this->target_zone->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             }
 
@@ -6512,25 +6528,25 @@ void homeform::update() {
             if (!trainProgram || trainProgram->currentRow().speed == -1 || trainProgram->currentRow().upper_speed == -1) {
                 if (bluetoothManager->device()->currentSpeed().value() < 9) {
                     speed->setValueFontColor(QStringLiteral("white"));
-                    this->pace->setValueFontColor(QStringLiteral("white"));
+                    setPaceValueFontColor(QStringLiteral("white"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 10) {
                     speed->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 11) {
                     speed->setValueFontColor(QStringLiteral("gold"));
-                    this->pace->setValueFontColor(QStringLiteral("gold"));
+                    setPaceValueFontColor(QStringLiteral("gold"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 12) {
                     speed->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 13) {
                     speed->setValueFontColor(QStringLiteral("darkorange"));
-                    this->pace->setValueFontColor(QStringLiteral("darkorange"));
+                    setPaceValueFontColor(QStringLiteral("darkorange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 14) {
                     speed->setValueFontColor(QStringLiteral("orangered"));
-                    this->pace->setValueFontColor(QStringLiteral("orangered"));
+                    setPaceValueFontColor(QStringLiteral("orangered"));
                 } else {
                     speed->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             } else {
                 // Round speeds to 1 decimal place before comparison to avoid overly strict matching
@@ -6541,17 +6557,17 @@ void homeform::update() {
                        // Check if speed is in target zone (green)
                 if (currentSpeed <= upperSpeed && currentSpeed >= lowerSpeed) {
                     this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 }
                 // Check if speed is close to target zone (orange)
                 else if (currentSpeed <= (upperSpeed + 0.2) && currentSpeed >= (lowerSpeed - 0.2)) {
                     this->target_zone->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 }
                 // Speed is out of range (red)
                 else {
                     this->target_zone->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             }
 
@@ -6711,20 +6727,20 @@ void homeform::update() {
                     if (bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
                         bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
                         this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
-                        this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                        setPaceValueFontColor(QStringLiteral("limegreen"));
                     } else if (bluetoothManager->device()->currentSpeed().value() <=
                                    (trainProgram->currentRow().upper_speed + 0.2) &&
                                bluetoothManager->device()->currentSpeed().value() >=
                                    (trainProgram->currentRow().lower_speed - 0.2)) {
                         this->target_zone->setValueFontColor(QStringLiteral("orange"));
-                        this->pace->setValueFontColor(QStringLiteral("orange"));
+                        setPaceValueFontColor(QStringLiteral("orange"));
                     } else {
                         this->target_zone->setValueFontColor(QStringLiteral("red"));
-                        this->pace->setValueFontColor(QStringLiteral("red"));
+                        setPaceValueFontColor(QStringLiteral("red"));
                     }
                 } else {
                     this->target_zone->setValueFontColor(QStringLiteral("white"));
-                    this->pace->setValueFontColor(QStringLiteral("white"));
+                    setPaceValueFontColor(QStringLiteral("white"));
                 }
                 switch (trainProgram->currentRow().pace_intensity) {
                 case 0:
@@ -6802,25 +6818,25 @@ void homeform::update() {
             if (!trainProgram || trainProgram->currentRow().speed == -1) {
                 if (bluetoothManager->device()->currentSpeed().value() < 8) {
                     speed->setValueFontColor(QStringLiteral("white"));
-                    this->pace->setValueFontColor(QStringLiteral("white"));
+                    setPaceValueFontColor(QStringLiteral("white"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 10) {
                     speed->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 11) {
                     speed->setValueFontColor(QStringLiteral("gold"));
-                    this->pace->setValueFontColor(QStringLiteral("gold"));
+                    setPaceValueFontColor(QStringLiteral("gold"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 12) {
                     speed->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 13) {
                     speed->setValueFontColor(QStringLiteral("darkorange"));
-                    this->pace->setValueFontColor(QStringLiteral("darkorange"));
+                    setPaceValueFontColor(QStringLiteral("darkorange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 14) {
                     speed->setValueFontColor(QStringLiteral("orangered"));
-                    this->pace->setValueFontColor(QStringLiteral("orangered"));
+                    setPaceValueFontColor(QStringLiteral("orangered"));
                 } else {
                     speed->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             }
 
@@ -7045,7 +7061,7 @@ void homeform::update() {
                 ftpZone = 1.9;
             }
             ftp->setValueFontColor(QStringLiteral("white"));
-            watt->setValueFontColor(QStringLiteral("white"));
+            setWattValueFontColor(QStringLiteral("white"));
         } else if (ftpPerc < 76) {
 
             ftpMinW = QString::number((ftpSetting * 0.55) + 1, 'f', 0);
@@ -7056,7 +7072,7 @@ void homeform::update() {
                 ftpZone = 2.9;
             }
             ftp->setValueFontColor(QStringLiteral("limegreen"));
-            watt->setValueFontColor(QStringLiteral("limegreen"));
+            setWattValueFontColor(QStringLiteral("limegreen"));
         } else if (ftpPerc < 91) {
 
             ftpMinW = QString::number((ftpSetting * 0.75) + 1, 'f', 0);
@@ -7067,7 +7083,7 @@ void homeform::update() {
                 ftpZone = 3.9;
             }
             ftp->setValueFontColor(QStringLiteral("gold"));
-            watt->setValueFontColor(QStringLiteral("gold"));
+            setWattValueFontColor(QStringLiteral("gold"));
         } else if (ftpPerc < 106) {
 
             ftpMinW = QString::number((ftpSetting * 0.90) + 1, 'f', 0);
@@ -7078,7 +7094,7 @@ void homeform::update() {
                 ftpZone = 4.9;
             }
             ftp->setValueFontColor(QStringLiteral("orange"));
-            watt->setValueFontColor(QStringLiteral("orange"));
+            setWattValueFontColor(QStringLiteral("orange"));
         } else if (ftpPerc < 121) {
 
             ftpMinW = QString::number((ftpSetting * 1.05) + 1, 'f', 0);
@@ -7089,7 +7105,7 @@ void homeform::update() {
                 ftpZone = 5.9;
             }
             ftp->setValueFontColor(QStringLiteral("darkorange"));
-            watt->setValueFontColor(QStringLiteral("darkorange"));
+            setWattValueFontColor(QStringLiteral("darkorange"));
         } else if (ftpPerc < 151) {
 
             ftpMinW = QString::number((ftpSetting * 1.20) + 1, 'f', 0);
@@ -7100,7 +7116,7 @@ void homeform::update() {
                 ftpZone = 6.9;
             }
             ftp->setValueFontColor(QStringLiteral("orangered"));
-            watt->setValueFontColor(QStringLiteral("orangered"));
+            setWattValueFontColor(QStringLiteral("orangered"));
         } else {
 
             ftpMinW = QString::number((ftpSetting * 1.50) + 1, 'f', 0);
@@ -7108,7 +7124,7 @@ void homeform::update() {
             ftpZone = 7;
 
             ftp->setValueFontColor(QStringLiteral("red"));
-            watt->setValueFontColor(QStringLiteral("red"));
+            setWattValueFontColor(QStringLiteral("red"));
         }
         bluetoothManager->device()->setPowerZone(ftpZone);
         ftp->setValue(QStringLiteral("Z") + QString::number(ftpZone, 'f', 1));

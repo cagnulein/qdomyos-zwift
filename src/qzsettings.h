@@ -1224,6 +1224,12 @@ class QZSettings {
     static const QString tile_cadence_color_enabled;
     static constexpr bool default_tile_cadence_color_enabled = false;
 
+    static const QString tile_watt_color_enabled;
+    static constexpr bool default_tile_watt_color_enabled = true;
+
+    static const QString tile_pace_color_enabled;
+    static constexpr bool default_tile_pace_color_enabled = true;
+
     static const QString tile_peloton_remaining_enabled;
     static constexpr bool default_tile_peloton_remaining_enabled = false;
 

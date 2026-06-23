@@ -1691,6 +1691,8 @@ import Qt.labs.platform 1.1
             property bool garmin_download_workouts_on_start: true
             property bool trainprogram_clipboard_workout_enabled: false         
             property string shortcut_stop: ""
+            property bool tile_watt_color_enabled: true
+            property bool tile_pace_color_enabled: true
         }
 
 

@@ -409,6 +409,8 @@ const QString QZSettings::horizon_treadmill_7_8 = QStringLiteral("horizon_treadm
 const QString QZSettings::profile_name = QStringLiteral("profile_name");
 const QString QZSettings::default_profile_name = QStringLiteral("default");
 const QString QZSettings::tile_cadence_color_enabled = QStringLiteral("tile_cadence_color_enabled");
+const QString QZSettings::tile_watt_color_enabled = QStringLiteral("tile_watt_color_enabled");
+const QString QZSettings::tile_pace_color_enabled = QStringLiteral("tile_pace_color_enabled");
 const QString QZSettings::tile_peloton_remaining_enabled = QStringLiteral("tile_peloton_remaining_enabled");
 const QString QZSettings::tile_peloton_remaining_order = QStringLiteral("tile_peloton_remaining_order");
 const QString QZSettings::tile_peloton_resistance_color_enabled =
@@ -1233,7 +1235,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 962;
+const uint32_t allSettingsCount = 964;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1570,6 +1572,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8},
     {QZSettings::profile_name, QZSettings::default_profile_name},
     {QZSettings::tile_cadence_color_enabled, QZSettings::default_tile_cadence_color_enabled},
+    {QZSettings::tile_watt_color_enabled, QZSettings::default_tile_watt_color_enabled},
+    {QZSettings::tile_pace_color_enabled, QZSettings::default_tile_pace_color_enabled},
     {QZSettings::tile_peloton_remaining_enabled, QZSettings::default_tile_peloton_remaining_enabled},
     {QZSettings::tile_peloton_remaining_order, QZSettings::default_tile_peloton_remaining_order},
     {QZSettings::tile_peloton_resistance_color_enabled, QZSettings::default_tile_peloton_resistance_color_enabled},
