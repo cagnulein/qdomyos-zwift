@@ -5934,10 +5934,10 @@ void homeform::update() {
         const bool tilePaceColorEnabled =
             settings.value(QZSettings::tile_pace_color_enabled, QZSettings::default_tile_pace_color_enabled).toBool();
         const auto setWattValueFontColor = [this, tileWattColorEnabled](const QString &color) {
-            watt->setValueFontColor(tileWattColorEnabled ? color : QStringLiteral("white"));
+            this->watt->setValueFontColor(tileWattColorEnabled ? color : QStringLiteral("white"));
         };
         const auto setPaceValueFontColor = [this, tilePaceColorEnabled](const QString &color) {
-            pace->setValueFontColor(tilePaceColorEnabled ? color : QStringLiteral("white"));
+            this->pace->setValueFontColor(tilePaceColorEnabled ? color : QStringLiteral("white"));
         };
         if (!tileWattColorEnabled) {
             setWattValueFontColor(QStringLiteral("white"));
