@@ -254,30 +254,48 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         print("Stop workout")
         WorkoutTracking.kcal = WatchKitConnection.kcal
         WorkoutTracking.totalKcal = WatchKitConnection.totalKcal
+        WatchKitConnection.shared.sendDebug("stop pressed local watchKcal=\(WatchKitConnection.kcal) watchTotalKcal=\(WatchKitConnection.totalKcal) trackingKcal=\(WorkoutTracking.kcal) trackingTotalKcal=\(WorkoutTracking.totalKcal)")
         workoutSession.stopActivity(with: Date())
         workoutSession.end()
         
-        // Write active calories
+        // Write active and basal calories
         guard let activeQuantityType = HKQuantityType.quantityType(
           forIdentifier: .activeEnergyBurned) else {
           return
         }
-            
+
         let unit = HKUnit.kilocalorie()
         let activeEnergyBurned = WorkoutTracking.kcal
         let activeQuantity = HKQuantity(unit: unit,
                                        doubleValue: activeEnergyBurned)
-        
+        let basalEnergyBurned = max(WorkoutTracking.totalKcal - activeEnergyBurned, 0)
+        WatchKitConnection.shared.sendDebug("stop energy samples active=\(activeEnergyBurned) total=\(WorkoutTracking.totalKcal) basal=\(basalEnergyBurned)")
+
         let startDate = workoutSession.startDate ?? WorkoutTracking.lastDateMetric
-        
+
         let activeSample = HKCumulativeQuantitySeriesSample(type: activeQuantityType,
                                                            quantity: activeQuantity,
                                                            start: startDate,
                                                            end: Date())
-        
-        workoutBuilder.add([activeSample]) {(success, error) in
+        var energySamples = [activeSample]
+
+        if basalEnergyBurned > 0,
+           let basalQuantityType = HKQuantityType.quantityType(forIdentifier: .basalEnergyBurned) {
+            let basalQuantity = HKQuantity(unit: unit,
+                                           doubleValue: basalEnergyBurned)
+            let basalSample = HKCumulativeQuantitySeriesSample(type: basalQuantityType,
+                                                               quantity: basalQuantity,
+                                                               start: startDate,
+                                                               end: Date())
+            energySamples.append(basalSample)
+        }
+
+        workoutBuilder.add(energySamples) {(success, error) in
             if let error = error {
-                print("WatchWorkoutTracking active calories: \(error.localizedDescription)")
+                print("WatchWorkoutTracking energy calories: \(error.localizedDescription)")
+                WatchKitConnection.shared.sendDebug("stop energy add error=\(error.localizedDescription) active=\(activeEnergyBurned) total=\(WorkoutTracking.totalKcal) basal=\(basalEnergyBurned)")
+            } else {
+                WatchKitConnection.shared.sendDebug("stop energy add success=\(success) active=\(activeEnergyBurned) total=\(WorkoutTracking.totalKcal) basal=\(basalEnergyBurned)")
             }
         }
                     

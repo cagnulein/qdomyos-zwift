@@ -123,6 +123,9 @@ extension WatchKitConnection: WCSessionDelegate {
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
         print("didReceiveMessage")
         print(message)
+        if let watchDebug = message["watchDebug"] as? String {
+            SwiftDebug.qtDebug("Watch debug: \(watchDebug)")
+        }
     }
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
@@ -132,6 +135,10 @@ extension WatchKitConnection: WCSessionDelegate {
         print(message)
         
         SwiftDebug.qtDebug("WatchKitConnection received payload: \(message)")
+
+        if let watchDebug = message["watchDebug"] as? String {
+            SwiftDebug.qtDebug("Watch debug: \(watchDebug)")
+        }
         
         if(message.keys.first?.description == "heartRate") {
             guard let heartReate = message.values.first as? String else {

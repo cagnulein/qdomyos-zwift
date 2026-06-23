@@ -35,6 +35,19 @@ class WatchKitConnection: NSObject {
     private override init() {
         super.init()
     }
+
+    private static func doubleValue(_ value: Any?) -> Double? {
+        if let value = value as? Double {
+            return value
+        }
+        if let value = value as? NSNumber {
+            return value.doubleValue
+        }
+        if let value = value as? String {
+            return Double(value)
+        }
+        return nil
+    }
     
     private let session: WCSession? = WCSession.isSupported() ? WCSession.default : nil
     
@@ -68,27 +81,35 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
     {
         validReachableSession?.sendMessage(message, replyHandler: { (result) in
             print(result)
-            let dDistance = Double(result["distance"] as! Double)
-            WatchKitConnection.distance = dDistance
-            let dKcal = Double(result["kcal"] as! Double)
-            WatchKitConnection.kcal = dKcal
-            WorkoutTracking.kcal = dKcal
-            if let totalKcalDouble = result["totalKcal"] as? Double {
+            if let dDistance = WatchKitConnection.doubleValue(result["distance"]) {
+                WatchKitConnection.distance = dDistance
+            }
+            if let dKcal = WatchKitConnection.doubleValue(result["kcal"]) {
+                WatchKitConnection.kcal = dKcal
+                WorkoutTracking.kcal = dKcal
+            } else {
+                WatchKitConnection.shared.sendDebug("reply missing kcal raw=\(result)")
+            }
+            if let totalKcalDouble = WatchKitConnection.doubleValue(result["totalKcal"]) {
                 WatchKitConnection.totalKcal = totalKcalDouble
                 WorkoutTracking.totalKcal = totalKcalDouble
+            } else {
+                WatchKitConnection.shared.sendDebug("reply missing totalKcal raw=\(result) localKcal=\(WatchKitConnection.kcal) localTotalKcal=\(WatchKitConnection.totalKcal)")
             }
-            
-            let dSpeed = Double(result["speed"] as! Double)
-            WatchKitConnection.speed = dSpeed
-            let dPower = Double(result["power"] as! Double)
-            WatchKitConnection.power = dPower
-            let dCadence = Double(result["cadence"] as! Double)
-            WatchKitConnection.cadence = dCadence
-            if let stepsDouble = result["steps"] as? Double {
+            if let dSpeed = WatchKitConnection.doubleValue(result["speed"]) {
+                WatchKitConnection.speed = dSpeed
+            }
+            if let dPower = WatchKitConnection.doubleValue(result["power"]) {
+                WatchKitConnection.power = dPower
+            }
+            if let dCadence = WatchKitConnection.doubleValue(result["cadence"]) {
+                WatchKitConnection.cadence = dCadence
+            }
+            if let stepsDouble = WatchKitConnection.doubleValue(result["steps"]) {
                 let iSteps = Int(stepsDouble)
                 WatchKitConnection.steps = iSteps
             }
-            if let elevationGainDouble = result["elevationGain"] as? Double {
+            if let elevationGainDouble = WatchKitConnection.doubleValue(result["elevationGain"]) {
                 WatchKitConnection.elevationGain = elevationGainDouble
                 // Calculate flights climbed and update WorkoutTracking
                 let flightsClimbed = elevationGainDouble / 3.048  // One flight = 10 feet = 3.048 meters
@@ -96,8 +117,15 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
                 WorkoutTracking.elevationGain = elevationGainDouble
                 print("WatchKitConnection: Received elevation gain: \(elevationGainDouble)m, flights: \(flightsClimbed)")
             }
+            WatchKitConnection.shared.sendDebug("reply parsed local distance=\(WatchKitConnection.distance) kcal=\(WatchKitConnection.kcal) totalKcal=\(WatchKitConnection.totalKcal) speed=\(WatchKitConnection.speed) power=\(WatchKitConnection.power) cadence=\(WatchKitConnection.cadence) steps=\(WatchKitConnection.steps) elevationGain=\(WatchKitConnection.elevationGain)")
         }, errorHandler: { (error) in
             print(error)
+        })
+    }
+
+    func sendDebug(_ message: String) {
+        validReachableSession?.sendMessage(["watchDebug": message as AnyObject], replyHandler: nil, errorHandler: { (error) in
+            print("Watch debug send error: \(error)")
         })
     }
 }
