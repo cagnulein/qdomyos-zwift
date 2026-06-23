@@ -1261,7 +1261,9 @@ ApplicationWindow {
                     onClicked: {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
-                        stackView.push("settings.qml")
+                        console.log("[DBG] Before push: depth=" + stackView.depth + " currentItem=" + stackView.currentItem)
+                        var pushed = stackView.push("settings.qml")
+                        console.log("[DBG] After push: depth=" + stackView.depth + " currentItem=" + stackView.currentItem + " pushed=" + pushed + " objectName=" + (pushed ? pushed.objectName : "null"))
                         if (stackView.currentItem && stackView.currentItem.peloton_connect_clicked) {
                             stackView.currentItem.peloton_connect_clicked.connect(function() {
                                 peloton_connect_clicked()
