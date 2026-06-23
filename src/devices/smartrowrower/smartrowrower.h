@@ -27,6 +27,8 @@
 #include <QString>
 
 #include "rower.h"
+#include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualrower.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -45,9 +47,13 @@ class smartrowrower : public rower {
     const resistance_t max_resistance = 32;
     double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(const QByteArray &packet);
+    QByteArray calculateSmartRowV3ChallengeResponse(const QByteArray &keylock) const;
+    QByteArray decodeSmartRowPacket(const QByteArray &packet) const;
     uint16_t wattsFromResistance(double resistance);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
+    void queueSmartRowWrite(const QByteArray &data);
+    void sendNextSmartRowWrite();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
@@ -66,12 +72,15 @@ class smartrowrower : public rower {
     uint8_t counterPoll = 1;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
+    QByteArray pendingSmartRowWrite;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     resistance_t lastResistanceBeforeDisconnection = -1;
 
     bool initDone = false;
     bool initRequest = false;
+    bool smartRowV3 = false;
+    bool smartRowV3ChallengeRequested = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;

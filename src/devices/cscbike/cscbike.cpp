@@ -1,5 +1,6 @@
 #include "cscbike.h"
 #include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualrower.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -26,6 +27,116 @@ cscbike::cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevi
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &cscbike::update);
     refresh->start(200ms);
+}
+
+void cscbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
+    if (!jorotoBike && !useCustomResistancePowerTable()) {
+        return;
+    }
+
+    resistance_t clampedResistance =
+        jorotoBike ? qBound<resistance_t>(1, resistance, 15) : clampedCustomResistance(resistance);
+    manualResistanceTarget = clampedResistance;
+    manualResistancePowerAdjustmentActive = true;
+    Resistance = clampedResistance;
+    emit resistanceRead(Resistance.value());
+
+    if (!manualResistancePowerAdjustmentToastShown && homeform::singleton()) {
+        homeform::singleton()->setToastRequested(
+            jorotoBike
+                ? QStringLiteral(
+                      "Manual resistance power adjustment enabled: power now scales with the Resistance tile value.")
+                : QStringLiteral(
+                      "Custom CSC power table enabled: power now follows the configured resistance/watt points."));
+        manualResistancePowerAdjustmentToastShown = true;
+    }
+}
+
+void cscbike::onManualResistanceAdjusted(resistance_t resistance) {
+    enableManualResistancePowerAdjustment(resistance);
+}
+
+uint16_t cscbike::manualResistanceAdjustedWatts() {
+    if (currentCadence().value() == 0) {
+        return 0;
+    }
+
+    const double cadenceOnlyWatts = currentCadence().value() * 1.2;
+    return qRound(cadenceOnlyWatts * manualResistancePowerMultiplier());
+}
+
+uint16_t cscbike::customResistanceAdjustedWatts(double cadence, resistance_t manualResistanceTarget) {
+    if (cadence == 0) {
+        return 0;
+    }
+
+    QSettings settings;
+    const double resistanceLevel1 =
+        settings.value(QZSettings::cscbike_custom_resistance_level_1,
+                       QZSettings::default_cscbike_custom_resistance_level_1)
+            .toDouble();
+    const double watt1 =
+        settings.value(QZSettings::cscbike_custom_watt_1, QZSettings::default_cscbike_custom_watt_1).toDouble();
+    const double resistanceLevel2 =
+        settings.value(QZSettings::cscbike_custom_resistance_level_2,
+                       QZSettings::default_cscbike_custom_resistance_level_2)
+            .toDouble();
+    const double watt2 =
+        settings.value(QZSettings::cscbike_custom_watt_2, QZSettings::default_cscbike_custom_watt_2).toDouble();
+    const double resistance = clampedCustomResistance(manualResistanceTarget);
+
+    if (resistanceLevel1 == resistanceLevel2) {
+        return qMax(0, qRound((watt1 + watt2) / 2.0));
+    }
+
+    const double slope = (watt2 - watt1) / (resistanceLevel2 - resistanceLevel1);
+    const double tableWatts = watt1 + ((resistance - resistanceLevel1) * slope);
+    const double cadenceAdjustedWatts = tableWatts * cadence / 80.0;
+    return qMax(0, qRound(cadenceAdjustedWatts));
+}
+
+resistance_t cscbike::customResistanceMax() {
+    QSettings settings;
+    const double resistanceLevel1 =
+        settings.value(QZSettings::cscbike_custom_resistance_level_1,
+                       QZSettings::default_cscbike_custom_resistance_level_1)
+            .toDouble();
+    const double resistanceLevel2 =
+        settings.value(QZSettings::cscbike_custom_resistance_level_2,
+                       QZSettings::default_cscbike_custom_resistance_level_2)
+            .toDouble();
+    return clampedCustomResistance(qRound(qMax(resistanceLevel1, resistanceLevel2)));
+}
+
+double cscbike::manualResistancePowerMultiplier() {
+    const double normalizedResistance = (qBound(1, static_cast<int>(manualResistanceTarget), 15) - 1) / 14.0;
+    return 1.0 + (normalizedResistance * normalizedResistance * 2.0);
+}
+
+bool cscbike::useCustomResistancePowerTable() {
+    QSettings settings;
+    return settings
+        .value(QZSettings::cscbike_custom_resistance_power_table,
+               QZSettings::default_cscbike_custom_resistance_power_table)
+        .toBool();
+}
+
+resistance_t cscbike::clampedCustomResistance(resistance_t resistance) {
+    QSettings settings;
+    int resistanceMin =
+        qRound(settings.value(QZSettings::zwift_erg_resistance_down,
+                              QZSettings::default_zwift_erg_resistance_down)
+                   .toDouble());
+    int resistanceMax =
+        qRound(settings.value(QZSettings::zwift_erg_resistance_up,
+                              QZSettings::default_zwift_erg_resistance_up)
+                   .toDouble());
+
+    if (resistanceMin > resistanceMax) {
+        qSwap(resistanceMin, resistanceMax);
+    }
+
+    return qBound(static_cast<resistance_t>(resistanceMin), resistance, static_cast<resistance_t>(resistanceMax));
 }
 /*
 void cscbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool
@@ -74,11 +185,20 @@ void cscbike::update() {
 
     bool rogue_echo_bike = settings.value(QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike).toBool();
     
-    if (rogue_echo_bike) {
+    if (manualResistancePowerAdjustmentActive && jorotoBike) {
+        m_watt = manualResistanceAdjustedWatts();
+    } else if (manualResistancePowerAdjustmentActive && useCustomResistancePowerTable()) {
+        m_watt = customResistanceAdjustedWatts(currentCadence().value(), manualResistanceTarget);
+    } else if (rogue_echo_bike) {
         double rpm = currentCadence().value();
         m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404;
     } else {
-        m_watt = wattFromHR(false);
+        // When cadence is zero, watts should be zero regardless of HR
+        if (currentCadence().value() == 0) {
+            m_watt = 0;
+        } else {
+            m_watt = wattFromHR(false);
+        }
     }
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
@@ -298,10 +418,14 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
               (2.0 * ar)) *
              settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
             settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-        Resistance = m_pelotonResistance;
+        if (manualResistancePowerAdjustmentActive) {
+            Resistance = manualResistanceTarget;
+        } else {
+            Resistance = m_pelotonResistance;
+        }
     } else {
         m_pelotonResistance = 0;
-        Resistance = 0;
+        Resistance = manualResistancePowerAdjustmentActive ? manualResistanceTarget : 0;
     }
     emit resistanceRead(Resistance.value());
 
@@ -454,6 +578,8 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_rower =
+            settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence =
@@ -468,11 +594,17 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
             if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-            connect(virtualBike, &virtualbike::changeInclination, this, &cscbike::changeInclination);
-            // connect(virtualBike,&virtualbike::debug ,this,&cscbike::debug);
-            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            if (virtual_device_rower) {
+                emit debug(QStringLiteral("creating virtual rower interface..."));
+                auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+            } else {
+                emit debug(QStringLiteral("creating virtual bike interface..."));
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                connect(virtualBike, &virtualbike::changeInclination, this, &cscbike::changeInclination);
+                // connect(virtualBike,&virtualbike::debug ,this,&cscbike::debug);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            }
         }
     }
     firstStateChanged = 1;
@@ -545,6 +677,7 @@ void cscbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        jorotoBike = bluetoothDevice.name().toUpper().startsWith(QStringLiteral("JOROTO-BK-"));
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &cscbike::serviceDiscovered);

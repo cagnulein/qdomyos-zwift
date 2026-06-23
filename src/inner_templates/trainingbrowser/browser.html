@@ -117,27 +117,49 @@
         .workout-title {
             font-size: 18px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 4px;
             color: white;
         }
 
         .workout-tags {
             font-size: 12px;
             color: #9ca3af;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         #chart-container {
             width: 100%;
             height: 400px;
-            background: white;
+            background: #1b2331;
             border-radius: 8px;
             padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         canvas {
             width: 100% !important;
-            height: 100% !important;
+            height: 360px !important;
+        }
+
+        #legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 6px 2px 2px;
+            font-size: 12px;
+            color: #8a94a6;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-swatch {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
         }
 
         .bottom-bar {
@@ -255,16 +277,18 @@
             background: #45a049;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="../chartjs/resize-observer.min.js"></script>
+    <script src="../chartjs/chartjs.3.4.1.min.js"></script>
+    <script src="../i18n/i18n.js"></script>
+    <script src="../workouteditor/workout-editor.js"></script>
 </head>
 <body>
     <div class="container">
         <!-- Left Panel: File Browser -->
         <div class="left-panel">
             <div class="filter-row">
-                <label>Filter:</label>
-                <input type="text" id="filterInput" placeholder="Search...">
+                <label data-i18n="trainingBrowser.filter">Filter:</label>
+                <input type="text" id="filterInput" placeholder="Search..." data-i18n-placeholder="trainingBrowser.searchPlaceholder">
                 <button id="backButton">←</button>
             </div>
             <div class="file-list" id="fileList">
@@ -275,28 +299,29 @@
         <!-- Right Panel: Preview -->
         <div class="right-panel">
             <div class="workout-info">
-                <div class="workout-title" id="workoutTitle">Select a workout to preview</div>
+                <div class="workout-title" id="workoutTitle" data-i18n="trainingBrowser.selectWorkoutPreview">Select a workout to preview</div>
                 <div class="workout-tags" id="workoutTags"></div>
             </div>
             <div id="chart-container">
                 <canvas id="workoutChart"></canvas>
             </div>
+            <div id="legend"></div>
         </div>
     </div>
 
     <!-- Bottom Bar -->
     <div class="bottom-bar">
-        <button id="otherFoldersBtn">Other Folders</button>
+        <button id="otherFoldersBtn" data-i18n="trainingBrowser.otherFolders">Other Folders</button>
     </div>
 
     <!-- Auto-start Modal Dialog -->
     <div class="modal" id="autoStartModal">
         <div class="modal-content">
-            <div class="modal-title">Start Workout?</div>
-            <div class="modal-text">Do you want to automatically start this workout?</div>
+            <div class="modal-title" data-i18n="trainingBrowser.startWorkoutQuestion">Start Workout?</div>
+            <div class="modal-text" data-i18n="trainingBrowser.autoStartQuestion">Do you want to automatically start this workout?</div>
             <div class="modal-buttons">
-                <button class="btn-yes" id="btnYes">Yes</button>
-                <button class="btn-no" id="btnNo">No</button>
+                <button class="btn-yes" id="btnYes" data-i18n="common.yes">Yes</button>
+                <button class="btn-no" id="btnNo" data-i18n="common.no">No</button>
             </div>
         </div>
     </div>
@@ -307,9 +332,13 @@
         let fileList = [];
         let selectedFile = null;
         let selectedIndex = -1;
-        let chart = null;
         let pendingWorkoutUrl = '';
         let ws = null;
+        let currentWorkoutPreview = null;
+
+        function tq(key, fallback) {
+            return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+        }
 
         // Check if running in Qt WebView (offline mode)
         window.QZ_OFFLINE = false;
@@ -317,6 +346,40 @@
             window.location.hostname === 'localhost' ||
             window.location.hostname === '127.0.0.1') {
             window.QZ_OFFLINE = true;
+        }
+
+        // Series definitions matching the workout editor (workout-editor-app.js SERIES_DEFS).
+        // Keys match the field names sent by the backend in the preview payload.
+        var SERIES_DEFS = {
+            treadmill: [
+                { key: 'speed',       labelKey: 'workoutEditor.speed',       label: 'Speed',       color: '#42a5f5', unit: 'km/h', axis: 'speedAxis',      axisLabelKey: 'workoutEditor.speedKmh',      axisLabel: 'Speed (km/h)',  axisPosition: 'left',  fill: true  },
+                { key: 'inclination', labelKey: 'workoutEditor.incline',     label: 'Incline',     color: '#26c6da', unit: '%',    axis: 'inclineAxis',    axisLabelKey: 'workoutEditor.inclinePercent', axisLabel: 'Incline (%)',   axisPosition: 'right', fill: false }
+            ],
+            bike: [
+                { key: 'watts',      labelKey: 'workoutEditor.power',      label: 'Power',       color: '#ef6c00', unit: 'W',    axis: 'powerAxis',      axisLabelKey: 'workoutEditor.powerW',      axisLabel: 'Power (W)',     axisPosition: 'left',  fill: true  },
+                { key: 'resistance', labelKey: 'workoutEditor.resistance', label: 'Resistance',  color: '#ab47bc', unit: 'lvl',  axis: 'resistanceAxis', axisLabelKey: 'workoutEditor.resistance', axisLabel: 'Resistance',    axisPosition: 'right', fill: false },
+                { key: 'cadence',    labelKey: 'workoutEditor.cadence',    label: 'Cadence',     color: '#29b6f6', unit: 'rpm',  axis: 'cadenceAxis',    axisLabelKey: 'workoutEditor.cadenceRpm',  axisLabel: 'Cadence (rpm)', axisPosition: 'right', fill: false }
+            ],
+            elliptical: [
+                { key: 'resistance', labelKey: 'workoutEditor.resistance', label: 'Resistance',  color: '#7e57c2', unit: 'lvl',  axis: 'resistanceAxis', axisLabelKey: 'workoutEditor.resistance', axisLabel: 'Resistance',    axisPosition: 'left',  fill: true  },
+                { key: 'inclination', labelKey: 'workoutEditor.ramp',       label: 'Ramp',       color: '#66bb6a', unit: '%',    axis: 'inclineAxis',    axisLabelKey: 'workoutEditor.rampPercent', axisLabel: 'Ramp (%)',      axisPosition: 'right', fill: false }
+            ],
+            rower: [
+                { key: 'watts',   labelKey: 'workoutEditor.power',      label: 'Power',       color: '#fb8c00', unit: 'W',   axis: 'powerAxis',    axisLabelKey: 'workoutEditor.powerW',            axisLabel: 'Power (W)',     axisPosition: 'left',  fill: true  },
+                { key: 'cadence', labelKey: 'workoutEditor.strokeRate', label: 'Stroke Rate', color: '#26a69a', unit: 'spm', axis: 'cadenceAxis',  axisLabelKey: 'workoutEditor.strokesPerMinute', axisLabel: 'Strokes/min',   axisPosition: 'right', fill: false }
+            ]
+        };
+
+        // Convert a raw value array to {x, y} point objects expected by workout-editor.js.
+        // Each element can already be {x, y} or a plain number (index = seconds).
+        function toPoints(arr) {
+            if (!Array.isArray(arr) || arr.length === 0) return [];
+            return arr.map(function(val, idx) {
+                if (val !== null && typeof val === 'object' && val.x !== undefined) {
+                    return { x: val.x, y: val.y };
+                }
+                return { x: idx, y: val };
+            });
         }
 
         // WebSocket setup for Qt communication
@@ -330,6 +393,7 @@
 
             ws.onopen = function() {
                 console.log('WebSocket connected');
+                sendMessage('webtranslations', {});
                 loadTrainingFolder('');
             };
 
@@ -381,6 +445,9 @@
             } else if (msgType === 'workoutpreview' || msgType === 'R_trainprogram_preview') {
                 const content = data.content || data;
                 handleWorkoutPreview(content);
+            } else if (msgType === 'R_webtranslations') {
+                window.qzSetTranslations(data.content || {});
+                updateWorkoutChartFromCurrent();
             }
         }
 
@@ -461,12 +528,13 @@
             if (!workout) return;
 
             console.log('Preview workout data:', workout);
+            currentWorkoutPreview = workout;
 
             // Update title and tags
-            document.getElementById('workoutTitle').textContent = workout.description || 'Workout Preview';
+            document.getElementById('workoutTitle').textContent = workout.description || tq('workoutEditor.workoutPreview', 'Workout Preview');
             document.getElementById('workoutTags').textContent = workout.tags || '';
 
-            // Convert arrays if needed (they might come as objects with x/y properties)
+            // Build normalised payload
             const workoutData = {
                 points: workout.points || 0,
                 watts: Array.isArray(workout.watts) ? workout.watts : [],
@@ -477,177 +545,75 @@
                 deviceType: workout.deviceType || 'bike'
             };
 
-            // Update chart
+            // Update chart using the shared workout-editor chart engine
             updateWorkoutChart(workoutData);
         }
 
-        // Update chart
-        function updateWorkoutChart(workout) {
-            const ctx = document.getElementById('workoutChart').getContext('2d');
-
-            // Destroy existing chart
-            if (chart) {
-                chart.destroy();
+        function updateWorkoutChartFromCurrent() {
+            if (currentWorkoutPreview) {
+                handleWorkoutPreview(currentWorkoutPreview);
             }
-
-            if (!workout || !workout.points || workout.points.length === 0) {
-                return;
-            }
-
-            // Determine primary metric
-            const primaryMetric = getPrimaryMetric(workout);
-
-            if (!primaryMetric) return;
-
-            // Prepare datasets
-            const datasets = [{
-                label: primaryMetric.label,
-                data: primaryMetric.data,
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.1,
-                pointRadius: 0,
-                yAxisID: 'y'
-            }];
-
-            // Add cadence as secondary metric for bikes
-            if (workout.deviceType === 'bike' && workout.cadence && workout.cadence.length > 0) {
-                datasets.push({
-                    label: 'Cadence (RPM)',
-                    data: workout.cadence,
-                    borderColor: '#f59e0b',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.1,
-                    pointRadius: 0,
-                    yAxisID: 'y1'
-                });
-            }
-
-            // Create chart
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    plugins: {
-                        legend: {
-                            display: datasets.length > 1,
-                            position: 'top'
-                        },
-                        tooltip: {
-                            enabled: true,
-                            mode: 'index',
-                            intersect: false,
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            borderColor: '#3b82f6',
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            title: {
-                                display: true,
-                                text: 'Time (seconds)',
-                                color: '#666'
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    const minutes = Math.floor(value / 60);
-                                    const seconds = Math.floor(value % 60);
-                                    return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-                                },
-                                color: '#666'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            position: 'left',
-                            title: {
-                                display: true,
-                                text: primaryMetric.label,
-                                color: '#3b82f6'
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            ticks: {
-                                color: '#3b82f6'
-                            }
-                        },
-                        y1: {
-                            beginAtZero: true,
-                            position: 'right',
-                            display: workout.deviceType === 'bike' && workout.cadence && workout.cadence.length > 0,
-                            title: {
-                                display: true,
-                                text: 'Cadence (RPM)',
-                                color: '#f59e0b'
-                            },
-                            grid: {
-                                drawOnChartArea: false
-                            },
-                            ticks: {
-                                color: '#f59e0b'
-                            }
-                        }
-                    }
-                }
-            });
         }
 
-        // Get primary metric based on device type
-        function getPrimaryMetric(workout) {
-            const { watts, speed, inclination, resistance, deviceType } = workout;
+        // Convert preview payload to workout-editor series format and render via WorkoutEditorApp.
+        function updateWorkoutChart(workout) {
+            if (!workout) return;
 
-            // For bikes: show watts
-            if (deviceType === 'bike' && watts && watts.length > 0) {
-                return { label: 'Power (W)', data: watts };
+            // The C++ backend always populates the watts array even for treadmill workouts
+            // where power is unset (sent as y = -1).  Detect the actual device type from
+            // the data by checking whether any watts value is valid (>= 0).
+            var hasValidWatts = Array.isArray(workout.watts) && workout.watts.some(function(p) {
+                return (p !== null && typeof p === 'object' && p.y !== undefined) ? p.y >= 0 : Number(p) >= 0;
+            });
+            var hasSpeed = Array.isArray(workout.speed) && workout.speed.length > 0;
+            var hasResistance = Array.isArray(workout.resistance) && workout.resistance.length > 0;
+
+            var deviceType;
+            if (!hasValidWatts && hasSpeed) {
+                deviceType = 'treadmill';
+            } else if (!hasValidWatts && hasResistance) {
+                deviceType = 'elliptical';
+            } else {
+                deviceType = workout.deviceType || 'bike';
             }
 
-            // For treadmills: show speed
-            if (deviceType === 'treadmill' && speed && speed.length > 0) {
-                return { label: 'Speed (km/h)', data: speed };
-            }
+            const seriesDefs = SERIES_DEFS[deviceType] || SERIES_DEFS.bike;
 
-            // For ellipticals/rowers: watts or resistance
-            if (deviceType === 'elliptical' || deviceType === 'rower') {
-                if (watts && watts.length > 0) {
-                    return { label: 'Power (W)', data: watts };
+            // Derive totalSeconds from the longest non-empty array
+            var totalSeconds = 0;
+            ['watts', 'speed', 'inclination', 'resistance', 'cadence'].forEach(function(k) {
+                if (Array.isArray(workout[k]) && workout[k].length > totalSeconds) {
+                    totalSeconds = workout[k].length;
                 }
-                if (resistance && resistance.length > 0) {
-                    return { label: 'Resistance', data: resistance };
+            });
+
+            // Build series list – only include series that have data (filter invalid y < 0 for watts)
+            var series = [];
+            seriesDefs.forEach(function(def) {
+                var points = toPoints(workout[def.key]);
+                // For watts, skip data points where power is invalid (y < 0 means unset)
+                if (def.key === 'watts') {
+                    points = points.filter(function(p) { return p.y >= 0; });
                 }
-            }
+                if (points.length > 0) {
+                    series.push({
+                        key: def.key,
+                        label: tq(def.labelKey, def.label),
+                        color: def.color,
+                        unit: def.unit,
+                        axis: def.axis,
+                        axisLabel: tq(def.axisLabelKey, def.axisLabel),
+                        axisPosition: def.axisPosition,
+                        fill: def.fill,
+                        points: points
+                    });
+                }
+            });
 
-            // Default: try watts, speed, resistance in order
-            if (watts && watts.length > 0) {
-                return { label: 'Power (W)', data: watts };
-            }
-            if (speed && speed.length > 0) {
-                return { label: 'Speed (km/h)', data: speed };
-            }
-            if (resistance && resistance.length > 0) {
-                return { label: 'Resistance', data: resistance };
-            }
-
-            return null;
+            WorkoutEditorApp.update({
+                totalSeconds: totalSeconds,
+                series: series
+            });
         }
 
         // Show auto-start dialog
@@ -711,15 +677,6 @@
         // Initialize
         window.addEventListener('load', function() {
             setupWebSocket();
-
-            // Initialize empty chart
-            updateWorkoutChart({
-                points: [],
-                watts: [],
-                speed: [],
-                resistance: [],
-                deviceType: 'bike'
-            });
         });
     </script>
 </body>

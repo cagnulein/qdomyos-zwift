@@ -31,27 +31,70 @@ ApplicationWindow {
     
     // Helper functions for cleaner padding calculations
     function getTopPadding() {
+        // Add padding for iPadOS multi-window mode (Stage Manager, Split View, Slide Over)
+        // to avoid overlap with window control buttons (red/yellow/green)
+        // Check both the native detection and window size comparison for reactivity
+        if (Qt.platform.os === "ios") {
+            var isMultiWindow = (typeof rootItem !== "undefined" && rootItem && rootItem.iPadMultiWindowMode) ||
+                                (window.width < Screen.width - 10);  // Window smaller than screen = multi-window
+            if (isMultiWindow) {
+                return 15;  // Space for window control buttons
+            }
+        }
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
                AndroidStatusBar.height : AndroidStatusBar.leftInset;
     }
-    
+
     function getBottomPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
                AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
     }
-    
+
     function getLeftPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                AndroidStatusBar.leftInset : 0;
     }
     
     function getRightPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 
+        return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                AndroidStatusBar.rightInset : 0;
+    }
+
+    function isConfiguringShortcuts() {
+        // Check if a TextField in the shortcuts settings has active focus
+        // This prevents global shortcuts from intercepting key presses when configuring them
+        var focusItem = window.activeFocusItem;
+        if (!focusItem) return false;
+
+        // Walk up the parent hierarchy to check if we're inside settingsShortcutsPane
+        var current = focusItem;
+        while (current) {
+            if (current.objectName === "settingsShortcutsPane") {
+                return true;
+            }
+            current = current.parent;
+        }
+        return false;
+    }
+
+    function shortcutReady(sequence) {
+        return Qt.platform.os !== "ios" && settings.shortcuts_enabled && !isConfiguringShortcuts() && String(sequence).length > 0;
+    }
+    function stripBluetoothDeviceName(deviceName) {
+        return deviceName.replace(/ \(\d+%\)$/, "")
+    }
+
+    function maybeOpenGymModePopup() {
+        if (typeof rootItem === "undefined" || !rootItem) {
+            return
+        }
+        if (settings.gym_mode && !rootItem.hasConnectedDevice() && !gymModePopupDismissed && !popupGymMode.visible) {
+            popupGymMode.open()
+        }
     }
 
     signal gpx_open_clicked(url name)
@@ -88,6 +131,7 @@ ApplicationWindow {
 
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
+    property bool gymModePopupDismissed: false
 
     Settings {
         id: settings
@@ -96,6 +140,75 @@ ApplicationWindow {
         property bool volume_change_gears: false
         property string peloton_username: "username"
         property string peloton_password: "password"
+
+        property bool gym_mode: false
+
+        property bool shortcuts_enabled: false
+        property string shortcut_speed_plus: ""
+        property string shortcut_speed_minus: ""
+        property string shortcut_inclination_plus: ""
+        property string shortcut_inclination_minus: ""
+        property string shortcut_resistance_plus: ""
+        property string shortcut_resistance_minus: ""
+        property string shortcut_peloton_resistance_plus: ""
+        property string shortcut_peloton_resistance_minus: ""
+        property string shortcut_target_resistance_plus: ""
+        property string shortcut_target_resistance_minus: ""
+        property string shortcut_target_power_plus: ""
+        property string shortcut_target_power_minus: ""
+        property string shortcut_target_zone_plus: ""
+        property string shortcut_target_zone_minus: ""
+        property string shortcut_target_speed_plus: ""
+        property string shortcut_target_speed_minus: ""
+        property string shortcut_target_incline_plus: ""
+        property string shortcut_target_incline_minus: ""
+        property string shortcut_fan_plus: ""
+        property string shortcut_fan_minus: ""
+        property string shortcut_peloton_offset_plus: ""
+        property string shortcut_peloton_offset_minus: ""
+        property string shortcut_peloton_remaining_plus: ""
+        property string shortcut_peloton_remaining_minus: ""
+        property string shortcut_remaining_time_plus: ""
+        property string shortcut_remaining_time_minus: ""
+        property string shortcut_gears_plus: ""
+        property string shortcut_gears_minus: ""
+        property string shortcut_pid_hr_plus: ""
+        property string shortcut_pid_hr_minus: ""
+        property string shortcut_ext_incline_plus: ""
+        property string shortcut_ext_incline_minus: ""
+        property string shortcut_biggears_plus: ""
+        property string shortcut_biggears_minus: ""
+        property string shortcut_avs_cruise: ""
+        property string shortcut_avs_climb: ""
+        property string shortcut_avs_sprint: ""
+        property string shortcut_power_avg: ""
+        property string shortcut_erg_mode: ""
+        property string shortcut_preset_resistance_1: ""
+        property string shortcut_preset_resistance_2: ""
+        property string shortcut_preset_resistance_3: ""
+        property string shortcut_preset_resistance_4: ""
+        property string shortcut_preset_resistance_5: ""
+        property string shortcut_preset_speed_1: ""
+        property string shortcut_preset_speed_2: ""
+        property string shortcut_preset_speed_3: ""
+        property string shortcut_preset_speed_4: ""
+        property string shortcut_preset_speed_5: ""
+        property string shortcut_preset_inclination_1: ""
+        property string shortcut_preset_inclination_2: ""
+        property string shortcut_preset_inclination_3: ""
+        property string shortcut_preset_inclination_4: ""
+        property string shortcut_preset_inclination_5: ""
+        property string shortcut_preset_powerzone_1: ""
+        property string shortcut_preset_powerzone_2: ""
+        property string shortcut_preset_powerzone_3: ""
+        property string shortcut_preset_powerzone_4: ""
+        property string shortcut_preset_powerzone_5: ""
+        property string shortcut_preset_powerzone_6: ""
+        property string shortcut_preset_powerzone_7: ""
+        property string shortcut_auto_resistance: ""
+        property string shortcut_lap: ""
+        property string shortcut_start_stop: ""
+        property string shortcut_stop: ""
     }
 
 
@@ -151,6 +264,22 @@ ApplicationWindow {
         onTriggered: {
             toast.show(rootItem.toastRequested);
             rootItem.toastRequested = "";
+        }
+    }
+
+    Timer {
+       id: gymModeStartupTimer
+       interval: 1500
+       running: true
+       repeat: true
+       onTriggered: {
+            if (typeof rootItem === "undefined" || !rootItem) {
+                return
+            }
+            maybeOpenGymModePopup()
+            if (popupGymMode.visible || rootItem.hasConnectedDevice() || gymModePopupDismissed || !settings.gym_mode) {
+                stop()
+            }
         }
     }
 
@@ -232,8 +361,8 @@ ApplicationWindow {
 
     MessageDialog {
            id: popupPelotonAuth
-           text: "Peloton Authentication Change"
-           informativeText: "Peloton has moved to a new authentication system. Username and password are no longer required.\n\nWould you like to switch to the new authentication method now?"
+           text: qsTr("Peloton Authentication Change")
+           informativeText: qsTr("Peloton has moved to a new authentication system. Username and password are no longer required.\n\nWould you like to switch to the new authentication method now?")
            buttons: (MessageDialog.Yes | MessageDialog.No)
            onYesClicked: {
                settings.peloton_username = "username"
@@ -285,6 +414,84 @@ ApplicationWindow {
              text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings\nand enable the QZ Classifica setting in the\nexperimental settings section and\nrestart the app.")
             }
          }
+    }
+
+    Popup {
+        id: popupGymMode
+        parent: Overlay.overlay
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        width: Math.min(parent.width - 30, 720)
+        height: Math.min(parent.height - 40, 260)
+        modal: true
+        focus: true
+        closePolicy: Popup.NoAutoClose
+        onOpened: refresh_bluetooth_devices_clicked()
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 18
+            spacing: 14
+
+            Label {
+                width: parent.width
+                text: qsTr("Select Your Gym Device")
+                font.pixelSize: Qt.application.font.pixelSize + 10
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+            }
+
+            Label {
+                width: parent.width
+                text: qsTr("QZ found the nearby Bluetooth trainers. Choose the machine you want to use for this session.")
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            ComboBox {
+                id: gymModeDeviceComboBox
+                width: parent.width
+                model: rootItem.bluetoothDevices
+                displayText: currentIndex >= 0 ? currentValue : qsTr("Select a device")
+                currentIndex: -1
+                font.pixelSize: Qt.application.font.pixelSize + 8
+
+                onActivated: {
+                    var selectedDevice = stripBluetoothDeviceName(currentValue)
+                    if (selectedDevice === "Disabled" || selectedDevice === "Wifi" || selectedDevice.length === 0) {
+                        return
+                    }
+                    popupGymMode.close()
+                    rootItem.selectGymModeDevice(selectedDevice)
+                }
+            }
+
+            Label {
+                width: parent.width
+                text: qsTr("The list refreshes automatically every 10 seconds.")
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+                color: Material.color(Material.Grey)
+            }
+
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Skip")
+                onClicked: {
+                    gymModePopupDismissed = true
+                    popupGymMode.close()
+                }
+            }
+        }
+    }
+
+    Timer {
+        id: gymModeRefreshTimer
+        interval: 10000
+        repeat: true
+        running: popupGymMode.visible
+        onTriggered: refresh_bluetooth_devices_clicked()
     }
 
     Popup {
@@ -493,8 +700,8 @@ ApplicationWindow {
 
     MessageDialog {
         id: popupRestartApp
-        text: "Settings changed"
-        informativeText: "In order to apply the changes you need to restart the app.\nDo you want to do it now?"
+        text: qsTr("Settings changed")
+        informativeText: qsTr("In order to apply the changes you need to restart the app.\nDo you want to do it now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
@@ -502,18 +709,172 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Strava"
-        informativeText: "Do you want to upload the workout to Strava?"
+        text: qsTr("Strava")
+        informativeText: qsTr("Do you want to upload the workout to Strava?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {strava_upload_file_prepare(); rootItem.stravaUploadRequested = false;}
         onNoClicked: {rootItem.stravaUploadRequested = false;}
         visible: rootItem.stravaUploadRequested
     }
 
+    MessageDialog {
+        text: qsTr("Garmin Workout Planned")
+        informativeText: qsTr("Workout found:\n") + rootItem.garminWorkoutPromptName +
+                         (rootItem.garminWorkoutPromptDate.length > 0 ? qsTr("\nDate: ") + rootItem.garminWorkoutPromptDate : "") +
+                         qsTr("\n\nDo you want to start it now?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.garmin_start_downloaded_workout(); }
+        onNoClicked: { rootItem.garmin_dismiss_downloaded_workout_prompt(); }
+        visible: rootItem.garminWorkoutPromptRequested
+    }
+
+    MessageDialog {
+        text: "Clipboard Workout"
+        informativeText: "Workout found in clipboard:\n" + rootItem.clipboardWorkoutPromptName +
+                         "\n\nDo you want to open the workout preview?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            var workoutUrl = rootItem.clipboard_workout_url()
+            rootItem.clipboard_accept_workout_prompt()
+            var page = CHARTJS
+                    ? stackView.push("TrainingProgramsListJS.qml", { initialWorkoutUrl: workoutUrl })
+                    : stackView.push("TrainingProgramsList.qml", { initialWorkoutUrl: workoutUrl })
+            page.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+            page.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
+            page.trainprogram_preview.connect(trainprogram_preview)
+            if (page.trainprogram_autostart_requested) {
+                page.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
+            }
+            page.trainprogram_open_clicked.connect(function(url) {
+                stackView.pop();
+            });
+        }
+        onNoClicked: { rootItem.clipboard_dismiss_workout_prompt(); }
+        visible: rootItem.clipboardWorkoutPromptRequested
+    }
+
+    MessageDialog {
+        text: "Clipboard Workout"
+        informativeText: "The clipboard workout has ended.\n\nDo you want to delete the file?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: rootItem.clipboard_delete_finished_workout()
+        onNoClicked: rootItem.clipboard_keep_finished_workout()
+        visible: rootItem.clipboardWorkoutDeletePromptRequested
+    }
+
+    MessageDialog {
+        text: "Echelon Unlock"
+        informativeText: "The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.echelon_switch_to_classic_bridge(); }
+        onNoClicked: { rootItem.echelon_dismiss_bridge_switch_prompt(); }
+        visible: rootItem.echelonBridgeSwitchPromptRequested
+    }
+
+    Popup {
+        id: echelonEnablePopup
+        parent: Overlay.overlay
+        modal: true
+        focus: true
+        closePolicy: Popup.NoAutoClose
+        width: Math.min(window.width - 40, 460)
+        height: Math.min(window.height - 60, 420)
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        visible: rootItem.echelonEnablePromptRequested
+
+        background: Rectangle {
+            radius: 8
+            color: Material.background
+            border.color: Material.accent
+            border.width: 1
+        }
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 16
+            spacing: 12
+
+            Label {
+                width: parent.width
+                text: "Echelon Locked Bike"
+                font.bold: true
+                font.pixelSize: 20
+                wrapMode: Text.WordWrap
+            }
+
+            ScrollView {
+                width: parent.width
+                height: parent.height - buttonsRow.height - 52
+                clip: true
+
+                TextArea {
+                    width: echelonEnablePopup.width - 56
+                    readOnly: true
+                    wrapMode: TextEdit.Wrap
+                    selectByMouse: true
+                    text:
+                        "Your bike is locked by Echelon, but QZ can unlock it.\n\n" +
+                        "Enable Virtual Echelon in the experimental settings and restart qz, then open the official Echelon app on a separate device and connect to the bike once.\n\n" +
+                        "After initialization, return to QZ and everything will work normally.\n\n" +
+                        "You have to repeat this for each session, would you like to enable the Virtual Echelon setting now for this?"
+                }
+            }
+
+            Row {
+                id: buttonsRow
+                width: parent.width
+                spacing: 12
+                layoutDirection: Qt.RightToLeft
+
+                Button {
+                    text: "Yes"
+                    onClicked: rootItem.echelon_enable_virtual_bridge()
+                }
+
+                Button {
+                    text: "No"
+                    onClicked: rootItem.echelon_dismiss_enable_prompt()
+                }
+            }
+        }
+    }
+
+    MessageDialog {
+        id: stravaLogoutConfirm
+        text: qsTr("Strava")
+        informativeText: qsTr("You are already connected to Strava. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.strava_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    MessageDialog {
+        id: pelotonLogoutConfirm
+        text: qsTr("Peloton")
+        informativeText: qsTr("You are already connected to Peloton. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.peloton_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    MessageDialog {
+        id: intervalsICULogoutConfirm
+        text: qsTr("Intervals.icu")
+        informativeText: qsTr("You are already connected to Intervals.icu. Do you want to log out?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.intervalsicu_logout(); }
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
+        property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
         topPadding: getTopPadding()
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
@@ -638,6 +999,20 @@ ApplicationWindow {
         }
 
         ToolButton {
+            id: toolButtonSettingsSearch
+            text: "\uD83D\uDD0D"
+            font.pixelSize: Qt.application.font.pixelSize * 1.25
+            onClicked: {
+                if (headerToolbar.settingsPageActive)
+                    stackView.currentItem.showSettingsSearch()
+            }
+            anchors.right: toolButtonLoadSettings.left
+            visible: headerToolbar.settingsPageActive
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Search settings")
+        }
+
+        ToolButton {
             id: toolButtonSaveSettings
             icon.source: "icons/icons/tray-arrow-down.png"
             onClicked: {
@@ -713,6 +1088,8 @@ ApplicationWindow {
             icon.source: ( rootItem.autoResistance ? "icons/icons/resistance.png" : "icons/icons/pause.png")
             onClicked: { rootItem.autoResistance = !rootItem.autoResistance; console.log("auto resistance toggled " + rootItem.autoResistance); popupAutoResistance.open(); popupAutoResistanceAutoClose.running = true; }
             anchors.right: parent.right
+            visible: !headerToolbar.settingsPageActive
+            width: visible ? implicitWidth : 0
         }
 
         Label {
@@ -739,6 +1116,7 @@ ApplicationWindow {
 
             Column {
                 anchors.fill: parent
+                spacing: 3
 
                 ItemDelegate {
                     text: qsTr("Profile: ") + settings.profile_name
@@ -924,7 +1302,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.20.19"
+                    text: "version 2.21.5"
                     width: parent.width
                 }
 
@@ -940,9 +1318,14 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebStravaAuth.qml")
-                        strava_connect_clicked()
-                        drawer.close()
+                        if (rootItem.isStravaLoggedIn()) {
+                            stravaLogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebStravaAuth.qml")
+                            strava_connect_clicked()
+                            drawer.close()
+                        }
                     }
                 }
 
@@ -957,11 +1340,45 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebPelotonAuth.qml")
-                        stackView.currentItem.goBack.connect(function() {
-                            stackView.pop();
-                        })
-                        peloton_connect_clicked()
+                        if (rootItem.isPelotonLoggedIn()) {
+                            pelotonLogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebPelotonAuth.qml")
+                            stackView.currentItem.goBack.connect(function() {
+                                stackView.pop();
+                            })
+                            peloton_connect_clicked()
+                            drawer.close()
+                        }
+                    }
+                }
+
+                ItemDelegate {
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/garmin-connect-badge.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                        height: 48
+                    }
+                    width: parent.width
+                    onClicked: {
+                        toolButtonLoadSettings.visible = true;
+                        toolButtonSaveSettings.visible = true;
+                        stackView.push("settings.qml")
+                        if (stackView.currentItem) {
+                            if (stackView.currentItem.openGarminSection) {
+                                stackView.currentItem.openGarminSection()
+                            }
+                            if (stackView.currentItem.peloton_connect_clicked) {
+                                stackView.currentItem.peloton_connect_clicked.connect(function() {
+                                    peloton_connect_clicked()
+                                });
+                            }
+                        }
                         drawer.close()
                     }
                 }
@@ -977,9 +1394,14 @@ ApplicationWindow {
                     }
                     width: parent.width
                     onClicked: {
-                        stackView.push("WebIntervalsICUAuth.qml")
-                        intervalsicu_connect_clicked()
-                        drawer.close()
+                        if (rootItem.isIntervalsICULoggedIn()) {
+                            intervalsICULogoutConfirm.visible = true
+                            drawer.close()
+                        } else {
+                            stackView.push("WebIntervalsICUAuth.qml")
+                            intervalsicu_connect_clicked()
+                            drawer.close()
+                        }
                     }
                 }
 
@@ -1016,19 +1438,84 @@ ApplicationWindow {
             anchors.leftMargin: getLeftPadding()
             focus: true
             Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
-        Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
-        Keys.onPressed: (event)=> {
-            if (event.key === Qt.Key_MediaPrevious)
-                keyMediaPrevious();
-            else if (event.key === Qt.Key_MediaNext)
-                keyMediaNext();
-            else if (OS_VERSION === "Other" && event.key === Qt.Key_Z)
-                volumeDown();
-            else if (OS_VERSION === "Other" && event.key === Qt.Key_X)
-                volumeUp();
+            Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
+            Keys.onPressed: (event)=> {
+                if (event.key === Qt.Key_MediaPrevious) {
+                    keyMediaPrevious();
+                    event.accepted = true;
+                } else if (event.key === Qt.Key_MediaNext) {
+                    keyMediaNext();
+                    event.accepted = true;
+                } else {
+                    event.accepted = false;
+                }
+            }
 
-            event.accepted = settings.volume_change_gears;
-        }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_speed_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("speed") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_speed_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("speed") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_inclination_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("inclination") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_inclination_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("inclination") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_resistance_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("resistance") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_resistance_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("resistance") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_peloton_resistance_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("peloton_resistance") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_peloton_resistance_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("peloton_resistance") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_resistance_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("target_resistance") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_resistance_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("target_resistance") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_power_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("target_power") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_power_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("target_power") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_zone_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("target_zone") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_zone_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("target_zone") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_speed_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("target_speed") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_speed_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("target_speed") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_incline_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("target_inclination") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_target_incline_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("target_inclination") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_fan_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("fan") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_fan_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("fan") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_peloton_offset_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("peloton_offset") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_peloton_offset_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("peloton_offset") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_peloton_remaining_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("peloton_remaining") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_peloton_remaining_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("peloton_remaining") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_remaining_time_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("remainingtimetrainprogramrow") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_remaining_time_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("remainingtimetrainprogramrow") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_gears_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("gears") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_gears_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("gears") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_pid_hr_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("pid_hr") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_pid_hr_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("pid_hr") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_ext_incline_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardPlus("external_inclination") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_ext_incline_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardMinus("external_inclination") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_biggears_plus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("biggearsplus") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_biggears_minus; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("biggearsminus") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_avs_cruise; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("autoVirtualShiftingCruise") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_avs_climb; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("autoVirtualShiftingClimb") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_avs_sprint; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("autoVirtualShiftingSprint") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_power_avg; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("powerAvg") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_erg_mode; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("erg_mode") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_resistance_1; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_resistance_1") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_resistance_2; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_resistance_2") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_resistance_3; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_resistance_3") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_resistance_4; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_resistance_4") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_resistance_5; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_resistance_5") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_1; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_1") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_2; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_2") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_3; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_3") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_4; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_4") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_speed_5; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_speed_5") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_1; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_1") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_2; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_2") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_3; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_3") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_4; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_4") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_inclination_5; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_inclination_5") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_1; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_1") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_2; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_2") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_3; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_3") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_4; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_4") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_5; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_5") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_6; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_6") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_preset_powerzone_7; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLargeButton("preset_powerzone_7") }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_auto_resistance; enabled: shortcutReady(sequence); onActivated: rootItem.setAutoResistance(!rootItem.autoResistance) }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_lap; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLap() }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_start_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStartStop() }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStop() }
         }
     }
 }

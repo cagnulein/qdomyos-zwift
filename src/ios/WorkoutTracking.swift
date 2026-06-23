@@ -35,6 +35,7 @@ protocol WorkoutTrackingProtocol {
     public static var totalKcal = Double()
     public static var steps = Double()
     public static var flightsClimbed = Double()
+    public static var elevationGain = Double()
     static var sport: Int = 0
     static let healthStore = HKHealthStore()
     static let configuration = HKWorkoutConfiguration()
@@ -43,6 +44,7 @@ protocol WorkoutTrackingProtocol {
     private var heartRateQuery: HKAnchoredObjectQuery?
     private var heartRateQueryAnchor: HKQueryAnchor?
     private let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
+    private let cadenceUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
     private let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)
     private static var isUsingBluetoothHR: Bool = false
     private static var firstWorkout: Bool = true
@@ -138,6 +140,40 @@ extension WorkoutTracking {
             self.delegate?.didReceiveHealthKitHeartRate(bpm)
         }
     }
+
+    private func addBluetoothHeartRateSample(heartRate: Double, start: Date, end: Date) {
+        if heartRate <= 0 || heartRate > 250 {
+            SwiftDebug.qtDebug("WorkoutTracking: Invalid HR value: \(heartRate)")
+            return
+        }
+
+        // QZ-provided HR wins only when QZ sends a valid value. If QZ has no HR, keep the
+        // HealthKit query active so AirPods/Apple Watch/native HealthKit sources can feed HR directly.
+        if !WorkoutTracking.isUsingBluetoothHR {
+            SwiftDebug.qtDebug("WorkoutTracking: Switching to Bluetooth HR source")
+            stopHeartRateStreamingQuery()
+            WorkoutTracking.isUsingBluetoothHR = true
+        }
+
+        guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
+            SwiftDebug.qtDebug("WorkoutTracking: Heart rate type unavailable")
+            return
+        }
+
+        let heartRateQuantity = HKQuantity(unit: heartRateUnit, doubleValue: heartRate)
+        let heartRateSample = HKQuantitySample(type: heartRateType,
+                                               quantity: heartRateQuantity,
+                                               start: start,
+                                               end: end)
+
+        WorkoutTracking.workoutBuilder.add([heartRateSample]) { (success, error) in
+            if let error = error {
+                SwiftDebug.qtDebug("WorkoutTracking HR: " + error.localizedDescription)
+            } else {
+                SwiftDebug.qtDebug("WorkoutTracking: HR written to HealthKit: \(heartRate) BPM")
+            }
+        }
+    }
 }
 
 @available(iOS 17.0, *)
@@ -183,7 +219,25 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         HKSampleType.workoutType()
                         ])
                 } else {
-                    // Fallback on earlier versions
+                    infoToShare = Set([
+                        HKSampleType.quantityType(forIdentifier: .stepCount)!,
+                        HKSampleType.quantityType(forIdentifier: .heartRate)!,
+                        HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
+                        HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
+                        HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
+                        HKSampleType.quantityType(forIdentifier: .basalEnergyBurned)!,
+                        HKSampleType.quantityType(forIdentifier: .cyclingPower)!,
+                        HKSampleType.quantityType(forIdentifier: .cyclingSpeed)!,
+                        HKSampleType.quantityType(forIdentifier: .cyclingCadence)!,
+                        HKSampleType.quantityType(forIdentifier: .runningPower)!,
+                        HKSampleType.quantityType(forIdentifier: .runningSpeed)!,
+                        HKSampleType.quantityType(forIdentifier: .runningStrideLength)!,
+                        HKSampleType.quantityType(forIdentifier: .runningVerticalOscillation)!,
+                        HKSampleType.quantityType(forIdentifier: .walkingSpeed)!,
+                        HKSampleType.quantityType(forIdentifier: .walkingStepLength)!,
+                        HKSampleType.quantityType(forIdentifier: .flightsClimbed)!,
+                        HKSampleType.workoutType()
+                        ])
                 }
             } else {
                 // Fallback on earlier versions
@@ -225,8 +279,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.authorizeHealthKit()
         WorkoutTracking.workoutInProgress = true;
         WorkoutTracking.lastDateMetric = Date()
-        // Reset flights climbed and previous distance for new workout
+        // Reset flights climbed, elevation gain and previous distance for new workout
         WorkoutTracking.flightsClimbed = 0
+        WorkoutTracking.elevationGain = 0
         WorkoutTracking.previousDistance = 0
         SwiftDebug.qtDebug("WorkoutTracking: Start workout")
         setSport(Int(deviceType))
@@ -283,22 +338,43 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         let quantityMiles = HKQuantity(unit: unitDistance,
                                   doubleValue: miles)
         
-        if(WorkoutTracking.sport == 2 || WorkoutTracking.sport == 4) {
+        if(WorkoutTracking.sport == 2 || WorkoutTracking.sport == 3 || WorkoutTracking.sport == 4) {
+            if WorkoutTracking.sport == 3 {
+                if #available(iOS 18.0, *),
+                   let quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceRowing) {
+                    let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
+                                                                  quantity: quantityMiles,
+                                                                  start: startDate,
+                                                                  end: Date())
 
-            guard let quantityTypeDistance = HKQuantityType.quantityType(
-                    forIdentifier: .distanceCycling) else {
-              return
+                    workoutBuilder.add([sampleDistance]) {(success, error) in
+                        if let error = error {
+                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                        }
+                    }
+                }
+            } else if WorkoutTracking.sport == 4 {
+                guard let quantityTypeDistance = HKQuantityType.quantityType(
+                        forIdentifier: .distanceCycling) else {
+                  return
+                }
+
+                let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
+                                                              quantity: quantityMiles,
+                                                              start: startDate,
+                                                              end: Date())
+
+                workoutBuilder.add([sampleDistance]) {(success, error) in
+                    if let error = error {
+                        SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                    }
+                }
             }
-
-
-            let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
-                                                          quantity: quantityMiles,
-                                                          start: startDate,
-                                                          end: Date())
-
-            workoutBuilder.add([sampleDistance]) {(success, error) in
-                if let error = error {
-                    SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+            if WorkoutTracking.elevationGain > 0 {
+                WorkoutTracking.workoutBuilder.addMetadata([HKMetadataKeyElevationAscended: HKQuantity(unit: HKUnit.meter(), doubleValue: WorkoutTracking.elevationGain)]) { (_, error) in
+                    if let error = error {
+                        SwiftDebug.qtDebug("WorkoutTracking elevation metadata: " + error.localizedDescription)
+                    }
                 }
             }
             WorkoutTracking.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
@@ -309,7 +385,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         if let error = error {
                             SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                         }
-                        workout?.setValue(quantityMiles, forKey: "totalDistance")
+                        if WorkoutTracking.sport == 3 || WorkoutTracking.sport == 4 {
+                            workout?.setValue(quantityMiles, forKey: "totalDistance")
+                        }
                         // Set total energy burned on the workout
                         let totalEnergy = WorkoutTracking.totalKcal > 0 ? WorkoutTracking.totalKcal : activeEnergyBurned
                         let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
@@ -369,6 +447,14 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     return
                 }
 
+                if WorkoutTracking.elevationGain > 0 {
+                    WorkoutTracking.workoutBuilder.addMetadata([HKMetadataKeyElevationAscended: HKQuantity(unit: HKUnit.meter(), doubleValue: WorkoutTracking.elevationGain)]) { (_, error) in
+                        if let error = error {
+                            SwiftDebug.qtDebug("WorkoutTracking elevation metadata: " + error.localizedDescription)
+                        }
+                    }
+                }
+
                 // End the data collection - only do this once
                 WorkoutTracking.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
@@ -390,8 +476,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
                         workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
 
-                        // Reset flights climbed for next workout
+                        // Reset flights climbed and elevation gain for next workout
                         WorkoutTracking.flightsClimbed = 0
+                        WorkoutTracking.elevationGain = 0
                     }
                 }
             }
@@ -400,14 +487,16 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.workoutInProgress = false;
     }
     
-    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double, totalKcal: Double, elevationGain: Double = 0) {
+    @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double, totalKcal: Double, elevationGain: Double = 0, heartRate: Double = 0) {
         SwiftDebug.qtDebug("WorkoutTracking: GET DATA: \(Date())")
 
-        if(WorkoutTracking.workoutInProgress == false && power > 0 && WorkoutTracking.firstWorkout) {
-            WorkoutTracking.firstWorkout = false
-            startWorkOut(deviceType: UInt16(deviceType))
-        } else if(WorkoutTracking.workoutInProgress == false && power == 0) {
-            return;
+        if !WorkoutTracking.workoutInProgress {
+            if power > 0 && WorkoutTracking.firstWorkout {
+                WorkoutTracking.firstWorkout = false
+                startWorkOut(deviceType: UInt16(deviceType))
+            } else {
+                return
+            }
         }
 
         let Speed = speed / 100
@@ -417,6 +506,11 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.totalKcal = totalKcal
         WorkoutTracking.steps = steps
         WorkoutTracking.distance = distance
+
+        // Store elevation gain for all sports
+        if elevationGain > 0 {
+            WorkoutTracking.elevationGain = elevationGain
+        }
 
         // Calculate flights climbed from elevation gain for treadmill (sport == 0 or 1)
         // elevationGain is already calculated by QZ in meters
@@ -449,8 +543,8 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     }
                 }
 
-                let cadencePerInterval = HKQuantity(unit: HKUnit.count().unitDivided(by: HKUnit.second()),
-                                                    doubleValue: cadence / 60.0)
+                let cadencePerInterval = HKQuantity(unit: cadenceUnit,
+                                                    doubleValue: cadence)
                 
                 guard let cadenceType = HKQuantityType.quantityType(
                     forIdentifier: .cyclingCadence) else {
@@ -471,7 +565,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 
                 let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
                                                   doubleValue: (Speed / 3.6))
-                
+
                 guard let speedType = HKQuantityType.quantityType(
                     forIdentifier: .cyclingSpeed) else {
                 return
@@ -483,6 +577,21 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 WorkoutTracking.workoutBuilder.add([speedPerIntervalSample]) {(success, error) in
                     if let error = error {
                         SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                    }
+                }
+
+                let distanceDelta = max(0, distance - WorkoutTracking.previousDistance)
+                if distanceDelta > 0,
+                   let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceCycling) {
+                    let distanceQuantity = HKQuantity(unit: HKUnit.meter(), doubleValue: distanceDelta)
+                    let distanceSample = HKQuantitySample(type: distanceType,
+                                                          quantity: distanceQuantity,
+                                                          start: WorkoutTracking.lastDateMetric,
+                                                          end: Date())
+                    WorkoutTracking.workoutBuilder.add([distanceSample]) { (success, error) in
+                        if let error = error {
+                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                        }
                     }
                 }
 
@@ -608,8 +717,8 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 if cadence > 0,
                    let cyclingCadenceType = HKQuantityType.quantityType(forIdentifier: .cyclingCadence) {
                     // For ellipticals, divide cadence by 2 to match QZ display (steps per minute vs revolutions per minute)
-                    let cadenceQuantity = HKQuantity(unit: HKUnit.count().unitDivided(by: HKUnit.second()),
-                                                     doubleValue: (cadence / 2.0) / 60.0)
+                    let cadenceQuantity = HKQuantity(unit: cadenceUnit,
+                                                     doubleValue: cadence / 2.0)
                     let cadenceSample = HKQuantitySample(type: cyclingCadenceType,
                                                          quantity: cadenceQuantity,
                                                          start: WorkoutTracking.lastDateMetric,
@@ -686,55 +795,23 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             }
         }
 
+        // A zero HR means "no QZ HR source"; do not write it, and let direct HealthKit HR continue.
+        if heartRate > 0 {
+            addBluetoothHeartRateSample(heartRate: heartRate,
+                                        start: WorkoutTracking.lastDateMetric,
+                                        end: Date())
+        }
         WorkoutTracking.previousDistance = distance
         WorkoutTracking.lastDateMetric = Date()
     }
 
     @objc func setBluetoothHeartRate(heartRate: Double) {
-        // Verify workout is in progress
         if !WorkoutTracking.workoutInProgress {
             SwiftDebug.qtDebug("WorkoutTracking: Cannot write HR - workout not in progress")
             return
         }
-
-        // Verify we have a valid heart rate value
-        if heartRate <= 0 || heartRate > 250 {
-            SwiftDebug.qtDebug("WorkoutTracking: Invalid HR value: \(heartRate)")
-            return
-        }
-
-        // Mark that we're using Bluetooth HR (priority over HealthKit)
-        if !WorkoutTracking.isUsingBluetoothHR {
-            SwiftDebug.qtDebug("WorkoutTracking: Switching to Bluetooth HR source")
-            // Stop HealthKit HR query if it was running
-            stopHeartRateStreamingQuery()
-            WorkoutTracking.isUsingBluetoothHR = true
-        }
-
-        // Get HR quantity type
-        guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
-            SwiftDebug.qtDebug("WorkoutTracking: Heart rate type unavailable")
-            return
-        }
-
-        // Create heart rate quantity
-        let heartRateQuantity = HKQuantity(unit: heartRateUnit, doubleValue: heartRate)
-
-        // Create heart rate sample with current timestamp
         let now = Date()
-        let heartRateSample = HKQuantitySample(type: heartRateType,
-                                               quantity: heartRateQuantity,
-                                               start: now,
-                                               end: now)
-
-        // Add sample to workout builder
-        WorkoutTracking.workoutBuilder.add([heartRateSample]) { (success, error) in
-            if let error = error {
-                SwiftDebug.qtDebug("WorkoutTracking HR: " + error.localizedDescription)
-            } else {
-                SwiftDebug.qtDebug("WorkoutTracking: HR written to HealthKit: \(heartRate) BPM")
-            }
-        }
+        addBluetoothHeartRateSample(heartRate: heartRate, start: now, end: now)
     }
 }
 

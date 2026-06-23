@@ -1,6 +1,7 @@
 #ifndef TREADMILL_H
 #define TREADMILL_H
 #include "devices/bluetoothdevice.h"
+#include <QDateTime>
 #include <QObject>
 #include "treadmillErgTable.h"
 
@@ -50,12 +51,14 @@ class treadmill : public bluetoothdevice {
     virtual bool canHandleInclineChange() { return true; }
     double runningStressScore();
     QTime speedToPace(double Speed);
+    double gradeAdjustedSpeed(double speed, double inclination);
 
   public slots:
     virtual void changeSpeed(double speed);
     void changeInclination(double grade, double percentage) override;
     void changePower(int32_t power) override;
     virtual void changeSpeedAndInclination(double speed, double inclination);
+    void onTrainingProgramTransition();
     void cadenceSensor(uint8_t cadence) override;
     void powerSensor(uint16_t power) override;
     void speedSensor(double speed) override;
@@ -66,6 +69,9 @@ class treadmill : public bluetoothdevice {
 
   signals:
     void tapeStarted();
+    void buttonHWStart();   // Physical start button pressed on hardware
+    void buttonHWPause();   // Physical pause button pressed on hardware
+    void buttonHWStop();    // Physical stop button pressed on hardware
 
   protected:
     volatile double requestSpeed = -1;
@@ -88,9 +94,13 @@ class treadmill : public bluetoothdevice {
     // Power following logic
     bool callingFromFollowPower = false;  // Flag to track if change comes from followPowerBySpeed
     double targetWatts = -1;              // Target watts to maintain during power following
+    double m_followPowerLastInclination = 0;
+    double m_followPowerLastSpeedWhenTargetSet = -1;
+    QDateTime m_followPowerSuppressedUntil;
 
     void parseSpeed(double speed);
     void parseInclination(double speed);
+    void parseCadence(double cadence);
     bool areInclinationSettingsDefault();
     void evaluateStepCount();
 

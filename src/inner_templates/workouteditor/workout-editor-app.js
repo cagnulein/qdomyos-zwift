@@ -7,52 +7,63 @@
         programFiles: {}, // Map of program name -> file object (with url, path, etc.)
         showAdvanced: false,
         lastSaved: '',
-        loading: false
+        loading: false,
+        translations: {}
     };
 
     const selectors = {};
+    const DEVICE_KEYS = ['bike', 'treadmill', 'elliptical', 'rower', 'jumprope', 'stairclimber'];
+
+    function t(key, fallback) {
+        if (window.qzTranslate) {
+            return window.qzTranslate(key, fallback);
+        }
+        return fallback || key;
+    }
 
     const FIELD_DEFS = [
-        { key: 'name', label: 'Label', type: 'text', group: 'basic', devices: 'all' },
-        { key: 'duration', label: 'Duration', type: 'duration', group: 'basic', devices: 'all' },
-        { key: 'distance', label: 'Distance', type: 'number', unitKey: 'distance', step: 0.1, min: 0, group: 'basic', devices: 'all', defaultValue: -1 },
-        { key: 'speed', label: 'Speed', type: 'number', unitKey: 'speed', step: 0.1, min: 0, group: 'basic', devices: ['treadmill'], defaultValue: () => state.miles ? 6.0 : 9.5 },
-        { key: 'pace', label: 'Pace', type: 'pace', unitKey: 'pace', group: 'basic', devices: ['treadmill'], syncWith: 'speed' },
-        { key: 'inclination', label: 'Incline', type: 'number', unitSuffix: '%', step: 0.5, min: -10, max: 30, group: 'basic', devices: ['treadmill', 'elliptical'], defaultValue: 1.0 },
-        { key: 'resistance', label: 'Resistance', type: 'number', step: 1, min: 0, max: 100, group: 'basic', devices: ['bike', 'elliptical'], defaultValue: 20 },
-        { key: 'cadence', label: 'Cadence', type: 'number', unitSuffix: 'rpm', min: 0, max: 240, group: 'basic', devices: ['bike', 'elliptical', 'rower'], defaultValue: 80 },
-        { key: 'power', label: 'Power', type: 'number', unitSuffix: 'W', min: 0, max: 2000, group: 'basic', devices: ['bike', 'rower'], defaultValue: 150 },
-        { key: 'forcespeed', label: 'Force Speed', type: 'bool', group: 'basic', devices: ['treadmill'], linkedTo: 'speed' },
-        { key: 'fanspeed', label: 'Fan', type: 'number', min: 0, max: 8, group: 'advanced', devices: 'all', defaultValue: 0 },
-        { key: 'requested_peloton_resistance', label: 'Peloton Res.', type: 'number', min: -1, max: 100, group: 'advanced', devices: ['bike'] },
-        { key: 'loopTimeHR', label: 'HR Loop (s)', type: 'number', min: 1, max: 60, group: 'advanced', devices: 'all' },
-        { key: 'zoneHR', label: 'HR Zone', type: 'number', min: -1, max: 5, group: 'advanced', devices: 'all' },
-        { key: 'HRmin', label: 'HR Min', type: 'number', min: -1, max: 240, group: 'advanced', devices: 'all' },
-        { key: 'HRmax', label: 'HR Max', type: 'number', min: -1, max: 240, group: 'advanced', devices: 'all' },
-        { key: 'minSpeed', label: 'Min Speed', type: 'number', unitKey: 'speed', group: 'advanced', devices: ['treadmill', 'bike'] },
-        { key: 'maxSpeed', label: 'Max Speed', type: 'number', unitKey: 'speed', group: 'advanced', devices: ['treadmill', 'bike'] },
-        { key: 'maxResistance', label: 'Max Resistance', type: 'number', min: -1, max: 100, group: 'advanced', devices: ['bike', 'elliptical'] },
+        { key: 'name', labelKey: 'workoutEditor.label', label: 'Label', type: 'text', group: 'basic', devices: 'all' },
+        { key: 'duration', labelKey: 'workoutEditor.duration', label: 'Duration', type: 'duration', group: 'basic', devices: 'all' },
+        { key: 'distance', labelKey: 'workoutEditor.distance', label: 'Distance', type: 'number', unitKey: 'distance', step: 0.1, min: 0, group: 'basic', devices: 'all', defaultValue: -1 },
+        { key: 'speed', labelKey: 'workoutEditor.speed', label: 'Speed', type: 'number', unitKey: 'speed', step: 0.1, min: 0, group: 'basic', devices: ['treadmill'], defaultValue: () => state.miles ? 6.0 : 9.5 },
+        { key: 'pace', labelKey: 'workoutEditor.pace', label: 'Pace', type: 'pace', unitKey: 'pace', group: 'basic', devices: ['treadmill'], syncWith: 'speed' },
+        { key: 'inclination', labelKey: 'workoutEditor.incline', label: 'Incline', type: 'number', unitSuffix: '%', step: 0.5, min: -10, max: 30, group: 'basic', devices: ['treadmill', 'elliptical'], defaultValue: 1.0 },
+        { key: 'resistance', labelKey: 'workoutEditor.resistance', label: 'Resistance', type: 'number', step: 1, min: 0, max: 100, group: 'basic', devices: ['bike', 'elliptical'], defaultValue: 20 },
+        { key: 'cadence', labelKey: 'workoutEditor.cadence', label: 'Cadence', type: 'number', unitSuffix: 'rpm', min: 0, max: 240, group: 'basic', devices: ['bike', 'elliptical', 'rower'], defaultValue: 80 },
+        { key: 'power', labelKey: 'workoutEditor.power', label: 'Power', type: 'number', unitSuffix: 'W', min: 0, max: 2000, group: 'basic', devices: ['bike', 'rower'], defaultValue: 150 },
+        { key: 'forcespeed', labelKey: 'workoutEditor.forceSpeed', label: 'Force Speed', type: 'bool', group: 'basic', devices: ['treadmill'], linkedTo: 'speed' },
+        { key: 'fanspeed', labelKey: 'workoutEditor.fan', label: 'Fan', type: 'number', min: 0, max: 8, group: 'advanced', devices: 'all', defaultValue: 0 },
+        { key: 'requested_peloton_resistance', labelKey: 'workoutEditor.pelotonResistance', label: 'Peloton Res.', type: 'number', min: -1, max: 100, group: 'advanced', devices: ['bike'] },
+        { key: 'loopTimeHR', labelKey: 'workoutEditor.hrLoop', label: 'HR Loop (s)', type: 'number', min: 1, max: 60, group: 'advanced', devices: 'all' },
+        { key: 'zoneHR', labelKey: 'workoutEditor.hrZone', label: 'HR Zone', type: 'number', min: -1, max: 5, group: 'advanced', devices: 'all' },
+        { key: 'HRmin', labelKey: 'workoutEditor.hrMin', label: 'HR Min', type: 'number', min: -1, max: 240, group: 'advanced', devices: 'all' },
+        { key: 'HRmax', labelKey: 'workoutEditor.hrMax', label: 'HR Max', type: 'number', min: -1, max: 240, group: 'advanced', devices: 'all' },
+        { key: 'minSpeed', labelKey: 'workoutEditor.minSpeed', label: 'Min Speed', type: 'number', unitKey: 'speed', group: 'advanced', devices: ['treadmill', 'bike'] },
+        { key: 'maxSpeed', labelKey: 'workoutEditor.maxSpeed', label: 'Max Speed', type: 'number', unitKey: 'speed', group: 'advanced', devices: ['treadmill', 'bike'] },
+        { key: 'maxResistance', labelKey: 'workoutEditor.maxResistance', label: 'Max Resistance', type: 'number', min: -1, max: 100, group: 'advanced', devices: ['bike', 'elliptical'] },
         { key: 'mets', label: 'METS', type: 'number', min: -1, max: 40, group: 'advanced', devices: 'all' }
     ];
 
     const SERIES_DEFS = {
         treadmill: [
-            { key: 'speed', label: () => 'Speed', color: '#42a5f5', unit: () => state.miles ? 'mph' : 'km/h', axis: 'speedAxis', axisLabel: () => state.miles ? 'Speed (mph)' : 'Speed (km/h)', axisPosition: 'left' },
-            { key: 'inclination', label: () => 'Incline', color: '#26c6da', unit: () => '%', axis: 'inclineAxis', axisLabel: () => 'Incline (%)', axisPosition: 'right' }
+            { key: 'speed', label: () => t('workoutEditor.speed', 'Speed'), color: '#42a5f5', unit: () => state.miles ? 'mph' : 'km/h', axis: 'speedAxis', axisLabel: () => state.miles ? t('workoutEditor.speedMph', 'Speed (mph)') : t('workoutEditor.speedKmh', 'Speed (km/h)'), axisPosition: 'left' },
+            { key: 'inclination', label: () => t('workoutEditor.incline', 'Incline'), color: '#26c6da', unit: () => '%', axis: 'inclineAxis', axisLabel: () => t('workoutEditor.inclinePercent', 'Incline (%)'), axisPosition: 'right' }
         ],
         bike: [
-            { key: 'resistance', label: () => 'Resistance', color: '#ab47bc', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => 'Resistance', axisPosition: 'left' },
-            { key: 'cadence', label: () => 'Cadence', color: '#29b6f6', unit: () => 'rpm', axis: 'cadenceAxis', axisLabel: () => 'Cadence (rpm)', axisPosition: 'right' },
-            { key: 'power', label: () => 'Power', color: '#ef6c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => 'Power (W)', axisPosition: 'left' }
+            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#ab47bc', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => t('workoutEditor.resistance', 'Resistance'), axisPosition: 'left' },
+            { key: 'cadence', label: () => t('workoutEditor.cadence', 'Cadence'), color: '#29b6f6', unit: () => 'rpm', axis: 'cadenceAxis', axisLabel: () => t('workoutEditor.cadenceRpm', 'Cadence (rpm)'), axisPosition: 'right' },
+            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#ef6c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), axisPosition: 'left' }
         ],
         elliptical: [
-            { key: 'resistance', label: () => 'Resistance', color: '#7e57c2', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => 'Resistance', axisPosition: 'left' },
-            { key: 'inclination', label: () => 'Ramp', color: '#66bb6a', unit: () => '%', axis: 'inclineAxis', axisLabel: () => 'Ramp (%)', axisPosition: 'right' }
+            { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#7e57c2', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => t('workoutEditor.resistance', 'Resistance'), axisPosition: 'left' },
+            { key: 'inclination', label: () => t('workoutEditor.ramp', 'Ramp'), color: '#66bb6a', unit: () => '%', axis: 'inclineAxis', axisLabel: () => t('workoutEditor.rampPercent', 'Ramp (%)'), axisPosition: 'right' }
         ],
         rower: [
-            { key: 'power', label: () => 'Power', color: '#fb8c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => 'Power (W)', axisPosition: 'left' },
-            { key: 'cadence', label: () => 'Stroke Rate', color: '#26a69a', unit: () => 'spm', axis: 'cadenceAxis', axisLabel: () => 'Strokes/min', axisPosition: 'right' }
-        ]
+            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#fb8c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), axisPosition: 'left' },
+            { key: 'cadence', label: () => t('workoutEditor.strokeRate', 'Stroke Rate'), color: '#26a69a', unit: () => 'spm', axis: 'cadenceAxis', axisLabel: () => t('workoutEditor.strokesPerMinute', 'Strokes/min'), axisPosition: 'right' }
+        ],
+        jumprope: [],
+        stairclimber: []
     };
 
     // Default values that indicate a field should not be enabled
@@ -73,12 +84,119 @@
         mets: -1
     };
 
+    // Custom dialog system for iOS WebView compatibility
+    // iOS WebView doesn't properly support prompt() and confirm()
+    const dialog = {
+        elements: {},
+
+        init() {
+            this.elements.container = document.getElementById('customDialog');
+            this.elements.title = document.getElementById('customDialogTitle');
+            this.elements.message = document.getElementById('customDialogMessage');
+            this.elements.input = document.getElementById('customDialogInput');
+            this.elements.cancelBtn = document.getElementById('customDialogCancel');
+            this.elements.confirmBtn = document.getElementById('customDialogConfirm');
+        },
+
+        show(title, message, options = {}) {
+            return new Promise((resolve) => {
+                console.log('[dialog.show] Title:', title, 'Message:', message, 'Options:', options);
+
+                // Set content
+                this.elements.title.textContent = title;
+                this.elements.message.textContent = message;
+
+                // Configure input field
+                if (options.input) {
+                    this.elements.input.classList.remove('hidden');
+                    this.elements.input.value = options.defaultValue || '';
+                    this.elements.input.placeholder = options.placeholder || '';
+                } else {
+                    this.elements.input.classList.add('hidden');
+                }
+
+                // Configure cancel button
+                if (options.showCancel !== false) {
+                    this.elements.cancelBtn.classList.remove('hidden');
+                } else {
+                    this.elements.cancelBtn.classList.add('hidden');
+                }
+
+                // Set button labels
+                this.elements.cancelBtn.textContent = options.cancelLabel || t('common.cancel', 'Cancel');
+                this.elements.confirmBtn.textContent = options.confirmLabel || t('common.ok', 'OK');
+
+                // Show dialog
+                this.elements.container.classList.remove('hidden');
+
+                // Focus input if present
+                if (options.input) {
+                    setTimeout(() => this.elements.input.focus(), 100);
+                }
+
+                // Handle buttons
+                const handleConfirm = () => {
+                    cleanup();
+                    const result = options.input ? this.elements.input.value : true;
+                    console.log('[dialog.show] Confirmed with result:', result);
+                    resolve(result);
+                };
+
+                const handleCancel = () => {
+                    cleanup();
+                    console.log('[dialog.show] Cancelled');
+                    resolve(null);
+                };
+
+                const handleKeyPress = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleConfirm();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        handleCancel();
+                    }
+                };
+
+                const cleanup = () => {
+                    this.elements.confirmBtn.removeEventListener('click', handleConfirm);
+                    this.elements.cancelBtn.removeEventListener('click', handleCancel);
+                    this.elements.input.removeEventListener('keypress', handleKeyPress);
+                    this.elements.container.classList.add('hidden');
+                };
+
+                this.elements.confirmBtn.addEventListener('click', handleConfirm);
+                this.elements.cancelBtn.addEventListener('click', handleCancel);
+                this.elements.input.addEventListener('keypress', handleKeyPress);
+            });
+        },
+
+        confirm(message, title = t('common.confirm', 'Confirm')) {
+            console.log('[dialog.confirm] Message:', message);
+            return this.show(title, message, { showCancel: true });
+        },
+
+        prompt(message, defaultValue = '', title = t('common.input', 'Input')) {
+            console.log('[dialog.prompt] Message:', message, 'Default:', defaultValue);
+            return this.show(title, message, {
+                input: true,
+                defaultValue,
+                showCancel: true
+            });
+        },
+
+        alert(message, title = t('common.alert', 'Alert')) {
+            console.log('[dialog.alert] Message:', message);
+            return this.show(title, message, { showCancel: false });
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
         cacheDom();
         bindEvents();
         bootstrap();
         if (window.QZ_OFFLINE) {
-            announce('Offline mode: load/save/start disabled', true);
+            announce(t('workoutEditor.offlineLoadSaveStartDisabled', 'Offline mode: load/save/start disabled'), true);
             updateControls();
         }
     });
@@ -92,15 +210,20 @@
         selectors.repeatSelection = document.getElementById('repeatSelection');
         selectors.clearIntervals = document.getElementById('clearIntervals');
         selectors.newWorkout = document.getElementById('newWorkout');
+        selectors.pasteClipboard = document.getElementById('pasteClipboard');
         selectors.saveWorkout = document.getElementById('saveWorkout');
         selectors.saveStartWorkout = document.getElementById('saveStartWorkout');
         selectors.programSelect = document.getElementById('programSelect');
         selectors.loadProgram = document.getElementById('loadProgram');
+        selectors.deleteProgram = document.getElementById('deleteProgram');
         selectors.refreshPrograms = document.getElementById('refreshPrograms');
         selectors.statusDuration = document.getElementById('statusDuration');
         selectors.statusIntervals = document.getElementById('statusIntervals');
         selectors.statusMessage = document.getElementById('statusMessage');
         selectors.offlineBanner = document.getElementById('offlineBanner');
+
+        // Initialize custom dialog system for iOS WebView compatibility
+        dialog.init();
     }
 
     function bindEvents() {
@@ -120,12 +243,18 @@
         });
         selectors.addInterval.addEventListener('click', () => {
             addInterval();
-            announce('Interval added');
+            announce(t('workoutEditor.intervalAdded', 'Interval added'));
         });
-        selectors.repeatSelection.addEventListener('click', repeatSelection);
-        selectors.clearIntervals.addEventListener('click', () => {
-            if (state.intervals.length && !confirm('Remove all intervals?')) {
-                return;
+        selectors.repeatSelection.addEventListener('click', () => {
+            console.log('[button] Repeat Selection button clicked');
+            repeatSelection();
+        });
+        selectors.clearIntervals.addEventListener('click', async () => {
+            if (state.intervals.length) {
+                const confirmed = await dialog.confirm(t('workoutEditor.removeAllIntervals', 'Remove all intervals?'));
+                if (!confirmed) {
+                    return;
+                }
             }
             state.intervals = [];
             addInterval();
@@ -143,25 +272,38 @@
             updateChart();
             updateStatus();
             updateControls();
-            announce('New workout ready');
+                announce(t('workoutEditor.newWorkoutReady', 'New workout ready'));
         });
+        selectors.pasteClipboard.addEventListener('click', () => pasteXmlFromClipboard());
         selectors.saveWorkout.addEventListener('click', () => saveWorkflow(false));
         selectors.saveStartWorkout.addEventListener('click', () => saveWorkflow(true));
         selectors.loadProgram.addEventListener('click', () => {
             if (window.QZ_OFFLINE) {
-                announce('Offline: cannot load workouts', true);
+                announce(t('workoutEditor.offlineCannotLoad', 'Offline: cannot load workouts'), true);
                 return;
             }
             const name = selectors.programSelect.value;
             if (!name) {
-                announce('Select a workout to load', true);
+                announce(t('workoutEditor.selectWorkoutLoad', 'Select a workout to load'), true);
                 return;
             }
             loadProgram(name);
         });
+        selectors.deleteProgram.addEventListener('click', () => {
+            if (window.QZ_OFFLINE) {
+                announce(t('workoutEditor.offlineCannotDelete', 'Offline: cannot delete workouts'), true);
+                return;
+            }
+            const name = selectors.programSelect.value;
+            if (!name) {
+                announce(t('workoutEditor.selectWorkoutDelete', 'Select a workout to delete'), true);
+                return;
+            }
+            deleteProgram(name);
+        });
         selectors.refreshPrograms.addEventListener('click', () => {
             if (window.QZ_OFFLINE) {
-                announce('Offline: cannot refresh list', true);
+                announce(t('workoutEditor.offlineCannotRefresh', 'Offline: cannot refresh list'), true);
                 return;
             }
             refreshProgramList();
@@ -198,13 +340,18 @@
                 return;
             }
             state.miles = !!content.miles;
-            if (content.device) {
-                state.device = content.device;
+            state.translations = content.translations || {};
+            if (window.qzSetTranslations) {
+                window.qzSetTranslations(state.translations);
+            }
+            const envDevice = normalizeDevice(content.device);
+            if (envDevice) {
+                state.device = envDevice;
             }
             selectors.device.value = state.device;
         }).catch(err => {
             console.error(err);
-            announce('Environment not available', true);
+            announce(t('workoutEditor.environmentNotAvailable', 'Environment not available'), true);
         });
     }
 
@@ -232,7 +379,7 @@
             updateControls();
         }).catch(err => {
             console.error(err);
-            announce('Cannot load program list', true);
+            announce(t('workoutEditor.cannotLoadProgramList', 'Cannot load program list'), true);
         });
     }
 
@@ -240,7 +387,7 @@
         selectors.programSelect.innerHTML = '';
         const placeholder = document.createElement('option');
         placeholder.value = '';
-        placeholder.textContent = state.programs.length ? 'Select saved workout' : 'No saved workouts';
+        placeholder.textContent = state.programs.length ? t('workoutEditor.selectSavedWorkout', 'Select saved workout') : t('workoutEditor.noSavedWorkouts', 'No saved workouts');
         selectors.programSelect.appendChild(placeholder);
         state.programs.sort((a, b) => a.localeCompare(b));
         state.programs.forEach(name => {
@@ -259,7 +406,7 @@
         // Get file URL from stored program files
         const fileObj = state.programFiles[name];
         if (!fileObj || !fileObj.url) {
-            announce('Cannot find workout file', true);
+            announce(t('workoutEditor.cannotFindWorkoutFile', 'Cannot find workout file'), true);
             setWorking(false);
             return;
         }
@@ -274,26 +421,104 @@
                 .then(content => {
                     const rows = Array.isArray(content && content.list) ? content.list : [];
                     if (!rows.length) {
-                        announce('Workout is empty or cannot be read', true);
+                        announce(t('workoutEditor.workoutEmptyCannotRead', 'Workout is empty or cannot be read'), true);
                         return;
                     }
-                    state.intervals = rows.map((row, idx) => convertRow(row, idx));
-                    state.device = detectDevice(state.intervals) || state.device;
-                    selectors.device.value = state.device;
-                    selectors.name.value = name;
-                    state.lastSaved = name;
-                    renderIntervals();
-                    updateChart();
-                    updateStatus();
-                    updateControls();
-                    announce(`Loaded ${name}`);
+                    applyLoadedRows(rows, name, `Loaded ${name}`, normalizeDevice(content.device));
                 })
                 .catch(err => {
                     console.error(err);
-                    announce('Unable to load workout', true);
+                    announce(t('workoutEditor.unableLoadWorkout', 'Unable to load workout'), true);
                 })
                 .finally(() => setWorking(false));
         }, 300); // Give backend time to load the file
+    }
+
+    function applyLoadedRows(rows, name, message, deviceHint) {
+        state.intervals = rows.map((row, idx) => convertRow(row, idx));
+        state.device = deviceHint || detectDevice(state.intervals) || state.device;
+        selectors.device.value = state.device;
+        selectors.name.value = name;
+        state.lastSaved = name;
+        renderIntervals();
+        updateChart();
+        updateStatus();
+        updateControls();
+        announce(message || `Loaded ${name}`);
+    }
+
+    function pasteXmlFromClipboard() {
+        if (window.QZ_OFFLINE) {
+            announce(t('workoutEditor.offlineCannotReadClipboard', 'Offline: cannot read clipboard'), true);
+            return;
+        }
+
+        const fallbackName = selectors.name.value.trim() || state.lastSaved || '';
+        setWorking(true);
+        sendMessage('pastetrainingprogramclipboard', { name: fallbackName }, 'R_pastetrainingprogramclipboard')
+            .then(content => {
+                if (!content || !content.ok) {
+                    announce((content && content.message) || t('workoutEditor.unablePasteClipboard', 'Unable to paste XML from clipboard'), true);
+                    return;
+                }
+
+                const rows = Array.isArray(content.list) ? content.list : [];
+                if (!rows.length) {
+                    announce(t('workoutEditor.clipboardXmlEmpty', 'Clipboard XML is empty or cannot be read'), true);
+                    return;
+                }
+
+                applyLoadedRows(rows, content.name || fallbackName || 'Clipboard_Workout.xml', t('workoutEditor.workoutPastedClipboard', 'Workout pasted from clipboard'));
+                refreshProgramList();
+            })
+            .catch(err => {
+                console.error(err);
+                announce(t('workoutEditor.unablePasteClipboard', 'Unable to paste XML from clipboard'), true);
+            })
+            .finally(() => setWorking(false));
+    }
+
+    async function deleteProgram(name) {
+        const confirmed = await dialog.confirm(
+            t('workoutEditor.deleteWorkoutConfirm', 'Are you sure you want to delete "{name}"? This cannot be undone.').replace('{name}', name),
+            t('workoutEditor.deleteWorkoutTitle', 'Delete Workout')
+        );
+        if (!confirmed) {
+            return;
+        }
+        setWorking(true);
+        console.log('[deleteProgram] Deleting workout:', name);
+
+        // Get file URL from stored program files
+        const fileObj = state.programFiles[name];
+        if (!fileObj || !fileObj.url) {
+            announce(t('workoutEditor.cannotFindWorkoutFile', 'Cannot find workout file'), true);
+            setWorking(false);
+            return;
+        }
+
+        // Send delete message to backend
+        sendMessage('deletetrainingprogram', { url: fileObj.url }, 'R_deletetrainingprogram')
+            .then(content => {
+                console.log('[deleteProgram] Delete response:', content);
+                if (content && content.success) {
+                    announce(`Deleted ${name}`);
+                    // Clear the name field if it matches the deleted workout
+                    if (state.lastSaved === name) {
+                        state.lastSaved = '';
+                        selectors.name.value = '';
+                    }
+                    // Refresh the program list
+                    return refreshProgramList();
+                } else {
+                    announce(t('workoutEditor.failedDeleteWorkout', 'Failed to delete workout'), true);
+                }
+            })
+            .catch(err => {
+                console.error('[deleteProgram] Error:', err);
+                announce(t('workoutEditor.unableDeleteWorkout', 'Unable to delete workout'), true);
+            })
+            .finally(() => setWorking(false));
     }
 
     function convertRow(row, idx) {
@@ -332,6 +557,11 @@
                         value = value / 1.60934;
                     }
 
+                    // Truncate speed values to 1 decimal place to avoid floating-point precision issues
+                    if (def.unitKey === 'speed' && !isDefaultValue) {
+                        value = Math.round(value * 10) / 10;
+                    }
+
                     if (!isDefaultValue) {
                         out[def.key] = value;
                         // Mark field as enabled if it has a non-default value
@@ -364,6 +594,7 @@
                 out['__enabled_' + def.key] = false;
             }
         });
+        out.__enabled_duration = out.__enabled_distance === true ? false : true;
         out.__selected = false;
         return out;
     }
@@ -378,6 +609,14 @@
             return true;
         };
 
+        // Check for elliptical before treadmill because elliptical rows also use inclination.
+        for (const row of rows) {
+            if ((hasValidValue(row, 'resistance') || hasValidValue(row, 'maxResistance')) &&
+                hasValidValue(row, 'inclination')) {
+                return 'elliptical';
+            }
+        }
+
         // Check for treadmill: has speed or inclination
         for (const row of rows) {
             if (hasValidValue(row, 'speed') || hasValidValue(row, 'inclination')) {
@@ -385,12 +624,9 @@
             }
         }
 
-        // Check for bike/elliptical: has resistance
+        // Check for bike: has resistance without treadmill-style incline
         for (const row of rows) {
             if (hasValidValue(row, 'resistance') || hasValidValue(row, 'maxResistance')) {
-                if (hasValidValue(row, 'inclination')) {
-                    return 'elliptical';
-                }
                 return 'bike';
             }
         }
@@ -409,7 +645,7 @@
     }
 
     function setDevice(key) {
-        if (!key) {
+        if (!normalizeDevice(key)) {
             return;
         }
         state.device = key;
@@ -466,12 +702,17 @@
             base.cadence = 28;
             base.__enabled_cadence = true;
             break;
-        default:
-            // treadmill - duration is enabled by default, distance is disabled (mutually exclusive)
+        case 'treadmill':
             base.speed = state.miles ? 6.0 : 9.5;
             base.__enabled_speed = true;
             base.inclination = 1.0;
             base.__enabled_inclination = true;
+            base.__enabled_duration = true;
+            base.__enabled_distance = false;
+            break;
+        case 'jumprope':
+        case 'stairclimber':
+        default:
             base.__enabled_duration = true;
             base.__enabled_distance = false;
             break;
@@ -505,17 +746,18 @@
             const selectBox = document.createElement('input');
             selectBox.type = 'checkbox';
             selectBox.checked = !!row.__selected;
-            selectBox.title = 'Select interval';
+            selectBox.title = t('workoutEditor.selectInterval', 'Select interval');
             selectBox.addEventListener('change', event => {
                 row.__selected = event.target.checked;
                 card.classList.toggle('selected', row.__selected);
+                console.log('[checkbox] Interval', index, 'selected:', row.__selected);
                 updateControls();
             });
             headerLeft.appendChild(selectBox);
 
             const title = document.createElement('div');
             title.className = 'card-header-name';
-            title.textContent = row.name ? `${row.name}` : `Interval ${index + 1}`;
+            title.textContent = row.name ? `${row.name}` : t('workoutEditor.intervalNumber', 'Interval {number}').replace('{number}', index + 1);
             headerLeft.appendChild(title);
 
             header.appendChild(headerLeft);
@@ -524,8 +766,8 @@
             actions.className = 'card-actions';
             actions.appendChild(actionButton('↑', () => moveInterval(index, -1), index === 0));
             actions.appendChild(actionButton('↓', () => moveInterval(index, 1), index === state.intervals.length - 1));
-            actions.appendChild(actionButton('Copy', () => duplicateInterval(index)));
-            actions.appendChild(actionButton('Del', () => removeInterval(index), state.intervals.length === 1));
+            actions.appendChild(actionButton(t('common.copy', 'Copy'), () => duplicateInterval(index)));
+            actions.appendChild(actionButton(t('common.del', 'Del'), () => removeInterval(index), state.intervals.length === 1));
             header.appendChild(actions);
             card.appendChild(header);
 
@@ -578,13 +820,11 @@
                                 row['__enabled_forcespeed'] = true;
                                 row['forcespeed'] = false; // default to false
                             }
-                            // For treadmill: duration and distance are mutually exclusive
-                            if (state.device === 'treadmill') {
-                                if (field.key === 'distance') {
-                                    row['__enabled_duration'] = false;
-                                } else if (field.key === 'duration') {
-                                    row['__enabled_distance'] = false;
-                                }
+                            // Duration and distance are mutually exclusive.
+                            if (field.key === 'distance') {
+                                row['__enabled_duration'] = false;
+                            } else if (field.key === 'duration') {
+                                row['__enabled_distance'] = false;
                             }
                         } else {
                             fieldWrap.classList.add('disabled');
@@ -643,20 +883,21 @@
                         if (field.max !== undefined) input.max = field.max;
                         input.value = value !== undefined ? value : '';
                     }
-                    input.addEventListener(field.type === 'duration' || field.type === 'pace' ? 'change' : 'input', handleFieldChange);
+                    // Use 'change' event for duration, pace, and number fields to prevent keyboard from closing during typing
+                    input.addEventListener(field.type === 'duration' || field.type === 'pace' || field.type === 'number' ? 'change' : 'input', handleFieldChange);
 
                     // Add +/- buttons for duration, number, and pace fields
                     if (field.type === 'duration' || field.type === 'number' || field.type === 'pace') {
                         const decreaseBtn = document.createElement('button');
                         decreaseBtn.textContent = '-';
                         decreaseBtn.type = 'button';
-                        decreaseBtn.title = 'Decrease';
+                        decreaseBtn.title = t('common.decrease', 'Decrease');
                         decreaseBtn.addEventListener('click', () => handleIncrement(input, field, -1));
 
                         const increaseBtn = document.createElement('button');
                         increaseBtn.textContent = '+';
                         increaseBtn.type = 'button';
-                        increaseBtn.title = 'Increase';
+                        increaseBtn.title = t('common.increase', 'Increase');
                         increaseBtn.addEventListener('click', () => handleIncrement(input, field, 1));
 
                         inputWrapper.appendChild(decreaseBtn);
@@ -692,19 +933,20 @@
         if (typeof field.label === 'function') {
             return field.label();
         }
+        const label = field.labelKey ? t(field.labelKey, field.label) : field.label;
         if (field.unitKey === 'distance') {
-            return `${field.label} (${state.miles ? 'mi' : 'km'})`;
+            return `${label} (${state.miles ? 'mi' : 'km'})`;
         }
         if (field.unitKey === 'speed') {
-            return `${field.label} (${state.miles ? 'mph' : 'km/h'})`;
+            return `${label} (${state.miles ? 'mph' : 'km/h'})`;
         }
         if (field.unitKey === 'pace') {
-            return `${field.label} (${state.miles ? 'min/mi' : 'min/km'})`;
+            return `${label} (${state.miles ? 'min/mi' : 'min/km'})`;
         }
         if (field.unitSuffix) {
-            return `${field.label} (${field.unitSuffix})`;
+            return `${label} (${field.unitSuffix})`;
         }
-        return field.label;
+        return label;
     }
 
     function actionButton(text, handler, disabled) {
@@ -746,7 +988,7 @@
                     state.intervals[index][field.syncWith] = speed;
                 }
             }
-            // Re-render to update both fields
+            // Re-render to update speed field (pace uses 'change' event so keyboard is already closed)
             renderIntervals();
             updateChart();
             updateStatus();
@@ -754,7 +996,7 @@
         } else if (type === 'number') {
             const raw = target.value;
             state.intervals[index][key] = raw === '' ? undefined : Number(raw);
-            // If this is a speed field, re-render to update pace
+            // If this is a speed field, re-render to update pace (uses 'change' event so keyboard is already closed)
             if (key === 'speed') {
                 renderIntervals();
             }
@@ -856,7 +1098,7 @@
     function duplicateInterval(index) {
         const original = state.intervals[index];
         const copy = cloneInterval(original);
-        copy.name = `${original.name || `Interval ${index + 1}`} copy`;
+        copy.name = `${original.name || t('workoutEditor.intervalNumber', 'Interval {number}').replace('{number}', index + 1)} ${t('common.copyLower', 'copy')}`;
         state.intervals.splice(index + 1, 0, copy);
         renderIntervals();
         updateChart();
@@ -865,7 +1107,7 @@
 
     function removeInterval(index) {
         if (state.intervals.length === 1) {
-            announce('Cannot remove the only interval', true);
+            announce(t('workoutEditor.cannotRemoveOnlyInterval', 'Cannot remove the only interval'), true);
             return;
         }
         state.intervals.splice(index, 1);
@@ -877,7 +1119,7 @@
     function saveWorkflow(startAfter) {
         console.log('[saveWorkflow] Called with startAfter:', startAfter);
         if (window.QZ_OFFLINE) {
-            announce('Offline: cannot save workouts', true);
+            announce(t('workoutEditor.offlineCannotSave', 'Offline: cannot save workouts'), true);
             return;
         }
         const payload = buildPayload();
@@ -890,12 +1132,12 @@
         sendMessage('savetrainingprogram', payload, 'R_savetrainingprogram').then(content => {
             console.log('[saveWorkflow] Save response:', content);
             if (!content) {
-                announce('Save failed', true);
+                announce(t('workoutEditor.saveFailed', 'Save failed'), true);
                 return;
             }
             state.lastSaved = payload.name;
             selectors.name.value = payload.name;
-            announce(`Saved ${payload.name}`);
+            announce(t('workoutEditor.savedName', 'Saved {name}').replace('{name}', payload.name));
 
             console.log('[saveWorkflow] Refreshing program list...');
             return refreshProgramList().then(() => {
@@ -941,7 +1183,7 @@
                                 console.log('[saveWorkflow] File found after retry as:', retryFileName);
                                 return startProgram(retryFileName);
                             } else {
-                                announce('Workout file not ready, please try again', true);
+                                announce(t('workoutEditor.workoutFileNotReady', 'Workout file not ready, please try again'), true);
                                 console.error('[saveWorkflow] File not found in programs list after save and retry');
                                 console.error('[saveWorkflow] Available files:', Object.keys(state.programFiles));
                                 console.error('[saveWorkflow] Looking for:', payload.name, 'or', payload.name + '.xml', 'or', payload.name + '.zwo');
@@ -954,14 +1196,14 @@
             });
         }).catch(err => {
             console.error('[saveWorkflow] Error:', err);
-            announce('Unable to save workout', true);
+            announce(t('workoutEditor.unableSaveWorkout', 'Unable to save workout'), true);
         }).finally(() => setWorking(false));
     }
 
     function startProgram(name) {
         console.log('[startProgram] Called with name:', name);
         if (window.QZ_OFFLINE) {
-            announce('Offline: cannot start workouts', true);
+            announce(t('workoutEditor.offlineCannotStart', 'Offline: cannot start workouts'), true);
             return Promise.resolve();
         }
 
@@ -970,7 +1212,7 @@
         console.log('[startProgram] fileObj:', fileObj);
         if (!fileObj || !fileObj.url) {
             console.error('[startProgram] Cannot find workout file for:', name);
-            announce('Cannot find workout file', true);
+            announce(t('workoutEditor.cannotFindWorkoutFile', 'Cannot find workout file'), true);
             return Promise.resolve();
         }
 
@@ -981,7 +1223,7 @@
         setTimeout(() => {
             console.log('[startProgram] Sending trainprogram_autostart_requested');
             sendMessage('trainprogram_autostart_requested', {});
-            announce('Workout started');
+            announce(t('workoutEditor.workoutStarted', 'Workout started'));
         }, 100);
 
         return Promise.resolve();
@@ -991,19 +1233,35 @@
         const nameInput = selectors.name.value.trim();
         const sanitized = sanitizeName(nameInput || state.lastSaved || 'Workout');
         if (!state.intervals.length) {
-            announce('Add at least one interval', true);
+            announce(t('workoutEditor.addAtLeastOneInterval', 'Add at least one interval'), true);
             return null;
         }
         const list = [];
         for (const interval of state.intervals) {
-            const durationSec = parseDuration(interval.duration);
-            if (!durationSec) {
-                announce('Invalid duration in intervals', true);
-                return null;
+            const durationEnabled = interval.__enabled_duration !== false;
+            const distanceEnabled = interval.__enabled_distance !== false;
+            const row = {};
+            if (durationEnabled) {
+                const durationSec = parseDuration(interval.duration);
+                if (!durationSec) {
+                    announce(t('workoutEditor.invalidDuration', 'Invalid duration in intervals'), true);
+                    return null;
+                }
+                row.duration = formatDuration(durationSec);
+            } else {
+                const distance = Number(interval.distance);
+                if (!distanceEnabled || !isFinite(distance) || distance <= 0) {
+                    announce(t('workoutEditor.enableDurationOrDistance', 'Enable duration or enter a valid distance'), true);
+                    return null;
+                }
             }
-            const row = {
-                duration: formatDuration(durationSec)
-            };
+            // Add interval name/label as textEvent with timeoffset=0 if present
+            if (interval.name && interval.name.trim() !== '') {
+                row.textEvents = [{
+                    timeoffset: 0,
+                    message: interval.name.trim()
+                }];
+            }
             FIELD_DEFS.forEach(field => {
                 if (field.key === 'name' || field.key === 'duration') {
                     return;
@@ -1034,6 +1292,9 @@
                 if (!isEnabled) {
                     return;
                 }
+                if (field.key === 'distance' && durationEnabled) {
+                    return;
+                }
                 const value = interval[field.key];
                 if (value !== undefined && value !== null && value !== '') {
                     let finalValue = field.type === 'number' ? Number(value) : value;
@@ -1050,12 +1311,24 @@
         }
         return {
             name: sanitized,
+            device: state.device,
             list: list
         };
     }
 
     function sanitizeName(name) {
-        return name.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, '_');
+        // Remove common file extensions before sanitizing to prevent duplicate files
+        let baseName = name;
+        if (baseName.toLowerCase().endsWith('.xml')) {
+            baseName = baseName.slice(0, -4);
+        } else if (baseName.toLowerCase().endsWith('.zwo')) {
+            baseName = baseName.slice(0, -4);
+        }
+        return baseName.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, '_');
+    }
+
+    function normalizeDevice(key) {
+        return DEVICE_KEYS.indexOf(key) >= 0 ? key : null;
     }
 
     function isFieldValidForDevice(field, deviceType) {
@@ -1234,13 +1507,17 @@
     function devicePrettyName(key) {
         switch (key) {
         case 'bike':
-            return 'Bike';
+            return t('device.bike', 'Bike');
         case 'elliptical':
-            return 'Elliptical';
+            return t('device.elliptical', 'Elliptical');
         case 'rower':
-            return 'Rower';
+            return t('device.rower', 'Rower');
+        case 'jumprope':
+            return t('device.jumprope', 'Jump Rope');
+        case 'stairclimber':
+            return t('device.stairclimber', 'Stair Climber');
         default:
-            return 'Treadmill';
+            return t('device.treadmill', 'Treadmill');
         }
     }
 
@@ -1258,7 +1535,7 @@
 
     function setWorking(active) {
         state.loading = active;
-        [selectors.saveWorkout, selectors.saveStartWorkout, selectors.loadProgram, selectors.refreshPrograms, selectors.addInterval, selectors.clearIntervals]
+        [selectors.saveWorkout, selectors.saveStartWorkout, selectors.loadProgram, selectors.deleteProgram, selectors.refreshPrograms, selectors.addInterval, selectors.clearIntervals, selectors.pasteClipboard]
             .forEach(btn => btn && (btn.disabled = active));
         updateControls();
     }
@@ -1276,56 +1553,91 @@
         return el.enqueue();
     }
 
-    function repeatSelection() {
-        const selected = [];
-        state.intervals.forEach((row, idx) => {
-            if (row.__selected) {
-                selected.push(idx);
-            }
-        });
-        if (!selected.length) {
-            announce('Select one or more consecutive intervals first', true);
-            return;
-        }
-        selected.sort((a, b) => a - b);
-        for (let i = 1; i < selected.length; i++) {
-            if (selected[i] !== selected[i - 1] + 1) {
-                announce('Selection must be consecutive', true);
+    async function repeatSelection() {
+        try {
+            console.log('[repeatSelection] Starting repeat selection');
+            const selected = [];
+            state.intervals.forEach((row, idx) => {
+                if (row.__selected) {
+                    selected.push(idx);
+                }
+            });
+            console.log('[repeatSelection] Selected indices:', selected);
+
+            if (!selected.length) {
+            announce(t('workoutEditor.selectConsecutiveFirst', 'Select one or more consecutive intervals first'), true);
+                console.log('[repeatSelection] No intervals selected');
                 return;
             }
-        }
 
-        const promptValue = prompt('Repeat block how many times (total cycles)?', '2');
-        if (promptValue === null) {
-            return;
-        }
-        const times = parseInt(promptValue, 10);
-        if (Number.isNaN(times) || times < 2) {
-            announce('Enter a number greater than 1', true);
-            return;
-        }
+            selected.sort((a, b) => a - b);
+            for (let i = 1; i < selected.length; i++) {
+                if (selected[i] !== selected[i - 1] + 1) {
+                    announce(t('workoutEditor.selectionMustBeConsecutive', 'Selection must be consecutive'), true);
+                    console.log('[repeatSelection] Selection not consecutive');
+                    return;
+                }
+            }
 
-        const start = selected[0];
-        const end = selected[selected.length - 1];
-        const block = state.intervals.slice(start, end + 1).map(cloneInterval);
+            console.log('[repeatSelection] Prompting for repeat count');
+            const promptValue = await dialog.prompt(
+                t('workoutEditor.repeatBlockPrompt', 'Repeat block how many times (total cycles)?'),
+                '2',
+                t('workoutEditor.repeatSelection', 'Repeat Selection')
+            );
+            console.log('[repeatSelection] Prompt returned:', promptValue);
 
-        let insertAt = end + 1;
-        for (let t = 1; t < times; t++) {
-            const clones = block.map(cloneInterval);
-            state.intervals.splice(insertAt, 0, ...clones);
-            insertAt += clones.length;
+            if (promptValue === null || promptValue === '') {
+                announce(t('workoutEditor.repeatCancelled', 'Repeat cancelled'), false);
+                console.log('[repeatSelection] User cancelled or empty input');
+                return;
+            }
+
+            const times = parseInt(promptValue, 10);
+            console.log('[repeatSelection] Parsed times:', times);
+
+            if (Number.isNaN(times) || times < 2) {
+                announce(t('workoutEditor.enterNumberGreaterThanOne', 'Enter a number greater than 1'), true);
+                console.log('[repeatSelection] Invalid repeat count:', times);
+                return;
+            }
+
+            const start = selected[0];
+            const end = selected[selected.length - 1];
+            console.log('[repeatSelection] Repeating intervals from', start, 'to', end, 'for', times, 'total cycles');
+
+            const block = state.intervals.slice(start, end + 1).map(cloneInterval);
+            console.log('[repeatSelection] Created block with', block.length, 'intervals');
+
+            let insertAt = end + 1;
+            for (let t = 1; t < times; t++) {
+                const clones = block.map(cloneInterval);
+                console.log('[repeatSelection] Iteration', t, '- Inserting', clones.length, 'clones at position', insertAt);
+                state.intervals.splice(insertAt, 0, ...clones);
+                insertAt += clones.length;
+            }
+
+            console.log('[repeatSelection] After repeat, total intervals:', state.intervals.length);
+
+            state.intervals.forEach(row => { row.__selected = false; });
+            renderIntervals();
+            updateChart();
+            updateStatus();
+            updateControls();
+
+            const message = `Block repeated ${times} times`;
+            announce(message);
+            console.log('[repeatSelection]', message);
+        } catch (error) {
+            console.error('[repeatSelection] Error:', error);
+            announce(t('workoutEditor.errorRepeatingSelection', 'Error repeating selection: {message}').replace('{message}', error.message), true);
         }
-
-        state.intervals.forEach(row => { row.__selected = false; });
-        renderIntervals();
-        updateChart();
-        updateStatus();
-        updateControls();
-        announce(`Block repeated ${times} times`);
     }
 
     function hasSelection() {
-        return state.intervals.some(row => row.__selected);
+        const result = state.intervals.some(row => row.__selected);
+        console.log('[hasSelection] Result:', result, 'Total intervals:', state.intervals.length);
+        return result;
     }
 
     function updateControls() {
@@ -1339,14 +1651,22 @@
         if (selectors.loadProgram) {
             selectors.loadProgram.disabled = state.loading || offline || !state.programs.length;
         }
+        if (selectors.deleteProgram) {
+            selectors.deleteProgram.disabled = state.loading || offline || !state.programs.length;
+        }
         if (selectors.refreshPrograms) {
             selectors.refreshPrograms.disabled = state.loading || offline;
+        }
+        if (selectors.pasteClipboard) {
+            selectors.pasteClipboard.disabled = state.loading || offline;
         }
         if (selectors.programSelect) {
             selectors.programSelect.disabled = offline || state.loading || !state.programs.length;
         }
         if (selectors.repeatSelection) {
-            selectors.repeatSelection.disabled = state.loading || !hasSelection();
+            const shouldDisable = state.loading || !hasSelection();
+            selectors.repeatSelection.disabled = shouldDisable;
+            console.log('[updateControls] Repeat selection button disabled:', shouldDisable);
         }
         if (selectors.offlineBanner) {
             selectors.offlineBanner.classList.toggle('hidden', !offline);

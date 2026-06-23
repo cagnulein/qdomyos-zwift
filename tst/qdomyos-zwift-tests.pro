@@ -21,9 +21,15 @@ SOURCES += \
         Devices/devicetestdataindex.cpp \
         Erg/ergtabletestsuite.cpp \
         GarminConnect/garminconnecttestsuite.cpp \
+        ToolTests/qfittestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
+        ToolTests/testtrainingloadtestsuite.cpp \
+        ToolTests/zwiftworkouttestsuite.cpp \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
+        Devices/TestSchwinn411510EParser.cpp \
+        Devices/TestApexBikeParser.cpp \
+        Devices/TestKeepBikeParser.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests
@@ -52,9 +58,17 @@ HEADERS += \
     Devices/deviceindex.h \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
+    Devices/TestSchwinn411510EParser.h \
+    Devices/TestApexBikeParser.h \
+    Devices/TestKeepBikeParser.h \
+    Devices/TestOctaneTreadmillZR8.h \
+    Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \
     GarminConnect/garminconnecttestsuite.h \
+    ToolTests/qfittestsuite.h \
     ToolTests/testsettingstestsuite.h \
+    ToolTests/testtrainingloadtestsuite.h \
+    ToolTests/zwiftworkouttestsuite.h \
     Tools/devicetypeid.h \
     Tools/testsettings.h \
     Tools/typeidgenerator.h

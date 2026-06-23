@@ -3,7 +3,6 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
-#include "virtualdevices/virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -100,6 +99,18 @@ void smartrowrower::sendPoll() {
     writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
 }
 
+void smartrowrower::queueSmartRowWrite(const QByteArray &data) { pendingSmartRowWrite.append(data); }
+
+void smartrowrower::sendNextSmartRowWrite() {
+    if (pendingSmartRowWrite.isEmpty()) {
+        return;
+    }
+
+    uint8_t data = (uint8_t)pendingSmartRowWrite.at(0);
+    pendingSmartRowWrite.remove(0, 1);
+    writeCharacteristic(&data, sizeof(data), QStringLiteral("smartrow"), false, false);
+}
+
 void smartrowrower::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -112,6 +123,11 @@ void smartrowrower::update() {
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotify1Characteristic.isValid() && initDone) {
+        if (!pendingSmartRowWrite.isEmpty()) {
+            sendNextSmartRowWrite();
+            return;
+        }
+
         update_metrics(false, watts());
 
         // sending poll every 2 seconds
@@ -193,28 +209,44 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     qDebug() << " << " + newValue.toHex(' ');
 
-    lastPacket = newValue;
+    if (newValue.contains("V3.")) {
+        smartRowV3 = true;
+        if (!smartRowV3ChallengeRequested) {
+            smartRowV3ChallengeRequested = true;
+            queueSmartRowWrite(QByteArray(1, (char)0x23));
+        }
+    } else if (newValue.contains("KEYLOCK")) {
+        smartRowV3 = true;
+        queueSmartRowWrite(calculateSmartRowV3ChallengeResponse(newValue));
+    }
 
     if (newValue.length() != 17)
         return;
 
-    double distance = GetDistanceFromPacket(newValue);
+    QByteArray packet = decodeSmartRowPacket(newValue);
+    if (packet != newValue) {
+        qDebug() << " << decoded " + packet.toHex(' ');
+    }
+
+    lastPacket = packet;
+
+    double distance = GetDistanceFromPacket(packet);
     QTime localTime;
     int pace_inst;
 
     // https://github.com/inonoob/pirowflo/blob/6ea5f3a9d224ed594b23c25c186737bc0cae7ac3/src/adapters/smartrow/smartrowtobleant.py
-    switch (newValue.at(0)) {
+    switch (packet.at(0)) {
     case 'a':
         // elapsed time
-        localTime = QTime(atoi(newValue.mid(6, 2)), atoi(newValue.mid(8, 2)), atoi(newValue.mid(10, 2)));
+        localTime = QTime(atoi(packet.mid(6, 2)), atoi(packet.mid(8, 2)), atoi(packet.mid(10, 2)));
         break;
     case 'b':
         // work per stroke[6:11] / 10, stroke length [11:13]
-        StrokesLength = atoi(newValue.mid(11, 3));
+        StrokesLength = atoi(packet.mid(11, 3));
         break;
     case 'c':
         // actual power
-        m_watt = atoi(newValue.mid(6, 3));
+        m_watt = atoi(packet.mid(6, 3));
         // average power / 10
         // ignore it
         break;
@@ -223,23 +255,27 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")))
-            Cadence = atoi(newValue.mid(6, 3)) / 10.0;
+            Cadence = atoi(packet.mid(6, 3)) / 10.0;
         // strokes count [9:11]
-        StrokesCount = atoi(newValue.mid(9, 4));
+        StrokesCount = atoi(packet.mid(9, 4));
         break;
     case 'e':
         // actual split time
         // pace_inst = int(event[6])*60 + int(event[7:9])
         // 3243 = 180 + 243 = 713
         // speed = int(500 * 100 / pace_inst) # speed in cm/s
-        pace_inst = (atoi(newValue.mid(6, 1)) * 60) + atoi(newValue.mid(7, 2));
+        pace_inst = (atoi(packet.mid(6, 1)) * 60) + atoi(packet.mid(7, 2));
         qDebug() << QStringLiteral("pace_inst") << pace_inst;
-        Speed = (500.0 * 100.0 / pace_inst) * 0.036;
+        if (pace_inst > 0) {
+            Speed = (500.0 * 100.0 / pace_inst) * 0.036;
+        } else {
+            Speed = 0;
+        }
 
         // average split time
         break;
     case 'f':
-        // no row newValue.at(5) == '!'
+        // no row packet.at(5) == '!'
         break;
     case 'x':
         // curve points
@@ -307,6 +343,76 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
 }
 
+QByteArray smartrowrower::calculateSmartRowV3ChallengeResponse(const QByteArray &keylock) const {
+    QByteArray challenge = keylock.trimmed();
+    const int keylockIndex = challenge.indexOf("KEYLOCK=");
+    if (keylockIndex >= 0) {
+        challenge = challenge.mid(keylockIndex);
+    }
+
+    if (challenge.length() < 16) {
+        return QByteArray(1, (char)0x23);
+    }
+
+    const QByteArray key = challenge.left(14);
+    const QByteArray checksum = challenge.mid(14, 2).toUpper();
+    int checksumValue = 0;
+    for (char c : key) {
+        checksumValue += (uint8_t)c;
+    }
+
+    const QByteArray calculatedChecksum =
+        QByteArray::number(checksumValue, 16).rightJustified(4, '0').right(2).toUpper();
+    if (calculatedChecksum != checksum) {
+        qDebug() << QStringLiteral("SmartRow V3 challenge checksum error") << challenge << calculatedChecksum
+                 << checksum;
+        return QByteArray(1, (char)0x23);
+    }
+
+    bool ok = false;
+    const uint16_t seed = challenge.mid(10, 4).toUShort(&ok, 16);
+    if (!ok) {
+        return QByteArray(1, (char)0x23);
+    }
+
+    const uint32_t responseValue = ((uint32_t)seed * 17923U) / 256U;
+    const QByteArray response =
+        QByteArray::number(responseValue, 16).rightJustified(6, '0').right(4).toLower();
+
+    QByteArray result;
+    result.append((char)0x0d);
+    result.append(response);
+    result.append((char)0x0d);
+    return result;
+}
+
+QByteArray smartrowrower::decodeSmartRowPacket(const QByteArray &packet) const {
+    if (!smartRowV3 || packet.length() != 17) {
+        return packet;
+    }
+
+    switch (packet.at(0)) {
+    case 'a':
+    case 'b':
+    case 'c':
+    case 'd':
+    case 'e':
+    case 'f':
+    case 'x':
+    case 'y':
+    case 'z':
+        break;
+    default:
+        return packet;
+    }
+
+    QByteArray decoded = packet;
+    for (int i = 1; i <= 5; i++) {
+        decoded[i] = (char)(((uint8_t)packet.at(i) & 0x0f) | 0x30);
+    }
+    return decoded;
+}
+
 double smartrowrower::GetDistanceFromPacket(const QByteArray &packet) {
     uint32_t convertedData = atoi(packet.mid(1, 5));
     double data = ((double)convertedData) / 1000.0;
@@ -314,8 +420,13 @@ double smartrowrower::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 void smartrowrower::btinit() {
-    uint8_t initData1[] = {0x0d, 0x56, 0x40, 0x0d};
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    QByteArray initData;
+    initData.append((char)0x24);
+    initData.append((char)0x0d);
+    initData.append((char)0x56);
+    initData.append((char)0x40);
+    initData.append((char)0x0d);
+    queueSmartRowWrite(initData);
 
     initDone = true;
 
@@ -364,6 +475,8 @@ void smartrowrower::stateChanged(QLowEnergyService::ServiceState state) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_rower =
+                settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence =
@@ -378,11 +491,18 @@ void smartrowrower::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
                 if (virtual_device_enabled) {
-                qDebug() << QStringLiteral("creating virtual bike interface...");
-                auto virtualBike =
-                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                // connect(virtualBike,&virtualbike::debug ,this,&smartrowrower::debug);
-                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                if (!virtual_device_rower) {
+                    qDebug() << QStringLiteral("creating virtual bike interface...");
+                    auto virtualBike =
+                        new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                    // connect(virtualBike,&virtualbike::debug ,this,&smartrowrower::debug);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                } else {
+                    qDebug() << QStringLiteral("creating virtual rower interface...");
+                    auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    // connect(virtualRower,&virtualrower::debug ,this,&smartrowrower::debug);
+                    this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
+                }
             }
         }
         firstStateChanged = 1;
@@ -493,6 +613,9 @@ void smartrowrower::controllerStateChanged(QLowEnergyController::ControllerState
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        smartRowV3 = false;
+        smartRowV3ChallengeRequested = false;
+        pendingSmartRowWrite.clear();
         m_control->connectToDevice();
     }
 }
