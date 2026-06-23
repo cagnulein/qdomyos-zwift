@@ -322,6 +322,8 @@ HomeForm {
                 id: myText
                 anchors {
                     top: myIcon.top
+                    horizontalCenter: settings.theme_tile_icon_enabled ? undefined : parent.horizontalCenter
+                    left: settings.theme_tile_icon_enabled ? parent.left : undefined
                 }
                 font.bold: true
                 font.pointSize: labelFontSize
@@ -329,9 +331,9 @@ HomeForm {
                 minimumPointSize: 8
                 color: "white"
                 text: name
-                anchors.left: parent.left
-                anchors.leftMargin: 55 * settings.ui_zoom / 100
-                width: Math.max(40, parent.width - 61 * settings.ui_zoom / 100)
+                horizontalAlignment: settings.theme_tile_icon_enabled ? Text.AlignLeft : Text.AlignHCenter
+                anchors.leftMargin: settings.theme_tile_icon_enabled ? 55 * settings.ui_zoom / 100 : 0
+                width: Math.max(40, parent.width - (settings.theme_tile_icon_enabled ? 61 : 12) * settings.ui_zoom / 100)
                 height: 40 * settings.ui_zoom / 100
                 anchors.topMargin: 20 * settings.ui_zoom / 100
                 visible: !largeButton
