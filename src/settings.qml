@@ -12,8 +12,7 @@ import Qt.labs.platform 1.1
         contentWidth: -1
         focus: true
         anchors.fill: parent
-        // DEBUG: red background to confirm item is visible
-        background: Rectangle { color: "red" }
+
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane
