@@ -10,7 +10,8 @@ SwitchDelegate {
 
     Accessible.name: root.text
     Accessible.role: Accessible.CheckBox
-    Accessible.checkState: root.checked ? Qt.Checked : Qt.Unchecked
+    Accessible.checkable: true
+    Accessible.checked: root.checked
 
     MouseArea {
         anchors.fill: parent
