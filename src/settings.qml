@@ -1691,8 +1691,11 @@ import Qt.labs.platform 1.1
             property bool garmin_download_workouts_on_start: true
             property bool trainprogram_clipboard_workout_enabled: false         
             property string shortcut_stop: ""
+            property real trainprogram_warmup_speed: 420
+            property real trainprogram_cooldown_speed: 420
+            property real trainprogram_rest_speed: 420            
             property bool tile_watt_color_enabled: true
-            property bool tile_pace_color_enabled: true
+            property bool tile_pace_color_enabled: true            
         }
 
 
@@ -1717,6 +1720,17 @@ import Qt.labs.platform 1.1
               return integerPart;
             }
           }
+        }
+
+        function paceSecondsToTime(secondsPerKm) {
+            return paddingZeros(formatLimitDecimals(secondsPerKm / 3600, 0).toString(), 2) + ":" +
+                   paddingZeros(formatLimitDecimals((secondsPerKm / 60) % 60, 0).toString(), 2) + ":" +
+                   paddingZeros(formatLimitDecimals(secondsPerKm % 60, 0).toString(), 2)
+        }
+
+        function timeToPaceSeconds(text) {
+            var pieces = text.split(":")
+            return (parseInt(pieces[0]) * 3600) + (parseInt(pieces[1]) * 60) + parseInt(pieces[2])
         }
 
         Component.onCompleted: {
@@ -8744,6 +8758,75 @@ import Qt.labs.platform 1.1
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramWarmupSpeed
+                            text: qsTr("Warmup Speed (pace):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramWarmupSpeedTextField
+                            text: paceSecondsToTime(settings.trainprogram_warmup_speed)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramWarmupSpeed
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_warmup_speed = timeToPaceSeconds(trainProgramWarmupSpeedTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramCooldownSpeed
+                            text: qsTr("Cooldown Speed (pace):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramCooldownSpeedTextField
+                            text: paceSecondsToTime(settings.trainprogram_cooldown_speed)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramCooldownSpeed
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_cooldown_speed = timeToPaceSeconds(trainProgramCooldownSpeedTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRestSpeed
+                            text: qsTr("Rest Speed (pace):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRestSpeedTextField
+                            text: paceSecondsToTime(settings.trainprogram_rest_speed)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRestSpeed
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_rest_speed = timeToPaceSeconds(trainProgramRestSpeedTextField.text); toast.show("Setting saved!"); }
+                        }
                     }
 
                     RowLayout {
