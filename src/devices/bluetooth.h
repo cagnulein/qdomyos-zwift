@@ -25,6 +25,7 @@
 #include "devices/antbike/antbike.h"
 #include "devices/android_antbike/android_antbike.h"
 #include "devices/apexbike/apexbike.h"
+#include "devices/volavabike/volavabike.h"
 #include "devices/bhfitnesselliptical/bhfitnesselliptical.h"
 #include "devices/bkoolbike/bkoolbike.h"
 #include "devices/bluetoothdevice.h"
@@ -189,6 +190,7 @@ class bluetooth : public QObject, public SignalHandler {
     antbike *antBike = nullptr;
     android_antbike *android_antBike = nullptr;
     apexbike *apexBike = nullptr;
+    volavabike *volavaBike = nullptr;
     bkoolbike *bkoolBike = nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;

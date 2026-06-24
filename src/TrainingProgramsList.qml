@@ -11,6 +11,47 @@ ColumnLayout {
     signal trainprogram_open_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
+    signal trainprogram_autostart_requested()
+    property url selectedWorkoutUrl: ""
+    property url initialWorkoutUrl: ""
+
+    function openWorkoutPreview(fileUrl) {
+        if (!fileUrl || fileUrl.toString() === "") {
+            return
+        }
+        selectedWorkoutUrl = fileUrl
+        trainprogram_preview(fileUrl)
+        powerSeries.clear();
+        for(var i=0;i<rootItem.preview_workout_points;i+=10)
+        {
+            powerSeries.append(i * 1000, rootItem.preview_workout_watt[i]);
+        }
+        rootItem.update_chart_power(powerChart);
+    }
+
+    Component.onCompleted: {
+        Qt.callLater(function() {
+            openWorkoutPreview(initialWorkoutUrl)
+        })
+    }
+
+    MessageDialog {
+        id: deleteDialog
+        text: "Delete workout?"
+        informativeText: "This cannot be undone."
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            if (rootItem.deleteTrainingProgramFile(selectedWorkoutUrl)) {
+                selectedWorkoutUrl = ""
+                var currentFolder = folderModel.folder
+                folderModel.folder = ""
+                folderModel.folder = currentFolder
+            }
+            visible = false
+        }
+        onNoClicked: visible = false
+    }
+
     Loader {
         id: fileDialogLoader
         active: false
@@ -176,7 +217,8 @@ ColumnLayout {
                 focus: true
                 onCurrentItemChanged: {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
-                    if (fileUrl) {
+                    if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
+                        selectedWorkoutUrl = fileUrl
                         list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                         trainprogram_preview(fileUrl)
@@ -188,6 +230,8 @@ ColumnLayout {
                         rootItem.update_chart_power(powerChart);
                         //trainprogram_open_clicked(fileUrl);
                         //popup.open()
+                    } else {
+                        selectedWorkoutUrl = ""
                     }
                 }
                 Component.onCompleted: {
@@ -298,16 +342,38 @@ ColumnLayout {
         }
     }
 
-    Button {
-        id: searchButton
+    RowLayout {
         height: 50
         width: parent.width
-        text: "Other folders"
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-        onClicked: {
-            console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            // Create a fresh FileDialog instance
-            fileDialogLoader.active = true
+
+        Button {
+            Layout.fillWidth: true
+            text: "Start Workout"
+            visible: selectedWorkoutUrl != ""
+            onClicked: {
+                trainprogram_open_clicked(selectedWorkoutUrl)
+                trainprogram_autostart_requested()
+            }
+        }
+
+        Button {
+            id: deleteButton
+            Layout.fillWidth: true
+            text: "Delete"
+            visible: selectedWorkoutUrl != ""
+            onClicked: deleteDialog.visible = true
+        }
+
+        Button {
+            id: searchButton
+            Layout.fillWidth: true
+            text: "Other folders"
+            onClicked: {
+                console.log("folder is " + rootItem.getWritableAppDir() + 'training')
+                // Create a fresh FileDialog instance
+                fileDialogLoader.active = true
+            }
         }
         anchors {
             bottom: parent.bottom

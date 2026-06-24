@@ -85,8 +85,11 @@ class trainprogram : public QObject {
     void save(const QString &filename);
     static trainprogram *load(const QString &filename, bluetooth *b, QString Extension);
     static QList<trainrow> loadXML(const QString &filename, BLUETOOTH_TYPE device_type);
-    static bool saveXML(const QString &filename, const QList<trainrow> &rows);
+    static bool saveXML(const QString &filename, const QList<trainrow> &rows, BLUETOOTH_TYPE device_type = UNKNOWN);
     static bool hasTargetPower(const QString &filename);
+    static QString deviceTypeToXmlKey(BLUETOOTH_TYPE type);
+    static BLUETOOTH_TYPE deviceTypeFromXmlKey(const QString &key);
+    static BLUETOOTH_TYPE xmlDeviceType(const QString &filename, BLUETOOTH_TYPE fallback = UNKNOWN);
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
     QTime currentRowRemainingTime();
@@ -98,6 +101,10 @@ class trainprogram : public QObject {
     trainrow getRowFromCurrent(uint32_t offset);
     void increaseElapsedTime(int32_t i);
     void decreaseElapsedTime(int32_t i);
+    void goToPreviousRow();
+    void applyCurrentStepSettings();
+    int currentLogicalStep() const;
+    int totalLogicalSteps() const;
     int32_t offsetElapsedTime() { return offset; }
     void clearRows();
     double avgSpeedFromGpxStep(int gpxStep, int seconds);
@@ -116,6 +123,7 @@ class trainprogram : public QObject {
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
+    BLUETOOTH_TYPE loadedDeviceType = UNKNOWN;
     QString description = "";
     QString tags = "";
     bool enabled = true;

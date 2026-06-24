@@ -15,6 +15,7 @@ ColumnLayout {
     signal trainprogram_autostart_requested()
 
     property url pendingWorkoutUrl: ""
+    property url initialWorkoutUrl: ""
 
     Settings {
         id: settings
@@ -23,6 +24,21 @@ ColumnLayout {
 
     property var selectedFileUrl: ""
     property bool isSearching: false
+
+    function openWorkoutPreview(fileUrl) {
+        if (!fileUrl || fileUrl.toString() === "") {
+            return
+        }
+        pendingWorkoutUrl = fileUrl
+        trainprogram_preview(fileUrl)
+        stackView.push(detailView)
+    }
+
+    Component.onCompleted: {
+        Qt.callLater(function() {
+            openWorkoutPreview(initialWorkoutUrl)
+        })
+    }
 
     // Model for search results
     ListModel {
@@ -77,6 +93,24 @@ ColumnLayout {
                 }
             }
         }
+    }
+
+    MessageDialog {
+        id: deleteDialog
+        property url fileUrl: ""
+        text: "Delete workout?"
+        informativeText: "This cannot be undone."
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            if (rootItem.deleteTrainingProgramFile(fileUrl)) {
+                pendingWorkoutUrl = ""
+                isSearching = false
+                stackView.clear()
+                stackView.push(masterView)
+            }
+            visible = false
+        }
+        onNoClicked: visible = false
     }
 
     StackView {
@@ -157,10 +191,10 @@ ColumnLayout {
 
                     model: isSearching ? searchResultsModel : folderModel
 
-                    delegate: Rectangle {
+                    delegate: ItemDelegate {
+                        id: workoutDelegate
                         width: ListView.view.width
                         height: 50
-                        color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
 
                         // Determine item properties based on which model is active
                         property bool isItemFolder: isSearching ? model.isFolder : folderModel.isFolder(index)
@@ -168,10 +202,17 @@ ColumnLayout {
                         property string itemFileUrl: isSearching ? model.filePath : (folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL'))
                         property string itemRelativePath: isSearching ? model.relativePath : ""
 
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: 10
+                        background: Rectangle {
+                            color: ListView.isCurrentItem ? Material.color(Material.Green, Material.Shade800) : Material.backgroundColor
+                        }
+
+                        contentItem: RowLayout {
                             spacing: 10
+
+                            Item {
+                                width: 10
+                                height: 1
+                            }
 
                             Text {
                                 id: fileIcon
@@ -212,24 +253,17 @@ ColumnLayout {
                             }
                         }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                list.currentIndex = index
+                        onClicked: {
+                            list.currentIndex = index
 
-                                if (isItemFolder) {
-                                    // Navigate to folder (only in browse mode)
-                                    if (!isSearching) {
-                                        folderModel.folder = itemFileUrl
-                                    }
-                                } else if (itemFileUrl) {
-                                    // Load preview and show detail view
-                                    trainprogram_preview(itemFileUrl)
-                                    pendingWorkoutUrl = itemFileUrl
-
-                                    // Wait for preview to load then push detail view
-                                    detailViewTimer.restart()
+                            if (isItemFolder) {
+                                // Navigate to folder (only in browse mode)
+                                if (!isSearching) {
+                                    folderModel.folder = itemFileUrl
                                 }
+                            } else if (itemFileUrl) {
+                                // Load preview and show detail view
+                                openWorkoutPreview(itemFileUrl)
                             }
                         }
                     }
@@ -243,16 +277,6 @@ ColumnLayout {
                     text: "Other folders"
                     onClicked: {
                         fileDialogLoader.active = true
-                    }
-                }
-
-                // Timer to push detail view after preview loads
-                Timer {
-                    id: detailViewTimer
-                    interval: 300
-                    repeat: false
-                    onTriggered: {
-                        stackView.push(detailView)
                     }
                 }
             }
@@ -279,6 +303,16 @@ ColumnLayout {
                     Item { Layout.fillWidth: true }
 
                     Button {
+                        text: "Delete"
+                        visible: pendingWorkoutUrl.toString() !== ""
+                        Material.background: Material.Red
+                        onClicked: {
+                            deleteDialog.fileUrl = pendingWorkoutUrl
+                            deleteDialog.visible = true
+                        }
+                    }
+
+                    Button {
                         text: "Start Workout"
                         highlighted: true
                         Material.background: Material.Green
@@ -288,6 +322,7 @@ ColumnLayout {
                             stackView.pop()
                         }
                     }
+
                 }
 
                 // Descrizione workout

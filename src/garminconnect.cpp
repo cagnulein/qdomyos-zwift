@@ -413,23 +413,14 @@ bool GarminConnect::performLogin(const QString &email, const QString &password, 
     query.addQueryItem("redirectAfterAccountCreationUrl", ssoEmbedUrl);
     url.setQuery(query);
 
-    // Prepare POST data
-    QUrlQuery postData;
-    postData.addQueryItem("username", email);
-    postData.addQueryItem("password", password);
-    postData.addQueryItem("embed", "true");
-    postData.addQueryItem("_csrf", m_csrfToken);
-
-    QString queryString = postData.query(QUrl::FullyEncoded);
-
-    // CRITICAL: Fix '+' character encoding for usernames like "user+tag@example.com"
-    // QUrlQuery doesn't percent-encode '+' in form data (treats it as space character)
-    // but Garmin authentication requires literal '+' to be encoded as '%2B'
-    // This is safe because in URL-encoded form data, '+' always means space,
-    // so any literal '+' must be encoded as '%2B'
-    queryString.replace("+", "%2B");
-
-    QByteArray data = queryString.toUtf8();
+    // Prepare POST data using QUrl::toPercentEncoding() for each value so that ALL
+    // special characters (^, +, &, =, %, spaces, …) are correctly encoded.
+    // QUrlQuery::query(FullyEncoded) only encodes a subset of special chars and required
+    // a manual '+' → '%2B' patch (see #4121/#4137); this approach supersedes that workaround.
+    QByteArray data = "username=" + QUrl::toPercentEncoding(email) +
+                      "&password=" + QUrl::toPercentEncoding(password) +
+                      "&embed=true" +
+                      "&_csrf=" + QUrl::toPercentEncoding(m_csrfToken);
 
     QNetworkRequest request(url);
     request.setRawHeader("User-Agent", USER_AGENT);
@@ -1735,6 +1726,41 @@ static QString garminTrainingSubdirFromSportTypeKey(const QString &sportTypeKey)
     return "workout";
 }
 
+static QString garminSportSuffixFromSportTypeKey(const QString &sportTypeKey) {
+    const QString key = sportTypeKey.trimmed().toLower();
+    if (key.contains("cycl") || key.contains("bike") || key.contains("ride")) {
+        return QStringLiteral("Ride");
+    }
+    if (key.contains("run") || key.contains("tread") || key.contains("walk")) {
+        return QStringLiteral("Run");
+    }
+    if (key.contains("row")) {
+        return QStringLiteral("Row");
+    }
+    if (key.contains("swim")) {
+        return QStringLiteral("Swim");
+    }
+    return QStringLiteral("Workout");
+}
+
+static QString garminSafeFilenamePart(QString value, const QString &fallback) {
+    value = value.trimmed();
+    if (value.isEmpty()) {
+        value = fallback;
+    }
+    value.replace(QRegularExpression("[\\\\/:*?\"<>|]"), QStringLiteral("_"));
+    return value;
+}
+
+QString garminConnectWorkoutFileName(const QString &date, const QString &workoutName, const QString &sportTypeKey) {
+    const QString safeDate = garminSafeFilenamePart(
+        date.trimmed().isEmpty() ? QDate::currentDate().toString(Qt::ISODate) : date.trimmed(),
+        QDate::currentDate().toString(Qt::ISODate));
+    const QString safeName = garminSafeFilenamePart(workoutName, QStringLiteral("Workout"));
+    const QString sportSuffix = garminSportSuffixFromSportTypeKey(sportTypeKey);
+    return safeDate + QStringLiteral(" - ") + safeName + QStringLiteral("_") + sportSuffix + QStringLiteral(".xml");
+}
+
 static int garminPowerFromZone(double zoneValue) {
     QSettings settings;
     const double ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
@@ -1921,9 +1947,6 @@ void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
             QJsonObject item = itemVal.toObject();
             if (item["date"].toString() != todayStr) continue;
 
-            const QString workoutUuid = item["workoutUuid"].toString();
-            if (workoutUuid.isEmpty()) continue;
-
             const QString itemType = item["itemType"].toString();
             if (itemType != "fbtAdaptiveWorkout" && itemType != "workout") continue;
 
@@ -1931,8 +1954,23 @@ void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
             if (workoutName.isEmpty()) workoutName = "Workout";
             const QString sportTypeKey = item["sportTypeKey"].toString();
 
-            qDebug() << "GarminConnect: Found workout for today:" << workoutName << "UUID:" << workoutUuid;
-            downloadWorkoutDetails(workoutUuid, todayStr, workoutName, itemType, sportTypeKey, saveDir);
+            if (itemType == "workout") {
+                const qint64 scheduleId = item["id"].toVariant().toLongLong();
+                if (scheduleId <= 0) continue;
+
+                qDebug() << "GarminConnect: Found scheduled workout for today:"
+                         << workoutName << "scheduleId:" << scheduleId;
+                downloadWorkoutDetails(QString::number(scheduleId), todayStr, workoutName,
+                                       itemType, sportTypeKey, saveDir, true);
+            } else {
+                const QString workoutUuid = item["workoutUuid"].toString();
+                if (workoutUuid.trimmed().isEmpty()) continue;
+
+                qDebug() << "GarminConnect: Found adaptive workout for today:"
+                         << workoutName << "UUID:" << workoutUuid;
+                downloadWorkoutDetails(workoutUuid, todayStr, workoutName,
+                                       itemType, sportTypeKey, saveDir, false);
+            }
             foundWorkout = true;
         }
 
@@ -1989,7 +2027,7 @@ void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
 
                 const QJsonArray fallbackItems = fallbackDoc.object()["calendarItems"].toArray();
                 int bestDaysAhead = 4; // allowed window: 0..3
-                QJsonObject bestItem;
+                QJsonArray bestItems;
 
                 for (const QJsonValue &itemVal : fallbackItems) {
                     const QJsonObject item = itemVal.toObject();
@@ -2008,30 +2046,36 @@ void GarminConnect::downloadTodaysWorkout(const QString &saveDir) {
 
                     const int daysAhead = anchorDate.daysTo(itemDate);
                     if (daysAhead < 0 || daysAhead > 3) continue;
-                    if (daysAhead >= bestDaysAhead) continue;
+                    if (daysAhead > bestDaysAhead) continue;
 
-                    bestDaysAhead = daysAhead;
-                    bestItem = item;
+                    if (daysAhead < bestDaysAhead) {
+                        bestDaysAhead = daysAhead;
+                        bestItems = QJsonArray();
+                    }
+                    bestItems.append(item);
                 }
 
-                if (!bestItem.isEmpty()) {
-                    QString workoutName = bestItem["title"].toString();
-                    if (workoutName.isEmpty()) workoutName = "Workout";
-                    const QString sportTypeKey = bestItem["sportTypeKey"].toString();
-                    const QString selectedDate = bestItem["date"].toString();
-                    const QString selectedItemType = bestItem["itemType"].toString();
+                if (!bestItems.isEmpty()) {
+                    for (const QJsonValue &bestItemValue : bestItems) {
+                        const QJsonObject bestItem = bestItemValue.toObject();
+                        QString workoutName = bestItem["title"].toString();
+                        if (workoutName.isEmpty()) workoutName = "Workout";
+                        const QString sportTypeKey = bestItem["sportTypeKey"].toString();
+                        const QString selectedDate = bestItem["date"].toString();
+                        const QString selectedItemType = bestItem["itemType"].toString();
 
-                    qDebug() << "GarminConnect: Found workout in monthly fallback:"
-                             << workoutName << "itemType:" << selectedItemType
-                             << "date:" << selectedDate << "days ahead:" << bestDaysAhead;
-                    if (selectedItemType == "workout") {
-                        const qint64 scheduleId = bestItem["id"].toVariant().toLongLong();
-                        downloadWorkoutDetails(QString::number(scheduleId), selectedDate, workoutName,
-                                               selectedItemType, sportTypeKey, saveDir, true);
-                    } else {
-                        const QString workoutUuid = bestItem["workoutUuid"].toString();
-                        downloadWorkoutDetails(workoutUuid, selectedDate, workoutName,
-                                               selectedItemType, sportTypeKey, saveDir, false);
+                        qDebug() << "GarminConnect: Found workout in monthly fallback:"
+                                 << workoutName << "itemType:" << selectedItemType
+                                 << "date:" << selectedDate << "days ahead:" << bestDaysAhead;
+                        if (selectedItemType == "workout") {
+                            const qint64 scheduleId = bestItem["id"].toVariant().toLongLong();
+                            downloadWorkoutDetails(QString::number(scheduleId), selectedDate, workoutName,
+                                                   selectedItemType, sportTypeKey, saveDir, true);
+                        } else {
+                            const QString workoutUuid = bestItem["workoutUuid"].toString();
+                            downloadWorkoutDetails(workoutUuid, selectedDate, workoutName,
+                                                   selectedItemType, sportTypeKey, saveDir, false);
+                        }
                     }
                 } else {
                     qDebug() << "GarminConnect: No workouts scheduled for today";
@@ -2127,13 +2171,8 @@ void GarminConnect::downloadWorkoutDetails(const QString &workoutIdentifier, con
             dir.mkpath(workoutRootDir);
         }
 
-        QString safeName = resolvedWorkoutName.trimmed();
-        if (safeName.isEmpty()) {
-            safeName = "Workout";
-        }
-        safeName.replace(QRegularExpression("[\\\\/:*?\"<>|]"), "_");
-        const QString safeDate = date.trimmed().isEmpty() ? QDate::currentDate().toString(Qt::ISODate) : date.trimmed();
-        const QString filename = workoutRootDir + "/" + safeDate + " - " + safeName + ".xml";
+        const QString filename =
+            workoutRootDir + "/" + garminConnectWorkoutFileName(date, resolvedWorkoutName, resolvedSportTypeKey);
         QFile file(filename);
         if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             file.write(xmlContent.toUtf8());
