@@ -653,7 +653,7 @@ void virtualrower::reconnect() {
 #ifdef Q_OS_ANDROID
     if (echelon) {
         const QString echelonAdvertisingName =
-            !Rower->bluetoothDevice.name().isEmpty() ? Rower->bluetoothDevice.name() : QStringLiteral("ECHEX-5s-113399");
+            !Rower->bluetoothDevice.name().isEmpty() ? Rower->bluetoothDevice.name() : QStringLiteral("ROW-S-015244");
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingEchelon",
             "(Landroid/content/Context;Ljava/lang/String;)V", QtAndroid::androidContext().object(),
