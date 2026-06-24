@@ -25,33 +25,6 @@ QByteArray echelonPacket(std::initializer_list<uint8_t> bytes) {
     value.append(static_cast<char>(checksum));
     return value;
 }
-
-QLowEnergyServiceData echelonServiceData(const QString &uuid) {
-    QLowEnergyServiceData serviceData;
-    serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
-    serviceData.setUuid(QBluetoothUuid(uuid));
-
-    QLowEnergyCharacteristicData echelonWrite;
-    echelonWrite.setUuid(QBluetoothUuid(QStringLiteral("0bf669f2-45f2-11e7-9598-0800200c9a66")));
-    echelonWrite.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::WriteNoResponse);
-
-    QLowEnergyCharacteristicData echelonNotify1;
-    echelonNotify1.setUuid(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
-    echelonNotify1.setProperties(QLowEnergyCharacteristic::Notify);
-    echelonNotify1.addDescriptor(
-        QLowEnergyDescriptorData(QBluetoothUuid::ClientCharacteristicConfiguration, QByteArray::fromHex("0100")));
-
-    QLowEnergyCharacteristicData echelonNotify2;
-    echelonNotify2.setUuid(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
-    echelonNotify2.setProperties(QLowEnergyCharacteristic::Notify);
-    echelonNotify2.addDescriptor(
-        QLowEnergyDescriptorData(QBluetoothUuid::ClientCharacteristicConfiguration, QByteArray::fromHex("0100")));
-
-    serviceData.addCharacteristic(echelonWrite);
-    serviceData.addCharacteristic(echelonNotify1);
-    serviceData.addCharacteristic(echelonNotify2);
-    return serviceData;
-}
 }
 
 // PM5 Concept2 BLE UUIDs
@@ -300,9 +273,28 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         }
 
         if (echelon) {
-            serviceDataEchelonAdvertised =
-                echelonServiceData(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66"));
-            serviceDataEchelon = echelonServiceData(QStringLiteral("0bf669f1-45f2-11e7-9598-0800200c9a66"));
+            serviceDataEchelon.setType(QLowEnergyServiceData::ServiceTypePrimary);
+            serviceDataEchelon.setUuid(QBluetoothUuid(QStringLiteral("0bf669f1-45f2-11e7-9598-0800200c9a66")));
+
+            QLowEnergyCharacteristicData echelonWrite;
+            echelonWrite.setUuid(QBluetoothUuid(QStringLiteral("0bf669f2-45f2-11e7-9598-0800200c9a66")));
+            echelonWrite.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::WriteNoResponse);
+
+            QLowEnergyCharacteristicData echelonNotify1;
+            echelonNotify1.setUuid(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
+            echelonNotify1.setProperties(QLowEnergyCharacteristic::Notify);
+            echelonNotify1.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                                  QByteArray::fromHex("0100")));
+
+            QLowEnergyCharacteristicData echelonNotify2;
+            echelonNotify2.setUuid(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+            echelonNotify2.setProperties(QLowEnergyCharacteristic::Notify);
+            echelonNotify2.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                                  QByteArray::fromHex("0100")));
+
+            serviceDataEchelon.addCharacteristic(echelonWrite);
+            serviceDataEchelon.addCharacteristic(echelonNotify1);
+            serviceDataEchelon.addCharacteristic(echelonNotify2);
         }
 
         //! [Start Advertising]
@@ -334,12 +326,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             serviceHR = leController->addService(serviceDataHR);
         }
         if (echelon) {
-            serviceEchelonAdvertised = leController->addService(serviceDataEchelonAdvertised);
-            QThread::msleep(100);
             serviceEchelon = leController->addService(serviceDataEchelon);
-            qDebug() << QStringLiteral("virtual rower echelon services added")
-                     << QStringLiteral("advertised f0:") << (serviceEchelonAdvertised != nullptr)
-                     << QStringLiteral("communication f1:") << (serviceEchelon != nullptr);
         }
 
         if (!pm5Mode && !echelon && serviceFIT) {
@@ -348,10 +335,6 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         }
         if (serviceEchelon) {
             QObject::connect(serviceEchelon, &QLowEnergyService::characteristicChanged, this,
-                             &virtualrower::characteristicChanged);
-        }
-        if (serviceEchelonAdvertised) {
-            QObject::connect(serviceEchelonAdvertised, &QLowEnergyService::characteristicChanged, this,
                              &virtualrower::characteristicChanged);
         }
 
@@ -401,7 +384,6 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     QByteArray reply;
     QSettings settings;
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
-    QLowEnergyService *sourceService = qobject_cast<QLowEnergyService *>(sender());
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
                     QStringLiteral(" ") + newValue.toHex(' ');
 
@@ -476,16 +458,8 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
         break;
     }
 
-    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("0bf669f2-45f2-11e7-9598-0800200c9a66"))) {
-        qDebug() << QStringLiteral("virtual rower echelon write")
-                 << (sourceService ? sourceService->serviceUuid().toString() : QStringLiteral("unknown service"))
-                 << newValue.toHex(' ');
-    }
-
     if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("0bf669f2-45f2-11e7-9598-0800200c9a66")) &&
-        sourceService && newValue.length() > 3 && leController->state() == QLowEnergyController::ConnectedState) {
-        serviceEchelonActive = sourceService;
-
+        serviceEchelon && newValue.length() > 3 && leController->state() == QLowEnergyController::ConnectedState) {
         // When QZ is backed by a real Echelon rower, forward the app payload to the rower and let the
         // rower's own notifications be mirrored back to the client (firmware unlock passthrough).
         if (auto *realEchelon = dynamic_cast<echelonrower *>(Rower); realEchelon && realEchelon->connected()) {
@@ -496,50 +470,48 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
         // Otherwise (fake rower / no real Echelon hardware) answer the handshake synthetically, exactly
         // like the real Echelon rower does in the HCI snoop traces.
         QLowEnergyCharacteristic notify1 =
-            sourceService->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
+            serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
         QLowEnergyCharacteristic notify2 =
-            sourceService->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+            serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
 
         if (notify1.isValid()) {
             const uint8_t command = static_cast<uint8_t>(newValue.at(1));
             if (command == 0xA1) {
                 // Echelon rower model/info reply (from snoop)
-                writeCharacteristic(sourceService, notify1, QByteArray::fromHex("f0a106101e0050060520"));
+                writeCharacteristic(serviceEchelon, notify1, QByteArray::fromHex("f0a106101e0050060520"));
                 echelonInitDone = true;
             } else if (command == 0xA3) {
-                writeCharacteristic(sourceService, notify1, QByteArray::fromHex("f0a3022001b6"));
+                writeCharacteristic(serviceEchelon, notify1, QByteArray::fromHex("f0a3022001b6"));
             } else if (command == 0xB0 && static_cast<uint8_t>(newValue.at(3)) == 0x00) {
                 if (auto *rowerDevice = qobject_cast<rower *>(Rower)) {
                     rowerDevice->stop(false);
                 }
-                writeCharacteristic(sourceService, notify2, QByteArray::fromHex("f0d00100c1"));
+                writeCharacteristic(serviceEchelon, notify2, QByteArray::fromHex("f0d00100c1"));
             } else if (command == 0xB0 && notify2.isValid()) {
                 if (auto *rowerDevice = qobject_cast<rower *>(Rower)) {
                     rowerDevice->start();
                 }
-                writeCharacteristic(sourceService, notify2, QByteArray::fromHex("f0d00101c2"));
+                writeCharacteristic(serviceEchelon, notify2, QByteArray::fromHex("f0d00101c2"));
             } else if (command == 0xA0) {
                 // keep-alive echo
-                writeCharacteristic(sourceService, notify1, newValue);
+                writeCharacteristic(serviceEchelon, notify1, newValue);
             }
         }
     }
 }
 
 void virtualrower::relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value) {
-    QLowEnergyService *targetService =
-        serviceEchelonActive ? serviceEchelonActive : (serviceEchelon ? serviceEchelon : serviceEchelonAdvertised);
-    if (!targetService || !leController || leController->state() != QLowEnergyController::ConnectedState) {
+    if (!serviceEchelon || !leController || leController->state() != QLowEnergyController::ConnectedState) {
         return;
     }
 
     QLowEnergyCharacteristic targetCharacteristic;
     if (sourceUuid == QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66"))) {
         targetCharacteristic =
-            targetService->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
+            serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
     } else if (sourceUuid == QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66"))) {
         targetCharacteristic =
-            targetService->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+            serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
     } else {
         return;
     }
@@ -549,18 +521,16 @@ void virtualrower::relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QB
         return;
     }
 
-    writeCharacteristic(targetService, targetCharacteristic, value);
+    writeCharacteristic(serviceEchelon, targetCharacteristic, value);
 }
 
 void virtualrower::echelonWriteStatus() {
-    QLowEnergyService *targetService =
-        serviceEchelonActive ? serviceEchelonActive : (serviceEchelon ? serviceEchelon : serviceEchelonAdvertised);
-    if (!targetService) {
+    if (!serviceEchelon) {
         return;
     }
 
     QLowEnergyCharacteristic characteristic =
-        targetService->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+        serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
     if (!characteristic.isValid()) {
         return;
     }
@@ -580,7 +550,7 @@ void virtualrower::echelonWriteStatus() {
         pace = static_cast<uint16_t>(qBound(1.0, qRound(1800.0 / speed) * 1.0, 65535.0));
     }
 
-    writeCharacteristic(targetService, characteristic,
+    writeCharacteristic(serviceEchelon, characteristic,
                         echelonPacket({
                             0xf0,
                             0xd1,
@@ -606,9 +576,7 @@ void virtualrower::echelonWriteStatus() {
 }
 
 void virtualrower::echelonWriteResistance() {
-    QLowEnergyService *targetService =
-        serviceEchelonActive ? serviceEchelonActive : (serviceEchelon ? serviceEchelon : serviceEchelonAdvertised);
-    if (!targetService) {
+    if (!serviceEchelon) {
         return;
     }
 
@@ -618,12 +586,12 @@ void virtualrower::echelonWriteResistance() {
     }
 
     QLowEnergyCharacteristic characteristic =
-        targetService->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+        serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
     if (!characteristic.isValid()) {
         return;
     }
 
-    writeCharacteristic(targetService, characteristic,
+    writeCharacteristic(serviceEchelon, characteristic,
                         echelonPacket({0xf0, 0xd2, 0x01, static_cast<uint8_t>(qBound(0, resistance, 255))}));
     echelonLastResistance = resistance;
 }
@@ -673,29 +641,12 @@ void virtualrower::reconnect() {
         QThread::msleep(100); // give time to Android to add the service async.ly
     }
     if (!serviceDataEchelon.characteristics().isEmpty()) {
-        serviceEchelonActive = nullptr;
-        if (!serviceDataEchelonAdvertised.characteristics().isEmpty()) {
-            serviceEchelonAdvertised = leController->addService(serviceDataEchelonAdvertised);
-            QThread::msleep(100);
-        }
         serviceEchelon = leController->addService(serviceDataEchelon);
         QThread::msleep(100);
-        qDebug() << QStringLiteral("virtual rower echelon services re-added")
-                 << QStringLiteral("advertised f0:") << (serviceEchelonAdvertised != nullptr)
-                 << QStringLiteral("communication f1:") << (serviceEchelon != nullptr);
     }
 
     if (!this->noHeartService || heart_only)
         serviceHR = leController->addService(serviceDataHR);
-
-    if (serviceEchelonAdvertised) {
-        QObject::connect(serviceEchelonAdvertised, &QLowEnergyService::characteristicChanged, this,
-                         &virtualrower::characteristicChanged);
-    }
-    if (serviceEchelon) {
-        QObject::connect(serviceEchelon, &QLowEnergyService::characteristicChanged, this,
-                         &virtualrower::characteristicChanged);
-    }
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
