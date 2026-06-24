@@ -104,7 +104,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
     bool echelon = settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     const QString echelonAdvertisingName =
-        !t->bluetoothDevice.name().isEmpty() ? t->bluetoothDevice.name() : QStringLiteral("ECHEX-5s-113399");
+        !t->bluetoothDevice.name().isEmpty() ? t->bluetoothDevice.name() : QStringLiteral("ROW-S-015244");
 
     // Check if PM5 mode is enabled
     pm5Mode = settings.value(QZSettings::virtual_device_rower_pm5, QZSettings::default_virtual_device_rower_pm5).toBool();
@@ -642,6 +642,10 @@ void virtualrower::reconnect() {
     }
     if (!serviceDataEchelon.characteristics().isEmpty()) {
         serviceEchelon = leController->addService(serviceDataEchelon);
+        if (serviceEchelon) {
+            QObject::connect(serviceEchelon, &QLowEnergyService::characteristicChanged, this,
+                             &virtualrower::characteristicChanged);
+        }
         QThread::msleep(100);
     }
 
