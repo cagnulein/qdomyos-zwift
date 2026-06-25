@@ -58,7 +58,7 @@ ApplicationWindow {
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                AndroidStatusBar.leftInset : 0;
     }
-    
+
     function getRightPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
@@ -877,8 +877,6 @@ ApplicationWindow {
         id: headerToolbar
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
         topPadding: getTopPadding()
-        leftPadding: getLeftPadding()
-        rightPadding: getRightPadding()
 
         ToolButton {
             id: toolButton
