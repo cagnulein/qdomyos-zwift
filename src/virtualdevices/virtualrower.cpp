@@ -529,7 +529,12 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 
         if (notify1.isValid()) {
             const uint8_t command = static_cast<uint8_t>(newValue.at(1));
-            if (command == 0xA1) {
+            if (command == 0xA4) {
+                // The Echelon app opens the handshake with A4 (f0 a4 00 94), like the treadmill/bike.
+                writeCharacteristic(serviceEchelon, notify1, QByteArray::fromHex("f0a4010095"));
+            } else if (command == 0xA5) {
+                writeCharacteristic(serviceEchelon, notify1, QByteArray::fromHex("f0a5010ea4"));
+            } else if (command == 0xA1) {
                 // Echelon rower model/info reply (from snoop)
                 writeCharacteristic(serviceEchelon, notify1, QByteArray::fromHex("f0a106101e0050060520"));
                 echelonInitDone = true;
