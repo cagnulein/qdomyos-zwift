@@ -47,8 +47,11 @@ public class CustomQtActivity extends QtActivity {
         AgeSignalsHelper.requestAgeSignals(this);
         HealthConnectHelper.initialize(this);
 
-        // This tells the OS that we want to handle the display cutout area ourselves
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        // Extend window into display cutout areas on all edges so we can handle insets ourselves.
+        // ALWAYS (API 30+) covers all 4 rotation variants; fall back to SHORT_EDGES on API 28-29.
+        if (Build.VERSION.SDK_INT >= 30) {
+            getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         }
 

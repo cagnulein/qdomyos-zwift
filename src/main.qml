@@ -42,14 +42,15 @@ ApplicationWindow {
             }
         }
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
-               AndroidStatusBar.height : AndroidStatusBar.leftInset;
+        // AndroidStatusBar.height is always the top inset in the current orientation
+        // (getSystemWindowInsets() returns orientation-aware values)
+        return AndroidStatusBar.height;
     }
 
     function getBottomPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
-               AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
+        // navigationBarHeight is always the bottom inset in the current orientation
+        return AndroidStatusBar.navigationBarHeight;
     }
 
     function getLeftPadding() {
