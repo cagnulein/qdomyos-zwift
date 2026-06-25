@@ -1,6 +1,8 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -47,9 +49,15 @@ public class CustomQtActivity extends QtActivity {
         AgeSignalsHelper.requestAgeSignals(this);
         HealthConnectHelper.initialize(this);
 
-        // Extend window into display cutout areas on all edges so we can handle insets ourselves.
-        // ALWAYS (API 30+) covers all 4 rotation variants; fall back to SHORT_EDGES on API 28-29.
+        // Make the window truly edge-to-edge so the app renders into ALL screen areas
+        // including the display cutout (punch-hole/notch) on all 4 rotation variants.
+        // setDecorFitsSystemWindows(false) (API 30+) prevents the system from shrinking
+        // the content area around insets — we handle insets ourselves via onApplyWindowInsets.
+        // LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS extends into the cutout on every edge.
+        // Dark window background ensures no white strip is visible in areas Qt may not render.
+        getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
         if (Build.VERSION.SDK_INT >= 30) {
+            getWindow().setDecorFitsSystemWindows(false);
             getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
