@@ -13557,6 +13557,19 @@
         "source": "expression",
         "expression": "appLanguageOptions"
       }
+    },
+    {
+      "key": "treadmill_force_running_activity",
+      "name": "Force Running Activity",
+      "description": "Turn this on to write treadmill FIT files as running activities even when the average speed is below 6.5 km/h. This can help Garmin calculate Training Effect for high-incline treadmill workouts. Default is off.",
+      "parent": "Treadmill Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null
     }
   ]
 }

@@ -1693,7 +1693,8 @@ import Qt.labs.platform 1.1
             property string shortcut_stop: ""
             property real trainprogram_warmup_speed: 420
             property real trainprogram_cooldown_speed: 420
-            property real trainprogram_rest_speed: 420            
+            property real trainprogram_rest_speed: 420
+            property bool treadmill_force_running_activity: false
         }
 
 
@@ -9182,6 +9183,34 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Turn this on to have QZ control the speed of your treadmill during, for example, Peloton classes based on the coach’s speed callouts. Your speed will be in the low, upper or average range based on your Peloton Options > Difficulty setting. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: treadmillForceRunningActivityDelegate
+                        text: qsTr("Force Running Activity")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_force_running_activity
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_force_running_activity = checked
+                    }
+
+                    Label {
+                        text: qsTr("Turn this on to write treadmill FIT files as running activities even when the average speed is below 6.5 km/h. This can help Garmin calculate Training Effect for high-incline treadmill workouts. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

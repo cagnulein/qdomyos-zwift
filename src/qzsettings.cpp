@@ -98,6 +98,7 @@ const QString QZSettings::miles_unit = QStringLiteral("miles_unit");
 const QString QZSettings::weight_kg_unit = QStringLiteral("weight_kg_unit");
 const QString QZSettings::pause_on_start = QStringLiteral("pause_on_start");
 const QString QZSettings::treadmill_force_speed = QStringLiteral("treadmill_force_speed");
+const QString QZSettings::treadmill_force_running_activity = QStringLiteral("treadmill_force_running_activity");
 const QString QZSettings::pause_on_start_treadmill = QStringLiteral("pause_on_start_treadmill");
 const QString QZSettings::continuous_moving = QStringLiteral("continuous_moving");
 const QString QZSettings::bike_cadence_sensor = QStringLiteral("bike_cadence_sensor");
@@ -1236,7 +1237,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 965;
+const uint32_t allSettingsCount = 966;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1301,6 +1302,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit},
     {QZSettings::pause_on_start, QZSettings::default_pause_on_start},
     {QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed},
+    {QZSettings::treadmill_force_running_activity, QZSettings::default_treadmill_force_running_activity},
     {QZSettings::pause_on_start_treadmill, QZSettings::default_pause_on_start_treadmill},
     {QZSettings::continuous_moving, QZSettings::default_continuous_moving},
     {QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor},
