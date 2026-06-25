@@ -157,15 +157,17 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
                 services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
             }
         }
+
+        if (echelon) {
+            services << QBluetoothUuid(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66"));
+        }
+
         if (!this->noHeartService || heart_only) {
             services << QBluetoothUuid::HeartRate;
         }
 
         if (!pm5Mode && !echelon) {
             services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
-        }
-        if (echelon) {
-            services << QBluetoothUuid(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66"));
         }
 
         advertisingData.setServices(services);
@@ -273,6 +275,9 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         }
 
         if (echelon) {
+            serviceDataEchelonDiscovery.setType(QLowEnergyServiceData::ServiceTypePrimary);
+            serviceDataEchelonDiscovery.setUuid(QBluetoothUuid(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66")));
+
             serviceDataEchelon.setType(QLowEnergyServiceData::ServiceTypePrimary);
             serviceDataEchelon.setUuid(QBluetoothUuid(QStringLiteral("0bf669f1-45f2-11e7-9598-0800200c9a66")));
 
@@ -322,11 +327,13 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             QThread::msleep(100); // give time to Android to add the service async.ly
         }
 
+        if (echelon) {
+            serviceEchelonDiscovery = leController->addService(serviceDataEchelonDiscovery);
+            QThread::msleep(100);
+            serviceEchelon = leController->addService(serviceDataEchelon);
+        }
         if (!this->noHeartService || heart_only) {
             serviceHR = leController->addService(serviceDataHR);
-        }
-        if (echelon) {
-            serviceEchelon = leController->addService(serviceDataEchelon);
         }
 
         if (!pm5Mode && !echelon && serviceFIT) {
@@ -640,7 +647,9 @@ void virtualrower::reconnect() {
         serviceFIT = leController->addService(serviceDataFIT);
         QThread::msleep(100); // give time to Android to add the service async.ly
     }
-    if (!serviceDataEchelon.characteristics().isEmpty()) {
+    if (echelon && !serviceDataEchelon.characteristics().isEmpty()) {
+        serviceEchelonDiscovery = leController->addService(serviceDataEchelonDiscovery);
+        QThread::msleep(100);
         serviceEchelon = leController->addService(serviceDataEchelon);
         if (serviceEchelon) {
             QObject::connect(serviceEchelon, &QLowEnergyService::characteristicChanged, this,
