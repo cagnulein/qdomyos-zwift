@@ -693,6 +693,8 @@ void GarminConnectTestSuite::test_workoutDetailsJson_nestedRepeatGroupIsUnrolled
     EXPECT_TRUE(xml.contains("duration=\"00:15:00\" power=\"157\""))
         << "Cooldown must be 15min at 157W. XML was:\n"
         << xml.toStdString();
+}
+
 void GarminConnectTestSuite::test_workoutFileName_appendsSportSuffix()
 {
     const QString runFileName =

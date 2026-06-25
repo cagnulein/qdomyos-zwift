@@ -1392,34 +1392,8 @@ bool trainprogram::advanceBlockingStep(const QString &toastMessage) {
     rows[currentStep].started = now;
     if (bluetoothManager && bluetoothManager->device()) {
         lastOdometer = bluetoothManager->device()->odometer();
-
-        if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
-            qDebug() << QStringLiteral("trainprogram change speed ") + QString::number(rows.at(currentStep).speed);
-            emit changeSpeed(rows.at(currentStep).speed);
-        }
-        if (rows.at(currentStep).resistance != -1) {
-            qDebug() << QStringLiteral("trainprogram change resistance ") + QString::number(rows.at(currentStep).resistance);
-            emit changeResistance(rows.at(currentStep).resistance);
-        }
-        if (rows.at(currentStep).cadence != -1) {
-            qDebug() << QStringLiteral("trainprogram change cadence ") + QString::number(rows.at(currentStep).cadence);
-            emit changeCadence(rows.at(currentStep).cadence);
-        }
-        if (rows.at(currentStep).power != -1) {
-            qDebug() << QStringLiteral("trainprogram change power ") + QString::number(rows.at(currentStep).power);
-            emit changePower(rows.at(currentStep).power);
-        }
-        if (rows.at(currentStep).requested_peloton_resistance != -1) {
-            qDebug() << QStringLiteral("trainprogram change requested peloton resistance ") +
-                            QString::number(rows.at(currentStep).requested_peloton_resistance);
-            emit changeRequestedPelotonResistance(rows.at(currentStep).requested_peloton_resistance);
-        }
-        if (rows.at(currentStep).fanspeed != -1) {
-            qDebug() << QStringLiteral("trainprogram change fanspeed ") + QString::number(rows.at(currentStep).fanspeed);
-            emit changeFanSpeed(rows.at(currentStep).fanspeed);
-        }
     }
-    emit intervalTransitionApplied();
+    applyCurrentStepSettings();
     return true;
 }
 

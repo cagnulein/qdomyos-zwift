@@ -1973,6 +1973,15 @@ static QString garminEndConditionCompareKey(const QJsonObject &step) {
     return compare.toString();
 }
 
+static double garminSpeedFromPaceSetting(const QString &settingKey, double defaultPaceSecPerKm) {
+    QSettings settings;
+    const double paceSecPerKm = settings.value(settingKey, defaultPaceSecPerKm).toDouble();
+    if (paceSecPerKm <= 0) {
+        return 0.0;
+    }
+    return 3600.0 / paceSecPerKm;
+}
+
 static void appendGarminStep(QString &xml, const QJsonObject &step, int indent,
                              const QMap<int, double> &powerCurve) {
     QString pad(indent * 4, QChar(' '));
@@ -1988,6 +1997,10 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent,
     const bool heartRateBelowEndCondition =
         heartRateEndCondition && (garminStringIndicatesBelow(condTypeKey) ||
                                   garminStringIndicatesBelow(condCompareKey));
+    QString stepTypeKey;
+    if (step["stepType"].isObject() && !step["stepType"].isNull()) {
+        stepTypeKey = step["stepType"].toObject()["stepTypeKey"].toString();
+    }
 
     QString targetTypeKey;
     if (step["targetType"].isObject() && !step["targetType"].isNull()) {
@@ -2087,6 +2100,23 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent,
                 attrs += QString(" speed=\"%1\"").arg(garminSpeedMpsToKph(singleMps), 0, 'f', 3);
                 attrs += QStringLiteral(" forcespeed=\"1\"");
             }
+        }
+    } else {
+        double fallbackSpeed = 0.0;
+        if (stepTypeKey.compare(QStringLiteral("warmup"), Qt::CaseInsensitive) == 0) {
+            fallbackSpeed = garminSpeedFromPaceSetting(QZSettings::trainprogram_warmup_speed,
+                                                       QZSettings::default_trainprogram_warmup_speed);
+        } else if (stepTypeKey.compare(QStringLiteral("cooldown"), Qt::CaseInsensitive) == 0) {
+            fallbackSpeed = garminSpeedFromPaceSetting(QZSettings::trainprogram_cooldown_speed,
+                                                       QZSettings::default_trainprogram_cooldown_speed);
+        } else if (stepTypeKey.compare(QStringLiteral("rest"), Qt::CaseInsensitive) == 0 ||
+                   stepTypeKey.compare(QStringLiteral("recovery"), Qt::CaseInsensitive) == 0) {
+            fallbackSpeed = garminSpeedFromPaceSetting(QZSettings::trainprogram_rest_speed,
+                                                       QZSettings::default_trainprogram_rest_speed);
+        }
+        if (fallbackSpeed > 0.0) {
+            attrs += QString(" speed=\"%1\"").arg(fallbackSpeed, 0, 'f', 3);
+            attrs += QStringLiteral(" forcespeed=\"1\"");
         }
     }
     if (waitForLap) {
