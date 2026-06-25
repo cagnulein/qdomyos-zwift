@@ -575,9 +575,20 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             } else if (command == 0xA0) {
                 // keep-alive echo
                 writeEchelonCharacteristic(notify1, newValue);
+            } else if (command == 0xD3 && newValue.length() >= 6) {
+                // The Echelon app drives the Stride speed: f0 d3 02 <speed_hi> <speed_lo> (mm/s, /1000 = km/h).
+                if (auto *treadmillDevice = qobject_cast<treadmill *>(treadMill)) {
+                    const uint16_t rawSpeed =
+                        (static_cast<uint8_t>(newValue.at(3)) << 8) | static_cast<uint8_t>(newValue.at(4));
+                    treadmillDevice->changeSpeed(static_cast<double>(rawSpeed) / 1000.0);
+                }
+            } else if (command == 0xD2 && newValue.length() >= 5) {
+                // The Echelon app drives the Stride inclination: f0 d2 01 <inclination>.
+                if (auto *treadmillDevice = qobject_cast<treadmill *>(treadMill)) {
+                    const double inclination = static_cast<uint8_t>(newValue.at(3));
+                    treadmillDevice->changeInclination(inclination, inclination);
+                }
             }
-            // Note: incoming 0xD1/0xD2/0xD3/0xD5 writes are the app's acknowledgement echoes of our own
-            // telemetry notifications (as seen in the snoop), not control commands, so they are ignored.
         }
     }
 }
@@ -664,10 +675,9 @@ void virtualtreadmill::echelonWriteSpeed() {
         return;
     }
 
+    // Stream the speed on every tick (the real Stride streams d3 continuously); the app needs it to show
+    // the current speed, not only on change.
     const qint32 speedValue = qRound(static_cast<treadmill *>(treadMill)->currentSpeed().value() * 1000.0);
-    if (echelonLastSpeed == speedValue) {
-        return;
-    }
 
     QLowEnergyCharacteristic characteristic =
         serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
@@ -690,10 +700,8 @@ void virtualtreadmill::echelonWriteInclination() {
         return;
     }
 
+    // Stream the inclination on every tick so the app always shows the current value.
     const int inclinationValue = qRound(static_cast<treadmill *>(treadMill)->currentInclination().value());
-    if (echelonLastInclination == inclinationValue) {
-        return;
-    }
 
     QLowEnergyCharacteristic characteristic =
         serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
@@ -946,6 +954,20 @@ void virtualtreadmill::treadmillProvider() {
         }
     }
 
+    // In Echelon emulation mode we own the telemetry entirely (status/speed/inclination/running state) and
+    // must stream it on every tick. The FTMS/RSC/HR machinery below is for the non-Echelon virtual treadmill
+    // and contains early returns that would otherwise short-circuit the Echelon notifications, so handle it
+    // here and return.
+    if (echelon) {
+        if (echelonInitDone && serviceEchelon) {
+            echelonWriteStatus();
+            echelonWriteRunningState();
+            echelonWriteInclination();
+            echelonWriteSpeed();
+        }
+        return;
+    }
+
     QByteArray value;
 
     if (ftmsServiceEnable()) {
@@ -1049,13 +1071,6 @@ void virtualtreadmill::treadmillProvider() {
                 qDebug() << QStringLiteral("virtualtreadmill error!");
             }
         }
-    }
-
-    if (echelon && echelonInitDone && serviceEchelon) {
-        echelonWriteStatus();
-        echelonWriteRunningState();
-        echelonWriteInclination();
-        echelonWriteSpeed();
     }
 }
 
