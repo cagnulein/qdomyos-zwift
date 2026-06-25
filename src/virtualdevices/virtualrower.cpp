@@ -300,6 +300,48 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             serviceDataEchelon.addCharacteristic(echelonWrite);
             serviceDataEchelon.addCharacteristic(echelonNotify1);
             serviceDataEchelon.addCharacteristic(echelonNotify2);
+
+            // The real Echelon rower also exposes a Device Information service and the Nordic Secure DFU
+            // service (it runs on a Nordic chip). They are never read during the unlock handshake in the
+            // snoop, but we replicate them so the Echelon app sees an identical GATT layout.
+            QLowEnergyCharacteristicData disManufacturer;
+            disManufacturer.setUuid(QBluetoothUuid::CharacteristicType::ManufacturerNameString);
+            disManufacturer.setProperties(QLowEnergyCharacteristic::Read);
+            disManufacturer.setValue(QByteArray("Echelon"));
+
+            QLowEnergyCharacteristicData disModel;
+            disModel.setUuid(QBluetoothUuid::CharacteristicType::ModelNumberString);
+            disModel.setProperties(QLowEnergyCharacteristic::Read);
+            disModel.setValue(echelonAdvertisingName.toUtf8());
+
+            QLowEnergyCharacteristicData disHardware;
+            disHardware.setUuid(QBluetoothUuid::CharacteristicType::HardwareRevisionString);
+            disHardware.setProperties(QLowEnergyCharacteristic::Read);
+            disHardware.setValue(QByteArray("1.0"));
+
+            QLowEnergyCharacteristicData disFirmware;
+            disFirmware.setUuid(QBluetoothUuid::CharacteristicType::FirmwareRevisionString);
+            disFirmware.setProperties(QLowEnergyCharacteristic::Read);
+            disFirmware.setValue(QByteArray("1.0.0"));
+
+            serviceDataEchelonDIS.setType(QLowEnergyServiceData::ServiceTypePrimary);
+            serviceDataEchelonDIS.setUuid(QBluetoothUuid::DeviceInformation);
+            serviceDataEchelonDIS.addCharacteristic(disManufacturer);
+            serviceDataEchelonDIS.addCharacteristic(disModel);
+            serviceDataEchelonDIS.addCharacteristic(disHardware);
+            serviceDataEchelonDIS.addCharacteristic(disFirmware);
+
+            // Nordic Secure DFU service (0xFE59) with the buttonless DFU characteristic. We only expose it
+            // for parity; QZ does not implement firmware flashing, so it intentionally has no handler.
+            QLowEnergyCharacteristicData dfuButtonless;
+            dfuButtonless.setUuid(QBluetoothUuid(QStringLiteral("8ec90003-f315-4f60-9fb8-838830daea50")));
+            dfuButtonless.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
+            dfuButtonless.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                                 QByteArray::fromHex("0000")));
+
+            serviceDataEchelonDFU.setType(QLowEnergyServiceData::ServiceTypePrimary);
+            serviceDataEchelonDFU.setUuid(QBluetoothUuid(QStringLiteral("0000fe59-0000-1000-8000-00805f9b34fb")));
+            serviceDataEchelonDFU.addCharacteristic(dfuButtonless);
         }
 
         //! [Start Advertising]
@@ -331,6 +373,10 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             serviceEchelonDiscovery = leController->addService(serviceDataEchelonDiscovery);
             QThread::msleep(100);
             serviceEchelon = leController->addService(serviceDataEchelon);
+            QThread::msleep(100);
+            serviceEchelonDIS = leController->addService(serviceDataEchelonDIS);
+            QThread::msleep(100);
+            serviceEchelonDFU = leController->addService(serviceDataEchelonDFU);
         }
         if (!this->noHeartService || heart_only) {
             serviceHR = leController->addService(serviceDataHR);
@@ -656,6 +702,14 @@ void virtualrower::reconnect() {
                              &virtualrower::characteristicChanged);
         }
         QThread::msleep(100);
+        if (!serviceDataEchelonDIS.characteristics().isEmpty()) {
+            serviceEchelonDIS = leController->addService(serviceDataEchelonDIS);
+            QThread::msleep(100);
+        }
+        if (!serviceDataEchelonDFU.characteristics().isEmpty()) {
+            serviceEchelonDFU = leController->addService(serviceDataEchelonDFU);
+            QThread::msleep(100);
+        }
     }
 
     if (!this->noHeartService || heart_only)

@@ -45,8 +45,9 @@ class virtualtreadmill : public virtualdevice {
     QLowEnergyService *serviceDIS = nullptr;
     QLowEnergyService *serviceWahoo = nullptr;
     QLowEnergyService *serviceEchelon = nullptr;
+    QLowEnergyService *serviceEchelonDFU = nullptr;
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)    
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QLowEnergyService *genericAccessServer = nullptr;
     QLowEnergyService *genericAttributeService = nullptr;
 #endif       
@@ -59,8 +60,9 @@ class virtualtreadmill : public virtualdevice {
     QLowEnergyServiceData serviceDataDIS;
     QLowEnergyServiceData serviceDataWahoo;
     QLowEnergyServiceData serviceDataEchelon;
+    QLowEnergyServiceData serviceDataEchelonDFU;
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)    
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QLowEnergyServiceData genericAccessServerData;
     QLowEnergyServiceData genericAttributeServiceData;
 #endif      

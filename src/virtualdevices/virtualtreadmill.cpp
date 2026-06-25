@@ -116,26 +116,35 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         advertisingData.setServices(services);
         //! [Advertising Data]
 
-        // Add Device Information Service
+        // Add Device Information Service. When emulating an Echelon treadmill we report Echelon-branded
+        // values (and a Model Number) so the GATT layout matches the real Stride.
         QLowEnergyCharacteristicData manufacturerNameChar;
         manufacturerNameChar.setUuid(QBluetoothUuid::CharacteristicType::ManufacturerNameString);
         manufacturerNameChar.setProperties(QLowEnergyCharacteristic::Read);
-        manufacturerNameChar.setValue(QByteArray("Wahoo Fitness")); // Changed to Wahoo Fitness
+        manufacturerNameChar.setValue(echelon ? QByteArray("Echelon") : QByteArray("Wahoo Fitness"));
 
         QLowEnergyCharacteristicData firmwareRevChar;
         firmwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::FirmwareRevisionString);
         firmwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
-        firmwareRevChar.setValue(QByteArray("1.0.11"));
+        firmwareRevChar.setValue(echelon ? QByteArray("1.0.0") : QByteArray("1.0.11"));
 
         QLowEnergyCharacteristicData hardwareRevChar;
         hardwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::HardwareRevisionString);
         hardwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
-        hardwareRevChar.setValue(QByteArray("1"));
+        hardwareRevChar.setValue(echelon ? QByteArray("1.0") : QByteArray("1"));
 
-        // Create Device Information Service        
+        QLowEnergyCharacteristicData modelNumberChar;
+        modelNumberChar.setUuid(QBluetoothUuid::CharacteristicType::ModelNumberString);
+        modelNumberChar.setProperties(QLowEnergyCharacteristic::Read);
+        modelNumberChar.setValue(echelonAdvertisingName.toUtf8());
+
+        // Create Device Information Service
         serviceDataDIS.setType(QLowEnergyServiceData::ServiceTypePrimary);
         serviceDataDIS.setUuid(QBluetoothUuid::DeviceInformation);
         serviceDataDIS.addCharacteristic(manufacturerNameChar);
+        if (echelon) {
+            serviceDataDIS.addCharacteristic(modelNumberChar);
+        }
         serviceDataDIS.addCharacteristic(firmwareRevChar);
         serviceDataDIS.addCharacteristic(hardwareRevChar);
 
@@ -188,6 +197,19 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             serviceDataEchelon.addCharacteristic(echelonWrite);
             serviceDataEchelon.addCharacteristic(echelonNotify1);
             serviceDataEchelon.addCharacteristic(echelonNotify2);
+
+            // The real Echelon Stride runs on a Nordic chip and also exposes the Nordic Secure DFU service
+            // (0xFE59). We replicate it for GATT parity only; QZ does not implement firmware flashing, so it
+            // intentionally has no handler. The Device Information service (0x180A) is already provided above.
+            QLowEnergyCharacteristicData dfuButtonless;
+            dfuButtonless.setUuid(QBluetoothUuid(QStringLiteral("8ec90003-f315-4f60-9fb8-838830daea50")));
+            dfuButtonless.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
+            dfuButtonless.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                                 QByteArray::fromHex("0000")));
+
+            serviceDataEchelonDFU.setType(QLowEnergyServiceData::ServiceTypePrimary);
+            serviceDataEchelonDFU.setUuid(QBluetoothUuid(QStringLiteral("0000fe59-0000-1000-8000-00805f9b34fb")));
+            serviceDataEchelonDFU.addCharacteristic(dfuButtonless);
         }
 
         //! [Service Data]
@@ -413,10 +435,12 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
         if (echelon) {
             serviceEchelon = leController->addService(serviceDataEchelon);
+            QThread::msleep(100);
+            serviceEchelonDFU = leController->addService(serviceDataEchelonDFU);
         }
         QThread::msleep(100);
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)        
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         genericAccessServer = leController->addService(genericAccessServerData);
         genericAttributeService = leController->addService(genericAttributeServiceData);
 #endif          
@@ -771,6 +795,10 @@ void virtualtreadmill::reconnect() {
     if (!serviceDataEchelon.characteristics().isEmpty()) {
         serviceEchelon = leController->addService(serviceDataEchelon);
         QThread::msleep(100);
+        if (!serviceDataEchelonDFU.characteristics().isEmpty()) {
+            serviceEchelonDFU = leController->addService(serviceDataEchelonDFU);
+            QThread::msleep(100);
+        }
     }
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
