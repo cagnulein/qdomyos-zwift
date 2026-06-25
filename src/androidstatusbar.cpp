@@ -38,14 +38,24 @@ int AndroidStatusBar::apiLevel() const
 #endif
 }
 
-void AndroidStatusBar::onInsetsChanged(int top, int bottom, int left, int right)
+void AndroidStatusBar::onInsetsChanged(int top, int bottom, int left, int right, int waterfallTop,
+                                        int waterfallBottom, int waterfallLeft, int waterfallRight)
 {
-    if (m_top != top || m_bottom != bottom || m_left != left || m_right != right) {
+    if (m_top != top || m_bottom != bottom || m_left != left || m_right != right ||
+        m_waterfallTop != waterfallTop || m_waterfallBottom != waterfallBottom ||
+        m_waterfallLeft != waterfallLeft || m_waterfallRight != waterfallRight) {
         m_top = top;
         m_bottom = bottom;
         m_left = left;
         m_right = right;
-        qDebug() << "Insets changed - Top:" << m_top << "Bottom:" << m_bottom << "Left:" << m_left << "Right:" << m_right;
+        m_waterfallTop = waterfallTop;
+        m_waterfallBottom = waterfallBottom;
+        m_waterfallLeft = waterfallLeft;
+        m_waterfallRight = waterfallRight;
+        qDebug() << "Insets changed - Top:" << m_top << "Bottom:" << m_bottom << "Left:" << m_left
+                 << "Right:" << m_right << "WaterfallTop:" << m_waterfallTop
+                 << "WaterfallBottom:" << m_waterfallBottom << "WaterfallLeft:" << m_waterfallLeft
+                 << "WaterfallRight:" << m_waterfallRight;
         emit insetsChanged();
     }
 }
@@ -53,12 +63,16 @@ void AndroidStatusBar::onInsetsChanged(int top, int bottom, int left, int right)
 #ifdef Q_OS_ANDROID
 // JNI method with standard naming convention
 extern "C" JNIEXPORT void JNICALL
-Java_org_cagnulen_qdomyoszwift_CustomQtActivity_onInsetsChanged(JNIEnv *env, jobject thiz, jint top, jint bottom, jint left, jint right)
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_onInsetsChanged(JNIEnv *env, jobject thiz, jint top,
+                                                                    jint bottom, jint left, jint right,
+                                                                    jint waterfallTop, jint waterfallBottom,
+                                                                    jint waterfallLeft, jint waterfallRight)
 {
     Q_UNUSED(env);
     Q_UNUSED(thiz);
     if (AndroidStatusBar::instance()) {
-        AndroidStatusBar::instance()->onInsetsChanged(top, bottom, left, right);
+        AndroidStatusBar::instance()->onInsetsChanged(top, bottom, left, right, waterfallTop, waterfallBottom,
+                                                       waterfallLeft, waterfallRight);
     }
 }
 #endif

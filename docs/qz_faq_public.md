@@ -88,7 +88,6 @@ Sound alerts triggered by HR zone are not currently supported.
 
 Follow this guide:
 https://github.com/cagnulein/qdomyos-zwift/wiki/How-do-i-get-the-debug-log-in-case-something-doesn't-work%3F
-
 ### 14. Calorie burn estimate looks way too high
 **Q: QZ shows an unrealistically high calorie burn (e.g. 30+ kcal/minute) - what's wrong?**
 
@@ -116,4 +115,3 @@ After the reboot, QZ should advertise correctly and be visible to other apps/dev
 
 Yes, QZ has a macOS build that runs on Apple Silicon. If you run into issues with your trainer not being detected or metrics not updating when both QZ and Zwift are on the same Mac, please share a debug log from a session that reproduces the problem so it can be diagnosed:
 https://github.com/cagnulein/qdomyos-zwift/wiki/How-do-i-get-the-debug-log-in-case-something-doesn't-work%3F
-
