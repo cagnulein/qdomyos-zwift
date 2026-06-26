@@ -4349,38 +4349,37 @@ void homeform::moveTile(QString name, int newIndex, int oldIndex) {
     if (current) {
         qDebug() << "moveTile" << name << newIndex << oldIndex;
 
-        foreach (QString s, settings.allKeys()) {
-            if (s.contains(QStringLiteral("tile_")) && s.contains(QStringLiteral("_order"))) {
-
-                qDebug() << s << settings.value(s);
-            }
-        }
+        // Some DataObject m_ids don't match their QZSettings _order key (camelCase vs snake_case).
+        // This lambda returns the correct settings key for a given DataObject.
+        auto orderKey = [](const DataObject *d) -> QString {
+            static const QHash<QString, QString> overrides = {
+                {QStringLiteral("avgWattLap"),          QStringLiteral("tile_avg_watt_lap_order")},
+                {QStringLiteral("joul"),                QStringLiteral("tile_jouls_order")},
+                {QStringLiteral("steeringangle"),       QStringLiteral("tile_steering_angle_order")},
+                {QStringLiteral("stride_length"),       QStringLiteral("tile_instantaneous_stride_length_order")},
+                {QStringLiteral("external_inclination"),QStringLiteral("tile_ext_incline_order")},
+                {QStringLiteral("target_inclination"),  QStringLiteral("tile_target_incline_order")},
+            };
+            auto it = overrides.constFind(d->m_id);
+            if (it != overrides.constEnd()) return it.value();
+            return QStringLiteral("tile_") + d->m_id.toLower() + QStringLiteral("_order");
+        };
 
         int i = 0;
         foreach (QObject *d, dataList) {
             if (i == newIndex) {
-                settings.setValue("tile_" + current->m_id.toLower() + "_order", i);
+                settings.setValue(orderKey(current), i);
                 i++;
             }
-            QString n = ((DataObject *)d)->m_id;
             if (((DataObject *)d)->name().compare(name)) {
-                settings.setValue("tile_" + n.toLower() + "_order", i);
+                settings.setValue(orderKey((DataObject *)d), i);
                 i++;
             }
         }
         if (i <= newIndex) {
-            settings.setValue("tile_" + current->m_id.toLower() + "_order", newIndex);
+            settings.setValue(orderKey(current), newIndex);
         }
 
-        foreach (QString s, settings.allKeys()) {
-            if (s.contains(QStringLiteral("tile_")) && s.contains(QStringLiteral("_order"))) {
-
-                qDebug() << s << settings.value(s);
-            }
-        }
-
-        // sortTiles();
-        // dataList.move(oldIndex, newIndex);
         // very dirty, but i needed a way to synchronize QML with C++
         QTimer::singleShot(100, this, &homeform::sortTilesTimeout);
     }
