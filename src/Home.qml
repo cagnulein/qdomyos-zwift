@@ -225,10 +225,10 @@ HomeForm {
 
             states: State {
                 name: "active"; when: loc.currentId === gridId && window.lockTiles
-                PropertyChanges { target: id1; x: loc.mouseX - gridView.x - width/2; y: loc.mouseY - gridView.y - height/2 + gridView.contentY; scale: 0.5; z: 10 }
+                PropertyChanges { target: id1; opacity: 0.3 }
             }
 
-            transitions: Transition { NumberAnimation { property: "scale"; duration: 200} }
+            transitions: Transition { NumberAnimation { property: "opacity"; duration: 200} }
 
             Rectangle {
                 width: 168 * settings.ui_zoom / 100
@@ -509,6 +509,36 @@ HomeForm {
                 id: videoPlayer
                 anchors.fill: parent
                 source: videoPlaybackHalf
+            }
+        }
+    }
+
+    Item {
+        id: ghostTile
+        visible: loc.currentId !== -1 && window.lockTiles
+        x: loc.mouseX - width / 2
+        y: loc.mouseY - height / 2
+        width: 85 * settings.ui_zoom / 100
+        height: 63 * settings.ui_zoom / 100
+        z: 200
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 3
+            color: settings.theme_tile_background_color
+            opacity: 0.9
+            border.width: 2
+            border.color: settings.theme_tile_shadow_color
+
+            Text {
+                anchors.centerIn: parent
+                color: "white"
+                text: loc.tileName
+                font.pointSize: 10 * settings.ui_zoom / 100
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                width: parent.width - 8
+                wrapMode: Text.WordWrap
             }
         }
     }
