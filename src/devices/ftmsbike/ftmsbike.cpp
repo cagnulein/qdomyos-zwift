@@ -1,5 +1,6 @@
 #include "ftmsbike.h"
 #include "devices/cscbike/cscbike.h"
+#include "horizon5r_defaults.h"
 #include "speedracex_defaults.h"
 #include "homeform.h"
 #include "virtualdevices/virtualbike.h"
@@ -2020,6 +2021,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false;
             JFBK5_0 = true;
+            if (bluetoothDevice.name().compare(QStringLiteral("JFBK5.0R"), Qt::CaseInsensitive) == 0) {
+                _ergTable.loadDefaultData(kHorizon5RDefaultErgData);
+            }
         } else if((bluetoothDevice.name().toUpper().startsWith("BIKE-"))) {
             qDebug() << QStringLiteral("BIKE- found");
             BIKE_ = true;
