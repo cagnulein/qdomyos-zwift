@@ -225,7 +225,7 @@ HomeForm {
 
             states: State {
                 name: "active"; when: loc.currentId === gridId && window.lockTiles
-                PropertyChanges { target: id1; x: loc.mouseX - gridView.x - width/2; y: loc.mouseY - gridView.y - height/2; scale: 0.5; z: 10 }
+                PropertyChanges { target: id1; x: loc.mouseX - gridView.x - width/2; y: loc.mouseY - gridView.y - height/2 + gridView.contentY; scale: 0.5; z: 10 }
             }
 
             transitions: Transition { NumberAnimation { property: "scale"; duration: 200} }
@@ -513,26 +513,88 @@ HomeForm {
         }
     }
 
+    Timer {
+        id: autoScrollTimer
+        interval: 50
+        repeat: true
+        running: false
+        property real scrollSpeed: 15
+        onTriggered: {
+            if (loc.currentId === -1) { running = false; return; }
+            var edgeZone = 80
+            if (loc.mouseY > gridView.height - edgeZone) {
+                var factor = (loc.mouseY - (gridView.height - edgeZone)) / edgeZone
+                gridView.contentY = Math.min(
+                    gridView.contentHeight - gridView.height,
+                    gridView.contentY + scrollSpeed * (1 + factor * 2)
+                )
+            } else if (loc.mouseY < edgeZone) {
+                var factor2 = (edgeZone - loc.mouseY) / edgeZone
+                gridView.contentY = Math.max(0, gridView.contentY - scrollSpeed * (1 + factor2 * 2))
+            } else {
+                running = false
+            }
+        }
+    }
+
     MouseArea {
-        property int currentId: -1 // Original position in model
-        property int newIndex // Current Position in model
-        property int index:  (Math.floor(gridView.width / gridView.cellWidth) * Math.floor(mouseY / gridView.cellHeight)) + Math.floor(mouseX / gridView.cellWidth)  //  gridView.indexAt(mouseX - gridView.x, mouseY - gridView.y) // Item underneath cursor
+        property int currentId: -1
+        property int newIndex
+        property int startIndex: -1
+        property string tileName: ""
+
+        function indexAtMouse(mx, my) {
+            var cols = Math.max(1, Math.floor(gridView.width / gridView.cellWidth))
+            var adjustedY = my + gridView.contentY
+            var col = Math.floor(mx / gridView.cellWidth)
+            var row = Math.floor(adjustedY / gridView.cellHeight)
+            var idx = row * cols + col
+            if (idx < 0 || idx >= appModel.count) return -1
+            return idx
+        }
 
         id: loc
         enabled: window.lockTiles
         anchors.fill: parent
-        onPressAndHold: { console.log("onPressAndHold " + index); if(index !== -1) currentId = appModel[newIndex = index].gridId; else currentId = -1; }
+
+        onPressAndHold: {
+            var idx = indexAtMouse(mouseX, mouseY)
+            console.log("onPressAndHold " + idx)
+            if (idx !== -1) {
+                startIndex = idx
+                newIndex = idx
+                currentId = appModel[idx].gridId
+                tileName = appModel[idx].name
+            } else {
+                currentId = -1
+                tileName = ""
+            }
+        }
+
         onReleased: {
-            console.log("onReleased " + currentId + " " + index );
-            if (currentId !== -1 && index !== -1 && index !== newIndex) {
-                rootItem.moveTile(appModel[currentId].name, index, newIndex);
-            } currentId = -1
+            autoScrollTimer.running = false
+            var idx = indexAtMouse(mouseX, mouseY)
+            console.log("onReleased tileName=" + tileName + " idx=" + idx + " startIndex=" + startIndex)
+            if (currentId !== -1 && idx !== -1 && idx !== startIndex) {
+                rootItem.moveTile(tileName, idx, startIndex)
+            }
+            currentId = -1
+            startIndex = -1
+            tileName = ""
         }
 
         onPositionChanged: {
-            console.log("onPositionChanged " + currentId + " " + index + " " + newIndex + " " + mouseX + " " + mouseY)
-            if (currentId !== -1 && index !== -1 && index !== newIndex) {
-                //appModel.move(newIndex, newIndex = index)
+            if (currentId === -1) return
+            var edgeZone = 80
+            if (mouseY > gridView.height - edgeZone || mouseY < edgeZone)
+                autoScrollTimer.running = true
+            else
+                autoScrollTimer.running = false
+
+            var idx = indexAtMouse(mouseX, mouseY)
+            console.log("onPositionChanged " + currentId + " " + idx + " " + newIndex + " " + mouseX + " " + mouseY)
+            if (idx !== -1 && idx !== newIndex) {
+                newIndex = idx
             }
         }
     }
