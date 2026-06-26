@@ -205,15 +205,6 @@ HomeForm {
             Accessible.description: largeButton ? largeButtonLabel : (secondLine !== "" ? secondLine : (writable ? qsTr("Adjustable. Current value: ") + value : qsTr("Current value: ") + value))
             Accessible.focusable: true
 
-            Behavior on x {
-                enabled: id1.state != "active"
-                NumberAnimation { duration: 400; easing.type: Easing.OutBack }
-            }
-
-            Behavior on y {
-                enabled: id1.state != "active"
-                NumberAnimation { duration: 400; easing.type: Easing.OutBack }
-            }
 
             SequentialAnimation on rotation {
                 NumberAnimation { to:  2; duration: 60 }
