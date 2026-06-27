@@ -125,7 +125,8 @@ bool WorkoutModel::deleteWorkout(int workoutId) {
     query.addBindValue(workoutId);
     QString filePath;
     if (query.exec() && query.next()) {
-        filePath = query.value("file_path").toString();
+        QString relativePath = query.value("file_path").toString();
+        filePath = makeAbsolutePath(relativePath);  // Convert to absolute path
     }
 
     // Delete the workout record
@@ -160,8 +161,9 @@ QVariantMap WorkoutModel::getWorkoutDetails(int workoutId) {
         return details;
     }
 
-    // Add file path to details
-    details["filePath"] = query.value("file_path");  // Add this line
+    // Add file path to details - convert to absolute path
+    QString relativePath = query.value("file_path").toString();
+    details["filePath"] = makeAbsolutePath(relativePath);
 
     // Fill in the summary data
     details["id"] = query.value("id");
@@ -183,7 +185,8 @@ QVariantMap WorkoutModel::getWorkoutDetails(int workoutId) {
     details["totalDescent"] = query.value("total_descent");
 
     // Now load detailed data from the FIT file for charts
-    QString filePath = query.value("file_path").toString();
+    // Use the absolute path from details
+    QString filePath = details["filePath"].toString();
     if (QFile::exists(filePath)) {
         QList<SessionLine> session;
         FIT_SPORT sport;
@@ -585,4 +588,22 @@ QString WorkoutModel::getStreakMessage(int streak) const {
     } else {
         return "Beyond legendary! 🌟✨";
     }
+}
+
+QString WorkoutModel::makeAbsolutePath(const QString& relativePath) const {
+    // Convert relative path to absolute path
+    // If already absolute, return as-is
+    if (QFileInfo(relativePath).isAbsolute()) {
+        return relativePath;
+    }
+
+    // Extract base path from database path (remove the database filename)
+    QFileInfo dbInfo(m_dbPath);
+    QString basePath = dbInfo.absolutePath();
+    if (!basePath.endsWith('/')) {
+        basePath += '/';
+    }
+
+    // Construct absolute path by prepending basePath
+    return basePath + relativePath;
 }

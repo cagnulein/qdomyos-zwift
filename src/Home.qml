@@ -14,6 +14,10 @@ HomeForm {
         width: parent.fill
         height: parent.fill
         color: settings.theme_background_color
+
+        // VoiceOver accessibility - ignore decorative background
+        Accessible.role: Accessible.Pane
+        Accessible.ignored: true
     }
     signal start_clicked;
     signal stop_clicked;
@@ -38,8 +42,8 @@ HomeForm {
 
     MessageDialog {
         id: messagePelotonAskStart
-        text: "Peloton Workout in progress"
-        informativeText: "Do you want to follow the resistance? " + rootItem.pelotonProvider
+        text: qsTr("Peloton Workout in progress")
+        informativeText: qsTr("Do you want to follow the resistance? ") + rootItem.pelotonProvider
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {rootItem.pelotonAskStart = false; peloton_start_workout();}
         onNoClicked: {rootItem.pelotonAskStart = false; peloton_abort_workout();}
@@ -103,8 +107,8 @@ HomeForm {
 
     MessageDialog {
         id: locationServicesDialog
-        text: "Permissions Required"
-        informativeText: "QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?"
+        text: qsTr("Permissions Required")
+        informativeText: qsTr("QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             locationServiceRequsted = true
@@ -116,8 +120,8 @@ HomeForm {
 
     MessageDialog {
         id: remindLocationServicesDialog
-        text: "Reminder Preference"
-        informativeText: "Would you like to be reminded about enabling Location Services next time?"
+        text: qsTr("Reminder Preference")
+        informativeText: qsTr("Would you like to be reminded about enabling Location Services next time?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: settings.skipLocationServicesDialog = false
         onNoClicked: settings.skipLocationServicesDialog = true
@@ -125,8 +129,8 @@ HomeForm {
     }
 
     MessageDialog {
-        text: "Restart the app"
-        informativeText: "To apply the changes, you need to restart the app.\nWould you like to do that now?"
+        text: qsTr("Restart the app")
+        informativeText: qsTr("To apply the changes, you need to restart the app.\nWould you like to do that now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
@@ -185,6 +189,8 @@ HomeForm {
                 gridView.leftMargin = (parent.width % cellWidth) / 2;
         }
 
+        Accessible.ignored: true
+
         delegate: Item {
             id: id1
             width: 170 * settings.ui_zoom / 100
@@ -192,6 +198,12 @@ HomeForm {
 
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
+
+            // VoiceOver accessibility support
+            Accessible.role: largeButton ? Accessible.Button : (writable ? Accessible.Pane : Accessible.StaticText)
+            Accessible.name: name + (largeButton ? "" : (": " + value))
+            Accessible.description: largeButton ? largeButtonLabel : (secondLine !== "" ? secondLine : (writable ? qsTr("Adjustable. Current value: ") + value : qsTr("Current value: ") + value))
+            Accessible.focusable: true
 
             Behavior on x {
                 enabled: id1.state != "active"
@@ -226,6 +238,9 @@ HomeForm {
                 border.color: (settings.theme_tile_shadow_enabled ? settings.theme_tile_shadow_color : settings.theme_tile_background_color)
                 color: settings.theme_tile_background_color
                 id: rect
+
+                // Ignore for VoiceOver - decorative background only
+                Accessible.ignored: true
             }
 
             DropShadow {
@@ -256,6 +271,9 @@ HomeForm {
                 height: 48 * settings.ui_zoom / 100
                 source: icon
                 visible: settings.theme_tile_icon_enabled && !largeButton
+
+                // Ignore for VoiceOver - decorative only
+                Accessible.ignored: true
             }
             Text {
                 objectName: "value"
@@ -267,9 +285,16 @@ HomeForm {
                 }
                 text: value
                 horizontalAlignment: Text.AlignHCenter
+                width: Math.max(50, parent.width - (writable ? 100 * settings.ui_zoom / 100 : 12 * settings.ui_zoom / 100))
+                height: 58 * settings.ui_zoom / 100
                 font.pointSize: valueFontSize * settings.ui_zoom / 100
+                fontSizeMode: Text.Fit
+                minimumPointSize: 10
                 font.bold: true
                 visible: !largeButton
+
+                // Ignore for VoiceOver - parent Item handles accessibility
+                Accessible.ignored: true
             }
             Text {
                 objectName: "secondLine"
@@ -282,9 +307,16 @@ HomeForm {
                 }
                 text: secondLine
                 horizontalAlignment: Text.AlignHCenter
+                width: Math.max(50, parent.width - 12 * settings.ui_zoom / 100)
+                height: 24 * settings.ui_zoom / 100
                 font.pointSize: settings.theme_tile_secondline_textsize * settings.ui_zoom / 100
+                fontSizeMode: Text.Fit
+                minimumPointSize: 7
                 font.bold: false
                 visible: !largeButton
+
+                // Ignore for VoiceOver - parent Item handles accessibility
+                Accessible.ignored: true
             }
             Text {
                 id: myText
@@ -292,13 +324,20 @@ HomeForm {
                     top: myIcon.top
                 }
                 font.bold: true
-                     font.pointSize: labelFontSize
+                font.pointSize: labelFontSize
+                fontSizeMode: Text.Fit
+                minimumPointSize: 8
                 color: "white"
                 text: name
                 anchors.left: parent.left
                 anchors.leftMargin: 55 * settings.ui_zoom / 100
+                width: Math.max(40, parent.width - 61 * settings.ui_zoom / 100)
+                height: 40 * settings.ui_zoom / 100
                 anchors.topMargin: 20 * settings.ui_zoom / 100
                 visible: !largeButton
+
+                // Ignore for VoiceOver - parent Item handles accessibility
+                Accessible.ignored: true
             }
             RoundButton {
                 objectName: minusName
@@ -311,6 +350,13 @@ HomeForm {
                 anchors.leftMargin: 2
                 width: 48 * settings.ui_zoom / 100
                 height: 48 * settings.ui_zoom / 100
+
+                // VoiceOver accessibility
+                Accessible.role: Accessible.Button
+                Accessible.name: qsTr("Decrease ") + name
+                Accessible.description: qsTr("Decrease the value of ") + name
+                Accessible.focusable: true
+                Accessible.onPressAction: { minus_clicked(objectName) }
             }
             RoundButton {
                 autoRepeat: true
@@ -323,6 +369,13 @@ HomeForm {
                 anchors.rightMargin: 2
                 width: 48 * settings.ui_zoom / 100
                 height: 48 * settings.ui_zoom / 100
+
+                // VoiceOver accessibility
+                Accessible.role: Accessible.Button
+                Accessible.name: qsTr("Increase ") + name
+                Accessible.description: qsTr("Increase the value of ") + name
+                Accessible.focusable: true
+                Accessible.onPressAction: { plus_clicked(objectName) }
             }
             RoundButton {
                 autoRepeat: true
@@ -336,6 +389,13 @@ HomeForm {
                             radius: 20
                             }
                 font.pointSize: 20 * settings.ui_zoom / 100
+
+                // VoiceOver accessibility
+                Accessible.role: Accessible.Button
+                Accessible.name: largeButtonLabel
+                Accessible.description: name + ": " + largeButtonLabel
+                Accessible.focusable: true
+                Accessible.onPressAction: { largeButton_clicked(objectName) }
             }
         }
     }

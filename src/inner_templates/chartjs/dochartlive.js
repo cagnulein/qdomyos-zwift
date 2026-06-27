@@ -35,25 +35,144 @@ var miles = 1;
 var powerChart = null;
 var watts_max = 0;
 
-var firstElapsedTargetPower = 0;
+function t(key, fallback) {
+    return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+}
 
-function process_trainprogram(arr) {
+var firstElapsedTargetPower = 0;
+var trainingProgramRows = [];
+var trainingProgramDurations = [];
+
+function isTrueSetting(value) {
+    return value === true || value === 'true' || value === 1 || value === '1';
+}
+
+function ensurePowerZones() {
+    ftp = Number(ftp);
+    if (!Number.isFinite(ftp) || ftp <= 0) {
+        ftp = 200;
+    }
+
+    const zoneRatios = [0.55, 0.75, 0.90, 1.05, 1.20, 1.50];
+    for (let i = 0; i < zoneRatios.length; i++) {
+        ftpZones[i] = Number(ftpZones[i]);
+        if (!Number.isFinite(ftpZones[i]) || ftpZones[i] <= 0) {
+            ftpZones[i] = Math.round(ftp * zoneRatios[i]);
+        }
+    }
+}
+
+function openEndedSegmentStyle(ctx) {
+    return (ctx.p0.raw && ctx.p0.raw.openEnded) ||
+           (ctx.p1.raw && ctx.p1.raw.openEnded) ? [6, 5] : undefined;
+}
+
+function trainingProgramBaseDuration(row) {
+    const duration = Number(row.duration_s);
+    const visualDuration = Number(row.visual_duration_s);
+    if (isTrueSetting(row.openEnded)) {
+        const fallbackDuration = Number.isFinite(visualDuration) ? visualDuration :
+                                 Number.isFinite(duration) ? duration : 1;
+        return Math.max(1, fallbackDuration);
+    }
+    const fallbackDuration = Number.isFinite(duration) ? duration :
+                             Number.isFinite(visualDuration) ? visualDuration : 0;
+    return Math.max(0, fallbackDuration);
+}
+
+function latestPowerWorkoutElapsed() {
+    if (!powerChart || !powerChart.data.datasets[0] || !powerChart.data.datasets[0].data.length) {
+        return 0;
+    }
+    return powerChart.data.datasets[0].data[powerChart.data.datasets[0].data.length - 1].x;
+}
+
+function rebuildTrainingProgramTarget(updateChart) {
     let powerWorkout = false;
     let elapsed = 0;
+    let reqpower = [];
 
-    for (let el of arr.list) {
+    for (let rowIndex = 0; rowIndex < trainingProgramRows.length; rowIndex++) {
+        const el = trainingProgramRows[rowIndex];
         // if the power is ok or it was a power zone workout but this segment is a freeride tag...
         if(el.power !== -1 || powerWorkout) {
             powerWorkout = true;
-            for (i=0; i<el.duration_s; i++) {
-                powerChart.data.datasets[1].data.push({x: elapsed++, y: el.power});
+            const duration = Math.max(0, Math.round(Number(trainingProgramDurations[rowIndex]) || 0));
+            const openEnded = isTrueSetting(el.openEnded);
+            for (let i=0; i<duration; i++) {
+                reqpower.push({
+                    x: elapsed++,
+                    y: el.power,
+                    openEnded: openEnded,
+                    segmentLabel: el.segmentLabel || ''
+                });
                 if(watts_max < el.power)
                     watts_max = el.power;
             }
         }
     }
-    powerChart.options.scales.x.max = elapsed;
-    powerChart.update();
+
+    powerChart.data.datasets[1].data = reqpower;
+    setNormalXScale('power', undefined, Math.max(elapsed, latestPowerWorkoutElapsed()));
+    if (!isZoomedPower) {
+        powerChart.options.scales.x.min = undefined;
+        powerChart.options.scales.x.max = normalXScales.power.max;
+    }
+    if (updateChart) {
+        powerChart.update('none');
+    }
+}
+
+function process_trainprogram(arr) {
+    trainingProgramRows = arr.list || [];
+    trainingProgramDurations = trainingProgramRows.map(trainingProgramBaseDuration);
+    rebuildTrainingProgramTarget(true);
+}
+
+function syncTrainingProgramTimeline(arr, workoutElapsed) {
+    if (!trainingProgramRows.length || !powerChart) {
+        return;
+    }
+
+    const currentRowIndex = Number(arr.training_row_index);
+    if (!Number.isFinite(currentRowIndex) || currentRowIndex < 0 || currentRowIndex >= trainingProgramRows.length) {
+        return;
+    }
+
+    const currentRowElapsed = Math.max(0, Number(arr.training_row_elapsed) || 0);
+    const currentRow = trainingProgramRows[currentRowIndex];
+    let changed = false;
+
+    const elapsedBeforeCurrent = Math.max(0, workoutElapsed - currentRowElapsed);
+    let timelineBeforeCurrent = 0;
+    let lastCompletedOpenEndedIndex = -1;
+    for (let i = 0; i < currentRowIndex; i++) {
+        timelineBeforeCurrent += Number(trainingProgramDurations[i]) || 0;
+        if (isTrueSetting(trainingProgramRows[i].openEnded)) {
+            lastCompletedOpenEndedIndex = i;
+        }
+    }
+
+    if (lastCompletedOpenEndedIndex >= 0) {
+        const delta = elapsedBeforeCurrent - timelineBeforeCurrent;
+        if (Math.abs(delta) >= 1) {
+            trainingProgramDurations[lastCompletedOpenEndedIndex] =
+                    Math.max(1, (Number(trainingProgramDurations[lastCompletedOpenEndedIndex]) || 1) + delta);
+            changed = true;
+        }
+    }
+
+    if (isTrueSetting(currentRow.openEnded)) {
+        const liveDuration = Math.max(1, currentRowElapsed);
+        if (Math.abs((Number(trainingProgramDurations[currentRowIndex]) || 0) - liveDuration) >= 1) {
+            trainingProgramDurations[currentRowIndex] = liveDuration;
+            changed = true;
+        }
+    }
+
+    if (changed) {
+        rebuildTrainingProgramTarget(false);
+    }
 }
 
 function process_arr(arr) {    
@@ -184,7 +303,7 @@ function process_arr(arr) {
         pelotonreqresistance.push(pelotonreqresistanceel);
 
         speedel.x = time;
-        speedel.y = el.speed;
+        speedel.y = el.speed * miles; // Convert to user's preferred unit (km/h or mph)
         speed.push(speedel);
         inclinationel.x = time;
         inclinationel.y = el.inclination;
@@ -199,6 +318,17 @@ function process_arr(arr) {
             watts.push(wattel);
         }
     }
+
+    const powerChartTop = (watts_max > ftpZones[3] * 2 ? watts_max + 10 : ftpZones[3] * 2);
+    const powerZoneLabelPositions = [
+        Math.round(ftpZones[0] / 2),
+        Math.round((ftpZones[0] + ftpZones[1]) / 2),
+        Math.round((ftpZones[1] + ftpZones[2]) / 2),
+        Math.round((ftpZones[2] + ftpZones[3]) / 2),
+        Math.round((ftpZones[3] + ftpZones[4]) / 2),
+        Math.round((ftpZones[4] + ftpZones[5]) / 2),
+        Math.round((ftpZones[5] + powerChartTop) / 2)
+    ];
 
     const backgroundFill = {
       id: 'custom_canvas_background_color',
@@ -217,7 +347,7 @@ function process_arr(arr) {
         plugins: [backgroundFill],
         data: {
             datasets: [{
-                label: 'Watts',
+                label: t('chart.watts', 'Watts'),
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 cubicInterpolationMode: 'monotone',
@@ -235,7 +365,7 @@ function process_arr(arr) {
                                                                        window.chartColors.red,
                 }
             }, {
-                label: 'Req. Watts',
+                label: t('chart.requestedWatts', 'Req. Watts'),
                 backgroundColor: window.chartColors.black,
                 borderColor: window.chartColors.black,
                 //cubicInterpolationMode: 'monotone',
@@ -243,6 +373,9 @@ function process_arr(arr) {
                 fill: false,
                 pointRadius: 0,
                 borderWidth: 2,
+                segment: {
+                    borderDash: openEndedSegmentStyle
+                },
             },
             ]
         },
@@ -263,9 +396,8 @@ function process_arr(arr) {
                     },
                     text:'Watt'
                 },*/
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
+                tooltip: {
+                    enabled: false,
                 },
                 legend: {
                     display: false
@@ -275,8 +407,7 @@ function process_arr(arr) {
                             box1: {
                             // Indicates the type of annotation
                             type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
+                            adjustScaleRange: false,
                             yMin: 0,
                             yMax: ftpZones[0],
                             backgroundColor: "#d6d6d620"
@@ -284,8 +415,7 @@ function process_arr(arr) {
                             box2: {
                             // Indicates the type of annotation
                             type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
+                            adjustScaleRange: false,
                             yMin: ftpZones[0],
                             yMax: ftpZones[1],
                             backgroundColor: window.chartColors.limegreent,
@@ -293,8 +423,7 @@ function process_arr(arr) {
                             box3: {
                             // Indicates the type of annotation
                             type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
+                            adjustScaleRange: false,
                             yMin: ftpZones[1],
                             yMax: ftpZones[2],
                             backgroundColor: window.chartColors.goldt,
@@ -302,8 +431,7 @@ function process_arr(arr) {
                             box4: {
                             // Indicates the type of annotation
                             type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
+                            adjustScaleRange: false,
                             yMin: ftpZones[2],
                             yMax: ftpZones[3],
                             backgroundColor: window.chartColors.oranget,
@@ -311,8 +439,7 @@ function process_arr(arr) {
                             box5: {
                             // Indicates the type of annotation
                             type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
+                            adjustScaleRange: false,
                             yMin: ftpZones[3],
                             yMax: ftpZones[4],
                             backgroundColor: window.chartColors.darkoranget,
@@ -320,8 +447,7 @@ function process_arr(arr) {
                             box6: {
                             // Indicates the type of annotation
                             type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
+                            adjustScaleRange: false,
                             yMin: ftpZones[4],
                             yMax: ftpZones[5],
                             backgroundColor: window.chartColors.orangeredt,
@@ -329,10 +455,9 @@ function process_arr(arr) {
                             box7: {
                             // Indicates the type of annotation
                             type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
+                            adjustScaleRange: false,
                             yMin: ftpZones[5],
-                            yMax: (watts_max > ftpZones[3] * 2 ? watts_max + 10 : ftpZones[3] * 2),
+                            yMax: powerChartTop,
                             backgroundColor: window.chartColors.redt,
                             },
                         }
@@ -372,14 +497,14 @@ function process_arr(arr) {
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
-                            value === ftpZones[0] * 0.8 ? 'power z1' :
-                            value === ftpZones[0] ? 'power z2' :
-                            value === ftpZones[1] ? 'power z3' :
-                            value === ftpZones[2] ? 'power z4' :
-                            value === ftpZones[3] ? 'power z5' :
-                            value === ftpZones[4] ? 'power z6' :
-                            value === ftpZones[5] ? 'power z7' : undefined : undefined,
+                        callback: value => powerZoneLabelPositions.includes(value) ?
+                            value === powerZoneLabelPositions[0] ? 'power z1' :
+                            value === powerZoneLabelPositions[1] ? 'power z2' :
+                            value === powerZoneLabelPositions[2] ? 'power z3' :
+                            value === powerZoneLabelPositions[3] ? 'power z4' :
+                            value === powerZoneLabelPositions[4] ? 'power z5' :
+                            value === powerZoneLabelPositions[5] ? 'power z6' :
+                            value === powerZoneLabelPositions[6] ? 'power z7' : undefined : undefined,
                         color: 'black',
                         padding: -70,
                         align: 'end',
@@ -388,8 +513,9 @@ function process_arr(arr) {
                 }
             }
         }
-    };    
+    };
     powerChart = new Chart(ctx, config);
+    setNormalXScale('power', powerChart.options.scales.x.min, powerChart.options.scales.x.max);
 
     refresh();
 }
@@ -400,6 +526,22 @@ var isZoomedHeart = false;
 var currentTime = 0;
 var zoomUpdateIntervalPower = null;
 var zoomUpdateIntervalHeart = null;
+var normalXScales = {
+    power: {min: undefined, max: undefined},
+    heart: {min: undefined, max: undefined}
+};
+
+function setNormalXScale(chartType, min, max) {
+    normalXScales[chartType] = {min: min, max: max};
+}
+
+function restoreNormalXScale(chart, chartType) {
+    const normalScale = normalXScales[chartType] || {};
+    chart.options.scales.x.min = normalScale.min;
+    chart.options.scales.x.max = normalScale.max;
+    chart.options.scales.x.ticks.stepSize = undefined;
+    chart.options.scales.x.ticks.maxTicksLimit = undefined;
+}
 
 // Function to toggle zoom mode
 window.toggleChartZoom = function(chartType, enabled) {
@@ -450,11 +592,8 @@ function stopZoomMode(chartType) {
             zoomUpdateIntervalPower = null;
         }
         
-        // Reset to show all data and restore original tick settings
-        powerChart.options.scales.x.min = undefined;
-        powerChart.options.scales.x.max = undefined;
-        powerChart.options.scales.x.ticks.stepSize = undefined;
-        powerChart.options.scales.x.ticks.maxTicksLimit = undefined;
+        // Reset to show all data and restore the normal training-program range.
+        restoreNormalXScale(powerChart, 'power');
         powerChart.update('none');
     } else if (chartType === 'heart' && window.heartChart) {
         // Clear the interval
@@ -463,11 +602,8 @@ function stopZoomMode(chartType) {
             zoomUpdateIntervalHeart = null;
         }
         
-        // Reset to show all data and restore original tick settings
-        window.heartChart.options.scales.x.min = undefined;
-        window.heartChart.options.scales.x.max = undefined;
-        window.heartChart.options.scales.x.ticks.stepSize = undefined;
-        window.heartChart.options.scales.x.ticks.maxTicksLimit = undefined;
+        // Reset to show all data and restore the normal training-program range.
+        restoreNormalXScale(window.heartChart, 'heart');
         window.heartChart.update('none');
     }
 }
@@ -526,14 +662,25 @@ function refresh() {
 }
 
 function process_workout(arr) {    
+    let elapsed = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
     if(arr.target_power > 0) { // in order to add only metrics of the training program
         if(firstElapsedTargetPower === 0) {
-            firstElapsedTargetPower = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
+            firstElapsedTargetPower = elapsed;
             powerChart.data.datasets[0].data = [];
         }
     }
 
-    powerChart.data.datasets[0].data.push({x: (arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600)) - firstElapsedTargetPower, y: arr.watts});
+    const workoutElapsed = elapsed - firstElapsedTargetPower;
+    if (arr.target_power > 0) {
+        syncTrainingProgramTimeline(arr, workoutElapsed);
+    }
+    powerChart.data.datasets[0].data.push({x: workoutElapsed, y: arr.watts});
+    if (normalXScales.power.max !== undefined && workoutElapsed > normalXScales.power.max) {
+        setNormalXScale('power', normalXScales.power.min, workoutElapsed);
+        if (!isZoomedPower) {
+            powerChart.options.scales.x.max = workoutElapsed;
+        }
+    }
     if(watts_max < arr.watts)
         watts_max = arr.watts;
     powerChart.update();
@@ -541,8 +688,39 @@ function process_workout(arr) {
 }
 
 function dochart_init() {
-    onSettingsOK = true;
     keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
+
+    function load_training_program() {
+        let el = new MainWSQueueElement({
+            msg: 'gettrainingprogram'
+        }, function(msg) {
+            if (msg.msg === 'R_gettrainingprogram') {
+                return msg.content;
+            }
+            return null;
+        }, 15000, 3);
+        el.enqueue().then(process_trainprogram).catch(function(err) {
+            console.error('Error is ' + err);
+        });
+    }
+
+    function load_workout_data() {
+        let el = new MainWSQueueElement({
+            msg: 'getsessionarray'
+        }, function(msg) {
+            if (msg.msg === 'R_getsessionarray') {
+                return msg.content;
+            }
+            return null;
+        }, 15000, 3);
+        el.enqueue().then(function(arr) {
+            process_arr(arr);
+            load_training_program();
+        }).catch(function(err) {
+            console.error('Error is ' + err);
+        });
+    }
+
     let el = new MainWSQueueElement({
             msg: 'getsettings',
             content: {
@@ -572,7 +750,7 @@ function dochart_init() {
                         age = msg.content[key];
                         maxHeartRate = 220 - age;
                     } else if (key === 'heart_max_override_enable') {
-                        heart_max_override_enable = msg.content[key];
+                        heart_max_override_enable = isTrueSetting(msg.content[key]);
                     } else if (key === 'heart_max_override_value') {
                         heart_max_override_value = msg.content[key];
                     } else if (key === 'heart_rate_zone1') {
@@ -603,32 +781,13 @@ function dochart_init() {
             }
             return null;
         }, 5000, 3);
-    el.enqueue().then(onSettingsOK).catch(function(err) {
-            console.error('Error is ' + err);
-    })
-
-    el = new MainWSQueueElement({
-        msg: 'getsessionarray'
-    }, function(msg) {
-        if (msg.msg === 'R_getsessionarray') {
-            return msg.content;
-        }
-        return null;
-    }, 15000, 3);
-    el.enqueue().then(process_arr).catch(function(err) {
+    el.enqueue().then(function() {
+        ensurePowerZones();
+        load_workout_data();
+    }).catch(function(err) {
         console.error('Error is ' + err);
-    });
-
-    el = new MainWSQueueElement({
-        msg: 'gettrainingprogram'
-    }, function(msg) {
-        if (msg.msg === 'R_gettrainingprogram') {
-            return msg.content;
-        }
-        return null;
-    }, 15000, 3);
-    el.enqueue().then(process_trainprogram).catch(function(err) {
-        console.error('Error is ' + err);
+        ensurePowerZones();
+        load_workout_data();
     });
 }
 

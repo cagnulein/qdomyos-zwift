@@ -15,6 +15,8 @@
  */
 package org.cagnulen.qdomyoszwift;
 
+import android.content.pm.ApplicationInfo;
+
 import com.dsi.ant.AntService;
 import com.dsi.ant.channel.*;
 import com.dsi.ant.message.ChannelId;
@@ -59,6 +61,10 @@ public class ChannelService extends Service {
     SDMChannelController sdmChannelController = null;
     BikeChannelController bikeChannelController = null; // Added BikeChannelController reference
     BikeTransmitterController bikeTransmitterController = null; // Added BikeTransmitterController reference
+
+    private boolean isDebuggableBuild() {
+        return (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+    }
 
     private ServiceConnection mAntRadioServiceConnection = new ServiceConnection() {
         @Override
@@ -196,7 +202,7 @@ public class ChannelService extends Service {
         }
 
         boolean isBikeConnected() {
-            return (bikeChannelController != null && bikeChannelController.isConnected());
+            return (bikeChannelController != null && bikeChannelController.isAnyDeviceConnected());
         }
 
         // ========== BIKE TRANSMITTER METHODS ==========
@@ -347,30 +353,27 @@ public class ChannelService extends Service {
                         @Override
                         public void onResistanceChangeRequested(int resistance) {
                             QLog.d(TAG, "ChannelService: ANT+ Resistance change requested: " + resistance);
-                            // Send broadcast intent to notify the main application
                             Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_RESISTANCE_CHANGE");
                             intent.putExtra("resistance", resistance);
-                            nativeSetResistance(resistance);
+                            try { nativeSetResistance(resistance); } catch (UnsatisfiedLinkError ignored) {}
                             sendBroadcast(intent);
                         }
 
                         @Override
                         public void onPowerChangeRequested(int power) {
                             QLog.d(TAG, "ChannelService: ANT+ Power change requested: " + power + "W");
-                            // Send broadcast intent to notify the main application
                             Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_POWER_CHANGE");
                             intent.putExtra("power", power);
-                            nativeSetPower(power);
+                            try { nativeSetPower(power); } catch (UnsatisfiedLinkError ignored) {}
                             sendBroadcast(intent);
                         }
 
                         @Override
                         public void onInclinationChangeRequested(double inclination) {
                             QLog.d(TAG, "ChannelService: ANT+ Inclination change requested: " + inclination + "%");
-                            // Send broadcast intent to notify the main application
                             Intent intent = new Intent("org.cagnulen.qdomyoszwift.ANT_INCLINATION_CHANGE");
                             intent.putExtra("inclination", inclination);
-                            nativeSetInclination(inclination);
+                            try { nativeSetInclination(inclination); } catch (UnsatisfiedLinkError ignored) {}
                             sendBroadcast(intent);
                         }
                     });
@@ -494,7 +497,7 @@ public class ChannelService extends Service {
     };
 
     private void doBindAntRadioService() {
-        if (BuildConfig.DEBUG) QLog.v(TAG, "doBindAntRadioService");
+        if (isDebuggableBuild()) QLog.v(TAG, "doBindAntRadioService");
 
         ContextCompat.registerReceiver(
             this,
@@ -509,13 +512,13 @@ public class ChannelService extends Service {
     }
 
     private void doUnbindAntRadioService() {
-        if (BuildConfig.DEBUG) QLog.v(TAG, "doUnbindAntRadioService");
+        if (isDebuggableBuild()) QLog.v(TAG, "doUnbindAntRadioService");
 
         // Stop listing for channel available intents
         try {
             unregisterReceiver(mChannelProviderStateChangedReceiver);
         } catch (IllegalArgumentException exception) {
-            if (BuildConfig.DEBUG)
+            if (isDebuggableBuild())
                 QLog.d(TAG, "Attempting to unregister a never registered Channel Provider State Changed receiver.");
         }
 

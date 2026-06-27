@@ -9,6 +9,8 @@
 #endif
 #endif
 #include <QQmlContext>
+#include <QTranslator>
+#include <QLocale>
 #include "logwriter.h"
 #include "bluetooth.h"
 #include "devices/domyostreadmill/domyostreadmill.h"
@@ -18,6 +20,8 @@
 #include "virtualdevices/virtualtreadmill.h"
 #include <QDir>
 #include <QGuiApplication>
+#include <QFileOpenEvent>
+#include <QEvent>
 #include <QOperatingSystemVersion>
 #include <QQmlApplicationEngine>
 #include <QSettings>
@@ -30,6 +34,7 @@
 #include "mqttpublisher.h"
 #include "androidstatusbar.h"
 #include "fontmanager.h"
+#include "filesearcher.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -47,6 +52,33 @@
 #include "osc.h"
 
 #include "handleurl.h"
+#include "authutils.h"
+
+class OAuthCallbackEventFilter : public QObject {
+  public:
+    bool eventFilter(QObject *watched, QEvent *event) override {
+#ifdef Q_OS_IOS
+        Q_UNUSED(watched)
+        if (event->type() == QEvent::FileOpen) {
+            auto *fileEvent = static_cast<QFileOpenEvent *>(event);
+            const QUrl url = fileEvent->url();
+            qDebug() << "QZ iOS FileOpen event received" << sanitizedOAuthCallbackUrl(url);
+            if (url.isValid() && url.host() == QStringLiteral("www.qzfitness.com") &&
+                url.path().startsWith(QStringLiteral("/peloton/callback")) && homeform::singleton()) {
+                qDebug() << "QZ iOS FileOpen matched Peloton callback";
+                QMetaObject::invokeMethod(homeform::singleton(), "handleOAuthCallbackUrl", Qt::QueuedConnection,
+                                          Q_ARG(QString, url.toString()));
+            } else {
+                qDebug() << "QZ iOS FileOpen ignored";
+            }
+        }
+#else
+        Q_UNUSED(watched)
+        Q_UNUSED(event)
+#endif
+        return false;
+    }
+};
 
 bool logs = true;
 bool noWriteResistance = false;
@@ -95,6 +127,7 @@ int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
 QString power_sensor_name = QStringLiteral("Disabled");
 bool power_sensor_as_treadmill = false;
+bool smokeTest = false;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
                           .toString()
@@ -107,6 +140,10 @@ static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandle
 
 // Function to display help information and exit
 void displayHelp() {
+    // Test string for translation workflow - will be extracted by lupdate
+    QString testTranslation = QCoreApplication::translate("main", "QDomyos-Zwift - Fitness Equipment Bridge");
+    Q_UNUSED(testTranslation); // Suppress unused variable warning
+
     printf("qDomyos-Zwift Usage:\n");
     printf("General options:\n");
     printf("  -h, --help                    Display this help message and exit\n");
@@ -159,6 +196,7 @@ void displayHelp() {
     printf("  -test-peloton                 Enable Peloton test mode\n");
     printf("  -test-hfb                     Enable Home Fitness Buddy test mode\n");
     printf("  -test-pzp                     Enable Power Zone Pack test mode\n");
+    printf("  -smoke-test                   Run smoke test (verify Qt loads, print SMOKE_OK, exit)\n");
     printf("  -train <program>              Specify training program\n");
 
     printf("\nPeloton options:\n");
@@ -323,6 +361,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             testHomeFitnessBudy = true;
         if (!qstrcmp(argv[i], "-test-pzp"))
             testPowerZonePack = true;
+        if (!qstrcmp(argv[i], "-smoke-test")) {
+            smokeTest = true;
+            nogui = true;
+        }
         if (!qstrcmp(argv[i], "-train")) {
 
             trainProgram = argv[++i];
@@ -524,13 +566,16 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
+
+    OAuthCallbackEventFilter oauthCallbackEventFilter;
+    app->installEventFilter(&oauthCallbackEventFilter);
 #ifdef CHARTJS
     QtWebView::initialize();
 #endif
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
-    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack) {
+    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack && !smokeTest) {
 
         printf("Runme as root!\n");
         return -1;
@@ -538,6 +583,11 @@ int main(int argc, char *argv[]) {
         printf("%s", "OK, you are root.\n");
 #endif
 #endif
+
+    if (smokeTest) {
+        printf("SMOKE_OK\n");
+        return 0;
+    }
 
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
@@ -657,7 +707,7 @@ int main(int argc, char *argv[]) {
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token")) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token") && !s.contains("garmin_device_serial") && !s.contains("garmin_email")) {
 
             qDebug() << s << settings.value(s);
         }
@@ -829,7 +879,7 @@ int main(int argc, char *argv[]) {
     QString mqtt_username = settings.value(QZSettings::mqtt_username, QZSettings::default_mqtt_username).toString();
     QString mqtt_password = settings.value(QZSettings::mqtt_password, QZSettings::default_mqtt_password).toString();
     if(mqtt_host.length() > 0) {
-        MQTTPublisher* mqtt = new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl);
+        new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl, &bl);
     }
 
     QString OSC_ip = settings.value(QZSettings::OSC_ip, QZSettings::default_OSC_ip).toString();
@@ -849,11 +899,47 @@ int main(int argc, char *argv[]) {
 #endif
     {
         AndroidStatusBar::registerQmlType();
-        
+
 #ifdef Q_OS_ANDROID
         FontManager fontManager;
         fontManager.initializeEmojiFont();
 #endif
+
+        // Load translations based on explicit app setting or system locale.
+        QTranslator *translator = new QTranslator(app.data());
+        QString configuredLanguage =
+            settings.value(QZSettings::app_language, QZSettings::default_app_language).toString().trimmed();
+        QString locale = configuredLanguage.compare(QStringLiteral("auto"), Qt::CaseInsensitive) == 0 ||
+                                 configuredLanguage.isEmpty()
+                             ? QLocale::system().name()
+                             : configuredLanguage;
+        locale.replace(QLatin1Char('-'), QLatin1Char('_'));
+
+        auto tryLoadTranslation = [&](const QString &localeKey, const QString &sourceLabel) -> bool {
+            if (localeKey.isEmpty()) {
+                return false;
+            }
+            if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + localeKey)) {
+                app->installTranslator(translator);
+                qDebug() << "Translation loaded successfully for" << sourceLabel << ":" << localeKey;
+                return true;
+            }
+            return false;
+        };
+
+        // "en" is the built-in source language, so we don't load any translator for it.
+        if (locale.startsWith(QStringLiteral("en"), Qt::CaseInsensitive)) {
+            qDebug() << "Language setting resolves to English. Using built-in source strings.";
+        } else {
+            bool loaded = tryLoadTranslation(locale, QStringLiteral("locale"));
+            if (!loaded && locale.contains(QLatin1Char('_'))) {
+                loaded = tryLoadTranslation(locale.section(QLatin1Char('_'), 0, 0), QStringLiteral("language"));
+            }
+            if (!loaded) {
+                qDebug() << "No translation available for locale:" << locale << "- using default (English)";
+            }
+        }
+
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
@@ -879,6 +965,10 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("fontManager", &fontManager);
 #endif
+        // Expose FileSearcher for fast recursive file searching
+        FileSearcher fileSearcher;
+        engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
+
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,

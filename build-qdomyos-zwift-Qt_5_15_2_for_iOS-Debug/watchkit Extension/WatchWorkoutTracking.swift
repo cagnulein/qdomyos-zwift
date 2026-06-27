@@ -38,6 +38,7 @@ class WorkoutTracking: NSObject {
     public static var cadence = Double()
     public static var lastDateMetric = Date()
     public static var flightsClimbed = Double()
+    public static var elevationGain = Double()
     var sport: Int = 0
     let healthStore = HKHealthStore()
     let configuration = HKWorkoutConfiguration()
@@ -161,7 +162,29 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             
             var infoToShare: Set<HKSampleType> = []
             
-            if #available(watchOSApplicationExtension 10.0, *) {
+            if #available(watchOSApplicationExtension 11.0, *) {
+                infoToShare = Set([
+                    HKSampleType.quantityType(forIdentifier: .stepCount)!,
+                    HKSampleType.quantityType(forIdentifier: .heartRate)!,
+                    HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
+                    HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
+                    HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
+                    HKSampleType.quantityType(forIdentifier: .basalEnergyBurned)!,
+                    HKSampleType.quantityType(forIdentifier: .cyclingPower)!,
+                    HKSampleType.quantityType(forIdentifier: .cyclingSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .cyclingCadence)!,
+                    HKSampleType.quantityType(forIdentifier: .runningPower)!,
+                    HKSampleType.quantityType(forIdentifier: .runningSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .runningStrideLength)!,
+                    HKSampleType.quantityType(forIdentifier: .runningVerticalOscillation)!,
+                    HKSampleType.quantityType(forIdentifier: .walkingSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .walkingStepLength)!,
+                    HKSampleType.quantityType(forIdentifier: .distanceRowing)!,
+                    HKSampleType.quantityType(forIdentifier: .rowingSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .flightsClimbed)!,
+                    HKSampleType.workoutType()
+                    ])
+            } else if #available(watchOSApplicationExtension 10.0, *) {
                 infoToShare = Set([
                     HKSampleType.quantityType(forIdentifier: .stepCount)!,
                     HKSampleType.quantityType(forIdentifier: .heartRate)!,
@@ -209,8 +232,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     
     func startWorkOut() {
         WorkoutTracking.lastDateMetric = Date()
-        // Reset flights climbed for new workout
+        // Reset flights climbed and elevation gain for new workout
         WorkoutTracking.flightsClimbed = 0
+        WorkoutTracking.elevationGain = 0
         print("Start workout")
         configWorkout()
         workoutSession.startActivity(with: Date())
@@ -277,6 +301,13 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 if let error = error {
                     print(error)
                 }
+                if WorkoutTracking.elevationGain > 0 {
+                    self.workoutBuilder.addMetadata([HKMetadataKeyElevationAscended: HKQuantity(unit: HKUnit.meter(), doubleValue: WorkoutTracking.elevationGain)]) { (_, error) in
+                        if let error = error {
+                            print("WatchWorkoutTracking elevation metadata: \(error.localizedDescription)")
+                        }
+                    }
+                }
                 self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
                         print(error)
@@ -316,16 +347,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                  }
              }
              
-             // Per il rowing, HealthKit utilizza un tipo specifico di distanza
-             // Se non esiste un tipo specifico per il rowing, possiamo usare un tipo generico di distanza
-             var quantityTypeDistance: HKQuantityType?
-             
-             // In watchOS 10 e versioni successive, possiamo usare un tipo specifico se disponibile
-             if #available(watchOSApplicationExtension 10.0, *) {
-                 // Verifica se esiste un tipo specifico per il rowing, altrimenti utilizza un tipo generico
-                 quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceSwimming)
+             let quantityTypeDistance: HKQuantityType?
+             if #available(watchOSApplicationExtension 11.0, *) {
+                 quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceRowing)
              } else {
-                 // Nelle versioni precedenti, usa il tipo generico
                  quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)
              }
              
@@ -341,6 +366,13 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
              workoutBuilder.add([sampleDistance]) {(success, error) in
                  if let error = error {
                      print(error)
+                 }
+                 if WorkoutTracking.elevationGain > 0 {
+                     self.workoutBuilder.addMetadata([HKMetadataKeyElevationAscended: HKQuantity(unit: HKUnit.meter(), doubleValue: WorkoutTracking.elevationGain)]) { (_, error) in
+                         if let error = error {
+                             print("WatchWorkoutTracking elevation metadata: \(error.localizedDescription)")
+                         }
+                     }
                  }
                  self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                      if let error = error {
@@ -408,6 +440,14 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     print(error)
                 }
 
+                if WorkoutTracking.elevationGain > 0 {
+                    self.workoutBuilder.addMetadata([HKMetadataKeyElevationAscended: HKQuantity(unit: HKUnit.meter(), doubleValue: WorkoutTracking.elevationGain)]) { (_, error) in
+                        if let error = error {
+                            print("WatchWorkoutTracking elevation metadata: \(error.localizedDescription)")
+                        }
+                    }
+                }
+
                 // End the data collection
                 self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
@@ -426,8 +466,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
                         workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
 
-                        // Reset flights climbed for next workout
+                        // Reset flights climbed and elevation gain for next workout
                         WorkoutTracking.flightsClimbed = 0
+                        WorkoutTracking.elevationGain = 0
                     }
                 }
             }

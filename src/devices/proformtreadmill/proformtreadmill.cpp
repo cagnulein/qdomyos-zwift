@@ -77,8 +77,9 @@ void proformtreadmill::forceIncline(double incline) {
                 proform_treadmill_z1300i || proform_treadmill_l6_0s || norditrack_s25_treadmill || proform_8_5_treadmill || nordictrack_treadmill_exp_5i || proform_2000_treadmill ||
                 proform_treadmill_sport_8_5 || proform_treadmill_505_cst || proform_505_cst_80_44 || proform_carbon_tl || proform_proshox2 || nordictrack_s20i_treadmill || proform_595i_proshox2 ||
                proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_300i || proform_performance_400i || proform_treadmill_c700 ||
-               proform_treadmill_c960i || nordictrack_tseries5_treadmill || proform_carbon_tl_PFTL59722c || proform_treadmill_1500_pro || proform_trainer_8_0 || proform_treadmill_705_cst_V80_44 ||
-               nordictrack_treadmill_ultra_le || proform_treadmill_carbon_tls || proform_treadmill_995i || nordictrack_series_7
+               proform_treadmill_c960i || nordictrack_tseries5_treadmill || proform_carbon_tl_PFTL59722c || proform_treadmill_1500_pro || proform_trainer_8_0 || proform_trainer_8_0_pftl59721_int_0 || proform_treadmill_705_cst_V80_44 ||
+               nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_treadmill_sport_3_0 || proform_treadmill_995i || nordictrack_series_7 ||
+               proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || proform_treadmill_cst_505_pftl59420_0
                ) {
         write[14] = write[11] + write[12] + 0x12;
     } else if (!nordictrack_t65s_treadmill && !nordictrack_elite_800 && !nordictrack_t65s_treadmill_81_miles && !nordictrack_s30_treadmill && !nordictrack_s20_treadmill && !nordictrack_t65s_83_treadmill) {
@@ -107,8 +108,9 @@ void proformtreadmill::forceSpeed(double speed) {
                proform_treadmill_z1300i || proform_treadmill_l6_0s || norditrack_s25_treadmill || proform_8_5_treadmill || nordictrack_treadmill_exp_5i || proform_2000_treadmill ||
                proform_treadmill_sport_8_5 || proform_treadmill_505_cst || proform_505_cst_80_44 || proform_treadmill_705_cst || proform_treadmill_705_cst_V78_239 || proform_carbon_tl || proform_proshox2 || nordictrack_s20i_treadmill || proform_595i_proshox2 ||
                proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_300i || proform_performance_400i || proform_treadmill_c700 ||
-               proform_treadmill_c960i || nordictrack_tseries5_treadmill || proform_carbon_tl_PFTL59722c || proform_treadmill_1500_pro || proform_trainer_8_0 || proform_treadmill_705_cst_V80_44 ||
-               nordictrack_treadmill_ultra_le || proform_treadmill_carbon_tls || proform_treadmill_995i || nordictrack_series_7) {
+               proform_treadmill_c960i || nordictrack_tseries5_treadmill || proform_carbon_tl_PFTL59722c || proform_treadmill_1500_pro || proform_trainer_8_0 || proform_trainer_8_0_pftl59721_int_0 || proform_treadmill_705_cst_V80_44 ||
+               nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_treadmill_sport_3_0 || proform_treadmill_995i || nordictrack_series_7 ||
+               proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || proform_treadmill_cst_505_pftl59420_0) {
         write[14] = write[11] + write[12] + 0x11;
     } else if (!nordictrack_t65s_treadmill && !nordictrack_elite_800 && !nordictrack_t65s_treadmill_81_miles && !nordictrack_s30_treadmill && !nordictrack_s20_treadmill && !nordictrack_t65s_83_treadmill) {
         for (uint8_t i = 0; i < 7; i++) {
@@ -136,6 +138,34 @@ void proformtreadmill::update() {
                gattNotify1Characteristic.isValid() && initDone) {
         QSettings settings;
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
+
+        if (requestSpeed != -1 && requestSpeed > 0 && requestSpeed <= maxSpeed && currentSpeed().value() <= 0) {
+            cachedSpeedRequest = requestSpeed;
+            requestSpeed = -1;
+            requestStart = 1;
+            emit debug(QStringLiteral("speed request cached while treadmill is stopped: ") +
+                       QString::number(cachedSpeedRequest));
+
+            if (homeform::singleton()) {
+                homeform::singleton()->setToastRequested(
+                    QStringLiteral("Starting treadmill before applying requested speed ") +
+                    QString::number(cachedSpeedRequest, 'f', 1));
+            }
+        }
+
+        if (cachedSpeedRequest != -1 && currentSpeed().value() > 0) {
+            if (cachedSpeedRequest <= maxSpeed) {
+                emit debug(QStringLiteral("writing cached speed ") + QString::number(cachedSpeedRequest));
+                forceSpeed(cachedSpeedRequest);
+
+                if (homeform::singleton()) {
+                    homeform::singleton()->setToastRequested(
+                        QStringLiteral("Applying cached speed request ") +
+                        QString::number(cachedSpeedRequest, 'f', 1));
+                }
+            }
+            cachedSpeedRequest = -1;
+        }
 
         if (proform_treadmill_9_0 || proform_treadmill_z1300i) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
@@ -267,6 +297,72 @@ void proformtreadmill::update() {
                 if (requestStop != -1) {
                     emit debug(QStringLiteral("stopping..."));
                     // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                    requestStop = -1;
+                }
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else if (nordictrack_treadmill_commercial_le) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x14, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10,
+                                   0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10,
+                                   0x40, 0x10, 0x00, 0x80};
+            uint8_t noOpData3[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15,
+                                   0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData6[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x95, 0x00, 0x10,
+                                   0x91, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping..."));
                     requestStop = -1;
                 }
                 break;
@@ -765,6 +861,321 @@ void proformtreadmill::update() {
                 break;
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1 || requestPause != -1) {
+                    forceSpeed(0);
+                    emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                    requestPause = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else if (proform_treadmill_sport_3_0) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x14, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+            uint8_t noOpData3[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData6[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x10, 0x7d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 20) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));                
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+
+                    uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
+                    uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
+                                        0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
+                    uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xef, 0x1a, 0x58, 0x02, 0x00,
+                                        0xb4, 0x00, 0x58, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00};
+                    uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
+                    uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
+                                        0x03, 0x10, 0xa0, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xd2, 0x00};
+                    writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
+                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
+                    writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
+                    writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
+                    writeCharacteristic(start5, sizeof(start5), QStringLiteral("start5"), false, true);
+
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1 || requestPause != -1) {
+                    forceSpeed(0);
+
+                    emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                    requestPause = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else if (proform_carbon_tlx_treadmill) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x95, 0x00, 0x10, 0x91, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x14, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+            uint8_t noOpData6[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"), false, true);
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+                    requestStart = -1;
+                }
+                if (requestStop != -1 || requestPause != -1) {
+                    forceSpeed(0);
+
+                    emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                    requestPause = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else if (proform_carbon_tlx_v84_314_treadmill) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x85, 0x00, 0x10, 0x81, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x14, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+            uint8_t noOpData6[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"), false, true);
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1 || requestPause != -1) {
+                    forceSpeed(0);
+                    emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                    requestPause = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else if (proform_treadmill_cst_505_pftl59420_0) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x95, 0x00, 0x10, 0x91, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x14, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+            uint8_t noOpData6[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"), false, true);
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1 || requestPause != -1) {
+                    forceSpeed(0);
+                    emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                    requestPause = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else if (proform_carbon_tl_PFTL59723_6) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x14, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+            uint8_t noOpData3[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData6[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x91, 0x00, 0x10, 0x8d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"), false, true);
                 if (requestStart != -1) {
                     emit debug(QStringLiteral("starting..."));
                     requestStart = -1;
@@ -2667,6 +3078,68 @@ void proformtreadmill::update() {
             if (counterPoll > 5) {
                 counterPoll = 0;
             }
+        } else if (proform_trainer_8_0_pftl59721_int_0) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00,
+                                   0x0f, 0x80, 0x02, 0x43, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x91, 0x00, 0x10, 0x90, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x14, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00,
+                                   0x0a, 0x1b, 0x94, 0x30, 0x00, 0x00, 0x40, 0x50, 0x00, 0x80};
+            uint8_t noOpData6[] = {0xff, 0x02, 0x18, 0x37, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), false, true);
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
         } else if (proform_trainer_8_0) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
@@ -3203,6 +3676,11 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
+    
+    if(!initDone) {
+        qDebug() << "discarding, init in progress...";
+        return;
+    }
 
     if (proform_treadmill_705_cst && currentSpeed().value() == 0)
     {
@@ -3236,7 +3714,11 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
           proform_proshox2 || proform_595i_proshox2 || proform_performance_300i || proform_performance_400i || proform_treadmill_705_cst_V80_44) &&
          (newValue.at(4) != 0x02 || (newValue.at(5) != 0x31 && newValue.at(5) != 0x34))) ||
 
-        ((norditrack_s25i_treadmill || nordictrack_treadmill_ultra_le || proform_treadmill_carbon_tls) && (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2f))) ||
+        ((proform_trainer_8_0_pftl59721_int_0) &&
+         (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2e && newValue.at(5) != 0x2f))) ||
+
+        ((norditrack_s25i_treadmill || nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6) &&
+         (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2f))) ||
 
         ((nordictrack_t65s_treadmill || nordictrack_t65s_treadmill_81_miles || proform_pro_1000_treadmill || nordictrack_t65s_83_treadmill || nordictrack_s30_treadmill ||
           nordictrack_s20_treadmill || proform_treadmill_se || proform_cadence_lt || proform_8_5_treadmill || nordictrack_treadmill_exp_5i || proform_carbon_tl ||
@@ -3252,7 +3734,9 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
          ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
          ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF) ||
 
-        (((((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) && (proform_proshox2 || proform_595i_proshox2)))
+        (((((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) &&
+        (proform_proshox2 || proform_595i_proshox2 || proform_treadmill_sport_3_0 || proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6))
+    )
     {
         return;
     }
@@ -3261,7 +3745,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     m_watts = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
 
     // for the proform_treadmill_se this field is the distance in meters ;)
-    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill) {
+    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill && !proform_treadmill_sport_3_0 && !proform_carbon_tlx_treadmill && !proform_carbon_tlx_v84_314_treadmill && !proform_carbon_tl_PFTL59723_6) {
         m_watts = 0;
     } else {
         if (!proform_cadence_lt) {
@@ -3292,7 +3776,19 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
         }
 
-        cadenceFromAppleWatch();
+        if(!cadenceFromAppleWatch() && Speed.value() > 0) {
+            bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                    .toString()
+                                    .startsWith(QStringLiteral("Disabled"));
+            if (!hasPowerSensor) {
+                double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
+                if (calculatedCadence > 0) {
+                    evaluateStepCount();
+                    Cadence = calculatedCadence;
+                    emit debug(QStringLiteral("Current Cadence (calculated from speed): ") + QString::number(Cadence.value()));
+                }
+            }
+        }
 
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -3345,6 +3841,7 @@ void proformtreadmill::btinit() {
             .toBool();
     proform_treadmill_z1300i =
         settings.value(QZSettings::proform_treadmill_z1300i, QZSettings::default_proform_treadmill_z1300i).toBool();
+    maxSpeed = proform_treadmill_z1300i ? 19.3 : 22;
     nordictrack_treadmill_exp_5i = settings.value(QZSettings::nordictrack_treadmill_exp_5i, QZSettings::default_nordictrack_treadmill_exp_5i).toBool();
     proform_pro_1000_treadmill =
         settings.value(QZSettings::proform_pro_1000_treadmill, QZSettings::default_proform_pro_1000_treadmill).toBool();
@@ -3375,13 +3872,20 @@ void proformtreadmill::btinit() {
     proform_treadmill_1500_pro = settings.value(QZSettings::proform_treadmill_1500_pro, QZSettings::default_proform_treadmill_1500_pro).toBool();
     proform_505_cst_80_44 = settings.value(QZSettings::proform_505_cst_80_44, QZSettings::default_proform_505_cst_80_44).toBool();
     proform_trainer_8_0 = settings.value(QZSettings::proform_trainer_8_0, QZSettings::default_proform_trainer_8_0).toBool();
+    proform_trainer_8_0_pftl59721_int_0 = settings.value(QZSettings::proform_trainer_8_0_pftl59721_int_0, QZSettings::default_proform_trainer_8_0_pftl59721_int_0).toBool();
     proform_treadmill_705_cst_V80_44 = settings.value(QZSettings::proform_treadmill_705_cst_V80_44, QZSettings::default_proform_treadmill_705_cst_V80_44).toBool();
     nordictrack_t65s_treadmill_81_miles = settings.value(QZSettings::nordictrack_t65s_treadmill_81_miles, QZSettings::default_nordictrack_t65s_treadmill).toBool();
     nordictrack_elite_800 = settings.value(QZSettings::nordictrack_elite_800, QZSettings::default_nordictrack_elite_800).toBool();
     nordictrack_treadmill_ultra_le = settings.value(QZSettings::nordictrack_treadmill_ultra_le, QZSettings::default_nordictrack_treadmill_ultra_le).toBool();
+    nordictrack_treadmill_commercial_le = settings.value(QZSettings::nordictrack_treadmill_commercial_le, QZSettings::default_nordictrack_treadmill_commercial_le).toBool();
     proform_treadmill_carbon_tls = settings.value(QZSettings::proform_treadmill_carbon_tls, QZSettings::default_proform_treadmill_carbon_tls).toBool();
     proform_treadmill_995i = settings.value(QZSettings::proform_treadmill_995i, QZSettings::default_proform_treadmill_995i).toBool();
     nordictrack_series_7 = settings.value(QZSettings::nordictrack_series_7, QZSettings::default_nordictrack_series_7).toBool();
+    proform_treadmill_sport_3_0 = settings.value(QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0).toBool();
+    proform_carbon_tlx_treadmill = settings.value(QZSettings::proform_carbon_tlx_treadmill, QZSettings::default_proform_carbon_tlx_treadmill).toBool();
+    proform_carbon_tlx_v84_314_treadmill = settings.value(QZSettings::proform_carbon_tlx_v84_314_treadmill, QZSettings::default_proform_carbon_tlx_v84_314_treadmill).toBool();
+    proform_carbon_tl_PFTL59723_6 = settings.value(QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6).toBool();
+    proform_treadmill_cst_505_pftl59420_0 = settings.value(QZSettings::proform_treadmill_cst_505_pftl59420_0, QZSettings::default_proform_treadmill_cst_505_pftl59420_0).toBool();
 
     if (proform_treadmill_995i) {
         // ProForm 995i initialization frames from pkt4658 to pkt4756 (all 25 frames)
@@ -5688,6 +6192,83 @@ void proformtreadmill::btinit() {
         QThread::msleep(sleepms);
         writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
+    } else if (proform_trainer_8_0_pftl59721_int_0) {
+        uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x80, 0x88,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x88, 0x90,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData5[] = {0xfe, 0x02, 0x0b, 0x02};
+        uint8_t initData6[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00,
+                               0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData7[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
+                               0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData8[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData9[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07,
+                                0x01, 0xe2, 0x34, 0x84, 0xd2, 0x2e, 0x88, 0xd0, 0x3e, 0x9a};
+        uint8_t initData11[] = {0x01, 0x12, 0xfc, 0x5c, 0xba, 0x16, 0x90, 0xf8, 0x46, 0xd2,
+                                0x24, 0xb4, 0x02, 0x9e, 0x18, 0x60, 0xee, 0x6a, 0xec, 0x6c};
+        uint8_t initData12[] = {0xff, 0x08, 0xea, 0x66, 0x20, 0x98, 0x02, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData4[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData6[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
     } else if (proform_trainer_8_0) {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
@@ -7289,6 +7870,99 @@ void proformtreadmill::btinit() {
                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         writeCharacteristic(initData31, sizeof(initData31), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);
+    } else if (nordictrack_treadmill_commercial_le) {
+        // NordicTrack Commercial LE initialization sequence captured from iFit.
+        uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData3[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x80, 0x88,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData5[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData6[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x88, 0x90,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData7[] = {0xfe, 0x02, 0x0b, 0x02};
+        uint8_t initData8[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00,
+                               0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData9[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t initData10[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
+                                0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData11[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData12[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData13[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t initData14[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07,
+                                0x8e, 0xd6, 0x24, 0x68, 0xba, 0x0a, 0x68, 0xbc, 0x06, 0x6e};
+        uint8_t initData15[] = {0x01, 0x12, 0xcc, 0x10, 0x72, 0xd2, 0x50, 0xb4, 0x1e, 0x66,
+                                0xf4, 0x58, 0xaa, 0x3a, 0xb8, 0x0c, 0x96, 0x1e, 0x9c, 0xe0};
+        uint8_t initData16[] = {0xff, 0x08, 0x62, 0xe2, 0xa0, 0xa0, 0x02, 0x00, 0x00, 0x61,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData17[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t initData18[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData19[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData20[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t initData21[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData22[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData23[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t initData24[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00,
+                                0x0f, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x48, 0x00, 0x00, 0xe0};
+        uint8_t initData25[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x6e, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData14, sizeof(initData14), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData15, sizeof(initData15), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData16, sizeof(initData16), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData17, sizeof(initData17), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData18, sizeof(initData18), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData19, sizeof(initData19), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData20, sizeof(initData20), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData21, sizeof(initData21), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData22, sizeof(initData22), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData23, sizeof(initData23), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData24, sizeof(initData24), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+        writeCharacteristic(initData25, sizeof(initData25), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
     } else if (nordictrack_treadmill_ultra_le) {
         // NordicTrack Treadmill Ultra LE initialization sequence
         // Frames extracted from ultrale.c with first 11 bytes removed
@@ -7565,6 +8239,634 @@ void proformtreadmill::btinit() {
 
         uint8_t initData25[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x10, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         writeCharacteristic(initData25, sizeof(initData25), QStringLiteral("init"), false, false);
+        QThread::msleep(sleepms);
+    } else if (proform_treadmill_sport_3_0) {
+        // Init sequence (39 packets)
+        uint8_t sport30_init_001[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t sport30_init_002[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_003[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t sport30_init_004[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x80, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_005[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t sport30_init_006[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x88, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_007[] = {0xfe, 0x02, 0x0b, 0x02};
+        uint8_t sport30_init_008[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00, 0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_009[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t sport30_init_010[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_011[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t sport30_init_012[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_013[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t sport30_init_014[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07, 0x01, 0x56, 0x24, 0xe8, 0xba, 0x8a, 0x68, 0x3c, 0x06, 0xee};
+        uint8_t sport30_init_015[] = {0x01, 0x12, 0xcc, 0x90, 0x72, 0x52, 0x50, 0x34, 0x1e, 0xe6, 0xf4, 0xd8, 0xaa, 0xba, 0xb8, 0x8c, 0x96, 0x9e, 0x9c, 0x60};
+        uint8_t sport30_init_016[] = {0xff, 0x08, 0x62, 0x62, 0xa0, 0x98, 0x02, 0x00, 0x00, 0x4c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_017[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t sport30_init_018[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_019[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_020[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t sport30_init_021[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_022[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_023[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t sport30_init_024[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x48, 0x00, 0x00, 0xe0};
+        uint8_t sport30_init_025[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_026[] = {0xfe, 0x02, 0x14, 0x03};
+        uint8_t sport30_init_027[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+        uint8_t sport30_init_028[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_029[] = {0xfe, 0x02, 0x11, 0x02};
+        uint8_t sport30_init_030[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x08, 0x58, 0x02, 0x00, 0x7a, 0x00};
+        uint8_t sport30_init_031[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t sport30_init_032[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_033[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_034[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t sport30_init_035[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x04, 0x00, 0x00, 0x00, 0x02, 0xe4, 0x1f, 0x00, 0x1b, 0x00, 0x00};
+        uint8_t sport30_init_036[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t sport30_init_037[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_037a[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x10, 0x7d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t sport30_init_038[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t sport30_init_039[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x28, 0x00, 0x00};
+
+        int sleepms = 400;
+        writeCharacteristic(sport30_init_001, sizeof(sport30_init_001), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_002, sizeof(sport30_init_002), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_003, sizeof(sport30_init_003), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_004, sizeof(sport30_init_004), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_005, sizeof(sport30_init_005), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_006, sizeof(sport30_init_006), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_007, sizeof(sport30_init_007), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_008, sizeof(sport30_init_008), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_009, sizeof(sport30_init_009), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_010, sizeof(sport30_init_010), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_011, sizeof(sport30_init_011), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_012, sizeof(sport30_init_012), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_013, sizeof(sport30_init_013), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_014, sizeof(sport30_init_014), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_015, sizeof(sport30_init_015), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_016, sizeof(sport30_init_016), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_017, sizeof(sport30_init_017), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_018, sizeof(sport30_init_018), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_019, sizeof(sport30_init_019), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_020, sizeof(sport30_init_020), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_021, sizeof(sport30_init_021), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_022, sizeof(sport30_init_022), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_023, sizeof(sport30_init_023), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_024, sizeof(sport30_init_024), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_025, sizeof(sport30_init_025), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_026, sizeof(sport30_init_026), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_027, sizeof(sport30_init_027), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_028, sizeof(sport30_init_028), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_029, sizeof(sport30_init_029), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_030, sizeof(sport30_init_030), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_031, sizeof(sport30_init_031), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_032, sizeof(sport30_init_032), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_033, sizeof(sport30_init_033), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_034, sizeof(sport30_init_034), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_035, sizeof(sport30_init_035), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_036, sizeof(sport30_init_036), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_037, sizeof(sport30_init_037), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_037a, sizeof(sport30_init_037a), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);        
+        writeCharacteristic(sport30_init_038, sizeof(sport30_init_038), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(sport30_init_039, sizeof(sport30_init_039), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+    } else if (proform_carbon_tlx_treadmill) {
+        // ProForm Carbon TLX PFTL90924C.7 - original init sequence
+        uint8_t tlx_init_001[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t tlx_init_002[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_003[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t tlx_init_004[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x80, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_005[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t tlx_init_006[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x88, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_007[] = {0xfe, 0x02, 0x0b, 0x02};
+        uint8_t tlx_init_008[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00, 0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_009[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t tlx_init_010[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_011[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t tlx_init_012[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_013[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t tlx_init_014[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07, 0x58, 0x89, 0xb8, 0xf5, 0x20, 0x59, 0x90, 0xdd, 0x18, 0x59};
+        uint8_t tlx_init_015[] = {0x01, 0x12, 0x98, 0xd5, 0x10, 0x69, 0xa0, 0xed, 0x58, 0x89, 0xf8, 0x55, 0x80, 0xf9, 0x50, 0xbd, 0x18, 0x79, 0xd8, 0x35};
+        uint8_t tlx_init_016[] = {0xff, 0x08, 0x90, 0xe9, 0x40, 0xa0, 0x02, 0x00, 0x00, 0xc8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_017[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t tlx_init_018[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_019[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_020[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t tlx_init_021[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_022[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_023[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t tlx_init_024[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x48, 0x00, 0x00, 0xe0};
+        uint8_t tlx_init_025[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_026[] = {0xfe, 0x02, 0x14, 0x03};
+        uint8_t tlx_init_027[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+        uint8_t tlx_init_028[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_029[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t tlx_init_030[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_031[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_032[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t tlx_init_033[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x04, 0x00, 0x00, 0x00, 0x02, 0xe0, 0x2e, 0x00, 0x26, 0x00, 0x00};
+        uint8_t tlx_init_034[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t tlx_init_035[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_036[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x95, 0x00, 0x10, 0x91, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_037[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t tlx_init_038[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x28, 0x00, 0x00};
+        uint8_t tlx_init_039[] = {0xfe, 0x02, 0x14, 0x03};
+        uint8_t tlx_init_040[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+        uint8_t tlx_init_041[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_control_001[] = {0xfe, 0x02, 0x0d, 0x02};
+        uint8_t tlx_control_002[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x02, 0x00, 0x10, 0x02, 0x00, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        writeCharacteristic(tlx_init_001, sizeof(tlx_init_001), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_002, sizeof(tlx_init_002), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_003, sizeof(tlx_init_003), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_004, sizeof(tlx_init_004), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_005, sizeof(tlx_init_005), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_006, sizeof(tlx_init_006), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_007, sizeof(tlx_init_007), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_008, sizeof(tlx_init_008), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_009, sizeof(tlx_init_009), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_010, sizeof(tlx_init_010), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_011, sizeof(tlx_init_011), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_012, sizeof(tlx_init_012), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_013, sizeof(tlx_init_013), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_014, sizeof(tlx_init_014), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_015, sizeof(tlx_init_015), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_016, sizeof(tlx_init_016), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_017, sizeof(tlx_init_017), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_018, sizeof(tlx_init_018), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_019, sizeof(tlx_init_019), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_020, sizeof(tlx_init_020), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_021, sizeof(tlx_init_021), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_022, sizeof(tlx_init_022), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_023, sizeof(tlx_init_023), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_024, sizeof(tlx_init_024), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_025, sizeof(tlx_init_025), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_026, sizeof(tlx_init_026), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_027, sizeof(tlx_init_027), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_028, sizeof(tlx_init_028), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_029, sizeof(tlx_init_029), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_030, sizeof(tlx_init_030), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_031, sizeof(tlx_init_031), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_032, sizeof(tlx_init_032), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_033, sizeof(tlx_init_033), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_034, sizeof(tlx_init_034), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_035, sizeof(tlx_init_035), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_036, sizeof(tlx_init_036), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_037, sizeof(tlx_init_037), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_038, sizeof(tlx_init_038), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_039, sizeof(tlx_init_039), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_040, sizeof(tlx_init_040), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_041, sizeof(tlx_init_041), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_control_001, sizeof(tlx_control_001), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_control_002, sizeof(tlx_control_002), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+    } else if (proform_carbon_tlx_v84_314_treadmill) {
+        // ProForm Carbon TLX v84.314 PFTL90924C.7 - init frames captured from the iFit app on 2026-04-16
+        uint8_t tlx_init_001[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t tlx_init_002[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_003[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t tlx_init_004[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x80, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_005[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t tlx_init_006[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x88, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_007[] = {0xfe, 0x02, 0x0b, 0x02};
+        uint8_t tlx_init_008[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00, 0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_009[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t tlx_init_010[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_011[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t tlx_init_012[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_013[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t tlx_init_014[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07, 0x58, 0x89, 0xb8, 0xf5, 0x20, 0x59, 0x90, 0xdd, 0x18, 0x59};
+        uint8_t tlx_init_015[] = {0x01, 0x12, 0x98, 0xd5, 0x10, 0x69, 0xa0, 0xed, 0x58, 0x89, 0xf8, 0x55, 0x80, 0xf9, 0x50, 0xbd, 0x18, 0x79, 0xd8, 0x35};
+        uint8_t tlx_init_016[] = {0xff, 0x08, 0x90, 0xe9, 0x40, 0xa0, 0x02, 0x00, 0x00, 0xc8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_017[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t tlx_init_018[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_019[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_020[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t tlx_init_021[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_022[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_023[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t tlx_init_024[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x48, 0x00, 0x00, 0xe0};
+        uint8_t tlx_init_025[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_026[] = {0xfe, 0x02, 0x14, 0x03};
+        uint8_t tlx_init_027[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+        uint8_t tlx_init_028[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_029[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t tlx_init_030[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_031[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_032[] = {0xfe, 0x02, 0x11, 0x02};
+        uint8_t tlx_init_033[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x08, 0x58, 0x02, 0x00, 0x7a, 0x00};
+        uint8_t tlx_init_034[] = {0xfe, 0x02, 0x11, 0x02};
+        uint8_t tlx_init_035[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x08, 0x58, 0x02, 0x00, 0x7a, 0x00};
+        uint8_t tlx_init_036[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t tlx_init_037[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_038[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_039[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t tlx_init_040[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x04, 0x00, 0x00, 0x00, 0x02, 0x34, 0x21, 0x00, 0x6d, 0x00, 0x00};
+        uint8_t tlx_init_041[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t tlx_init_042[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_043[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x85, 0x00, 0x10, 0x81, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t tlx_init_044[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t tlx_init_045[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x28, 0x00, 0x00};
+        uint8_t tlx_init_046[] = {0xfe, 0x02, 0x14, 0x03};
+        uint8_t tlx_init_047[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+        uint8_t tlx_init_048[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        writeCharacteristic(tlx_init_001, sizeof(tlx_init_001), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_002, sizeof(tlx_init_002), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_003, sizeof(tlx_init_003), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_004, sizeof(tlx_init_004), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_005, sizeof(tlx_init_005), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_006, sizeof(tlx_init_006), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_007, sizeof(tlx_init_007), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_008, sizeof(tlx_init_008), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_009, sizeof(tlx_init_009), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_010, sizeof(tlx_init_010), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_011, sizeof(tlx_init_011), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_012, sizeof(tlx_init_012), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_013, sizeof(tlx_init_013), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_014, sizeof(tlx_init_014), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_015, sizeof(tlx_init_015), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_016, sizeof(tlx_init_016), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_017, sizeof(tlx_init_017), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_018, sizeof(tlx_init_018), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_019, sizeof(tlx_init_019), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_020, sizeof(tlx_init_020), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_021, sizeof(tlx_init_021), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_022, sizeof(tlx_init_022), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_023, sizeof(tlx_init_023), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_024, sizeof(tlx_init_024), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_025, sizeof(tlx_init_025), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_026, sizeof(tlx_init_026), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_027, sizeof(tlx_init_027), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_028, sizeof(tlx_init_028), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_029, sizeof(tlx_init_029), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_030, sizeof(tlx_init_030), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_031, sizeof(tlx_init_031), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_032, sizeof(tlx_init_032), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_033, sizeof(tlx_init_033), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_034, sizeof(tlx_init_034), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_035, sizeof(tlx_init_035), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_036, sizeof(tlx_init_036), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_037, sizeof(tlx_init_037), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_038, sizeof(tlx_init_038), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_039, sizeof(tlx_init_039), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_040, sizeof(tlx_init_040), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_041, sizeof(tlx_init_041), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_042, sizeof(tlx_init_042), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_043, sizeof(tlx_init_043), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_044, sizeof(tlx_init_044), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_045, sizeof(tlx_init_045), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_046, sizeof(tlx_init_046), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_047, sizeof(tlx_init_047), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(tlx_init_048, sizeof(tlx_init_048), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+    } else if (proform_treadmill_cst_505_pftl59420_0) {
+        // ProForm CST 505 PFTL59420.0 init sequence captured from the iFit app
+        uint8_t init_001[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t init_002[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_003[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t init_004[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x80, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_005[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t init_006[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x88, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_007[] = {0xfe, 0x02, 0x0b, 0x02};
+        uint8_t init_008[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00, 0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_009[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t init_010[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_011[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t init_012[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_013[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t init_014[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07, 0x01, 0x59, 0x78, 0xa5, 0xc0, 0xe9, 0x10, 0x4d, 0x78, 0xa9};
+        uint8_t init_015[] = {0x01, 0x12, 0xd8, 0x05, 0x30, 0x79, 0xa0, 0xfd, 0x38, 0x79, 0xb8, 0xe5, 0x20, 0x69, 0xd0, 0x0d, 0x78, 0xa9, 0x18, 0x45};
+        uint8_t init_016[] = {0xff, 0x08, 0xb0, 0x19, 0x40, 0x98, 0x02, 0x00, 0x00, 0x59, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_017[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t init_018[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_019[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_020[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t init_021[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_022[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_023[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t init_024[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x48, 0x00, 0x00, 0xe0};
+        uint8_t init_025[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_026[] = {0xfe, 0x02, 0x14, 0x03};
+        uint8_t init_027[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+        uint8_t init_028[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_029[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t init_030[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x04, 0x00, 0x00, 0x00, 0x02, 0x35, 0x25, 0x00, 0x72, 0x00, 0x00};
+        uint8_t init_031[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t init_032[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_033[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_034[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t init_035[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x27, 0x00, 0x00};
+
+        writeCharacteristic(init_001, sizeof(init_001), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_002, sizeof(init_002), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_003, sizeof(init_003), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_004, sizeof(init_004), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_005, sizeof(init_005), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_006, sizeof(init_006), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_007, sizeof(init_007), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_008, sizeof(init_008), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_009, sizeof(init_009), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_010, sizeof(init_010), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_011, sizeof(init_011), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_012, sizeof(init_012), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_013, sizeof(init_013), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_014, sizeof(init_014), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_015, sizeof(init_015), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_016, sizeof(init_016), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_017, sizeof(init_017), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_018, sizeof(init_018), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_019, sizeof(init_019), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_020, sizeof(init_020), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_021, sizeof(init_021), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_022, sizeof(init_022), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_023, sizeof(init_023), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_024, sizeof(init_024), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_025, sizeof(init_025), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_026, sizeof(init_026), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_027, sizeof(init_027), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_028, sizeof(init_028), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_029, sizeof(init_029), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_030, sizeof(init_030), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_031, sizeof(init_031), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_032, sizeof(init_032), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_033, sizeof(init_033), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_034, sizeof(init_034), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_035, sizeof(init_035), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+    } else if (proform_carbon_tl_PFTL59723_6) {
+        // ProForm Carbon TL PFTL59723.6 init sequence captured from the iFit app
+        uint8_t init_001[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t init_002[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_003[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t init_004[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x80, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_005[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t init_006[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x88, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_007[] = {0xfe, 0x02, 0x0b, 0x02};
+        uint8_t init_008[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00, 0x00, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_009[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t init_010[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_011[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t init_012[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_013[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t init_014[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07, 0xd2, 0xb8, 0xac, 0x92, 0x8e, 0x7c, 0x78, 0x6e, 0x6a, 0x50};
+        uint8_t init_015[] = {0x01, 0x12, 0x54, 0x5a, 0x56, 0x54, 0x70, 0x76, 0x62, 0x68, 0x9c, 0x82, 0xbe, 0xac, 0xc8, 0xfe, 0x1a, 0x00, 0x24, 0x4a};
+        uint8_t init_016[] = {0xff, 0x08, 0x66, 0x84, 0xe0, 0xa0, 0x02, 0x00, 0x00, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_017[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t init_018[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_019[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_020[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t init_021[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_022[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_023[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t init_024[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x48, 0x00, 0x00, 0xe0};
+        uint8_t init_025[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_026[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t init_027[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x04, 0x00, 0x00, 0x00, 0x02, 0xe4, 0x1f, 0x00, 0x1b, 0x00, 0x00};
+        uint8_t init_028[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t init_029[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_030[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_031[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t init_032[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x27, 0x00, 0x00};
+        uint8_t init_033[] = {0xfe, 0x02, 0x14, 0x03};
+        uint8_t init_034[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x13, 0x94, 0x33, 0x00, 0x10, 0x40, 0x10, 0x00, 0x80};
+        uint8_t init_035[] = {0xff, 0x02, 0x18, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_036[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t init_037[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t init_038[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x91, 0x00, 0x10, 0x8d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        writeCharacteristic(init_001, sizeof(init_001), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_002, sizeof(init_002), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_003, sizeof(init_003), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_004, sizeof(init_004), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_005, sizeof(init_005), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_006, sizeof(init_006), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_007, sizeof(init_007), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_008, sizeof(init_008), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_009, sizeof(init_009), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_010, sizeof(init_010), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_011, sizeof(init_011), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_012, sizeof(init_012), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_013, sizeof(init_013), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_014, sizeof(init_014), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_015, sizeof(init_015), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_016, sizeof(init_016), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_017, sizeof(init_017), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_018, sizeof(init_018), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_019, sizeof(init_019), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_020, sizeof(init_020), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_021, sizeof(init_021), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_022, sizeof(init_022), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_023, sizeof(init_023), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_024, sizeof(init_024), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_025, sizeof(init_025), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_026, sizeof(init_026), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_027, sizeof(init_027), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_028, sizeof(init_028), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_029, sizeof(init_029), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_030, sizeof(init_030), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_031, sizeof(init_031), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_032, sizeof(init_032), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_033, sizeof(init_033), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_034, sizeof(init_034), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_035, sizeof(init_035), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_036, sizeof(init_036), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_037, sizeof(init_037), QStringLiteral("init"), false, true);
+        QThread::msleep(sleepms);
+        writeCharacteristic(init_038, sizeof(init_038), QStringLiteral("init"), false, true);
         QThread::msleep(sleepms);
     } else {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};

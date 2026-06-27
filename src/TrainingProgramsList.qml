@@ -6,34 +6,50 @@ import QtQuick.Controls.Material 2.0
 import QtQuick.Dialogs 1.0
 import QtCharts 2.2
 import Qt.labs.settings 1.0
-import Qt.labs.platform 1.1
 
 ColumnLayout {
     signal trainprogram_open_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_autostart_requested()
+    property url selectedWorkoutUrl: ""
+    property url initialWorkoutUrl: ""
 
-    property url pendingWorkoutUrl: ""
+    function openWorkoutPreview(fileUrl) {
+        if (!fileUrl || fileUrl.toString() === "") {
+            return
+        }
+        selectedWorkoutUrl = fileUrl
+        trainprogram_preview(fileUrl)
+        powerSeries.clear();
+        for(var i=0;i<rootItem.preview_workout_points;i+=10)
+        {
+            powerSeries.append(i * 1000, rootItem.preview_workout_watt[i]);
+        }
+        rootItem.update_chart_power(powerChart);
+    }
 
-    // Auto-start confirmation dialog
+    Component.onCompleted: {
+        Qt.callLater(function() {
+            openWorkoutPreview(initialWorkoutUrl)
+        })
+    }
+
     MessageDialog {
-        id: autoStartDialog
-        text: "Start Workout?"
-        informativeText: "Do you want to automatically start this workout?"
+        id: deleteDialog
+        text: "Delete workout?"
+        informativeText: "This cannot be undone."
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
-            // Load workout and auto-start
-            trainprogram_open_clicked(pendingWorkoutUrl)
-            trainprogram_autostart_requested()
-            this.visible = false
+            if (rootItem.deleteTrainingProgramFile(selectedWorkoutUrl)) {
+                selectedWorkoutUrl = ""
+                var currentFolder = folderModel.folder
+                folderModel.folder = ""
+                folderModel.folder = currentFolder
+            }
+            visible = false
         }
-        onNoClicked: {
-            // Just load workout without auto-start
-            trainprogram_open_clicked(pendingWorkoutUrl)
-            this.visible = false
-        }
-        visible: false
+        onNoClicked: visible = false
     }
 
     Loader {
@@ -65,17 +81,15 @@ ColumnLayout {
         }
     }
 
-    SplitView {
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        orientation: Qt.Horizontal
+    RowLayout{
+        spacing: 2
+        anchors.top: parent.top
+        anchors.fill: parent
 
         ColumnLayout {
-            SplitView.preferredWidth: 300
-            SplitView.minimumWidth: 200
-            SplitView.maximumWidth: 500
             spacing: 0
-            clip: true
+            anchors.top: parent.top
+            anchors.fill: parent
 
             Row
             {
@@ -101,16 +115,19 @@ ColumnLayout {
                     id: filterField
                     onTextChanged: updateFilter()
                 }
-                Button {
-                    text: "←"
-						  onClicked: folderModel.folder = folderModel.parentFolder
-						}
+                     Button {
+                         anchors.left: mainRect.right
+                          anchors.leftMargin: 5
+                          text: "←"
+                          onClicked: folderModel.folder = folderModel.parentFolder
+                        }
             }
 
             ListView {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 50
                 Layout.preferredWidth: 100
+                Layout.maximumWidth: row.left
                 Layout.minimumHeight: 150
                 Layout.preferredHeight: parent.height
                 ScrollBar.vertical: ScrollBar {}
@@ -119,10 +136,10 @@ ColumnLayout {
                     id: folderModel
                     nameFilters: ["*.xml", "*.zwo"]
                     folder: "file://" + rootItem.getWritableAppDir() + 'training'
-						  showDotAndDotDot: false
+                          showDotAndDotDot: false
                     showDirs: true
-						  sortField: "Name"
-						  showDirsFirst: true
+                          sortField: "Name"
+                          showDirsFirst: true
                 }
                 model: folderModel
                 delegate: Component {
@@ -130,7 +147,7 @@ ColumnLayout {
                         property alias textColor: fileTextBox.color
                         width: parent.width
                         height: 40
-								color: Material.backgroundColor
+                                color: Material.backgroundColor
                         z: 1
                         Item {
                             id: root
@@ -169,14 +186,12 @@ ColumnLayout {
                                 console.log('onclicked ' + index+ " count "+list.count);
                                 if (index == list.currentIndex) {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
-												if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
-                                        // Show auto-start dialog
-                                        console.log('Showing autostart dialog for: ' + fileUrl);
-                                        pendingWorkoutUrl = fileUrl;
-                                        autoStartDialog.visible = true;
-												} else {
-												    folderModel.folder = fileURL
-												}
+                                                if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
+                                        trainprogram_open_clicked(fileUrl);
+                                        popup.open()
+                                                } else {
+                                                    folderModel.folder = fileURL
+                                                }
                                 }
                                 else {
                                     if (list.currentItem)
@@ -202,7 +217,8 @@ ColumnLayout {
                 focus: true
                 onCurrentItemChanged: {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
-                    if (fileUrl) {
+                    if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
+                        selectedWorkoutUrl = fileUrl
                         list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                         trainprogram_preview(fileUrl)
@@ -214,6 +230,8 @@ ColumnLayout {
                         rootItem.update_chart_power(powerChart);
                         //trainprogram_open_clicked(fileUrl);
                         //popup.open()
+                    } else {
+                        selectedWorkoutUrl = ""
                     }
                 }
                 Component.onCompleted: {
@@ -222,11 +240,14 @@ ColumnLayout {
             }
         }
 
-        ColumnLayout {
-            SplitView.fillWidth: true
-            SplitView.minimumWidth: 300
-            spacing: 5
-            clip: true
+        ScrollView {
+            anchors.top: parent.top
+            ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+            contentHeight: date.height + description.height + powerChart.height
+            Layout.preferredHeight: parent.height
+            Layout.fillWidth: true
+            Layout.minimumWidth: 100
+            Layout.preferredWidth: 200
 
             property alias powerSeries: powerSeries
             property alias powerChart: powerChart
@@ -236,51 +257,62 @@ ColumnLayout {
                 property real ftp: 200.0
             }
 
-            Text {
-                id: date
-                Layout.fillWidth: true
-                Layout.preferredHeight: contentHeight
-                text: rootItem.previewWorkoutDescription
-                font.pixelSize: 14
-                color: "white"
-                wrapMode: Text.WordWrap
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
+            Row {
+                id: row
+                anchors.fill: parent
 
-            Text {
-                id: description
-                Layout.fillWidth: true
-                Layout.preferredHeight: contentHeight
-                text: rootItem.previewWorkoutTags
-                font.pixelSize: 10
-                wrapMode: Text.WordWrap
-                color: "white"
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
+                Text {
+                    id: date
+                    width: parent.width
+                    text: rootItem.previewWorkoutDescription
+                    font.pixelSize: 14
+                    color: "white"
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
 
-            ChartView {
-                id: powerChart
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                objectName: "powerChart"
-                antialiasing: true
-                legend.visible: false
-                title: "Power"
-                titleFont.pixelSize: 20
+                Text {
+                    anchors.top: date.bottom
+                    id: description
+                    width: parent.width
+                    text: rootItem.previewWorkoutTags
+                    font.pixelSize: 10
+                    wrapMode: Text.WordWrap
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
 
-                DateTimeAxis {
-                        id: valueAxisX
-                        tickCount: 7
-                        min: new Date(0)
-                        max: new Date(rootItem.preview_workout_points * 1000)
-                        format: "mm:ss"
-                        //labelsVisible: false
-                        gridVisible: false
-                        //lineVisible: false
-                        labelsFont.pixelSize: 10
-                    }
+                Item {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: description.bottom
+                    anchors.bottom: parent.bottom
+
+                    ChartView {
+                        id: powerChart
+                        objectName: "powerChart"
+                        antialiasing: true
+                        legend.visible: false
+                        height: 400
+                        width: parent.width
+                        title: "Power"
+                        titleFont.pixelSize: 20
+
+                        DateTimeAxis {
+                            id: valueAxisX
+                            tickCount: 7
+                            min: new Date(0)
+                            max: new Date(rootItem.preview_workout_points * 1000)
+                            format: "mm:ss"
+                            //labelsVisible: false
+                            gridVisible: false
+                            //lineVisible: false
+                            labelsFont.pixelSize: 10
+                        }
 
                         ValueAxis {
                             id: valueAxisY
@@ -308,32 +340,40 @@ ColumnLayout {
                 }
             }
         }
-
-        // SplitView handle customization for better touch
-        handle: Rectangle {
-            implicitWidth: 10
-            implicitHeight: 10
-            color: SplitHandle.pressed ? Material.accent : (SplitHandle.hovered ? Material.color(Material.Grey, Material.Shade400) : "transparent")
-
-            Rectangle {
-                anchors.centerIn: parent
-                width: 3
-                height: parent.height
-                color: Material.color(Material.Grey, Material.Shade600)
-            }
-        }
     }
 
-    Button {
-        id: searchButton
+    RowLayout {
         height: 50
         width: parent.width
-        text: "Other folders"
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-        onClicked: {
-            console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            // Create a fresh FileDialog instance
-            fileDialogLoader.active = true
+
+        Button {
+            Layout.fillWidth: true
+            text: "Start Workout"
+            visible: selectedWorkoutUrl != ""
+            onClicked: {
+                trainprogram_open_clicked(selectedWorkoutUrl)
+                trainprogram_autostart_requested()
+            }
+        }
+
+        Button {
+            id: deleteButton
+            Layout.fillWidth: true
+            text: "Delete"
+            visible: selectedWorkoutUrl != ""
+            onClicked: deleteDialog.visible = true
+        }
+
+        Button {
+            id: searchButton
+            Layout.fillWidth: true
+            text: "Other folders"
+            onClicked: {
+                console.log("folder is " + rootItem.getWritableAppDir() + 'training')
+                // Create a fresh FileDialog instance
+                fileDialogLoader.active = true
+            }
         }
         anchors {
             bottom: parent.bottom

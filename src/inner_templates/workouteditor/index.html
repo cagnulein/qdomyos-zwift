@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Workout Editor</title>
     <link rel="stylesheet" href="workout-editor.css">
+    <script src="../i18n/i18n.js"></script>
     <script src="../chartjs/resize-observer.min.js"></script>
     <script src="../chartjs/chartjs.3.4.1.min.js"></script>
     <script src="../chartjs/globals.js"></script>
@@ -30,27 +31,30 @@
 <body>
     <div id="app">
         <div class="toolbar">
-            <div class="toolbar-title">Workout Editor</div>
+            <div class="toolbar-title" data-i18n="workoutEditor.title">Workout Editor</div>
             <div class="toolbar-controls">
                 <label>
-                    <span>Name</span>
-                    <input type="text" id="workoutName" placeholder="New workout">
+                    <span data-i18n="workoutEditor.name">Name</span>
+                    <input type="text" id="workoutName" placeholder="New workout" data-i18n-placeholder="workoutEditor.newWorkoutPlaceholder">
                 </label>
                 <label>
-                    <span>Device</span>
+                    <span data-i18n="workoutEditor.device">Device</span>
                     <select id="deviceSelect">
-                        <option value="bike">Bike</option>
-                        <option value="treadmill">Treadmill</option>
-                        <option value="elliptical">Elliptical</option>
-                        <option value="rower">Rower</option>
+                        <option value="bike" data-i18n="device.bike">Bike</option>
+                        <option value="treadmill" data-i18n="device.treadmill">Treadmill</option>
+                        <option value="elliptical" data-i18n="device.elliptical">Elliptical</option>
+                        <option value="rower" data-i18n="device.rower">Rower</option>
+                        <option value="jumprope" data-i18n="device.jumprope">Jump Rope</option>
+                        <option value="stairclimber" data-i18n="device.stairclimber">Stair Climber</option>
                     </select>
                 </label>
-                <button id="newWorkout" class="small">New</button>
-                <button id="saveWorkout" class="primary small">Save</button>
-                <button id="saveStartWorkout" class="primary small">Save &amp; Start</button>
+                <button id="newWorkout" class="small" data-i18n="common.new">New</button>
+                <button id="pasteClipboard" class="small" data-i18n="workoutEditor.pasteXml">Paste XML</button>
+                <button id="saveWorkout" class="primary small" data-i18n="common.save">Save</button>
+                <button id="saveStartWorkout" class="primary small" data-i18n="workoutEditor.saveStart">Save &amp; Start</button>
                 <label class="checkbox-label">
                     <input type="checkbox" id="advancedToggle">
-                    <span>Advanced</span>
+                    <span data-i18n="workoutEditor.advanced">Advanced</span>
                 </label>
             </div>
         </div>
@@ -59,11 +63,11 @@
             <div class="interval-panel">
                 <div class="interval-panel-header">
                     <div class="interval-panel-actions">
-                        <button id="addInterval" class="primary small">Add Interval</button>
-                        <button id="repeatSelection" class="small">Repeat Selection</button>
-                        <button id="clearIntervals" class="small danger">Clear</button>
+                        <button id="addInterval" class="primary small" data-i18n="workoutEditor.addInterval">Add Interval</button>
+                        <button id="repeatSelection" class="small" data-i18n="workoutEditor.repeatSelection">Repeat Selection</button>
+                        <button id="clearIntervals" class="small danger" data-i18n="common.clear">Clear</button>
                     </div>
-                    <div class="interval-panel-hint">Select consecutive rows to repeat them quickly.</div>
+                    <div class="interval-panel-hint" data-i18n="workoutEditor.repeatHint">Select consecutive rows to repeat them quickly.</div>
                 </div>
                 <div id="intervalList" class="interval-list"></div>
             </div>
@@ -71,7 +75,7 @@
             <div class="preview-panel">
                 <div class="chart-card">
                     <header>
-                        <div class="chart-title" id="chartTitle">Workout Preview</div>
+                        <div class="chart-title" id="chartTitle" data-i18n="workoutEditor.workoutPreview">Workout Preview</div>
                         <div class="chart-meta" id="chartMeta"></div>
                     </header>
                     <div class="chart-wrapper">
@@ -80,16 +84,35 @@
                     <div class="legend" id="legend"></div>
                 </div>
                 <div class="status-strip">
-                    <div>Total: <span id="statusDuration">0:00</span></div>
-                    <div>Intervals: <span id="statusIntervals">0</span></div>
+                    <div><span data-i18n="workoutEditor.total">Total:</span> <span id="statusDuration">0:00</span></div>
+                    <div><span data-i18n="workoutEditor.intervals">Intervals:</span> <span id="statusIntervals">0</span></div>
                     <div class="status-message" id="statusMessage"></div>
-                    <div class="status-message error hidden" id="offlineBanner">Offline mode: changes not saved</div>
+                    <div class="status-message error hidden" id="offlineBanner" data-i18n="workoutEditor.offlineModeChangesNotSaved">Offline mode: changes not saved</div>
                 </div>
                 <div class="program-bar">
                     <select id="programSelect"></select>
-                    <button id="loadProgram" class="small">Load</button>
-                    <button id="refreshPrograms" class="small">Refresh</button>
+                    <button id="loadProgram" class="small" data-i18n="common.load">Load</button>
+                    <button id="deleteProgram" class="small danger" data-i18n="common.delete">Delete</button>
+                    <button id="refreshPrograms" class="small" data-i18n="common.refresh">Refresh</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom dialogs for iOS WebView compatibility -->
+    <div id="customDialog" class="custom-dialog hidden">
+        <div class="custom-dialog-overlay"></div>
+        <div class="custom-dialog-content">
+            <div class="custom-dialog-header">
+                <h3 id="customDialogTitle"></h3>
+            </div>
+            <div class="custom-dialog-body">
+                <p id="customDialogMessage"></p>
+                <input type="text" id="customDialogInput" class="hidden">
+            </div>
+            <div class="custom-dialog-footer">
+                <button id="customDialogCancel" class="small" data-i18n="common.cancel">Cancel</button>
+                <button id="customDialogConfirm" class="small primary" data-i18n="common.ok">OK</button>
             </div>
         </div>
     </div>

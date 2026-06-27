@@ -902,6 +902,7 @@ int Computrainer::rawWrite(uint8_t *bytes, int size) // unix!!
         b[i] = bytes[i];
     env->SetByteArrayRegion(d, 0, size, b);
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
+    env->DeleteLocalRef(d);
 #elif defined(WIN32)
     DWORD cBytes;
     rc = WriteFile(devicePort, bytes, size, &cBytes, NULL);
@@ -952,6 +953,13 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
     int retryCount = 0;
 
     while (fullLen < size && retryCount < maxRetries) {
+        // Push a new local frame to automatically manage JNI references
+        // This prevents local reference table overflow by cleaning up refs at the end of each iteration
+        if (env->PushLocalFrame(16) < 0) {
+            qDebug() << "Failed to push local frame";
+            return -1;
+        }
+
         QAndroidJniObject dd =
             QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
         jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
@@ -962,6 +970,7 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
         if (len <= 0) {
             // No data available, release memory and retry after a short sleep
             env->ReleaseByteArrayElements(d, b, 0);
+            env->PopLocalFrame(NULL); // Pop frame to release all local refs created in this iteration
             qDebug() << "No data available, retry" << retryCount + 1 << "of" << maxRetries;
             CTsleeper::msleep(50); // Sleep for 50ms before retrying
             retryCount++;
@@ -991,6 +1000,7 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
 
             // Release JNI memory before returning
             env->ReleaseByteArrayElements(d, b, 0);
+            env->PopLocalFrame(NULL); // Pop frame to release all local refs created in this iteration
             return size;
         }
         for (int i = fullLen; i < len + fullLen; i++) {
@@ -1001,6 +1011,7 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
 
         // Release JNI memory after processing
         env->ReleaseByteArrayElements(d, b, 0);
+        env->PopLocalFrame(NULL); // Pop frame to release all local refs created in this iteration
     }
 
     // Check if we timed out
