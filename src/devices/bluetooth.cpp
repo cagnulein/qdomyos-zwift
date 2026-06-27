@@ -2777,7 +2777,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("LCB")) ||
                         b.name().toUpper().startsWith("LCR") ||
                         b.name().toUpper().startsWith(QStringLiteral("R92"))) &&
-                       !soleBike && filter) {
+                       ftms_bike.contains(QZSettings::default_ftms_bike) && !soleBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 soleBike = new solebike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
