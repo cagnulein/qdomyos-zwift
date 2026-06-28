@@ -1701,6 +1701,7 @@ import AndroidStatusBar 1.0
             property real trainprogram_warmup_speed: 420
             property real trainprogram_cooldown_speed: 420
             property real trainprogram_rest_speed: 420
+            property bool trainprogram_sound_on_segment: false
         }
 
 
@@ -8363,6 +8364,33 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Enable detection of ZWO/XML workouts copied to the clipboard. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Sound on Segment Change")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trainprogram_sound_on_segment
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trainprogram_sound_on_segment = checked
+                    }
+
+                    Label {
+                        text: qsTr("Play a short sound when a training program starts a new row. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
