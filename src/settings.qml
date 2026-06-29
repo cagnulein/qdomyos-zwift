@@ -1702,6 +1702,8 @@ import AndroidStatusBar 1.0
             property real trainprogram_cooldown_speed: 420
             property real trainprogram_rest_speed: 420
             property bool trainprogram_sound_on_segment: false
+            property bool tile_watt_color_enabled: true
+            property bool tile_pace_color_enabled: true                        
         }
 
 
