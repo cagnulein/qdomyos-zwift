@@ -38,6 +38,18 @@ HomeForm {
         property string theme_tile_shadow_color: "#9C27B0"
         property int theme_tile_secondline_textsize: 12
         property bool skipLocationServicesDialog: false
+        property bool trainprogram_sound_on_segment: false
+    }
+
+    SoundEffect {
+        id: trainingProgramSegmentSound
+        source: "qrc:/sounds/training-program-segment.wav"
+        volume: 0.9
+    }
+
+    Connections {
+        target: rootItem
+        onTrainingProgramIntervalSoundRequested: trainingProgramSegmentSound.play()
     }
 
     MessageDialog {

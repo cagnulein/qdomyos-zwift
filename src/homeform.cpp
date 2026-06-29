@@ -191,6 +191,25 @@ QString uploadActivityLabelFromFitFile(const QString &fitFilePath) {
     return uploadActivityLabelFromSport(sport);
 }
 
+double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2, double zone3, double zone4) {
+    const double z1 = std::max(1.0, zone1);
+    const double z2 = zone2 > z1 ? zone2 : z1 + 10.0;
+    const double z3 = zone3 > z2 ? zone3 : z2 + 10.0;
+    const double z4 = zone4 > z3 ? zone4 : z3 + 10.0;
+
+    if (percentHeartRate < z1)
+        return std::max(0.0, percentHeartRate / z1);
+    if (percentHeartRate < z2)
+        return 1.0 + ((percentHeartRate - z1) / (z2 - z1));
+    if (percentHeartRate < z3)
+        return 2.0 + ((percentHeartRate - z2) / (z3 - z2));
+    if (percentHeartRate < z4)
+        return 3.0 + ((percentHeartRate - z3) / (z4 - z3));
+
+    const double top = z4 < 100.0 ? 100.0 : z4 + 10.0;
+    return 4.0 + ((percentHeartRate - z4) / (top - z4));
+}
+
 class MailSenderThread : public QThread {
   public:
     MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail)
@@ -1763,6 +1782,8 @@ void homeform::trainProgramSignals() {
                    &bluetoothdevice::workoutEventStateChanged);
         disconnect(trainProgram, &trainprogram::changeTimestamp, this, &homeform::changeTimestamp);
         disconnect(trainProgram, &trainprogram::toastRequest, this, &homeform::onToastRequested);
+        disconnect(trainProgram, &trainprogram::intervalTransitionApplied, this,
+                   &homeform::onTrainingProgramIntervalTransition);
         disconnect(trainProgram, &trainprogram::zwiftLoginState, this, &homeform::zwiftLoginState);
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
@@ -1770,6 +1791,8 @@ void homeform::trainProgramSignals() {
         connect(trainProgram, &trainprogram::stop, this, &homeform::StopFromTrainProgram);
         connect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         connect(trainProgram, &trainprogram::toastRequest, this, &homeform::onToastRequested);
+        connect(trainProgram, &trainprogram::intervalTransitionApplied, this,
+                &homeform::onTrainingProgramIntervalTransition);
         // Connect training program speed changes to reset HR PID timer
         connect(trainProgram, &trainprogram::changeSpeed, this,
                 &homeform::onTrainingProgramSpeedChanged);
@@ -1836,9 +1859,9 @@ void homeform::trainProgramSignals() {
         connect(trainProgram, &trainprogram::zwiftLoginState, this, &homeform::zwiftLoginState);
 
         if (trainProgram) {
-            setChartIconVisible(trainProgram->powerzoneWorkout());
+            setChartIconVisible(trainProgram->chartTargetWorkout());
             if (chartFooterVisible()) {
-                if (trainProgram->powerzoneWorkout()) {
+                if (trainProgram->chartTargetWorkout()) {
                     // reloading
                     setChartFooterVisible(false);
                     setChartFooterVisible(true);
@@ -1861,6 +1884,15 @@ void homeform::onToastRequested(QString message) {
     // Use TTS if enabled
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
         m_speech.say(message);
+    }
+}
+
+void homeform::onTrainingProgramIntervalTransition() {
+    QSettings settings;
+    if (settings.value(QZSettings::trainprogram_sound_on_segment,
+                       QZSettings::default_trainprogram_sound_on_segment)
+            .toBool()) {
+        emit trainingProgramIntervalSoundRequested();
     }
 }
 
@@ -5778,6 +5810,9 @@ void homeform::Lap() {
 
             bluetoothManager->device()->setLap();
             lapTrigger = true;
+            if (trainProgram) {
+                trainProgram->advanceLapButtonStep();
+            }
         }
     }
 }
@@ -6121,10 +6156,17 @@ void homeform::update() {
             targetMets->setValue(QString::number(trainProgram->currentTargetMets(), 'f', 1));
             trainrow next = trainProgram->getRowFromCurrent(1);
             trainrow next_1 = trainProgram->getRowFromCurrent(2);
-            if (next.duration.second() != 0 || next.duration.minute() != 0 || next.duration.hour() != 0 || next.distance != -1) {
+            if (next.duration.second() != 0 || next.duration.minute() != 0 || next.duration.hour() != 0 ||
+                next.distance != -1 || next.waitForLap || next.HRabove > 0 || next.HRbelow > 0) {
                 QString duration = next.duration.toString(QStringLiteral("mm:ss"));
                 if(next.distance != -1) {
                     duration = QString::number(next.distance, 'f' , 1);
+                } else if (next.waitForLap) {
+                    duration = QStringLiteral("Lap");
+                } else if (next.HRabove > 0) {
+                    duration = QStringLiteral(">") + QString::number(next.HRabove) + QStringLiteral(" bpm");
+                } else if (next.HRbelow > 0) {
+                    duration = QStringLiteral("<") + QString::number(next.HRbelow) + QStringLiteral(" bpm");
                 }
                 if (next.requested_peloton_resistance != -1) {
                     nextRows->setValue(QStringLiteral("PR") + QString::number(next.requested_peloton_resistance));
@@ -7211,6 +7253,16 @@ void homeform::update() {
         QString Z;
         double maxHeartRate = heartRateMax();
         double percHeartRate = (bluetoothManager->device()->currentHeart().value() * 100) / maxHeartRate;
+        double currentHRZoneDisplay =
+            interpolatedHeartZone(percHeartRate,
+                                  settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
+                                      .toDouble(),
+                                  settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2)
+                                      .toDouble(),
+                                  settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3)
+                                      .toDouble(),
+                                  settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4)
+                                      .toDouble());
         double hrCurrentZoneRangeMin = 0;
         double hrCurrentZoneRangeMax = maxHeartRate;
 
@@ -7324,7 +7376,7 @@ void homeform::update() {
             break;
         }
         bluetoothManager->device()->setHeartZone(currentHRZone);
-        Z = QStringLiteral("Z") + QString::number(currentHRZone, 'f', 1);
+        Z = QStringLiteral("Z") + QString::number(currentHRZoneDisplay, 'f', 1);
 
         // Heart rate second line - show as percentage if enabled
         if (settings.value(QZSettings::tile_heart_show_as_percent, QZSettings::default_tile_heart_show_as_percent).toBool()) {
@@ -9574,6 +9626,7 @@ void homeform::garmin_connect_login() {
         // Connect signals
         connect(garminConnect, &GarminConnect::authenticated, this, [this]() {
             setToastRequested("Garmin Connect: Authentication successful!");
+            garminConnect->checkFtpUpdates();
         });
 
         connect(garminConnect, &GarminConnect::authenticationFailed, this, [this](const QString &error) {
@@ -9616,6 +9669,12 @@ void homeform::garmin_connect_login() {
         connect(garminConnect, &GarminConnect::workoutDownloadFailed, this,
                 [this](const QString &error) {
                     qDebug() << "Garmin: Workout download failed:" << error;
+                });
+
+        connect(garminConnect, &GarminConnect::ftpValuesAvailable, this,
+                [this](int cyclingFtp, const QString &cyclingCreateTime,
+                       int runningFtp, const QString &runningCreateTime) {
+                    handleGarminFtpValues(cyclingFtp, cyclingCreateTime, runningFtp, runningCreateTime);
                 });
     }
 
@@ -9730,6 +9789,105 @@ void homeform::garmin_dismiss_downloaded_workout_prompt() {
     emit garminWorkoutPromptDateChanged(m_garminWorkoutPromptDate);
     setGarminWorkoutPromptRequested(false);
     showNextGarminWorkoutPrompt();
+}
+
+void homeform::handleGarminFtpValues(int cyclingFtp, const QString &cyclingCreateTime,
+                                     int runningFtp, const QString &runningCreateTime) {
+    if (m_garminFtpPromptRequested) {
+        return;
+    }
+
+    QSettings settings;
+    QStringList updates;
+
+    m_pendingGarminCyclingFtp = 0;
+    m_pendingGarminRunningFtp = 0;
+    m_pendingGarminCyclingFtpCreateTime.clear();
+    m_pendingGarminRunningFtpCreateTime.clear();
+
+    const int currentCyclingFtp =
+        qRound(settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble());
+    const QString seenCyclingCreateTime =
+        settings.value(QZSettings::garmin_last_seen_cycling_ftp_create_time,
+                       QZSettings::default_garmin_last_seen_cycling_ftp_create_time).toString();
+    if (cyclingFtp > 0 && cyclingFtp != currentCyclingFtp &&
+        !cyclingCreateTime.isEmpty() && cyclingCreateTime != seenCyclingCreateTime) {
+        m_pendingGarminCyclingFtp = cyclingFtp;
+        m_pendingGarminCyclingFtpCreateTime = cyclingCreateTime;
+        updates << QStringLiteral("Cycling FTP: %1 -> %2 W").arg(currentCyclingFtp).arg(cyclingFtp);
+    }
+
+    const int currentRunningFtp =
+        qRound(settings.value(QZSettings::ftp_run, QZSettings::default_ftp_run).toDouble());
+    const QString seenRunningCreateTime =
+        settings.value(QZSettings::garmin_last_seen_running_ftp_create_time,
+                       QZSettings::default_garmin_last_seen_running_ftp_create_time).toString();
+    if (runningFtp > 0 && runningFtp != currentRunningFtp &&
+        !runningCreateTime.isEmpty() && runningCreateTime != seenRunningCreateTime) {
+        m_pendingGarminRunningFtp = runningFtp;
+        m_pendingGarminRunningFtpCreateTime = runningCreateTime;
+        updates << QStringLiteral("Running FTP: %1 -> %2 W").arg(currentRunningFtp).arg(runningFtp);
+    }
+
+    if (updates.isEmpty()) {
+        return;
+    }
+
+    m_garminFtpPromptMessage =
+        QStringLiteral("Garmin Connect has newer FTP values:\n\n%1\n\nDo you want to update QZ settings?")
+            .arg(updates.join(QStringLiteral("\n")));
+    emit garminFtpPromptMessageChanged(m_garminFtpPromptMessage);
+    setGarminFtpPromptRequested(true);
+}
+
+void homeform::markPendingGarminFtpSeen() {
+    QSettings settings;
+    if (!m_pendingGarminCyclingFtpCreateTime.isEmpty()) {
+        settings.setValue(QZSettings::garmin_last_seen_cycling_ftp_create_time,
+                          m_pendingGarminCyclingFtpCreateTime);
+    }
+    if (!m_pendingGarminRunningFtpCreateTime.isEmpty()) {
+        settings.setValue(QZSettings::garmin_last_seen_running_ftp_create_time,
+                          m_pendingGarminRunningFtpCreateTime);
+    }
+}
+
+void homeform::garmin_accept_ftp_update() {
+    QSettings settings;
+    QStringList updated;
+
+    if (m_pendingGarminCyclingFtp > 0) {
+        settings.setValue(QZSettings::ftp, m_pendingGarminCyclingFtp);
+        updated << QStringLiteral("cycling FTP");
+    }
+    if (m_pendingGarminRunningFtp > 0) {
+        settings.setValue(QZSettings::ftp_run, m_pendingGarminRunningFtp);
+        updated << QStringLiteral("running FTP");
+    }
+
+    markPendingGarminFtpSeen();
+    m_pendingGarminCyclingFtp = 0;
+    m_pendingGarminRunningFtp = 0;
+    m_pendingGarminCyclingFtpCreateTime.clear();
+    m_pendingGarminRunningFtpCreateTime.clear();
+    m_garminFtpPromptMessage.clear();
+    emit garminFtpPromptMessageChanged(m_garminFtpPromptMessage);
+    setGarminFtpPromptRequested(false);
+
+    if (!updated.isEmpty()) {
+        setToastRequested(QStringLiteral("Updated Garmin %1").arg(updated.join(QStringLiteral(" and "))));
+    }
+}
+
+void homeform::garmin_dismiss_ftp_update() {
+    markPendingGarminFtpSeen();
+    m_pendingGarminCyclingFtp = 0;
+    m_pendingGarminRunningFtp = 0;
+    m_pendingGarminCyclingFtpCreateTime.clear();
+    m_pendingGarminRunningFtpCreateTime.clear();
+    m_garminFtpPromptMessage.clear();
+    emit garminFtpPromptMessageChanged(m_garminFtpPromptMessage);
+    setGarminFtpPromptRequested(false);
 }
 
 void homeform::echelon_switch_to_classic_bridge() {
