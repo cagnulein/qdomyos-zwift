@@ -876,7 +876,7 @@ ApplicationWindow {
         Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
-        topPadding: (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 0 : getTopPadding()
+        topPadding: getTopPadding()
 
         ToolButton {
             id: toolButton
@@ -1101,7 +1101,7 @@ ApplicationWindow {
         id: drawer
         width: window.width * 0.66
         height: window.height
-        topPadding: (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ? 0 : getTopPadding()
+        topPadding: getTopPadding()
         bottomPadding: getBottomPadding()
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
