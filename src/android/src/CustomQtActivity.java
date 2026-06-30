@@ -7,7 +7,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
@@ -39,6 +42,27 @@ public class CustomQtActivity extends QtActivity {
                 Log.w(TAG, "Qt not ready yet for OAuth callback, ignoring: " + e.getMessage());
             }
         }
+    }
+
+    // Traverse the view hierarchy to find Qt's rendering surface (SurfaceView or TextureView)
+    // and return its Y position in pixels within the window.
+    // Qt 5.15 on some emulator configurations internally shifts its viewport by the top inset
+    // in landscape, even after setDecorFitsSystemWindows(false). Detecting this offset lets us
+    // avoid double-counting the top inset in QML.
+    private int findQtSurfaceYOffset(View view) {
+        if (view instanceof SurfaceView || view instanceof TextureView) {
+            int[] loc = new int[2];
+            view.getLocationInWindow(loc);
+            return loc[1];
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                int result = findQtSurfaceYOffset(group.getChildAt(i));
+                if (result > 0) return result;
+            }
+        }
+        return 0;
     }
 
     @Override
@@ -96,34 +120,54 @@ public class CustomQtActivity extends QtActivity {
                 }
 
                 Log.d(TAG, "onApplyWindowInsets - Top:" + top + " Bottom:" + bottom + " Left:" + left + " Right:" + right);
-                Log.d(TAG, "Raw insets - SystemTop:" + insets.getSystemWindowInsetTop() + 
-                          " SystemBottom:" + insets.getSystemWindowInsetBottom() + 
-                          " SystemLeft:" + insets.getSystemWindowInsetLeft() + 
+                Log.d(TAG, "Raw insets - SystemTop:" + insets.getSystemWindowInsetTop() +
+                          " SystemBottom:" + insets.getSystemWindowInsetBottom() +
+                          " SystemLeft:" + insets.getSystemWindowInsetLeft() +
                           " SystemRight:" + insets.getSystemWindowInsetRight());
-                Log.d(TAG, "Stable insets - StableTop:" + insets.getStableInsetTop() + 
-                          " StableBottom:" + insets.getStableInsetBottom() + 
-                          " StableLeft:" + insets.getStableInsetLeft() + 
+                Log.d(TAG, "Stable insets - StableTop:" + insets.getStableInsetTop() +
+                          " StableBottom:" + insets.getStableInsetBottom() +
+                          " StableLeft:" + insets.getStableInsetLeft() +
                           " StableRight:" + insets.getStableInsetRight());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     DisplayCutout cutout = insets.getDisplayCutout();
                     if (cutout != null) {
-                        Log.d(TAG, "Cutout insets - Top:" + cutout.getSafeInsetTop() + 
-                              " Bottom:" + cutout.getSafeInsetBottom() + 
-                              " Left:" + cutout.getSafeInsetLeft() + 
+                        Log.d(TAG, "Cutout insets - Top:" + cutout.getSafeInsetTop() +
+                              " Bottom:" + cutout.getSafeInsetBottom() +
+                              " Left:" + cutout.getSafeInsetLeft() +
                               " Right:" + cutout.getSafeInsetRight());
                     }
                 }
 
-                // Push the new, correct inset values to the C++ layer.
-                // Guard against the race where Qt's native library hasn't finished
-                // loading yet when Android fires onApplyWindowInsets early (targetSdk>=36
-                // forces edge-to-edge, triggering this before QtActivity finishes
-                // loading libqdomyos-zwift in its background thread).
+                // Push the new, correct inset values to the C++ layer immediately for
+                // responsiveness. Guard against the race where Qt's native library hasn't
+                // finished loading yet when Android fires onApplyWindowInsets early.
                 try {
                     onInsetsChanged(top, bottom, left, right);
                 } catch (UnsatisfiedLinkError ignored) {
                     // Qt not ready yet; insets will be re-applied once Qt initializes.
                 }
+
+                // Deferred correction: Qt 5.15 on some emulator configurations internally
+                // shifts its rendering viewport by the top inset in landscape mode even
+                // after setDecorFitsSystemWindows(false). On real devices this does not
+                // happen. We detect the offset by measuring the Qt surface view position
+                // after the layout pass completes, then send corrected values so QML
+                // topPadding is not double-counted.
+                final int fTop = top, fBottom = bottom, fLeft = left, fRight = right;
+                final float fDensity = density;
+                v.post(() -> {
+                    int surfaceYPx = findQtSurfaceYOffset(v);
+                    Log.d(TAG, "deferred surfaceYPx=" + surfaceYPx + " fTop=" + fTop);
+                    if (surfaceYPx > 0 && fDensity > 0) {
+                        int adjustedTop = Math.max(0, fTop - Math.round(surfaceYPx / fDensity));
+                        Log.d(TAG, "adjustedTop=" + adjustedTop);
+                        if (adjustedTop != fTop) {
+                            try {
+                                onInsetsChanged(adjustedTop, fBottom, fLeft, fRight);
+                            } catch (UnsatisfiedLinkError ignored) {}
+                        }
+                    }
+                });
 
                 return v.onApplyWindowInsets(insets);
             }
