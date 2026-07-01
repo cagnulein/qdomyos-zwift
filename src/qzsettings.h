@@ -302,6 +302,9 @@ class QZSettings {
     static const QString treadmill_force_speed;
     static constexpr bool default_treadmill_force_speed = false;
 
+    static const QString treadmill_force_running_activity;
+    static constexpr bool default_treadmill_force_running_activity = false;
+
     static const QString pause_on_start_treadmill;
     static constexpr bool default_pause_on_start_treadmill = false;
 
@@ -3196,6 +3199,8 @@ class QZSettings {
     static constexpr bool default_proform_carbon_tl_PFTL59723_6 = false;
     static const QString proform_treadmill_cst_505_pftl59420_0;
     static constexpr bool default_proform_treadmill_cst_505_pftl59420_0 = false;
+    static const QString proform_treadmill_105_cst;
+    static constexpr bool default_proform_treadmill_105_cst = false;
 
     /**
      * @brief When enabled together with fakedevice_treadmill, derives treadmill Speed from
