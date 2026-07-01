@@ -259,18 +259,19 @@ QByteArray gzipCompress(const QByteArray &data, bool *ok) {
 }
 
 class MailSenderThread : public QThread {
-    Q_OBJECT
   public:
     MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail,
-                     const QList<QString> &temporaryFilesForMail)
+                     const QList<QString> &temporaryFilesForMail, QObject *toastTarget)
         : message(message), filenameJPG(filenameJPG), chartImagesFilenamesForMail(chartImagesFilenamesForMail),
-          temporaryFilesForMail(temporaryFilesForMail) {}
-
-  signals:
-    void mailStatusMessage(QString message);
+          temporaryFilesForMail(temporaryFilesForMail), toastTarget(toastTarget) {}
 
   protected:
     void run() override {
+        auto showToast = [this](const QString &msg) {
+            QMetaObject::invokeMethod(toastTarget, "setToastRequested", Qt::QueuedConnection,
+                                     Q_ARG(QString, msg));
+        };
+
 #ifdef SMTP_SERVER
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
@@ -314,7 +315,7 @@ class MailSenderThread : public QThread {
         smtp.setResponseTimeout(30000);
         smtp.setSendMessageTimeout(120000);
 
-        emit mailStatusMessage(QObject::tr("Sending workout email..."));
+        showToast(QObject::tr("Sending workout email..."));
 
         bool r = false;
         uint8_t i = 0;
@@ -329,9 +330,9 @@ class MailSenderThread : public QThread {
         smtp.quit();
 
         if (r)
-            emit mailStatusMessage(QObject::tr("Workout email sent successfully"));
+            showToast(QObject::tr("Workout email sent successfully"));
         else
-            emit mailStatusMessage(QObject::tr("Failed to send workout email"));
+            showToast(QObject::tr("Failed to send workout email"));
 
         if (!filenameJPG.isEmpty())
             QFile::remove(filenameJPG);
@@ -349,6 +350,7 @@ class MailSenderThread : public QThread {
     QString filenameJPG;
     QList<QString> chartImagesFilenamesForMail;
     QList<QString> temporaryFilesForMail;
+    QObject *toastTarget;
 };
 } // namespace
 
@@ -10655,9 +10657,8 @@ void homeform::sendMail() {
         message->addPart(log);
     }
 
-    MailSenderThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail, temporaryFilesForMail);
+    MailSenderThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail, temporaryFilesForMail, this);
     QObject::connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
-    QObject::connect(mailThread, &MailSenderThread::mailStatusMessage, this, &homeform::setToastRequested, Qt::QueuedConnection);
     mailThread->start();
 }
 
@@ -11705,4 +11706,3 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
-#include "homeform.moc"
