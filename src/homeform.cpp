@@ -306,11 +306,11 @@ class MailSenderThread : public QThread {
         uint8_t i = 0;
         while (!r) {
             qDebug() << "trying to send email #" << i;
-            r = smtp.connectToHost();
-            r = smtp.login();
-            r = smtp.sendMail(*message);
+            r = smtp.connectToHost() && smtp.login() && smtp.sendMail(*message);
             if (i++ == 3)
                 break;
+            if (!r)
+                smtp.quit();
         }
         smtp.quit();
 
