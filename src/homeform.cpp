@@ -1046,7 +1046,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                          if (f.contains("HR")) {
                                              QStringList values = f.split("=");
                                              if (values.length() > 1) {
-                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
+                                                 double hr = values[1].toDouble();
+                                                 emit homeform::singleton()->heartRate(hr);
+#ifndef IO_UNDER_QT
+                                                 lockscreen ls;
+                                                 ls.setWorkoutTrackingHeartRate((unsigned char)hr);
+#endif
                                              }
                                          }
                                      }
@@ -1086,7 +1091,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                          if (f.contains("HR")) {
                                              QStringList values = f.split("=");
                                              if (values.length() > 1) {
-                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
+                                                 double hr = values[1].toDouble();
+                                                 emit homeform::singleton()->heartRate(hr);
+#ifndef IO_UNDER_QT
+                                                 lockscreen ls;
+                                                 ls.setWorkoutTrackingHeartRate((unsigned char)hr);
+#endif
                                              }
                                          }
                                      }
