@@ -259,11 +259,15 @@ QByteArray gzipCompress(const QByteArray &data, bool *ok) {
 }
 
 class MailSenderThread : public QThread {
+    Q_OBJECT
   public:
     MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail,
                      const QList<QString> &temporaryFilesForMail)
         : message(message), filenameJPG(filenameJPG), chartImagesFilenamesForMail(chartImagesFilenamesForMail),
           temporaryFilesForMail(temporaryFilesForMail) {}
+
+  signals:
+    void mailStatusMessage(QString message);
 
   protected:
     void run() override {
@@ -302,6 +306,16 @@ class MailSenderThread : public QThread {
         return;
 #endif
 
+        // responseTimeout: time to wait for each SMTP command reply (including
+        // "250 OK" after DATA). 30s gives Brevo time to accept a large attachment
+        // without the client timing out and retrying (which would send a duplicate).
+        // sendMessageTimeout: time allowed for the raw socket write of the body; 120s
+        // covers a 10MB attachment even on a slow mobile connection.
+        smtp.setResponseTimeout(30000);
+        smtp.setSendMessageTimeout(120000);
+
+        emit mailStatusMessage(QObject::tr("Sending workout email..."));
+
         bool r = false;
         uint8_t i = 0;
         while (!r) {
@@ -313,6 +327,11 @@ class MailSenderThread : public QThread {
                 smtp.quit();
         }
         smtp.quit();
+
+        if (r)
+            emit mailStatusMessage(QObject::tr("Workout email sent successfully"));
+        else
+            emit mailStatusMessage(QObject::tr("Failed to send workout email"));
 
         if (!filenameJPG.isEmpty())
             QFile::remove(filenameJPG);
@@ -10636,8 +10655,9 @@ void homeform::sendMail() {
         message->addPart(log);
     }
 
-    QThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail, temporaryFilesForMail);
+    MailSenderThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail, temporaryFilesForMail);
     QObject::connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
+    QObject::connect(mailThread, &MailSenderThread::mailStatusMessage, this, &homeform::setToastRequested, Qt::QueuedConnection);
     mailThread->start();
 }
 
