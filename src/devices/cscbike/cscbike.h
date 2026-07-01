@@ -56,8 +56,10 @@ class cscbike : public bike {
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     bool charNotified = false;
+    bool JOROTO_X2PRO = false;
 
     uint8_t battery_level = 0;
+    QDateTime lastJorotoVendorPacket = QDateTime::fromMSecsSinceEpoch(0);
 
     bool initDone = false;
     bool initRequest = false;
