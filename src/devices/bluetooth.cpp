@@ -173,6 +173,16 @@ void bluetooth::finished() {
     debug(QStringLiteral("BTLE scanning finished"));
 
     QSettings settings;
+
+    if (onlyDiscover) {
+#ifdef Q_OS_WIN
+        discoveryTimeout.stop();
+#endif
+        onlyDiscover = false;
+        emit searchingStop();
+        return;
+    }
+
     bool antbike =
         settings.value(QZSettings::antbike, QZSettings::default_antbike).toBool();
     bool android_antbike =
@@ -198,6 +208,9 @@ void bluetooth::finished() {
 
     if (device()) {
         qDebug() << QStringLiteral("bluetooth::finished but discoveryAgent is not active");
+#ifdef Q_OS_WIN
+        discoveryTimeout.stop();
+#endif
         return;
     }
 
@@ -269,6 +282,10 @@ void bluetooth::startDiscovery() {
 
     if (!this->useDiscovery)
         return;
+
+#ifdef Q_OS_WIN
+    discoveryTimeout.start(10000);
+#endif
 
 #ifndef Q_OS_IOS
     QSettings settings;
@@ -732,6 +749,21 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             << device.deviceUuid();
 #endif
     ;
+
+    if (!onlyDiscover && this->device()) {
+        const bool configuredAccessoryAvailable =
+            (!heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !heartRateBelt && heartRateBeltAvaiable()) ||
+            (!ftmsAccessoryName.startsWith(QStringLiteral("Disabled")) && !ftmsAccessory && ftmsAccessoryAvaiable()) ||
+            (!cscName.startsWith(QStringLiteral("Disabled")) && !cadenceSensor && cscSensorAvaiable()) ||
+            (!powerSensorName.startsWith(QStringLiteral("Disabled")) && !powerSensor && !powerSensorRun &&
+             powerSensorAvaiable()) ||
+            (!eliteRizerName.startsWith(QStringLiteral("Disabled")) && !eliteRizer && eliteRizerAvaiable()) ||
+            (!eliteSterzoSmartName.startsWith(QStringLiteral("Disabled")) && !eliteSterzoSmart &&
+             eliteSterzoSmartAvaiable());
+        if (configuredAccessoryAvailable) {
+            connectedAndDiscovered();
+        }
+    }
 
     // not required for mobile I guess
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -3541,7 +3573,7 @@ void bluetooth::restart() {
 
     if (onlyDiscover) {
 
-        onlyDiscover = false;
+        devices.clear();
         this->startDiscovery();
         return;
     }
