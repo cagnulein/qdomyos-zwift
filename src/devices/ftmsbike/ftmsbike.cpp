@@ -2081,7 +2081,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith(QStringLiteral("WLT8828"))) {
             qDebug() << QStringLiteral("WLT8828 found");
             WLT8828 = true;
-            max_resistance = 32;
+            max_resistance = 100;
             resistance_lvl_mode = true;
             ergModeSupported = false; // this bike doesn't have ERG mode natively
         } else if(device.name().toUpper().startsWith("VANRYSEL-HT")) {
