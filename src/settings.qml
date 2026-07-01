@@ -3497,7 +3497,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_up
                                     onActivated: settings.mywhoosh_link_left_up = currentIndex
                                 }
@@ -3509,7 +3509,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_down
                                     onActivated: settings.mywhoosh_link_left_down = currentIndex
                                 }
@@ -3521,7 +3521,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_left
                                     onActivated: settings.mywhoosh_link_left_left = currentIndex
                                 }
@@ -3533,7 +3533,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_right
                                     onActivated: settings.mywhoosh_link_left_right = currentIndex
                                 }
@@ -3545,7 +3545,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_shoulder
                                     onActivated: settings.mywhoosh_link_left_shoulder = currentIndex
                                 }
@@ -3557,7 +3557,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_power
                                     onActivated: settings.mywhoosh_link_left_power = currentIndex
                                 }
@@ -3577,7 +3577,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_y
                                     onActivated: settings.mywhoosh_link_right_y = currentIndex
                                 }
@@ -3589,7 +3589,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_a
                                     onActivated: settings.mywhoosh_link_right_a = currentIndex
                                 }
@@ -3601,7 +3601,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_b
                                     onActivated: settings.mywhoosh_link_right_b = currentIndex
                                 }
@@ -3613,7 +3613,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_z
                                     onActivated: settings.mywhoosh_link_right_z = currentIndex
                                 }
@@ -3625,7 +3625,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_shoulder
                                     onActivated: settings.mywhoosh_link_right_shoulder = currentIndex
                                 }
@@ -3637,7 +3637,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_power
                                     onActivated: settings.mywhoosh_link_right_power = currentIndex
                                 }
