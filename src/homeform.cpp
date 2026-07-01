@@ -1050,7 +1050,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                                  emit homeform::singleton()->heartRate(hr);
 #ifndef IO_UNDER_QT
                                                  lockscreen ls;
-                                                 ls.setWorkoutTrackingHeartRate((unsigned char)hr);
+                                                 ls.setHeartRate((unsigned char)hr);
 #endif
                                              }
                                          }
@@ -1095,7 +1095,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                                  emit homeform::singleton()->heartRate(hr);
 #ifndef IO_UNDER_QT
                                                  lockscreen ls;
-                                                 ls.setWorkoutTrackingHeartRate((unsigned char)hr);
+                                                 ls.setHeartRate((unsigned char)hr);
 #endif
                                              }
                                          }

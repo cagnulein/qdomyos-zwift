@@ -187,12 +187,6 @@ void lockscreen::setHeartRate(unsigned char heartRate)
 }
 
 
-void lockscreen::setWorkoutTrackingHeartRate(unsigned char heartRate)
-{
-    if (workoutTracking != nil)
-        [workoutTracking setBluetoothHeartRateWithHeartRate:heartRate];
-}
-
 void lockscreen::virtualbike_ios()
 {
     _virtualbike = [[virtualbike_ios_swift alloc] init];

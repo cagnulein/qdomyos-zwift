@@ -18,7 +18,6 @@ class lockscreen {
     void setCadence(double cadence);
     void setElevationGain(double elevationGain);
     void setHeartRate(unsigned char heartRate);
-    void setWorkoutTrackingHeartRate(unsigned char heartRate);
     void startWorkout(unsigned short deviceType);
     void stopWorkout();
     void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories,
