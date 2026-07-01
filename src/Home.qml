@@ -38,12 +38,24 @@ HomeForm {
         property string theme_tile_shadow_color: "#9C27B0"
         property int theme_tile_secondline_textsize: 12
         property bool skipLocationServicesDialog: false
+        property bool trainprogram_sound_on_segment: false
+    }
+
+    SoundEffect {
+        id: trainingProgramSegmentSound
+        source: "qrc:/sounds/training-program-segment.wav"
+        volume: 0.9
+    }
+
+    Connections {
+        target: rootItem
+        onTrainingProgramIntervalSoundRequested: trainingProgramSegmentSound.play()
     }
 
     MessageDialog {
         id: messagePelotonAskStart
-        text: "Peloton Workout in progress"
-        informativeText: "Do you want to follow the resistance? " + rootItem.pelotonProvider
+        text: qsTr("Peloton Workout in progress")
+        informativeText: qsTr("Do you want to follow the resistance? ") + rootItem.pelotonProvider
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {rootItem.pelotonAskStart = false; peloton_start_workout();}
         onNoClicked: {rootItem.pelotonAskStart = false; peloton_abort_workout();}
@@ -107,8 +119,8 @@ HomeForm {
 
     MessageDialog {
         id: locationServicesDialog
-        text: "Permissions Required"
-        informativeText: "QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?"
+        text: qsTr("Permissions Required")
+        informativeText: qsTr("QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             locationServiceRequsted = true
@@ -120,8 +132,8 @@ HomeForm {
 
     MessageDialog {
         id: remindLocationServicesDialog
-        text: "Reminder Preference"
-        informativeText: "Would you like to be reminded about enabling Location Services next time?"
+        text: qsTr("Reminder Preference")
+        informativeText: qsTr("Would you like to be reminded about enabling Location Services next time?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: settings.skipLocationServicesDialog = false
         onNoClicked: settings.skipLocationServicesDialog = true
@@ -129,8 +141,8 @@ HomeForm {
     }
 
     MessageDialog {
-        text: "Restart the app"
-        informativeText: "To apply the changes, you need to restart the app.\nWould you like to do that now?"
+        text: qsTr("Restart the app")
+        informativeText: qsTr("To apply the changes, you need to restart the app.\nWould you like to do that now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
@@ -322,6 +334,8 @@ HomeForm {
                 id: myText
                 anchors {
                     top: myIcon.top
+                    horizontalCenter: settings.theme_tile_icon_enabled ? undefined : parent.horizontalCenter
+                    left: settings.theme_tile_icon_enabled ? parent.left : undefined
                 }
                 font.bold: true
                 font.pointSize: labelFontSize
@@ -329,9 +343,9 @@ HomeForm {
                 minimumPointSize: 8
                 color: "white"
                 text: name
-                anchors.left: parent.left
-                anchors.leftMargin: 55 * settings.ui_zoom / 100
-                width: Math.max(40, parent.width - 61 * settings.ui_zoom / 100)
+                horizontalAlignment: settings.theme_tile_icon_enabled ? Text.AlignLeft : Text.AlignHCenter
+                anchors.leftMargin: settings.theme_tile_icon_enabled ? 55 * settings.ui_zoom / 100 : 0
+                width: Math.max(40, parent.width - (settings.theme_tile_icon_enabled ? 61 : 12) * settings.ui_zoom / 100)
                 height: 40 * settings.ui_zoom / 100
                 anchors.topMargin: 20 * settings.ui_zoom / 100
                 visible: !largeButton
