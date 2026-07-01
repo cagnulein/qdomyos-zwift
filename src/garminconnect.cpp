@@ -48,6 +48,114 @@ void GarminConnect::logout()
     emit authenticated();
 }
 
+void GarminConnect::checkFtpUpdates()
+{
+    if (m_oauth2Token.access_token.isEmpty()) {
+        qDebug() << "GarminConnect: Skipping FTP check, no access token";
+        return;
+    }
+
+    const QString date = QDate::currentDate().toString(Qt::ISODate);
+    const QString urlString =
+        QString("%1/biometric-service/biometric/powerToWeight/latest/%2")
+            .arg(connectApiUrl(), date);
+    QNetworkRequest request{QUrl(urlString)};
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
+    request.setRawHeader("User-Agent", USER_AGENT);
+    request.setRawHeader("Accept", "application/json");
+
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->get(request);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply, manager]() {
+        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QByteArray response = reply->readAll();
+        reply->deleteLater();
+        manager->deleteLater();
+
+        qDebug() << "GarminConnect: FTP check HTTP status:" << statusCode
+                 << "response length:" << response.length();
+
+        if (statusCode != 200) {
+            qDebug() << "GarminConnect: FTP check failed (HTTP" << statusCode << "):"
+                     << QString::fromUtf8(response).left(300);
+            return;
+        }
+
+        QJsonParseError parseError;
+        const QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
+        if (parseError.error != QJsonParseError::NoError) {
+            qDebug() << "GarminConnect: Invalid FTP check JSON:" << parseError.errorString()
+                     << QString::fromUtf8(response).left(300);
+            return;
+        }
+
+        QJsonArray entries;
+        if (doc.isArray()) {
+            entries = doc.array();
+        } else if (doc.isObject()) {
+            const QJsonObject obj = doc.object();
+            const QStringList possibleArrays = {
+                QStringLiteral("entries"),
+                QStringLiteral("values"),
+                QStringLiteral("items"),
+                QStringLiteral("data")
+            };
+            for (const QString &key : possibleArrays) {
+                if (obj.value(key).isArray()) {
+                    entries = obj.value(key).toArray();
+                    qDebug() << "GarminConnect: FTP check response array key:" << key;
+                    break;
+                }
+            }
+        }
+
+        if (entries.isEmpty()) {
+            qDebug() << "GarminConnect: FTP check response has no entries:"
+                     << QString::fromUtf8(response).left(500);
+        }
+
+        int cyclingFtp = 0;
+        int runningFtp = 0;
+        QString cyclingCreateTime;
+        QString runningCreateTime;
+
+        qDebug() << "GarminConnect: FTP check entries:" << entries.size();
+        for (const QJsonValue &entryVal : entries) {
+            const QJsonObject entry = entryVal.toObject();
+            if (entry.value(QStringLiteral("isStale")).toBool())
+                continue;
+
+            const QJsonValue ftpValue = entry.value(QStringLiteral("functionalThresholdPower"));
+            const int ftp = ftpValue.isString() ? ftpValue.toString().toDouble() : static_cast<int>(ftpValue.toDouble());
+            const QString createTime = entry.value(QStringLiteral("ftpCreateTime")).toString();
+            if (ftp <= 0 || createTime.isEmpty())
+                continue;
+
+            const QString sport = entry.value(QStringLiteral("sport")).toString().toUpper();
+            if (sport == QStringLiteral("CYCLING")) {
+                cyclingFtp = ftp;
+                cyclingCreateTime = createTime;
+            } else if (sport == QStringLiteral("RUNNING")) {
+                runningFtp = ftp;
+                runningCreateTime = createTime;
+            }
+        }
+
+        qDebug() << "GarminConnect: FTP check values cycling:" << cyclingFtp
+                 << "cyclingCreateTime:" << cyclingCreateTime
+                 << "running:" << runningFtp
+                 << "runningCreateTime:" << runningCreateTime;
+        if (cyclingFtp <= 0 && runningFtp <= 0) {
+            qDebug() << "GarminConnect: FTP check parsed no usable FTP values from:"
+                     << QString::fromUtf8(response).left(500);
+        }
+        emit ftpValuesAvailable(cyclingFtp, cyclingCreateTime, runningFtp, runningCreateTime);
+    });
+
+    qDebug() << "GarminConnect: Checking latest FTP values";
+}
+
 bool GarminConnect::uploadFitFile(const QString &fitFilePath)
 {
     qDebug() << "GarminConnect: Uploading FIT file:" << fitFilePath;
@@ -1767,8 +1875,102 @@ static int garminPowerFromZone(double zoneValue) {
     return bike::powerZoneValueToWatts(zoneValue, ftp);
 }
 
+static int garminPowerFromFtpScale(double scalePercent) {
+    QSettings settings;
+    const double ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+    const double scale = scalePercent > 0.0 ? scalePercent : 100.0;
+    return qRound(ftp * scale / 100.0);
+}
+
+static bool garminStepUsesPowerCurve(const QJsonObject &step) {
+    if (step.value(QStringLiteral("targetType")).isObject()) {
+        const QString targetTypeKey =
+            step.value(QStringLiteral("targetType")).toObject()
+                .value(QStringLiteral("workoutTargetTypeKey")).toString();
+        if (targetTypeKey == QStringLiteral("power.curve"))
+            return true;
+    }
+
+    const QJsonArray childSteps = step.value(QStringLiteral("workoutSteps")).toArray();
+    for (const QJsonValue &childStepVal : childSteps) {
+        if (garminStepUsesPowerCurve(childStepVal.toObject()))
+            return true;
+    }
+    return false;
+}
+
+static bool garminWorkoutUsesPowerCurve(const QJsonObject &workoutJson) {
+    const QJsonArray segments = workoutJson.value(QStringLiteral("workoutSegments")).toArray();
+    for (const QJsonValue &segmentVal : segments) {
+        const QJsonArray steps = segmentVal.toObject().value(QStringLiteral("workoutSteps")).toArray();
+        for (const QJsonValue &stepVal : steps) {
+            if (garminStepUsesPowerCurve(stepVal.toObject()))
+                return true;
+        }
+    }
+    return false;
+}
+
+static QMap<int, double> garminPowerCurveFromJson(const QJsonDocument &doc) {
+    QMap<int, double> powerCurve;
+    if (!doc.isObject())
+        return powerCurve;
+
+    const QJsonArray entries = doc.object().value(QStringLiteral("entries")).toArray();
+    for (const QJsonValue &entryVal : entries) {
+        const QJsonObject entry = entryVal.toObject();
+        const int duration = entry.value(QStringLiteral("duration")).toInt();
+        const double power = entry.value(QStringLiteral("power")).toDouble();
+        if (duration > 0 && power > 0.0)
+            powerCurve.insert(duration, power);
+    }
+    return powerCurve;
+}
+
 static double garminSpeedMpsToKph(double speedMps) {
     return speedMps * 3.6;
+}
+
+static QString garminXmlAttributeEscape(const QString &value) {
+    return value.toHtmlEscaped().replace(QStringLiteral("'"), QStringLiteral("&apos;"));
+}
+
+static bool garminStringIndicatesAbove(const QString &value) {
+    const QString normalized = value.toLower();
+    return normalized == QStringLiteral("gt") ||
+           normalized == QStringLiteral(">") ||
+           normalized.contains(QStringLiteral("above")) ||
+           normalized.contains(QStringLiteral("greater")) ||
+           normalized.contains(QStringLiteral("more")) ||
+           normalized.contains(QStringLiteral("over"));
+}
+
+static bool garminStringIndicatesBelow(const QString &value) {
+    const QString normalized = value.toLower();
+    return normalized == QStringLiteral("lt") ||
+           normalized == QStringLiteral("<") ||
+           normalized.contains(QStringLiteral("below")) ||
+           normalized.contains(QStringLiteral("less")) ||
+           normalized.contains(QStringLiteral("under"));
+}
+
+static QString garminEndConditionCompareKey(const QJsonObject &step) {
+    const QJsonValue compare = step.value(QStringLiteral("endConditionCompare"));
+    if (compare.isObject()) {
+        const QJsonObject compareObj = compare.toObject();
+        const QStringList candidateKeys = {
+            QStringLiteral("conditionTypeKey"),
+            QStringLiteral("endConditionCompareKey"),
+            QStringLiteral("compareKey"),
+            QStringLiteral("workoutStepCompareKey")
+        };
+        for (const QString &key : candidateKeys) {
+            const QString value = compareObj.value(key).toString();
+            if (!value.isEmpty())
+                return value;
+        }
+    }
+    return compare.toString();
 }
 
 static double garminSpeedFromPaceSetting(const QString &settingKey, double defaultPaceSecPerKm) {
@@ -1780,10 +1982,21 @@ static double garminSpeedFromPaceSetting(const QString &settingKey, double defau
     return 3600.0 / paceSecPerKm;
 }
 
-static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) {
+static void appendGarminStep(QString &xml, const QJsonObject &step, int indent,
+                             const QMap<int, double> &powerCurve) {
     QString pad(indent * 4, QChar(' '));
     QString condTypeKey = step["endCondition"].toObject()["conditionTypeKey"].toString();
+    const QString condCompareKey = garminEndConditionCompareKey(step);
     double endConditionValue = step["endConditionValue"].toDouble();
+    const bool waitForLap = condTypeKey == QStringLiteral("lap.button");
+    const bool heartRateEndCondition = condTypeKey.contains(QStringLiteral("heart"), Qt::CaseInsensitive) ||
+                                       condCompareKey.contains(QStringLiteral("heart"), Qt::CaseInsensitive);
+    const bool heartRateAboveEndCondition =
+        heartRateEndCondition && (garminStringIndicatesAbove(condTypeKey) ||
+                                  garminStringIndicatesAbove(condCompareKey));
+    const bool heartRateBelowEndCondition =
+        heartRateEndCondition && (garminStringIndicatesBelow(condTypeKey) ||
+                                  garminStringIndicatesBelow(condCompareKey));
     QString stepTypeKey;
     if (step["stepType"].isObject() && !step["stepType"].isNull()) {
         stepTypeKey = step["stepType"].toObject()["stepTypeKey"].toString();
@@ -1805,10 +2018,18 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
     } else if (condTypeKey == "distance" && endConditionValue > 0) {
         // Garmin provides distance in meters, QZ XML uses kilometers.
         attrs += QString(" distance=\"%1\"").arg(endConditionValue / 1000.0, 0, 'f', 6);
+    } else if (waitForLap) {
+        attrs += QStringLiteral(" lapbutton=\"1\"");
+    } else if (heartRateAboveEndCondition && endConditionValue > 0) {
+        attrs += QString(" hrabove=\"%1\"").arg(static_cast<int>(endConditionValue));
+    } else if (heartRateBelowEndCondition && endConditionValue > 0) {
+        attrs += QString(" hrbelow=\"%1\"").arg(static_cast<int>(endConditionValue));
     }
     if (targetTypeKey == "heart.rate.zone") {
         int hrMin = static_cast<int>(step["targetValueOne"].toDouble());
         int hrMax = static_cast<int>(step["targetValueTwo"].toDouble());
+        const int zoneNumber = step["zoneNumber"].toInt();
+        if (zoneNumber > 0) attrs += QString(" zonehr=\"%1\"").arg(zoneNumber);
         if (hrMin > 0) attrs += QString(" hrmin=\"%1\"").arg(hrMin);
         if (hrMax > 0) attrs += QString(" hrmax=\"%1\"").arg(hrMax);
         const int loopTimeHr = trainrow().loopTimeHR;
@@ -1825,7 +2046,17 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
 
         // Garmin may report targetType "power.zone" while values are already watts.
         // Prefer direct watt targets, and only convert when values clearly look like zone numbers.
-        if (zoneLikeRange) {
+        if (targetTypeKey == QStringLiteral("power.curve")) {
+            const int curveDuration =
+                static_cast<int>(step.value(QStringLiteral("powerCurveDuration")).toDouble());
+            const double curveScale = step.value(QStringLiteral("powerCurveScale")).toDouble();
+            if (powerCurve.contains(curveDuration)) {
+                const double scale = curveScale > 0.0 ? curveScale : 100.0;
+                power = qRound(powerCurve.value(curveDuration) * scale / 100.0);
+            } else {
+                power = garminPowerFromFtpScale(curveScale);
+            }
+        } else if (zoneLikeRange) {
             power = garminPowerFromZone((low + high) / 2.0);
         } else if (zoneLikeSingle) {
             const double zone = (low > 0.0) ? low : high;
@@ -1836,6 +2067,11 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
             power = qRound(low);
         } else if (high > 0.0) {
             power = qRound(high);
+        } else if (targetTypeKey == "power.zone") {
+            const int zoneNumber = step["zoneNumber"].toInt();
+            if (zoneNumber > 0) {
+                power = garminPowerFromZone(zoneNumber);
+            }
         }
 
         if (power > 0) {
@@ -1883,34 +2119,73 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent) 
             attrs += QStringLiteral(" forcespeed=\"1\"");
         }
     }
-    xml += pad + "<row" + attrs + "/>\n";
+    if (waitForLap) {
+        QString message = step["description"].toString().trimmed();
+        if (message.isEmpty()) {
+            message = QStringLiteral("Press Lap to continue the workout");
+        }
+        xml += pad + "<row" + attrs + ">\n";
+        xml += pad + QStringLiteral("    <textevent timeoffset=\"0\" message=\"%1\"/>\n")
+                         .arg(garminXmlAttributeEscape(message));
+        xml += pad + "</row>\n";
+    } else {
+        xml += pad + "<row" + attrs + "/>\n";
+    }
 }
 
-QString garminConnectGenerateWorkoutXml(const QJsonObject &workoutJson) {
+static void appendGarminSteps(QString &xml, const QJsonArray &steps, int indent,
+                              const QMap<int, double> &powerCurve) {
+    for (const QJsonValue &stepVal : steps) {
+        const QJsonObject step = stepVal.toObject();
+        if (step[QStringLiteral("type")].toString() != QStringLiteral("RepeatGroupDTO")) {
+            appendGarminStep(xml, step, indent, powerCurve);
+            continue;
+        }
+
+        int iterations = static_cast<int>(step[QStringLiteral("numberOfIterations")].toDouble());
+        if (iterations < 1)
+            iterations = 1;
+
+        const QJsonArray innerSteps = step[QStringLiteral("workoutSteps")].toArray();
+
+        // Check whether any inner step is itself a RepeatGroupDTO. If so we
+        // must unroll this level because loadXML does not support nested
+        // <repeat> blocks.
+        bool hasNestedRepeat = false;
+        for (const QJsonValue &inner : innerSteps) {
+            if (inner.toObject()[QStringLiteral("type")].toString() == QStringLiteral("RepeatGroupDTO")) {
+                hasNestedRepeat = true;
+                break;
+            }
+        }
+
+        if (hasNestedRepeat) {
+            // Unroll: emit the inner steps N times instead of wrapping in <repeat>
+            for (int i = 0; i < iterations; i++) {
+                appendGarminSteps(xml, innerSteps, indent, powerCurve);
+            }
+        } else {
+            // All inner steps are leaf ExecutableStepDTOs — safe to emit <repeat>
+            QString pad(indent * 4, QChar(QLatin1Char(' ')));
+            xml += pad + QString("<repeat times=\"%1\">\n").arg(iterations);
+            for (const QJsonValue &inner : innerSteps) {
+                appendGarminStep(xml, inner.toObject(), indent + 1, powerCurve);
+            }
+            xml += pad + QStringLiteral("</repeat>\n");
+        }
+    }
+}
+
+QString garminConnectGenerateWorkoutXml(const QJsonObject &workoutJson,
+                                        const QMap<int, double> &powerCurve) {
     QString xml;
     xml += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     xml += "<rows>\n";
 
-    const QJsonArray segments = workoutJson["workoutSegments"].toArray();
+    const QJsonArray segments = workoutJson[QStringLiteral("workoutSegments")].toArray();
     for (const QJsonValue &segVal : segments) {
-        const QJsonArray steps = segVal.toObject()["workoutSteps"].toArray();
-        for (const QJsonValue &stepVal : steps) {
-            QJsonObject step = stepVal.toObject();
-            if (step["type"].toString() == "RepeatGroupDTO") {
-                int iterations = static_cast<int>(step["numberOfIterations"].toDouble());
-                if (iterations < 1) {
-                    iterations = 1;
-                }
-                xml += QString("    <repeat times=\"%1\">\n").arg(iterations);
-                const QJsonArray innerSteps = step["workoutSteps"].toArray();
-                for (const QJsonValue &inner : innerSteps) {
-                    appendGarminStep(xml, inner.toObject(), 2);
-                }
-                xml += "    </repeat>\n";
-            } else {
-                appendGarminStep(xml, step, 1);
-            }
-        }
+        const QJsonArray steps = segVal.toObject()[QStringLiteral("workoutSteps")].toArray();
+        appendGarminSteps(xml, steps, 1, powerCurve);
     }
 
     xml += "</rows>\n";
@@ -2192,31 +2467,83 @@ void GarminConnect::downloadWorkoutDetails(const QString &workoutIdentifier, con
             resolvedSportTypeKey = workoutPayload["sportType"].toObject()["sportTypeKey"].toString();
         }
 
-        const QString xmlContent = garminConnectGenerateWorkoutXml(workoutPayload);
-
-        const QString subdir = garminTrainingSubdirFromSportTypeKey(resolvedSportTypeKey);
-        const QString workoutRootDir = saveDir + "/" + subdir + "/Garmin";
-        QDir dir;
-        if (!dir.exists(workoutRootDir)) {
-            dir.mkpath(workoutRootDir);
-        }
-
-        const QString filename =
-            workoutRootDir + "/" + garminConnectWorkoutFileName(date, resolvedWorkoutName, resolvedSportTypeKey);
-        QFile file(filename);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            file.write(xmlContent.toUtf8());
-            file.close();
-            qDebug() << "GarminConnect: Workout saved to" << filename;
-            emit workoutDownloaded(filename, resolvedWorkoutName);
+        if (resolvedSportTypeKey == QStringLiteral("cycling") &&
+            garminWorkoutUsesPowerCurve(workoutPayload)) {
+            downloadPowerCurveAndSaveWorkout(workoutPayload, date, resolvedWorkoutName,
+                                             resolvedSportTypeKey, saveDir);
         } else {
-            qDebug() << "GarminConnect: Failed to write" << filename;
-            emit workoutDownloadFailed(QString("Cannot write file: %1").arg(filename));
+            saveWorkoutXml(workoutPayload, date, resolvedWorkoutName, resolvedSportTypeKey,
+                           saveDir, QMap<int, double>());
         }
     });
 
     qDebug() << "GarminConnect: Fetching workout details identifier:" << workoutIdentifier
              << "using" << detailsPath;
+}
+
+void GarminConnect::downloadPowerCurveAndSaveWorkout(const QJsonObject &workoutPayload, const QString &date,
+                                                     const QString &workoutName,
+                                                     const QString &sportTypeKey,
+                                                     const QString &saveDir) {
+    const QString urlString =
+        QString("%1/fitnessstats-service/powerCurve?sport=cycling").arg(connectApiUrl());
+    QNetworkRequest request{QUrl(urlString)};
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(m_oauth2Token.access_token).toUtf8());
+    request.setRawHeader("User-Agent", USER_AGENT);
+    request.setRawHeader("Accept", "application/json");
+
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->get(request);
+
+    connect(reply, &QNetworkReply::finished, this,
+            [this, reply, manager, workoutPayload, date, workoutName, sportTypeKey, saveDir]() {
+        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QByteArray response = reply->readAll();
+        reply->deleteLater();
+        manager->deleteLater();
+
+        QMap<int, double> powerCurve;
+        if (statusCode == 200) {
+            const QJsonDocument doc = QJsonDocument::fromJson(response);
+            powerCurve = garminPowerCurveFromJson(doc);
+            qDebug() << "GarminConnect: Power curve status:" << statusCode
+                     << "entries:" << powerCurve.size();
+        } else {
+            qDebug() << "GarminConnect: Power curve failed (HTTP" << statusCode
+                     << "), falling back to FTP for power curve targets:"
+                     << QString::fromUtf8(response).left(300);
+        }
+
+        saveWorkoutXml(workoutPayload, date, workoutName, sportTypeKey, saveDir, powerCurve);
+    });
+
+    qDebug() << "GarminConnect: Fetching cycling power curve";
+}
+
+void GarminConnect::saveWorkoutXml(const QJsonObject &workoutPayload, const QString &date,
+                                   const QString &workoutName, const QString &sportTypeKey,
+                                   const QString &saveDir,
+                                   const QMap<int, double> &powerCurve) {
+    const QString xmlContent = garminConnectGenerateWorkoutXml(workoutPayload, powerCurve);
+
+    const QString subdir = garminTrainingSubdirFromSportTypeKey(sportTypeKey);
+    const QString workoutRootDir = saveDir + "/" + subdir + "/Garmin";
+    QDir dir;
+    if (!dir.exists(workoutRootDir)) {
+        dir.mkpath(workoutRootDir);
+    }
+
+    const QString filename = workoutRootDir + "/" + garminConnectWorkoutFileName(date, workoutName, sportTypeKey);
+    QFile file(filename);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        file.write(xmlContent.toUtf8());
+        file.close();
+        qDebug() << "GarminConnect: Workout saved to" << filename;
+        emit workoutDownloaded(filename, workoutName);
+    } else {
+        qDebug() << "GarminConnect: Failed to write" << filename;
+        emit workoutDownloadFailed(QString("Cannot write file: %1").arg(filename));
+    }
 }
 
 // ========== End Daily Workout Download ==========

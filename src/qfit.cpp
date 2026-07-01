@@ -37,6 +37,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
     bool strava_treadmill =
         settings.value(QZSettings::strava_treadmill, QZSettings::default_strava_treadmill).toBool();
+    bool treadmill_force_running_activity =
+        settings
+            .value(QZSettings::treadmill_force_running_activity,
+                   QZSettings::default_treadmill_force_running_activity)
+            .toBool();
     bool powr_sensor_running_cadence_half_on_strava =
         settings
             .value(QZSettings::powr_sensor_running_cadence_half_on_strava,
@@ -440,7 +445,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         if(session.last().stepCount > 0)
             sessionMesg.SetTotalStrides(session.last().stepCount);
 
-        if (speed_avg == 0 || speed_avg > 6.5 || strava_virtual_activity)
+        if (speed_avg == 0 || speed_avg > 6.5 || strava_virtual_activity || treadmill_force_running_activity)
             sessionMesg.SetSport(FIT_SPORT_RUNNING);
         else
             sessionMesg.SetSport(FIT_SPORT_WALKING);

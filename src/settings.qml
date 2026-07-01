@@ -5,6 +5,7 @@ import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.0
 import Qt.labs.platform 1.1
+import AndroidStatusBar 1.0
 
 //Page {
     ScrollView {
@@ -13,6 +14,10 @@ import Qt.labs.platform 1.1
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
+        anchors.leftMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
+                            AndroidStatusBar.waterfallLeftInset : 0
+        anchors.rightMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
+                             AndroidStatusBar.waterfallRightInset : 0
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane
@@ -1684,18 +1689,23 @@ import Qt.labs.platform 1.1
             property string shortcut_preset_powerzone_7: ""
             property string shortcut_lap: ""
             property string shortcut_start_stop: ""
+            property string garmin_last_seen_cycling_ftp_create_time: ""
+            property string garmin_last_seen_running_ftp_create_time: ""
             property bool horizon_treadmill_omega_z: false
 
             property string app_language: "auto"
 
             property bool garmin_download_workouts_on_start: true
-            property bool trainprogram_clipboard_workout_enabled: false         
+            property bool trainprogram_clipboard_workout_enabled: false
             property string shortcut_stop: ""
             property real trainprogram_warmup_speed: 420
             property real trainprogram_cooldown_speed: 420
-            property real trainprogram_rest_speed: 420            
+            property real trainprogram_rest_speed: 420
+            property bool trainprogram_sound_on_segment: false
             property bool tile_watt_color_enabled: true
-            property bool tile_pace_color_enabled: true            
+            property bool tile_pace_color_enabled: true                        
+            property bool treadmill_force_running_activity: false
+            property bool proform_treadmill_105_cst: false
         }
 
 
@@ -8370,6 +8380,33 @@ import Qt.labs.platform 1.1
                     }
 
                     IndicatorOnlySwitch {
+                        text: qsTr("Sound on Segment Change")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trainprogram_sound_on_segment
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trainprogram_sound_on_segment = checked
+                    }
+
+                    Label {
+                        text: qsTr("Play a short sound when a training program starts a new row. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
                         id: trainprogramAutoLapOnSegmentDelegate
                         text: qsTr("Auto Lap on Segment")
                         spacing: 0
@@ -9196,6 +9233,34 @@ import Qt.labs.platform 1.1
                     }
 
                     IndicatorOnlySwitch {
+                        id: treadmillForceRunningActivityDelegate
+                        text: qsTr("Force Running Activity")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_force_running_activity
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_force_running_activity = checked
+                    }
+
+                    Label {
+                        text: qsTr("Turn this on to write treadmill FIT files as running activities even when the average speed is below 6.5 km/h. This can help Garmin calculate Training Effect for high-incline treadmill workouts. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
                         id: pauseOnStartTreadmillDelegate
                         text: qsTr("Pause when App Starts")
                         spacing: 0
@@ -9681,6 +9746,7 @@ import Qt.labs.platform 1.1
                                     "ProForm Carbon TL PFTL59723.6",
                                     "ProForm Carbon TLX v84.314 PFTL90924C.7",
                                     "ProForm CST 505 PFTL59420.0",
+                                    "ProForm 105 CST",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -9758,7 +9824,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_trainer_8_0_pftl59721_int_0 ? 58 :
                                                     settings.proform_carbon_tl_PFTL59723_6 ? 59 :
                                                     settings.proform_carbon_tlx_v84_314_treadmill ? 60 :
-                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 61 : 0;
+                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 61 :
+                                                    settings.proform_treadmill_105_cst ? 62 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -9834,6 +9901,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_carbon_tl_PFTL59723_6 = false;
                                     settings.proform_carbon_tlx_v84_314_treadmill = false;
                                     settings.proform_treadmill_cst_505_pftl59420_0 = false;
+                                    settings.proform_treadmill_105_cst = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -9898,6 +9966,7 @@ import Qt.labs.platform 1.1
                                         case 59: settings.proform_carbon_tl_PFTL59723_6 = true; break;
                                         case 60: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
                                         case 61: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
+                                        case 62: settings.proform_treadmill_105_cst = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;

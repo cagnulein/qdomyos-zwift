@@ -62,6 +62,10 @@ const QString QZSettings::garmin_domain = QStringLiteral("garmin_domain");
 const QString QZSettings::default_garmin_domain = QStringLiteral("garmin.com");
 const QString QZSettings::garmin_last_refresh = QStringLiteral("garmin_last_refresh");
 const QString QZSettings::default_garmin_last_refresh = QStringLiteral("");
+const QString QZSettings::garmin_last_seen_cycling_ftp_create_time = QStringLiteral("garmin_last_seen_cycling_ftp_create_time");
+const QString QZSettings::default_garmin_last_seen_cycling_ftp_create_time = QStringLiteral("");
+const QString QZSettings::garmin_last_seen_running_ftp_create_time = QStringLiteral("garmin_last_seen_running_ftp_create_time");
+const QString QZSettings::default_garmin_last_seen_running_ftp_create_time = QStringLiteral("");
 const QString QZSettings::intervalsicu_accesstoken = QStringLiteral("intervalsicu_accesstoken");
 const QString QZSettings::default_intervalsicu_accesstoken = QStringLiteral("");
 const QString QZSettings::intervalsicu_refreshtoken = QStringLiteral("intervalsicu_refreshtoken");
@@ -98,6 +102,7 @@ const QString QZSettings::miles_unit = QStringLiteral("miles_unit");
 const QString QZSettings::weight_kg_unit = QStringLiteral("weight_kg_unit");
 const QString QZSettings::pause_on_start = QStringLiteral("pause_on_start");
 const QString QZSettings::treadmill_force_speed = QStringLiteral("treadmill_force_speed");
+const QString QZSettings::treadmill_force_running_activity = QStringLiteral("treadmill_force_running_activity");
 const QString QZSettings::pause_on_start_treadmill = QStringLiteral("pause_on_start_treadmill");
 const QString QZSettings::continuous_moving = QStringLiteral("continuous_moving");
 const QString QZSettings::bike_cadence_sensor = QStringLiteral("bike_cadence_sensor");
@@ -628,6 +633,7 @@ const QString QZSettings::proform_treadmill_cadence_lt = QStringLiteral("proform
 const QString QZSettings::trainprogram_stop_at_end = QStringLiteral("trainprogram_stop_at_end");
 const QString QZSettings::trainprogram_clipboard_workout_enabled =
     QStringLiteral("trainprogram_clipboard_workout_enabled");
+const QString QZSettings::trainprogram_sound_on_segment = QStringLiteral("trainprogram_sound_on_segment");
 const QString QZSettings::domyos_elliptical_inclination = QStringLiteral("domyos_elliptical_inclination");
 const QString QZSettings::gpx_loop = QStringLiteral("gpx_loop");
 const QString QZSettings::android_notification = QStringLiteral("android_notification");
@@ -1103,6 +1109,7 @@ const QString QZSettings::proform_carbon_tlx_treadmill = QStringLiteral("proform
 const QString QZSettings::proform_carbon_tlx_v84_314_treadmill = QStringLiteral("proform_carbon_tlx_v84_314_treadmill");
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 const QString QZSettings::proform_treadmill_cst_505_pftl59420_0 = QStringLiteral("proform_treadmill_cst_505_pftl59420_0");
+const QString QZSettings::proform_treadmill_105_cst = QStringLiteral("proform_treadmill_105_cst");
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
 const QString QZSettings::horizon_treadmill_omega_z = QStringLiteral("horizon_treadmill_omega_z");
 
@@ -1238,7 +1245,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 967;
+const uint32_t allSettingsCount = 972;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1273,6 +1280,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::garmin_refresh_token_expires_at, QZSettings::default_garmin_refresh_token_expires_at},
     {QZSettings::garmin_domain, QZSettings::default_garmin_domain},
     {QZSettings::garmin_last_refresh, QZSettings::default_garmin_last_refresh},
+    {QZSettings::garmin_last_seen_cycling_ftp_create_time, QZSettings::default_garmin_last_seen_cycling_ftp_create_time},
+    {QZSettings::garmin_last_seen_running_ftp_create_time, QZSettings::default_garmin_last_seen_running_ftp_create_time},
     {QZSettings::intervalsicu_accesstoken, QZSettings::default_intervalsicu_accesstoken},
     {QZSettings::intervalsicu_refreshtoken, QZSettings::default_intervalsicu_refreshtoken},
     {QZSettings::intervalsicu_athlete_id, QZSettings::default_intervalsicu_athlete_id},
@@ -1303,6 +1312,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit},
     {QZSettings::pause_on_start, QZSettings::default_pause_on_start},
     {QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed},
+    {QZSettings::treadmill_force_running_activity, QZSettings::default_treadmill_force_running_activity},
     {QZSettings::pause_on_start_treadmill, QZSettings::default_pause_on_start_treadmill},
     {QZSettings::continuous_moving, QZSettings::default_continuous_moving},
     {QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor},
@@ -1749,6 +1759,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end},
     {QZSettings::trainprogram_clipboard_workout_enabled,
      QZSettings::default_trainprogram_clipboard_workout_enabled},
+    {QZSettings::trainprogram_sound_on_segment, QZSettings::default_trainprogram_sound_on_segment},
     {QZSettings::domyos_elliptical_inclination, QZSettings::default_domyos_elliptical_inclination},
     {QZSettings::gpx_loop, QZSettings::default_gpx_loop},
     {QZSettings::android_notification, QZSettings::default_android_notification},
@@ -2228,6 +2239,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_carbon_tlx_v84_314_treadmill, QZSettings::default_proform_carbon_tlx_v84_314_treadmill},
     {QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6},
     {QZSettings::proform_treadmill_cst_505_pftl59420_0, QZSettings::default_proform_treadmill_cst_505_pftl59420_0},
+    {QZSettings::proform_treadmill_105_cst, QZSettings::default_proform_treadmill_105_cst},
     {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
     {QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z},
 };
