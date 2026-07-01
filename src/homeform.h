@@ -1036,6 +1036,7 @@ public:
     QString lastTrainProgramFileSaved = QLatin1String("");
 
     QList<QString> chartImagesFilenames;
+    bool mailSent = false;
 
     bool m_autoresistance = true;
     bool m_stopRequested = false;
@@ -1211,6 +1212,7 @@ public:
     void bluetoothDeviceConnected(bluetoothdevice *b);
     void bluetoothDeviceDisconnected();
     void onToastRequested(QString message);
+    void onTrainingProgramIntervalTransition();
     void strava_upload_file_prepare();
     void garmin_upload_file_prepare();
     void garmin_download_todays_workout();
@@ -1280,6 +1282,7 @@ public:
     void instructorNameChanged(QString name);
     void startRequestedChanged(bool value);
     void stopRequestedChanged(bool value);
+    void trainingProgramIntervalSoundRequested();
 
     void previewWorkoutPointsChanged(int value);
     void previewWorkoutDescriptionChanged(QString value);
@@ -1302,4 +1305,3 @@ public:
 };
 
 #endif // HOMEFORM_H
-

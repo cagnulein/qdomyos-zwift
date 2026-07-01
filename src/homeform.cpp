@@ -210,19 +210,75 @@ double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2
     return 4.0 + ((percentHeartRate - z4) / (top - z4));
 }
 
+quint32 crc32ForGzip(const QByteArray &data) {
+    quint32 crc = 0xffffffffU;
+    for (const char byte : data) {
+        crc ^= static_cast<quint8>(byte);
+        for (int bit = 0; bit < 8; ++bit) {
+            crc = (crc >> 1) ^ (0xedb88320U & (0U - (crc & 1U)));
+        }
+    }
+    return crc ^ 0xffffffffU;
+}
+
+void appendLittleEndian32(QByteArray *data, quint32 value) {
+    data->append(static_cast<char>(value & 0xffU));
+    data->append(static_cast<char>((value >> 8) & 0xffU));
+    data->append(static_cast<char>((value >> 16) & 0xffU));
+    data->append(static_cast<char>((value >> 24) & 0xffU));
+}
+
+QByteArray gzipCompress(const QByteArray &data, bool *ok) {
+    if (ok) {
+        *ok = false;
+    }
+
+    const QByteArray qtCompressed = qCompress(data, 9);
+    if (qtCompressed.size() < 11) {
+        return QByteArray();
+    }
+
+    QByteArray gzip;
+    gzip.reserve(qtCompressed.size() + 18);
+    gzip.append('\x1f');
+    gzip.append('\x8b');
+    gzip.append('\x08');
+    gzip.append('\x00');
+    appendLittleEndian32(&gzip, 0);
+    gzip.append('\x02');
+    gzip.append('\xff');
+
+    gzip.append(qtCompressed.constData() + 6, qtCompressed.size() - 10);
+    appendLittleEndian32(&gzip, crc32ForGzip(data));
+    appendLittleEndian32(&gzip, static_cast<quint32>(data.size()));
+
+    if (ok) {
+        *ok = true;
+    }
+    return gzip;
+}
+
 class MailSenderThread : public QThread {
   public:
-    MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail)
-        : message(message), filenameJPG(filenameJPG), chartImagesFilenamesForMail(chartImagesFilenamesForMail) {}
+    MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail,
+                     const QList<QString> &temporaryFilesForMail, QObject *toastTarget)
+        : message(message), filenameJPG(filenameJPG), chartImagesFilenamesForMail(chartImagesFilenamesForMail),
+          temporaryFilesForMail(temporaryFilesForMail), toastTarget(toastTarget) {}
 
   protected:
     void run() override {
+        auto showToast = [this](const QString &msg) {
+            QMetaObject::invokeMethod(toastTarget, "setToastRequested", Qt::QueuedConnection,
+                                     Q_ARG(QString, msg));
+        };
+
 #ifdef SMTP_SERVER
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
         SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
 #else
 #pragma message "stmp server is unset!"
+        qDebug() << QStringLiteral("SMTP server is unset, email not sent");
         SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
         delete message;
         return;
@@ -236,6 +292,7 @@ class MailSenderThread : public QThread {
         smtp.setUser(STRINGIFY(SMTP_USERNAME));
 #else
 #pragma message "smtp username is unset!"
+        qDebug() << QStringLiteral("SMTP username is unset, email not sent");
         delete message;
         return;
 #endif
@@ -245,25 +302,44 @@ class MailSenderThread : public QThread {
         smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
 #else
 #pragma message "smtp password is unset!"
+        qDebug() << QStringLiteral("SMTP password is unset, email not sent");
         delete message;
         return;
 #endif
+
+        // responseTimeout: time to wait for each SMTP command reply (including
+        // "250 OK" after DATA). 30s gives Brevo time to accept a large attachment
+        // without the client timing out and retrying (which would send a duplicate).
+        // sendMessageTimeout: time allowed for the raw socket write of the body; 120s
+        // covers a 10MB attachment even on a slow mobile connection.
+        smtp.setResponseTimeout(30000);
+        smtp.setSendMessageTimeout(120000);
+
+        showToast(QObject::tr("Sending workout email..."));
 
         bool r = false;
         uint8_t i = 0;
         while (!r) {
             qDebug() << "trying to send email #" << i;
-            r = smtp.connectToHost();
-            r = smtp.login();
-            r = smtp.sendMail(*message);
+            r = smtp.connectToHost() && smtp.login() && smtp.sendMail(*message);
             if (i++ == 3)
                 break;
+            if (!r)
+                smtp.quit();
         }
         smtp.quit();
+
+        if (r)
+            showToast(QObject::tr("Workout email sent successfully"));
+        else
+            showToast(QObject::tr("Failed to send workout email"));
 
         if (!filenameJPG.isEmpty())
             QFile::remove(filenameJPG);
         for (const QString &f : qAsConst(chartImagesFilenamesForMail)) {
+            QFile::remove(f);
+        }
+        for (const QString &f : qAsConst(temporaryFilesForMail)) {
             QFile::remove(f);
         }
         delete message;
@@ -273,6 +349,8 @@ class MailSenderThread : public QThread {
     MimeMessage *message;
     QString filenameJPG;
     QList<QString> chartImagesFilenamesForMail;
+    QList<QString> temporaryFilesForMail;
+    QObject *toastTarget;
 };
 } // namespace
 
@@ -471,12 +549,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         new DataObject(tr("T.Incline (%)"), QStringLiteral("icons/icons/inclination.png"),
                        QStringLiteral("0.0"), true, QStringLiteral("target_inclination"), 48, labelFontSize);
 
-    watt = new DataObject(tr("Watt"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
+    watt = new DataObject(tr("Watts"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
                           QStringLiteral("watt"), 48, labelFontSize);
     weightLoss = new DataObject(tr("Weight Loss(%1)").arg(weightLossUnit),
                                 QStringLiteral("icons/icons/kcal.png"), QStringLiteral("0"), false,
                                 QStringLiteral("weight_loss"), 48, labelFontSize);
-    avgWatt = new DataObject(tr("AVG Watt"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
+    avgWatt = new DataObject(tr("AVG Watts"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
                              false, QStringLiteral("avgWatt"), 48, labelFontSize);
     avgWattLap = new DataObject(tr("AVG Watt Lap"), QStringLiteral("icons/icons/watt.png"),
                                 QStringLiteral("0"), false, QStringLiteral("avgWattLap"), 48, labelFontSize);
@@ -1782,6 +1860,8 @@ void homeform::trainProgramSignals() {
                    &bluetoothdevice::workoutEventStateChanged);
         disconnect(trainProgram, &trainprogram::changeTimestamp, this, &homeform::changeTimestamp);
         disconnect(trainProgram, &trainprogram::toastRequest, this, &homeform::onToastRequested);
+        disconnect(trainProgram, &trainprogram::intervalTransitionApplied, this,
+                   &homeform::onTrainingProgramIntervalTransition);
         disconnect(trainProgram, &trainprogram::zwiftLoginState, this, &homeform::zwiftLoginState);
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
@@ -1789,6 +1869,8 @@ void homeform::trainProgramSignals() {
         connect(trainProgram, &trainprogram::stop, this, &homeform::StopFromTrainProgram);
         connect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         connect(trainProgram, &trainprogram::toastRequest, this, &homeform::onToastRequested);
+        connect(trainProgram, &trainprogram::intervalTransitionApplied, this,
+                &homeform::onTrainingProgramIntervalTransition);
         // Connect training program speed changes to reset HR PID timer
         connect(trainProgram, &trainprogram::changeSpeed, this,
                 &homeform::onTrainingProgramSpeedChanged);
@@ -1880,6 +1962,15 @@ void homeform::onToastRequested(QString message) {
     // Use TTS if enabled
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
         m_speech.say(message);
+    }
+}
+
+void homeform::onTrainingProgramIntervalTransition() {
+    QSettings settings;
+    if (settings.value(QZSettings::trainprogram_sound_on_segment,
+                       QZSettings::default_trainprogram_sound_on_segment)
+            .toBool()) {
+        emit trainingProgramIntervalSoundRequested();
     }
 }
 
@@ -5613,6 +5704,7 @@ void homeform::Start_inner(bool send_event_to_device) {
             }
             Session.clear();
             chartImagesFilenames.clear();
+            mailSent = false;
 
 #ifdef Q_OS_IOS
             // due to #857
@@ -5951,6 +6043,22 @@ void homeform::update() {
         bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
         bool weight_kg_unit = settings.value(QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit).toBool();
         double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        const bool tileWattColorEnabled =
+            settings.value(QZSettings::tile_watt_color_enabled, QZSettings::default_tile_watt_color_enabled).toBool();
+        const bool tilePaceColorEnabled =
+            settings.value(QZSettings::tile_pace_color_enabled, QZSettings::default_tile_pace_color_enabled).toBool();
+        const auto setWattValueFontColor = [this, tileWattColorEnabled](const QString &color) {
+            this->watt->setValueFontColor(tileWattColorEnabled ? color : QStringLiteral("white"));
+        };
+        const auto setPaceValueFontColor = [this, tilePaceColorEnabled](const QString &color) {
+            this->pace->setValueFontColor(tilePaceColorEnabled ? color : QStringLiteral("white"));
+        };
+        if (!tileWattColorEnabled) {
+            setWattValueFontColor(QStringLiteral("white"));
+        }
+        if (!tilePaceColorEnabled) {
+            setPaceValueFontColor(QStringLiteral("white"));
+        }
         double unit_conversion = 1.0;
         double meter_feet_conversion = 1.0;
         double cm_inches_conversion = 1.0;        
@@ -6386,25 +6494,25 @@ void homeform::update() {
             if (!trainProgram || trainProgram->currentRow().speed == -1 || trainProgram->currentRow().upper_speed == -1) {
                 if (bluetoothManager->device()->currentSpeed().value() < 9) {
                     speed->setValueFontColor(QStringLiteral("white"));
-                    this->pace->setValueFontColor(QStringLiteral("white"));
+                    setPaceValueFontColor(QStringLiteral("white"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 10) {
                     speed->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 11) {
                     speed->setValueFontColor(QStringLiteral("gold"));
-                    this->pace->setValueFontColor(QStringLiteral("gold"));
+                    setPaceValueFontColor(QStringLiteral("gold"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 12) {
                     speed->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 13) {
                     speed->setValueFontColor(QStringLiteral("darkorange"));
-                    this->pace->setValueFontColor(QStringLiteral("darkorange"));
+                    setPaceValueFontColor(QStringLiteral("darkorange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 14) {
                     speed->setValueFontColor(QStringLiteral("orangered"));
-                    this->pace->setValueFontColor(QStringLiteral("orangered"));
+                    setPaceValueFontColor(QStringLiteral("orangered"));
                 } else {
                     speed->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             } else {
                 // Round speeds to 1 decimal place before comparison to avoid overly strict matching
@@ -6415,17 +6523,17 @@ void homeform::update() {
                 // Check if speed is in target zone (green)
                 if (currentSpeed <= upperSpeed && currentSpeed >= lowerSpeed) {
                     this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 }
                 // Check if speed is close to target zone (orange)
                 else if (currentSpeed <= (upperSpeed + 0.2) && currentSpeed >= (lowerSpeed - 0.2)) {
                     this->target_zone->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 }
                 // Speed is out of range (red)
                 else {
                     this->target_zone->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             }
 
@@ -6541,25 +6649,25 @@ void homeform::update() {
             if (!trainProgram || trainProgram->currentRow().speed == -1 || trainProgram->currentRow().upper_speed == -1) {
                 if (bluetoothManager->device()->currentSpeed().value() < 9) {
                     speed->setValueFontColor(QStringLiteral("white"));
-                    this->pace->setValueFontColor(QStringLiteral("white"));
+                    setPaceValueFontColor(QStringLiteral("white"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 10) {
                     speed->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 11) {
                     speed->setValueFontColor(QStringLiteral("gold"));
-                    this->pace->setValueFontColor(QStringLiteral("gold"));
+                    setPaceValueFontColor(QStringLiteral("gold"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 12) {
                     speed->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 13) {
                     speed->setValueFontColor(QStringLiteral("darkorange"));
-                    this->pace->setValueFontColor(QStringLiteral("darkorange"));
+                    setPaceValueFontColor(QStringLiteral("darkorange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 14) {
                     speed->setValueFontColor(QStringLiteral("orangered"));
-                    this->pace->setValueFontColor(QStringLiteral("orangered"));
+                    setPaceValueFontColor(QStringLiteral("orangered"));
                 } else {
                     speed->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             } else {
                 // Round speeds to 1 decimal place before comparison to avoid overly strict matching
@@ -6570,17 +6678,17 @@ void homeform::update() {
                        // Check if speed is in target zone (green)
                 if (currentSpeed <= upperSpeed && currentSpeed >= lowerSpeed) {
                     this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 }
                 // Check if speed is close to target zone (orange)
                 else if (currentSpeed <= (upperSpeed + 0.2) && currentSpeed >= (lowerSpeed - 0.2)) {
                     this->target_zone->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 }
                 // Speed is out of range (red)
                 else {
                     this->target_zone->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             }
 
@@ -6740,20 +6848,20 @@ void homeform::update() {
                     if (bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
                         bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
                         this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
-                        this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                        setPaceValueFontColor(QStringLiteral("limegreen"));
                     } else if (bluetoothManager->device()->currentSpeed().value() <=
                                    (trainProgram->currentRow().upper_speed + 0.2) &&
                                bluetoothManager->device()->currentSpeed().value() >=
                                    (trainProgram->currentRow().lower_speed - 0.2)) {
                         this->target_zone->setValueFontColor(QStringLiteral("orange"));
-                        this->pace->setValueFontColor(QStringLiteral("orange"));
+                        setPaceValueFontColor(QStringLiteral("orange"));
                     } else {
                         this->target_zone->setValueFontColor(QStringLiteral("red"));
-                        this->pace->setValueFontColor(QStringLiteral("red"));
+                        setPaceValueFontColor(QStringLiteral("red"));
                     }
                 } else {
                     this->target_zone->setValueFontColor(QStringLiteral("white"));
-                    this->pace->setValueFontColor(QStringLiteral("white"));
+                    setPaceValueFontColor(QStringLiteral("white"));
                 }
                 switch (trainProgram->currentRow().pace_intensity) {
                 case 0:
@@ -6831,25 +6939,25 @@ void homeform::update() {
             if (!trainProgram || trainProgram->currentRow().speed == -1) {
                 if (bluetoothManager->device()->currentSpeed().value() < 8) {
                     speed->setValueFontColor(QStringLiteral("white"));
-                    this->pace->setValueFontColor(QStringLiteral("white"));
+                    setPaceValueFontColor(QStringLiteral("white"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 10) {
                     speed->setValueFontColor(QStringLiteral("limegreen"));
-                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                    setPaceValueFontColor(QStringLiteral("limegreen"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 11) {
                     speed->setValueFontColor(QStringLiteral("gold"));
-                    this->pace->setValueFontColor(QStringLiteral("gold"));
+                    setPaceValueFontColor(QStringLiteral("gold"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 12) {
                     speed->setValueFontColor(QStringLiteral("orange"));
-                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                    setPaceValueFontColor(QStringLiteral("orange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 13) {
                     speed->setValueFontColor(QStringLiteral("darkorange"));
-                    this->pace->setValueFontColor(QStringLiteral("darkorange"));
+                    setPaceValueFontColor(QStringLiteral("darkorange"));
                 } else if (bluetoothManager->device()->currentSpeed().value() < 14) {
                     speed->setValueFontColor(QStringLiteral("orangered"));
-                    this->pace->setValueFontColor(QStringLiteral("orangered"));
+                    setPaceValueFontColor(QStringLiteral("orangered"));
                 } else {
                     speed->setValueFontColor(QStringLiteral("red"));
-                    this->pace->setValueFontColor(QStringLiteral("red"));
+                    setPaceValueFontColor(QStringLiteral("red"));
                 }
             }
 
@@ -7074,7 +7182,7 @@ void homeform::update() {
                 ftpZone = 1.9;
             }
             ftp->setValueFontColor(QStringLiteral("white"));
-            watt->setValueFontColor(QStringLiteral("white"));
+            setWattValueFontColor(QStringLiteral("white"));
         } else if (ftpPerc < 76) {
 
             ftpMinW = QString::number((ftpSetting * 0.55) + 1, 'f', 0);
@@ -7085,7 +7193,7 @@ void homeform::update() {
                 ftpZone = 2.9;
             }
             ftp->setValueFontColor(QStringLiteral("limegreen"));
-            watt->setValueFontColor(QStringLiteral("limegreen"));
+            setWattValueFontColor(QStringLiteral("limegreen"));
         } else if (ftpPerc < 91) {
 
             ftpMinW = QString::number((ftpSetting * 0.75) + 1, 'f', 0);
@@ -7096,7 +7204,7 @@ void homeform::update() {
                 ftpZone = 3.9;
             }
             ftp->setValueFontColor(QStringLiteral("gold"));
-            watt->setValueFontColor(QStringLiteral("gold"));
+            setWattValueFontColor(QStringLiteral("gold"));
         } else if (ftpPerc < 106) {
 
             ftpMinW = QString::number((ftpSetting * 0.90) + 1, 'f', 0);
@@ -7107,7 +7215,7 @@ void homeform::update() {
                 ftpZone = 4.9;
             }
             ftp->setValueFontColor(QStringLiteral("orange"));
-            watt->setValueFontColor(QStringLiteral("orange"));
+            setWattValueFontColor(QStringLiteral("orange"));
         } else if (ftpPerc < 121) {
 
             ftpMinW = QString::number((ftpSetting * 1.05) + 1, 'f', 0);
@@ -7118,7 +7226,7 @@ void homeform::update() {
                 ftpZone = 5.9;
             }
             ftp->setValueFontColor(QStringLiteral("darkorange"));
-            watt->setValueFontColor(QStringLiteral("darkorange"));
+            setWattValueFontColor(QStringLiteral("darkorange"));
         } else if (ftpPerc < 151) {
 
             ftpMinW = QString::number((ftpSetting * 1.20) + 1, 'f', 0);
@@ -7129,7 +7237,7 @@ void homeform::update() {
                 ftpZone = 6.9;
             }
             ftp->setValueFontColor(QStringLiteral("orangered"));
-            watt->setValueFontColor(QStringLiteral("orangered"));
+            setWattValueFontColor(QStringLiteral("orangered"));
         } else {
 
             ftpMinW = QString::number((ftpSetting * 1.50) + 1, 'f', 0);
@@ -7137,7 +7245,7 @@ void homeform::update() {
             ftpZone = 7;
 
             ftp->setValueFontColor(QStringLiteral("red"));
-            watt->setValueFontColor(QStringLiteral("red"));
+            setWattValueFontColor(QStringLiteral("red"));
         }
         bluetoothManager->device()->setPowerZone(ftpZone);
         ftp->setValue(QStringLiteral("Z") + QString::number(ftpZone, 'f', 1));
@@ -10208,6 +10316,12 @@ void homeform::sendMail() {
         return;
     }
 
+    if (mailSent) {
+        qDebug() << QStringLiteral("sendMail already requested, ignoring duplicate");
+        return;
+    }
+    mailSent = true;
+
     if (miles) {
         unit_conversion = 0.621371; // clang, don't touch it!
         weightLossUnit = QStringLiteral("Oz");
@@ -10408,6 +10522,56 @@ void homeform::sendMail() {
     textMessage += QStringLiteral("\n\nSMTP server: ") + QString(STRINGIFY(SMTP_SERVER));
 #endif
 
+    QStringList temporaryFilesForMail;
+    QString compressedDebugLogForMail;
+    QString debugLogMailNote;
+    constexpr qint64 maxDebugLogAttachmentBytes = 10 * 1024 * 1024;
+    const QStringList logCandidates =
+        QDir(getWritableAppDir()).entryList(QStringList() << QStringLiteral("debug-*.log"), QDir::Files, QDir::Time);
+    const QString logfilename = logCandidates.isEmpty() ? QString() : logCandidates.first();
+    if (settings.value(QZSettings::log_debug).toBool() && !logfilename.isEmpty() &&
+        QFile::exists(getWritableAppDir() + logfilename)) {
+        const QString debugLogFileName = getWritableAppDir() + logfilename;
+        QFile debugLogFile(debugLogFileName);
+        if (debugLogFile.open(QIODevice::ReadOnly)) {
+            bool gzipOk = false;
+            const QByteArray compressedDebugLog = gzipCompress(debugLogFile.readAll(), &gzipOk);
+            debugLogFile.close();
+
+            const QString compressedDebugLogFileName =
+                getWritableAppDir() + QUuid::createUuid().toString(QUuid::WithoutBraces) + QStringLiteral("_") +
+                QFileInfo(debugLogFileName).fileName() + QStringLiteral(".gz");
+            QFile compressedDebugLogFile(compressedDebugLogFileName);
+            if (!gzipOk) {
+                debugLogMailNote = QStringLiteral("\nDebug log not attached: unable to gzip log file.");
+            } else if (compressedDebugLogFile.open(QIODevice::WriteOnly)) {
+                compressedDebugLogFile.write(compressedDebugLog);
+                compressedDebugLogFile.close();
+
+                const qint64 compressedDebugLogSize = QFileInfo(compressedDebugLogFileName).size();
+                if (compressedDebugLogSize <= maxDebugLogAttachmentBytes) {
+                    compressedDebugLogForMail = compressedDebugLogFileName;
+                    temporaryFilesForMail.append(compressedDebugLogFileName);
+                    debugLogMailNote =
+                        QStringLiteral("\nDebug log attached: ") + QFileInfo(compressedDebugLogFileName).fileName() +
+                        QStringLiteral(" (") + QString::number(compressedDebugLogSize / 1024.0 / 1024.0, 'f', 1) +
+                        QStringLiteral(" MB gzip compressed)");
+                } else {
+                    QFile::remove(compressedDebugLogFileName);
+                    debugLogMailNote =
+                        QStringLiteral("\nDebug log not attached: compressed file is ") +
+                        QString::number(compressedDebugLogSize / 1024.0 / 1024.0, 'f', 1) +
+                        QStringLiteral(" MB, above the 10.0 MB mail limit.");
+                }
+            } else {
+                debugLogMailNote = QStringLiteral("\nDebug log not attached: unable to write compressed log file.");
+            }
+        } else {
+            debugLogMailNote = QStringLiteral("\nDebug log not attached: unable to read log file.");
+        }
+    }
+    textMessage += debugLogMailNote;
+
     text->setText(textMessage);
     message->addPart(text);
 
@@ -10486,32 +10650,14 @@ void homeform::sendMail() {
         message->addPart(pelotonImage);
     }
 
-    /* THE SMTP SERVER DOESN'T LIKE THE ZIP FILE
-    extern QString logfilename;
-    if (settings.value(QZSettings::log_debug).toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
-        QString fileName = getWritableAppDir() + logfilename;
-        QFile f(fileName);
-        f.open(QIODevice::ReadOnly);
-        QTextStream ts(&f);
-        QByteArray b = f.readAll();
-        f.close();
-        QByteArray c = qCompress(b, 9);
-        QFile fc(fileName.replace(".log", ".zip"));
-        fc.open(QIODevice::WriteOnly);
-        c.remove(0, 4);
-        fc.write(c);
-        fc.close();
+    if (!compressedDebugLogForMail.isEmpty()) {
+        MimeAttachment *log = new MimeAttachment(new QFile(compressedDebugLogForMail));
+        log->setContentId(compressedDebugLogForMail);
+        log->setContentType(QStringLiteral("application/gzip"));
+        message->addPart(log);
+    }
 
-        // Create a MimeInlineFile object for each image
-        MimeInlineFile *log = new MimeInlineFile((new QFile(fileName)));
-
-        // An unique content id must be setted
-        log->setContentId(fileName);
-        log->setContentType(QStringLiteral("application/octet-stream"));
-        message.addPart(log);
-    }*/
-
-    QThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail);
+    MailSenderThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail, temporaryFilesForMail, this);
     QObject::connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
     mailThread->start();
 }
@@ -11560,5 +11706,3 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
-
-

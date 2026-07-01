@@ -1702,6 +1702,11 @@ import AndroidStatusBar 1.0
             property real trainprogram_warmup_speed: 420
             property real trainprogram_cooldown_speed: 420
             property real trainprogram_rest_speed: 420
+            property bool trainprogram_sound_on_segment: false
+            property bool tile_watt_color_enabled: true
+            property bool tile_pace_color_enabled: true
+            property bool treadmill_force_running_activity: false
+            property bool proform_treadmill_105_cst: false
             property bool waterrower_usb: false
         }
 
@@ -8377,6 +8382,33 @@ import AndroidStatusBar 1.0
                     }
 
                     IndicatorOnlySwitch {
+                        text: qsTr("Sound on Segment Change")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trainprogram_sound_on_segment
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trainprogram_sound_on_segment = checked
+                    }
+
+                    Label {
+                        text: qsTr("Play a short sound when a training program starts a new row. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
                         id: trainprogramAutoLapOnSegmentDelegate
                         text: qsTr("Auto Lap on Segment")
                         spacing: 0
@@ -9203,6 +9235,34 @@ import AndroidStatusBar 1.0
                     }
 
                     IndicatorOnlySwitch {
+                        id: treadmillForceRunningActivityDelegate
+                        text: qsTr("Force Running Activity")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_force_running_activity
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_force_running_activity = checked
+                    }
+
+                    Label {
+                        text: qsTr("Turn this on to write treadmill FIT files as running activities even when the average speed is below 6.5 km/h. This can help Garmin calculate Training Effect for high-incline treadmill workouts. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
                         id: pauseOnStartTreadmillDelegate
                         text: qsTr("Pause when App Starts")
                         spacing: 0
@@ -9688,6 +9748,7 @@ import AndroidStatusBar 1.0
                                     "ProForm Carbon TL PFTL59723.6",
                                     "ProForm Carbon TLX v84.314 PFTL90924C.7",
                                     "ProForm CST 505 PFTL59420.0",
+                                    "ProForm 105 CST",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -9765,7 +9826,8 @@ import AndroidStatusBar 1.0
                                                     settings.proform_trainer_8_0_pftl59721_int_0 ? 58 :
                                                     settings.proform_carbon_tl_PFTL59723_6 ? 59 :
                                                     settings.proform_carbon_tlx_v84_314_treadmill ? 60 :
-                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 61 : 0;
+                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 61 :
+                                                    settings.proform_treadmill_105_cst ? 62 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -9841,6 +9903,7 @@ import AndroidStatusBar 1.0
                                     settings.proform_carbon_tl_PFTL59723_6 = false;
                                     settings.proform_carbon_tlx_v84_314_treadmill = false;
                                     settings.proform_treadmill_cst_505_pftl59420_0 = false;
+                                    settings.proform_treadmill_105_cst = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -9905,6 +9968,7 @@ import AndroidStatusBar 1.0
                                         case 59: settings.proform_carbon_tl_PFTL59723_6 = true; break;
                                         case 60: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
                                         case 61: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
+                                        case 62: settings.proform_treadmill_105_cst = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
