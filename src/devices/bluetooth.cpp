@@ -3420,6 +3420,7 @@ void bluetooth::connectedAndDiscovered() {
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftShoulder, myWhoosh, &MyWhooshLink::handleLeftShoulder);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPower, myWhoosh, &MyWhooshLink::handleLeftPower);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPaddle, myWhoosh, &MyWhooshLink::handleLeftPaddle);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftPower, myWhoosh, &MyWhooshLink::handleLeftPower);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightY, myWhoosh, &MyWhooshLink::handleRightY);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, myWhoosh, &MyWhooshLink::handleRightZ);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, myWhoosh, &MyWhooshLink::handleRightA);
@@ -3427,6 +3428,7 @@ void bluetooth::connectedAndDiscovered() {
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, myWhoosh, &MyWhooshLink::handleRightShoulder);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPower, myWhoosh, &MyWhooshLink::handleRightPower);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, myWhoosh, &MyWhooshLink::handleRightPaddle);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPower, myWhoosh, &MyWhooshLink::handleRightPower);
                 }
                 if((zwiftPlayDevice.last()->typeZap == AbstractZapDevice::LEFT && !zwiftplay_swap) ||
                    (zwiftPlayDevice.last()->typeZap == AbstractZapDevice::RIGHT && zwiftplay_swap)) {
