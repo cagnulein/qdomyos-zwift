@@ -302,6 +302,9 @@ class QZSettings {
     static const QString treadmill_force_speed;
     static constexpr bool default_treadmill_force_speed = false;
 
+    static const QString treadmill_force_running_activity;
+    static constexpr bool default_treadmill_force_running_activity = false;
+
     static const QString pause_on_start_treadmill;
     static constexpr bool default_pause_on_start_treadmill = false;
 
