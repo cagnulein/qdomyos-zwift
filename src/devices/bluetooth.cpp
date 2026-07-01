@@ -3489,6 +3489,7 @@ void bluetooth::connectedAndDiscovered() {
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftPower, myWhoosh, &MyWhooshLink::handleLeftPower);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightY, myWhoosh, &MyWhooshLink::handleRightY);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, myWhoosh, &MyWhooshLink::handleRightZ);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightZAlt, myWhoosh, &MyWhooshLink::handleRightZ);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, myWhoosh, &MyWhooshLink::handleRightA);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB, myWhoosh, &MyWhooshLink::handleRightB);
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, myWhoosh, &MyWhooshLink::handleRightShoulder);

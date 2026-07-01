@@ -15,6 +15,13 @@ constexpr quint8 MessageTypeButtonState = 0x01;
 constexpr quint8 MessageTypeDeviceStatus = 0x02;
 constexpr quint8 MessageTypeHapticFeedback = 0x03;
 constexpr quint8 MessageTypeAppInfo = 0x04;
+constexpr quint8 ButtonShiftUp = 0x01;
+constexpr quint8 ButtonShiftDown = 0x02;
+constexpr quint8 ButtonSteerLeft = 0x18;
+constexpr quint8 ButtonSteerRight = 0x19;
+constexpr quint8 ButtonEmote = 0x20;
+constexpr quint8 ButtonUTurn = 0x37;
+constexpr quint8 ButtonCameraView = 0x40;
 }
 
 MyWhooshLink *MyWhooshLink::instance() {
@@ -336,21 +343,21 @@ void MyWhooshLink::logIncomingMessage(quint8 messageType, const QByteArray &payl
 quint8 MyWhooshLink::actionToButtonId(Action action) const {
     switch (action) {
         case GearUp:
-            return 0x01;
+            return ButtonShiftUp;
         case GearDown:
-            return 0x02;
+            return ButtonShiftDown;
         case SteerLeft:
-            return 0x18;
+            return ButtonSteerLeft;
         case SteerRight:
-            return 0x19;
+            return ButtonSteerRight;
         case UTurn:
-            return 0x80; // app-specific custom action
+            return ButtonUTurn;
         case CameraAngle:
-            return 0x40;
+            return ButtonCameraView;
         case Emote:
-            return 0x20;
+            return ButtonEmote;
         case Tuck:
-            return 0x81; // app-specific custom action
+            return 0x00;
         case Disabled:
         default:
             return 0x00;
@@ -358,18 +365,8 @@ quint8 MyWhooshLink::actionToButtonId(Action action) const {
 }
 
 quint8 MyWhooshLink::actionToButtonState(Action action, bool keyDown) const {
-    if (!keyDown) {
-        return 0x00;
-    }
-
-    switch (action) {
-        case CameraAngle:
-            return static_cast<quint8>(qBound(1, currentCameraAngle, 255));
-        case Emote:
-            return static_cast<quint8>(qBound(1, currentEmote, 255));
-        default:
-            return 0x01;
-    }
+    Q_UNUSED(action);
+    return keyDown ? 0x01 : 0x00;
 }
 
 void MyWhooshLink::sendButtonStateMessage(const QList<QPair<quint8, quint8>> &actions) {
@@ -402,6 +399,7 @@ void MyWhooshLink::sendAction(Action action, bool keyDown) {
 
     const quint8 buttonId = actionToButtonId(action);
     if (buttonId == 0x00) {
+        qDebug() << "MyWhooshLink(OpenBikeControl): unsupported action" << action;
         return;
     }
 
@@ -424,8 +422,8 @@ void MyWhooshLink::sendAction(Action action, bool keyDown) {
 
 void MyWhooshLink::sendSteering(int value) {
     QList<QPair<quint8, quint8>> actions;
-    actions.append(qMakePair(static_cast<quint8>(0x18), static_cast<quint8>(value < 0 ? 0x01 : 0x00)));
-    actions.append(qMakePair(static_cast<quint8>(0x19), static_cast<quint8>(value > 0 ? 0x01 : 0x00)));
+    actions.append(qMakePair(ButtonSteerLeft, static_cast<quint8>(value < 0 ? 0x01 : 0x00)));
+    actions.append(qMakePair(ButtonSteerRight, static_cast<quint8>(value > 0 ? 0x01 : 0x00)));
     sendButtonStateMessage(actions);
 }
 
