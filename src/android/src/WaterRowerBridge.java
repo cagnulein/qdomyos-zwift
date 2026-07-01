@@ -1,17 +1,28 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.os.Build;
+import androidx.core.content.ContextCompat;
+
+import com.hoho.android.usbserial.driver.CdcAcmSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialPort;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.CountDownLatch;
 
 import de.tbressler.waterrower.WaterRower;
 import de.tbressler.waterrower.IWaterRowerConnectionListener;
 import de.tbressler.waterrower.discovery.WaterRowerAutoDiscovery;
+import de.tbressler.waterrower.io.transport.SerialChannel;
 import de.tbressler.waterrower.io.transport.SerialDeviceAddress;
 import de.tbressler.waterrower.model.ErrorCode;
 import de.tbressler.waterrower.model.ModelInformation;
@@ -165,24 +176,118 @@ public class WaterRowerBridge {
         return "";
     }
 
+    /* Finds the attached WaterRower UsbDevice, or null if none is currently attached. */
+    private static UsbDevice findWaterRowerDevice(Context context, UsbManager manager) {
+        HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
+        while (deviceIterator.hasNext()) {
+            UsbDevice device = deviceIterator.next();
+            if (isWaterRowerDevice(device)) {
+                return device;
+            }
+        }
+
+        if (context instanceof Activity) {
+            Intent intent = ((Activity) context).getIntent();
+            if (intent != null && UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(intent.getAction())) {
+                UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                if (isWaterRowerDevice(device)) {
+                    return device;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /* Requests runtime USB permission for the device and blocks (up to 5s) until the user
+       responds or the permission is already granted (e.g. via the USB_DEVICE_ATTACHED
+       intent-filter chooser). Returns true if permission is granted. */
+    private static boolean requestUsbPermissionIfNeeded(Context context, UsbManager manager, UsbDevice device) {
+        if (manager.hasPermission(device)) {
+            return true;
+        }
+
+        QLog.d(TAG, "requestUsbPermissionIfNeeded: requesting USB permission for " + describeDevice(device));
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final boolean[] granted = {false};
+        String action = "org.cagnulen.qdomyoszwift.WATERROWER_USB_PERMISSION";
+        BroadcastReceiver usbReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context ctx, Intent intent) {
+                granted[0] = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
+                latch.countDown();
+            }
+        };
+
+        int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
+        PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(action), flags);
+        IntentFilter filter = new IntentFilter(action);
+        ContextCompat.registerReceiver(context, usbReceiver, filter, ContextCompat.RECEIVER_EXPORTED);
+
+        try {
+            manager.requestPermission(device, permissionIntent);
+            latch.await(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            context.unregisterReceiver(usbReceiver);
+        }
+
+        QLog.d(TAG, "requestUsbPermissionIfNeeded: permission granted=" + granted[0]);
+        return granted[0];
+    }
+
     public static String connect(Context context, String devicePath) {
         QLog.d(TAG, "Connecting to WaterRower at " + devicePath);
-        
+
         if (waterRower != null) {
             shutdown();
         }
-        
+
         try {
+            UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
+            UsbDevice device = findWaterRowerDevice(context, manager);
+            if (device == null) {
+                QLog.e(TAG, "connect: WaterRower USB device not found");
+                return "CONNECTION_FAILED: WaterRower USB device not found";
+            }
+
+            if (!requestUsbPermissionIfNeeded(context, manager, device)) {
+                QLog.e(TAG, "connect: USB permission denied for " + describeDevice(device));
+                return "CONNECTION_FAILED: USB permission denied";
+            }
+
+            UsbDeviceConnection connection = manager.openDevice(device);
+            if (connection == null) {
+                QLog.e(TAG, "connect: could not open USB device connection");
+                return "CONNECTION_FAILED: Could not open USB device connection";
+            }
+
+            // The WaterRower S4/S5 USB monitor exposes a standard USB CDC-ACM interface, but is
+            // not in usb-serial-for-android's default probe table (it's identified by generic
+            // Microchip CDC-ACM VID/PID), so the driver is created explicitly here rather than
+            // via UsbSerialProber.
+            UsbSerialPort port = new CdcAcmSerialDriver(device).getPorts().get(0);
+            port.open(connection);
+            port.setParameters(19200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+
+            // Hand the already-open port to the SerialChannel that WaterRower.connect() below
+            // will instantiate; jSerialComm can not open raw Android USB device paths directly.
+            SerialChannel.setUsbSerialPort(port);
+
             waterRower = new WaterRower();
             waterRower.addConnectionListener(connectionListener);
-            
+
             SerialDeviceAddress address = new SerialDeviceAddress(devicePath);
             waterRower.connect(address);
-            
+
             QLog.d(TAG, "Connection attempt returned SUCCESS");
             return "SUCCESS";
-            
+
         } catch (Exception e) {
+            SerialChannel.setUsbSerialPort(null);
             QLog.e(TAG, "Failed to connect to WaterRower", e);
             return "CONNECTION_FAILED: " + e.getMessage();
         }
