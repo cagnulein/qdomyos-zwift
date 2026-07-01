@@ -185,6 +185,11 @@ class ergTable : public QObject {
     }
 
     uint16_t resistanceFromPowerRequest(uint16_t power, uint16_t cadence, uint16_t maxResistance) {
+        // Quantize to 5 RPM bands to prevent resistance jitter from small cadence fluctuations.
+        // Without this, a 2 RPM change shifts the interpolated wattage estimate enough to
+        // cross a resistance boundary, causing unnecessary resistance changes.
+        cadence = ((cadence + 2) / 5) * 5;
+
         qDebug() << QStringLiteral("resistanceFromPowerRequest") << cadence;
 
         if (cadence == 0)
