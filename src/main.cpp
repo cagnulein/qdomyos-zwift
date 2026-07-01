@@ -128,13 +128,7 @@ double bikeResistanceGain = 1.0;
 QString power_sensor_name = QStringLiteral("Disabled");
 bool power_sensor_as_treadmill = false;
 bool smokeTest = false;
-QString logfilename = QStringLiteral("debug-") +
-                      QDateTime::currentDateTime()
-                          .toString()
-                          .replace(QStringLiteral(":"), QStringLiteral("_"))
-                          .replace(QStringLiteral(" "), QStringLiteral("_"))
-                          .replace(QStringLiteral("."), QStringLiteral("_")) +
-                      QStringLiteral(".log");
+extern QString logfilename;
 QUrl profileToLoad;
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
