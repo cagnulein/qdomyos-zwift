@@ -549,6 +549,12 @@ void kingsmithr2treadmill::serviceScanDone(void) {
         qDebug() << "KS_NACH_X21C default service id not found";
         _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00011234-0000-1000-8000-00805f9b34fb"));
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        if(gattCommunicationChannelService == nullptr) {
+            KS_NACH_X21C_2 = false;
+            qDebug() << "KS_NACH_X21C fallback service id not found";
+            _gattCommunicationChannelServiceId = QBluetoothUuid((quint16)0x1234);
+            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        }
     } else if(gattCommunicationChannelService == nullptr && KS_HDSY_X21C) {
         KS_HDSY_X21C_2 = true;
         KS_HDSY_X21C = false;

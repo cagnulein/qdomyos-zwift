@@ -37,6 +37,12 @@ class cscbike : public bike {
   public:
     cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
+    bool isJorotoBike() const { return jorotoBike; }
+    void enableManualResistancePowerAdjustment(resistance_t resistance);
+    static uint16_t customResistanceAdjustedWatts(double cadence, resistance_t resistance);
+    static resistance_t customResistanceMax();
+    static bool useCustomResistancePowerTable();
+    static resistance_t clampedCustomResistance(resistance_t resistance);
 
   private:
     //    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false, //Unused
@@ -67,6 +73,10 @@ class cscbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool noVirtualDevice = false;
+    bool jorotoBike = false;
+    bool manualResistancePowerAdjustmentActive = false;
+    bool manualResistancePowerAdjustmentToastShown = false;
+    resistance_t manualResistanceTarget = 1;
 
     bool readMethod = false;
 
@@ -77,12 +87,16 @@ class cscbike : public bike {
     lockscreen *h = 0;
 #endif
 
+    uint16_t manualResistanceAdjustedWatts();
+    double manualResistancePowerMultiplier();
+
   signals:
     void disconnected();
     void debug(QString string);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void onManualResistanceAdjusted(resistance_t resistance);
 
   private slots:
 
@@ -102,3 +116,4 @@ class cscbike : public bike {
 };
 
 #endif // CSCBIKE_H
+

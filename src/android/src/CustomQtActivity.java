@@ -1,5 +1,7 @@
 package org.cagnulen.qdomyoszwift;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,18 +9,46 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
+import android.graphics.Insets;
 import org.qtproject.qt5.android.bindings.QtActivity;
 
 public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
 
     // Declare the native method that will be implemented in C++
-    private static native void onInsetsChanged(int top, int bottom, int left, int right);
+    private static native void onInsetsChanged(int top, int bottom, int left, int right,
+                                               int waterfallTop, int waterfallBottom,
+                                               int waterfallLeft, int waterfallRight);
+    private static native void nativeOnOAuthCallback(String callbackUrl);
+
+    private void dispatchOAuthCallback(Intent intent) {
+        if (intent == null) {
+            return;
+        }
+
+        Uri data = intent.getData();
+        if (data == null) {
+            return;
+        }
+
+        String url = data.toString();
+        if (url.startsWith("https://www.qzfitness.com/peloton/callback")) {
+            Log.d(TAG, "dispatchOAuthCallback: https://www.qzfitness.com/peloton/callback?code=XXXX&state=XXXX");
+            try {
+                nativeOnOAuthCallback(url);
+            } catch (UnsatisfiedLinkError e) {
+                Log.w(TAG, "Qt not ready yet for OAuth callback, ignoring: " + e.getMessage());
+            }
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: CustomQtActivity initialized");
+        dispatchOAuthCallback(getIntent());
+        AgeSignalsHelper.requestAgeSignals(this);
+        HealthConnectHelper.initialize(this);
 
         // This tells the OS that we want to handle the display cutout area ourselves
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -36,6 +66,10 @@ public class CustomQtActivity extends QtActivity {
                 int bottom = 0;
                 int left = 0;
                 int right = 0;
+                int waterfallTop = 0;
+                int waterfallBottom = 0;
+                int waterfallLeft = 0;
+                int waterfallRight = 0;
 
                 if (density > 0) {
                     // Use system window insets as primary source
@@ -53,6 +87,15 @@ public class CustomQtActivity extends QtActivity {
                             right = Math.max(right, Math.round(cutout.getSafeInsetRight() / density));
                             top = Math.max(top, Math.round(cutout.getSafeInsetTop() / density));
                             bottom = Math.max(bottom, Math.round(cutout.getSafeInsetBottom() / density));
+
+                            // Android 11+ exposes curved waterfall display areas separately from cutouts.
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                Insets waterfallInsets = cutout.getWaterfallInsets();
+                                waterfallLeft = Math.round(waterfallInsets.left / density);
+                                waterfallRight = Math.round(waterfallInsets.right / density);
+                                waterfallTop = Math.round(waterfallInsets.top / density);
+                                waterfallBottom = Math.round(waterfallInsets.bottom / density);
+                            }
                         }
                     }
                 }
@@ -73,15 +116,37 @@ public class CustomQtActivity extends QtActivity {
                               " Bottom:" + cutout.getSafeInsetBottom() + 
                               " Left:" + cutout.getSafeInsetLeft() + 
                               " Right:" + cutout.getSafeInsetRight());
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            Insets waterfallInsets = cutout.getWaterfallInsets();
+                            Log.d(TAG, "Waterfall insets - Top:" + waterfallInsets.top +
+                                  " Bottom:" + waterfallInsets.bottom +
+                                  " Left:" + waterfallInsets.left +
+                                  " Right:" + waterfallInsets.right);
+                        }
                     }
                 }
 
-                // Push the new, correct inset values to the C++ layer
-                onInsetsChanged(top, bottom, left, right);
+                // Push the new, correct inset values to the C++ layer.
+                // Guard against the race where Qt's native library hasn't finished
+                // loading yet when Android fires onApplyWindowInsets early (targetSdk>=36
+                // forces edge-to-edge, triggering this before QtActivity finishes
+                // loading libqdomyos-zwift in its background thread).
+                try {
+                    onInsetsChanged(top, bottom, left, right, waterfallTop, waterfallBottom, waterfallLeft, waterfallRight);
+                } catch (UnsatisfiedLinkError ignored) {
+                    // Qt not ready yet; insets will be re-applied once Qt initializes.
+                }
 
                 return v.onApplyWindowInsets(insets);
             }
         });
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        dispatchOAuthCallback(intent);
     }
 
     // This method is still needed for the QML check

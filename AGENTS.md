@@ -1,61 +1,12 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 QDomyos-Zwift is a Qt-based application that bridges fitness equipment (treadmills, bikes, ellipticals, rowers) with virtual training platforms like Zwift. It acts as a Bluetooth intermediary, connecting physical equipment to fitness apps while providing enhanced features like Peloton integration, power zone training, and workout programs.
 
-## Build System & Commands
-
-### Build Commands
-```bash
-# Build entire project (use subdirs TEMPLATE)
-qmake
-make
-
-# Build specific configurations
-qmake -r  # Recursive build
-make debug    # Debug build
-make release  # Release build
-
-# Clean build
-make clean
-make distclean
-```
-
-### Platform-Specific Builds
-```bash
-# Android
-qmake -spec android-clang
-make
-
-# iOS 
-qmake -spec macx-ios-clang
-make
-
-# Windows (MinGW)
-qmake -spec win32-g++
-make
-```
-
-### Testing
-```bash
-# Build and run tests (requires main app built first)
-cd tst
-qmake
-make
-./qdomyos-zwift-tests
-
-# Run with XML output for CI
-GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests
-```
-
-### No-GUI Mode
-```bash
-# Run application without GUI
-sudo ./qdomyos-zwift -no-gui
-```
+## Rules
+1. Ask, dont assume. If something's unclear, ask before writing a line and no silent guesses about intent, architecture, or requirements.
+2. Simplest solution first and implement the minimum thing that works. No abstractions you didn't request.
+3. Dont touch unrelated code and if a file isnt part of the current task, leave it.
+4. Flag uncertainty explicitly or if you're not confident, say so before proceeding as confidence without certainty causes more damage than admitting a gap.
 
 ## Architecture Overview
 
@@ -217,6 +168,7 @@ tst/Devices/
 - Platform-specific configuration paths
 - Profile system for multiple users/devices
 - Extensive customization options for device behavior
+- `src/settings-catalog.json` is the generated cross-platform catalog of every persistent setting declared in `src/settings.qml` and its settings child QML files. When adding, removing, or renaming any settings QML property, run `python tools/generate_settings_catalog.py` and then `python tools/generate_settings_catalog.py --check`. The check must report exact coverage before the change is complete.
 
 ## External Dependencies
 

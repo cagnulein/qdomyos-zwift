@@ -38,6 +38,8 @@ class TemplateInfoSenderBuilder : public QObject {
     void speed_Minus();
     void inclination_Plus();
     void inclination_Minus();
+    void resistance_Plus();
+    void resistance_Minus();
     int pelotonOffset();
     bool pelotonAskStart();
     void peloton_start_workout();
@@ -87,11 +89,14 @@ class TemplateInfoSenderBuilder : public QObject {
     void onSpeedMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onInclinationPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onInclinationMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onResistancePlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onResistanceMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonStartWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonAbortWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAutoresistance(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onPasteTrainingProgramFromClipboard(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onDeleteTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
@@ -101,6 +106,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onTrainingProgramAutostart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onWorkoutEditorEnv(TemplateInfoSender *tempSender);
     void onWorkoutEditorStart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onWebTranslations(TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetSessionArray(TemplateInfoSender *tempSender);
     void onGetPreviewSessionArray(TemplateInfoSender *tempSender);
