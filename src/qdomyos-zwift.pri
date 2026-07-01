@@ -1022,6 +1022,7 @@ ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
+    ios/ios_bluetooth_background.mm \
     ios/ios_liveactivity.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \

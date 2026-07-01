@@ -5883,12 +5883,10 @@ void homeform::update() {
     // Timer jitter detection (same logic as trainprogram::scheduler)
     QDateTime now = QDateTime::currentDateTime();
     qint64 msecsElapsed = lastUpdateCall.msecsTo(now);
-    
-    // Reset jitter if it's getting too large
-    if (qAbs(currentUpdateJitter) > 5000) {
-        currentUpdateJitter = 0;
+    if (msecsElapsed < 0) {
+        msecsElapsed = 0;
     }
-    
+
     currentUpdateJitter += msecsElapsed - 1000;
     lastUpdateCall = now;
 
@@ -8265,15 +8263,16 @@ void homeform::update() {
                 currentUpdateJitter = 0;
             }
 
-            // Check for timer jitter gaps and fill missing SessionLine records (same logic as trainprogram)
-            if (!Session.empty() && qAbs(currentUpdateJitter) > 1000) {
-                if (currentUpdateJitter > 1000) {
-                    // We are late... fill the missing seconds with SessionLine records
-                    int missedSeconds = currentUpdateJitter / 1000;
+            if (!Session.empty() && currentUpdateJitter > 1000) {
+                const uint32_t lastRecordedTime = Session.last().elapsedTime;
+                const uint32_t elapsedGap = currentElapsedSeconds > lastRecordedTime
+                    ? currentElapsedSeconds - lastRecordedTime - 1
+                    : 0;
+                const int missedSeconds = qMin<int>(currentUpdateJitter / 1000, elapsedGap);
+
+                if (missedSeconds > 0) {
                     qDebug() << "Timer jitter detected: filling" << missedSeconds << "missing SessionLine records";
-                    
-                    // Create SessionLine records for each missed second using current device values
-                    uint32_t lastRecordedTime = Session.last().elapsedTime;
+
                     for (int i = 1; i <= missedSeconds; i++) {
                         SessionLine gapFill(
                             bluetoothManager->device()->currentSpeed().value(), inclination, distance1s,
@@ -8281,34 +8280,21 @@ void homeform::update() {
                             pace, cadence, bluetoothManager->device()->calories().value(),
                             bluetoothManager->device()->elevationGain().value(),
                             bluetoothManager->device()->negativeElevationGain().value(),
-                            lastRecordedTime + i,  // Fill each missing second
+                            lastRecordedTime + i,
                             lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
                             bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount,
                             target_cadence->value().toDouble(), target_power->value().toDouble(), target_resistance->value().toDouble(),
                             target_incline->value().toDouble(), target_speed->value().toDouble(),
                             bluetoothManager->device()->CoreBodyTemperature.value(), bluetoothManager->device()->SkinTemperature.value(), bluetoothManager->device()->HeatStrainIndex.value(),
                             0.0, QList<double>());
-                        
+
                         Session.append(gapFill);
-                        qDebug() << "Added gap-filling SessionLine for elapsed time:" << (lastRecordedTime + i);
                     }
-                    
-                    // Adjust jitter counter (same as trainprogram)
-                    currentUpdateJitter -= (missedSeconds * 1000);
-                } else if (currentUpdateJitter < -1000) {
-                    // We are early (negative jitter)... remove excess SessionLine records
-                    int excessSeconds = (-currentUpdateJitter) / 1000;
-                    qDebug() << "Negative timer jitter detected: removing" << excessSeconds << "excess SessionLine records";
-                    
-                    // Remove excess SessionLine records from the end
-                    for (int i = 0; i < excessSeconds && !Session.empty(); i++) {
-                        Session.removeLast();
-                        qDebug() << "Removed excess SessionLine record";
-                    }
-                    
-                    // Adjust jitter counter (same as trainprogram)
-                    currentUpdateJitter += (excessSeconds * 1000);
                 }
+
+                currentUpdateJitter %= 1000;
+            } else if (currentUpdateJitter < -1000) {
+                currentUpdateJitter %= 1000;
             }
 
             SessionLine s(
