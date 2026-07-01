@@ -274,7 +274,6 @@ keepawakehelper.cpp \
 devices/keepbike/keepbike.cpp \
 devices/kingsmithr1protreadmill/kingsmithr1protreadmill.cpp \
 devices/kingsmithr2treadmill/kingsmithr2treadmill.cpp \
-globals.cpp \
 main.cpp \
 devices/mcfbike/mcfbike.cpp \
 metric.cpp \

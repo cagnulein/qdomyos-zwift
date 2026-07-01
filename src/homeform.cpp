@@ -10505,8 +10505,11 @@ void homeform::sendMail() {
     QString compressedDebugLogForMail;
     QString debugLogMailNote;
     constexpr qint64 maxDebugLogAttachmentBytes = 10 * 1024 * 1024;
-    extern QString logfilename;
-    if (settings.value(QZSettings::log_debug).toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
+    const QStringList logCandidates =
+        QDir(getWritableAppDir()).entryList(QStringList() << QStringLiteral("debug-*.log"), QDir::Files, QDir::Time);
+    const QString logfilename = logCandidates.isEmpty() ? QString() : logCandidates.first();
+    if (settings.value(QZSettings::log_debug).toBool() && !logfilename.isEmpty() &&
+        QFile::exists(getWritableAppDir() + logfilename)) {
         const QString debugLogFileName = getWritableAppDir() + logfilename;
         QFile debugLogFile(debugLogFileName);
         if (debugLogFile.open(QIODevice::ReadOnly)) {
