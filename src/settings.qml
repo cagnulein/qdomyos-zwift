@@ -5,6 +5,7 @@ import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.0
 import Qt.labs.platform 1.1
+import AndroidStatusBar 1.0
 
 //Page {
     ScrollView {
@@ -13,6 +14,10 @@ import Qt.labs.platform 1.1
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
+        anchors.leftMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
+                            AndroidStatusBar.waterfallLeftInset : 0
+        anchors.rightMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
+                             AndroidStatusBar.waterfallRightInset : 0
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane
@@ -1684,16 +1689,21 @@ import Qt.labs.platform 1.1
             property string shortcut_preset_powerzone_7: ""
             property string shortcut_lap: ""
             property string shortcut_start_stop: ""
+            property string garmin_last_seen_cycling_ftp_create_time: ""
+            property string garmin_last_seen_running_ftp_create_time: ""
             property bool horizon_treadmill_omega_z: false
 
             property string app_language: "auto"
 
             property bool garmin_download_workouts_on_start: true
-            property bool trainprogram_clipboard_workout_enabled: false         
+            property bool trainprogram_clipboard_workout_enabled: false
             property string shortcut_stop: ""
             property real trainprogram_warmup_speed: 420
             property real trainprogram_cooldown_speed: 420
             property real trainprogram_rest_speed: 420
+            property bool trainprogram_sound_on_segment: false
+            property bool tile_watt_color_enabled: true
+            property bool tile_pace_color_enabled: true                        
             property bool treadmill_force_running_activity: false
         }
 
@@ -8357,6 +8367,33 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Enable detection of ZWO/XML workouts copied to the clipboard. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Sound on Segment Change")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trainprogram_sound_on_segment
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trainprogram_sound_on_segment = checked
+                    }
+
+                    Label {
+                        text: qsTr("Play a short sound when a training program starts a new row. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

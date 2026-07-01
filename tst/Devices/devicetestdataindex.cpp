@@ -1115,7 +1115,8 @@ void DeviceTestDataIndex::Initialize() {
     // Sole Bike
     RegisterNewDeviceTestData(DeviceIndex::SoleBike)
         ->expectDevice<solebike>()
-        ->acceptDeviceNames({"LCB", "R92"}, DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceNames({"LCB", "LCR", "R92"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith(QZSettings::ftms_bike, QZSettings::default_ftms_bike, "XX");
 
     // Sole Elliptical
     RegisterNewDeviceTestData(DeviceIndex::SoleElliptical)

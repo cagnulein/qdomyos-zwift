@@ -121,6 +121,12 @@ class QZSettings {
     static const QString garmin_last_refresh;
     static const QString default_garmin_last_refresh;
 
+    static const QString garmin_last_seen_cycling_ftp_create_time;
+    static const QString default_garmin_last_seen_cycling_ftp_create_time;
+
+    static const QString garmin_last_seen_running_ftp_create_time;
+    static const QString default_garmin_last_seen_running_ftp_create_time;
+
     static const QString intervalsicu_accesstoken;
     static const QString default_intervalsicu_accesstoken;
 
@@ -1233,6 +1239,12 @@ class QZSettings {
     static const QString tile_cadence_color_enabled;
     static constexpr bool default_tile_cadence_color_enabled = false;
 
+    static const QString tile_watt_color_enabled;
+    static constexpr bool default_tile_watt_color_enabled = true;
+
+    static const QString tile_pace_color_enabled;
+    static constexpr bool default_tile_pace_color_enabled = true;
+
     static const QString tile_peloton_remaining_enabled;
     static constexpr bool default_tile_peloton_remaining_enabled = false;
 
@@ -1769,6 +1781,9 @@ class QZSettings {
 
     static const QString trainprogram_clipboard_workout_enabled;
     static constexpr bool default_trainprogram_clipboard_workout_enabled = false;
+
+    static const QString trainprogram_sound_on_segment;
+    static constexpr bool default_trainprogram_sound_on_segment = false;
 
     static const QString domyos_elliptical_inclination;
     static constexpr bool default_domyos_elliptical_inclination = true;

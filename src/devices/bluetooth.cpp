@@ -1660,6 +1660,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) ||                        // FTMS
 						(b.name().toUpper().startsWith(QStringLiteral("RUN BT-"))) ||                        // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("X-T"))) ||                            // FTMS (X-T421)
+						(b.name().toUpper().startsWith(QStringLiteral("ToputureTP6"))) ||                    // FTMS (ToputureTP6)
                         (b.name().toUpper().startsWith(QStringLiteral("TC-"))) ||                            // FTMS (Focus Fitness Jet 7 iPlus)
                         b.name().toUpper().startsWith(QStringLiteral("TM XP_")) ||                           // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("THERUN  T15")) ||                      // FTMS
@@ -2777,7 +2778,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("LCB")) ||
                         b.name().toUpper().startsWith("LCR") ||
                         b.name().toUpper().startsWith(QStringLiteral("R92"))) &&
-                       !soleBike && filter) {
+                       ftms_bike.contains(QZSettings::default_ftms_bike) && !soleBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 soleBike = new solebike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);

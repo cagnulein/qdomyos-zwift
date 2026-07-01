@@ -9,13 +9,16 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
+import android.graphics.Insets;
 import org.qtproject.qt5.android.bindings.QtActivity;
 
 public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
 
     // Declare the native method that will be implemented in C++
-    private static native void onInsetsChanged(int top, int bottom, int left, int right);
+    private static native void onInsetsChanged(int top, int bottom, int left, int right,
+                                               int waterfallTop, int waterfallBottom,
+                                               int waterfallLeft, int waterfallRight);
     private static native void nativeOnOAuthCallback(String callbackUrl);
 
     private void dispatchOAuthCallback(Intent intent) {
@@ -63,6 +66,10 @@ public class CustomQtActivity extends QtActivity {
                 int bottom = 0;
                 int left = 0;
                 int right = 0;
+                int waterfallTop = 0;
+                int waterfallBottom = 0;
+                int waterfallLeft = 0;
+                int waterfallRight = 0;
 
                 if (density > 0) {
                     // Use system window insets as primary source
@@ -80,6 +87,15 @@ public class CustomQtActivity extends QtActivity {
                             right = Math.max(right, Math.round(cutout.getSafeInsetRight() / density));
                             top = Math.max(top, Math.round(cutout.getSafeInsetTop() / density));
                             bottom = Math.max(bottom, Math.round(cutout.getSafeInsetBottom() / density));
+
+                            // Android 11+ exposes curved waterfall display areas separately from cutouts.
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                Insets waterfallInsets = cutout.getWaterfallInsets();
+                                waterfallLeft = Math.round(waterfallInsets.left / density);
+                                waterfallRight = Math.round(waterfallInsets.right / density);
+                                waterfallTop = Math.round(waterfallInsets.top / density);
+                                waterfallBottom = Math.round(waterfallInsets.bottom / density);
+                            }
                         }
                     }
                 }
@@ -100,6 +116,13 @@ public class CustomQtActivity extends QtActivity {
                               " Bottom:" + cutout.getSafeInsetBottom() + 
                               " Left:" + cutout.getSafeInsetLeft() + 
                               " Right:" + cutout.getSafeInsetRight());
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            Insets waterfallInsets = cutout.getWaterfallInsets();
+                            Log.d(TAG, "Waterfall insets - Top:" + waterfallInsets.top +
+                                  " Bottom:" + waterfallInsets.bottom +
+                                  " Left:" + waterfallInsets.left +
+                                  " Right:" + waterfallInsets.right);
+                        }
                     }
                 }
 
@@ -109,7 +132,7 @@ public class CustomQtActivity extends QtActivity {
                 // forces edge-to-edge, triggering this before QtActivity finishes
                 // loading libqdomyos-zwift in its background thread).
                 try {
-                    onInsetsChanged(top, bottom, left, right);
+                    onInsetsChanged(top, bottom, left, right, waterfallTop, waterfallBottom, waterfallLeft, waterfallRight);
                 } catch (UnsatisfiedLinkError ignored) {
                     // Qt not ready yet; insets will be re-applied once Qt initializes.
                 }

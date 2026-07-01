@@ -115,11 +115,14 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" zoneHR = %1").arg(zoneHR);
     rv += QStringLiteral(" HRmin = %1").arg(HRmin);
     rv += QStringLiteral(" HRmax = %1").arg(HRmax);
+    rv += QStringLiteral(" HRabove = %1").arg(HRabove);
+    rv += QStringLiteral(" HRbelow = %1").arg(HRbelow);
     rv += QStringLiteral(" maxSpeed = %1").arg(maxSpeed);
     rv += QStringLiteral(" minSpeed = %1").arg(minSpeed);
     rv += QStringLiteral(" maxResistance = %1").arg(maxResistance);
     rv += QStringLiteral(" power = %1").arg(power);
     rv += QStringLiteral(" mets = %1").arg(mets);
+    rv += QStringLiteral(" waitForLap = %1").arg(waitForLap);
     rv += QStringLiteral(" latitude = %1").arg(latitude);
     rv += QStringLiteral(" longitude = %1").arg(longitude);
     rv += QStringLiteral(" altitude = %1").arg(altitude);
@@ -194,9 +197,57 @@ void trainprogram::applySpeedFilter() {
     }
 }
 
+int trainprogram::firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep) {
+    if (rows.isEmpty() || candidateStep <= currentStep)
+        return -1;
+
+    const int lastCandidate = qMin(candidateStep, rows.length() - 1);
+    for (int row = currentStep + 1; row <= lastCandidate; row++) {
+        if (rows.at(row).waitForLap)
+            return row;
+    }
+
+    return -1;
+}
+
+bool trainprogram::isBlockingTransitionRow(const trainrow &row) {
+    return row.waitForLap || row.HRabove > 0 || row.HRbelow > 0;
+}
+
+QString blockingTransitionRowDescription(const trainrow &row) {
+    if (row.waitForLap)
+        return QStringLiteral("lap button");
+    if (row.HRabove > 0)
+        return QStringLiteral("heart rate above %1 bpm").arg(row.HRabove);
+    if (row.HRbelow > 0)
+        return QStringLiteral("heart rate below %1 bpm").arg(row.HRbelow);
+    return QStringLiteral("unknown");
+}
+
+int trainprogram::firstBlockingTransitionRow(const QList<trainrow> &rows, int currentStep, int candidateStep) {
+    if (rows.isEmpty() || candidateStep <= currentStep)
+        return -1;
+
+    const int lastCandidate = qMin(candidateStep, rows.length() - 1);
+    for (int row = currentStep + 1; row <= lastCandidate; row++) {
+        if (isBlockingTransitionRow(rows.at(row)))
+            return row;
+    }
+
+    return -1;
+}
+
 uint32_t trainprogram::calculateTimeForRow(int32_t row) {
     if (row >= rows.length())
         return 0;
+
+    if (isBlockingTransitionRow(rows.at(row))) {
+        if (rows.at(row).started.isValid() && rows.at(row).ended.isValid())
+            return rows.at(row).started.secsTo(rows.at(row).ended);
+        if (row == currentStep && rows.at(row).started.isValid())
+            return rows.at(row).started.secsTo(QDateTime::currentDateTime());
+        return 0;
+    }
 
     if (rows.at(row).distance == -1)
         return (rows.at(row).duration.second() + (rows.at(row).duration.minute() * 60) +
@@ -999,6 +1050,58 @@ void trainprogram::scheduler() {
         }
     }
 
+    if (currentStep < rows.length() && isBlockingTransitionRow(rows.at(currentStep))) {
+        const trainrow &row = rows.at(currentStep);
+        if (row.power != -1) {
+            if (lastLapButtonToastStep != currentStep || ticks - lastLapButtonToastTick >= 30) {
+                qDebug() << "Keeping blocking row target power" << row.power
+                         << "row" << currentStep
+                         << "condition" << blockingTransitionRowDescription(row);
+            }
+            emit changePower(row.power);
+        }
+    }
+
+    if (currentStep < rows.length() && rows.at(currentStep).waitForLap) {
+        if (lastLapButtonToastStep != currentStep || ticks - lastLapButtonToastTick >= 30) {
+            QString message = QStringLiteral("Press Lap to continue the workout");
+            if (!rows.at(currentStep).textEvents.isEmpty() &&
+                !rows.at(currentStep).textEvents.first().message.trimmed().isEmpty()) {
+                message += QStringLiteral("\n") + rows.at(currentStep).textEvents.first().message.trimmed();
+            }
+            qDebug() << "Waiting for lap button on row" << currentStep
+                     << "target power" << rows.at(currentStep).power;
+            emit toastRequest(message);
+            lastLapButtonToastStep = currentStep;
+            lastLapButtonToastTick = ticks;
+        }
+        return;
+    }
+
+    if (currentStep < rows.length() && (rows.at(currentStep).HRabove > 0 || rows.at(currentStep).HRbelow > 0)) {
+        if (currentHeartRateEndConditionSatisfied()) {
+            qDebug() << "Heart-rate end condition completed on row" << currentStep
+                     << "current heart" << bluetoothManager->device()->currentHeart().value()
+                     << "above" << rows.at(currentStep).HRabove
+                     << "below" << rows.at(currentStep).HRbelow;
+            advanceBlockingStep(QStringLiteral("Heart rate target reached. Continuing workout."));
+        } else {
+            if (lastLapButtonToastStep != currentStep || ticks - lastLapButtonToastTick >= 30) {
+                const QString message = currentHeartRateEndConditionMessage();
+                qDebug() << "Waiting for heart-rate end condition on row" << currentStep
+                         << "current heart" << bluetoothManager->device()->currentHeart().value()
+                         << "target power" << rows.at(currentStep).power
+                         << "above" << rows.at(currentStep).HRabove
+                         << "below" << rows.at(currentStep).HRbelow
+                         << "message" << message;
+                emit toastRequest(message);
+                lastLapButtonToastStep = currentStep;
+                lastLapButtonToastTick = ticks;
+            }
+        }
+        return;
+    }
+
     uint32_t currentRowLen = calculateTimeForRow(currentStep);
 
     qDebug() << QStringLiteral("trainprogram elapsed ") + QString::number(ticks) + QStringLiteral("current row len") +
@@ -1017,6 +1120,13 @@ void trainprogram::scheduler() {
         if (calculatedElapsedTime >= static_cast<uint32_t>(ticks) && calculatedLine >= currentStep) {
             break;
         }
+    }
+
+    const int blockingBarrier =
+        firstBlockingTransitionRow(rows, currentStep, static_cast<int>(calculatedLine));
+    if (blockingBarrier >= 0) {
+        qDebug() << "Blocking transition row prevents skipping row" << blockingBarrier;
+        calculatedLine = static_cast<uint32_t>(blockingBarrier);
     }
 
     // Check if we've completed all rows
@@ -1047,7 +1157,8 @@ void trainprogram::scheduler() {
                  << QStringLiteral("same iteration") << sameIteration;
 
         if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
-            if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(calculatedLine) > 0) {
+            if (isBlockingTransitionRow(rows.at(calculatedLine)) || calculateTimeForRow(calculatedLine) ||
+                calculateDistanceForRow(calculatedLine) > 0) {
 
                 if(rows.at(currentStep).distance != -1)
                     lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
@@ -1152,7 +1263,9 @@ void trainprogram::scheduler() {
         }
 
         // Check for text events that should be displayed at this time
-        if (currentStep < rows.length() && !rows.at(currentStep).textEvents.isEmpty()) {
+        if (currentStep < rows.length() &&
+            !isBlockingTransitionRow(rows.at(currentStep)) &&
+            !rows.at(currentStep).textEvents.isEmpty()) {
             // Calculate elapsed time in current step
             uint32_t elapsedInCurrentStep = 0;
             if (rows.at(currentStep).started.isValid()) {
@@ -1216,6 +1329,83 @@ bool trainprogram::overridePowerForCurrentRow(double power) {
         return true;
     }
     return false;
+}
+
+bool trainprogram::currentHeartRateEndConditionSatisfied() const {
+    if (!bluetoothManager || !bluetoothManager->device() || currentStep >= rows.length())
+        return false;
+
+    const double currentHeart = bluetoothManager->device()->currentHeart().value();
+    if (currentHeart <= 0)
+        return false;
+
+    const trainrow &row = rows.at(currentStep);
+    if (row.HRabove > 0 && currentHeart > row.HRabove)
+        return true;
+    if (row.HRbelow > 0 && currentHeart < row.HRbelow)
+        return true;
+
+    return false;
+}
+
+QString trainprogram::currentHeartRateEndConditionMessage() const {
+    if (currentStep >= rows.length())
+        return QStringLiteral("Waiting for heart rate target");
+
+    const trainrow &row = rows.at(currentStep);
+    if (row.HRabove > 0)
+        return QStringLiteral("Ride until heart rate is above %1 bpm").arg(row.HRabove);
+    if (row.HRbelow > 0)
+        return QStringLiteral("Ride until heart rate is below %1 bpm").arg(row.HRbelow);
+
+    return QStringLiteral("Waiting for heart rate target");
+}
+
+bool trainprogram::advanceBlockingStep(const QString &toastMessage) {
+    if (!started || currentStep >= rows.length() || !isBlockingTransitionRow(rows.at(currentStep))) {
+        return false;
+    }
+
+    const QDateTime now = QDateTime::currentDateTime();
+    if (!rows.at(currentStep).started.isValid()) {
+        rows[currentStep].started = now;
+    }
+    rows[currentStep].ended = now;
+
+    const qint64 elapsed = qMax<qint64>(0, rows.at(currentStep).started.secsTo(rows.at(currentStep).ended));
+    rows[currentStep].duration = QTime(0, 0, 0, 0).addSecs(static_cast<int>(elapsed));
+
+    qDebug() << "Blocking step completed" << currentStep << "elapsed" << elapsed;
+    if (!toastMessage.isEmpty())
+        emit toastRequest(toastMessage);
+
+    currentStep++;
+    currentStepDistance = 0;
+    lastLapButtonToastStep = -1;
+    lastLapButtonToastTick = ticks;
+
+    if (currentStep >= rows.length()) {
+        end();
+        return true;
+    }
+
+    rows[currentStep].started = now;
+    if (bluetoothManager && bluetoothManager->device()) {
+        lastOdometer = bluetoothManager->device()->odometer();
+    }
+    applyCurrentStepSettings();
+    return true;
+}
+
+bool trainprogram::advanceLapButtonStep() {
+    QMutexLocker locker(&this->schedulerMutex);
+
+    if (!started || currentStep >= rows.length() || !rows.at(currentStep).waitForLap) {
+        return false;
+    }
+
+    qDebug() << "Lap button step completed" << currentStep;
+    return advanceBlockingStep(QStringLiteral("Lap received. Continuing workout."));
 }
 
 void trainprogram::increaseElapsedTime(int32_t i) {
@@ -1563,6 +1753,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows,
             if (row.power >= 0) {
                 stream.writeAttribute(QStringLiteral("power"), QString::number(row.power));
             }
+            if (row.waitForLap) {
+                stream.writeAttribute(QStringLiteral("lapbutton"), QStringLiteral("1"));
+            }
             stream.writeAttribute(QStringLiteral("forcespeed"),
                                   row.forcespeed ? QStringLiteral("1") : QStringLiteral("0"));
             if (row.fanspeed >= 0) {
@@ -1582,6 +1775,12 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows,
             }
             if (row.HRmax >= 0) {
                 stream.writeAttribute(QStringLiteral("hrmax"), QString::number(row.HRmax));
+            }
+            if (row.HRabove >= 0) {
+                stream.writeAttribute(QStringLiteral("hrabove"), QString::number(row.HRabove));
+            }
+            if (row.HRbelow >= 0) {
+                stream.writeAttribute(QStringLiteral("hrbelow"), QString::number(row.HRbelow));
             }
             if (row.loopTimeHR >= 0) {
                 stream.writeAttribute(QStringLiteral("looptimehr"), QString::number(row.loopTimeHR));
@@ -1776,6 +1975,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             if (atts.hasAttribute(QStringLiteral("power"))) {
                 row.power = atts.value(QStringLiteral("power")).toInt();
             }
+            if (atts.hasAttribute(QStringLiteral("lapbutton"))) {
+                row.waitForLap = atts.value(QStringLiteral("lapbutton")).toInt() ? true : false;
+            }
             if (atts.hasAttribute(QStringLiteral("maxspeed"))) {
                 row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toDouble();
             }
@@ -1790,6 +1992,12 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             }
             if (atts.hasAttribute(QStringLiteral("hrmax"))) {
                 row.HRmax = atts.value(QStringLiteral("hrmax")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("hrabove"))) {
+                row.HRabove = atts.value(QStringLiteral("hrabove")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("hrbelow"))) {
+                row.HRbelow = atts.value(QStringLiteral("hrbelow")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("looptimehr"))) {
                 row.loopTimeHR = atts.value(QStringLiteral("looptimehr")).toInt();
@@ -1955,6 +2163,14 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
 }
 
 QTime trainprogram::totalElapsedTime() { return QTime(0, 0, ticks); }
+
+int trainprogram::currentRowElapsedSeconds() const {
+    if (!started || currentStep >= rows.length() || !rows.at(currentStep).started.isValid())
+        return 0;
+
+    const QDateTime end = rows.at(currentStep).ended.isValid() ? rows.at(currentStep).ended : QDateTime::currentDateTime();
+    return static_cast<int>(qMax<qint64>(0, rows.at(currentStep).started.secsTo(end)));
+}
 
 trainrow trainprogram::currentRow() {
     if (started && !rows.isEmpty()) {

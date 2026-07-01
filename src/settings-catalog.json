@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 954,
+  "settingCount": 959,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -4058,6 +4058,32 @@
       "visible": true,
       "defaultValue": false,
       "defaultExpression": "false",
+      "options": null
+    },
+    {
+      "key": "tile_watt_color_enabled",
+      "name": "Enable Watt color",
+      "description": null,
+      "parent": "tile_watt_enabled",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
+      "options": null
+    },
+    {
+      "key": "tile_pace_color_enabled",
+      "name": "Enable Pace color",
+      "description": null,
+      "parent": "tile_pace_enabled",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
       "options": null
     },
     {
@@ -13454,6 +13480,32 @@
       "options": null
     },
     {
+      "key": "garmin_last_seen_cycling_ftp_create_time",
+      "name": "Garmin Last Seen Cycling Ftp Create Time",
+      "description": null,
+      "parent": "Garmin",
+      "type": "string",
+      "qmlType": "string",
+      "control": "text",
+      "visible": false,
+      "defaultValue": "",
+      "defaultExpression": "\"\"",
+      "options": null
+    },
+    {
+      "key": "garmin_last_seen_running_ftp_create_time",
+      "name": "Garmin Last Seen Running Ftp Create Time",
+      "description": null,
+      "parent": "Garmin",
+      "type": "string",
+      "qmlType": "string",
+      "control": "text",
+      "visible": false,
+      "defaultValue": "",
+      "defaultExpression": "\"\"",
+      "options": null
+    },
+    {
       "key": "trainprogram_warmup_speed",
       "name": "Warmup Speed (pace)",
       "description": null,
@@ -13491,6 +13543,8 @@
       "defaultValue": 420.0,
       "defaultExpression": "420",
       "options": null
+    },
+    {
       "key": "shortcut_stop",
       "name": "Stop",
       "description": null,
@@ -13570,6 +13624,19 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null
-    }
+    },
+    {
+      "key": "trainprogram_sound_on_segment",
+      "name": "Sound on Segment Change",
+      "description": "Play a short sound when a training program starts a new row. Default: disabled.",
+      "parent": "Training Program Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null
+    },    
   ]
 }
