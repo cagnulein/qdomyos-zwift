@@ -76,11 +76,15 @@ class ftmsbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    void changePower(int32_t power) override;
     double maxGears() override;
     double minGears() override;
+    void enableManualResistancePowerAdjustment(resistance_t resistance);
 
-    // true because or the bike supports it by hardware or because QZ is emulating this in this module
-    bool ergModeSupportedAvailableBySoftware() override { return true; }
+    // Most FTMS bikes can use QZ's software ERG emulation, but FS-YK devices
+    // should stay on direct resistance control because it doesn't send the current resistance value and it conflicts
+    // with the PID HR method
+    bool ergModeSupportedAvailableBySoftware() override { return !FS_YK; }
     bool inclinationAvailableBySoftware() override { return !resistance_lvl_mode; }
 
   private:
@@ -134,6 +138,9 @@ class ftmsbike : public bike {
 
     bool powerForced = false;
     resistance_t m_lastErgResistance = 0;
+    bool manualResistancePowerAdjustmentActive = false;
+    bool manualResistancePowerAdjustmentToastShown = false;
+    resistance_t manualResistanceTarget = 1;
 
     bool resistance_lvl_mode = false;
     bool resistance_received = false;
@@ -185,6 +192,7 @@ class ftmsbike : public bike {
     bool SPEEDRACEX = false;
     bool USDC_D700 = false;
     bool TOPUTURE_TEB5 = false;
+    bool SMARTBIKE_3DIGIT = false;
 
     uint8_t secondsToResetTimer = 5;
 

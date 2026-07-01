@@ -105,10 +105,14 @@ void horizontreadmill::btinit() {
     horizon_treadmill_profile_users.append(
         settings.value(QZSettings::horizon_treadmill_profile_user5, QZSettings::default_horizon_treadmill_profile_user5)
             .toString());
+    bool horizon_treadmill_omega_z =
+        settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
     bool horizon_paragon_x =
-        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() || horizon_treadmill_omega_z;
     bool miles_unit =
         settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    static const QBluetoothUuid merachUnlockCharId(
+        QStringLiteral("59554c55-0000-6666-8888-4d4552414348"));
 
     uint8_t initData01_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
 
@@ -882,6 +886,14 @@ void horizontreadmill::btinit() {
         QThread::msleep(500);
     }
 
+    if (MERACH_TREADMILL && gattMerachUnlockService && gattWriteCharMerachUnlock.isValid() &&
+        gattWriteCharMerachUnlock.uuid() == merachUnlockCharId) {
+        uint8_t unlock[] = {0xaa, 0x01, 0x00, 0x01, 0x55};
+        writeCharacteristic(gattMerachUnlockService, gattWriteCharMerachUnlock, unlock, sizeof(unlock),
+                            QStringLiteral("merachUnlock"), false, false);
+        QThread::msleep(200);
+    }
+
     if(wellfit_treadmill || SW_TREADMILL || YPOO_MINI_PRO) {
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
@@ -917,10 +929,12 @@ void horizontreadmill::update() {
                /*initDone*/) {
 
         QSettings settings;
+        bool horizon_treadmill_omega_z =
+            settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
         bool horizon_treadmill_7_8 =
-            settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
+            settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool() || horizon_treadmill_omega_z;
         bool horizon_paragon_x =
-            settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+            settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() || horizon_treadmill_omega_z;
         bool treadmill_direct_distance =
             settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
         update_metrics(!powerReceivedFromPowerSensor, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
@@ -973,7 +987,9 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            requestInclination = treadmillInclinationOverrideReverse(requestInclination);
+            if (!FS_TREADMILL || !areInclinationSettingsDefault()) {
+                requestInclination = treadmillInclinationOverrideReverse(requestInclination);
+            }
 
             // this treadmill doesn't send the incline, so i'm forcing it manually
             if(schwinn_810_treadmill || FIT_TM) {
@@ -994,7 +1010,7 @@ void horizontreadmill::update() {
                 requestInclination = 1.0;
 
             if (requestInclination != currentInclination().value() && requestInclination >= minInclination &&
-                requestInclination <= 15) {
+                requestInclination <= maxInclination) {
                
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
@@ -1196,8 +1212,10 @@ bool horizontreadmill::checkIfForceSpeedNeeding(double requestSpeed) {
 void horizontreadmill::forceSpeed(double requestSpeed) {
     QSettings settings;
     const double miles_conversion = 0.621371;
+    bool horizon_treadmill_omega_z =
+        settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
     bool horizon_paragon_x =
-        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() || horizon_treadmill_omega_z;
 
     if (gattCustomService) {
         if (!horizon_paragon_x) {
@@ -1248,7 +1266,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1279,8 +1297,10 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
 // example frame: 55aa3800030603005d0b0a0000
 void horizontreadmill::forceIncline(double requestIncline) {
     QSettings settings;
+    bool horizon_treadmill_omega_z =
+        settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
     bool horizon_paragon_x =
-        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() || horizon_treadmill_omega_z;
 
     if(tunturi_t60_treadmill)
         Inclination = treadmillInclinationOverride(requestIncline);
@@ -1324,7 +1344,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE) {
+        if(!anplus_treadmill && !trx3500_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1833,7 +1853,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
         bool horizon_treadmill_7_0_at_24 = settings.value(QZSettings::horizon_treadmill_7_0_at_24, QZSettings::default_horizon_treadmill_7_0_at_24).toBool();
-        bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
+        bool horizon_treadmill_omega_z = settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
+        bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool() || horizon_treadmill_omega_z;
         bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
         lastPacket = newValue;
 
@@ -1880,9 +1901,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     // this treadmill sends the speed in miles when miles_unit is enabled!
                     speed /= miles_conversion;
                 }
-            } else if(horizon_treadmill_7_8 && miles) {
-                // this treadmill sends the speed in miles!
-                speed /= miles_conversion;
             } else if(THERUN_T15 && miles) {
                 // this treadmill sends the speed in miles when miles_unit is enabled!
                 speed /= miles_conversion;
@@ -2314,9 +2332,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    if (Speed.value() > 0)
+    if (Speed.value() > 0) {
+        lastNonZeroSpeedTimestamp = QDateTime::currentMSecsSinceEpoch();
         lastStart = 0;
-    else
+    } else
         lastStop = 0;
 
     if (distanceEval) {
@@ -2333,6 +2352,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QSettings settings;
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     QBluetoothUuid _gattWriteCharCustomService((quint16)0xFFF3);
+    QBluetoothUuid _gattWriteCharMerachUnlock(QStringLiteral("59554c55-0000-6666-8888-4d4552414348"));
     QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
@@ -2399,7 +2419,15 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }*/
 
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService && !BOWFLEX_T9 && !MX_TM &&
+                if (MERACH_TREADMILL &&
+                    (c.properties() & QLowEnergyCharacteristic::Write) &&
+                    c.uuid() == _gattWriteCharMerachUnlock) {
+                    qDebug() << QStringLiteral("Merach unlock Control Point found");
+                    gattWriteCharMerachUnlock = c;
+                    gattMerachUnlockService = s;
+                } else if (c.properties() & QLowEnergyCharacteristic::Write &&
+                    c.uuid() == _gattWriteCharCustomService &&
+                    !BOWFLEX_T9 && !MX_TM &&
                     !settings
                          .value(QZSettings::horizon_treadmill_force_ftms,
                                 QZSettings::default_horizon_treadmill_force_ftms)
@@ -2442,9 +2470,12 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate &&
-                                                                                                                      // if it's a FTMS treadmill and has FTMS and/or RSC service too
-                           ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid()))
-                             && !gattCustomService))) {
+                           // FTMS indications, plus the Merach unlock indication characteristic.
+                           (((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid() &&
+                              !gattCustomService) ||
+                             (MERACH_TREADMILL && gattMerachUnlockService &&
+                              s->serviceUuid() == gattMerachUnlockService->serviceUuid() &&
+                              c.uuid() == _gattWriteCharMerachUnlock)))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
@@ -2530,6 +2561,9 @@ void horizontreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor,
         notificationSubscribed--;
 
     if (!notificationSubscribed) {
+        if(homeform::singleton()) {
+            homeform::singleton()->setToastRequested("Treadmill ready");
+        }
         initRequest = true;
         emit connectedAndDiscovered();
     }
@@ -2736,6 +2770,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("THERUN  T15"))) {
             qDebug() << QStringLiteral("THERUN T15 treadmill found");
             THERUN_T15 = true;
+        } else if (device.name().startsWith(QStringLiteral("FS-"))) {
+            qDebug() << QStringLiteral("FS- treadmill found");
+            FS_TREADMILL = true;
+            maxInclination = 40.0;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
@@ -2841,6 +2879,13 @@ int horizontreadmill::GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count, int crc
 bool horizontreadmill::autoPauseWhenSpeedIsZero() {
     if(disableAutoPause == true)
         return false;
+
+    // Merach sometimes emits a single transient FTMS speed=0 frame while the treadmill is still running.
+    // Without a small debounce QZ treats that glitch as a real pause and starts blinking the start button.
+    if (MERACH_TREADMILL && lastNonZeroSpeedTimestamp != 0 &&
+        QDateTime::currentMSecsSinceEpoch() <= (lastNonZeroSpeedTimestamp + 3000))
+        return false;
+
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
         return true;
     else
@@ -2849,10 +2894,12 @@ bool horizontreadmill::autoPauseWhenSpeedIsZero() {
 
 bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
     QSettings settings;
+    bool horizon_treadmill_omega_z =
+        settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
     bool horizon_treadmill_7_8 =
-        settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
+        settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool() || horizon_treadmill_omega_z;
     bool horizon_paragon_x =
-        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool() || horizon_treadmill_omega_z;
 
     // the horizon starts with a strange speed, since that i can auto start (maybe the best way to solve this
     // is to understand why it's starting with this strange speed)

@@ -111,6 +111,58 @@ public:
      * Verifies that time-based pace.zone targets serialize to speed bounds and forcespeed.
      */
     void test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
+
+    /**
+     * @brief Test Garmin zoneNumber-only power/HR targets from training plans.
+     *
+     * Verifies Garmin power.zone/heart.rate.zone payloads that provide zoneNumber
+     * without numeric target bounds still serialize as QZ workout targets.
+     */
+    void test_workoutDetailsJson_zoneNumberTargetsSerialize();
+
+    /**
+     * @brief Test Garmin lap-button steps from training plans.
+     *
+     * Verifies that endCondition "lap.button" is serialized as an explicit wait-for-lap row.
+     */
+    void test_workoutDetailsJson_lapButtonStepWaitsForLap();
+
+    /**
+     * @brief Test Garmin heart-rate threshold end conditions.
+     *
+     * Verifies Above/Below bpm steps are serialized as blocking QZ workout rows.
+     */
+    void test_workoutDetailsJson_heartRateThresholdEndConditionsSerialize();
+
+    /**
+     * @brief Test Garmin power-curve targets.
+     *
+     * Verifies power.curve steps use downloaded curve data, with FTP as fallback.
+     */
+    void test_workoutDetailsJson_powerCurveTargetsSerialize();
+
+    /**
+     * @brief Test nested RepeatGroupDTO (e.g. 2x12x10s sprint) is correctly unrolled.
+     *
+     * Verifies that when a RepeatGroupDTO contains another RepeatGroupDTO as an inner step,
+     * the outer repeat is unrolled (since loadXML does not support nested <repeat> blocks)
+     * while the inner repeat is preserved as a <repeat times="N"> block.
+     * Regression test for the bug where the inner repeat was passed to appendGarminStep()
+     * and produced an empty <row/> with no attributes.
+     */
+    void test_workoutDetailsJson_nestedRepeatGroupIsUnrolled();
+
+    /**
+     * @brief Test calendar workout filenames include sport suffixes.
+     *
+     * Verifies that same-day run and ride workouts with the same title do not collide.
+     */
+    void test_workoutFileName_appendsSportSuffix();
+
+    /**
+     * @brief Test calendar workout filenames are sanitized.
+     */
+    void test_workoutFileName_sanitizesUnsafeCharacters();
 };
 
 // Register individual tests with Google Test
@@ -156,6 +208,34 @@ TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogDistanceWorkoutUsesDistanceOnl
 
 TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogEasyRunPaceZoneSetsSpeedAndForceSpeed) {
     this->test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonZoneNumberTargetsSerialize) {
+    this->test_workoutDetailsJson_zoneNumberTargetsSerialize();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonLapButtonStepWaitsForLap) {
+    this->test_workoutDetailsJson_lapButtonStepWaitsForLap();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonHeartRateThresholdEndConditionsSerialize) {
+    this->test_workoutDetailsJson_heartRateThresholdEndConditionsSerialize();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonPowerCurveTargetsSerialize) {
+    this->test_workoutDetailsJson_powerCurveTargetsSerialize();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonNestedRepeatGroupIsUnrolled) {
+    this->test_workoutDetailsJson_nestedRepeatGroupIsUnrolled();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutFileNameAppendsSportSuffix) {
+    this->test_workoutFileName_appendsSportSuffix();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutFileNameSanitizesUnsafeCharacters) {
+    this->test_workoutFileName_sanitizesUnsafeCharacters();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H
