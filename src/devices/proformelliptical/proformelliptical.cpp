@@ -21,6 +21,9 @@ proformelliptical::proformelliptical(bool noWriteResistance, bool noHeartService
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    QSettings settings;
+    nordictrack_airglide_le =
+        settings.value(QZSettings::nordictrack_airglide_le, QZSettings::default_nordictrack_airglide_le).toBool();
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &proformelliptical::update);
     refresh->start(200ms);
@@ -67,7 +70,62 @@ void proformelliptical::update() {
         QSettings settings;
         update_metrics(true, watts());
 
-        {
+        if (nordictrack_airglide_le) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00,
+                                   0x0d, 0x3e, 0x94, 0x33, 0x00, 0x10, 0x40, 0x50, 0x00, 0x80};
+            uint8_t noOpData3[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x05, 0x52, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x06, 0x15, 0x02, 0x00,
+                                   0x0f, 0x80, 0x02, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData6[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x90, 0x00, 0x10, 0x8e, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
+                if (requestResistance != -1) {
+                    if (requestResistance < 0)
+                        requestResistance = 0;
+                    if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
+                        requestResistance <= 22) {
+                        emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                        forceResistance(requestResistance);
+                    }
+                    requestResistance = -1;
+                }
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+                if (requestInclination != -100) {
+                    const double minInclination = -5.0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= minInclination &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x13, 0x13, 0x02, 0x00,
                                    0x0d, 0x3c, 0x9e, 0x31, 0x00, 0x00, 0x40, 0x40, 0x00, 0x80};
@@ -95,7 +153,6 @@ void proformelliptical::update() {
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                         requestInclination <= 15) {
                         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                        // forceIncline(requestInclination);
                     }
                     requestInclination = -100;
                 }
@@ -140,8 +197,32 @@ void proformelliptical::update() {
     }
 }
 
+void proformelliptical::forceIncline(double requestIncline) {
+    const uint8_t res[] = {0xfe, 0x02, 0x0d, 0x02};
+    writeCharacteristic((uint8_t *)res, sizeof(res), QStringLiteral("incline"), false, false);
+
+    int16_t incValue = (int16_t)qRound(requestIncline * 100.0);
+    uint8_t low = (uint8_t)(incValue & 0xFF);
+    uint8_t high = (uint8_t)(((uint16_t)incValue >> 8) & 0xFF);
+    uint8_t incCmd[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                        0x02, low, high, 0x00, (uint8_t)(low + high + 0x14), 0x00, 0x00, 0x00, 0x00, 0x00};
+    writeCharacteristic(incCmd, sizeof(incCmd), QStringLiteral("incline_airglide"), false, true);
+}
+
+void proformelliptical::forceResistance(resistance_t requestResistance) {
+    const uint8_t res[] = {0xfe, 0x02, 0x0d, 0x02};
+    writeCharacteristic((uint8_t *)res, sizeof(res), QStringLiteral("resistance"), false, false);
+
+    uint16_t resValue = (uint16_t)((requestResistance * 454) - 1);
+    uint8_t low = (uint8_t)(resValue & 0xFF);
+    uint8_t high = (uint8_t)((resValue >> 8) & 0xFF);
+    uint8_t resCmd[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                        0x04, low, high, 0x00, (uint8_t)(low + high + 0x16), 0x00, 0x00, 0x00, 0x00, 0x00};
+    writeCharacteristic(resCmd, sizeof(resCmd), QStringLiteral("resistance_airglide"), false, true);
+}
+
 void proformelliptical::changeInclinationRequested(double grade, double percentage) {
-    if (percentage < 0)
+    if (!nordictrack_airglide_le && percentage < 0)
         percentage = 0;
     changeInclination(grade, percentage);
 }
@@ -276,6 +357,69 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
 }
 
 void proformelliptical::btinit() {
+
+    if (nordictrack_airglide_le) {
+        uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x80, 0x8a,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x06, 0x04, 0x88, 0x92,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData5[] = {0xfe, 0x02, 0x0b, 0x02};
+        uint8_t initData6[] = {0xff, 0x0b, 0x02, 0x04, 0x02, 0x07, 0x02, 0x07, 0x82, 0x00,
+                               0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData7[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t initData8[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
+                               0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData9[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData10[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t initData11[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x06, 0x28, 0x90, 0x07,
+                                0x01, 0xa5, 0x88, 0x71, 0x58, 0x4d, 0x30, 0x21, 0x10, 0x05};
+        uint8_t initData12[] = {0x01, 0x12, 0x08, 0xf1, 0xf8, 0xfd, 0xe0, 0xe1, 0xe0, 0xe5,
+                                0xe8, 0x11, 0x18, 0x0d, 0x30, 0x21, 0x50, 0x45, 0x68, 0x91};
+        uint8_t initData13[] = {0xff, 0x08, 0xb8, 0xdd, 0xc0, 0xa0, 0x02, 0x00, 0x00, 0xd7,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData14[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t initData15[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x06, 0x15, 0x02, 0x0e,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData16[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3c, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData17[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t initData18[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x0c,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData19[] = {0xff, 0x05, 0x00, 0x80, 0x01, 0x00, 0xa8, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData20[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x06, 0x15, 0x02, 0x00,
+                                0x0f, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x4c, 0x00, 0x00, 0xe0};
+        uint8_t initData21[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x08, 0x74, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData22[] = {0xfe, 0x02, 0x10, 0x02};
+        uint8_t initData23[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x06, 0x0c, 0x02, 0x04,
+                                0x00, 0x00, 0x00, 0x02, 0xe8, 0x1c, 0x00, 0x1e, 0x00, 0x00};
+
+        uint8_t *initFrames[] = {initData1,  initData2,  initData1,  initData3,  initData1,  initData4,
+                                 initData5,  initData6,  initData7,  initData8,  initData1,  initData9,
+                                 initData10, initData11, initData12, initData13, initData14, initData15,
+                                 initData16, initData17, initData18, initData19, initData14, initData20,
+                                 initData21, initData22, initData23, initData14, initData15, initData16};
+        uint8_t initFrameSizes[] = {sizeof(initData1),  sizeof(initData2),  sizeof(initData1),  sizeof(initData3),
+                                    sizeof(initData1),  sizeof(initData4),  sizeof(initData5),  sizeof(initData6),
+                                    sizeof(initData7),  sizeof(initData8),  sizeof(initData1),  sizeof(initData9),
+                                    sizeof(initData10), sizeof(initData11), sizeof(initData12), sizeof(initData13),
+                                    sizeof(initData14), sizeof(initData15), sizeof(initData16), sizeof(initData17),
+                                    sizeof(initData18), sizeof(initData19), sizeof(initData14), sizeof(initData20),
+                                    sizeof(initData21), sizeof(initData22), sizeof(initData23), sizeof(initData14),
+                                    sizeof(initData15), sizeof(initData16)};
+
+        for (uint8_t i = 0; i < sizeof(initFrameSizes); i++) {
+            writeCharacteristic(initFrames[i], initFrameSizes[i], QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+        }
+        initDone = true;
+        return;
+    }
 
     {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};

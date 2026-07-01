@@ -1706,6 +1706,7 @@ import AndroidStatusBar 1.0
             property bool tile_pace_color_enabled: true                        
             property bool treadmill_force_running_activity: false
             property bool proform_treadmill_105_cst: false
+            property bool nordictrack_airglide_le: false
         }
 
 
@@ -11749,6 +11750,19 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrack_se7i = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("NordicTrack Airglide LE")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrack_airglide_le
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrack_airglide_le = checked; window.settings_restart_to_apply = true; }
                             }
                             RowLayout {
                                 spacing: 10

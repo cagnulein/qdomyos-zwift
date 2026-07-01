@@ -45,6 +45,7 @@ class proformelliptical : public elliptical {
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    void forceResistance(resistance_t requestResistance);
     void startDiscover();
     void sendPoll();
     void forceIncline(double incline);
@@ -69,6 +70,7 @@ class proformelliptical : public elliptical {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool nordictrack_airglide_le = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
