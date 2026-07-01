@@ -47,6 +47,7 @@ signals:
 
 private:
     bool running = false;
+    qint64 lastInitializeAttempt = 0;
     QMutex mutex;
 
 #ifdef Q_OS_ANDROID

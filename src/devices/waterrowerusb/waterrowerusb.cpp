@@ -29,12 +29,18 @@ void waterrowerusbThread::run() {
     running = true;
     mutex.unlock();
 
-#ifdef Q_OS_ANDROID
-    initializeWaterRower();
-#endif
-
     while (running) {
 #ifdef Q_OS_ANDROID
+        bool isConnected = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/WaterRowerBridge",
+            "isConnected",
+            "()Z");
+
+        const qint64 now = QDateTime::currentMSecsSinceEpoch();
+        if (!isConnected && (lastInitializeAttempt == 0 || now - lastInitializeAttempt > 5000)) {
+            lastInitializeAttempt = now;
+            initializeWaterRower();
+        }
         processWaterRowerData();
 #endif
         QThread::msleep(200); // Poll every 200ms

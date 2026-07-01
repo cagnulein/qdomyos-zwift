@@ -1,6 +1,8 @@
 package org.cagnulen.qdomyoszwift;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 
@@ -30,6 +32,30 @@ public class WaterRowerBridge {
     private static double lastWatts = 0;
     private static double lastCalories = 0;
     private static long lastDataUpdate = 0;
+
+    private static boolean isWaterRowerDevice(UsbDevice device) {
+        if (device == null || device.getVendorId() != 1240) {
+            return false;
+        }
+
+        int productId = device.getProductId();
+        if (productId == 10 || productId == 223) {
+            return true;
+        }
+
+        String productName = device.getProductName();
+        return productName != null && productName.toUpperCase().contains("WR-S");
+    }
+
+    private static String describeDevice(UsbDevice device) {
+        if (device == null) {
+            return "null";
+        }
+
+        return device.getDeviceName() + " vendor=" + device.getVendorId() +
+                " product=" + device.getProductId() +
+                " name=" + device.getProductName();
+    }
     
     private static final IWaterRowerConnectionListener connectionListener = new IWaterRowerConnectionListener() {
         @Override
@@ -108,15 +134,33 @@ public class WaterRowerBridge {
         QLog.d(TAG, "getDevicePath: searching for WaterRower device");
         UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+        QLog.d(TAG, "getDevicePath: UsbManager device count " + deviceList.size());
         Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
         while(deviceIterator.hasNext()){
             UsbDevice device = deviceIterator.next();
-            QLog.d(TAG, "getDevicePath: found device " + device.getDeviceName() + " " + device.getVendorId() + " " + device.getProductId());
-            if (device.getVendorId() == 1240 && device.getProductId() == 10) {
-                QLog.d(TAG, "getDevicePath: found WaterRower device at " + device.getDeviceName());
+            QLog.d(TAG, "getDevicePath: found device " + describeDevice(device) +
+                    " permission=" + manager.hasPermission(device));
+            if (isWaterRowerDevice(device)) {
+                QLog.d(TAG, "getDevicePath: found WaterRower device from UsbManager at " + device.getDeviceName());
                 return device.getDeviceName();
             }
         }
+
+        if (context instanceof Activity) {
+            Intent intent = ((Activity) context).getIntent();
+            if (intent != null && UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(intent.getAction())) {
+                UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                QLog.d(TAG, "getDevicePath: USB attach intent device " + describeDevice(device) +
+                        " permission=" + (device != null && manager.hasPermission(device)));
+                if (isWaterRowerDevice(device)) {
+                    QLog.d(TAG, "getDevicePath: found WaterRower device from USB attach intent at " + device.getDeviceName());
+                    return device.getDeviceName();
+                }
+            } else {
+                QLog.d(TAG, "getDevicePath: no USB attach intent available");
+            }
+        }
+
         QLog.d(TAG, "getDevicePath: WaterRower device not found");
         return "";
     }

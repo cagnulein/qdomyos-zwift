@@ -928,6 +928,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(csafeRower);
 
             } else if (waterrowerUSBEnabled && !waterRowerUSB) {
+                qDebug() << QStringLiteral("WaterRower USB enabled, creating USB rower device");
                 this->stopDiscovery();
                 waterRowerUSB = new waterrowerusb(noWriteResistance, noHeartService, false);
                 emit deviceConnected(b);
@@ -938,7 +939,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(waterRowerUSB);
-
             } else if (!csafeellipticalSerialPort.isEmpty() && !csafeElliptical) {
                 this->stopDiscovery();
                 // csafeElliptical = new csafeelliptical(noWriteResistance, noHeartService, false);
