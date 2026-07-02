@@ -4369,6 +4369,8 @@ bluetoothdevice *bluetooth::device() {
         return concept2Skierg;
     } else if (smartrowRower) {
         return smartrowRower;
+    } else if (waterRowerUSB) {
+        return waterRowerUSB;
     } else if (yesoulBike) {
         return yesoulBike;
     } else if (proformBike) {
