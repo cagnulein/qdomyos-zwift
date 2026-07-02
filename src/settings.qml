@@ -3461,7 +3461,14 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enable OpenBikeControl")
                                 checked: settings.mywhoosh_link_enabled
                                 Layout.fillWidth: true
-                                onClicked: { settings.mywhoosh_link_enabled = checked; window.settings_restart_to_apply = true; }
+                                onClicked: {
+                                    settings.mywhoosh_link_enabled = checked;
+                                    if (checked && settings.dircon_yes) {
+                                        settings.dircon_yes = false;
+                                        toast.show(qsTr("OpenBikeControl enabled: Wahoo direct connect disabled."));
+                                    }
+                                    window.settings_restart_to_apply = true;
+                                }
                             }
 
                             Label {
