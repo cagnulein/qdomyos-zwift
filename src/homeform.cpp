@@ -210,19 +210,75 @@ double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2
     return 4.0 + ((percentHeartRate - z4) / (top - z4));
 }
 
+quint32 crc32ForGzip(const QByteArray &data) {
+    quint32 crc = 0xffffffffU;
+    for (const char byte : data) {
+        crc ^= static_cast<quint8>(byte);
+        for (int bit = 0; bit < 8; ++bit) {
+            crc = (crc >> 1) ^ (0xedb88320U & (0U - (crc & 1U)));
+        }
+    }
+    return crc ^ 0xffffffffU;
+}
+
+void appendLittleEndian32(QByteArray *data, quint32 value) {
+    data->append(static_cast<char>(value & 0xffU));
+    data->append(static_cast<char>((value >> 8) & 0xffU));
+    data->append(static_cast<char>((value >> 16) & 0xffU));
+    data->append(static_cast<char>((value >> 24) & 0xffU));
+}
+
+QByteArray gzipCompress(const QByteArray &data, bool *ok) {
+    if (ok) {
+        *ok = false;
+    }
+
+    const QByteArray qtCompressed = qCompress(data, 9);
+    if (qtCompressed.size() < 11) {
+        return QByteArray();
+    }
+
+    QByteArray gzip;
+    gzip.reserve(qtCompressed.size() + 18);
+    gzip.append('\x1f');
+    gzip.append('\x8b');
+    gzip.append('\x08');
+    gzip.append('\x00');
+    appendLittleEndian32(&gzip, 0);
+    gzip.append('\x02');
+    gzip.append('\xff');
+
+    gzip.append(qtCompressed.constData() + 6, qtCompressed.size() - 10);
+    appendLittleEndian32(&gzip, crc32ForGzip(data));
+    appendLittleEndian32(&gzip, static_cast<quint32>(data.size()));
+
+    if (ok) {
+        *ok = true;
+    }
+    return gzip;
+}
+
 class MailSenderThread : public QThread {
   public:
-    MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail)
-        : message(message), filenameJPG(filenameJPG), chartImagesFilenamesForMail(chartImagesFilenamesForMail) {}
+    MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail,
+                     const QList<QString> &temporaryFilesForMail, QObject *toastTarget)
+        : message(message), filenameJPG(filenameJPG), chartImagesFilenamesForMail(chartImagesFilenamesForMail),
+          temporaryFilesForMail(temporaryFilesForMail), toastTarget(toastTarget) {}
 
   protected:
     void run() override {
+        auto showToast = [this](const QString &msg) {
+            QMetaObject::invokeMethod(toastTarget, "setToastRequested", Qt::QueuedConnection,
+                                     Q_ARG(QString, msg));
+        };
+
 #ifdef SMTP_SERVER
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
         SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
 #else
 #pragma message "stmp server is unset!"
+        qDebug() << QStringLiteral("SMTP server is unset, email not sent");
         SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
         delete message;
         return;
@@ -236,6 +292,7 @@ class MailSenderThread : public QThread {
         smtp.setUser(STRINGIFY(SMTP_USERNAME));
 #else
 #pragma message "smtp username is unset!"
+        qDebug() << QStringLiteral("SMTP username is unset, email not sent");
         delete message;
         return;
 #endif
@@ -245,25 +302,44 @@ class MailSenderThread : public QThread {
         smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
 #else
 #pragma message "smtp password is unset!"
+        qDebug() << QStringLiteral("SMTP password is unset, email not sent");
         delete message;
         return;
 #endif
+
+        // responseTimeout: time to wait for each SMTP command reply (including
+        // "250 OK" after DATA). 30s gives Brevo time to accept a large attachment
+        // without the client timing out and retrying (which would send a duplicate).
+        // sendMessageTimeout: time allowed for the raw socket write of the body; 120s
+        // covers a 10MB attachment even on a slow mobile connection.
+        smtp.setResponseTimeout(30000);
+        smtp.setSendMessageTimeout(120000);
+
+        showToast(QObject::tr("Sending workout email..."));
 
         bool r = false;
         uint8_t i = 0;
         while (!r) {
             qDebug() << "trying to send email #" << i;
-            r = smtp.connectToHost();
-            r = smtp.login();
-            r = smtp.sendMail(*message);
+            r = smtp.connectToHost() && smtp.login() && smtp.sendMail(*message);
             if (i++ == 3)
                 break;
+            if (!r)
+                smtp.quit();
         }
         smtp.quit();
+
+        if (r)
+            showToast(QObject::tr("Workout email sent successfully"));
+        else
+            showToast(QObject::tr("Failed to send workout email"));
 
         if (!filenameJPG.isEmpty())
             QFile::remove(filenameJPG);
         for (const QString &f : qAsConst(chartImagesFilenamesForMail)) {
+            QFile::remove(f);
+        }
+        for (const QString &f : qAsConst(temporaryFilesForMail)) {
             QFile::remove(f);
         }
         delete message;
@@ -273,6 +349,8 @@ class MailSenderThread : public QThread {
     MimeMessage *message;
     QString filenameJPG;
     QList<QString> chartImagesFilenamesForMail;
+    QList<QString> temporaryFilesForMail;
+    QObject *toastTarget;
 };
 } // namespace
 
@@ -5626,6 +5704,7 @@ void homeform::Start_inner(bool send_event_to_device) {
             }
             Session.clear();
             chartImagesFilenames.clear();
+            mailSent = false;
 
 #ifdef Q_OS_IOS
             // due to #857
@@ -10237,6 +10316,12 @@ void homeform::sendMail() {
         return;
     }
 
+    if (mailSent) {
+        qDebug() << QStringLiteral("sendMail already requested, ignoring duplicate");
+        return;
+    }
+    mailSent = true;
+
     if (miles) {
         unit_conversion = 0.621371; // clang, don't touch it!
         weightLossUnit = QStringLiteral("Oz");
@@ -10437,6 +10522,56 @@ void homeform::sendMail() {
     textMessage += QStringLiteral("\n\nSMTP server: ") + QString(STRINGIFY(SMTP_SERVER));
 #endif
 
+    QStringList temporaryFilesForMail;
+    QString compressedDebugLogForMail;
+    QString debugLogMailNote;
+    constexpr qint64 maxDebugLogAttachmentBytes = 10 * 1024 * 1024;
+    const QStringList logCandidates =
+        QDir(getWritableAppDir()).entryList(QStringList() << QStringLiteral("debug-*.log"), QDir::Files, QDir::Time);
+    const QString logfilename = logCandidates.isEmpty() ? QString() : logCandidates.first();
+    if (settings.value(QZSettings::log_debug).toBool() && !logfilename.isEmpty() &&
+        QFile::exists(getWritableAppDir() + logfilename)) {
+        const QString debugLogFileName = getWritableAppDir() + logfilename;
+        QFile debugLogFile(debugLogFileName);
+        if (debugLogFile.open(QIODevice::ReadOnly)) {
+            bool gzipOk = false;
+            const QByteArray compressedDebugLog = gzipCompress(debugLogFile.readAll(), &gzipOk);
+            debugLogFile.close();
+
+            const QString compressedDebugLogFileName =
+                getWritableAppDir() + QUuid::createUuid().toString(QUuid::WithoutBraces) + QStringLiteral("_") +
+                QFileInfo(debugLogFileName).fileName() + QStringLiteral(".gz");
+            QFile compressedDebugLogFile(compressedDebugLogFileName);
+            if (!gzipOk) {
+                debugLogMailNote = QStringLiteral("\nDebug log not attached: unable to gzip log file.");
+            } else if (compressedDebugLogFile.open(QIODevice::WriteOnly)) {
+                compressedDebugLogFile.write(compressedDebugLog);
+                compressedDebugLogFile.close();
+
+                const qint64 compressedDebugLogSize = QFileInfo(compressedDebugLogFileName).size();
+                if (compressedDebugLogSize <= maxDebugLogAttachmentBytes) {
+                    compressedDebugLogForMail = compressedDebugLogFileName;
+                    temporaryFilesForMail.append(compressedDebugLogFileName);
+                    debugLogMailNote =
+                        QStringLiteral("\nDebug log attached: ") + QFileInfo(compressedDebugLogFileName).fileName() +
+                        QStringLiteral(" (") + QString::number(compressedDebugLogSize / 1024.0 / 1024.0, 'f', 1) +
+                        QStringLiteral(" MB gzip compressed)");
+                } else {
+                    QFile::remove(compressedDebugLogFileName);
+                    debugLogMailNote =
+                        QStringLiteral("\nDebug log not attached: compressed file is ") +
+                        QString::number(compressedDebugLogSize / 1024.0 / 1024.0, 'f', 1) +
+                        QStringLiteral(" MB, above the 10.0 MB mail limit.");
+                }
+            } else {
+                debugLogMailNote = QStringLiteral("\nDebug log not attached: unable to write compressed log file.");
+            }
+        } else {
+            debugLogMailNote = QStringLiteral("\nDebug log not attached: unable to read log file.");
+        }
+    }
+    textMessage += debugLogMailNote;
+
     text->setText(textMessage);
     message->addPart(text);
 
@@ -10515,32 +10650,14 @@ void homeform::sendMail() {
         message->addPart(pelotonImage);
     }
 
-    /* THE SMTP SERVER DOESN'T LIKE THE ZIP FILE
-    extern QString logfilename;
-    if (settings.value(QZSettings::log_debug).toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
-        QString fileName = getWritableAppDir() + logfilename;
-        QFile f(fileName);
-        f.open(QIODevice::ReadOnly);
-        QTextStream ts(&f);
-        QByteArray b = f.readAll();
-        f.close();
-        QByteArray c = qCompress(b, 9);
-        QFile fc(fileName.replace(".log", ".zip"));
-        fc.open(QIODevice::WriteOnly);
-        c.remove(0, 4);
-        fc.write(c);
-        fc.close();
+    if (!compressedDebugLogForMail.isEmpty()) {
+        MimeAttachment *log = new MimeAttachment(new QFile(compressedDebugLogForMail));
+        log->setContentId(compressedDebugLogForMail);
+        log->setContentType(QStringLiteral("application/gzip"));
+        message->addPart(log);
+    }
 
-        // Create a MimeInlineFile object for each image
-        MimeInlineFile *log = new MimeInlineFile((new QFile(fileName)));
-
-        // An unique content id must be setted
-        log->setContentId(fileName);
-        log->setContentType(QStringLiteral("application/octet-stream"));
-        message.addPart(log);
-    }*/
-
-    QThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail);
+    MailSenderThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail, temporaryFilesForMail, this);
     QObject::connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
     mailThread->start();
 }
@@ -11589,4 +11706,3 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
-

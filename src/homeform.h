@@ -1036,6 +1036,7 @@ public:
     QString lastTrainProgramFileSaved = QLatin1String("");
 
     QList<QString> chartImagesFilenames;
+    bool mailSent = false;
 
     bool m_autoresistance = true;
     bool m_stopRequested = false;
