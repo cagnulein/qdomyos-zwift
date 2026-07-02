@@ -178,6 +178,7 @@ HomeForm {
         model: appModel
         leftMargin: { if(OS_VERSION === "Android") (Screen.width % cellWidth) / 2; else (parent.width % cellWidth) / 2; }
         anchors.topMargin: (!window.lockTiles ? rootItem.topBarHeight + 30 : 0)
+        interactive: !window.lockTiles
         id: gridView
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
@@ -563,6 +564,8 @@ HomeForm {
         property int newIndex
         property int startIndex: -1
         property string tileName: ""
+        property real lastScrollY: 0
+        property bool isSwiping: false
 
         function indexAtMouse(mx, my) {
             var cols = Math.max(1, Math.floor(gridView.width / gridView.cellWidth))
@@ -578,9 +581,14 @@ HomeForm {
         enabled: window.lockTiles
         anchors.fill: parent
 
+        onPressed: {
+            lastScrollY = mouseY
+            isSwiping = false
+        }
+
         onPressAndHold: {
+            if (isSwiping) return
             var idx = indexAtMouse(mouseX, mouseY)
-            console.log("onPressAndHold " + idx)
             if (idx !== -1) {
                 startIndex = idx
                 newIndex = idx
@@ -594,18 +602,28 @@ HomeForm {
 
         onReleased: {
             autoScrollTimer.running = false
-            var idx = indexAtMouse(mouseX, mouseY)
-            console.log("onReleased tileName=" + tileName + " idx=" + idx + " startIndex=" + startIndex)
-            if (currentId !== -1 && idx !== -1 && idx !== startIndex) {
-                rootItem.moveTile(tileName, idx, startIndex)
+            if (currentId !== -1) {
+                var idx = indexAtMouse(mouseX, mouseY)
+                if (idx !== -1 && idx !== startIndex)
+                    rootItem.moveTile(tileName, idx, startIndex)
             }
             currentId = -1
             startIndex = -1
             tileName = ""
+            isSwiping = false
         }
 
         onPositionChanged: {
-            if (currentId === -1) return
+            if (currentId === -1) {
+                // No drag in progress: scroll the grid like a normal flick
+                var dy = mouseY - lastScrollY
+                if (Math.abs(dy) > 5) isSwiping = true
+                gridView.contentY = Math.max(0,
+                    Math.min(gridView.contentHeight - gridView.height,
+                             gridView.contentY - dy))
+                lastScrollY = mouseY
+                return
+            }
             var edgeZone = 80
             if (mouseY > gridView.height - edgeZone || mouseY < edgeZone)
                 autoScrollTimer.running = true
@@ -613,10 +631,7 @@ HomeForm {
                 autoScrollTimer.running = false
 
             var idx = indexAtMouse(mouseX, mouseY)
-            console.log("onPositionChanged " + currentId + " " + idx + " " + newIndex + " " + mouseX + " " + mouseY)
-            if (idx !== -1 && idx !== newIndex) {
-                newIndex = idx
-            }
+            if (idx !== -1 && idx !== newIndex) newIndex = idx
         }
     }
 }
