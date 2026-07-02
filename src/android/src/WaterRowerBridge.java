@@ -75,16 +75,25 @@ public class WaterRowerBridge {
             isConnected = true;
             
             // Subscribe to rowing metrics
-            // Subscribe to stroke events  
+            // Subscribe to stroke events
             waterRower.subscribe(new StrokeSubscription() {
                 @Override
                 protected void onStroke(StrokeType strokeType) {
-                    // Track stroke events - could calculate stroke rate here
                     lastDataUpdate = System.currentTimeMillis();
                     QLog.d(TAG, "Stroke: " + strokeType);
                 }
             });
-            
+
+            // Subscribe to stroke rate
+            waterRower.subscribe(new AverageStrokeRateSubscription() {
+                @Override
+                protected void onStrokeRateUpdated(double strokeRate) {
+                    lastStrokeRate = strokeRate;
+                    lastDataUpdate = System.currentTimeMillis();
+                    QLog.d(TAG, "Stroke rate: " + strokeRate);
+                }
+            });
+
             // Subscribe to distance
             waterRower.subscribe(new DistanceSubscription() {
                 @Override
