@@ -240,6 +240,59 @@ void waterrowerusb::update() {
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         bool heart_rate_check = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
 
+        update_metrics(false, watts());
+
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
+
+        // ******************************************* virtual bike/rower init *************************************
+        if (!firstStateChanged && !this->hasVirtualDevice()
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            && !h
+#endif
+#endif
+        ) {
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled)
+                    .toBool();
+            bool virtual_device_rower =
+                settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor)
+                               .toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround)
+                    .toBool();
+            if (ios_peloton_workaround && cadence && !virtual_device_rower) {
+                qDebug() << "ios_peloton_workaround activated!";
+                h = new lockscreen();
+                h->virtualbike_ios();
+            } else
+#endif
+#endif
+            {
+                if (!noVirtualDevice && virtual_device_enabled) {
+                    if (!virtual_device_rower) {
+                        qDebug() << QStringLiteral("creating virtual bike interface...");
+                        auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                        this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                    } else {
+                        qDebug() << QStringLiteral("creating virtual rower interface...");
+                        auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                        this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
+                    }
+                }
+            }
+        }
+        if (!firstStateChanged)
+            emit connectedAndDiscovered();
+        firstStateChanged = 1;
+        // ********************************************************************************************************
+
         if (Heart.value() == 0.0 && !heart_rate_check) {
             update_hr_from_external();
         }
@@ -320,12 +373,7 @@ void waterrowerusb::onWaterRowerStroke(double strokeRate, double distance, doubl
     if (pace > 0) {
         Speed = 500.0 / pace * 3.6; // Convert to km/h
     }
-    
-    // Update elapsed time
-    if (!firstStateChanged) {
-        firstStateChanged = 1;
-    }
-    
+
     emit debug(QStringLiteral("Updated metrics - Cadence: %1, Distance: %2, Watts: %3, Speed: %4")
                    .arg(Cadence.value()).arg(Distance.value()).arg(m_watt.value()).arg(Speed.value()));
 }
