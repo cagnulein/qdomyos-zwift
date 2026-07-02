@@ -1723,6 +1723,14 @@ import AndroidStatusBar 1.0
             property bool tile_pace_color_enabled: true
             property bool treadmill_force_running_activity: false
             property bool proform_treadmill_105_cst: false
+            property int zwiftplay_gear_ls1: 2
+            property int zwiftplay_gear_ls2: 2
+            property int zwiftplay_gear_rs1: 1
+            property int zwiftplay_gear_rs2: 1
+            property int zwiftplay_gear_paddle_left: 2
+            property int zwiftplay_gear_paddle_right: 1
+            property int zwiftplay_gear_lb: 2
+            property int zwiftplay_gear_rb: 1
         }
 
 
@@ -14725,6 +14733,123 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
+                            }
+
+                            Label {
+                                text: qsTr("Gear Controls")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                Layout.fillWidth: true
+                                Layout.topMargin: 20
+                            }
+
+                            Label {
+                                text: qsTr("Assign each physical button to Gear Up, Gear Down or Disabled. Applies before the Swap sides option above.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Shifter Up (LS1):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_ls1
+                                    onActivated: settings.zwiftplay_gear_ls1 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Shifter Down (LS2):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_ls2
+                                    onActivated: settings.zwiftplay_gear_ls2 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Shifter Up (RS1):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_rs1
+                                    onActivated: settings.zwiftplay_gear_rs1 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Shifter Down (RS2):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_rs2
+                                    onActivated: settings.zwiftplay_gear_rs2 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Paddle (ZL):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_paddle_left
+                                    onActivated: settings.zwiftplay_gear_paddle_left = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Paddle (ZR):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_paddle_right
+                                    onActivated: settings.zwiftplay_gear_paddle_right = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Power Up (LB):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_lb
+                                    onActivated: settings.zwiftplay_gear_lb = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Ride On (RB):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_rb
+                                    onActivated: settings.zwiftplay_gear_rb = currentIndex
+                                }
                             }
 
                             RowLayout {

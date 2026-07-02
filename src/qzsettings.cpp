@@ -1113,6 +1113,16 @@ const QString QZSettings::proform_treadmill_105_cst = QStringLiteral("proform_tr
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
 const QString QZSettings::horizon_treadmill_omega_z = QStringLiteral("horizon_treadmill_omega_z");
 
+// Zwift Play/Ride per-button gear mapping
+const QString QZSettings::zwiftplay_gear_ls1 = QStringLiteral("zwiftplay_gear_ls1");
+const QString QZSettings::zwiftplay_gear_ls2 = QStringLiteral("zwiftplay_gear_ls2");
+const QString QZSettings::zwiftplay_gear_rs1 = QStringLiteral("zwiftplay_gear_rs1");
+const QString QZSettings::zwiftplay_gear_rs2 = QStringLiteral("zwiftplay_gear_rs2");
+const QString QZSettings::zwiftplay_gear_paddle_left = QStringLiteral("zwiftplay_gear_paddle_left");
+const QString QZSettings::zwiftplay_gear_paddle_right = QStringLiteral("zwiftplay_gear_paddle_right");
+const QString QZSettings::zwiftplay_gear_lb = QStringLiteral("zwiftplay_gear_lb");
+const QString QZSettings::zwiftplay_gear_rb = QStringLiteral("zwiftplay_gear_rb");
+
 // MyWhoosh Link settings
 const QString QZSettings::mywhoosh_link_enabled = QStringLiteral("mywhoosh_link_enabled");
 const QString QZSettings::mywhoosh_link_override_gears = QStringLiteral("mywhoosh_link_override_gears");
@@ -1263,7 +1273,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 988;
+const uint32_t allSettingsCount = 996;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2276,6 +2286,14 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_105_cst, QZSettings::default_proform_treadmill_105_cst},
     {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
     {QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z},
+    {QZSettings::zwiftplay_gear_ls1, QZSettings::default_zwiftplay_gear_ls1},
+    {QZSettings::zwiftplay_gear_ls2, QZSettings::default_zwiftplay_gear_ls2},
+    {QZSettings::zwiftplay_gear_rs1, QZSettings::default_zwiftplay_gear_rs1},
+    {QZSettings::zwiftplay_gear_rs2, QZSettings::default_zwiftplay_gear_rs2},
+    {QZSettings::zwiftplay_gear_paddle_left, QZSettings::default_zwiftplay_gear_paddle_left},
+    {QZSettings::zwiftplay_gear_paddle_right, QZSettings::default_zwiftplay_gear_paddle_right},
+    {QZSettings::zwiftplay_gear_lb, QZSettings::default_zwiftplay_gear_lb},
+    {QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
