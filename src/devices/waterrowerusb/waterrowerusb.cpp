@@ -363,10 +363,14 @@ void waterrowerusb::onWaterRowerStroke(double strokeRate, double distance, doubl
              << QStringLiteral("Watts:") << watts
              << QStringLiteral("Calories:") << calories;
 
-    // Update rower metrics
+    // WaterRower reports distance in meters; QZ stores distance in kilometers.
     Cadence = strokeRate;
-    Distance = distance;
-    m_watt = watts;
+    Distance = distance / 1000.0;
+    if (watts > 0) {
+        m_watt = watts;
+    } else if (strokeRate <= 0 || m_watt.value() <= 0) {
+        m_watt = rower::calculateWattsFromPace(pace);
+    }
     KCal = calories;
     
     // Calculate speed from pace (pace is in seconds per 500m)
