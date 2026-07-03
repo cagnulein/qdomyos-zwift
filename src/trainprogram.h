@@ -136,6 +136,12 @@ class trainprogram : public QObject {
         }
         return false;
     }
+    bool speedInclinationTargetWorkout() {
+        foreach(trainrow r, rows) {
+            if(r.speed != -1 || r.inclination != -200) return true;
+        }
+        return false;
+    }
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded

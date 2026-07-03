@@ -140,10 +140,15 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &bluetooth::canceled);
 #ifndef Q_OS_WIN
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &bluetooth::finished);
-#else
-        connect(&discoveryTimeout, &QTimer::timeout, this, &bluetooth::finished);
-        discoveryTimeout.start(10000);
 #endif
+        // Safety net: on some platforms (e.g. Android containers/emulators without a functional
+        // Bluetooth adapter, such as Waydroid) the discovery agent's finished()/timeout signal never
+        // fires even though a discoveryAgent object was created, leaving fake devices (Fake
+        // Treadmill/Bike/etc) stuck forever waiting for a scan that will never complete. finished()
+        // guards against being invoked twice, so this is a no-op once the real signal has fired.
+        connect(&discoveryTimeout, &QTimer::timeout, this, &bluetooth::finished);
+        discoveryTimeout.setSingleShot(true);
+        discoveryTimeout.start(15000);
 
         // Start a discovery
 #ifndef Q_OS_WIN
@@ -164,6 +169,11 @@ bluetooth::~bluetooth() {
 void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) { emit this->bluetoothDeviceConnected(b); }
 
 void bluetooth::finished() {
+    if (discoveryFinishedHandled)
+        return;
+    discoveryFinishedHandled = true;
+    discoveryTimeout.stop();
+
     debug(QStringLiteral("BTLE scanning finished"));
 
     QSettings settings;
