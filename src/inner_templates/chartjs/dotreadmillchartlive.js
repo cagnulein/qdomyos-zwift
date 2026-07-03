@@ -105,7 +105,12 @@ function process_arr(arr) {
         }
     }
 
-    speed_max = Math.ceil(speed_max * 1.1); 
+    if (paceZones.length > 0 && speed_max < paceZones[paceZones.length - 1]) {
+        // Always show all pace zone bands/labels on the axis, even if the workout
+        // never actually reached the fastest configured pace.
+        speed_max = paceZones[paceZones.length - 1];
+    }
+    speed_max = Math.ceil(speed_max * 1.1);
     incline_max = Math.ceil(incline_max * 1.1);
 
     const backgroundFill = {
