@@ -337,7 +337,7 @@ function process_arr_heart(arr) {
               }
             },
             responsive: true,
-            aspectRatio: div.width / div.height,
+            maintainAspectRatio: false,
             grid: {
                 zeroLineColor: 'rgba(0,255,0,1)'
             },

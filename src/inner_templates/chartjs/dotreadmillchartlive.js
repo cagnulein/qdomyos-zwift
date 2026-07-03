@@ -30,8 +30,12 @@ function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
 }
 
-// Define speed zones
-const speedZones = [6, 8, 10, 12, 14, 16]; // km/h
+// Same colors used for Speed/Incline in the Workout Editor preview (workout-editor-app.js), so the
+// live chart matches what the user already sees when building/previewing the training program.
+// There's no user-configurable "speed zone" concept in QZ (unlike power/FTP or heart-rate zones), so
+// unlike the bike power chart this doesn't try to zone-color the line.
+const speedColor = '#42a5f5';
+const inclineColor = '#26c6da';
 
 function process_arr(arr) {    
     let ctx = document.getElementById('canvas').getContext('2d');
@@ -118,29 +122,17 @@ function process_arr(arr) {
                 borderDash: [5, 5]
             }, {
                 label: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
-                backgroundColor: window.chartColors.red,
-                borderColor: window.chartColors.red,
+                backgroundColor: speedColor,
+                borderColor: speedColor,
                 data: speed,
                 fill: false,
                 pointRadius: 0,
                 borderWidth: 2,
-                yAxisID: 'y-speed',
-                segment: {
-                    borderColor: ctx => {
-                        const y = ctx.p0.parsed.y;
-                        if (y < speedZones[0]) return window.chartColors.grey;
-                        if (y < speedZones[1]) return window.chartColors.limegreen;
-                        if (y < speedZones[2]) return window.chartColors.gold;
-                        if (y < speedZones[3]) return window.chartColors.orange;
-                        if (y < speedZones[4]) return window.chartColors.darkorange;
-                        if (y < speedZones[5]) return window.chartColors.orangered;
-                        return window.chartColors.red;
-                    }
-                }
+                yAxisID: 'y-speed'
             }, {
                 label: t('workoutEditor.incline', 'Incline'),
-                backgroundColor: window.chartColors.orange,
-                borderColor: window.chartColors.orange,
+                backgroundColor: inclineColor,
+                borderColor: inclineColor,
                 data: inclination,
                 fill: false,
                 pointRadius: 0,
@@ -148,9 +140,9 @@ function process_arr(arr) {
                 yAxisID: 'y-incline'
             }]
         },
-        options: {           
+        options: {
             responsive: true,
-            aspectRatio: div.width / div.height,
+            maintainAspectRatio: false,
             interaction: {
                 mode: 'index',
                 intersect: false,
@@ -161,66 +153,6 @@ function process_arr(arr) {
                 },
                 legend: {
                     display: false
-                },
-                annotation: {
-                    annotations: {
-                        box1: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: 0,
-                            yMax: speedZones[0],
-                            backgroundColor: "#d6d6d620",
-                            yScaleID: 'y-speed',
-                        },
-                        box2: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[0],
-                            yMax: speedZones[1],
-                            backgroundColor: window.chartColors.limegreent,
-                            yScaleID: 'y-speed',
-                        },
-                        box3: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[1],
-                            yMax: speedZones[2],
-                            backgroundColor: window.chartColors.goldt,
-                            yScaleID: 'y-speed',
-                        },
-                        box4: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[2],
-                            yMax: speedZones[3],
-                            backgroundColor: window.chartColors.oranget,
-                            yScaleID: 'y-speed',
-                        },
-                        box5: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[3],
-                            yMax: speedZones[4],
-                            backgroundColor: window.chartColors.darkoranget,
-                            yScaleID: 'y-speed',
-                        },
-                        box6: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[4],
-                            yMax: speedZones[5],
-                            backgroundColor: window.chartColors.orangeredt,
-                            yScaleID: 'y-speed',
-                        },
-                        box7: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[5],
-                            yMax: speed_max,
-                            backgroundColor: window.chartColors.redt,
-                            yScaleID: 'y-speed',
-                        }
-                    }
                 }
             },
             scales: {
@@ -246,18 +178,14 @@ function process_arr(arr) {
                     display: true,
                     position: 'left',
                     title: {
-                        display: false
+                        display: true,
+                        text: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
+                        color: speedColor,
                     },
                     min: 0,
                     max: speed_max,
                     ticks: {
-                        stepSize: 1,
-                        autoSkip: false,
-                        callback: value => speedZones.includes(value) ?
-                            'Speed z' + (speedZones.indexOf(value) + 1) : undefined,
                         color: 'black',
-                        padding: -70,
-                        align: 'end',
                     }
                 },
                 'y-incline': {
@@ -265,7 +193,9 @@ function process_arr(arr) {
                     display: true,
                     position: 'right',
                     title: {
-                        display: false
+                        display: true,
+                        text: t('workoutEditor.inclinePercent', 'Incline (%)'),
+                        color: inclineColor,
                     },
                     min: 0,
                     max: incline_max,
