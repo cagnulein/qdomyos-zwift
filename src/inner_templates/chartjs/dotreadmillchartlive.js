@@ -259,6 +259,8 @@ function process_arr(arr) {
     };    
 
     treadmillChart = new Chart(ctx, config);
+
+    refresh();
 }
 
 function refresh() {
