@@ -1115,7 +1115,8 @@ void DeviceTestDataIndex::Initialize() {
     // Sole Bike
     RegisterNewDeviceTestData(DeviceIndex::SoleBike)
         ->expectDevice<solebike>()
-        ->acceptDeviceNames({"LCB", "R92"}, DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceNames({"LCB", "LCR", "R92"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith(QZSettings::ftms_bike, QZSettings::default_ftms_bike, "XX");
 
     // Sole Elliptical
     RegisterNewDeviceTestData(DeviceIndex::SoleElliptical)
@@ -1154,6 +1155,11 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::SportsPlusBike)
         ->expectDevice<sportsplusbike>()        
         ->acceptDeviceName("CARDIOFIT", DeviceNameComparison::StartsWithIgnoreCase);
+
+    // Sports Plus Rower
+    RegisterNewDeviceTestData(DeviceIndex::SportsPlusRower)
+        ->expectDevice<sportsplusrower>()
+        ->acceptDeviceName("CARE10692135", DeviceNameComparison::IgnoreCase);
 
     // Sports Tech Bike
     RegisterNewDeviceTestData(DeviceIndex::SportsTechBike)

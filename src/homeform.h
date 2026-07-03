@@ -169,6 +169,8 @@ class homeform : public QObject {
     Q_PROPERTY(bool chartIconVisible READ chartIconVisible NOTIFY chartIconVisibleChanged WRITE setChartIconVisible)
     Q_PROPERTY(
         bool chartFooterVisible READ chartFooterVisible NOTIFY chartFooterVisibleChanged WRITE setChartFooterVisible)
+    Q_PROPERTY(bool chartTreadmillMode READ chartTreadmillMode NOTIFY chartTreadmillModeChanged WRITE
+                   setChartTreadmillMode)
     Q_PROPERTY(QUrl videoPath READ videoPath NOTIFY videoPathChanged)
     Q_PROPERTY(int videoPosition READ videoPosition NOTIFY videoPositionChanged WRITE setVideoPosition)
     Q_PROPERTY(double videoRate READ videoRate NOTIFY videoRateChanged WRITE setVideoRate)
@@ -195,6 +197,8 @@ class homeform : public QObject {
     Q_PROPERTY(bool garminWorkoutPromptRequested READ garminWorkoutPromptRequested NOTIFY garminWorkoutPromptRequestedChanged WRITE setGarminWorkoutPromptRequested)
     Q_PROPERTY(QString garminWorkoutPromptName READ garminWorkoutPromptName NOTIFY garminWorkoutPromptNameChanged)
     Q_PROPERTY(QString garminWorkoutPromptDate READ garminWorkoutPromptDate NOTIFY garminWorkoutPromptDateChanged)
+    Q_PROPERTY(bool garminFtpPromptRequested READ garminFtpPromptRequested NOTIFY garminFtpPromptRequestedChanged WRITE setGarminFtpPromptRequested)
+    Q_PROPERTY(QString garminFtpPromptMessage READ garminFtpPromptMessage NOTIFY garminFtpPromptMessageChanged)
     Q_PROPERTY(bool clipboardWorkoutPromptRequested READ clipboardWorkoutPromptRequested NOTIFY clipboardWorkoutPromptRequestedChanged WRITE setClipboardWorkoutPromptRequested)
     Q_PROPERTY(QString clipboardWorkoutPromptName READ clipboardWorkoutPromptName NOTIFY clipboardWorkoutPromptNameChanged)
     Q_PROPERTY(bool clipboardWorkoutDeletePromptRequested READ clipboardWorkoutDeletePromptRequested NOTIFY clipboardWorkoutDeletePromptRequestedChanged WRITE setClipboardWorkoutDeletePromptRequested)
@@ -335,33 +339,36 @@ class homeform : public QObject {
                     QLinearGradient plotAreaGradient;
                     plotAreaGradient.setStart(QPointF(0, 0));
                     plotAreaGradient.setFinalStop(QPointF(0, 1));
+                    const double heartChartBottom = maxHeartRate * 0.5;
+                    const double heartChartTop = maxHeartRate;
+                    const double heartChartRange = heartChartTop - heartChartBottom;
+                    auto heartGradientStop = [&](double zonePercent) {
+                        double stop = (heartChartTop - ((maxHeartRate * zonePercent) / 100.0)) / heartChartRange;
+                        if (stop < 0.0)
+                            return 0.0;
+                        if (stop > 1.0)
+                            return 1.0;
+                        return stop;
+                    };
                     plotAreaGradient.setColorAt(
-                        (220 - (maxHeartRate *
-                                settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
-                                    .toDouble() /
-                                100)) /
-                            160,
+                        heartGradientStop(
+                            settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
+                                .toDouble()),
                         QColor(QStringLiteral("lightsteelblue")));
                     plotAreaGradient.setColorAt(
-                        (220 - (maxHeartRate *
-                                settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2)
-                                    .toDouble() /
-                                100)) /
-                            160,
+                        heartGradientStop(
+                            settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2)
+                                .toDouble()),
                         QColor(QStringLiteral("green")));
                     plotAreaGradient.setColorAt(
-                        (220 - (maxHeartRate *
-                                settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3)
-                                    .toDouble() /
-                                100)) /
-                            160,
+                        heartGradientStop(
+                            settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3)
+                                .toDouble()),
                         QColor(QStringLiteral("yellow")));
                     plotAreaGradient.setColorAt(
-                        (220 - (maxHeartRate *
-                                settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4)
-                                    .toDouble() /
-                                100)) /
-                            160,
+                        heartGradientStop(
+                            settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4)
+                                .toDouble()),
                         QColor(QStringLiteral("orange")));
                     plotAreaGradient.setColorAt(0.0, QColor(QStringLiteral("red")));
                     plotAreaGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
@@ -491,6 +498,8 @@ class homeform : public QObject {
     bool garminWorkoutPromptRequested() { return m_garminWorkoutPromptRequested; }
     QString garminWorkoutPromptName() { return m_garminWorkoutPromptName; }
     QString garminWorkoutPromptDate() { return m_garminWorkoutPromptDate; }
+    bool garminFtpPromptRequested() { return m_garminFtpPromptRequested; }
+    QString garminFtpPromptMessage() { return m_garminFtpPromptMessage; }
     bool echelonBridgeSwitchPromptRequested() { return m_echelonBridgeSwitchPromptRequested; }
     bool echelonEnablePromptRequested() { return m_echelonEnablePromptRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
@@ -502,6 +511,7 @@ class homeform : public QObject {
     bool videoVisible() { return m_VideoVisible; }
     bool chartIconVisible();
     bool chartFooterVisible() { return m_ChartFooterVisible; }
+    bool chartTreadmillMode() { return m_ChartTreadmillMode; }
     int videoPosition();
     double videoRate();
     double currentSpeed() {
@@ -542,6 +552,10 @@ class homeform : public QObject {
         m_ChartFooterVisible = value;
         emit chartFooterVisibleChanged(m_ChartFooterVisible);
     }
+    void setChartTreadmillMode(bool value) {
+        m_ChartTreadmillMode = value;
+        emit chartTreadmillModeChanged(m_ChartTreadmillMode);
+    }
     void setVideoPosition(int position); // on startup
     void videoSeekPosition(int ms);      // in realtime
     void setVideoRate(double rate);
@@ -560,6 +574,13 @@ class homeform : public QObject {
         }
         m_garminWorkoutPromptRequested = value;
         emit garminWorkoutPromptRequestedChanged(value);
+    }
+    void setGarminFtpPromptRequested(bool value) {
+        if (m_garminFtpPromptRequested == value) {
+            return;
+        }
+        m_garminFtpPromptRequested = value;
+        emit garminFtpPromptRequestedChanged(value);
     }
     bool clipboardWorkoutPromptRequested() const { return m_clipboardWorkoutPromptRequested; }
     QString clipboardWorkoutPromptName() const { return m_clipboardWorkoutPromptName; }
@@ -597,6 +618,8 @@ class homeform : public QObject {
     Q_INVOKABLE void garmin_connect_logout();
     Q_INVOKABLE void garmin_start_downloaded_workout();
     Q_INVOKABLE void garmin_dismiss_downloaded_workout_prompt();
+    Q_INVOKABLE void garmin_accept_ftp_update();
+    Q_INVOKABLE void garmin_dismiss_ftp_update();
     Q_INVOKABLE QUrl clipboard_workout_url() const { return QUrl::fromLocalFile(m_clipboardWorkoutPromptFile); }
     Q_INVOKABLE void clipboard_accept_workout_prompt();
     Q_INVOKABLE void clipboard_dismiss_workout_prompt();
@@ -637,6 +660,9 @@ class homeform : public QObject {
 private:
     void clearWebViewCache();
     void announceToVoiceOver(const QString &text);
+    void handleGarminFtpValues(int cyclingFtp, const QString &cyclingCreateTime,
+                               int runningFtp, const QString &runningCreateTime);
+    void markPendingGarminFtpSeen();
     void showNextGarminWorkoutPrompt();
 
 public:
@@ -956,6 +982,7 @@ public:
     bool m_VideoVisible = false;
     bool m_ChartFooterVisible = false;
     bool m_ChartIconVisible = false;
+    bool m_ChartTreadmillMode = false;
     int m_VideoPosition = 0;
     double m_VideoRate = 1;
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
@@ -990,6 +1017,7 @@ public:
     bool m_stravaUploadRequested = false;
     bool m_garminMfaRequested = false;
     bool m_garminWorkoutPromptRequested = false;
+    bool m_garminFtpPromptRequested = false;
     bool m_clipboardWorkoutPromptRequested = false;
     bool m_clipboardWorkoutDeletePromptRequested = false;
     bool m_echelonBridgeSwitchPromptRequested = false;
@@ -997,6 +1025,11 @@ public:
     QString m_garminWorkoutPromptName = QStringLiteral("");
     QString m_garminWorkoutPromptDate = QStringLiteral("");
     QString m_garminWorkoutPromptFile = QStringLiteral("");
+    QString m_garminFtpPromptMessage = QStringLiteral("");
+    int m_pendingGarminCyclingFtp = 0;
+    int m_pendingGarminRunningFtp = 0;
+    QString m_pendingGarminCyclingFtpCreateTime = QStringLiteral("");
+    QString m_pendingGarminRunningFtpCreateTime = QStringLiteral("");
     QString m_clipboardWorkoutPromptName = QStringLiteral("");
     QString m_clipboardWorkoutPromptFile = QStringLiteral("");
     QString m_activeClipboardWorkoutFile = QStringLiteral("");
@@ -1024,6 +1057,7 @@ public:
     QString lastTrainProgramFileSaved = QLatin1String("");
 
     QList<QString> chartImagesFilenames;
+    bool mailSent = false;
 
     bool m_autoresistance = true;
     bool m_stopRequested = false;
@@ -1199,6 +1233,7 @@ public:
     void bluetoothDeviceConnected(bluetoothdevice *b);
     void bluetoothDeviceDisconnected();
     void onToastRequested(QString message);
+    void onTrainingProgramIntervalTransition();
     void strava_upload_file_prepare();
     void garmin_upload_file_prepare();
     void garmin_download_todays_workout();
@@ -1240,6 +1275,8 @@ public:
     void garminWorkoutPromptRequestedChanged(bool value);
     void garminWorkoutPromptNameChanged(QString value);
     void garminWorkoutPromptDateChanged(QString value);
+    void garminFtpPromptRequestedChanged(bool value);
+    void garminFtpPromptMessageChanged(QString value);
     void clipboardWorkoutPromptRequestedChanged(bool value);
     void clipboardWorkoutPromptNameChanged(QString value);
     void clipboardWorkoutDeletePromptRequestedChanged(bool value);
@@ -1255,6 +1292,7 @@ public:
     void videoRateChanged(double value);
     void chartIconVisibleChanged(bool value);
     void chartFooterVisibleChanged(bool value);
+    void chartTreadmillModeChanged(bool value);
     void manualCscBikeResistanceAdjusted(resistance_t resistance);
     void currentSpeedChanged(double value);
     void mapsVisibleChanged(bool value);
@@ -1268,6 +1306,7 @@ public:
     void instructorNameChanged(QString name);
     void startRequestedChanged(bool value);
     void stopRequestedChanged(bool value);
+    void trainingProgramIntervalSoundRequested();
 
     void previewWorkoutPointsChanged(int value);
     void previewWorkoutDescriptionChanged(QString value);
@@ -1290,4 +1329,3 @@ public:
 };
 
 #endif // HOMEFORM_H
-
