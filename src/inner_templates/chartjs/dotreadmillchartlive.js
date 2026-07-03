@@ -52,9 +52,13 @@ function process_arr(arr) {
             if (speed_max < el.speed * miles) speed_max = el.speed * miles;
         }
 
-        if (el.target_speed !== undefined && el.target_speed !== -1) {
-            targetSpeed.push({x: time, y: el.target_speed * miles});
-            if (speed_max < el.target_speed * miles) speed_max = el.target_speed * miles;
+        if (el.target_speed !== undefined) {
+            // Push null (instead of skipping) when there's no target for this row (e.g. a
+            // heart-rate-triggered row) so Chart.js breaks the line here rather than drawing a
+            // straight bridge across the gap to the next row that does have a target.
+            const hasTarget = el.target_speed !== -1;
+            targetSpeed.push({x: time, y: hasTarget ? el.target_speed * miles : null});
+            if (hasTarget && speed_max < el.target_speed * miles) speed_max = el.target_speed * miles;
         }
 
         if (el.inclination !== undefined) {
@@ -62,9 +66,10 @@ function process_arr(arr) {
             if (incline_max < el.inclination) incline_max = el.inclination;
         }
 
-        if (el.target_inclination !== undefined && el.target_inclination !== -200) {
-            targetInclination.push({x: time, y: el.target_inclination});
-            if (incline_max < el.target_inclination) incline_max = el.target_inclination;
+        if (el.target_inclination !== undefined) {
+            const hasTarget = el.target_inclination !== -200;
+            targetInclination.push({x: time, y: hasTarget ? el.target_inclination : null});
+            if (hasTarget && incline_max < el.target_inclination) incline_max = el.target_inclination;
         }
     }
 
@@ -87,7 +92,31 @@ function process_arr(arr) {
         type: 'line',
         plugins: [backgroundFill],
         data: {
+            // Target datasets are listed first and actual datasets last: Chart.js paints datasets
+            // in array order, so the actual (solid, zone-colored) lines are always drawn on top of
+            // the dashed target lines instead of being hidden behind them when the two coincide
+            // (e.g. with a Fake Treadmill, which has no acceleration lag and tracks target exactly).
             datasets: [{
+                label: miles === 1 ? t('chart.targetSpeedKmh', 'Target Speed (km/h)') : t('chart.targetSpeedMph', 'Target Speed (mph)'),
+                backgroundColor: window.chartColors.black,
+                borderColor: window.chartColors.black,
+                data: targetSpeed,
+                fill: false,
+                pointRadius: 0,
+                borderWidth: 2,
+                yAxisID: 'y-speed',
+                borderDash: [5, 5]
+            }, {
+                label: t('chart.targetIncline', 'Target Incline'),
+                backgroundColor: window.chartColors.grey,
+                borderColor: window.chartColors.grey,
+                data: targetInclination,
+                fill: false,
+                pointRadius: 0,
+                borderWidth: 2,
+                yAxisID: 'y-incline',
+                borderDash: [5, 5]
+            }, {
                 label: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
@@ -109,16 +138,6 @@ function process_arr(arr) {
                     }
                 }
             }, {
-                label: miles === 1 ? t('chart.targetSpeedKmh', 'Target Speed (km/h)') : t('chart.targetSpeedMph', 'Target Speed (mph)'),
-                backgroundColor: window.chartColors.black,
-                borderColor: window.chartColors.black,
-                data: targetSpeed,
-                fill: false,
-                pointRadius: 0,
-                borderWidth: 2,
-                yAxisID: 'y-speed',
-                borderDash: [5, 5]
-            }, {
                 label: t('workoutEditor.incline', 'Incline'),
                 backgroundColor: window.chartColors.orange,
                 borderColor: window.chartColors.orange,
@@ -127,16 +146,6 @@ function process_arr(arr) {
                 pointRadius: 0,
                 borderWidth: 2,
                 yAxisID: 'y-incline'
-            }, {
-                label: t('chart.targetIncline', 'Target Incline'),
-                backgroundColor: window.chartColors.grey,
-                borderColor: window.chartColors.grey,
-                data: targetInclination,
-                fill: false,
-                pointRadius: 0,
-                borderWidth: 2,
-                yAxisID: 'y-incline',
-                borderDash: [5, 5]
             }]
         },
         options: {           
@@ -287,48 +296,43 @@ function refresh() {
 }
 
 function process_workout(arr) {
-    // Update speed data
-    treadmillChart.data.datasets[0].data.push({
-        x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-        y: arr.speed * miles
-    });
-    if (speed_max < arr.speed * miles) {
-        speed_max = Math.ceil(arr.speed * miles * 1.1);
-        treadmillChart.options.scales['y-speed'].max = speed_max;
-    }
+    // Dataset order: 0=Target Speed, 1=Target Incline, 2=Speed (actual), 3=Incline (actual).
+    const t = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
 
-    // Update target speed
-    if (arr.target_speed !== undefined && arr.target_speed !== -1) {
-        treadmillChart.data.datasets[1].data.push({
-            x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-            y: arr.target_speed * miles
-        });
-        if (speed_max < arr.target_speed * miles) {
+    // Update target speed. Push null (instead of skipping) when there's no target for the
+    // current row, so Chart.js breaks the line instead of bridging straight across to whatever
+    // row set a target next (e.g. across a heart-rate-triggered row with no speed target).
+    if (arr.target_speed !== undefined) {
+        const hasTarget = arr.target_speed !== -1;
+        treadmillChart.data.datasets[0].data.push({x: t, y: hasTarget ? arr.target_speed * miles : null});
+        if (hasTarget && speed_max < arr.target_speed * miles) {
             speed_max = Math.ceil(arr.target_speed * miles * 1.1);
             treadmillChart.options.scales['y-speed'].max = speed_max;
         }
     }
 
-    // Update inclination data
-    treadmillChart.data.datasets[2].data.push({
-        x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-        y: arr.inclination
-    });
-    if (incline_max < arr.inclination) {
-        incline_max = Math.ceil(arr.inclination * 1.1);
-        treadmillChart.options.scales['y-incline'].max = incline_max;
-    }
-
     // Update target inclination
-    if (arr.target_inclination !== undefined && arr.target_inclination !== -200) {
-        treadmillChart.data.datasets[3].data.push({
-            x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-            y: arr.target_inclination
-        });
-        if (incline_max < arr.target_inclination) {
+    if (arr.target_inclination !== undefined) {
+        const hasTarget = arr.target_inclination !== -200;
+        treadmillChart.data.datasets[1].data.push({x: t, y: hasTarget ? arr.target_inclination : null});
+        if (hasTarget && incline_max < arr.target_inclination) {
             incline_max = Math.ceil(arr.target_inclination * 1.1);
             treadmillChart.options.scales['y-incline'].max = incline_max;
         }
+    }
+
+    // Update speed data (actual)
+    treadmillChart.data.datasets[2].data.push({x: t, y: arr.speed * miles});
+    if (speed_max < arr.speed * miles) {
+        speed_max = Math.ceil(arr.speed * miles * 1.1);
+        treadmillChart.options.scales['y-speed'].max = speed_max;
+    }
+
+    // Update inclination data (actual)
+    treadmillChart.data.datasets[3].data.push({x: t, y: arr.inclination});
+    if (incline_max < arr.inclination) {
+        incline_max = Math.ceil(arr.inclination * 1.1);
+        treadmillChart.options.scales['y-incline'].max = incline_max;
     }
 
     treadmillChart.update();
