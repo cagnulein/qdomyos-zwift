@@ -4591,7 +4591,7 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
                         accordionContent: IndicatorOnlySwitch {
                             id: spht9600iEBikeDelegate
-                            text: qsTr("SP-HT-9600iE")
+                            text: "SP-HT-9600iE"
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -4628,13 +4628,13 @@ import AndroidStatusBar 1.0
 
                     AccordionElement {
                         id: snodeBikeAccordion
-                        title: qsTr("Snode Bike Options")
+                        title: "Snode Bike Options"
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: IndicatorOnlySwitch {
                             id: snodeBikeDelegate
-                            text: qsTr("Snode Bike")
+                            text: "Snode Bike"
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -5159,7 +5159,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("TDF1 IP:")
+                                    text: "TDF1 IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -5183,7 +5183,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelproformTDF4IP
-                                    text: qsTr("TDF4 IP:")
+                                    text: "TDF4 IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -5542,7 +5542,7 @@ import AndroidStatusBar 1.0
 
                     AccordionElement {
                         id: toputureBikeAccordion
-                        title: qsTr("Toputure Bikes")
+                        title: "Toputure Bikes"
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -5550,7 +5550,7 @@ import AndroidStatusBar 1.0
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: toputureTeb1Delegate
-                                text: qsTr("Toputure TEB1")
+                                text: "Toputure TEB1"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10132,7 +10132,7 @@ import AndroidStatusBar 1.0
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: kingSmithTreadmillDelegate
-                                text: qsTr("WalkingPad X21")
+                                text: "WalkingPad X21"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10147,7 +10147,7 @@ import AndroidStatusBar 1.0
 
                             IndicatorOnlySwitch {
                                 id: kingSmithV3TreadmillDelegate
-                                text: qsTr("WalkingPad X21 v2")
+                                text: "WalkingPad X21 v2"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10162,7 +10162,7 @@ import AndroidStatusBar 1.0
 
                             IndicatorOnlySwitch {
                                 id: kingSmithV4TreadmillDelegate
-                                text: qsTr("WalkingPad X21 v3")
+                                text: "WalkingPad X21 v3"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10176,7 +10176,7 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("WalkingPad X21 v4")
+                                text: "WalkingPad X21 v4"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10190,7 +10190,7 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("WalkingPad G1")
+                                text: "WalkingPad G1"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10255,7 +10255,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.fitfiu_mc_v460 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Zero ZT-2500")
+                                text: "Zero ZT-2500"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10268,7 +10268,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.zero_zt2500_treadmill = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("UMAY S100")
+                                text: "UMAY S100"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10307,7 +10307,7 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("T900")
+                                text: "T900"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10572,7 +10572,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: soleF63Delegate
-                                text: qsTr("Sole F63")
+                                text: "Sole F63"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10586,7 +10586,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: soleF65Delegate
-                                text: qsTr("Sole F65")
+                                text: "Sole F65"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10600,7 +10600,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: soleTT8Delegate
-                                text: qsTr("Sole TT8")
+                                text: "Sole TT8"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11067,7 +11067,7 @@ import AndroidStatusBar 1.0
                     }
                     IndicatorOnlySwitch {
                         id: trxsevoDelegate
-                        text: qsTr("TRX 65s EVO")
+                        text: "TRX 65s EVO"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11110,7 +11110,7 @@ import AndroidStatusBar 1.0
                     }                    
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Toorx SRX 500")
+                        text: "Toorx SRX 500"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11125,7 +11125,7 @@ import AndroidStatusBar 1.0
 
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Toorx SRX 3500")
+                        text: "Toorx SRX 3500"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11167,7 +11167,7 @@ import AndroidStatusBar 1.0
                     }
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Taurua IC90 Bike")
+                        text: "Taurua IC90 Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11242,7 +11242,7 @@ import AndroidStatusBar 1.0
 
                     IndicatorOnlySwitch {
                         id: toorxBikeDelegate
-                        text: qsTr("Toorx/iConsole Bike")
+                        text: "Toorx/iConsole Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11488,7 +11488,7 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
-                                text: qsTr("Proform Sport RL")
+                                text: "Proform Sport RL"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -12977,7 +12977,7 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("Rogue Echo Bike")
+                                text: "Rogue Echo Bike"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
