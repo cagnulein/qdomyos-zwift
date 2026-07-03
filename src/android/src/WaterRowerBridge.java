@@ -42,6 +42,7 @@ public class WaterRowerBridge {
     private static double lastPace = 0;
     private static double lastWatts = 0;
     private static double lastCalories = 0;
+    private static double lastStrokeCount = 0;
     private static long lastDataUpdate = 0;
 
     private static boolean isWaterRowerDevice(UsbDevice device) {
@@ -91,6 +92,16 @@ public class WaterRowerBridge {
                     lastStrokeRate = strokeRate;
                     lastDataUpdate = System.currentTimeMillis();
                     QLog.d(TAG, "Stroke rate: " + strokeRate);
+                }
+            });
+
+            // Subscribe to stroke count
+            waterRower.subscribe(new StrokeCountSubscription() {
+                @Override
+                protected void onStrokeCountUpdated(int strokes) {
+                    lastStrokeCount = strokes;
+                    lastDataUpdate = System.currentTimeMillis();
+                    QLog.d(TAG, "Stroke count: " + strokes);
                 }
             });
 
@@ -320,6 +331,7 @@ public class WaterRowerBridge {
         lastPace = 0;
         lastWatts = 0;
         lastCalories = 0;
+        lastStrokeCount = 0;
         lastDataUpdate = 0;
     }
     
@@ -338,9 +350,9 @@ public class WaterRowerBridge {
             return "NO_DATA";
         }
         
-        // Return data in CSV format: strokeRate,distance,pace,watts,calories
-        return String.format("%.1f,%.1f,%.2f,%.1f,%.1f", 
-                            lastStrokeRate, lastDistance, lastPace, lastWatts, lastCalories);
+        // Return data in CSV format: strokeRate,distance,pace,watts,calories,strokeCount
+        return String.format("%.1f,%.1f,%.2f,%.1f,%.1f,%.1f",
+                            lastStrokeRate, lastDistance, lastPace, lastWatts, lastCalories, lastStrokeCount);
     }
     
     public static double getStrokeRate() {
@@ -361,5 +373,9 @@ public class WaterRowerBridge {
     
     public static double getCalories() {
         return lastCalories;
+    }
+
+    public static double getStrokeCount() {
+        return lastStrokeCount;
     }
 }

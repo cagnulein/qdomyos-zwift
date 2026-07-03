@@ -43,7 +43,7 @@ signals:
     void onConnected();
     void onDisconnected();
     void onError(QString error);
-    void onStroke(double strokeRate, double distance, double pace, double watts, double calories);
+    void onStroke(double strokeRate, double distance, double pace, double watts, double calories, double strokeCount);
 
 private:
     bool running = false;
@@ -103,7 +103,7 @@ private slots:
     void onWaterRowerConnected();
     void onWaterRowerDisconnected(); 
     void onWaterRowerError(QString error);
-    void onWaterRowerStroke(double strokeRate, double distance, double pace, double watts, double calories);
+    void onWaterRowerStroke(double strokeRate, double distance, double pace, double watts, double calories, double strokeCount);
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

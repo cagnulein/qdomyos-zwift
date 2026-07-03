@@ -128,7 +128,7 @@ void waterrowerusbThread::processWaterRowerData() {
     
     QString data = strokeData.toString();
     if (!data.isEmpty() && data != "NO_DATA") {
-        // Parse data format: "strokeRate,distance,pace,watts,calories"
+        // Parse data format: "strokeRate,distance,pace,watts,calories,strokeCount"
         QStringList values = data.split(',');
         if (values.size() >= 5) {
             double strokeRate = values[0].toDouble();
@@ -136,8 +136,9 @@ void waterrowerusbThread::processWaterRowerData() {
             double pace = values[2].toDouble();
             double watts = values[3].toDouble();
             double calories = values[4].toDouble();
+            double strokeCount = values.size() >= 6 ? values[5].toDouble() : 0;
             
-            emit onStroke(strokeRate, distance, pace, watts, calories);
+            emit onStroke(strokeRate, distance, pace, watts, calories, strokeCount);
         }
     }
     
@@ -356,16 +357,20 @@ void waterrowerusb::onWaterRowerError(QString error) {
     emit debug(QStringLiteral("WaterRower USB error: ") + error);
 }
 
-void waterrowerusb::onWaterRowerStroke(double strokeRate, double distance, double pace, double watts, double calories) {
+void waterrowerusb::onWaterRowerStroke(double strokeRate, double distance, double pace, double watts, double calories, double strokeCount) {
     qDebug() << QStringLiteral("WaterRower stroke data - Rate:") << strokeRate 
              << QStringLiteral("Distance:") << distance 
              << QStringLiteral("Pace:") << pace
              << QStringLiteral("Watts:") << watts
-             << QStringLiteral("Calories:") << calories;
+             << QStringLiteral("Calories:") << calories
+             << QStringLiteral("Stroke Count:") << strokeCount;
 
     // WaterRower reports distance in meters; QZ stores distance in kilometers.
+    const double distanceKm = distance / 1000.0;
     Cadence = strokeRate;
-    Distance = distance / 1000.0;
+    Distance = distanceKm;
+    Distance1s = distanceKm;
+    StrokesCount = strokeCount;
     if (watts > 0) {
         m_watt = watts;
     } else if (strokeRate <= 0 || m_watt.value() <= 0) {
@@ -378,8 +383,9 @@ void waterrowerusb::onWaterRowerStroke(double strokeRate, double distance, doubl
         Speed = 500.0 / pace * 3.6; // Convert to km/h
     }
 
-    emit debug(QStringLiteral("Updated metrics - Cadence: %1, Distance: %2, Watts: %3, Speed: %4")
-                   .arg(Cadence.value()).arg(Distance.value()).arg(m_watt.value()).arg(Speed.value()));
+    emit debug(QStringLiteral("Updated metrics - Cadence: %1, Distance: %2, Watts: %3, Speed: %4, Stroke Count: %5")
+                   .arg(Cadence.value()).arg(Distance.value()).arg(m_watt.value()).arg(Speed.value())
+                   .arg(StrokesCount.value()));
 }
 
 void waterrowerusb::updateDisplay(uint16_t elapsed) {
