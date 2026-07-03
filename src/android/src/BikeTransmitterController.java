@@ -56,6 +56,7 @@ public class BikeTransmitterController {
     private static final byte DATA_PAGE_BIKE_DATA = 0x19;
     private static final byte DATA_PAGE_TRAINER_DATA = 0x1A;
     private static final byte DATA_PAGE_GENERAL_SETTINGS = 0x11;
+    private static final long DISTANCE_BASELINE_THRESHOLD_METERS = 50;
     
     private static Random randGen = new Random();
     
@@ -64,6 +65,7 @@ public class BikeTransmitterController {
     int currentPower = 0;             // Current power in watts
     double currentSpeedKph = 0.0;     // Current speed in km/h
     long totalDistance = 0;           // Total distance in meters
+    long distanceBaseline = -1;       // First non-zero odometer value for session-relative ANT distance
     int currentHeartRate = 0;         // Heart rate in BPM
     double elapsedTimeSeconds = 0.0;  // Elapsed time in seconds
     int currentResistance = 0;        // Current resistance level (0-100)
@@ -207,7 +209,17 @@ public class BikeTransmitterController {
     }
 
     public void setDistance(long distance) {
-        this.totalDistance = Math.max(0, distance);
+        long normalizedDistance = Math.max(0, distance);
+        if (normalizedDistance == 0) {
+            this.totalDistance = 0;
+            return;
+        }
+        if (distanceBaseline < 0) {
+            distanceBaseline = normalizedDistance > DISTANCE_BASELINE_THRESHOLD_METERS ? normalizedDistance : 0;
+        } else if (normalizedDistance < distanceBaseline) {
+            distanceBaseline = normalizedDistance;
+        }
+        this.totalDistance = Math.max(0, normalizedDistance - distanceBaseline);
     }
 
     public void setHeartRate(int heartRate) {
