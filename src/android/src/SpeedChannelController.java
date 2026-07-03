@@ -50,6 +50,7 @@ public class SpeedChannelController {
     public static final int SPEED_SENSOR_ID = 0x9e3d4b33;
 
     private static final double MILLISECOND_TO_1_1024_CONVERSION = 0.9765625;
+    private static final long DISTANCE_BASELINE_THRESHOLD_METERS = 50;
 
     private AntChannel mAntChannel;
 
@@ -58,6 +59,10 @@ public class SpeedChannelController {
     private boolean mIsOpen;
     double speed = 0.0;
     int cadence = 0;
+
+    public void setDistanceMeters(long distanceMeters) {
+        mChannelEventCallback.setDistanceMeters(distanceMeters);
+    }
 
     public SpeedChannelController(AntChannel antChannel) {
         mAntChannel = antChannel;
@@ -180,7 +185,25 @@ public class SpeedChannelController {
         int rotations;
         int rev;
         double wheel = 0.1;
+        long distanceBaseline = -1;
         Timer carousalTimer = null;
+
+        synchronized void setDistanceMeters(long distanceMeters) {
+            long normalizedDistance = Math.max(0, distanceMeters);
+            if (normalizedDistance == 0) {
+                totalWay = 0.0;
+                rev = 0;
+                return;
+            }
+            if (distanceBaseline < 0) {
+                distanceBaseline = normalizedDistance > DISTANCE_BASELINE_THRESHOLD_METERS ? normalizedDistance : 0;
+            } else if (normalizedDistance < distanceBaseline) {
+                distanceBaseline = normalizedDistance;
+            }
+
+            totalWay = Math.max(0, normalizedDistance - distanceBaseline);
+            rev = (int) (totalWay / wheel);
+        }
 
         @Override
         public void onChannelDeath() {

@@ -259,6 +259,9 @@ public class ChannelService extends Service {
                 bikeTransmitterController.setResistance(resistance);
                 bikeTransmitterController.setInclination(inclination);
             }
+            if (!Ant.treadmill && speedChannelController != null) {
+                speedChannelController.setDistanceMeters(distanceMeters);
+            }
         }
 
         /**
