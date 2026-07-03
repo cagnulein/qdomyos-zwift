@@ -4760,7 +4760,7 @@ import AndroidStatusBar 1.0
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: lifespanBikeDelegate
-                                text: qsTr("LifeSpan C7000i Bike")
+                                text: "LifeSpan C7000i Bike"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -4808,7 +4808,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: lifeFitnessIC8Delegate
-                                text: qsTr("Life Fitness IC8")
+                                text: "Life Fitness IC8"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -4822,7 +4822,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: lifeFitnessIC5Delegate
-                                text: qsTr("Life Fitness IC5")
+                                text: "Life Fitness IC5"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -9976,7 +9976,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelproformtreadmillip
-                                    text: qsTr("Proform IP:")
+                                    text: "Proform IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -10000,7 +10000,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelnordictrack2950IP
-                                    text: qsTr("Nordictrack 2950 IP:")
+                                    text: "Nordictrack 2950 IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -10790,7 +10790,7 @@ import AndroidStatusBar 1.0
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: horizonParagonXTreadmillCadenzaDelegate
-                                text: qsTr("Paragon X")
+                                text: "Paragon X"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10832,7 +10832,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: horizonOmegaZTreadmillDelegate
-                                text: qsTr("Omega Z")
+                                text: "Omega Z"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11302,7 +11302,7 @@ import AndroidStatusBar 1.0
 
                     IndicatorOnlySwitch {
                         id: toorxBikeJLLIC400Delegate
-                        text: qsTr("JLL IC400 Bike")
+                        text: "JLL IC400 Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11501,7 +11501,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.proform_rower_sport_rl = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Proform Rower 750R")
+                                text: "Proform Rower 750R"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11522,7 +11522,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("ProForm Rower IP:")
+                                    text: "ProForm Rower IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -11600,7 +11600,7 @@ import AndroidStatusBar 1.0
                         }
                     }
                     AccordionElement {
-                        title: qsTr("Life Fitness 95xi (CSAFE)")
+                        title: "Life Fitness 95xi (CSAFE)"
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -11698,7 +11698,7 @@ import AndroidStatusBar 1.0
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
                                 id: proformHybridDelegate
-                                text: qsTr("Proform Hybrid Trainer XT")
+                                text: "Proform Hybrid Trainer XT"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11725,7 +11725,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.proform_hybrid_trainer_PFEL03815 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Nordictrack C7.5")
+                                text: "Nordictrack C7.5"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11738,7 +11738,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("NordicTrack Elliptical SE7i")
+                                text: "NordicTrack Elliptical SE7i"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
