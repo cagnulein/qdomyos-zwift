@@ -180,6 +180,19 @@ diagnose the hard way — check these BEFORE spending time in logcat):
 6. **`adb shell run-as` does not work on Waydroid** (`setegid(AID_PACKAGE_INFO) failed`), so editing
    `qDomyos-Zwift.conf` directly is unavailable there — drive settings through the UI instead
    (`adb shell input tap/swipe`).
+7. **QtWebView `<canvas>` content (chartjs live charts) doesn't visually repaint on Waydroid after
+   the first paint**, even though the underlying JS/Chart.js state is provably correct and updating.
+   Verified by instrumenting `dotreadmillchartlive.js` with `console.log` of the dataset array,
+   `chart.scales.x.getPixelForValue()`, and `canvas.width/height` on every tick: the array keeps
+   growing every second with correct x/y values and correct computed pixel positions, `chart.update()`
+   (both animated and `'none'` mode) runs with no JS error — yet `adb shell screencap` **and**
+   `adb shell screenrecord` (a different capture path, rules out a screencap-specific bug) both show
+   the canvas frozen at whatever it looked like a few seconds after the chart first opened. A manual
+   touch/swipe on the WebView momentarily forces a real repaint (briefly shows the correct up-to-date
+   line) before freezing again. This means: don't trust `screencap`/`screenrecord` snapshots as proof
+   a Chart.js-based live chart is broken on this environment — instrument the JS directly
+   (`console.log` piped through `adb logcat | grep chromium`) to check the actual data/redraw state,
+   and treat visual confirmation as only possible on a real Android device.
 
 ### Windows
 - ADB integration for Nordic Track iFit devices
