@@ -7514,6 +7514,8 @@ void homeform::update() {
             // Get resistance and inclination values
             int resistance = 0;
             double inclination = 0.0;
+            int antEquipmentType = 0x19; // ANT+ FE Trainer/Stationary Bike
+            int strokeCount = 0;
             
             if (bluetoothManager->device()->deviceType() == BIKE) {
                 resistance = (int)((bike*)bluetoothManager->device())->currentResistance().value();
@@ -7522,17 +7524,21 @@ void homeform::update() {
                 resistance = (int)((elliptical*)bluetoothManager->device())->currentResistance().value();
                 inclination = ((elliptical*)bluetoothManager->device())->currentInclination().value();
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                antEquipmentType = 0x16; // ANT+ FE Rower
                 resistance = (int)((rower*)bluetoothManager->device())->currentResistance().value();
+                strokeCount = (int)((rower*)bluetoothManager->device())->currentStrokesCount().value();
             }
             
             // Call the extended metrics update via JNI
             KeepAwakeHelper::antObject(false)->callMethod<void>("updateBikeTransmitterExtendedMetrics", 
-                "(JIDID)V", 
+                "(JIDIDII)V",
                 distanceMeters, 
                 heartRate, 
                 elapsedTimeSeconds, 
                 resistance, 
-                inclination);                                      
+                inclination,
+                antEquipmentType,
+                strokeCount);
         }
 #endif
 
