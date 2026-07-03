@@ -19,6 +19,8 @@ window.chartColors = {
     greyt: 'rgb(201, 203, 207, 0.55)',
     black: 'rgb(0, 0, 0)',
     blackt: 'rgb(0, 0, 0, 0.55)',
+    blue: 'rgb(54, 162, 235)',
+    bluet: 'rgb(54, 162, 235, 0.55)',
 };
 
 var treadmillChart = null;
@@ -43,11 +45,6 @@ function isTrueSetting(value) {
     return value === true || value === 'true' || value === 1 || value === '1';
 }
 
-// Incline has no equivalent zone concept, so it just uses the same flat color as the Workout Editor
-// preview (workout-editor-app.js) for visual consistency with what the user sees when building the
-// training program.
-const inclineColor = '#26c6da';
-
 // Speed zones derived from the user's own race pace settings (Settings -> Training Program Options ->
 // 1 Mile/5K/10K/Half Marathon/Marathon pace), the same reference paces QZ uses to turn a Zwift running
 // workout's %pace target into an actual km/h (see zwiftworkout::speedFromPace). This mirrors how the
@@ -56,7 +53,6 @@ const inclineColor = '#26c6da';
 // (marathon) to fastest (1 mile), as the zone boundaries.
 var paceZoneLabels = ['Marathon', 'Half Marathon', '10K', '5K', '1 Mile'];
 var paceZones = [8, 10, 11, 12, 14]; // km/h fallback if settings can't be read; overwritten in dochart_init()
-var paceZoneColors = ['grey', 'limegreen', 'gold', 'orange', 'darkorange', 'red'];
 var paceZoneColorsT = ['greyt', 'limegreent', 'goldt', 'oranget', 'darkoranget', 'redt'];
 
 // Background bands for each pace zone, from 0 up to the fastest zone's top. Built as a function
@@ -298,31 +294,25 @@ function process_arr(arr) {
                 yAxisID: 'y-incline',
                 borderDash: [5, 5]
             }, {
+                // Actual speed/inclination use a solid pen 1.5x thicker than the dashed target
+                // lines (black/blue vs. black/grey) so the two stay visually distinct even when
+                // they coincide (e.g. with a Fake Treadmill, which tracks target exactly).
                 label: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
-                backgroundColor: window.chartColors.red,
-                borderColor: window.chartColors.red,
+                backgroundColor: window.chartColors.black,
+                borderColor: window.chartColors.black,
                 data: speed,
                 fill: false,
                 pointRadius: 0,
-                borderWidth: 2,
-                yAxisID: 'y-speed',
-                segment: {
-                    borderColor: ctx => {
-                        const y = ctx.p0.parsed.y;
-                        for (let i = 0; i < paceZones.length; i++) {
-                            if (y < paceZones[i]) return window.chartColors[paceZoneColors[i]];
-                        }
-                        return window.chartColors[paceZoneColors[paceZoneColors.length - 1]];
-                    }
-                }
+                borderWidth: 3,
+                yAxisID: 'y-speed'
             }, {
                 label: t('workoutEditor.incline', 'Incline'),
-                backgroundColor: inclineColor,
-                borderColor: inclineColor,
+                backgroundColor: window.chartColors.blue,
+                borderColor: window.chartColors.blue,
                 data: inclination,
                 fill: false,
                 pointRadius: 0,
-                borderWidth: 2,
+                borderWidth: 3,
                 yAxisID: 'y-incline'
             }]
         },
@@ -390,7 +380,7 @@ function process_arr(arr) {
                     title: {
                         display: true,
                         text: t('workoutEditor.inclinePercent', 'Incline (%)'),
-                        color: inclineColor,
+                        color: window.chartColors.blue,
                     },
                     min: 0,
                     max: incline_max,
