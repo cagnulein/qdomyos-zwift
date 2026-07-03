@@ -131,6 +131,56 @@ grep -n "KS-" src/devices/bluetooth.cpp
 - Foreground service for background operation
 - USB serial support for wired connections
 
+#### Building a debug APK for on-device testing (Waydroid / real device)
+
+Use `tools/build_android_debug_aab.sh` as the reference recipe (qmake → make →
+`make install` → `androiddeployqt --aux-mode --no-build` → gradle). Known
+Qt/NDK toolchain on this machine: `QT_ANDROID_DIR=/home/cagnulein/qt5.15.0-android-page16/usr/local/Qt-5.15.0`,
+`ANDROID_SDK_ROOT=/home/cagnulein/Android/Sdk`, NDK `ndk/21.3.6528147`.
+
+**Gotchas that will silently produce a broken/crashing APK if skipped** (each one cost 15-30+ min to
+diagnose the hard way — check these BEFORE spending time in logcat):
+
+1. **`ANDROID_ABIS=<one-abi>` is ignored by the top-level `make`/`all` target** — qmake's generated
+   Makefile always aggregates `armeabi-v7a-all arm64-v8a-all x86-all x86_64-all` regardless of the
+   override. To build only the ABI you need, invoke the specific submake target directly, e.g.
+   `make x86_64-all` (`make INSTALL_ROOT=... install` will *also* silently rebuild all 4 ABIs — no
+   known workaround short of patching the generated Makefile). Check the device's actual ABI first:
+   `adb shell getprop ro.product.cpu.abi`.
+2. **`src/translations/*.qm` are untracked build artifacts**, not present in a fresh `git worktree`
+   checkout — `qrc_translations.cpp` will fail with `No rule to make target '...qdomyos-zwift_vi.qm'`.
+   Copy them from an existing checkout (`cp .../src/translations/*.qm <worktree>/src/translations/`)
+   before running qmake/make.
+3. **`androiddeployqt --aux-mode` on this Qt/NDK combo does NOT reliably bundle the Qt runtime
+   `.so`s or the QML plugin RCC bundle**, even though it logs no error. Two distinct silent
+   failures, each with a different symptom:
+   - Missing `lib/<abi>/libQt5*.so` (Charts, Widgets, Gui, ...) → APK install succeeds but the app
+     crashes instantly with `UnsatisfiedLinkError: libQt5Charts_<abi>.so not found`.
+   - Missing `assets/android_rcc_bundle.rcc` (androiddeployqt logs `Skipping createRCC`) → the app
+     does NOT crash with a native error; instead `QQmlApplicationEngine` fails to resolve *every*
+     QML module (`module "QtQuick.Controls" is not installed`, etc.), `engine.load()` produces an
+     **empty** root object list, and `homeform`'s constructor immediately dereferences
+     `engine->rootObjects().constFirst()` → `Q_ASSERT`/`abort()` with a backtrace that only shows
+     `QList::first()` and `homeform::homeform(...)`, giving *zero* hint about the real QML cause.
+   - **Fix**: reuse `libs/<abi>/*.so` and `assets/android_rcc_bundle.rcc` from any previously
+     successful `android-build` output directory on the same machine (same Qt version → same Qt
+     module/plugin binaries, safe to copy) instead of relying on androiddeployqt to regenerate them.
+   - **Root-causing tip**: the custom message handler in `src/main.cpp` (`myMessageOutput`) swallows
+     ALL `qWarning`/`qDebug` (including QML load errors) unless the `log_debug` QSettings key is
+     `true` — so QML errors are invisible in `adb logcat` by default. Temporarily force
+     `logdebug = true` there to see them, then revert.
+4. **`gradlew assembleDebug` requires Java 17**, not 11, despite CI using
+   `temurin 11.0.23` (AGP 8.13 requirement) — `export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64`.
+5. **Waydroid containers have no functional Bluetooth adapter**
+   (`adb shell dumpsys bluetooth_manager` shows `enabled: false`, un-fixable via
+   `adb shell svc bluetooth enable`). `QBluetoothDeviceDiscoveryAgent::start()` is created (a virtual
+   adapter object exists) but its scan never emits `finished()`, so `bluetooth::finished()` — which is
+   what actually activates `Fake Device`/`Fake Treadmill`/etc — never runs, and the app hangs on
+   "Connecting..." forever. Real Android devices/emulators with working BT don't hit this.
+6. **`adb shell run-as` does not work on Waydroid** (`setegid(AID_PACKAGE_INFO) failed`), so editing
+   `qDomyos-Zwift.conf` directly is unavailable there — drive settings through the UI instead
+   (`adb shell input tap/swipe`).
+
 ### Windows
 - ADB integration for Nordic Track iFit devices
 - PaddleOCR integration for Zwift workout detection

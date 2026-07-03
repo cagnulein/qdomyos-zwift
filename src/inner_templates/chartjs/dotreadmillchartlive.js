@@ -30,8 +30,40 @@ function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
 }
 
-// Define speed zones
-const speedZones = [6, 8, 10, 12, 14, 16]; // km/h
+// Incline has no equivalent zone concept, so it just uses the same flat color as the Workout Editor
+// preview (workout-editor-app.js) for visual consistency with what the user sees when building the
+// training program.
+const inclineColor = '#26c6da';
+
+// Speed zones derived from the user's own race pace settings (Settings -> Training Program Options ->
+// 1 Mile/5K/10K/Half Marathon/Marathon pace), the same reference paces QZ uses to turn a Zwift running
+// workout's %pace target into an actual km/h (see zwiftworkout::speedFromPace). This mirrors how the
+// bike power chart derives its zones from FTP, but for running there's no single "reference value" like
+// FTP -- each race distance gives its own reference pace -- so we use all five, sorted from slowest
+// (marathon) to fastest (1 mile), as the zone boundaries.
+var paceZoneLabels = ['Marathon', 'Half Marathon', '10K', '5K', '1 Mile'];
+var paceZones = [8, 10, 11, 12, 14]; // km/h fallback if settings can't be read; overwritten in dochart_init()
+var paceZoneColors = ['grey', 'limegreen', 'gold', 'orange', 'darkorange', 'red'];
+var paceZoneColorsT = ['greyt', 'limegreent', 'goldt', 'oranget', 'darkoranget', 'redt'];
+
+// Background bands for each pace zone, from 0 up to the fastest zone's top. Built as a function
+// (rather than computed once) so it always reflects the current paceZones/speed_max at chart
+// creation time, after the settings fetch in dochart_init() has resolved.
+function paceZoneBoxes() {
+    const boundaries = [0, ...paceZones, Math.max(speed_max, paceZones[paceZones.length - 1] + 1)];
+    const boxes = {};
+    for (let i = 0; i < paceZoneColorsT.length; i++) {
+        boxes['box' + i] = {
+            type: 'box',
+            xMin: 0,
+            yMin: boundaries[i],
+            yMax: boundaries[i + 1],
+            backgroundColor: window.chartColors[paceZoneColorsT[i]],
+            yScaleID: 'y-speed',
+        };
+    }
+    return boxes;
+}
 
 function process_arr(arr) {    
     let ctx = document.getElementById('canvas').getContext('2d');
@@ -52,9 +84,13 @@ function process_arr(arr) {
             if (speed_max < el.speed * miles) speed_max = el.speed * miles;
         }
 
-        if (el.target_speed !== undefined && el.target_speed !== -1) {
-            targetSpeed.push({x: time, y: el.target_speed * miles});
-            if (speed_max < el.target_speed * miles) speed_max = el.target_speed * miles;
+        if (el.target_speed !== undefined) {
+            // Push null (instead of skipping) when there's no target for this row (e.g. a
+            // heart-rate-triggered row) so Chart.js breaks the line here rather than drawing a
+            // straight bridge across the gap to the next row that does have a target.
+            const hasTarget = el.target_speed !== -1;
+            targetSpeed.push({x: time, y: hasTarget ? el.target_speed * miles : null});
+            if (hasTarget && speed_max < el.target_speed * miles) speed_max = el.target_speed * miles;
         }
 
         if (el.inclination !== undefined) {
@@ -62,13 +98,19 @@ function process_arr(arr) {
             if (incline_max < el.inclination) incline_max = el.inclination;
         }
 
-        if (el.target_inclination !== undefined && el.target_inclination !== -200) {
-            targetInclination.push({x: time, y: el.target_inclination});
-            if (incline_max < el.target_inclination) incline_max = el.target_inclination;
+        if (el.target_inclination !== undefined) {
+            const hasTarget = el.target_inclination !== -200;
+            targetInclination.push({x: time, y: hasTarget ? el.target_inclination : null});
+            if (hasTarget && incline_max < el.target_inclination) incline_max = el.target_inclination;
         }
     }
 
-    speed_max = Math.ceil(speed_max * 1.1); 
+    if (paceZones.length > 0 && speed_max < paceZones[paceZones.length - 1]) {
+        // Always show all pace zone bands/labels on the axis, even if the workout
+        // never actually reached the fastest configured pace.
+        speed_max = paceZones[paceZones.length - 1];
+    }
+    speed_max = Math.ceil(speed_max * 1.1);
     incline_max = Math.ceil(incline_max * 1.1);
 
     const backgroundFill = {
@@ -87,7 +129,31 @@ function process_arr(arr) {
         type: 'line',
         plugins: [backgroundFill],
         data: {
+            // Target datasets are listed first and actual datasets last: Chart.js paints datasets
+            // in array order, so the actual (solid, zone-colored) lines are always drawn on top of
+            // the dashed target lines instead of being hidden behind them when the two coincide
+            // (e.g. with a Fake Treadmill, which has no acceleration lag and tracks target exactly).
             datasets: [{
+                label: miles === 1 ? t('chart.targetSpeedKmh', 'Target Speed (km/h)') : t('chart.targetSpeedMph', 'Target Speed (mph)'),
+                backgroundColor: window.chartColors.black,
+                borderColor: window.chartColors.black,
+                data: targetSpeed,
+                fill: false,
+                pointRadius: 0,
+                borderWidth: 2,
+                yAxisID: 'y-speed',
+                borderDash: [5, 5]
+            }, {
+                label: t('chart.targetIncline', 'Target Incline'),
+                backgroundColor: window.chartColors.grey,
+                borderColor: window.chartColors.grey,
+                data: targetInclination,
+                fill: false,
+                pointRadius: 0,
+                borderWidth: 2,
+                yAxisID: 'y-incline',
+                borderDash: [5, 5]
+            }, {
                 label: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
@@ -99,49 +165,26 @@ function process_arr(arr) {
                 segment: {
                     borderColor: ctx => {
                         const y = ctx.p0.parsed.y;
-                        if (y < speedZones[0]) return window.chartColors.grey;
-                        if (y < speedZones[1]) return window.chartColors.limegreen;
-                        if (y < speedZones[2]) return window.chartColors.gold;
-                        if (y < speedZones[3]) return window.chartColors.orange;
-                        if (y < speedZones[4]) return window.chartColors.darkorange;
-                        if (y < speedZones[5]) return window.chartColors.orangered;
-                        return window.chartColors.red;
+                        for (let i = 0; i < paceZones.length; i++) {
+                            if (y < paceZones[i]) return window.chartColors[paceZoneColors[i]];
+                        }
+                        return window.chartColors[paceZoneColors[paceZoneColors.length - 1]];
                     }
                 }
             }, {
-                label: miles === 1 ? t('chart.targetSpeedKmh', 'Target Speed (km/h)') : t('chart.targetSpeedMph', 'Target Speed (mph)'),
-                backgroundColor: window.chartColors.black,
-                borderColor: window.chartColors.black,
-                data: targetSpeed,
-                fill: false,
-                pointRadius: 0,
-                borderWidth: 2,
-                yAxisID: 'y-speed',
-                borderDash: [5, 5]
-            }, {
                 label: t('workoutEditor.incline', 'Incline'),
-                backgroundColor: window.chartColors.orange,
-                borderColor: window.chartColors.orange,
+                backgroundColor: inclineColor,
+                borderColor: inclineColor,
                 data: inclination,
                 fill: false,
                 pointRadius: 0,
                 borderWidth: 2,
                 yAxisID: 'y-incline'
-            }, {
-                label: t('chart.targetIncline', 'Target Incline'),
-                backgroundColor: window.chartColors.grey,
-                borderColor: window.chartColors.grey,
-                data: targetInclination,
-                fill: false,
-                pointRadius: 0,
-                borderWidth: 2,
-                yAxisID: 'y-incline',
-                borderDash: [5, 5]
             }]
         },
-        options: {           
+        options: {
             responsive: true,
-            aspectRatio: div.width / div.height,
+            maintainAspectRatio: false,
             interaction: {
                 mode: 'index',
                 intersect: false,
@@ -154,64 +197,7 @@ function process_arr(arr) {
                     display: false
                 },
                 annotation: {
-                    annotations: {
-                        box1: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: 0,
-                            yMax: speedZones[0],
-                            backgroundColor: "#d6d6d620",
-                            yScaleID: 'y-speed',
-                        },
-                        box2: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[0],
-                            yMax: speedZones[1],
-                            backgroundColor: window.chartColors.limegreent,
-                            yScaleID: 'y-speed',
-                        },
-                        box3: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[1],
-                            yMax: speedZones[2],
-                            backgroundColor: window.chartColors.goldt,
-                            yScaleID: 'y-speed',
-                        },
-                        box4: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[2],
-                            yMax: speedZones[3],
-                            backgroundColor: window.chartColors.oranget,
-                            yScaleID: 'y-speed',
-                        },
-                        box5: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[3],
-                            yMax: speedZones[4],
-                            backgroundColor: window.chartColors.darkoranget,
-                            yScaleID: 'y-speed',
-                        },
-                        box6: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[4],
-                            yMax: speedZones[5],
-                            backgroundColor: window.chartColors.orangeredt,
-                            yScaleID: 'y-speed',
-                        },
-                        box7: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[5],
-                            yMax: speed_max,
-                            backgroundColor: window.chartColors.redt,
-                            yScaleID: 'y-speed',
-                        }
-                    }
+                    annotations: paceZoneBoxes()
                 }
             },
             scales: {
@@ -237,18 +223,20 @@ function process_arr(arr) {
                     display: true,
                     position: 'left',
                     title: {
-                        display: false
+                        display: true,
+                        text: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
+                        color: 'black',
                     },
                     min: 0,
                     max: speed_max,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => speedZones.includes(value) ?
-                            'Speed z' + (speedZones.indexOf(value) + 1) : undefined,
                         color: 'black',
-                        padding: -70,
-                        align: 'end',
+                        callback: value => {
+                            const i = paceZones.findIndex(z => Math.abs(z - value) < 0.5);
+                            return i === -1 ? Math.round(value) : `${Math.round(value)} (${paceZoneLabels[i]})`;
+                        }
                     }
                 },
                 'y-incline': {
@@ -256,7 +244,9 @@ function process_arr(arr) {
                     display: true,
                     position: 'right',
                     title: {
-                        display: false
+                        display: true,
+                        text: t('workoutEditor.inclinePercent', 'Incline (%)'),
+                        color: inclineColor,
                     },
                     min: 0,
                     max: incline_max,
@@ -287,76 +277,51 @@ function refresh() {
 }
 
 function process_workout(arr) {
-    // Update speed data
-    treadmillChart.data.datasets[0].data.push({
-        x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-        y: arr.speed * miles
-    });
-    if (speed_max < arr.speed * miles) {
-        speed_max = Math.ceil(arr.speed * miles * 1.1);
-        treadmillChart.options.scales['y-speed'].max = speed_max;
-    }
+    // Dataset order: 0=Target Speed, 1=Target Incline, 2=Speed (actual), 3=Incline (actual).
+    const t = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
 
-    // Update target speed
-    if (arr.target_speed !== undefined && arr.target_speed !== -1) {
-        treadmillChart.data.datasets[1].data.push({
-            x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-            y: arr.target_speed * miles
-        });
-        if (speed_max < arr.target_speed * miles) {
+    // Update target speed. Push null (instead of skipping) when there's no target for the
+    // current row, so Chart.js breaks the line instead of bridging straight across to whatever
+    // row set a target next (e.g. across a heart-rate-triggered row with no speed target).
+    if (arr.target_speed !== undefined) {
+        const hasTarget = arr.target_speed !== -1;
+        treadmillChart.data.datasets[0].data.push({x: t, y: hasTarget ? arr.target_speed * miles : null});
+        if (hasTarget && speed_max < arr.target_speed * miles) {
             speed_max = Math.ceil(arr.target_speed * miles * 1.1);
             treadmillChart.options.scales['y-speed'].max = speed_max;
         }
     }
 
-    // Update inclination data
-    treadmillChart.data.datasets[2].data.push({
-        x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-        y: arr.inclination
-    });
-    if (incline_max < arr.inclination) {
-        incline_max = Math.ceil(arr.inclination * 1.1);
-        treadmillChart.options.scales['y-incline'].max = incline_max;
-    }
-
     // Update target inclination
-    if (arr.target_inclination !== undefined && arr.target_inclination !== -200) {
-        treadmillChart.data.datasets[3].data.push({
-            x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-            y: arr.target_inclination
-        });
-        if (incline_max < arr.target_inclination) {
+    if (arr.target_inclination !== undefined) {
+        const hasTarget = arr.target_inclination !== -200;
+        treadmillChart.data.datasets[1].data.push({x: t, y: hasTarget ? arr.target_inclination : null});
+        if (hasTarget && incline_max < arr.target_inclination) {
             incline_max = Math.ceil(arr.target_inclination * 1.1);
             treadmillChart.options.scales['y-incline'].max = incline_max;
         }
+    }
+
+    // Update speed data (actual)
+    treadmillChart.data.datasets[2].data.push({x: t, y: arr.speed * miles});
+    if (speed_max < arr.speed * miles) {
+        speed_max = Math.ceil(arr.speed * miles * 1.1);
+        treadmillChart.options.scales['y-speed'].max = speed_max;
+    }
+
+    // Update inclination data (actual)
+    treadmillChart.data.datasets[3].data.push({x: t, y: arr.inclination});
+    if (incline_max < arr.inclination) {
+        incline_max = Math.ceil(arr.inclination * 1.1);
+        treadmillChart.options.scales['y-incline'].max = incline_max;
     }
 
     treadmillChart.update();
     refresh();
 }
 
-function dochart_init() {
-    // Get miles_unit setting first
+function loadSessionArrayAndBuildChart() {
     let el = new MainWSQueueElement({
-        msg: 'getsettings',
-        content: {
-            keys: ['miles_unit']
-        }
-    }, function(msg) {
-        if (msg.msg === 'R_getsettings') {
-            if (msg.content['miles_unit'] === true || msg.content['miles_unit'] === 'true') {
-                miles = 0.621371;
-            }
-            return msg.content;
-        }
-        return null;
-    }, 5000, 3);
-    el.enqueue().catch(function(err) {
-        console.error('Error getting settings: ' + err);
-    });
-
-    // Get session array
-    el = new MainWSQueueElement({
         msg: 'getsessionarray'
     }, function(msg) {
         if (msg.msg === 'R_getsessionarray') {
@@ -367,6 +332,41 @@ function dochart_init() {
     el.enqueue().then(process_arr).catch(function(err) {
         console.error('Error is ' + err);
     });
+}
+
+function dochart_init() {
+    // Fetch miles_unit and the user's race pace settings first, since paceZones/miles need to be
+    // resolved before the chart (and its zone backgrounds/labels) is built.
+    const keys_arr = ['miles_unit', 'pacef_1mile', 'pacef_5km', 'pacef_10km', 'pacef_halfmarathon', 'pacef_marathon'];
+    let el = new MainWSQueueElement({
+        msg: 'getsettings',
+        content: {
+            keys: keys_arr
+        }
+    }, function(msg) {
+        if (msg.msg === 'R_getsettings') {
+            for (const key of keys_arr) {
+                if (msg.content[key] === undefined) return null;
+            }
+            return msg.content;
+        }
+        return null;
+    }, 5000, 3);
+    el.enqueue().then(function(settings) {
+        if (settings['miles_unit'] === true || settings['miles_unit'] === 'true') {
+            miles = 0.621371;
+        }
+        const paceToSpeed = pacef => (3600 / Number(pacef)) * miles;
+        paceZones = [
+            paceToSpeed(settings['pacef_marathon']),
+            paceToSpeed(settings['pacef_halfmarathon']),
+            paceToSpeed(settings['pacef_10km']),
+            paceToSpeed(settings['pacef_5km']),
+            paceToSpeed(settings['pacef_1mile']),
+        ].sort((a, b) => a - b);
+    }).catch(function(err) {
+        console.error('Error getting settings: ' + err);
+    }).finally(loadSessionArrayAndBuildChart);
 }
 
 $(window).on('load', function() {

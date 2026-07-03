@@ -1937,9 +1937,18 @@ void homeform::trainProgramSignals() {
         connect(trainProgram, &trainprogram::zwiftLoginState, this, &homeform::zwiftLoginState);
 
         if (trainProgram) {
-            setChartIconVisible(trainProgram->chartTargetWorkout());
+            // chartTargetWorkout() also returns true for pure heart-rate-driven rows (HRabove/HRbelow/zoneHR/etc,
+            // e.g. Garmin-style HR triggered segments). Those don't have a target power/speed of their own, so a
+            // treadmill running one of them should still get the speed/inclination chart (which also renders the
+            // heart panel), not the bike/power chart.
+            bool treadmillMode = bluetoothManager->device()->deviceType() == TREADMILL &&
+                                  !trainProgram->powerzoneWorkout() &&
+                                  (trainProgram->speedInclinationTargetWorkout() || trainProgram->chartTargetWorkout());
+            setChartTreadmillMode(treadmillMode);
+            bool chartWorkout = trainProgram->chartTargetWorkout() || trainProgram->speedInclinationTargetWorkout();
+            setChartIconVisible(chartWorkout);
             if (chartFooterVisible()) {
-                if (trainProgram->chartTargetWorkout()) {
+                if (chartWorkout) {
                     // reloading
                     setChartFooterVisible(false);
                     setChartFooterVisible(true);
@@ -10703,13 +10712,30 @@ QString homeform::getAndroidDataAppDir() {
             QAndroidJniObject file;
             for (int i = 0; i < dataSize; i++) {
                 file = env->GetObjectArrayElement(dataArray, i);
+                if (!file.isValid())
+                    continue;
+                // isExternalStorageRemovable throws IllegalArgumentException on Waydroid/emulators
+                // where vold can't resolve the storage volume — clear any pending exception.
                 jboolean val = QAndroidJniObject::callStaticMethod<jboolean>(
                     "android/os/Environment", "isExternalStorageRemovable", "(Ljava/io/File;)Z", file.object());
+                if (env->ExceptionCheck()) {
+                    env->ExceptionClear();
+                    val = JNI_FALSE;
+                }
                 mediaPath = file.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;");
                 out = mediaPath.toString();
                 if (!val)
                     break;
             }
+        }
+    }
+    // Fallback to internal storage when external storage is unavailable (e.g. Waydroid)
+    if (out.isEmpty()) {
+        QAndroidJniObject internalDir = QtAndroid::androidActivity().callObjectMethod(
+            "getFilesDir", "()Ljava/io/File;");
+        if (internalDir.isValid()) {
+            QAndroidJniObject internalPath = internalDir.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;");
+            out = internalPath.toString();
         }
     }
     path = out;
