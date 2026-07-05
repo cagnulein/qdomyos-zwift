@@ -755,7 +755,196 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         setGears(gear);
     }
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
+        union flags {
+            struct {
+                uint16_t moreData : 1;
+                uint16_t avgSpeed : 1;
+                uint16_t totDistance : 1;
+                uint16_t inclinationAndRampAngle : 1;
+                uint16_t positiveElevationGain : 1;
+                uint16_t instantPace : 1;
+                uint16_t avgPace : 1;
+                uint16_t expEnergy : 1;
+                uint16_t heartRate : 1;
+                uint16_t metabolicEq : 1;
+                uint16_t elapsedTime : 1;
+                uint16_t remainingTime : 1;
+                uint16_t forceOnBeltAndPowerOutput : 1;
+                uint16_t spare : 3;
+            };
+
+            uint16_t word_flags;
+        };
+
+        if (newValue.length() < 2) {
+            qDebug() << "Invalid FTMS 0x2ACD packet length" << newValue.length();
+            return;
+        }
+
+        flags Flags;
+        int index = 0;
+        Flags.word_flags = (((uint16_t)((uint8_t)newValue.at(1))) << 8) |
+                           ((uint16_t)((uint8_t)newValue.at(0)));
+        index += 2;
+
+        auto ensureTreadmillBytesAvailable = [&](int bytesNeeded, const QString &fieldName) {
+            if (newValue.length() < index + bytesNeeded) {
+                qDebug() << "Invalid FTMS 0x2ACD packet: missing" << fieldName
+                         << "need" << bytesNeeded << "bytes at index" << index
+                         << "length" << newValue.length() << newValue.toHex(' ');
+                return false;
+            }
+            return true;
+        };
+
+        if (!Flags.moreData) {
+            if (!ensureTreadmillBytesAvailable(2, QStringLiteral("speed")))
+                return;
+            double treadmillSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                      (uint16_t)((uint8_t)newValue.at(index)))) /
+                                    100.0;
+            index += 2;
+            emit debug(QStringLiteral("FTMS Treadmill Data Speed: ") + QString::number(treadmillSpeed));
+        }
+
+        if (Flags.avgSpeed) {
+            if (!ensureTreadmillBytesAvailable(2, QStringLiteral("average speed")))
+                return;
+
+            double treadmillAverageSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                             (uint16_t)((uint8_t)newValue.at(index)))) /
+                                           100.0;
+            index += 2;
+            emit debug(QStringLiteral("FTMS Treadmill Data Average Speed: ") +
+                       QString::number(treadmillAverageSpeed));
+        }
+
+        if (Flags.totDistance) {
+            if (!ensureTreadmillBytesAvailable(3, QStringLiteral("total distance")))
+                return;
+
+            double treadmillDistance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                                  (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                                 (uint32_t)((uint8_t)newValue.at(index)))) /
+                                       1000.0;
+            index += 3;
+            emit debug(QStringLiteral("FTMS Treadmill Data Distance: ") + QString::number(treadmillDistance));
+        }
+
+        if (Flags.inclinationAndRampAngle) {
+            if (!ensureTreadmillBytesAvailable(4, QStringLiteral("inclination and ramp angle")))
+                return;
+
+            int16_t inclination = ((int16_t)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            Inclination = ((double)inclination) / 10.0;
+            index += 2;
+            int16_t rampAngle = ((int16_t)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index))));
+            double treadmillRampAngle = ((double)rampAngle) / 10.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+            emit debug(QStringLiteral("FTMS Treadmill Data Ramp Angle: ") + QString::number(treadmillRampAngle));
+        }
+
+        if (Flags.positiveElevationGain) {
+            if (!ensureTreadmillBytesAvailable(4, QStringLiteral("elevation gain")))
+                return;
+            uint16_t positiveElevationGain = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                              (uint16_t)((uint8_t)newValue.at(index)));
+            uint16_t negativeElevationGain = (((uint16_t)((uint8_t)newValue.at(index + 3)) << 8) |
+                                              (uint16_t)((uint8_t)newValue.at(index + 2)));
+            index += 4;
+            emit debug(QStringLiteral("FTMS Treadmill Data Positive Elevation Gain: ") +
+                       QString::number(positiveElevationGain));
+            emit debug(QStringLiteral("FTMS Treadmill Data Negative Elevation Gain: ") +
+                       QString::number(negativeElevationGain));
+        }
+
+        if (Flags.instantPace) {
+            if (!ensureTreadmillBytesAvailable(2, QStringLiteral("instant pace")))
+                return;
+            uint16_t instantPace = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                    (uint16_t)((uint8_t)newValue.at(index)));
+            index += 2;
+            emit debug(QStringLiteral("FTMS Treadmill Data Instant Pace: ") + QString::number(instantPace));
+        }
+
+        if (Flags.avgPace) {
+            if (!ensureTreadmillBytesAvailable(2, QStringLiteral("average pace")))
+                return;
+            uint16_t averagePace = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                    (uint16_t)((uint8_t)newValue.at(index)));
+            index += 2;
+            emit debug(QStringLiteral("FTMS Treadmill Data Average Pace: ") + QString::number(averagePace));
+        }
+
+        if (Flags.expEnergy) {
+            if (!ensureTreadmillBytesAvailable(5, QStringLiteral("expended energy")))
+                return;
+            uint16_t expendedEnergy = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                       (uint16_t)((uint8_t)newValue.at(index)));
+            uint16_t energyPerHour = (((uint16_t)((uint8_t)newValue.at(index + 3)) << 8) |
+                                      (uint16_t)((uint8_t)newValue.at(index + 2)));
+            uint8_t energyPerMinute = (uint8_t)newValue.at(index + 4);
+            index += 5;
+            emit debug(QStringLiteral("FTMS Treadmill Data Expended Energy: ") +
+                       QString::number(expendedEnergy));
+            emit debug(QStringLiteral("FTMS Treadmill Data Energy Per Hour: ") +
+                       QString::number(energyPerHour));
+            emit debug(QStringLiteral("FTMS Treadmill Data Energy Per Minute: ") +
+                       QString::number(energyPerMinute));
+        }
+
+        if (Flags.heartRate) {
+            if (!ensureTreadmillBytesAvailable(1, QStringLiteral("heart rate")))
+                return;
+
+            uint8_t treadmillHeartRate = (uint8_t)newValue.at(index);
+            index += 1;
+            emit debug(QStringLiteral("FTMS Treadmill Data Heart Rate: ") + QString::number(treadmillHeartRate));
+        }
+
+        if (Flags.metabolicEq) {
+            if (!ensureTreadmillBytesAvailable(1, QStringLiteral("metabolic equivalent")))
+                return;
+            double metabolicEquivalent = ((double)((uint8_t)newValue.at(index))) / 10.0;
+            index += 1;
+            emit debug(QStringLiteral("FTMS Treadmill Data Metabolic Equivalent: ") +
+                       QString::number(metabolicEquivalent));
+        }
+
+        if (Flags.elapsedTime) {
+            if (!ensureTreadmillBytesAvailable(2, QStringLiteral("elapsed time")))
+                return;
+            uint16_t elapsedTime = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                    (uint16_t)((uint8_t)newValue.at(index)));
+            index += 2;
+            emit debug(QStringLiteral("FTMS Treadmill Data Elapsed Time: ") + QString::number(elapsedTime));
+        }
+
+        if (Flags.remainingTime) {
+            if (!ensureTreadmillBytesAvailable(2, QStringLiteral("remaining time")))
+                return;
+            uint16_t remainingTime = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                      (uint16_t)((uint8_t)newValue.at(index)));
+            index += 2;
+            emit debug(QStringLiteral("FTMS Treadmill Data Remaining Time: ") + QString::number(remainingTime));
+        }
+
+        if (Flags.forceOnBeltAndPowerOutput) {
+            if (!ensureTreadmillBytesAvailable(4, QStringLiteral("force on belt and power output")))
+                return;
+            int16_t forceOnBelt = ((int16_t)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                  (uint16_t)((uint8_t)newValue.at(index))));
+            int16_t powerOutput = ((int16_t)(((uint16_t)((uint8_t)newValue.at(index + 3)) << 8) |
+                                  (uint16_t)((uint8_t)newValue.at(index + 2))));
+            index += 4;
+            emit debug(QStringLiteral("FTMS Treadmill Data Force On Belt: ") + QString::number(forceOnBelt));
+            emit debug(QStringLiteral("FTMS Treadmill Data Power Output: ") + QString::number(powerOutput));
+        }
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
         union flags {
             struct {
                 uint16_t moreData : 1;

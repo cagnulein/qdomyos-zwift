@@ -49,6 +49,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     }
     if (!settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool())
         return;
+    notif2ACD = new CharacteristicNotifier2ACD(Bike, this);
     notif2AD2 = new CharacteristicNotifier2AD2(Bike, this);
     notif2AD9 = new CharacteristicNotifier2AD9(Bike, this);
     notif2A63 = new CharacteristicNotifier2A63(Bike, this);
@@ -180,6 +181,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                                                                  descriptor);
                     charDataFIT4.addDescriptor(clientConfig4);
 
+                    QLowEnergyCharacteristicData charDataFIT4Treadmill;
+                    charDataFIT4Treadmill.setUuid((QBluetoothUuid::CharacteristicType)0x2ACD); // treadmill data
+                    charDataFIT4Treadmill.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
+                    charDataFIT4Treadmill.addDescriptor(clientConfig4);
+
                     QLowEnergyCharacteristicData charDataFIT5;
                     charDataFIT5.setUuid((QBluetoothUuid::CharacteristicType)0x2ADA); // Fitness Machine status
                     charDataFIT5.setProperties(QLowEnergyCharacteristic::Notify);
@@ -210,6 +216,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     serviceDataFIT.addCharacteristic(charDataFIT2);
                     serviceDataFIT.addCharacteristic(charDataFIT3);
                     serviceDataFIT.addCharacteristic(charDataFIT4);
+                    serviceDataFIT.addCharacteristic(charDataFIT4Treadmill);
                     serviceDataFIT.addCharacteristic(charDataFIT5);
                     serviceDataFIT.addCharacteristic(charDataFIT6);
 
@@ -1550,6 +1557,14 @@ void virtualbike::bikeProvider() {
                         return;
                     }
                     writeCharacteristic(serviceFIT, characteristic, value);
+
+                    value.clear();
+                    if (notif2ACD->notify(value) == CN_OK) {
+                        QLowEnergyCharacteristic treadmillCharacteristic =
+                            serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2ACD);
+                        Q_ASSERT(treadmillCharacteristic.isValid());
+                        writeCharacteristic(serviceFIT, treadmillCharacteristic, value);
+                    }
 
                     if(zwift_play_emulator) {
                         QLowEnergyCharacteristic characteristic1 =
