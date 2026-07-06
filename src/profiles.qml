@@ -14,6 +14,15 @@ ColumnLayout {
 
     signal profile_open_clicked(url name)
 
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "profile") {
+                profile_open_clicked(localUrl)
+            }
+        }
+    }
+
     Settings {
         id: settings
         property string profile_name: "default"

@@ -14,6 +14,16 @@ ColumnLayout {
     signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
     property var selectedFileUrl: ""
+
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "gpx") {
+                trainprogram_open_clicked(localUrl)
+            }
+        }
+    }
+
     Loader {
         id: fileDialogLoader
         active: false

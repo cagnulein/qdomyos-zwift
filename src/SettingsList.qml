@@ -7,6 +7,16 @@ import QtQuick.Dialogs 1.0
 
 ColumnLayout {
     signal loadSettings(url name)
+
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "settings") {
+                loadSettings(localUrl)
+            }
+        }
+    }
+
     Loader {
         id: fileDialogLoader
         active: false

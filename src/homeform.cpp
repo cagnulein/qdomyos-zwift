@@ -8822,23 +8822,26 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
     }
 
     const QUrl localUrl = QUrl::fromLocalFile(localPath);
+    QString kind;
     switch (requestCode) {
     case AndroidDocumentPickerProfileRequestCode:
-        loadSettings(localUrl);
+        kind = QStringLiteral("profile");
         break;
     case AndroidDocumentPickerTrainingRequestCode:
-        trainprogram_open_clicked(localUrl);
+        kind = QStringLiteral("training");
         break;
     case AndroidDocumentPickerGpxRequestCode:
-        gpx_open_clicked(localUrl);
+        kind = QStringLiteral("gpx");
         break;
     case AndroidDocumentPickerSettingsRequestCode:
-        loadSettings(localUrl);
+        kind = QStringLiteral("settings");
         break;
     default:
         qWarning() << "Unknown Android document picker request code" << requestCode << localPath;
-        break;
+        return;
     }
+
+    emit androidDocumentPicked(kind, localUrl);
 #else
     Q_UNUSED(requestCode)
     Q_UNUSED(localPath)

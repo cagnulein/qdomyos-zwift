@@ -1243,6 +1243,7 @@ public:
 
     void changeOfdevice();
     void changeOflap();
+    void androidDocumentPicked(QString kind, QUrl localUrl);
     void signalChanged(QString value);
     void startTextChanged(QString value);
     void startIconChanged(QString value);

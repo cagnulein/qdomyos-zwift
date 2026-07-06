@@ -15,6 +15,15 @@ ColumnLayout {
     property url selectedWorkoutUrl: ""
     property url initialWorkoutUrl: ""
 
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "training") {
+                trainprogram_open_clicked(localUrl)
+            }
+        }
+    }
+
     function openWorkoutPreview(fileUrl) {
         if (!fileUrl || fileUrl.toString() === "") {
             return
