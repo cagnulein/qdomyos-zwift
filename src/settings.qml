@@ -1693,7 +1693,7 @@ import AndroidStatusBar 1.0
             property string garmin_last_seen_running_ftp_create_time: ""
             property bool horizon_treadmill_omega_z: false
 
-            property string app_language: "auto"                     
+            property string app_language: "auto"
 
             property bool garmin_download_workouts_on_start: true
             property bool trainprogram_clipboard_workout_enabled: false
