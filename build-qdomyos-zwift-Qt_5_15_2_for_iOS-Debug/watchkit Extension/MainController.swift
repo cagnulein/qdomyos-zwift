@@ -104,6 +104,7 @@ extension MainController: WorkoutTrackingDelegate {
             "\(heartRate)" as AnyObject])
         WorkoutTracking.distance = WatchKitConnection.distance
         WorkoutTracking.kcal = WatchKitConnection.kcal
+        WorkoutTracking.totalKcal = WatchKitConnection.totalKcal
         WorkoutTracking.speed = WatchKitConnection.speed
         WorkoutTracking.power = WatchKitConnection.power
         WorkoutTracking.cadence = WatchKitConnection.cadence
