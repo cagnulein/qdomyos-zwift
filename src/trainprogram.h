@@ -52,11 +52,14 @@ class trainrow {
     int8_t zoneHR = -1;
     int16_t HRmin = -1;
     int16_t HRmax = -1;
+    int16_t HRabove = -1;
+    int16_t HRbelow = -1;
     double maxSpeed = -1;
     double minSpeed = -1;
     int8_t maxResistance = -1;
     int32_t power = -1;
     int32_t mets = -1;
+    bool waitForLap = false;
     QTime rampDuration = QTime(0, 0, 0, 0); // QZ split the ramp in 1 second segments. This field will tell you how long
                                             // is the ramp from this very moment
     QTime rampElapsed = QTime(0, 0, 0, 0);
@@ -85,9 +88,13 @@ class trainprogram : public QObject {
     void save(const QString &filename);
     static trainprogram *load(const QString &filename, bluetooth *b, QString Extension);
     static QList<trainrow> loadXML(const QString &filename, BLUETOOTH_TYPE device_type);
-    static bool saveXML(const QString &filename, const QList<trainrow> &rows);
+    static bool saveXML(const QString &filename, const QList<trainrow> &rows, BLUETOOTH_TYPE device_type = UNKNOWN);
     static bool hasTargetPower(const QString &filename);
+    static QString deviceTypeToXmlKey(BLUETOOTH_TYPE type);
+    static BLUETOOTH_TYPE deviceTypeFromXmlKey(const QString &key);
+    static BLUETOOTH_TYPE xmlDeviceType(const QString &filename, BLUETOOTH_TYPE fallback = UNKNOWN);
     QTime totalElapsedTime();
+    int currentRowElapsedSeconds() const;
     QTime currentRowElapsedTime();
     QTime currentRowRemainingTime();
     QTime remainingTime();
@@ -98,6 +105,11 @@ class trainprogram : public QObject {
     trainrow getRowFromCurrent(uint32_t offset);
     void increaseElapsedTime(int32_t i);
     void decreaseElapsedTime(int32_t i);
+    void goToPreviousRow();
+    void applyCurrentStepSettings();
+    int currentRowIndex() const { return currentStep; }
+    int currentLogicalStep() const;
+    int totalLogicalSteps() const;
     int32_t offsetElapsedTime() { return offset; }
     void clearRows();
     double avgSpeedFromGpxStep(int gpxStep, int seconds);
@@ -107,15 +119,33 @@ class trainprogram : public QObject {
     double medianInclination(int step);
     bool overridePowerForCurrentRow(double power);
     bool overrideZoneHRForCurrentRow(uint8_t zone);
+    bool advanceLapButtonStep();
+    static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
+    static int firstBlockingTransitionRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
+    static bool isBlockingTransitionRow(const trainrow &row);
     bool powerzoneWorkout() {
         foreach(trainrow r, rows) {
             if(r.power != -1) return true;
         }
         return false;
     }
+    bool chartTargetWorkout() {
+        foreach(trainrow r, rows) {
+            if(r.power != -1 || r.zoneHR != -1 || r.HRmin != -1 || r.HRmax != -1 ||
+               r.HRabove != -1 || r.HRbelow != -1) return true;
+        }
+        return false;
+    }
+    bool speedInclinationTargetWorkout() {
+        foreach(trainrow r, rows) {
+            if(r.speed != -1 || r.inclination != -200) return true;
+        }
+        return false;
+    }
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
+    BLUETOOTH_TYPE loadedDeviceType = UNKNOWN;
     QString description = "";
     QString tags = "";
     bool enabled = true;
@@ -156,6 +186,9 @@ private slots:
 
   private:
     void end();
+    bool advanceBlockingStep(const QString &toastMessage);
+    bool currentHeartRateEndConditionSatisfied() const;
+    QString currentHeartRateEndConditionMessage() const;
     mutable QRecursiveMutex schedulerMutex;
     double avgAzimuthNext300Meters();
     QList<MetersByInclination> inclinationNext300Meters();
@@ -178,6 +211,8 @@ private slots:
     int lastStepTimestampChanged = 0;
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
+    int lastLapButtonToastStep = -1;
+    int lastLapButtonToastTick = -30;
     
     int64_t currentTimerJitter = 0;
     QDateTime lastSchedulerCall = QDateTime::currentDateTime();

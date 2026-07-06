@@ -83,6 +83,7 @@ public:
     DEFINE_DEVICE(FitPlusF5, "FitPlus F5");
     DEFINE_DEVICE(FitShowBF, "FitShow BF");
     DEFINE_DEVICE(FitShowFS, "FitShow FS");
+    DEFINE_DEVICE(FitShowTR510T, "FitShow TR510-T");
     DEFINE_DEVICE(FitShowSW, "FitShow SW");
     DEFINE_DEVICE(FlywheelBike, "Flywheel Bike");
     DEFINE_DEVICE(FlywheelLifeFitnessIC8, "Flywheel Life Fitness IC8");
@@ -139,6 +140,7 @@ public:
     DEFINE_DEVICE(SoleF85Treadmill, "Sole F85 Treadmill");
     DEFINE_DEVICE(SpiritTreadmill, "Spirit Treadmill");
     DEFINE_DEVICE(SportsPlusBike, "Sports Plus Bike");
+    DEFINE_DEVICE(SportsPlusRower, "Sports Plus Rower");
     DEFINE_DEVICE(SportsTechBike, "Sports Tech Bike");
     DEFINE_DEVICE(StagesBike_Assioma_PowerSensorDisabled, "Stages Bike (Assioma / Power Sensor disabled)");
     DEFINE_DEVICE(StagesBike, "Stages Bike");

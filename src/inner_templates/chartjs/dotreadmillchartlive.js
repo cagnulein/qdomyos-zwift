@@ -1,7 +1,7 @@
 window.chartColors = {
     red: 'rgb(255, 29, 0)',
     redt: 'rgb(255, 29, 0, 0.55)',
-    orange: 'rgb(255, 159, 64)', 
+    orange: 'rgb(255, 159, 64)',
     oranget: 'rgb(255, 159, 64, 0.55)',
     darkorange: 'rgb(255, 140, 0)',
     darkoranget: 'rgb(255, 140, 0, 0.55)',
@@ -19,6 +19,8 @@ window.chartColors = {
     greyt: 'rgb(201, 203, 207, 0.55)',
     black: 'rgb(0, 0, 0)',
     blackt: 'rgb(0, 0, 0, 0.55)',
+    blue: 'rgb(54, 162, 235)',
+    bluet: 'rgb(54, 162, 235, 0.55)',
 };
 
 var treadmillChart = null;
@@ -26,45 +28,227 @@ var speed_max = 0;
 var incline_max = 0;
 var miles = 1; // 1 = km, 0.621371 = miles
 
-// Define speed zones
-const speedZones = [6, 8, 10, 12, 14, 16]; // km/h
+// Whole-workout target curve, pre-rendered from the training program (mirrors dochartlive.js'
+// reqpower/rebuildTrainingProgramTarget) so the user sees the entire planned speed/inclination
+// profile up front, with the actual live values then progressing across that fixed timeline --
+// exactly like the bike power chart, instead of a target line that only ever grows one point at
+// a time and never shows what's coming next.
+var trainingProgramRows = [];
+var trainingProgramDurations = [];
+var firstElapsedTargetSpeed = 0;
 
-function process_arr(arr) {    
+function t(key, fallback) {
+    return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+}
+
+function isTrueSetting(value) {
+    return value === true || value === 'true' || value === 1 || value === '1';
+}
+
+// Speed zones derived from the user's own race pace settings (Settings -> Training Program Options ->
+// 1 Mile/5K/10K/Half Marathon/Marathon pace), the same reference paces QZ uses to turn a Zwift running
+// workout's %pace target into an actual km/h (see zwiftworkout::speedFromPace). This mirrors how the
+// bike power chart derives its zones from FTP, but for running there's no single "reference value" like
+// FTP -- each race distance gives its own reference pace -- so we use all five, sorted from slowest
+// (marathon) to fastest (1 mile), as the zone boundaries.
+var paceZoneLabels = ['Marathon', 'Half Marathon', '10K', '5K', '1 Mile'];
+var paceZones = [8, 10, 11, 12, 14]; // km/h fallback if settings can't be read; overwritten in dochart_init()
+var paceZoneColorsT = ['greyt', 'limegreent', 'goldt', 'oranget', 'darkoranget', 'redt'];
+
+// Background bands for each pace zone, from 0 up to the fastest zone's top. Built as a function
+// (rather than computed once) so it always reflects the current paceZones/speed_max at chart
+// creation time, after the settings fetch in dochart_init() has resolved.
+function paceZoneBoxes() {
+    const boundaries = [0, ...paceZones, Math.max(speed_max, paceZones[paceZones.length - 1] + 1)];
+    const boxes = {};
+    for (let i = 0; i < paceZoneColorsT.length; i++) {
+        boxes['box' + i] = {
+            type: 'box',
+            xMin: 0,
+            yMin: boundaries[i],
+            yMax: boundaries[i + 1],
+            backgroundColor: window.chartColors[paceZoneColorsT[i]],
+            yScaleID: 'y-speed',
+        };
+    }
+    return boxes;
+}
+
+// How many seconds a training program row should occupy on the timeline. Open-ended rows (e.g.
+// "run until lap button" / HR-triggered rows with no fixed duration) don't have a real duration
+// up front, so fall back to the preview's visual duration and let syncTrainingProgramTimeline()
+// stretch it live once we know how long the user actually spent in it.
+function trainingProgramBaseDuration(row) {
+    const duration = Number(row.duration_s);
+    const visualDuration = Number(row.visual_duration_s);
+    if (isTrueSetting(row.openEnded)) {
+        const fallbackDuration = Number.isFinite(visualDuration) ? visualDuration :
+                                 Number.isFinite(duration) ? duration : 1;
+        return Math.max(1, fallbackDuration);
+    }
+    const fallbackDuration = Number.isFinite(duration) ? duration :
+                             Number.isFinite(visualDuration) ? visualDuration : 0;
+    return Math.max(0, fallbackDuration);
+}
+
+function latestWorkoutElapsed(datasetIndex) {
+    if (!treadmillChart || !treadmillChart.data.datasets[datasetIndex] || !treadmillChart.data.datasets[datasetIndex].data.length) {
+        return 0;
+    }
+    const data = treadmillChart.data.datasets[datasetIndex].data;
+    return data[data.length - 1].x;
+}
+
+// (Re)builds the target speed/inclination datasets for the *entire* training program, one point
+// per second across every row. Called once the training program loads, and again whenever an
+// open-ended row's live duration needs correcting (syncTrainingProgramTimeline).
+function rebuildTrainingProgramTarget(updateChart) {
+    if (!treadmillChart) {
+        return;
+    }
+
+    let elapsed = 0;
+    let reqspeed = [];
+    let reqinclination = [];
+
+    for (let rowIndex = 0; rowIndex < trainingProgramRows.length; rowIndex++) {
+        const el = trainingProgramRows[rowIndex];
+        const duration = Math.max(0, Math.round(Number(trainingProgramDurations[rowIndex]) || 0));
+        const openEnded = isTrueSetting(el.openEnded);
+        const hasSpeed = Number(el.speed) !== -1 && el.speed !== undefined;
+        const hasInclination = el.inclination !== undefined;
+
+        if (hasSpeed && speed_max < Number(el.speed) * miles) speed_max = Number(el.speed) * miles;
+        if (hasInclination && incline_max < Number(el.inclination)) incline_max = Number(el.inclination);
+
+        for (let i = 0; i < duration; i++) {
+            reqspeed.push({x: elapsed, y: hasSpeed ? Number(el.speed) * miles : null, openEnded: openEnded});
+            reqinclination.push({x: elapsed, y: hasInclination ? Number(el.inclination) : null, openEnded: openEnded});
+            elapsed++;
+        }
+    }
+
+    treadmillChart.data.datasets[0].data = reqspeed;
+    treadmillChart.data.datasets[1].data = reqinclination;
+
+    const finalElapsed = Math.max(elapsed, latestWorkoutElapsed(0), latestWorkoutElapsed(2));
+    treadmillChart.options.scales.x.max = finalElapsed;
+
+    if (paceZones.length > 0 && speed_max < paceZones[paceZones.length - 1]) {
+        // Always show all pace zone bands/labels on the axis, even if the workout
+        // never actually reaches the fastest configured pace.
+        speed_max = paceZones[paceZones.length - 1];
+    }
+    treadmillChart.options.scales['y-speed'].max = Math.ceil(speed_max * 1.1);
+    treadmillChart.options.scales['y-incline'].max = Math.ceil(Math.max(incline_max, 1) * 1.1);
+    treadmillChart.options.plugins.annotation.annotations = paceZoneBoxes();
+
+    if (updateChart) {
+        treadmillChart.update('none');
+    }
+}
+
+function process_trainprogram(arr) {
+    trainingProgramRows = arr.list || [];
+    trainingProgramDurations = trainingProgramRows.map(trainingProgramBaseDuration);
+    rebuildTrainingProgramTarget(true);
+}
+
+// Open-ended rows (HR-triggered / "wait for lap") don't have a real duration in the plan, so the
+// pre-rendered timeline above only has a guessed placeholder length for them. Once the user is
+// actually inside (or has passed) an open-ended row, homeform tells us exactly how long it took
+// (training_row_index/training_row_elapsed) -- use that to stretch the row to its real length so
+// later rows in the plan line back up with where the live line actually is.
+function syncTrainingProgramTimeline(arr, workoutElapsed) {
+    if (!trainingProgramRows.length || !treadmillChart) {
+        return;
+    }
+
+    const currentRowIndex = Number(arr.training_row_index);
+    if (!Number.isFinite(currentRowIndex) || currentRowIndex < 0 || currentRowIndex >= trainingProgramRows.length) {
+        return;
+    }
+
+    const currentRowElapsed = Math.max(0, Number(arr.training_row_elapsed) || 0);
+    const currentRow = trainingProgramRows[currentRowIndex];
+    let changed = false;
+
+    const elapsedBeforeCurrent = Math.max(0, workoutElapsed - currentRowElapsed);
+    let timelineBeforeCurrent = 0;
+    let lastCompletedOpenEndedIndex = -1;
+    for (let i = 0; i < currentRowIndex; i++) {
+        timelineBeforeCurrent += Number(trainingProgramDurations[i]) || 0;
+        if (isTrueSetting(trainingProgramRows[i].openEnded)) {
+            lastCompletedOpenEndedIndex = i;
+        }
+    }
+
+    if (lastCompletedOpenEndedIndex >= 0) {
+        const delta = elapsedBeforeCurrent - timelineBeforeCurrent;
+        if (Math.abs(delta) >= 1) {
+            trainingProgramDurations[lastCompletedOpenEndedIndex] =
+                    Math.max(1, (Number(trainingProgramDurations[lastCompletedOpenEndedIndex]) || 1) + delta);
+            changed = true;
+        }
+    }
+
+    if (isTrueSetting(currentRow.openEnded)) {
+        const liveDuration = Math.max(1, currentRowElapsed);
+        if (Math.abs((Number(trainingProgramDurations[currentRowIndex]) || 0) - liveDuration) >= 1) {
+            trainingProgramDurations[currentRowIndex] = liveDuration;
+            changed = true;
+        }
+    }
+
+    if (changed) {
+        rebuildTrainingProgramTarget(false);
+    }
+}
+
+function process_arr(arr) {
     let ctx = document.getElementById('canvas').getContext('2d');
     let div = document.getElementById('divcanvas');
 
     let speed = [];
-    let targetSpeed = [];
     let inclination = [];
-    let targetInclination = [];
-    let maxEl = 0;
 
+    // The target (dashed) datasets are populated separately once the training program loads
+    // (process_trainprogram/rebuildTrainingProgramTarget), covering the whole planned workout up
+    // front. Here we only rebuild the actual (solid) history, aligned to the same workoutElapsed
+    // baseline: the first moment the training program actually gave a speed target, mirroring how
+    // dochartlive.js finds firstElapsedTargetPower for the bike power chart.
     for (let el of arr) {
-        let time = el.elapsed_s + el.elapsed_m * 60 + el.elapsed_h * 3600;
-        maxEl = time;
+        const time = el.elapsed_s + el.elapsed_m * 60 + el.elapsed_h * 3600;
+
+        if (el.target_speed !== undefined && el.target_speed !== -1) {
+            if (firstElapsedTargetSpeed === 0) {
+                firstElapsedTargetSpeed = time;
+            }
+        }
+
+        if (firstElapsedTargetSpeed === 0) {
+            continue;
+        }
+
+        const workoutElapsed = time - firstElapsedTargetSpeed;
 
         if (el.speed !== undefined) {
-            speed.push({x: time, y: el.speed * miles});
+            speed.push({x: workoutElapsed, y: el.speed * miles});
             if (speed_max < el.speed * miles) speed_max = el.speed * miles;
         }
 
-        if (el.target_speed !== undefined && el.target_speed !== -1) {
-            targetSpeed.push({x: time, y: el.target_speed * miles});
-            if (speed_max < el.target_speed * miles) speed_max = el.target_speed * miles;
-        }
-
         if (el.inclination !== undefined) {
-            inclination.push({x: time, y: el.inclination});
+            inclination.push({x: workoutElapsed, y: el.inclination});
             if (incline_max < el.inclination) incline_max = el.inclination;
-        }
-
-        if (el.target_inclination !== undefined && el.target_inclination !== -200) {
-            targetInclination.push({x: time, y: el.target_inclination});
-            if (incline_max < el.target_inclination) incline_max = el.target_inclination;
         }
     }
 
-    speed_max = Math.ceil(speed_max * 1.1); 
+    if (paceZones.length > 0 && speed_max < paceZones[paceZones.length - 1]) {
+        // Always show all pace zone bands/labels on the axis, even if the workout
+        // never actually reached the fastest configured pace.
+        speed_max = paceZones[paceZones.length - 1];
+    }
+    speed_max = Math.ceil(speed_max * 1.1);
     incline_max = Math.ceil(incline_max * 1.1);
 
     const backgroundFill = {
@@ -83,61 +267,58 @@ function process_arr(arr) {
         type: 'line',
         plugins: [backgroundFill],
         data: {
+            // Target datasets are listed first and actual datasets last: Chart.js paints datasets
+            // in array order, so the actual (solid, zone-colored) lines are always drawn on top of
+            // the dashed target lines instead of being hidden behind them when the two coincide
+            // (e.g. with a Fake Treadmill, which has no acceleration lag and tracks target exactly).
+            // Target data itself is filled in later by rebuildTrainingProgramTarget() once the
+            // training program has loaded.
             datasets: [{
-                label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
-                backgroundColor: window.chartColors.red,
-                borderColor: window.chartColors.red,
-                data: speed,
-                fill: false,
-                pointRadius: 0,
-                borderWidth: 2,
-                yAxisID: 'y-speed',
-                segment: {
-                    borderColor: ctx => {
-                        const y = ctx.p0.parsed.y;
-                        if (y < speedZones[0]) return window.chartColors.grey;
-                        if (y < speedZones[1]) return window.chartColors.limegreen;
-                        if (y < speedZones[2]) return window.chartColors.gold;
-                        if (y < speedZones[3]) return window.chartColors.orange;
-                        if (y < speedZones[4]) return window.chartColors.darkorange;
-                        if (y < speedZones[5]) return window.chartColors.orangered;
-                        return window.chartColors.red;
-                    }
-                }
-            }, {
-                label: 'Target Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
+                label: miles === 1 ? t('chart.targetSpeedKmh', 'Target Speed (km/h)') : t('chart.targetSpeedMph', 'Target Speed (mph)'),
                 backgroundColor: window.chartColors.black,
                 borderColor: window.chartColors.black,
-                data: targetSpeed,
+                data: [],
                 fill: false,
                 pointRadius: 0,
                 borderWidth: 2,
                 yAxisID: 'y-speed',
                 borderDash: [5, 5]
             }, {
-                label: 'Incline',
-                backgroundColor: window.chartColors.orange,
-                borderColor: window.chartColors.orange,
-                data: inclination,
-                fill: false,
-                pointRadius: 0,
-                borderWidth: 2,
-                yAxisID: 'y-incline'
-            }, {
-                label: 'Target Incline',
+                label: t('chart.targetIncline', 'Target Incline'),
                 backgroundColor: window.chartColors.grey,
                 borderColor: window.chartColors.grey,
-                data: targetInclination,
+                data: [],
                 fill: false,
                 pointRadius: 0,
                 borderWidth: 2,
                 yAxisID: 'y-incline',
                 borderDash: [5, 5]
+            }, {
+                // Actual speed/inclination use a solid pen 1.5x thicker than the dashed target
+                // lines (black/blue vs. black/grey) so the two stay visually distinct even when
+                // they coincide (e.g. with a Fake Treadmill, which tracks target exactly).
+                label: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
+                backgroundColor: window.chartColors.black,
+                borderColor: window.chartColors.black,
+                data: speed,
+                fill: false,
+                pointRadius: 0,
+                borderWidth: 3,
+                yAxisID: 'y-speed'
+            }, {
+                label: t('workoutEditor.incline', 'Incline'),
+                backgroundColor: window.chartColors.blue,
+                borderColor: window.chartColors.blue,
+                data: inclination,
+                fill: false,
+                pointRadius: 0,
+                borderWidth: 3,
+                yAxisID: 'y-incline'
             }]
         },
-        options: {           
+        options: {
             responsive: true,
-            aspectRatio: div.width / div.height,
+            maintainAspectRatio: false,
             interaction: {
                 mode: 'index',
                 intersect: false,
@@ -150,64 +331,7 @@ function process_arr(arr) {
                     display: false
                 },
                 annotation: {
-                    annotations: {
-                        box1: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: 0,
-                            yMax: speedZones[0],
-                            backgroundColor: "#d6d6d620",
-                            yScaleID: 'y-speed',
-                        },
-                        box2: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[0],
-                            yMax: speedZones[1],
-                            backgroundColor: window.chartColors.limegreent,
-                            yScaleID: 'y-speed',
-                        },
-                        box3: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[1],
-                            yMax: speedZones[2],
-                            backgroundColor: window.chartColors.goldt,
-                            yScaleID: 'y-speed',
-                        },
-                        box4: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[2],
-                            yMax: speedZones[3],
-                            backgroundColor: window.chartColors.oranget,
-                            yScaleID: 'y-speed',
-                        },
-                        box5: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[3],
-                            yMax: speedZones[4],
-                            backgroundColor: window.chartColors.darkoranget,
-                            yScaleID: 'y-speed',
-                        },
-                        box6: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[4],
-                            yMax: speedZones[5],
-                            backgroundColor: window.chartColors.orangeredt,
-                            yScaleID: 'y-speed',
-                        },
-                        box7: {
-                            type: 'box',
-                            xMin: 0,
-                            yMin: speedZones[5],
-                            yMax: speed_max,
-                            backgroundColor: window.chartColors.redt,
-                            yScaleID: 'y-speed',
-                        }
-                    }
+                    annotations: paceZoneBoxes()
                 }
             },
             scales: {
@@ -219,9 +343,9 @@ function process_arr(arr) {
                     },
                     ticks: {
                         callback: function(value) {
-                            return value !== 0 ? 
-                                Math.floor(value / 3600).toString().padStart(2, "0") + ":" + 
-                                Math.floor((value / 60) - (Math.floor(value / 3600) * 60)).toString().padStart(2, "0") : 
+                            return value !== 0 ?
+                                Math.floor(value / 3600).toString().padStart(2, "0") + ":" +
+                                Math.floor((value / 60) - (Math.floor(value / 3600) * 60)).toString().padStart(2, "0") :
                                 "";
                         },
                         padding: -20,
@@ -233,18 +357,20 @@ function process_arr(arr) {
                     display: true,
                     position: 'left',
                     title: {
-                        display: false
+                        display: true,
+                        text: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
+                        color: 'black',
                     },
                     min: 0,
                     max: speed_max,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => speedZones.includes(value) ?
-                            'Speed z' + (speedZones.indexOf(value) + 1) : undefined,
                         color: 'black',
-                        padding: -70,
-                        align: 'end',
+                        callback: value => {
+                            const i = paceZones.findIndex(z => Math.abs(z - value) < 0.5);
+                            return i === -1 ? Math.round(value) : `${Math.round(value)} (${paceZoneLabels[i]})`;
+                        }
                     }
                 },
                 'y-incline': {
@@ -252,7 +378,9 @@ function process_arr(arr) {
                     display: true,
                     position: 'right',
                     title: {
-                        display: false
+                        display: true,
+                        text: t('workoutEditor.inclinePercent', 'Incline (%)'),
+                        color: window.chartColors.blue,
                     },
                     min: 0,
                     max: incline_max,
@@ -262,9 +390,11 @@ function process_arr(arr) {
                 }
             }
         }
-    };    
+    };
 
     treadmillChart = new Chart(ctx, config);
+
+    refresh();
 }
 
 function refresh() {
@@ -279,80 +409,56 @@ function refresh() {
     el.enqueue().then(process_workout).catch(function(err) {
         console.error('Error is ' + err);
         refresh();
-    });    
+    });
 }
 
 function process_workout(arr) {
-    // Update speed data
-    treadmillChart.data.datasets[0].data.push({
-        x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-        y: arr.speed * miles
-    });
+    // Dataset order: 0=Target Speed, 1=Target Incline, 2=Speed (actual), 3=Incline (actual).
+    // The target datasets are owned by rebuildTrainingProgramTarget()/syncTrainingProgramTimeline()
+    // (whole plan, pre-rendered); here we only append the actual live values, aligned to the same
+    // workoutElapsed baseline the plan uses.
+    const elapsed = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
+
+    if (arr.target_speed !== undefined && arr.target_speed !== -1 && firstElapsedTargetSpeed === 0) {
+        firstElapsedTargetSpeed = elapsed;
+        treadmillChart.data.datasets[2].data = [];
+        treadmillChart.data.datasets[3].data = [];
+    }
+
+    if (firstElapsedTargetSpeed === 0) {
+        refresh();
+        return;
+    }
+
+    const workoutElapsed = elapsed - firstElapsedTargetSpeed;
+
+    syncTrainingProgramTimeline(arr, workoutElapsed);
+
+    // Update speed data (actual)
+    treadmillChart.data.datasets[2].data.push({x: workoutElapsed, y: arr.speed * miles});
     if (speed_max < arr.speed * miles) {
         speed_max = Math.ceil(arr.speed * miles * 1.1);
         treadmillChart.options.scales['y-speed'].max = speed_max;
     }
 
-    // Update target speed
-    if (arr.target_speed !== undefined && arr.target_speed !== -1) {
-        treadmillChart.data.datasets[1].data.push({
-            x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-            y: arr.target_speed * miles
-        });
-        if (speed_max < arr.target_speed * miles) {
-            speed_max = Math.ceil(arr.target_speed * miles * 1.1);
-            treadmillChart.options.scales['y-speed'].max = speed_max;
-        }
-    }
-
-    // Update inclination data
-    treadmillChart.data.datasets[2].data.push({
-        x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-        y: arr.inclination
-    });
+    // Update inclination data (actual)
+    treadmillChart.data.datasets[3].data.push({x: workoutElapsed, y: arr.inclination});
     if (incline_max < arr.inclination) {
         incline_max = Math.ceil(arr.inclination * 1.1);
         treadmillChart.options.scales['y-incline'].max = incline_max;
     }
 
-    // Update target inclination
-    if (arr.target_inclination !== undefined && arr.target_inclination !== -200) {
-        treadmillChart.data.datasets[3].data.push({
-            x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600),
-            y: arr.target_inclination
-        });
-        if (incline_max < arr.target_inclination) {
-            incline_max = Math.ceil(arr.target_inclination * 1.1);
-            treadmillChart.options.scales['y-incline'].max = incline_max;
-        }
+    if (workoutElapsed > treadmillChart.options.scales.x.max) {
+        treadmillChart.options.scales.x.max = workoutElapsed;
     }
 
-    treadmillChart.update();
+    // 'none' skips the animated transition since a new point arrives every tick anyway.
+    treadmillChart.update('none');
     refresh();
 }
 
-function dochart_init() {
-    // Get miles_unit setting first
+function loadSessionArrayAndBuildChart() {
     let el = new MainWSQueueElement({
-        msg: 'getsettings',
-        content: {
-            keys: ['miles_unit']
-        }
-    }, function(msg) {
-        if (msg.msg === 'R_getsettings') {
-            if (msg.content['miles_unit'] === true || msg.content['miles_unit'] === 'true') {
-                miles = 0.621371;
-            }
-            return msg.content;
-        }
-        return null;
-    }, 5000, 3);
-    el.enqueue().catch(function(err) {
-        console.error('Error getting settings: ' + err);
-    });
-
-    // Get session array
-    el = new MainWSQueueElement({
         msg: 'getsessionarray'
     }, function(msg) {
         if (msg.msg === 'R_getsessionarray') {
@@ -360,26 +466,65 @@ function dochart_init() {
         }
         return null;
     }, 15000, 3);
-    el.enqueue().then(process_arr).catch(function(err) {
+    el.enqueue().then(function(arr) {
+        process_arr(arr);
+        loadTrainingProgram();
+    }).catch(function(err) {
         console.error('Error is ' + err);
     });
 }
 
+function loadTrainingProgram() {
+    let el = new MainWSQueueElement({
+        msg: 'gettrainingprogram'
+    }, function(msg) {
+        if (msg.msg === 'R_gettrainingprogram') {
+            return msg.content;
+        }
+        return null;
+    }, 15000, 3);
+    el.enqueue().then(process_trainprogram).catch(function(err) {
+        console.error('Error is ' + err);
+    });
+}
+
+function dochart_init() {
+    // Fetch miles_unit and the user's race pace settings first, since paceZones/miles need to be
+    // resolved before the chart (and its zone backgrounds/labels) is built.
+    const keys_arr = ['miles_unit', 'pacef_1mile', 'pacef_5km', 'pacef_10km', 'pacef_halfmarathon', 'pacef_marathon'];
+    let el = new MainWSQueueElement({
+        msg: 'getsettings',
+        content: {
+            keys: keys_arr
+        }
+    }, function(msg) {
+        if (msg.msg === 'R_getsettings') {
+            for (const key of keys_arr) {
+                if (msg.content[key] === undefined) return null;
+            }
+            return msg.content;
+        }
+        return null;
+    }, 5000, 3);
+    el.enqueue().then(function(settings) {
+        if (settings['miles_unit'] === true || settings['miles_unit'] === 'true') {
+            miles = 0.621371;
+        }
+        const paceToSpeed = pacef => (3600 / Number(pacef)) * miles;
+        paceZones = [
+            paceToSpeed(settings['pacef_marathon']),
+            paceToSpeed(settings['pacef_halfmarathon']),
+            paceToSpeed(settings['pacef_10km']),
+            paceToSpeed(settings['pacef_5km']),
+            paceToSpeed(settings['pacef_1mile']),
+        ].sort((a, b) => a - b);
+    }).catch(function(err) {
+        console.error('Error getting settings: ' + err);
+    }).finally(loadSessionArrayAndBuildChart);
+}
+
 $(window).on('load', function() {
     dochart_init();
-
-    /*
-    let testData = [
-        {'speed': 5, 'target_speed': 5, 'inclination': 1, 'target_inclination': 1, 'elapsed_s': 0, 'elapsed_m': 0, 'elapsed_h': 0},
-        {'speed': 8, 'target_speed': 3, 'inclination': 2, 'target_inclination': 2, 'elapsed_s': 0, 'elapsed_m': 5, 'elapsed_h': 0},
-        {'speed': 10, 'target_speed': 5, 'inclination': 4, 'target_inclination': 4, 'elapsed_s': 0, 'elapsed_m': 10, 'elapsed_h': 0},
-        {'speed': 12, 'target_speed': 7, 'inclination': 6, 'target_inclination': 8, 'elapsed_s': 0, 'elapsed_m': 15, 'elapsed_h': 0},
-        {'speed': 14, 'target_speed': 14, 'inclination': 8, 'target_inclination': 10, 'elapsed_s': 0, 'elapsed_m': 20, 'elapsed_h': 0},
-        {'speed': 16, 'target_speed': 16, 'inclination': 10, 'target_inclination': 12, 'elapsed_s': 0, 'elapsed_m': 25, 'elapsed_h': 0},
-        {'speed': 8, 'target_speed': 8, 'inclination': 2, 'target_inclination': 4, 'elapsed_s': 0, 'elapsed_m': 30, 'elapsed_h': 0}
-    ];
-    process_arr(testData);
-    */
 });
 
 $(document).ready(function () {

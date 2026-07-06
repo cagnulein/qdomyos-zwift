@@ -62,6 +62,8 @@ class horizontreadmill : public treadmill {
     QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
+    QLowEnergyCharacteristic gattWriteCharMerachUnlock;
+    QLowEnergyService *gattMerachUnlockService = nullptr;
     volatile int notificationSubscribed = 0;
 
     static inline const QBluetoothUuid DomyosServiceId{QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455")};
@@ -74,9 +76,11 @@ class horizontreadmill : public treadmill {
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
     double lastInclination = 0;
+    qint64 lastNonZeroSpeedTimestamp = 0;
     bool horizonPaused = false;
     double lastHorizonForceSpeed = 0;
     double minInclination = 0.0;
+    double maxInclination = 15.0;
 
     bool initDone = false;
     bool initRequest = false;
@@ -99,6 +103,7 @@ class horizontreadmill : public treadmill {
     bool trx3500_treadmill = false;
     bool sole_f85_treadmill = false;
     bool sole_f89_treadmill = false;
+    bool adidas_treadmill = false;
     bool schwinn_810_treadmill = false;
     bool yesoul_treadmill = false;
     bool technogymrun = false;
@@ -121,6 +126,7 @@ class horizontreadmill : public treadmill {
     bool TM4800 = false;
     bool TM4500 = false;
     bool TM6500 = false;
+    bool FS_TREADMILL = false;
     bool WT_TREADMILL = false;
     bool THERUN_T15 = false;
     bool MERACH_TREADMILL = false;

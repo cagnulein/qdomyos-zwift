@@ -25,6 +25,7 @@
 #include "devices/antbike/antbike.h"
 #include "devices/android_antbike/android_antbike.h"
 #include "devices/apexbike/apexbike.h"
+#include "devices/volavabike/volavabike.h"
 #include "devices/bhfitnesselliptical/bhfitnesselliptical.h"
 #include "devices/bkoolbike/bkoolbike.h"
 #include "devices/bluetoothdevice.h"
@@ -79,6 +80,7 @@
 #include "devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h"
 #include "devices/kingsmithr2treadmill/kingsmithr2treadmill.h"
 #include "devices/lifefitnesstreadmill/lifefitnesstreadmill.h"
+#include "devices/lifespanbike/lifespanbike.h"
 #include "devices/lifespantreadmill/lifespantreadmill.h"
 #include "devices/m3ibike/m3ibike.h"
 #include "devices/mcfbike/mcfbike.h"
@@ -141,6 +143,7 @@
 #include "templateinfosenderbuilder.h"
 #include "technogymbike/technogymbike.h"
 #include "devices/toorxtreadmill/toorxtreadmill.h"
+#include "devices/iconsolebike/iconsolebike.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
 #include "devices/trxappgateusbbike/trxappgateusbbike.h"
@@ -156,6 +159,7 @@
 
 #include "zwift_play/zwiftPlayDevice.h"
 #include "zwift_play/zwiftclickremote.h"
+#include "devices/cycplusbc2controller/cycplusbc2controller.h"
 #include "devices/thinkridercontroller/thinkridercontroller.h"
 
 #ifdef Q_OS_IOS
@@ -186,6 +190,7 @@ class bluetooth : public QObject, public SignalHandler {
     antbike *antBike = nullptr;
     android_antbike *android_antBike = nullptr;
     apexbike *apexBike = nullptr;
+    volavabike *volavaBike = nullptr;
     bkoolbike *bkoolBike = nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
@@ -208,6 +213,7 @@ class bluetooth : public QObject, public SignalHandler {
     domyosrower *domyosRower = nullptr;
     domyoselliptical *domyosElliptical = nullptr;
     toorxtreadmill *toorx = nullptr;
+    iconsolebike *iconsole = nullptr;
     iconceptbike *iConceptBike = nullptr;
     iconceptelliptical *iConceptElliptical = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
@@ -277,6 +283,7 @@ class bluetooth : public QObject, public SignalHandler {
     echelonstride *echelonStride = nullptr;
     echelonstairclimber *echelonStairclimber = nullptr;
     lifefitnesstreadmill *lifefitnessTreadmill = nullptr;
+    lifespanbike *lifespanBike = nullptr;
     lifespantreadmill *lifespanTreadmill = nullptr;
     keepbike *keepBike = nullptr;
     kingsmithr1protreadmill *kingsmithR1ProTreadmill = nullptr;
@@ -311,6 +318,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<eliteariafan *> eliteAriaFan;
     QList<zwiftclickremote* > zwiftPlayDevice;
     zwiftclickremote* zwiftClickRemote = nullptr;
+    cycplusbc2controller* cycplusBC2Controller = nullptr;
     thinkridercontroller* thinkriderController = nullptr;
     sramaxscontroller* sramAXSController = nullptr;
     elitesquarecontroller* eliteSquareController = nullptr;
@@ -350,13 +358,13 @@ class bluetooth : public QObject, public SignalHandler {
     bool fitmetriaFanfitAvaiable();
     bool zwiftDeviceAvaiable();
     bool sramDeviceAvaiable();
+    bool cycplusBC2DeviceAvaiable();
     bool thinkriderDeviceAvaiable();
-    bool fitmetria_fanfit_isconnected(QString name);
+    bool fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device);
     bool gymModeEnabled() const;
 
-#ifdef Q_OS_WIN
     QTimer discoveryTimeout;
-#endif
+    bool discoveryFinishedHandled = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = nullptr;
