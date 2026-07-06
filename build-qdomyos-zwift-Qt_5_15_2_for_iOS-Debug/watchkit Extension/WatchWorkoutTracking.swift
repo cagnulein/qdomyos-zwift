@@ -235,6 +235,8 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         // Reset flights climbed and elevation gain for new workout
         WorkoutTracking.flightsClimbed = 0
         WorkoutTracking.elevationGain = 0
+        WorkoutTracking.totalKcal = 0
+        WatchKitConnection.totalKcal = 0
         print("Start workout")
         configWorkout()
         workoutSession.startActivity(with: Date())
