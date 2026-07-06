@@ -37,6 +37,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
     bool strava_treadmill =
         settings.value(QZSettings::strava_treadmill, QZSettings::default_strava_treadmill).toBool();
+    bool treadmill_force_running_activity =
+        settings
+            .value(QZSettings::treadmill_force_running_activity,
+                   QZSettings::default_treadmill_force_running_activity)
+            .toBool();
     bool powr_sensor_running_cadence_half_on_strava =
         settings
             .value(QZSettings::powr_sensor_running_cadence_half_on_strava,
@@ -435,15 +440,17 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         qDebug() << "TSS will be stored in developer data:" << tss;
     }
 
+    const FIT_SPORT treadmill_activity_sport =
+        (speed_avg == 0 || speed_avg > 6.5 || strava_virtual_activity || treadmill_force_running_activity)
+            ? FIT_SPORT_RUNNING
+            : FIT_SPORT_WALKING;
+
     // First, set sport and subsport based on device type
     if (type == TREADMILL) {
         if(session.last().stepCount > 0)
             sessionMesg.SetTotalStrides(session.last().stepCount);
 
-        if (speed_avg == 0 || speed_avg > 6.5 || strava_virtual_activity)
-            sessionMesg.SetSport(FIT_SPORT_RUNNING);
-        else
-            sessionMesg.SetSport(FIT_SPORT_WALKING);
+        sessionMesg.SetSport(treadmill_activity_sport);
 
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
@@ -787,7 +794,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         lapMesg.SetSport(FIT_SPORT_GENERIC);
     } else if (type == TREADMILL) {
 
-        lapMesg.SetSport(FIT_SPORT_RUNNING);
+        lapMesg.SetSport(treadmill_activity_sport);
     } else if (type == ELLIPTICAL) {
 
         lapMesg.SetSport(FIT_SPORT_RUNNING);

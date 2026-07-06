@@ -987,7 +987,7 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if (!FS_TREADMILL || !areInclinationSettingsDefault()) {
+            if (!adidas_treadmill && (!FS_TREADMILL || !areInclinationSettingsDefault())) {
                 requestInclination = treadmillInclinationOverrideReverse(requestInclination);
             }
 
@@ -2689,6 +2689,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             sole_tt8_treadmill = true;
             minInclination = -6.0;
             qDebug() << QStringLiteral("SOLE TT8 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("ADIDAS"))) {
+            adidas_treadmill = true;
+            minInclination = -6.0;
+            maxInclination = 40.0;
+            qDebug() << QStringLiteral("ADIDAS TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("S77"))) {
             sole_s77_treadmill = true;
             qDebug() << QStringLiteral("SOLE S77 TREADMILL workaround ON!");

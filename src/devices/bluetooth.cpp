@@ -69,10 +69,32 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
     QString nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+    QString tdf_10_ip_ctor = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    QString proform_elliptical_ip_ctor =
+        settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
+    QString proform_rower_ip_ctor =
+        settings.value(QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip).toString();
     bool fake_bike =
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fake_treadmill =
     settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
+    bool fakedevice_elliptical_ctor =
+        settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical).toBool();
+    bool fakedevice_rower_ctor =
+        settings.value(QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower).toBool();
+    bool antbike_ctor = settings.value(QZSettings::antbike, QZSettings::default_antbike).toBool();
+    bool android_antbike_ctor =
+        settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool();
+    // The 15s discovery watchdog below exists solely to unstick fake/virtual devices
+    // (Fake Treadmill/Bike/etc, IP-based trainers) on platforms where the discovery
+    // agent's finished() signal never fires (e.g. Waydroid containers without a
+    // functional Bluetooth radio). If none of those virtual devices are configured,
+    // there is nothing relying on the watchdog, so we leave real discovery alone and
+    // let it take as long as it genuinely needs instead of forcing it to end early.
+    bool reliesOnFakeOrVirtualDevice = fake_bike || fake_treadmill || fakedevice_elliptical_ctor ||
+                                        fakedevice_rower_ctor || !nordictrack_2950_ip.isEmpty() ||
+                                        !tdf_10_ip_ctor.isEmpty() || !proform_elliptical_ip_ctor.isEmpty() ||
+                                        !proform_rower_ip_ctor.isEmpty() || antbike_ctor || android_antbike_ctor;
 
     if (!gymMode && settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() &&
         !pelotonBike) {
@@ -140,10 +162,19 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &bluetooth::canceled);
 #ifndef Q_OS_WIN
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &bluetooth::finished);
-#else
-        connect(&discoveryTimeout, &QTimer::timeout, this, &bluetooth::finished);
-        discoveryTimeout.start(10000);
 #endif
+        // Safety net: on some platforms (e.g. Android containers/emulators without a functional
+        // Bluetooth adapter, such as Waydroid) the discovery agent's finished()/timeout signal never
+        // fires even though a discoveryAgent object was created, leaving fake devices (Fake
+        // Treadmill/Bike/etc) stuck forever waiting for a scan that will never complete. finished()
+        // guards against being invoked twice, so this is a no-op once the real signal has fired.
+        // Only armed when a fake/virtual device is actually configured: real hardware users have
+        // nothing depending on this fallback, so we don't risk cutting a genuine (if slow) scan short.
+        if (reliesOnFakeOrVirtualDevice) {
+            connect(&discoveryTimeout, &QTimer::timeout, this, &bluetooth::finished);
+            discoveryTimeout.setSingleShot(true);
+            discoveryTimeout.start(15000);
+        }
 
         // Start a discovery
 #ifndef Q_OS_WIN
@@ -164,6 +195,11 @@ bluetooth::~bluetooth() {
 void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) { emit this->bluetoothDeviceConnected(b); }
 
 void bluetooth::finished() {
+    if (discoveryFinishedHandled)
+        return;
+    discoveryFinishedHandled = true;
+    discoveryTimeout.stop();
+
     debug(QStringLiteral("BTLE scanning finished"));
 
     QSettings settings;
@@ -1684,6 +1720,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||                        // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI WMTP")) ||                        // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TM4800-")) ||                        // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TM55-")) ||                           // lifesmart tm55
                             b.name().toUpper().startsWith(QStringLiteral("LB600")) ||                        // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-")) ||                     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T90-")) ||                     // FTMS
@@ -1699,6 +1736,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) ||                        // FTMS
 						(b.name().toUpper().startsWith(QStringLiteral("RUN BT-"))) ||                        // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("X-T"))) ||                            // FTMS (X-T421)
+						(b.name().toUpper().startsWith(QStringLiteral("ToputureTP6"))) ||                    // FTMS (ToputureTP6)
                         (b.name().toUpper().startsWith(QStringLiteral("TC-"))) ||                            // FTMS (Focus Fitness Jet 7 iPlus)
                         b.name().toUpper().startsWith(QStringLiteral("TM XP_")) ||                           // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("THERUN  T15")) ||                      // FTMS
@@ -2318,6 +2356,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(apexBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
                 apexBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(apexBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("XQ")) && b.name().length() == 12 &&
+                       !volavaBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                volavaBike = new volavabike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(volavaBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                volavaBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(volavaBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("BKOOLSMARTPRO")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BKOOLFBIKE")) ||            
                         b.name().toUpper().startsWith(QStringLiteral("BKOOLFITNESSBIKE"))) && !bkoolBike && filter) {
@@ -2441,7 +2488,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 sportsPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsPlusBike);
-            } else if (((b.name().toUpper().contains(QStringLiteral("CARE")) && b.name().length() >= 13) ||  // CARE968300122
+            } else if (((b.name().toUpper().contains(QStringLiteral("CARE")) && b.name().length() >= 12) ||  // CARE968300122, CARE10692135
                        (b.name().toUpper().startsWith(QStringLiteral("VMAX"))))
                        && !sportsPlusRower && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2807,7 +2854,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("LCB")) ||
                         b.name().toUpper().startsWith("LCR") ||
                         b.name().toUpper().startsWith(QStringLiteral("R92"))) &&
-                       !soleBike && filter) {
+                       ftms_bike.contains(QZSettings::default_ftms_bike) && !soleBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 soleBike = new solebike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -3282,40 +3329,58 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 
-    if(settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool() && !zwiftClickRemote &&
+    if(settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool() &&
             this->device() && this->device()->deviceType() == BIKE) {
-        QBluetoothDeviceInfo zwiftClickDevice;
-        bool zwiftClickDeviceFound = false;
+        bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
 
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-            if (b.name().toUpper().startsWith("ZWIFT CLICK")) {
-                if(!zwiftClickDeviceFound) {
-                    zwiftClickDevice = b;
-                    zwiftClickDeviceFound = true;
-                }
+            if (!b.name().toUpper().startsWith("ZWIFT CLICK"))
+                continue;
 
-                if(b.manufacturerData(2378).size() > 0) {
-                    qDebug() << "Zwift Click manufacturer type" << int(b.manufacturerData(2378).at(0));
-                    if(int(b.manufacturerData(2378).at(0)) == 11) {
-                        zwiftClickDevice = b;
-                        break;
-                    }
-                } else {
-                    qDebug() << "manufacturer not found for ZWIFT CLICK";
-                }
+            int mfgByte = -1;
+            if (b.manufacturerData(2378).size() > 0) {
+                mfgByte = int(b.manufacturerData(2378).at(0));
+                qDebug() << "Zwift Click manufacturer type" << mfgByte;
+            } else {
+                qDebug() << "manufacturer not found for ZWIFT CLICK";
             }
-        }
 
-        if(zwiftClickDeviceFound) {
-            zwiftClickRemote = new zwiftclickremote(this->device(), AbstractZapDevice::ZWIFT_PLAY_TYPE::NONE);
-            // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
-
-            connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
-            connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
-            connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
-            zwiftClickRemote->deviceDiscovered(zwiftClickDevice);
-            if(homeform::singleton())
-                homeform::singleton()->setToastRequested("Zwift Click Connected!");
+            // byte 11 = v1; -1 (no mfg data) treated as v1 only for the first device found
+            if ((mfgByte == 11) || (mfgByte == -1 && !zwiftClickRemote)) {
+                // v1: single device, type NONE
+                if (!zwiftClickRemote) {
+                    zwiftClickRemote = new zwiftclickremote(this->device(), AbstractZapDevice::ZWIFT_PLAY_TYPE::NONE);
+                    connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
+                    connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
+                    connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                    zwiftClickRemote->deviceDiscovered(b);
+                    if(homeform::singleton())
+                        homeform::singleton()->setToastRequested("Zwift Click Connected!");
+                }
+            } else if (zwiftPlayDevice.size() < 2) {
+                // v2: two devices with LEFT/RIGHT designation
+                // known bytes: 3/7 = LEFT, others = RIGHT; unknown (-1) uses ordinal
+                AbstractZapDevice::ZWIFT_PLAY_TYPE type;
+                if (mfgByte == 3 || mfgByte == 7)
+                    type = AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT;
+                else
+                    type = zwiftPlayDevice.isEmpty() ? AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT : AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT;
+                zwiftPlayDevice.append(new zwiftclickremote(this->device(), type));
+                connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                if((zwiftPlayDevice.last()->typeZap == AbstractZapDevice::LEFT && !zwiftplay_swap) ||
+                   (zwiftPlayDevice.last()->typeZap == AbstractZapDevice::RIGHT && zwiftplay_swap)) {
+                    connect((bike*)this->device(), &bike::gearOkUp, this, &bluetooth::gearUp);
+                    connect((bike*)this->device(), &bike::gearFailedUp, this, &bluetooth::gearFailedUp);
+                } else {
+                    connect((bike*)this->device(), &bike::gearOkDown, this, &bluetooth::gearDown);
+                    connect((bike*)this->device(), &bike::gearFailedDown, this, &bluetooth::gearFailedDown);
+                }
+                zwiftPlayDevice.last()->deviceDiscovered(b);
+                if(homeform::singleton())
+                    homeform::singleton()->setToastRequested("Zwift Click v2 Connected!");
+            }
         }
     }
 
@@ -3651,6 +3716,10 @@ void bluetooth::restart() {
     if (apexBike) {
         delete apexBike;
         apexBike = nullptr;
+    }
+    if (volavaBike) {
+        delete volavaBike;
+        volavaBike = nullptr;
     }
     if (bkoolBike) {
         delete bkoolBike;
@@ -4286,6 +4355,8 @@ bluetoothdevice *bluetooth::device() {
         return keepBike;
     } else if (apexBike) {
         return apexBike;
+    } else if (volavaBike) {
+        return volavaBike;
     } else if (bkoolBike) {
         return bkoolBike;
     } else if (ultraSportBike) {

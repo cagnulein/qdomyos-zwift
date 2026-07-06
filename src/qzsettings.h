@@ -121,6 +121,12 @@ class QZSettings {
     static const QString garmin_last_refresh;
     static const QString default_garmin_last_refresh;
 
+    static const QString garmin_last_seen_cycling_ftp_create_time;
+    static const QString default_garmin_last_seen_cycling_ftp_create_time;
+
+    static const QString garmin_last_seen_running_ftp_create_time;
+    static const QString default_garmin_last_seen_running_ftp_create_time;
+
     static const QString intervalsicu_accesstoken;
     static const QString default_intervalsicu_accesstoken;
 
@@ -295,6 +301,9 @@ class QZSettings {
      */
     static const QString treadmill_force_speed;
     static constexpr bool default_treadmill_force_speed = false;
+
+    static const QString treadmill_force_running_activity;
+    static constexpr bool default_treadmill_force_running_activity = false;
 
     static const QString pause_on_start_treadmill;
     static constexpr bool default_pause_on_start_treadmill = false;
@@ -682,6 +691,12 @@ class QZSettings {
      */
     static const QString pacef_marathon;
     static constexpr float default_pacef_marathon = 360;
+    static const QString trainprogram_warmup_speed;
+    static constexpr float default_trainprogram_warmup_speed = 420;
+    static const QString trainprogram_cooldown_speed;
+    static constexpr float default_trainprogram_cooldown_speed = 420;
+    static const QString trainprogram_rest_speed;
+    static constexpr float default_trainprogram_rest_speed = 420;
 
     /**
      *@brief default pace to be used when the ZWO file does not indicate a precise pace.
@@ -1224,6 +1239,12 @@ class QZSettings {
     static const QString tile_cadence_color_enabled;
     static constexpr bool default_tile_cadence_color_enabled = false;
 
+    static const QString tile_watt_color_enabled;
+    static constexpr bool default_tile_watt_color_enabled = true;
+
+    static const QString tile_pace_color_enabled;
+    static constexpr bool default_tile_pace_color_enabled = true;
+
     static const QString tile_peloton_remaining_enabled;
     static constexpr bool default_tile_peloton_remaining_enabled = false;
 
@@ -1760,6 +1781,9 @@ class QZSettings {
 
     static const QString trainprogram_clipboard_workout_enabled;
     static constexpr bool default_trainprogram_clipboard_workout_enabled = false;
+
+    static const QString trainprogram_sound_on_segment;
+    static constexpr bool default_trainprogram_sound_on_segment = false;
 
     static const QString domyos_elliptical_inclination;
     static constexpr bool default_domyos_elliptical_inclination = true;
@@ -3181,6 +3205,8 @@ class QZSettings {
     static constexpr bool default_proform_carbon_tl_PFTL59723_6 = false;
     static const QString proform_treadmill_cst_505_pftl59420_0;
     static constexpr bool default_proform_treadmill_cst_505_pftl59420_0 = false;
+    static const QString proform_treadmill_105_cst;
+    static constexpr bool default_proform_treadmill_105_cst = false;
 
     /**
      * @brief When enabled together with fakedevice_treadmill, derives treadmill Speed from

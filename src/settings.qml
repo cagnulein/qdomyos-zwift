@@ -5,6 +5,7 @@ import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.0
 import Qt.labs.platform 1.1
+import AndroidStatusBar 1.0
 
 //Page {
     ScrollView {
@@ -13,6 +14,10 @@ import Qt.labs.platform 1.1
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
+        anchors.leftMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
+                            AndroidStatusBar.waterfallLeftInset : 0
+        anchors.rightMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
+                             AndroidStatusBar.waterfallRightInset : 0
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane
@@ -1683,15 +1688,24 @@ import Qt.labs.platform 1.1
             property string shortcut_preset_powerzone_6: ""
             property string shortcut_preset_powerzone_7: ""
             property string shortcut_lap: ""
-            property string shortcut_start_stop: ""            
+            property string shortcut_start_stop: ""
+            property string garmin_last_seen_cycling_ftp_create_time: ""
+            property string garmin_last_seen_running_ftp_create_time: ""
             property bool horizon_treadmill_omega_z: false
 
             property string app_language: "auto"                     
 
             property bool garmin_download_workouts_on_start: true
-            property bool trainprogram_clipboard_workout_enabled: false         
-            property string shortcut_stop: ""   
-            
+            property bool trainprogram_clipboard_workout_enabled: false
+            property string shortcut_stop: ""
+            property real trainprogram_warmup_speed: 420
+            property real trainprogram_cooldown_speed: 420
+            property real trainprogram_rest_speed: 420
+            property bool trainprogram_sound_on_segment: false
+            property bool tile_watt_color_enabled: true
+            property bool tile_pace_color_enabled: true                        
+            property bool treadmill_force_running_activity: false
+            property bool proform_treadmill_105_cst: false
             property real trainprogram_pid_hr_pushy_zone_limit: 0.8
             property real trainprogram_pid_hr_recovery_zone_limit: 60.0
         }
@@ -1718,6 +1732,17 @@ import Qt.labs.platform 1.1
               return integerPart;
             }
           }
+        }
+
+        function paceSecondsToTime(secondsPerKm) {
+            return paddingZeros(formatLimitDecimals(secondsPerKm / 3600, 0).toString(), 2) + ":" +
+                   paddingZeros(formatLimitDecimals((secondsPerKm / 60) % 60, 0).toString(), 2) + ":" +
+                   paddingZeros(formatLimitDecimals(secondsPerKm % 60, 0).toString(), 2)
+        }
+
+        function timeToPaceSeconds(text) {
+            var pieces = text.split(":")
+            return (parseInt(pieces[0]) * 3600) + (parseInt(pieces[1]) * 60) + parseInt(pieces[2])
         }
 
         Component.onCompleted: {
@@ -4568,7 +4593,7 @@ import Qt.labs.platform 1.1
                         color: Material.backgroundColor
                         accordionContent: IndicatorOnlySwitch {
                             id: spht9600iEBikeDelegate
-                            text: qsTr("SP-HT-9600iE")
+                            text: "SP-HT-9600iE"
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -4605,13 +4630,13 @@ import Qt.labs.platform 1.1
 
                     AccordionElement {
                         id: snodeBikeAccordion
-                        title: qsTr("Snode Bike Options")
+                        title: "Snode Bike Options"
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: IndicatorOnlySwitch {
                             id: snodeBikeDelegate
-                            text: qsTr("Snode Bike")
+                            text: "Snode Bike"
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -4737,7 +4762,7 @@ import Qt.labs.platform 1.1
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: lifespanBikeDelegate
-                                text: qsTr("LifeSpan C7000i Bike")
+                                text: "LifeSpan C7000i Bike"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -4785,7 +4810,7 @@ import Qt.labs.platform 1.1
                             }
                             IndicatorOnlySwitch {
                                 id: lifeFitnessIC8Delegate
-                                text: qsTr("Life Fitness IC8")
+                                text: "Life Fitness IC8"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -4799,7 +4824,7 @@ import Qt.labs.platform 1.1
                             }
                             IndicatorOnlySwitch {
                                 id: lifeFitnessIC5Delegate
-                                text: qsTr("Life Fitness IC5")
+                                text: "Life Fitness IC5"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -5136,7 +5161,7 @@ import Qt.labs.platform 1.1
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("TDF1 IP:")
+                                    text: "TDF1 IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -5160,7 +5185,7 @@ import Qt.labs.platform 1.1
                                 spacing: 10
                                 Label {
                                     id: labelproformTDF4IP
-                                    text: qsTr("TDF4 IP:")
+                                    text: "TDF4 IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -5519,7 +5544,7 @@ import Qt.labs.platform 1.1
 
                     AccordionElement {
                         id: toputureBikeAccordion
-                        title: qsTr("Toputure Bikes")
+                        title: "Toputure Bikes"
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -5527,7 +5552,7 @@ import Qt.labs.platform 1.1
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: toputureTeb1Delegate
-                                text: qsTr("Toputure TEB1")
+                                text: "Toputure TEB1"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -8357,6 +8382,33 @@ import Qt.labs.platform 1.1
                     }
 
                     IndicatorOnlySwitch {
+                        text: qsTr("Sound on Segment Change")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trainprogram_sound_on_segment
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trainprogram_sound_on_segment = checked
+                    }
+
+                    Label {
+                        text: qsTr("Play a short sound when a training program starts a new row. Default: disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
                         id: trainprogramAutoLapOnSegmentDelegate
                         text: qsTr("Auto Lap on Segment")
                         spacing: 0
@@ -8818,6 +8870,75 @@ import Qt.labs.platform 1.1
                     RowLayout {
                         spacing: 10
                         Label {
+                            id: labelTrainProgramWarmupSpeed
+                            text: qsTr("Warmup Speed (pace):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramWarmupSpeedTextField
+                            text: paceSecondsToTime(settings.trainprogram_warmup_speed)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramWarmupSpeed
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_warmup_speed = timeToPaceSeconds(trainProgramWarmupSpeedTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramCooldownSpeed
+                            text: qsTr("Cooldown Speed (pace):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramCooldownSpeedTextField
+                            text: paceSecondsToTime(settings.trainprogram_cooldown_speed)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramCooldownSpeed
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_cooldown_speed = timeToPaceSeconds(trainProgramCooldownSpeedTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramRestSpeed
+                            text: qsTr("Rest Speed (pace):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramRestSpeedTextField
+                            text: paceSecondsToTime(settings.trainprogram_rest_speed)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramRestSpeed
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_rest_speed = timeToPaceSeconds(trainProgramRestSpeedTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
                             id: labelTreadmillPaceDefault
                             text: qsTr("Default Pace:")
                             Layout.fillWidth: true
@@ -9170,6 +9291,34 @@ import Qt.labs.platform 1.1
 
                     Label {
                         text: qsTr("Turn this on to have QZ control the speed of your treadmill during, for example, Peloton classes based on the coach’s speed callouts. Your speed will be in the low, upper or average range based on your Peloton Options > Difficulty setting. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: treadmillForceRunningActivityDelegate
+                        text: qsTr("Force Running Activity")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_force_running_activity
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_force_running_activity = checked
+                    }
+
+                    Label {
+                        text: qsTr("Turn this on to write treadmill FIT files as running activities even when the average speed is below 6.5 km/h. This can help Garmin calculate Training Effect for high-incline treadmill workouts. Default is off.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9667,6 +9816,7 @@ import Qt.labs.platform 1.1
                                     "ProForm Carbon TL PFTL59723.6",
                                     "ProForm Carbon TLX v84.314 PFTL90924C.7",
                                     "ProForm CST 505 PFTL59420.0",
+                                    "ProForm 105 CST",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -9744,7 +9894,8 @@ import Qt.labs.platform 1.1
                                                     settings.proform_trainer_8_0_pftl59721_int_0 ? 58 :
                                                     settings.proform_carbon_tl_PFTL59723_6 ? 59 :
                                                     settings.proform_carbon_tlx_v84_314_treadmill ? 60 :
-                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 61 : 0;
+                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 61 :
+                                                    settings.proform_treadmill_105_cst ? 62 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -9820,6 +9971,7 @@ import Qt.labs.platform 1.1
                                     settings.proform_carbon_tl_PFTL59723_6 = false;
                                     settings.proform_carbon_tlx_v84_314_treadmill = false;
                                     settings.proform_treadmill_cst_505_pftl59420_0 = false;
+                                    settings.proform_treadmill_105_cst = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -9884,6 +10036,7 @@ import Qt.labs.platform 1.1
                                         case 59: settings.proform_carbon_tl_PFTL59723_6 = true; break;
                                         case 60: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
                                         case 61: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
+                                        case 62: settings.proform_treadmill_105_cst = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -9893,7 +10046,7 @@ import Qt.labs.platform 1.1
                                 spacing: 10
                                 Label {
                                     id: labelproformtreadmillip
-                                    text: qsTr("Proform IP:")
+                                    text: "Proform IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -9917,7 +10070,7 @@ import Qt.labs.platform 1.1
                                 spacing: 10
                                 Label {
                                     id: labelnordictrack2950IP
-                                    text: qsTr("Nordictrack 2950 IP:")
+                                    text: "Nordictrack 2950 IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -10049,7 +10202,7 @@ import Qt.labs.platform 1.1
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: kingSmithTreadmillDelegate
-                                text: qsTr("WalkingPad X21")
+                                text: "WalkingPad X21"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10064,7 +10217,7 @@ import Qt.labs.platform 1.1
 
                             IndicatorOnlySwitch {
                                 id: kingSmithV3TreadmillDelegate
-                                text: qsTr("WalkingPad X21 v2")
+                                text: "WalkingPad X21 v2"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10079,7 +10232,7 @@ import Qt.labs.platform 1.1
 
                             IndicatorOnlySwitch {
                                 id: kingSmithV4TreadmillDelegate
-                                text: qsTr("WalkingPad X21 v3")
+                                text: "WalkingPad X21 v3"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10093,7 +10246,7 @@ import Qt.labs.platform 1.1
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("WalkingPad X21 v4")
+                                text: "WalkingPad X21 v4"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10107,7 +10260,7 @@ import Qt.labs.platform 1.1
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("WalkingPad G1")
+                                text: "WalkingPad G1"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10172,7 +10325,7 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.fitfiu_mc_v460 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Zero ZT-2500")
+                                text: "Zero ZT-2500"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10185,7 +10338,7 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.zero_zt2500_treadmill = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("UMAY S100")
+                                text: "UMAY S100"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10224,7 +10377,7 @@ import Qt.labs.platform 1.1
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("T900")
+                                text: "T900"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10489,7 +10642,7 @@ import Qt.labs.platform 1.1
                             }
                             IndicatorOnlySwitch {
                                 id: soleF63Delegate
-                                text: qsTr("Sole F63")
+                                text: "Sole F63"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10503,7 +10656,7 @@ import Qt.labs.platform 1.1
                             }
                             IndicatorOnlySwitch {
                                 id: soleF65Delegate
-                                text: qsTr("Sole F65")
+                                text: "Sole F65"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10517,7 +10670,7 @@ import Qt.labs.platform 1.1
                             }
                             IndicatorOnlySwitch {
                                 id: soleTT8Delegate
-                                text: qsTr("Sole TT8")
+                                text: "Sole TT8"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10707,7 +10860,7 @@ import Qt.labs.platform 1.1
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: horizonParagonXTreadmillCadenzaDelegate
-                                text: qsTr("Paragon X")
+                                text: "Paragon X"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10749,7 +10902,7 @@ import Qt.labs.platform 1.1
                             }
                             IndicatorOnlySwitch {
                                 id: horizonOmegaZTreadmillDelegate
-                                text: qsTr("Omega Z")
+                                text: "Omega Z"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10984,7 +11137,7 @@ import Qt.labs.platform 1.1
                     }
                     IndicatorOnlySwitch {
                         id: trxsevoDelegate
-                        text: qsTr("TRX 65s EVO")
+                        text: "TRX 65s EVO"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11027,7 +11180,7 @@ import Qt.labs.platform 1.1
                     }                    
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Toorx SRX 500")
+                        text: "Toorx SRX 500"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11042,7 +11195,7 @@ import Qt.labs.platform 1.1
 
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Toorx SRX 3500")
+                        text: "Toorx SRX 3500"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11084,7 +11237,7 @@ import Qt.labs.platform 1.1
                     }
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Taurua IC90 Bike")
+                        text: "Taurua IC90 Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11159,7 +11312,7 @@ import Qt.labs.platform 1.1
 
                     IndicatorOnlySwitch {
                         id: toorxBikeDelegate
-                        text: qsTr("Toorx/iConsole Bike")
+                        text: "Toorx/iConsole Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11219,7 +11372,7 @@ import Qt.labs.platform 1.1
 
                     IndicatorOnlySwitch {
                         id: toorxBikeJLLIC400Delegate
-                        text: qsTr("JLL IC400 Bike")
+                        text: "JLL IC400 Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11405,7 +11558,7 @@ import Qt.labs.platform 1.1
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
-                                text: qsTr("Proform Sport RL")
+                                text: "Proform Sport RL"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11418,7 +11571,7 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.proform_rower_sport_rl = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Proform Rower 750R")
+                                text: "Proform Rower 750R"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11439,7 +11592,7 @@ import Qt.labs.platform 1.1
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("ProForm Rower IP:")
+                                    text: "ProForm Rower IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -11517,7 +11670,7 @@ import Qt.labs.platform 1.1
                         }
                     }
                     AccordionElement {
-                        title: qsTr("Life Fitness 95xi (CSAFE)")
+                        title: "Life Fitness 95xi (CSAFE)"
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -11615,7 +11768,7 @@ import Qt.labs.platform 1.1
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
                                 id: proformHybridDelegate
-                                text: qsTr("Proform Hybrid Trainer XT")
+                                text: "Proform Hybrid Trainer XT"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11642,7 +11795,7 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.proform_hybrid_trainer_PFEL03815 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Nordictrack C7.5")
+                                text: "Nordictrack C7.5"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11655,7 +11808,7 @@ import Qt.labs.platform 1.1
                                 onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("NordicTrack Elliptical SE7i")
+                                text: "NordicTrack Elliptical SE7i"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -12894,7 +13047,7 @@ import Qt.labs.platform 1.1
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("Rogue Echo Bike")
+                                text: "Rogue Echo Bike"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
