@@ -381,11 +381,10 @@ ColumnLayout {
             text: "Other folders"
             onClicked: {
                 console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-                // Create a fresh FileDialog instance
                 if (Qt.platform.os === "android") {
-                  rootItem.openAndroidDocumentPicker("training")
+                    rootItem.openAndroidDocumentPicker("training")
                 } else {
-                  fileDialogLoader.active = true
+                    fileDialogLoader.active = true
                 }
             }
         }
