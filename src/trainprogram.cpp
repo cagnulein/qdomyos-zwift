@@ -1322,13 +1322,21 @@ bool trainprogram::overrideZoneHRForCurrentRow(uint8_t zone) {
     return false;
 }
 
-bool trainprogram::overridePowerForCurrentRow(double power) {
-    if (started && currentStep < rows.length() && currentRow().power != -1) {
-        qDebug() << "overriding power from" << rows.at(currentStep).power << "to" << power;
-        rows[currentStep].power = power;
-        return true;
+bool trainprogram::adjustPowerOffsetForTrainingProgram(int32_t delta) {
+    if (!started || currentStep >= rows.length() || currentRow().power == -1 || loadedRows.length() != rows.length()) {
+        return false;
     }
-    return false;
+
+    trainingProgramPowerOffset += delta;
+    qDebug() << "applying training program power offset" << trainingProgramPowerOffset;
+
+    for (int i = 0; i < rows.length(); i++) {
+        if (loadedRows.at(i).power != -1) {
+            rows[i].power = loadedRows.at(i).power + trainingProgramPowerOffset;
+        }
+    }
+
+    return true;
 }
 
 bool trainprogram::currentHeartRateEndConditionSatisfied() const {
@@ -1604,6 +1612,12 @@ int trainprogram::totalLogicalSteps() const {
 void trainprogram::onTapeStarted() { started = true; }
 
 void trainprogram::restart() {
+    trainingProgramPowerOffset = 0;
+    for (int i = 0; i < rows.length() && i < loadedRows.length(); i++) {
+        if (loadedRows.at(i).power != -1) {
+            rows[i].power = loadedRows.at(i).power;
+        }
+    }
 
     if (bluetoothManager && bluetoothManager->device())
         lastOdometer = bluetoothManager->device()->odometer();
