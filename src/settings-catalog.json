@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 960,
+  "settingCount": 962,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -9226,6 +9226,32 @@
       "visible": true,
       "defaultValue": true,
       "defaultExpression": "true",
+      "options": null
+    },
+    {
+      "key": "trainprogram_pid_hr_recovery_zone_limit",
+      "name": "PID Recovery Zone Lower Limit",
+      "description": "Lower HR boundary (% of max HR) that defines the bottom of Zone 1 for 'Pushy' mode. Below this percentage the treadmill is at the bottom of the recovery area. Default: 60.",
+      "parent": "Training Program Options",
+      "type": "number",
+      "qmlType": "real",
+      "control": "textfield",
+      "visible": true,
+      "defaultValue": 60.0,
+      "defaultExpression": "60.0",
+      "options": null
+    },
+    {
+      "key": "trainprogram_pid_hr_pushy_zone_limit",
+      "name": "PID Pushy Zone Limit",
+      "description": "Fraction of zone above the target zone where 'Pushy' mode stops pushing. 0.8 means the PID stops pushing at zone+0.8. Default: 0.8.",
+      "parent": "Training Program Options",
+      "type": "number",
+      "qmlType": "real",
+      "control": "textfield",
+      "visible": true,
+      "defaultValue": 0.8,
+      "defaultExpression": "0.8",
       "options": null
     },
     {

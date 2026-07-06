@@ -7793,6 +7793,8 @@ void homeform::update() {
                                (bluetoothManager->device()->elapsedTime().hour() * 3600);
             uint8_t delta = 10;
             bool trainprogram_pid_pushy = settings.value(QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy).toBool();
+            double trainprogram_pid_hr_pushy_zone_limit = settings.value(QZSettings::trainprogram_pid_hr_pushy_zone_limit, QZSettings::default_trainprogram_pid_hr_pushy_zone_limit).toDouble();
+            double trainprogram_pid_hr_recovery_zone_limit = settings.value(QZSettings::trainprogram_pid_hr_recovery_zone_limit, QZSettings::default_trainprogram_pid_hr_recovery_zone_limit).toDouble();
             bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR >= 0;
             double maxSpeed = 30;
             double minSpeed = 0;
@@ -7882,15 +7884,47 @@ void homeform::update() {
                                     newSpeed,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (currentSpeed < maxSpeed && trainprogram_pid_pushy) {
-                            pid_heart_zone_small_inc_counter++;
-                            if (fabs(((float)zone) - currentHRZone) < 0.5 && pid_heart_zone_small_inc_counter > (10 * fabs(((float)zone) - currentHRZone))) {
-                                double newSpeed = std::min(currentSpeed + step, maxSpeed);
+                        } else if (trainprogram_pid_pushy) {
+                            double pushyZoneLimit = (double)zone + trainprogram_pid_hr_pushy_zone_limit;
+                            // Slowdown threshold is symmetric: midpoint between pushyZoneLimit and zone top
+                            // e.g. pushy=0.8: slowdown at zone+0.9, neutral band [0.8, 0.9]
+                            double pushySlowdownThreshold = (double)zone + (1.0 + trainprogram_pid_hr_pushy_zone_limit) / 2.0;
+                            double pushyHRZone = currentHRZone;
+                            if (zone == 1) {
+                                double zone1Limit =
+                                    settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
+                                        .toDouble();
+                                double zone1LowerLimit = qBound(0.0, trainprogram_pid_hr_recovery_zone_limit, zone1Limit - 1.0);
+                                double effectiveZone1Width = zone1Limit - zone1LowerLimit;
+                                if (effectiveZone1Width > 0.0) {
+                                    double maxHeartRate = heartRateMax();
+                                    double currentHRPercent =
+                                        (bluetoothManager->device()->currentHeart().value() * 100.0) / maxHeartRate;
+                                    pushyHRZone =
+                                        1.0 + ((currentHRPercent - zone1LowerLimit) / effectiveZone1Width);
+                                    pushyHRZone = qBound(1.0, pushyHRZone, 1.9999);
+                                }
+                            }
+                            double distanceToNextZone = ((double)zone + 1.0) - pushyHRZone;
+                            if (pushyHRZone > pushySlowdownThreshold && currentSpeed > minSpeed) {
+                                double newSpeed = std::max(currentSpeed - step, minSpeed);
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
                                         newSpeed,
                                         ((treadmill *)bluetoothManager->device())->currentInclination().value());
                                 pid_heart_zone_small_inc_counter = 0;
+                            } else if (pushyHRZone < pushyZoneLimit && distanceToNextZone > 0.0 && currentSpeed < maxSpeed) {
+                                pid_heart_zone_small_inc_counter++;
+                                if (pid_heart_zone_small_inc_counter > (10 * distanceToNextZone)) {
+                                    double newSpeed = std::min(currentSpeed + step, maxSpeed);
+                                    ((treadmill *)bluetoothManager->device())
+                                        ->changeSpeedAndInclination(
+                                            newSpeed,
+                                            ((treadmill *)bluetoothManager->device())->currentInclination().value());
+                                    pid_heart_zone_small_inc_counter = 0;
+                                }
+                            } else {
+                                pid_heart_zone_small_inc_counter++;
                             }
                         }
                     } else if (bluetoothManager->device()->deviceType() == BIKE) {
