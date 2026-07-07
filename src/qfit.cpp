@@ -872,6 +872,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         newRecord.SetPower(sl.watt);
         newRecord.SetResistance(sl.resistance);
         newRecord.SetCalories(sl.calories);
+        if (type == BIKE || type == TREADMILL || type == ELLIPTICAL) {
+            newRecord.SetGrade(sl.inclination);
+        }
         if (type == TREADMILL) {
             newRecord.SetStepLength(sl.instantaneousStrideLengthCM * 10);
             newRecord.SetVerticalOscillation(sl.verticalOscillationMM);
