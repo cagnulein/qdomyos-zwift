@@ -1277,6 +1277,9 @@ class Listener : public fit::FileIdMesgListener,
             s.watt = record.GetPower();
             s.resistance = record.GetResistance();
             s.calories = record.GetCalories();
+            if (record.IsGradeValid()) {
+                s.inclination = record.GetGrade();
+            }
             if (record.IsCoreTemperatureValid()) {
                 s.coreTemp = record.GetCoreTemperature();
             }
