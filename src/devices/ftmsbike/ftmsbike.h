@@ -138,6 +138,8 @@ class ftmsbike : public bike {
 
     bool powerForced = false;
     resistance_t m_lastErgResistance = 0;
+    resistance_t m_pendingErgResistance = -1;
+    QDateTime m_pendingErgResistanceTime;
     bool manualResistancePowerAdjustmentActive = false;
     bool manualResistancePowerAdjustmentToastShown = false;
     resistance_t manualResistanceTarget = 1;
