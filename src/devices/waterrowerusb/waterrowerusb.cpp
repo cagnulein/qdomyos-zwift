@@ -377,10 +377,30 @@ void waterrowerusb::onWaterRowerStroke(double strokeRate, double distance, doubl
         m_watt = rower::calculateWattsFromPace(pace);
     }
     KCal = calories;
-    
-    // Calculate speed from pace (pace is in seconds per 500m)
-    if (pace > 0) {
-        Speed = 500.0 / pace * 3.6; // Convert to km/h
+
+    // The USB bridge pace/velocity is quantized and makes the speed graph jump.
+    // Derive speed from distance deltas and smooth it before publishing.
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if (distance <= 0 || lastSpeedDistanceMeters < 0 || distance < lastSpeedDistanceMeters) {
+        lastSpeedDistanceMeters = distance;
+        lastSpeedDistanceTimestamp = now;
+        filteredSpeedKph = 0;
+        Speed = 0;
+    } else if (distance > lastSpeedDistanceMeters) {
+        const qint64 deltaMs = now - lastSpeedDistanceTimestamp;
+        if (deltaMs >= 2000) {
+            const double deltaMeters = distance - lastSpeedDistanceMeters;
+            const double rawSpeedKph = (deltaMeters / (static_cast<double>(deltaMs) / 1000.0)) * 3.6;
+            if (rawSpeedKph <= 30.0) {
+                filteredSpeedKph = filteredSpeedKph > 0 ? (filteredSpeedKph * 0.8) + (rawSpeedKph * 0.2) : rawSpeedKph;
+                Speed = filteredSpeedKph;
+            }
+            lastSpeedDistanceMeters = distance;
+            lastSpeedDistanceTimestamp = now;
+        }
+    } else if (lastSpeedDistanceTimestamp > 0 && now - lastSpeedDistanceTimestamp > 3000) {
+        filteredSpeedKph = 0;
+        Speed = 0;
     }
 
     emit debug(QStringLiteral("Updated metrics - Cadence: %1, Distance: %2, Watts: %3, Speed: %4, Stroke Count: %5")

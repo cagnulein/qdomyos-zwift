@@ -90,6 +90,10 @@ private:
     bool distanceIsChanging = false;
     metric distanceReceived;
 
+    double lastSpeedDistanceMeters = -1.0;
+    qint64 lastSpeedDistanceTimestamp = 0;
+    double filteredSpeedKph = 0.0;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
