@@ -908,6 +908,8 @@ const QString QZSettings::watt_bike_emulator = QStringLiteral("watt_bike_emulato
 const QString QZSettings::restore_specific_gear = QStringLiteral("restore_specific_gear");
 const QString QZSettings::skipLocationServicesDialog = QStringLiteral("skipLocationServicesDialog");
 const QString QZSettings::trainprogram_pid_pushy = QStringLiteral("trainprogram_pid_pushy");
+const QString QZSettings::trainprogram_pid_hr_pushy_zone_limit = QStringLiteral("trainprogram_pid_hr_pushy_zone_limit");
+const QString QZSettings::trainprogram_pid_hr_recovery_zone_limit = QStringLiteral("trainprogram_pid_hr_recovery_zone_limit");
 const QString QZSettings::min_inclination = QStringLiteral("min_inclination");
 const QString QZSettings::proform_performance_300i = QStringLiteral("proform_performance_300i");
 const QString QZSettings::proform_performance_400i = QStringLiteral("proform_performance_400i");
@@ -2005,6 +2007,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::restore_specific_gear, QZSettings::default_restore_specific_gear},
     {QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog},
     {QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy},
+    {QZSettings::trainprogram_pid_hr_pushy_zone_limit, QZSettings::default_trainprogram_pid_hr_pushy_zone_limit},
+    {QZSettings::trainprogram_pid_hr_recovery_zone_limit, QZSettings::default_trainprogram_pid_hr_recovery_zone_limit},
     {QZSettings::min_inclination, QZSettings::default_min_inclination},
     {QZSettings::proform_performance_300i, QZSettings::default_proform_performance_300i},
     {QZSettings::proform_performance_400i, QZSettings::default_proform_performance_400i},

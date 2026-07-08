@@ -409,10 +409,11 @@ void bluetoothdevice::update_ios_live_activity() {
                 .toString();
         QByteArray compactLeadingMetricUtf8 = compactLeadingMetric.toUtf8();
         QByteArray compactTrailingMetricUtf8 = compactTrailingMetric.toUtf8();
-        const uint8_t workoutHeartRate = heartRateFromHealthKit ? 0 : (uint8_t)Heart.value();
+        const uint8_t liveActivityHeartRate = (uint8_t)Heart.value();
+        const uint8_t workoutHeartRate = heartRateFromHealthKit ? 0 : liveActivityHeartRate;
         h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(),
                                 deviceType(), odometer() * 1000.0, totalCalories().value(), useMiles,
-                                workoutHeartRate, compactLeadingMetricUtf8.constData(),
+                                workoutHeartRate, liveActivityHeartRate, compactLeadingMetricUtf8.constData(),
                                 metricValueForSetting(compactLeadingMetric), compactTrailingMetricUtf8.constData(),
                                 metricValueForSetting(compactTrailingMetric));
         heartRateFromHealthKit = false;
