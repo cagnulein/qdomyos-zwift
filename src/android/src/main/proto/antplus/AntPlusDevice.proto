@@ -1,0 +1,23 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.antplus";
+option java_outer_classname = "AntPlusDeviceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message AntPlusDevice {
+  int32 deviceType = 1;
+  int32 deviceNumber = 2;
+  int32 signalStrength = 3;
+  int32 manufacturerID = 4;
+  int32 serialNumberLSB = 5;
+  int32 serialNumberMSB = 6;
+  int32 hardwareVersion = 7;
+  int32 softwareVersion = 8;
+  int32 modelNumber = 9;
+  int32 serialNumberCalculated = 10;
+}
+
+message AntPlusDeviceList {
+  repeated AntPlusDevice devices = 1;
+}

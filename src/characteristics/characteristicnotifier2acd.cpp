@@ -8,7 +8,7 @@ CharacteristicNotifier2ACD::CharacteristicNotifier2ACD(bluetoothdevice *Bike, QO
 
 int CharacteristicNotifier2ACD::notify(QByteArray &value) {
     BLUETOOTH_TYPE dt = Bike->deviceType();
-    if (dt == TREADMILL || dt == ELLIPTICAL) {
+    if (dt == TREADMILL || dt == ELLIPTICAL || dt == BIKE) {
         QSettings settings;
         bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
 
@@ -68,7 +68,7 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         uint16_t normalizeIncline = 0;
 
         bool real_inclination_to_virtual_treamill_bridge = settings.value(QZSettings::real_inclination_to_virtual_treamill_bridge, QZSettings::default_real_inclination_to_virtual_treamill_bridge).toBool();
-        double inclination = ((treadmill *)Bike)->currentInclination().value();
+        double inclination = Bike->currentInclination().value();
         if(real_inclination_to_virtual_treamill_bridge) {
             double offset = settings.value(QZSettings::zwift_inclination_offset,
                                            QZSettings::default_zwift_inclination_offset).toDouble();
@@ -78,7 +78,7 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
             inclination /= gain;
         }
 
-        if (dt == TREADMILL)
+        if (dt == TREADMILL || dt == BIKE)
             normalizeIncline = (uint32_t)qRound(inclination * 10);
         a = (normalizeIncline >> 8) & 0XFF;
         b = normalizeIncline & 0XFF;
@@ -86,7 +86,7 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         inclineBytes.append(b);
         inclineBytes.append(a);
         double ramp = 0;
-        if (dt == TREADMILL)
+        if (dt == TREADMILL || dt == BIKE)
             ramp = qRadiansToDegrees(qAtan(inclination / 100));
         int16_t normalizeRamp = (int16_t)qRound(ramp * 10);
         a = (normalizeRamp >> 8) & 0XFF;

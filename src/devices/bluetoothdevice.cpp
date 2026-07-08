@@ -24,9 +24,13 @@ bluetoothdevice::~bluetoothdevice() {
 BLUETOOTH_TYPE bluetoothdevice::deviceType() { return UNKNOWN; }
 void bluetoothdevice::start() { requestStart = 1; lastStart = QDateTime::currentMSecsSinceEpoch(); }
 void bluetoothdevice::stop(bool pause) {
-    requestStop = 1;
-    if (pause)
+    if (pause) {
+        // Solo pause, NON stop
         requestPause = 1;
+    } else {
+        // Stop completo
+        requestStop = 1;
+    }
 }
 metric bluetoothdevice::currentHeart() { return Heart; }
 metric bluetoothdevice::currentSpeed() { return Speed; }

@@ -24,7 +24,7 @@ concurrency:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   window-build:
-    runs-on: windows-2022
+    runs-on: windows-latest
     strategy:
       matrix:
         config:
@@ -116,7 +116,7 @@ jobs:
       - name: Build qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         run: |
-            cd src\qthttpserver
+            cd src\qthttpserver 
             qmake
             make -j8
             cd ../..
@@ -136,8 +136,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
 
@@ -277,7 +275,6 @@ jobs:
 #          repository: bluetiger9/SmtpClient-for-Qt
 #          path: "src/smtpclient/"
 #          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-#
 #
 #      - uses: msys2/setup-msys2@v2
 #        with:
@@ -667,10 +664,9 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
+          cd ..          
 
       - name: Prepare Android signing key
         env:
@@ -1036,8 +1032,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
           qmake CONFIG+=debug CONFIG+=iphonesimulator \
@@ -1150,8 +1144,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
 
@@ -1354,11 +1346,9 @@ jobs:
           echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h          
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..
+          cd ..                    
 
       - name: Cache vcpkg
         id: cache-vcpkg-aiserver
@@ -1461,8 +1451,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
@@ -1521,8 +1509,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
@@ -1740,8 +1726,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
 
@@ -2076,7 +2060,7 @@ jobs:
   nordictrack-build:
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule'
     
     strategy:
       matrix:
@@ -2086,9 +2070,6 @@ jobs:
             setting_value: localhost
           - name: bike
             setting_key: tdf_10_ip
-            setting_value: localhost
-          - name: rower
-            setting_key: proform_rower_ip
             setting_value: localhost
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -2153,8 +2134,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           # Set variant-specific IP setting
@@ -2423,8 +2402,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
@@ -2548,8 +2525,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
@@ -2646,22 +2621,8 @@ jobs:
 
             ## Other Platforms:
             - **fdroid-android-trial**: Android build
-
-            ### NordicTrack / iFIT builds
-            There are two different ways QZ can talk to a NordicTrack / iFIT machine, pick the one that matches your console:
-
-            **gRPC builds** — these rely on the iFIT app: QZ talks to iFIT, which talks to the console. The iFIT app must be installed, running and signed in. They only work on the newer machines (the ones with the new iFIT 3D layout).
-            - **nordictrack-treadmill-android-trial**: Treadmill (gRPC via iFIT, new 3D-layout consoles only)
-            - **nordictrack-bike-android-trial**: Bike (gRPC via iFIT, new 3D-layout consoles only)
-            - **nordictrack-rower-android-trial**: Rower (gRPC via iFIT, new 3D-layout consoles only)
-
-            **FitPro builds** — these access the console directly over USB-HID, without going through iFIT. The iFIT app must be **closed**. They work with every iFIT version (both old and new consoles).
-            - **fitpro-treadmill-android-trial**: Treadmill (direct USB-HID FitPro, iFIT must be closed, all iFIT versions)
-            - **fitpro-bike-android-trial**: Bike (direct USB-HID FitPro, iFIT must be closed, all iFIT versions)
-            - **fitpro-elliptical-android-trial**: Elliptical (direct USB-HID FitPro, iFIT must be closed, all iFIT versions)
-            - **fitpro-rower-android-trial**: Rower (direct USB-HID FitPro, iFIT must be closed, all iFIT versions)
-
-            ### Peloton / Raspberry Pi
+            - **nordictrack-treadmill-android-trial**: Nordictrack Treadmill build for iFIT2 Tablets
+            - **nordictrack-bike-android-trial**: Nordictrack Bike build for iFIT2 Tablets
             - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
             - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
             - **raspberry-pi-binary-armv6hf**: Raspberry Pi 32-bit (ARMv6 hard-float, Pi Zero W compatible)
@@ -2679,11 +2640,6 @@ jobs:
             fdroid-android-trial/android-debug.apk
             nordictrack-treadmill-android-trial/android-debug-nordictrack-treadmill.apk
             nordictrack-bike-android-trial/android-debug-nordictrack-bike.apk
-            nordictrack-rower-android-trial/android-debug-nordictrack-rower.apk
-            fitpro-treadmill-android-trial/android-debug-fitpro-treadmill.apk
-            fitpro-bike-android-trial/android-debug-fitpro-bike.apk
-            fitpro-elliptical-android-trial/android-debug-fitpro-elliptical.apk
-            fitpro-rower-android-trial/android-debug-fitpro-rower.apk
             peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
             peloton-bike-android-trial/android-debug-peloton-bike.apk
             raspberry-pi-binary-armv6hf/qdomyos-zwift-armv6hf

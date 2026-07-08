@@ -1,0 +1,38 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "bluetooth/BluetoothDeviceType.proto";
+import "bluetooth/BluetoothConnectionState.proto";
+option java_package = "com.ifit.glassos.bluetooth";
+option java_outer_classname = "BluetoothDeviceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message DeviceStreamRequest {
+  string macAddress = 1;
+}
+
+message DeviceConnectionStateResult {
+  BluetoothConnectionState connectionState = 1;
+}
+
+message DeviceRssiResult {
+  int32 rssi = 1;
+}
+
+message DeviceBatteryLevelResult {
+  int32 batteryLevel = 1;
+}
+
+message BluetoothDevice {
+  string deviceName = 1;
+  string macAddress = 2;
+  int32 rssi = 3;
+  int32 batteryLevel = 4;
+  BluetoothDeviceType deviceType = 5;
+  BluetoothConnectionState connectionState = 6;
+  string pairKey = 7;
+}
+
+message BluetoothDeviceList {
+  repeated BluetoothDevice devices = 1;
+}

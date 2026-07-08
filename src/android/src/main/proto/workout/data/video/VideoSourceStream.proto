@@ -1,0 +1,17 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.workout.data.video";
+option java_outer_classname = "VideoSourceStreamProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message VideoSourceStream {
+  string codec = 1;
+  string container = 2;
+  string src = 3;
+  int32 bitrate = 4;
+  int32 width = 5;
+  int32 height = 6;
+  double size = 7;
+  int32 duration = 8;
+}

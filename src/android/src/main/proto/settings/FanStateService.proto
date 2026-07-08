@@ -1,0 +1,29 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.settings";
+option java_outer_classname = "FanStateServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum FanState {
+  FAN_STATE_OFF = 0;
+  FAN_STATE_LOW = 1;
+  FAN_STATE_MEDIUM = 2;
+  FAN_STATE_HIGH = 3;
+  FAN_STATE_AUTO = 4;
+  FAN_STATE_UNKNOWN = 5;
+}
+
+message FanStateMessage {
+  FanState state = 1;
+}
+
+service FanStateService {
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+  rpc CanWrite(Empty) returns (AvailabilityResponse) {}
+  rpc GetFanState(Empty) returns (FanStateMessage) {}
+  rpc FanStateChanged(Empty) returns (stream FanStateMessage) {}
+  rpc SetFanState(FanStateMessage) returns (Empty) {}
+  rpc IsAutoFanStateSupported(Empty) returns (AvailabilityResponse) {}
+}
