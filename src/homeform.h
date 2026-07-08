@@ -169,6 +169,8 @@ class homeform : public QObject {
     Q_PROPERTY(bool chartIconVisible READ chartIconVisible NOTIFY chartIconVisibleChanged WRITE setChartIconVisible)
     Q_PROPERTY(
         bool chartFooterVisible READ chartFooterVisible NOTIFY chartFooterVisibleChanged WRITE setChartFooterVisible)
+    Q_PROPERTY(bool chartTreadmillMode READ chartTreadmillMode NOTIFY chartTreadmillModeChanged WRITE
+                   setChartTreadmillMode)
     Q_PROPERTY(QUrl videoPath READ videoPath NOTIFY videoPathChanged)
     Q_PROPERTY(int videoPosition READ videoPosition NOTIFY videoPositionChanged WRITE setVideoPosition)
     Q_PROPERTY(double videoRate READ videoRate NOTIFY videoRateChanged WRITE setVideoRate)
@@ -510,6 +512,7 @@ class homeform : public QObject {
     bool videoVisible() { return m_VideoVisible; }
     bool chartIconVisible();
     bool chartFooterVisible() { return m_ChartFooterVisible; }
+    bool chartTreadmillMode() { return m_ChartTreadmillMode; }
     int videoPosition();
     double videoRate();
     double currentSpeed() {
@@ -549,6 +552,10 @@ class homeform : public QObject {
     void setChartFooterVisible(bool value) {
         m_ChartFooterVisible = value;
         emit chartFooterVisibleChanged(m_ChartFooterVisible);
+    }
+    void setChartTreadmillMode(bool value) {
+        m_ChartTreadmillMode = value;
+        emit chartTreadmillModeChanged(m_ChartTreadmillMode);
     }
     void setVideoPosition(int position); // on startup
     void videoSeekPosition(int ms);      // in realtime
@@ -660,6 +667,7 @@ public:
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
     Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
+    Q_INVOKABLE void openAndroidDocumentPicker(const QString &kind);
     Q_INVOKABLE bool deleteTrainingProgramFile(const QString &fileUrl);
 
     double wattMaxChart() {
@@ -963,6 +971,7 @@ public:
     bool m_VideoVisible = false;
     bool m_ChartFooterVisible = false;
     bool m_ChartIconVisible = false;
+    bool m_ChartTreadmillMode = false;
     int m_VideoPosition = 0;
     double m_VideoRate = 1;
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
@@ -1082,6 +1091,7 @@ public:
     static QString getFileNameFromContentUri(const QString &uriString);
 
     int16_t fanOverride = 0;
+    const float powerJog = 5.0;
 
     void update();
     void ten_hz();
@@ -1138,6 +1148,7 @@ public:
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_autostart_requested();
     void handleOAuthCallbackUrl(const QString &callbackUrl);
+    void handleAndroidDocumentPicked(int requestCode, const QString &uriString);
 
   private slots:
     void Start();
@@ -1233,6 +1244,7 @@ public:
 
     void changeOfdevice();
     void changeOflap();
+    void androidDocumentPicked(QString kind, QUrl localUrl);
     void signalChanged(QString value);
     void startTextChanged(QString value);
     void startIconChanged(QString value);
@@ -1270,6 +1282,7 @@ public:
     void videoRateChanged(double value);
     void chartIconVisibleChanged(bool value);
     void chartFooterVisibleChanged(bool value);
+    void chartTreadmillModeChanged(bool value);
     void manualCscBikeResistanceAdjusted(resistance_t resistance);
     void currentSpeedChanged(double value);
     void mapsVisibleChanged(bool value);

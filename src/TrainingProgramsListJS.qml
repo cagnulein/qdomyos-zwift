@@ -25,6 +25,15 @@ ColumnLayout {
     property var selectedFileUrl: ""
     property bool isSearching: false
 
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "training") {
+                trainprogram_open_clicked(localUrl)
+            }
+        }
+    }
+
     function openWorkoutPreview(fileUrl) {
         if (!fileUrl || fileUrl.toString() === "") {
             return
@@ -73,6 +82,7 @@ ColumnLayout {
                 id: fileDialog
                 title: "Please choose a file"
                 folder: shortcuts.home
+                nameFilters: ["Training programs (*.xml *.zwo)", "All files (*)"]
                 visible: true
                 onAccepted: {
                     var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")
@@ -276,7 +286,11 @@ ColumnLayout {
                     height: 50
                     text: "Other folders"
                     onClicked: {
-                        fileDialogLoader.active = true
+                        if (Qt.platform.os === "android") {
+                            rootItem.openAndroidDocumentPicker("training")
+                        } else {
+                            fileDialogLoader.active = true
+                        }
                     }
                 }
             }

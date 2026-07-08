@@ -69,10 +69,32 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
     QString nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+    QString tdf_10_ip_ctor = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    QString proform_elliptical_ip_ctor =
+        settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
+    QString proform_rower_ip_ctor =
+        settings.value(QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip).toString();
     bool fake_bike =
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fake_treadmill =
     settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
+    bool fakedevice_elliptical_ctor =
+        settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical).toBool();
+    bool fakedevice_rower_ctor =
+        settings.value(QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower).toBool();
+    bool antbike_ctor = settings.value(QZSettings::antbike, QZSettings::default_antbike).toBool();
+    bool android_antbike_ctor =
+        settings.value(QZSettings::android_antbike, QZSettings::default_android_antbike).toBool();
+    // The 15s discovery watchdog below exists solely to unstick fake/virtual devices
+    // (Fake Treadmill/Bike/etc, IP-based trainers) on platforms where the discovery
+    // agent's finished() signal never fires (e.g. Waydroid containers without a
+    // functional Bluetooth radio). If none of those virtual devices are configured,
+    // there is nothing relying on the watchdog, so we leave real discovery alone and
+    // let it take as long as it genuinely needs instead of forcing it to end early.
+    bool reliesOnFakeOrVirtualDevice = fake_bike || fake_treadmill || fakedevice_elliptical_ctor ||
+                                        fakedevice_rower_ctor || !nordictrack_2950_ip.isEmpty() ||
+                                        !tdf_10_ip_ctor.isEmpty() || !proform_elliptical_ip_ctor.isEmpty() ||
+                                        !proform_rower_ip_ctor.isEmpty() || antbike_ctor || android_antbike_ctor;
 
     if (!gymMode && settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() &&
         !pelotonBike) {
@@ -140,10 +162,19 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &bluetooth::canceled);
 #ifndef Q_OS_WIN
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &bluetooth::finished);
-#else
-        connect(&discoveryTimeout, &QTimer::timeout, this, &bluetooth::finished);
-        discoveryTimeout.start(10000);
 #endif
+        // Safety net: on some platforms (e.g. Android containers/emulators without a functional
+        // Bluetooth adapter, such as Waydroid) the discovery agent's finished()/timeout signal never
+        // fires even though a discoveryAgent object was created, leaving fake devices (Fake
+        // Treadmill/Bike/etc) stuck forever waiting for a scan that will never complete. finished()
+        // guards against being invoked twice, so this is a no-op once the real signal has fired.
+        // Only armed when a fake/virtual device is actually configured: real hardware users have
+        // nothing depending on this fallback, so we don't risk cutting a genuine (if slow) scan short.
+        if (reliesOnFakeOrVirtualDevice) {
+            connect(&discoveryTimeout, &QTimer::timeout, this, &bluetooth::finished);
+            discoveryTimeout.setSingleShot(true);
+            discoveryTimeout.start(15000);
+        }
 
         // Start a discovery
 #ifndef Q_OS_WIN
@@ -164,6 +195,11 @@ bluetooth::~bluetooth() {
 void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) { emit this->bluetoothDeviceConnected(b); }
 
 void bluetooth::finished() {
+    if (discoveryFinishedHandled)
+        return;
+    discoveryFinishedHandled = true;
+    discoveryTimeout.stop();
+
     debug(QStringLiteral("BTLE scanning finished"));
 
     QSettings settings;

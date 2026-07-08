@@ -365,9 +365,8 @@ class bluetooth : public QObject, public SignalHandler {
     bool fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device);
     bool gymModeEnabled() const;
 
-#ifdef Q_OS_WIN
     QTimer discoveryTimeout;
-#endif
+    bool discoveryFinishedHandled = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = nullptr;
