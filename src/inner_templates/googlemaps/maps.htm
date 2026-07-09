@@ -92,6 +92,48 @@ viewer.trackedEntity = bike;
     let lastBikeHeight = 0
     let firstTime = 0
 
+    function isTrueSetting(value) {
+        return value === true || value === 'true' || value === 1 || value === '1';
+    }
+
+    let mapMetricSettings = {
+        speed: true, cadence: true, heart: true, calories: true, odometer: true,
+        watt: true, elapsed: true, inclination: true, resistance: true, altitude: true, elevation: true
+    };
+
+    function loadMapMetricSettings() {
+        let settingKeys = ['map_metric_speed_enabled', 'map_metric_cadence_enabled', 'map_metric_heart_enabled',
+            'map_metric_calories_enabled', 'map_metric_odometer_enabled', 'map_metric_watt_enabled',
+            'map_metric_elapsed_enabled', 'map_metric_inclination_enabled', 'map_metric_resistance_enabled',
+            'map_metric_altitude_enabled', 'map_metric_elevation_enabled'];
+        let el = new MainWSQueueElement({
+            msg: 'getsettings',
+            content: { keys: settingKeys }
+        }, function(msg) {
+            if (msg.msg === 'R_getsettings') {
+                return msg.content;
+            }
+            return null;
+        }, 15000, 3);
+        el.enqueue().then(function(content) {
+            if (!content) return;
+            mapMetricSettings.speed = isTrueSetting(content['map_metric_speed_enabled']);
+            mapMetricSettings.cadence = isTrueSetting(content['map_metric_cadence_enabled']);
+            mapMetricSettings.heart = isTrueSetting(content['map_metric_heart_enabled']);
+            mapMetricSettings.calories = isTrueSetting(content['map_metric_calories_enabled']);
+            mapMetricSettings.odometer = isTrueSetting(content['map_metric_odometer_enabled']);
+            mapMetricSettings.watt = isTrueSetting(content['map_metric_watt_enabled']);
+            mapMetricSettings.elapsed = isTrueSetting(content['map_metric_elapsed_enabled']);
+            mapMetricSettings.inclination = isTrueSetting(content['map_metric_inclination_enabled']);
+            mapMetricSettings.resistance = isTrueSetting(content['map_metric_resistance_enabled']);
+            mapMetricSettings.altitude = isTrueSetting(content['map_metric_altitude_enabled']);
+            mapMetricSettings.elevation = isTrueSetting(content['map_metric_elevation_enabled']);
+        }).catch(function(err) {
+            console.error('Error is ' + err);
+        });
+    }
+    loadMapMetricSettings();
+
     function a() {
     onWorkout = false;
     let el = new MainWSQueueElement({
@@ -153,7 +195,19 @@ viewer.trackedEntity = bike;
 																}
 				}
 
-            $('#metricsText').html("🏃Speed: " + speed.toFixed(2) + "<br>🚴Cadence:" + cadence.toFixed(0) + "<br>💓Heart:"+ hr.toFixed(0) + "<br>🔥Calories:"+ calories.toFixed(1) + "<br>📏Odometer:"+ odometer.toFixed(2) + "<br>⚡Watt:"+ watt.toFixed(0) + "<br>⏲️Elapsed:"+ elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "<br>📐Inclination:"+ inclination.toFixed(1) + "<br>🧲Resistance:"+ resistance.toFixed(0) + "<br>✈️Altitude:"+ altitude.toFixed(1) + "<br>⛰️Elevation:"+ elevation.toFixed(2));
+            let metricsLines = [];
+            if (mapMetricSettings.speed) metricsLines.push("🏃Speed: " + speed.toFixed(2));
+            if (mapMetricSettings.cadence) metricsLines.push("🚴Cadence:" + cadence.toFixed(0));
+            if (mapMetricSettings.heart) metricsLines.push("💓Heart:" + hr.toFixed(0));
+            if (mapMetricSettings.calories) metricsLines.push("🔥Calories:" + calories.toFixed(1));
+            if (mapMetricSettings.odometer) metricsLines.push("📏Odometer:" + odometer.toFixed(2));
+            if (mapMetricSettings.watt) metricsLines.push("⚡Watt:" + watt.toFixed(0));
+            if (mapMetricSettings.elapsed) metricsLines.push("⏲️Elapsed:" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0"));
+            if (mapMetricSettings.inclination) metricsLines.push("📐Inclination:" + inclination.toFixed(1));
+            if (mapMetricSettings.resistance) metricsLines.push("🧲Resistance:" + resistance.toFixed(0));
+            if (mapMetricSettings.altitude) metricsLines.push("✈️Altitude:" + altitude.toFixed(1));
+            if (mapMetricSettings.elevation) metricsLines.push("⛰️Elevation:" + elevation.toFixed(2));
+            $('#metricsText').html(metricsLines.join("<br>"));
 		  }
 		  return null;
 		}, 15000, 3);

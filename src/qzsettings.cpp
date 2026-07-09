@@ -1115,6 +1115,18 @@ const QString QZSettings::proform_treadmill_105_cst = QStringLiteral("proform_tr
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
 const QString QZSettings::horizon_treadmill_omega_z = QStringLiteral("horizon_treadmill_omega_z");
 
+const QString QZSettings::map_metric_speed_enabled = QStringLiteral("map_metric_speed_enabled");
+const QString QZSettings::map_metric_cadence_enabled = QStringLiteral("map_metric_cadence_enabled");
+const QString QZSettings::map_metric_heart_enabled = QStringLiteral("map_metric_heart_enabled");
+const QString QZSettings::map_metric_calories_enabled = QStringLiteral("map_metric_calories_enabled");
+const QString QZSettings::map_metric_odometer_enabled = QStringLiteral("map_metric_odometer_enabled");
+const QString QZSettings::map_metric_watt_enabled = QStringLiteral("map_metric_watt_enabled");
+const QString QZSettings::map_metric_elapsed_enabled = QStringLiteral("map_metric_elapsed_enabled");
+const QString QZSettings::map_metric_inclination_enabled = QStringLiteral("map_metric_inclination_enabled");
+const QString QZSettings::map_metric_resistance_enabled = QStringLiteral("map_metric_resistance_enabled");
+const QString QZSettings::map_metric_altitude_enabled = QStringLiteral("map_metric_altitude_enabled");
+const QString QZSettings::map_metric_elevation_enabled = QStringLiteral("map_metric_elevation_enabled");
+
 const QString QZSettings::shortcuts_enabled = QStringLiteral("shortcuts_enabled");
 const QString QZSettings::shortcut_speed_plus = QStringLiteral("shortcut_speed_plus");
 const QString QZSettings::default_shortcut_speed_plus = QStringLiteral("");
@@ -1247,7 +1259,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 974;
+const uint32_t allSettingsCount = 985;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2246,6 +2258,17 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_105_cst, QZSettings::default_proform_treadmill_105_cst},
     {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
     {QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z},
+    {QZSettings::map_metric_speed_enabled, QZSettings::default_map_metric_speed_enabled},
+    {QZSettings::map_metric_cadence_enabled, QZSettings::default_map_metric_cadence_enabled},
+    {QZSettings::map_metric_heart_enabled, QZSettings::default_map_metric_heart_enabled},
+    {QZSettings::map_metric_calories_enabled, QZSettings::default_map_metric_calories_enabled},
+    {QZSettings::map_metric_odometer_enabled, QZSettings::default_map_metric_odometer_enabled},
+    {QZSettings::map_metric_watt_enabled, QZSettings::default_map_metric_watt_enabled},
+    {QZSettings::map_metric_elapsed_enabled, QZSettings::default_map_metric_elapsed_enabled},
+    {QZSettings::map_metric_inclination_enabled, QZSettings::default_map_metric_inclination_enabled},
+    {QZSettings::map_metric_resistance_enabled, QZSettings::default_map_metric_resistance_enabled},
+    {QZSettings::map_metric_altitude_enabled, QZSettings::default_map_metric_altitude_enabled},
+    {QZSettings::map_metric_elevation_enabled, QZSettings::default_map_metric_elevation_enabled},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
