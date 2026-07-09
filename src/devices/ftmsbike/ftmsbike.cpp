@@ -356,6 +356,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
             if(_3G_Cardio_RB || SL010)
                 requestResistance = requestResistance * 10;
+            requestResistance = (resistance_t)qRound(((double)requestResistance) * bikeResistanceGain);
             write[1] = ((uint8_t)(requestResistance));
             writeCharacteristic(write, sizeof(write),
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
