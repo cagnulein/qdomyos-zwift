@@ -1708,17 +1708,6 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_105_cst: false
             property real trainprogram_pid_hr_pushy_zone_limit: 0.8
             property real trainprogram_pid_hr_recovery_zone_limit: 60.0
-            property bool map_metric_speed_enabled: true
-            property bool map_metric_cadence_enabled: true
-            property bool map_metric_heart_enabled: true
-            property bool map_metric_calories_enabled: true
-            property bool map_metric_odometer_enabled: true
-            property bool map_metric_watt_enabled: true
-            property bool map_metric_elapsed_enabled: true
-            property bool map_metric_inclination_enabled: true
-            property bool map_metric_resistance_enabled: true
-            property bool map_metric_altitude_enabled: true
-            property bool map_metric_elevation_enabled: true
         }
 
 
@@ -14676,97 +14665,11 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        text: qsTr("Data box metrics:")
+                        text: qsTr("The metrics shown in the map's data box follow the same on/off switches as the Tiles settings.")
                         Layout.topMargin: 10
-                    }
-
-                    IndicatorOnlySwitch {
-                        text: qsTr("Speed")
-                        spacing: 0; bottomPadding: 0; topPadding: 0; rightPadding: 0; leftPadding: 0; clip: false
-                        checked: settings.map_metric_speed_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.map_metric_speed_enabled = checked
-                    }
-                    IndicatorOnlySwitch {
-                        text: qsTr("Cadence")
-                        spacing: 0; bottomPadding: 0; topPadding: 0; rightPadding: 0; leftPadding: 0; clip: false
-                        checked: settings.map_metric_cadence_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.map_metric_cadence_enabled = checked
-                    }
-                    IndicatorOnlySwitch {
-                        text: qsTr("Heart Rate")
-                        spacing: 0; bottomPadding: 0; topPadding: 0; rightPadding: 0; leftPadding: 0; clip: false
-                        checked: settings.map_metric_heart_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.map_metric_heart_enabled = checked
-                    }
-                    IndicatorOnlySwitch {
-                        text: qsTr("Calories")
-                        spacing: 0; bottomPadding: 0; topPadding: 0; rightPadding: 0; leftPadding: 0; clip: false
-                        checked: settings.map_metric_calories_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.map_metric_calories_enabled = checked
-                    }
-                    IndicatorOnlySwitch {
-                        text: qsTr("Odometer")
-                        spacing: 0; bottomPadding: 0; topPadding: 0; rightPadding: 0; leftPadding: 0; clip: false
-                        checked: settings.map_metric_odometer_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.map_metric_odometer_enabled = checked
-                    }
-                    IndicatorOnlySwitch {
-                        text: qsTr("Watt")
-                        spacing: 0; bottomPadding: 0; topPadding: 0; rightPadding: 0; leftPadding: 0; clip: false
-                        checked: settings.map_metric_watt_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.map_metric_watt_enabled = checked
-                    }
-                    IndicatorOnlySwitch {
-                        text: qsTr("Elapsed Time")
-                        spacing: 0; bottomPadding: 0; topPadding: 0; rightPadding: 0; leftPadding: 0; clip: false
-                        checked: settings.map_metric_elapsed_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.map_metric_elapsed_enabled = checked
-                    }
-                    IndicatorOnlySwitch {
-                        text: qsTr("Inclination")
-                        spacing: 0; bottomPadding: 0; topPadding: 0; rightPadding: 0; leftPadding: 0; clip: false
-                        checked: settings.map_metric_inclination_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.map_metric_inclination_enabled = checked
-                    }
-                    IndicatorOnlySwitch {
-                        text: qsTr("Resistance")
-                        spacing: 0; bottomPadding: 0; topPadding: 0; rightPadding: 0; leftPadding: 0; clip: false
-                        checked: settings.map_metric_resistance_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.map_metric_resistance_enabled = checked
-                    }
-                    IndicatorOnlySwitch {
-                        text: qsTr("Altitude")
-                        spacing: 0; bottomPadding: 0; topPadding: 0; rightPadding: 0; leftPadding: 0; clip: false
-                        checked: settings.map_metric_altitude_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.map_metric_altitude_enabled = checked
-                    }
-                    IndicatorOnlySwitch {
-                        text: qsTr("Elevation")
-                        spacing: 0; bottomPadding: 0; topPadding: 0; rightPadding: 0; leftPadding: 0; clip: false
-                        checked: settings.map_metric_elevation_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.map_metric_elevation_enabled = checked
+                        wrapMode: Text.WordWrap
+                        font.italic: true
                     }
                 }
             }

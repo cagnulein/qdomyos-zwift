@@ -3221,32 +3221,6 @@ class QZSettings {
     static constexpr bool default_horizon_treadmill_omega_z = false;
 
     /**
-     * @brief Show/hide individual metrics in the data overlay box on the map screen.
-     */
-    static const QString map_metric_speed_enabled;
-    static constexpr bool default_map_metric_speed_enabled = true;
-    static const QString map_metric_cadence_enabled;
-    static constexpr bool default_map_metric_cadence_enabled = true;
-    static const QString map_metric_heart_enabled;
-    static constexpr bool default_map_metric_heart_enabled = true;
-    static const QString map_metric_calories_enabled;
-    static constexpr bool default_map_metric_calories_enabled = true;
-    static const QString map_metric_odometer_enabled;
-    static constexpr bool default_map_metric_odometer_enabled = true;
-    static const QString map_metric_watt_enabled;
-    static constexpr bool default_map_metric_watt_enabled = true;
-    static const QString map_metric_elapsed_enabled;
-    static constexpr bool default_map_metric_elapsed_enabled = true;
-    static const QString map_metric_inclination_enabled;
-    static constexpr bool default_map_metric_inclination_enabled = true;
-    static const QString map_metric_resistance_enabled;
-    static constexpr bool default_map_metric_resistance_enabled = true;
-    static const QString map_metric_altitude_enabled;
-    static constexpr bool default_map_metric_altitude_enabled = true;
-    static const QString map_metric_elevation_enabled;
-    static constexpr bool default_map_metric_elevation_enabled = true;
-
-    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */

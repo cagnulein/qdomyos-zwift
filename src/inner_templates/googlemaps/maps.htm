@@ -102,10 +102,12 @@ viewer.trackedEntity = bike;
     };
 
     function loadMapMetricSettings() {
-        let settingKeys = ['map_metric_speed_enabled', 'map_metric_cadence_enabled', 'map_metric_heart_enabled',
-            'map_metric_calories_enabled', 'map_metric_odometer_enabled', 'map_metric_watt_enabled',
-            'map_metric_elapsed_enabled', 'map_metric_inclination_enabled', 'map_metric_resistance_enabled',
-            'map_metric_altitude_enabled', 'map_metric_elevation_enabled'];
+        // Reuse the same enable/disable switches as the main Tiles settings,
+        // instead of introducing separate settings for the map's data box.
+        let settingKeys = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_heart_enabled',
+            'tile_calories_enabled', 'tile_odometer_enabled', 'tile_watt_enabled',
+            'tile_elapsed_enabled', 'tile_inclination_enabled', 'tile_resistance_enabled',
+            'tile_elevation_enabled'];
         let el = new MainWSQueueElement({
             msg: 'getsettings',
             content: { keys: settingKeys }
@@ -117,17 +119,18 @@ viewer.trackedEntity = bike;
         }, 15000, 3);
         el.enqueue().then(function(content) {
             if (!content) return;
-            mapMetricSettings.speed = isTrueSetting(content['map_metric_speed_enabled']);
-            mapMetricSettings.cadence = isTrueSetting(content['map_metric_cadence_enabled']);
-            mapMetricSettings.heart = isTrueSetting(content['map_metric_heart_enabled']);
-            mapMetricSettings.calories = isTrueSetting(content['map_metric_calories_enabled']);
-            mapMetricSettings.odometer = isTrueSetting(content['map_metric_odometer_enabled']);
-            mapMetricSettings.watt = isTrueSetting(content['map_metric_watt_enabled']);
-            mapMetricSettings.elapsed = isTrueSetting(content['map_metric_elapsed_enabled']);
-            mapMetricSettings.inclination = isTrueSetting(content['map_metric_inclination_enabled']);
-            mapMetricSettings.resistance = isTrueSetting(content['map_metric_resistance_enabled']);
-            mapMetricSettings.altitude = isTrueSetting(content['map_metric_altitude_enabled']);
-            mapMetricSettings.elevation = isTrueSetting(content['map_metric_elevation_enabled']);
+            mapMetricSettings.speed = isTrueSetting(content['tile_speed_enabled']);
+            mapMetricSettings.cadence = isTrueSetting(content['tile_cadence_enabled']);
+            mapMetricSettings.heart = isTrueSetting(content['tile_heart_enabled']);
+            mapMetricSettings.calories = isTrueSetting(content['tile_calories_enabled']);
+            mapMetricSettings.odometer = isTrueSetting(content['tile_odometer_enabled']);
+            mapMetricSettings.watt = isTrueSetting(content['tile_watt_enabled']);
+            mapMetricSettings.elapsed = isTrueSetting(content['tile_elapsed_enabled']);
+            mapMetricSettings.inclination = isTrueSetting(content['tile_inclination_enabled']);
+            mapMetricSettings.resistance = isTrueSetting(content['tile_resistance_enabled']);
+            // No dedicated "altitude" tile exists; tie it to the elevation tile switch.
+            mapMetricSettings.altitude = isTrueSetting(content['tile_elevation_enabled']);
+            mapMetricSettings.elevation = isTrueSetting(content['tile_elevation_enabled']);
         }).catch(function(err) {
             console.error('Error is ' + err);
         });
