@@ -3221,6 +3221,14 @@ class QZSettings {
     static constexpr bool default_horizon_treadmill_omega_z = false;
 
     /**
+     * @brief NordicTrack Elliptical Spacesaver S700: uses its own BLE telemetry/control quirks
+     * (speed packet marker and resistance byte mapping differ from the other NordicTrack elliptical
+     * profiles), so it is gated behind its own setting to avoid affecting other models.
+     */
+    static const QString nordictrack_elliptical_s700;
+    static constexpr bool default_nordictrack_elliptical_s700 = false;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */

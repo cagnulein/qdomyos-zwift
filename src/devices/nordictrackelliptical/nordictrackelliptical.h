@@ -39,12 +39,42 @@ class nordictrackelliptical : public elliptical {
                           double bikeResistanceGain);
     bool connected() override;
     int pelotonToEllipticalResistance(int pelotonResistance) override;
-    bool inclinationAvailableByHardware()  override { 
-      if(nordictrack_elliptical_c7_5 || nordictrack_se7i) 
-        return true; 
-      else 
-        return false; 
+    bool inclinationAvailableByHardware()  override {
+      if(nordictrack_elliptical_c7_5 || nordictrack_se7i || nordictrack_elliptical_s700)
+        return true;
+      else
+        return false;
     }
+
+    /**
+     * @brief Detects the NordicTrack Elliptical Spacesaver S700 live telemetry speed packet.
+     * It reuses the SE7i type 0x01 frame, but shifted by 2 bytes: the 0x5a marker sits at byte[4]
+     * (with byte[3]==0x00) instead of the SE7i's byte[4]==0x46. Byte[2] is a free-running counter.
+     */
+    static bool isS700SpeedPacket(const QByteArray &packet);
+
+    /**
+     * @brief Parses the speed (km/h) from a NordicTrack Elliptical Spacesaver S700 telemetry packet,
+     * as identified by isS700SpeedPacket(). Bytes 12-13 little endian, divided by 100.
+     */
+    static double s700SpeedFromPacket(const QByteArray &packet);
+
+    /**
+     * @brief Detects the SE7i-style (shared with the S700) type 0x00 resistance/inclination packet.
+     */
+    static bool isSe7iResistanceInclinationPacket(const QByteArray &packet);
+
+    /**
+     * @brief Parses the inclination (%) from a SE7i/S700 type 0x00 packet, as identified by
+     * isSe7iResistanceInclinationPacket(). Bytes 10-11 little endian, divided by 100.
+     */
+    static double se7iInclinationFromPacket(const QByteArray &packet);
+
+    /**
+     * @brief Parses the resistance level from a SE7i/S700 type 0x00 packet, as identified by
+     * isSe7iResistanceInclinationPacket(). Bytes 12-13 little endian: resistance = (value + 1) / 454.
+     */
+    static double se7iResistanceFromPacket(const QByteArray &packet);
 
   private:
     double GetDistanceFromPacket(QByteArray packet);
@@ -85,6 +115,7 @@ class nordictrackelliptical : public elliptical {
     bool noHeartService = false;
     bool nordictrack_elliptical_c7_5 = false;
     bool nordictrack_se7i = false;
+    bool nordictrack_elliptical_s700 = false;
 
     // SE7i frame-based initialization state management
     int se7i_init_state = 0;

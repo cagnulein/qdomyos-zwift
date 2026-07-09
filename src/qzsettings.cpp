@@ -1114,6 +1114,7 @@ const QString QZSettings::proform_treadmill_cst_505_pftl59420_0 = QStringLiteral
 const QString QZSettings::proform_treadmill_105_cst = QStringLiteral("proform_treadmill_105_cst");
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
 const QString QZSettings::horizon_treadmill_omega_z = QStringLiteral("horizon_treadmill_omega_z");
+const QString QZSettings::nordictrack_elliptical_s700 = QStringLiteral("nordictrack_elliptical_s700");
 
 const QString QZSettings::shortcuts_enabled = QStringLiteral("shortcuts_enabled");
 const QString QZSettings::shortcut_speed_plus = QStringLiteral("shortcut_speed_plus");
@@ -1247,7 +1248,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 974;
+const uint32_t allSettingsCount = 975;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2246,6 +2247,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_105_cst, QZSettings::default_proform_treadmill_105_cst},
     {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
     {QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z},
+    {QZSettings::nordictrack_elliptical_s700, QZSettings::default_nordictrack_elliptical_s700},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
