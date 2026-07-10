@@ -302,7 +302,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         }
                     
         let unitDistance = HKUnit.mile()
-        let miles = WorkoutTracking.distance
+        let miles = WorkoutTracking.distance * 0.621371
         let quantityMiles = HKQuantity(unit: unitDistance,
                                   doubleValue: miles)
         
