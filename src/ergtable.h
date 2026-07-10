@@ -184,7 +184,15 @@ class ergTable : public QObject {
         return sameResPoints.first().wattage;
     }
 
+    void setCadenceResistanceBandStep(uint16_t step) {
+        cadenceResistanceBandStep = step;
+    }
+
     uint16_t resistanceFromPowerRequest(uint16_t power, uint16_t cadence, uint16_t maxResistance) {
+        if (cadenceResistanceBandStep > 1) {
+            cadence = (cadence / cadenceResistanceBandStep) * cadenceResistanceBandStep;
+        }
+
         qDebug() << QStringLiteral("resistanceFromPowerRequest") << cadence;
 
         if (cadence == 0)
@@ -263,6 +271,7 @@ class ergTable : public QObject {
     QMap<CadenceResistancePair, WattageStats> wattageData;
     QList<ergDataPoint> consolidatedData;
     uint16_t lastResistanceValue = 0xFFFF;
+    uint16_t cadenceResistanceBandStep = 0;
     QDateTime lastResistanceTime = QDateTime::currentDateTime();
 
     void updateDataTable(const CadenceResistancePair& pair) {

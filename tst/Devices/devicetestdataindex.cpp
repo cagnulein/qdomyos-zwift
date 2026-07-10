@@ -658,6 +658,12 @@ void DeviceTestDataIndex::Initialize() {
         ->excluding(ftmsBikeConfigureExclusions)
         ->configureSettingsWith(QBluetoothUuid((quint16)0x1826));
 
+    // FTMS Bike Horizon 5.0R
+    RegisterNewDeviceTestData(DeviceIndex::FTMSBikeHorizon5R)
+        ->expectDevice<ftmsbike>()
+        ->acceptDeviceName("JFBK5.0R", DeviceNameComparison::IgnoreCase)
+        ->excluding(ftmsBikeConfigureExclusions);
+
     // FTMS Rower
     RegisterNewDeviceTestData(DeviceIndex::FTMSRower)
         ->expectDevice<ftmsrower>()        
