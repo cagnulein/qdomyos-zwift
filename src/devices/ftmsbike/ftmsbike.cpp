@@ -356,7 +356,6 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
             if(_3G_Cardio_RB || SL010)
                 requestResistance = requestResistance * 10;
-            requestResistance = (resistance_t)qRound(((double)requestResistance) * bikeResistanceGain);
             write[1] = ((uint8_t)(requestResistance));
             writeCharacteristic(write, sizeof(write),
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
@@ -1888,6 +1887,21 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
                 b[1] = powerRequested & 0xFF;
                 b[2] = powerRequested >> 8;
+            }
+        } else if(b.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL && bikeResistanceGain != 1.0) {
+            if(b.length() == 2) {
+                uint8_t resistance = (uint8_t)b.at(1);
+                qDebug() << "applying bikeResistanceGain to FTMS_SET_TARGET_RESISTANCE_LEVEL (1-byte) from" << resistance;
+                resistance = (uint8_t)qRound(((double)resistance) * bikeResistanceGain);
+                qDebug() << "to" << resistance;
+                b[1] = resistance;
+            } else if(b.length() >= 3) {
+                uint16_t resistance = (((uint8_t)b.at(1)) + ((uint8_t)b.at(2) << 8));
+                qDebug() << "applying bikeResistanceGain to FTMS_SET_TARGET_RESISTANCE_LEVEL (2-byte) from" << resistance;
+                resistance = (uint16_t)qRound(((double)resistance) * bikeResistanceGain);
+                qDebug() << "to" << resistance;
+                b[1] = resistance & 0xFF;
+                b[2] = resistance >> 8;
             }
         }
         // gears on erg mode is quite useless and it's confusing
