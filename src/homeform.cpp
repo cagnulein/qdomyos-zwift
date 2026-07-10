@@ -1081,7 +1081,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     
     // Android 14 restrics access to /Android/data folder
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
-    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    if (android_documents_folder || QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT") >= 34) {
         QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
         QDir().mkdir(getWritableAppDir());
         QDir().mkdir(getProfileDir());
@@ -1646,7 +1646,7 @@ QString homeform::getWritableAppDir() {
 #if defined(Q_OS_ANDROID)
     QSettings settings;
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
-    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    if (android_documents_folder || QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT") >= 34) {
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
         QDir().mkdir(path);
         // Create .nomedia file to prevent gallery indexing
@@ -8675,7 +8675,7 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
 QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 #ifdef Q_OS_ANDROID        
-    qDebug() << "Android Version:" << QOperatingSystemVersion::current();
+    qDebug() << "Android SDK_INT:" << QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT");
     const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(file);
     const QString destinationDir = getWritableAppDir() + subfolder + "/";
     QDir().mkpath(destinationDir);
