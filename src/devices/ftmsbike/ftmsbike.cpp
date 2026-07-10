@@ -2036,6 +2036,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             JFBK5_0 = true;
             if (bluetoothDevice.name().compare(QStringLiteral("JFBK5.0R"), Qt::CaseInsensitive) == 0) {
                 _ergTable.loadDefaultData(kHorizon5RDefaultErgData);
+                _ergTable.setCadenceResistanceBandStep(5);
             }
         } else if((bluetoothDevice.name().toUpper().startsWith("BIKE-"))) {
             qDebug() << QStringLiteral("BIKE- found");
