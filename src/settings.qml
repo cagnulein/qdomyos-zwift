@@ -1708,6 +1708,7 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_105_cst: false
             property real trainprogram_pid_hr_pushy_zone_limit: 0.8
             property real trainprogram_pid_hr_recovery_zone_limit: 60.0
+            property bool rpe_feel_popup_enabled: false
         }
 
 
@@ -7630,6 +7631,33 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Enable automatic upload of FIT files to Garmin Connect after workouts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("Ask RPE / Feeling after workout")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.rpe_feel_popup_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.rpe_feel_popup_enabled = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("Show a popup after Stop to rate perceived exertion (RPE) and how you felt; the values are saved into the FIT file and shown in Garmin Connect.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
