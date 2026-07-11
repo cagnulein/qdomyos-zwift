@@ -121,6 +121,11 @@ HomeForm {
 
         property int selectedRpe: 5
         property int selectedFeel: 50
+        readonly property var rpeLabels: [
+            qsTr("Rest"), qsTr("Very Light"), qsTr("Light"), qsTr("Moderate"),
+            qsTr("Somewhat Hard"), qsTr("Hard"), qsTr("Harder"), qsTr("Very Hard"),
+            qsTr("Very Very Hard"), qsTr("Extremely Hard"), qsTr("Maximum Effort")
+        ]
 
         Column {
             anchors.fill: parent
@@ -136,7 +141,7 @@ HomeForm {
             }
 
             Label {
-                text: qsTr("Perceived Exertion (RPE): ") + rpeFeelPopup.selectedRpe
+                text: qsTr("Perceived Exertion (RPE): ") + rpeFeelPopup.selectedRpe + " - " + rpeFeelPopup.rpeLabels[rpeFeelPopup.selectedRpe]
                 width: parent.width
                 wrapMode: Text.WordWrap
             }
