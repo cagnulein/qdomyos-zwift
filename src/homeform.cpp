@@ -1116,7 +1116,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             });
     fitProcessor->processDirectory(getWritableAppDir() + "fit");
 
-    m_speech.setLocale(QLocale::English);
+    //m_speech.setLocale(QLocale::English);
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QBluetoothDeviceInfo b;
@@ -2029,7 +2029,7 @@ void homeform::onToastRequested(QString message) {
 
     // Use TTS if enabled
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
-        m_speech.say(message);
+        //m_speech.say(message);
     }
 }
 
@@ -5731,8 +5731,8 @@ void homeform::Start_inner(bool send_event_to_device) {
 
     m_overridePower = false;
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
-        m_speech.say("Start pressed");
+    /*if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
+        m_speech.say("Start pressed");*/
 
     if (!paused && !stopped) {
         paused = true;
@@ -5897,8 +5897,8 @@ void homeform::Stop() {
         this->innerTemplateManager->reinit();
 #endif
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
-        m_speech.say("Stop pressed");
+    /*if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
+        m_speech.say("Stop pressed");*/
 
     if (bluetoothManager->device()) {
         bluetoothManager->device()->stop(false);
@@ -8264,7 +8264,7 @@ void homeform::update() {
                         setToastRequested("AutoLap " + QString::number(settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble(), 'f', 1));
                 }
             }
-
+#if 0
             if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
                 static double tts_speed_played = 0;
                 bool description =
@@ -8502,6 +8502,7 @@ void homeform::update() {
                     }
                 }
             }
+#endif
 
             bool treadmill_direct_distance = settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
             double distance1s = 0;
