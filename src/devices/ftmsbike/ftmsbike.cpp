@@ -907,6 +907,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     Resistance = d;
                     native_resistance_received = true;
                     calculatedResistanceFallbackSince = QDateTime();
+                    if (YS_C1EV) {
+                        m_pelotonResistance =
+                            (Resistance.value() *
+                             settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                        emit debug(QStringLiteral("Current Peloton Resistance: ") +
+                                   QString::number(m_pelotonResistance.value()));
+                    }
                 }
                 if (SMARTBIKE_3DIGIT) {
                     emit debug(QStringLiteral("Ignoring native resistance for SmartBike manual resistance mode: ") +
@@ -926,7 +934,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             double br = -5.841344538;
             double cr = 97.62165482;
 
-            if (Cadence.value() && m_watt.value()) {
+            if (!(YS_C1EV && native_resistance_received) && Cadence.value() && m_watt.value()) {
                 double res =
                     (((sqrt(pow(br, 2.0) - 4.0 * ar *
                                                 (cr - (m_watt.value() * 132.0 /
@@ -2101,6 +2109,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (((bluetoothDevice.name().toUpper().startsWith("YS_G1MPLUS")))) {
             qDebug() << QStringLiteral("YS_G1MPLUS found");
             YS_G1MPLUS = true;
+            max_resistance = 100;
+        } else if ((bluetoothDevice.name().toUpper().startsWith(QStringLiteral("YS_C1EV_")))) {
+            qDebug() << QStringLiteral("YS_C1EV found");
+            YS_C1EV = true;
             max_resistance = 100;
         } else if (bluetoothDevice.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
