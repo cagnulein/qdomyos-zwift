@@ -322,13 +322,24 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             return true;
         };
 
-        Flags.word_flags = (lastPacket.at(2) << 16) | (lastPacket.at(1) << 8) | lastPacket.at(0);
+        // Cast every byte to uint8_t before shifting. QByteArray::at() returns a signed
+        // char, so a flags byte with bit 7 set (>= 0x80) sign-extends to 0xFFFFFFxx and
+        // spuriously turns on every high flag bit (expEnergy, heartRate, elapsedTime...).
+        // Life Fitness sends flags 0x3db4 - low byte 0xb4 - which triggers exactly this,
+        // making the driver read a bogus heart rate out of a later field and overwrite a
+        // real external HR source with it.
+        Flags.word_flags = ((uint32_t)(uint8_t)lastPacket.at(2) << 16) |
+                           ((uint32_t)(uint8_t)lastPacket.at(1) << 8) |
+                           (uint32_t)(uint8_t)lastPacket.at(0);
         index += 3;
 
         if (!Flags.moreData) {
             if (!ensurePacketBytes(2, "instantaneousSpeed")) return;
             // For TRUE_ELLIPTICAL, skip instantaneous speed (will use avgSpeed instead)
-            if(!TRUE_ELLIPTICAL && (E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS || SOLE_E25)) {
+            // For LIFE_FITNESS_ELLIPTICAL, the Instantaneous Speed field is advertised as present but is
+            // hardcoded to 0x0000 by the machine (verified over a full 1340-packet session), so reading it
+            // here would just pin Speed to zero. Speed is derived from Total Distance below instead.
+            if(!TRUE_ELLIPTICAL && !LIFE_FITNESS_ELLIPTICAL && (E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS || SOLE_E25)) {
                 Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                 (uint16_t)((uint8_t)lastPacket.at(index)))) /
                         100.0;
@@ -361,14 +372,50 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
         if (Flags.totDistance) {
             if (!ensurePacketBytes(3, "totDistance")) return;
-            if(!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !TRUE_ELLIPTICAL && !FTMS && !SOLE_E25) {
-                Distance = ((double)((((uint32_t)((uint8_t)lastPacket.at(index + 2)) << 16) |
-                                  (uint32_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
-                                 (uint32_t)((uint8_t)lastPacket.at(index)))) /
-                       1000.0;
+            uint32_t totalDistanceMeters = ((((uint32_t)((uint8_t)lastPacket.at(index + 2)) << 16) |
+                                             (uint32_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                            (uint32_t)((uint8_t)lastPacket.at(index)));
+
+            // LIFE_FITNESS_ELLIPTICAL sends a genuine cumulative Total Distance, so read it straight from the
+            // packet rather than integrating Speed (which the machine never sends - see instantaneousSpeed above).
+            if(LIFE_FITNESS_ELLIPTICAL ||
+               (!E35 && !SCH_590E && !SCH_411_510E && !KETTLER && !CARDIOPOWER_EEGO && !MYELLIPTICAL && !SKANDIKA && !DOMYOS && !FEIER && !MX_AS && !TRUE_ELLIPTICAL && !FTMS && !SOLE_E25)) {
+                Distance = ((double)totalDistanceMeters) / 1000.0;
             } else {
                 Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+            }
+
+            if (LIFE_FITNESS_ELLIPTICAL) {
+                // The machine reports no instantaneous speed at all, so differentiate its own Total Distance.
+                // The field has 1m resolution at ~1Hz, which makes a single-packet delta very coarse
+                // (a 2m vs 3m step is 7.2 vs 10.8 km/h), hence the 5s average rather than the raw value.
+                if (totalDistanceMeters != lastTotalDistance) {
+                    if (lastTotalDistance > 0 && totalDistanceMeters > lastTotalDistance) {
+                        qint64 elapsedMs = lastTotalDistanceChanged.msecsTo(now);
+                        // Require a substantial sampling interval: a short/jittery gap turns the 1m
+                        // distance quantum into a huge apparent speed (a 3m step over 200ms reads as
+                        // 54 km/h). Replaying a full captured session with a 500ms floor still let
+                        // spikes to 28.6 km/h through - about 18 mph on an elliptical - so require
+                        // 2.5s of span. This removes the spikes without moving the median at all.
+                        if (elapsedMs >= 2500) {
+                            double candidate = (((double)(totalDistanceMeters - lastTotalDistance)) / 1000.0) /
+                                               (((double)elapsedMs) / 3600000.0);
+                            if (candidate < 20.0) { // sanity check: an elliptical does not exceed this
+                                instantSpeed = candidate;
+                                Speed = instantSpeed.average5s();
+                                emit debug(QStringLiteral("Current Speed (from totDistance): ") +
+                                           QString::number(Speed.value()));
+                            }
+                        }
+                    }
+                    lastTotalDistance = totalDistanceMeters;
+                    lastTotalDistanceChanged = now;
+                } else if (lastTotalDistanceChanged.msecsTo(now) > 3000) {
+                    // Distance stopped advancing: the user stopped pedalling, so don't hold the last speed.
+                    instantSpeed = 0.0;
+                    Speed = 0.0;
+                }
             }
             index += 3;
         } else {
@@ -430,13 +477,19 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                         // Handle overflow: uint16_t subtraction automatically wraps correctly
                         uint16_t stridesDiffRaw = currentStrideCount - lastStrideCount;
                         double stridesDiff = (double)stridesDiffRaw;
-                        if (TRUE_ELLIPTICAL) {
+                        // These machines report the Stride Count in tenths of a stride rather than whole
+                        // strides. For LIFE_FITNESS_ELLIPTICAL this was confirmed over a full session: every
+                        // single delta was a multiple of 10 (only ever 10, 20 or 30 per ~1s packet), i.e.
+                        // 1.0/2.0/3.0 real strides. Combined with the /2.0 below (2 strides per revolution)
+                        // this gives an effective divisor of 20, which matches a console reading of 62 RPM.
+                        const bool deciStrides = TRUE_ELLIPTICAL || LIFE_FITNESS_ELLIPTICAL;
+                        if (deciStrides) {
                             stridesDiff /= 10.0;
                         }
                         double timeInMinutes = lastStrideCountChanged.msecsTo(now) / 60000.0;
 
-                        // Sanity check: reject unrealistic values and require minimum 5 strides (or 0.5 for TRUE_ELLIPTICAL) for stable calculation
-                        if (timeInMinutes > 0 && ((!TRUE_ELLIPTICAL && stridesDiff >= 5) || (TRUE_ELLIPTICAL && stridesDiff >= 0.5)) && stridesDiff < 1000) {
+                        // Sanity check: reject unrealistic values and require minimum 5 strides (or 0.5 for tenth-of-a-stride machines) for stable calculation
+                        if (timeInMinutes > 0 && ((!deciStrides && stridesDiff >= 5) || (deciStrides && stridesDiff >= 0.5)) && stridesDiff < 1000) {
                             // strides per minute, then divide by 2 to get RPM
                             double stridesPerMinute = stridesDiff / timeInMinutes;
                             instantCadence = stridesPerMinute / 2.0;
@@ -488,7 +541,9 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                                    (uint16_t)((uint8_t)lastPacket.at(index))));
             
             // FTMS Spec Compliant Machines (0.1 Resolution, so 50 = 5.0)
-            if(TRUE_ELLIPTICAL) {
+            // Life Fitness is in the same family: the field reads a constant 10 while the console displays
+            // LEVEL 1, so without the /10 the resistance would be reported an order of magnitude too high.
+            if(TRUE_ELLIPTICAL || LIFE_FITNESS_ELLIPTICAL) {
                 Resistance = Resistance.value() / 10.0;
             }
             
@@ -1144,6 +1199,15 @@ void ypooelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith(QStringLiteral("E25"))) {
             SOLE_E25 = true;
             qDebug() << "SOLE_E25 workaround ON!";
+        } else if(QRegularExpression(QStringLiteral("^LF[0-9A-F]+$")).match(device.name().toUpper()).hasMatch() &&
+                  (device.name().length() == 18 || device.name().length() == 15)) {
+            // Life Fitness ellipticals advertise as "LF" followed by a hex string (e.g. LF089d726f5a8fb207).
+            // NOTE: this is the same name shape used by Life Fitness *treadmills*, which bluetooth.cpp routes
+            // to the lifefitnesstreadmill driver. We deliberately do NOT add this pattern to the routing chain
+            // in bluetooth.cpp: a device only reaches this driver when the user has explicitly pointed the
+            // ftms_elliptical setting at it, so the treadmill matching stays untouched.
+            LIFE_FITNESS_ELLIPTICAL = true;
+            qDebug() << "LIFE_FITNESS_ELLIPTICAL workaround ON!";
         }
 
         QSettings settings;
