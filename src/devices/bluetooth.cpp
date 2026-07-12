@@ -1582,7 +1582,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(speraXTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("LF")) && (b.name().length() == 18 || b.name().length() == 15)) &&
-                       !lifefitnessTreadmill && filter) {
+                       !lifefitnessTreadmill && !ypooElliptical && filter) {
+                // !ypooElliptical: Life Fitness ellipticals share this exact name shape with the treadmills.
+                // Once a device has been claimed as an FTMS elliptical (via the ftms_elliptical setting), a
+                // later advertisement must not also hand it to the treadmill driver - otherwise both drivers
+                // connect to the same machine and both parse 0x2ACE.
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 lifefitnessTreadmill = new lifefitnesstreadmill(noWriteResistance, noHeartService);
