@@ -52,13 +52,19 @@ void treadmill::changeSpeed(double speed) {
 
     if(stryd_speed_instead_treadmill && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
-        double maxAllowedDelta = speed * 0.20; // 20% of the speed request
+        double correctionThreshold =
+            settings.value(QZSettings::power_sensor_speed_correction_threshold,
+                           QZSettings::default_power_sensor_speed_correction_threshold)
+                .toDouble() /
+            100.0;
+        double maxAllowedDelta = speed * correctionThreshold;
 
         if (std::abs(delta) <= maxAllowedDelta) {
             qDebug() << "stryd_speed_instead_treadmill so override speed by " << delta;
             speed -= delta;
         } else {
-            qDebug() << "Delta" << delta << "exceeds 20% threshold of" << maxAllowedDelta << "- not applying correction";
+            qDebug() << "Delta" << delta << "exceeds" << (correctionThreshold * 100.0) << "% threshold of"
+                     << maxAllowedDelta << "- not applying correction";
         }
     }
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
