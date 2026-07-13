@@ -103,6 +103,7 @@ SOURCES += \
     $$PWD/devices/speraxtreadmill/speraxtreadmill.cpp \
     $$PWD/devices/sportsplusrower/sportsplusrower.cpp \
     $$PWD/devices/sportstechrower/sportstechrower.cpp \
+    $$PWD/devices/kayakfirstrower/kayakfirstrower.cpp \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/cycplusbc2controller/cycplusbc2controller.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
@@ -390,6 +391,7 @@ HEADERS += \
     $$PWD/devices/speraxtreadmill/speraxtreadmill.h \
     $$PWD/devices/sportsplusrower/sportsplusrower.h \
     $$PWD/devices/sportstechrower/sportstechrower.h \
+    $$PWD/devices/kayakfirstrower/kayakfirstrower.h \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/cycplusbc2controller/cycplusbc2controller.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \

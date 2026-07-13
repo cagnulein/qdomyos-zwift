@@ -76,6 +76,7 @@
 #include "devices/iconceptelliptical/iconceptelliptical.h"
 #include "devices/inspirebike/inspirebike.h"
 #include "devices/keepbike/keepbike.h"
+#include "devices/kayakfirstrower/kayakfirstrower.h"
 #include "devices/kineticinroadbike/kineticinroadbike.h"
 #include "devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h"
 #include "devices/kingsmithr2treadmill/kingsmithr2treadmill.h"
@@ -258,6 +259,7 @@ class bluetooth : public QObject, public SignalHandler {
     sportstechbike *sportsTechBike = nullptr;
     sportstechelliptical *sportsTechElliptical = nullptr;
     sportstechrower *sportsTechRower = nullptr;
+    kayakfirstrower *kayakFirstRower = nullptr;
     sportsplusbike *sportsPlusBike = nullptr;
     sportsplusrower *sportsPlusRower = nullptr;
     inspirebike *inspireBike = nullptr;
