@@ -948,6 +948,7 @@ DISTFILES += \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/QLog.java \
     $$PWD/android/src/ScreenCaptureService.java \
+    $$PWD/android/src/ShellRuntime.java \
     $$PWD/android/src/Shortcuts.java \
     $$PWD/android/src/WearableController.java \
     $$PWD/android/src/WearableMessageListenerService.java \
