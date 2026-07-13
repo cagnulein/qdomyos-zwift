@@ -31,6 +31,9 @@
         { key: 'resistance', labelKey: 'workoutEditor.resistance', label: 'Resistance', type: 'number', step: 1, min: 0, max: 100, group: 'basic', devices: ['bike', 'elliptical'], defaultValue: 20 },
         { key: 'cadence', labelKey: 'workoutEditor.cadence', label: 'Cadence', type: 'number', unitSuffix: 'rpm', min: 0, max: 240, group: 'basic', devices: ['bike', 'elliptical', 'rower'], defaultValue: 80 },
         { key: 'power', labelKey: 'workoutEditor.power', label: 'Power', type: 'number', unitSuffix: 'W', min: 0, max: 2000, group: 'basic', devices: ['bike', 'rower'], defaultValue: 150 },
+        { key: 'powerrampunit', labelKey: 'workoutEditor.powerRampUnit', label: 'Ramp Unit', type: 'select', options: ['W', '% FTP'], group: 'advanced', devices: ['bike', 'rower'], defaultValue: 'W' },
+        { key: 'powerfrom', labelKey: 'workoutEditor.powerRampFrom', label: 'Ramp From', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 100 },
+        { key: 'powerto', labelKey: 'workoutEditor.powerRampTo', label: 'Ramp To', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 200 },
         { key: 'forcespeed', labelKey: 'workoutEditor.forceSpeed', label: 'Force Speed', type: 'bool', group: 'basic', devices: ['treadmill'], linkedTo: 'speed' },
         { key: 'fanspeed', labelKey: 'workoutEditor.fan', label: 'Fan', type: 'number', min: 0, max: 8, group: 'advanced', devices: 'all', defaultValue: 0 },
         { key: 'requested_peloton_resistance', labelKey: 'workoutEditor.pelotonResistance', label: 'Peloton Res.', type: 'number', min: -1, max: 100, group: 'advanced', devices: ['bike'] },
@@ -340,6 +343,9 @@
                 return;
             }
             state.miles = !!content.miles;
+            if (content.ftp !== undefined) {
+                state.ftp = Number(content.ftp);
+            }
             state.translations = content.translations || {};
             if (window.qzSetTranslations) {
                 window.qzSetTranslations(state.translations);
@@ -611,6 +617,21 @@
                 out['__enabled_' + def.key] = false;
             }
         });
+        // FTP% ramp (from backend that collapsed the rows)
+        if (row.powerzonefrom !== undefined && row.powerzonefrom !== null && Number(row.powerzonefrom) >= 0) {
+            out.powerrampunit = '% FTP';
+            out['__enabled_powerrampunit'] = true;
+            out.powerfrom = Math.round(Number(row.powerzonefrom) * 100);
+            out['__enabled_powerfrom'] = true;
+            out.powerto = Math.round(Number(row.powerzoneto) * 100);
+            out['__enabled_powerto'] = true;
+        }
+        // Watts ramp
+        else if (row.powerfrom !== undefined && row.powerfrom !== null && Number(row.powerfrom) >= 0) {
+            out.powerrampunit = 'W';
+            out['__enabled_powerrampunit'] = true;
+            // powerfrom/powerto already read by the FIELD_DEFS loop above
+        }
         out.__enabled_duration = out.__enabled_distance === true ? false : true;
         out.__selected = false;
         return out;
@@ -859,7 +880,7 @@
                 }
 
                 const labelText = document.createElement('span');
-                labelText.textContent = resolveFieldLabel(field);
+                labelText.textContent = resolveFieldLabel(field, row);
                 labelWrap.appendChild(labelText);
                 fieldWrap.appendChild(labelWrap);
 
@@ -872,6 +893,24 @@
                     checkbox.dataset.type = field.type;
                     checkbox.addEventListener('change', handleFieldChange);
                     fieldWrap.appendChild(checkbox);
+                } else if (field.type === 'select') {
+                    const sel = document.createElement('select');
+                    sel.className = 'field-input field-select';
+                    (field.options || []).forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt;
+                        option.textContent = opt;
+                        const currentVal = String(row[field.key] !== undefined ? row[field.key] : (field.defaultValue !== undefined ? field.defaultValue : ''));
+                        if (currentVal === opt) {
+                            option.selected = true;
+                        }
+                        sel.appendChild(option);
+                    });
+                    sel.addEventListener('change', () => {
+                        row[field.key] = sel.value;
+                        renderIntervals();
+                    });
+                    fieldWrap.appendChild(sel);
                 } else {
                     const inputWrapper = document.createElement('div');
                     inputWrapper.className = 'field-with-buttons';
@@ -946,7 +985,7 @@
         return Array.isArray(field.devices) && field.devices.indexOf(state.device) >= 0;
     }
 
-    function resolveFieldLabel(field) {
+    function resolveFieldLabel(field, interval) {
         if (typeof field.label === 'function') {
             return field.label();
         }
@@ -959,6 +998,10 @@
         }
         if (field.unitKey === 'pace') {
             return `${label} (${state.miles ? 'min/mi' : 'min/km'})`;
+        }
+        if ((field.key === 'powerfrom' || field.key === 'powerto') && interval) {
+            const unit = interval.powerrampunit || 'W';
+            return `${label} (${unit})`;
         }
         if (field.unitSuffix) {
             return `${label} (${field.unitSuffix})`;
@@ -1284,6 +1327,11 @@
                     return;
                 }
 
+                // Power ramp fields are handled separately after this loop
+                if (['powerrampunit', 'powerfrom', 'powerto'].includes(field.key)) {
+                    return;
+                }
+
                 // Check if field is valid for current device type
                 if (!isFieldValidForDevice(field, state.device)) {
                     return;
@@ -1324,6 +1372,22 @@
                     row[field.key] = finalValue;
                 }
             });
+
+            // Power ramp
+            const rampFromEnabled = interval['__enabled_powerfrom'] !== false;
+            const rampToEnabled = interval['__enabled_powerto'] !== false;
+            if (rampFromEnabled && rampToEnabled &&
+                isFieldValidForDevice({ devices: ['bike', 'rower'] }, state.device) &&
+                interval.powerfrom !== undefined && interval.powerto !== undefined) {
+                const unit = interval.powerrampunit || 'W';
+                if (unit === '% FTP') {
+                    row.powerzonefrom = Number(interval.powerfrom) / 100;
+                    row.powerzoneto = Number(interval.powerto) / 100;
+                } else {
+                    row.powerfrom = Number(interval.powerfrom);
+                    row.powerto = Number(interval.powerto);
+                }
+            }
             list.push(row);
         }
         return {
@@ -1413,6 +1477,22 @@
             });
             rows.push(Object.assign({ start, durationSeconds: duration }, intervalCopy));
             series.forEach(serie => {
+                // For the power series, check if we have a power ramp (powerfrom/powerto)
+                if (serie.key === 'power' &&
+                    interval['__enabled_powerfrom'] !== false &&
+                    interval['__enabled_powerto'] !== false &&
+                    interval.powerfrom !== undefined && interval.powerto !== undefined) {
+                    const rampUnit = interval.powerrampunit || 'W';
+                    const fromVal = rampUnit === '% FTP'
+                        ? Number(interval.powerfrom) / 100 * (state.ftp || 200)
+                        : Number(interval.powerfrom);
+                    const toVal = rampUnit === '% FTP'
+                        ? Number(interval.powerto) / 100 * (state.ftp || 200)
+                        : Number(interval.powerto);
+                    serie.points.push({ x: start, y: fromVal });
+                    serie.points.push({ x: end, y: toVal });
+                    return;
+                }
                 // Skip disabled fields in the chart
                 const isEnabled = interval['__enabled_' + serie.key] !== false;
                 if (!isEnabled) {

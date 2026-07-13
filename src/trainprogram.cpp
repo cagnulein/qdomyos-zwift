@@ -1764,7 +1764,15 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows,
             if (row.upper_cadence >= 0) {
                 stream.writeAttribute(QStringLiteral("upper_cadence"), QString::number(row.upper_cadence));
             }
-            if (row.power >= 0) {
+            if (row.rampPowerFromOriginal >= 0.0 && row.rampPowerToOriginal >= 0.0) {
+                if (row.rampIsFtpFraction) {
+                    stream.writeAttribute(QStringLiteral("powerzonefrom"), QString::number(row.rampPowerFromOriginal, 'f', 4));
+                    stream.writeAttribute(QStringLiteral("powerzoneto"), QString::number(row.rampPowerToOriginal, 'f', 4));
+                } else {
+                    stream.writeAttribute(QStringLiteral("powerfrom"), QString::number((int)row.rampPowerFromOriginal));
+                    stream.writeAttribute(QStringLiteral("powerto"), QString::number((int)row.rampPowerToOriginal));
+                }
+            } else if (row.power >= 0) {
                 stream.writeAttribute(QStringLiteral("power"), QString::number(row.power));
             }
             if (row.waitForLap) {
@@ -2135,7 +2143,63 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
                                          settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
                         }
                     }
+                    rowI.rampIsFtpFraction = true;
+                    rowI.rampPowerFromOriginal = speedFrom;
+                    rowI.rampPowerToOriginal = speedTo;
                     qDebug() << "TrainRow" << rowI.toString();
+                    if (insideRepeat) {
+                        repeatRows.append(rowI);
+                    } else {
+                        list.append(rowI);
+                    }
+                }
+                ramp = true;
+            }
+            if (atts.hasAttribute(QStringLiteral("powerfrom")) && atts.hasAttribute(QStringLiteral("powerto")) &&
+                atts.hasAttribute(QStringLiteral("duration"))) {
+                int powerFrom = atts.value(QStringLiteral("powerfrom")).toInt();
+                int powerTo = atts.value(QStringLiteral("powerto")).toInt();
+                QTime duration = QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
+                int durationS = duration.hour() * 3600 + duration.minute() * 60 + duration.second();
+                int powerDelta = abs(powerTo - powerFrom);
+                int durationStep;
+                double powerStep;
+                int spareSeconds;
+                if (powerDelta == 0)
+                    powerDelta = 1;
+                if (powerDelta <= durationS) {
+                    durationStep = durationS / powerDelta;
+                    powerStep = 1.0;
+                    spareSeconds = durationS % powerDelta;
+                } else {
+                    durationStep = 1;
+                    powerStep = (double)abs(powerTo - powerFrom) / (durationS - 1);
+                    powerDelta = durationS - 1;
+                    spareSeconds = 0;
+                }
+                int spareSum = 0;
+                for (int i = 0; i < powerDelta; i++) {
+                    trainrow rowI(row);
+                    int spare = 0;
+                    if (spareSeconds)
+                        spare = (i % spareSeconds == 0 && i > 0) ? 1 : 0;
+                    spareSum += spare;
+                    if (i == powerDelta && spareSum < spareSeconds) {
+                        spare += (spareSeconds - spareSum) - durationStep;
+                        spareSum = spareSeconds;
+                    }
+                    rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
+                    rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum - durationStep + spare);
+                    if (powerFrom <= powerTo) {
+                        rowI.power = (int)(powerFrom + (powerStep * i));
+                    } else {
+                        rowI.power = (int)(powerFrom - (powerStep * i));
+                    }
+                    rowI.rampIsFtpFraction = false;
+                    rowI.rampPowerFromOriginal = (double)powerFrom;
+                    rowI.rampPowerToOriginal = (double)powerTo;
+                    qDebug() << "TrainRow (power ramp)" << rowI.toString();
                     if (insideRepeat) {
                         repeatRows.append(rowI);
                     } else {
