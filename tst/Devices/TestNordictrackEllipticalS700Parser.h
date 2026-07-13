@@ -49,6 +49,23 @@ TEST(NordictrackEllipticalS700ParserTest, SpeedIsDecodedFromBytes12And13LittleEn
     EXPECT_NEAR(nordictrackelliptical::s700SpeedFromPacket(packet2), 8.16, 0.001);
 }
 
+TEST(NordictrackEllipticalS700ParserTest, CadenceIsDecodedFromByte2) {
+    // "<< 01 12 26 00 5a ..." — byte[2]=0x26=38 RPM
+    const QByteArray packet1 = QByteArray::fromHex("011226005a003208010a00000b03900108010000");
+    ASSERT_TRUE(nordictrackelliptical::isS700SpeedPacket(packet1));
+    EXPECT_EQ(nordictrackelliptical::s700CadenceFromPacket(packet1), 38);
+
+    // "<< 01 12 28 00 5a ..." — byte[2]=0x28=40 RPM
+    const QByteArray packet2 = QByteArray::fromHex("011228005a005005000a000030035e0117010000");
+    ASSERT_TRUE(nordictrackelliptical::isS700SpeedPacket(packet2));
+    EXPECT_EQ(nordictrackelliptical::s700CadenceFromPacket(packet2), 40);
+
+    // "<< 01 12 22 00 5a ..." from debug-Mon_Jul_13 (new log after patch) — byte[2]=0x22=34 RPM
+    const QByteArray packet3 = QByteArray::fromHex("011222005a000e0d000a0000cc0232000b010000");
+    ASSERT_TRUE(nordictrackelliptical::isS700SpeedPacket(packet3));
+    EXPECT_EQ(nordictrackelliptical::s700CadenceFromPacket(packet3), 34);
+}
+
 TEST(NordictrackEllipticalS700ParserTest, ResistanceAndInclinationDecodedFromSharedSe7iPacket) {
     // "<< 00 12 01 04 02 30 06 30 02 02 c2 01 f6 0f 00 00 00 00 00 00" from debug-Thu_Jul_9_09_54_49_2026.log
     // (the same shared SE7i-style type 0x00 packet the S700 also uses for incline/resistance telemetry)

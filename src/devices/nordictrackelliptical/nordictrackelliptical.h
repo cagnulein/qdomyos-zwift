@@ -49,7 +49,7 @@ class nordictrackelliptical : public elliptical {
     /**
      * @brief Detects the NordicTrack Elliptical Spacesaver S700 live telemetry speed packet.
      * It reuses the SE7i type 0x01 frame, but shifted by 2 bytes: the 0x5a marker sits at byte[4]
-     * (with byte[3]==0x00) instead of the SE7i's byte[4]==0x46. Byte[2] is a free-running counter.
+     * (with byte[3]==0x00) instead of the SE7i's byte[4]==0x46. Byte[2] carries the stride cadence.
      */
     static bool isS700SpeedPacket(const QByteArray &packet);
 
@@ -58,6 +58,12 @@ class nordictrackelliptical : public elliptical {
      * as identified by isS700SpeedPacket(). Bytes 12-13 little endian, divided by 100.
      */
     static double s700SpeedFromPacket(const QByteArray &packet);
+
+    /**
+     * @brief Parses the cadence (RPM) from a NordicTrack Elliptical Spacesaver S700 telemetry packet,
+     * as identified by isS700SpeedPacket(). Byte[2] contains the stride rate in RPM.
+     */
+    static uint8_t s700CadenceFromPacket(const QByteArray &packet);
 
     /**
      * @brief Detects the SE7i-style (shared with the S700) type 0x00 resistance/inclination packet.

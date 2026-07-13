@@ -906,6 +906,10 @@ double nordictrackelliptical::s700SpeedFromPacket(const QByteArray &packet) {
     return (double)(((uint16_t)((uint8_t)packet.at(13)) << 8) + (uint16_t)((uint8_t)packet.at(12))) / 100.0;
 }
 
+uint8_t nordictrackelliptical::s700CadenceFromPacket(const QByteArray &packet) {
+    return (uint8_t)packet.at(2);
+}
+
 bool nordictrackelliptical::isSe7iResistanceInclinationPacket(const QByteArray &packet) {
     return packet.length() == 20 && (uint8_t)packet.at(0) == 0x00 && (uint8_t)packet.at(1) == 0x12 &&
            (uint8_t)packet.at(2) == 0x01 && (uint8_t)packet.at(3) == 0x04 && (uint8_t)packet.at(4) == 0x02 &&
@@ -1166,15 +1170,26 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         return;
     }
 
-    // NordicTrack Elliptical Spacesaver S700 Speed parsing (Type 0x01 packets, header 01 12 xx 00 5a 00,
-    // where byte[2] is a free-running counter). This unit uses the same SE7i wire protocol for
-    // init/incline/resistance, but its live telemetry packet is shifted by 2 bytes compared to the SE7i
-    // marker above: the 0x5a marker sits at byte[4] instead of byte[4]==0x46, so the SE7i check above
-    // never matches it.
+    // NordicTrack Elliptical Spacesaver S700 Speed/Cadence parsing (Type 0x01 packets, header
+    // 01 12 xx 00 5a ..., where byte[2] carries the stride cadence in RPM). This unit uses the
+    // same SE7i wire protocol for init/incline/resistance, but its live telemetry packet is shifted
+    // by 2 bytes compared to the SE7i marker above: the 0x5a marker sits at byte[4] instead of
+    // byte[4]==0x46, so the SE7i check above never matches it.
     if (nordictrack_elliptical_s700 && initDone == true && isS700SpeedPacket(newValue)) {
         Speed = s700SpeedFromPacket(newValue);
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         lastSpeedChanged = QDateTime::currentDateTime();
+
+        uint8_t c = s700CadenceFromPacket(newValue);
+        if (c > 0)
+            Cadence = (c * cadence_gain) + cadence_offset;
+        else
+            Cadence = 0;
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
         return;
     }
 
