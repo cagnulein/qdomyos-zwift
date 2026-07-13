@@ -31,7 +31,7 @@
         { key: 'resistance', labelKey: 'workoutEditor.resistance', label: 'Resistance', type: 'number', step: 1, min: 0, max: 100, group: 'basic', devices: ['bike', 'elliptical'], defaultValue: 20 },
         { key: 'cadence', labelKey: 'workoutEditor.cadence', label: 'Cadence', type: 'number', unitSuffix: 'rpm', min: 0, max: 240, group: 'basic', devices: ['bike', 'elliptical', 'rower'], defaultValue: 80 },
         { key: 'power', labelKey: 'workoutEditor.power', label: 'Power', type: 'number', unitSuffix: 'W', min: 0, max: 2000, group: 'basic', devices: ['bike', 'rower'], defaultValue: 150 },
-        { key: 'powerrampunit', labelKey: 'workoutEditor.powerRampUnit', label: 'Ramp Unit', type: 'select', options: ['W', '% FTP'], group: 'advanced', devices: ['bike', 'rower'], defaultValue: 'W' },
+        { key: 'powerrampunit', labelKey: 'workoutEditor.powerRampUnit', label: 'Ramp Unit', type: 'select', options: ['W', '% FTP'], group: 'advanced', devices: ['bike', 'rower'], defaultValue: 'W', noToggle: true },
         { key: 'powerfrom', labelKey: 'workoutEditor.powerRampFrom', label: 'Ramp From', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 100 },
         { key: 'powerto', labelKey: 'workoutEditor.powerRampTo', label: 'Ramp To', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 200 },
         { key: 'forcespeed', labelKey: 'workoutEditor.forceSpeed', label: 'Force Speed', type: 'bool', group: 'basic', devices: ['treadmill'], linkedTo: 'speed' },
@@ -821,8 +821,8 @@
                     return;
                 }
                 const value = row[field.key];
-                // For pace field, use speed's enabled state
-                const isEnabled = field.syncWith ? (row['__enabled_' + field.syncWith] !== false) : (row['__enabled_' + field.key] !== false);
+                // For pace field, use speed's enabled state; fields without a toggle are always enabled
+                const isEnabled = field.noToggle ? true : (field.syncWith ? (row['__enabled_' + field.syncWith] !== false) : (row['__enabled_' + field.key] !== false));
                 const fieldWrap = document.createElement('div');
                 fieldWrap.className = 'field';
                 if (!isEnabled) {
@@ -834,7 +834,7 @@
                 const labelWrap = document.createElement('label');
                 labelWrap.className = 'field-label';
 
-                const allowToggle = field.key !== 'name' && !field.linkedTo && !field.syncWith;
+                const allowToggle = field.key !== 'name' && !field.linkedTo && !field.syncWith && !field.noToggle;
                 if (allowToggle) {
                     const enableCheckbox = document.createElement('input');
                     enableCheckbox.type = 'checkbox';
