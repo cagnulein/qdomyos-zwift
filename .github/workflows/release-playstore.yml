@@ -128,7 +128,6 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          echo "#define LICENSE" >> secret.h
 
       - name: Prepare Android signing key
         env:
