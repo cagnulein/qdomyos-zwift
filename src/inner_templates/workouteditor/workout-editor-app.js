@@ -55,14 +55,14 @@
         bike: [
             { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#ab47bc', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => t('workoutEditor.resistance', 'Resistance'), axisPosition: 'left' },
             { key: 'cadence', label: () => t('workoutEditor.cadence', 'Cadence'), color: '#29b6f6', unit: () => 'rpm', axis: 'cadenceAxis', axisLabel: () => t('workoutEditor.cadenceRpm', 'Cadence (rpm)'), axisPosition: 'right' },
-            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#ef6c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), axisPosition: 'left' }
+            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#ef6c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), axisPosition: 'left', stepped: false }
         ],
         elliptical: [
             { key: 'resistance', label: () => t('workoutEditor.resistance', 'Resistance'), color: '#7e57c2', unit: () => 'lvl', axis: 'resistanceAxis', axisLabel: () => t('workoutEditor.resistance', 'Resistance'), axisPosition: 'left' },
             { key: 'inclination', label: () => t('workoutEditor.ramp', 'Ramp'), color: '#66bb6a', unit: () => '%', axis: 'inclineAxis', axisLabel: () => t('workoutEditor.rampPercent', 'Ramp (%)'), axisPosition: 'right' }
         ],
         rower: [
-            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#fb8c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), axisPosition: 'left' },
+            { key: 'power', label: () => t('workoutEditor.power', 'Power'), color: '#fb8c00', unit: () => 'W', axis: 'powerAxis', axisLabel: () => t('workoutEditor.powerW', 'Power (W)'), axisPosition: 'left', stepped: false },
             { key: 'cadence', label: () => t('workoutEditor.strokeRate', 'Stroke Rate'), color: '#26a69a', unit: () => 'spm', axis: 'cadenceAxis', axisLabel: () => t('workoutEditor.strokesPerMinute', 'Strokes/min'), axisPosition: 'right' }
         ],
         jumprope: [],
@@ -1445,6 +1445,7 @@
             axis: def.axis,
             axisLabel: typeof def.axisLabel === 'function' ? def.axisLabel() : def.axisLabel,
             axisPosition: def.axisPosition,
+            stepped: def.stepped !== false,
             points: []
         }));
 
