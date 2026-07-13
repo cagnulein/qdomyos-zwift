@@ -2115,16 +2115,15 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
                 for (int i = 0; i < speedDelta; i++) {
                     trainrow rowI(row);
                     int spare = 0;
-                    if (spareSeconds)
-                        spare = (i % spareSeconds == 0 && i > 0) ? 1 : 0;
-                    spareSum += spare;
-                    if (i == speedDelta && spareSum < spareSeconds) {
-                        spare += (spareSeconds - spareSum) - durationStep;
-                        spareSum = spareSeconds;
+                    if (spareSeconds) {
+                        int before = (int)((qint64)i * spareSeconds / speedDelta);
+                        int after = (int)((qint64)(i + 1) * spareSeconds / speedDelta);
+                        spare = after - before;
                     }
+                    spareSum += spare;
                     rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
-                    rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
-                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum - durationStep + spare);
+                    rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum - spare);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * (i + 1)) - spareSum);
                     rowI.forcespeed = 1;
                     if (speedFrom < speedTo) {
                         if(device_type == TREADMILL) {
@@ -2181,16 +2180,15 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
                 for (int i = 0; i < powerDelta; i++) {
                     trainrow rowI(row);
                     int spare = 0;
-                    if (spareSeconds)
-                        spare = (i % spareSeconds == 0 && i > 0) ? 1 : 0;
-                    spareSum += spare;
-                    if (i == powerDelta && spareSum < spareSeconds) {
-                        spare += (spareSeconds - spareSum) - durationStep;
-                        spareSum = spareSeconds;
+                    if (spareSeconds) {
+                        int before = (int)((qint64)i * spareSeconds / powerDelta);
+                        int after = (int)((qint64)(i + 1) * spareSeconds / powerDelta);
+                        spare = after - before;
                     }
+                    spareSum += spare;
                     rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
-                    rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
-                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum - durationStep + spare);
+                    rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum - spare);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * (i + 1)) - spareSum);
                     if (powerFrom <= powerTo) {
                         rowI.power = (int)(powerFrom + (powerStep * i));
                     } else {
