@@ -710,7 +710,10 @@ void nordictrackelliptical::update() {
             settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt)
                 .toBool();
 
-        update_metrics(false, (nordictrack_se7i || nordictrack_elliptical_s700) && m_watts > 0 ? m_watts : watts());
+        {
+            bool use_machine_watts = (nordictrack_se7i || nordictrack_elliptical_s700) && m_watts > 0;
+            update_metrics(use_machine_watts, use_machine_watts ? (double)m_watts : watts());
+        }
 
         if (nordictrack_elliptical_c7_5) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
