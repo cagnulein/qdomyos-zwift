@@ -45,6 +45,7 @@ const QString QZSettings::default_garmin_email = QStringLiteral("");
 const QString QZSettings::garmin_password = QStringLiteral("garmin_password");
 const QString QZSettings::default_garmin_password = QStringLiteral("");
 const QString QZSettings::garmin_upload_enabled = QStringLiteral("garmin_upload_enabled");
+const QString QZSettings::rpe_feel_popup_enabled = QStringLiteral("rpe_feel_popup_enabled");
 const QString QZSettings::garmin_download_workouts_on_start = QStringLiteral("garmin_download_workouts_on_start");
 const QString QZSettings::garmin_access_token = QStringLiteral("garmin_access_token");
 const QString QZSettings::default_garmin_access_token = QStringLiteral("");
@@ -1275,6 +1276,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::garmin_email, QZSettings::default_garmin_email},
     {QZSettings::garmin_password, QZSettings::default_garmin_password},
     {QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled},
+    {QZSettings::rpe_feel_popup_enabled, QZSettings::default_rpe_feel_popup_enabled},
     {QZSettings::garmin_download_workouts_on_start, QZSettings::default_garmin_download_workouts_on_start},
     {QZSettings::garmin_access_token, QZSettings::default_garmin_access_token},
     {QZSettings::garmin_refresh_token, QZSettings::default_garmin_refresh_token},

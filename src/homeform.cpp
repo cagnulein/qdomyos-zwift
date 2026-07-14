@@ -1158,7 +1158,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                          if (f.contains("HR")) {
                                              QStringList values = f.split("=");
                                              if (values.length() > 1) {
-                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
+                                                 double hr = values[1].toDouble();
+                                                 emit homeform::singleton()->heartRate(hr);
+#ifndef IO_UNDER_QT
+                                                 lockscreen ls;
+                                                 ls.setHeartRate((unsigned char)hr);
+#endif
                                              }
                                          }
                                      }
@@ -1198,7 +1203,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                          if (f.contains("HR")) {
                                              QStringList values = f.split("=");
                                              if (values.length() > 1) {
-                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
+                                                 double hr = values[1].toDouble();
+                                                 emit homeform::singleton()->heartRate(hr);
+#ifndef IO_UNDER_QT
+                                                 lockscreen ls;
+                                                 ls.setHeartRate((unsigned char)hr);
+#endif
                                              }
                                          }
                                      }
@@ -5913,7 +5923,15 @@ void homeform::Stop() {
     if (!(pelotonHandler && !pelotonHandler->current_ride_id.isEmpty())) {
         saveSessionAsTrainingProgram();
     }
-    fit_save_clicked();
+
+    m_workoutRpe = -1;
+    m_workoutFeel = -1;
+    if (!settings.value(QZSettings::rpe_feel_popup_enabled, QZSettings::default_rpe_feel_popup_enabled).toBool()) {
+        // Popup disabled: save (and upload) the FIT file right away, as before.
+        fit_save_clicked();
+    }
+    // else: QML shows the RPE/feel popup and calls finalizeFitSave() once the user answers,
+    // which writes the FIT file (with RPE/feel embedded) and triggers the uploads.
 
     if (bluetoothManager->device()) {
         bluetoothManager->device()->setPaused(paused | stopped);
@@ -9302,7 +9320,8 @@ void homeform::fit_save_clicked() {
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
                    stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name(),
-                   workoutSource, pelotonWorkoutId, pelotonUrl, trainingProgramFile);
+                   workoutSource, pelotonWorkoutId, pelotonUrl, trainingProgramFile,
+                   m_workoutRpe, m_workoutFeel);
         lastFitFileSaved = filename;
 
         // Process the newly saved file immediately and refresh workout model

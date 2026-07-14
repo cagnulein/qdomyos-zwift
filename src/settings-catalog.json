@@ -11848,6 +11848,19 @@
       "options": null
     },
     {
+      "key": "rpe_feel_popup_enabled",
+      "name": "Ask RPE / Feeling after workout",
+      "description": "Show a popup after Stop to rate perceived exertion (RPE) and how you felt; the values are saved into the FIT file and shown in Garmin Connect.",
+      "parent": "Garmin Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null
+    },
+    {
       "key": "garmin_access_token",
       "name": "Garmin Access Token",
       "description": null,
