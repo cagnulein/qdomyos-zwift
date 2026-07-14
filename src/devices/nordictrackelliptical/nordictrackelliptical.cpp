@@ -710,7 +710,7 @@ void nordictrackelliptical::update() {
             settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt)
                 .toBool();
 
-        update_metrics(false, watts());
+        update_metrics(false, (nordictrack_se7i || nordictrack_elliptical_s700) && m_watts > 0 ? m_watts : watts());
 
         if (nordictrack_elliptical_c7_5) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
@@ -924,6 +924,10 @@ double nordictrackelliptical::se7iInclinationFromPacket(const QByteArray &packet
 double nordictrackelliptical::se7iResistanceFromPacket(const QByteArray &packet) {
     uint16_t resValue = ((uint16_t)((uint8_t)packet.at(12))) + ((uint16_t)((uint8_t)packet.at(13)) << 8);
     return ((double)(resValue + 1)) / 454.0;
+}
+
+uint16_t nordictrackelliptical::se7iWattsFromPacket(const QByteArray &packet) {
+    return ((uint16_t)((uint8_t)packet.at(14))) + ((uint16_t)((uint8_t)packet.at(15)) << 8);
 }
 
 double nordictrackelliptical::GetInclinationFromPacket(QByteArray packet) {
@@ -1284,12 +1288,15 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     }
 
     if ((nordictrack_se7i || nordictrack_elliptical_s700) && isSe7iResistanceInclinationPacket(newValue)) {
-        // SE7i/S700 Resistance and Inclination parsing (Type 0x00 packets)
+        // SE7i/S700 Resistance, Inclination and Wattage parsing (Type 0x00 packets)
         Inclination = se7iInclinationFromPacket(newValue);
         emit debug(QStringLiteral("Current Inclination from packet: ") + QString::number(Inclination.value()));
 
         Resistance = se7iResistanceFromPacket(newValue);
         emit debug(QStringLiteral("Current Resistance from packet: ") + QString::number(Resistance.value()));
+
+        m_watts = se7iWattsFromPacket(newValue);
+        emit debug(QStringLiteral("Current Watt from packet: ") + QString::number(m_watts));
     } else if (!nordictrack_elliptical_c7_5 && !nordictrack_se7i && !nordictrack_elliptical_s700) {
         Resistance = GetResistanceFromPacket(newValue);
     } else if (nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x00 &&
@@ -1304,11 +1311,14 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         p = 100;
     m_pelotonResistance = p;
 
-    if (watts())
-        KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  // kg * 3.5) / 200 ) / 60
+    {
+        double w = ((nordictrack_se7i || nordictrack_elliptical_s700) && m_watts > 0) ? (double)m_watts : (double)watts();
+        if (w > 0)
+            KCal += ((((0.048 * w + 1.19) * weight * 3.5) / 200.0) /
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                    QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                      // kg * 3.5) / 200 ) / 60
+    }
     // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));

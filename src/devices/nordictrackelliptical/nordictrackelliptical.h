@@ -82,6 +82,12 @@ class nordictrackelliptical : public elliptical {
      */
     static double se7iResistanceFromPacket(const QByteArray &packet);
 
+    /**
+     * @brief Parses the machine-reported wattage from a SE7i/S700 type 0x00 packet, as identified
+     * by isSe7iResistanceInclinationPacket(). Bytes 14-15 little endian, unit is watts.
+     */
+    static uint16_t se7iWattsFromPacket(const QByteArray &packet);
+
   private:
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);

@@ -81,3 +81,21 @@ TEST(NordictrackEllipticalS700ParserTest, RejectsUnrelatedPacketsForResistanceIn
         QByteArray::fromHex("011226005a003208010a00000b03900108010000")));
     EXPECT_FALSE(nordictrackelliptical::isSe7iResistanceInclinationPacket(QByteArray::fromHex("00")));
 }
+
+TEST(NordictrackEllipticalS700ParserTest, MachineWattsDecodedFromBytes14And15LittleEndian) {
+    // "<< 00 12 01 04 02 30 06 30 02 02 00 00 00 00 17 00 01 00 00 00" from debug-Tue_Jul_14 log
+    // Machine console showed 23W (0x17) when this packet arrived.
+    const QByteArray packet1 = QByteArray::fromHex("0012010402300630020200000000170001000000");
+    ASSERT_TRUE(nordictrackelliptical::isSe7iResistanceInclinationPacket(packet1));
+    EXPECT_EQ(nordictrackelliptical::se7iWattsFromPacket(packet1), 23);
+
+    // watts=0x1e=30 from a later packet in the same log
+    const QByteArray packet2 = QByteArray::fromHex("00120104023006300202000000001e000a000000");
+    ASSERT_TRUE(nordictrackelliptical::isSe7iResistanceInclinationPacket(packet2));
+    EXPECT_EQ(nordictrackelliptical::se7iWattsFromPacket(packet2), 30);
+
+    // watts=0 before exercise starts
+    const QByteArray packet3 = QByteArray::fromHex("0012010402300630020200000000000000000000");
+    ASSERT_TRUE(nordictrackelliptical::isSe7iResistanceInclinationPacket(packet3));
+    EXPECT_EQ(nordictrackelliptical::se7iWattsFromPacket(packet3), 0);
+}
