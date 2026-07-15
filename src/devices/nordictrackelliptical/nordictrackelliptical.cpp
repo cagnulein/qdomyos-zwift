@@ -1300,6 +1300,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
         m_watts = se7iWattsFromPacket(newValue);
         emit debug(QStringLiteral("Current Watt from packet: ") + QString::number(m_watts));
+        if (m_watts > 0)
+            m_watt.setValue(m_watts);
     } else if (!nordictrack_elliptical_c7_5 && !nordictrack_se7i && !nordictrack_elliptical_s700) {
         Resistance = GetResistanceFromPacket(newValue);
     } else if (nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x00 &&
@@ -1346,7 +1348,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
     // debug("Current Distance: " + QString::number(distance));
-    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+    emit debug(QStringLiteral("Current Watt: ") + QString::number(
+        (nordictrack_se7i || nordictrack_elliptical_s700) && m_watts > 0 ? (double)m_watt.value() : watts()));
     emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
