@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 963,
+  "settingCount": 965,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -8848,6 +8848,32 @@
       "visible": true,
       "defaultValue": false,
       "defaultExpression": "false",
+      "options": null
+    },
+    {
+      "key": "nordictrackadbbike_gear_resistance_mode",
+      "name": "Gears Control Resistance (Separate Inc/Gear)",
+      "description": null,
+      "parent": "Proform/Norditrack Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null
+    },
+    {
+      "key": "nordictrackadbbike_gear_debounce_ms",
+      "name": "Gear Change Debounce (ms)",
+      "description": null,
+      "parent": "Proform/Norditrack Options",
+      "type": "integer",
+      "qmlType": "int",
+      "control": "text",
+      "visible": true,
+      "defaultValue": 100,
+      "defaultExpression": "100",
       "options": null
     },
     {

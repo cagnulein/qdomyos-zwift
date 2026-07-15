@@ -204,6 +204,19 @@ bool clearAndroidJniException(const char *context) {
     return true;
 }
 
+int androidSdkInt() {
+    if (clearAndroidJniException("androidSdkInt-before")) {
+        return 0;
+    }
+
+    const jint sdk = QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT");
+    if (clearAndroidJniException("androidSdkInt-after")) {
+        return 0;
+    }
+
+    return sdk;
+}
+
 QString fallbackFileNameFromUri(const QString &uriString) {
     QUrl url(uriString);
     QString fileName = url.fileName();
@@ -480,12 +493,15 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 
 #ifdef Q_OS_ANDROID
-    m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
-                                              "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
-    if(m_locationServices) {
-        QSettings settings;
-        // so if someone pressed the skip message but now he forgot to enable GPS it will prompt out
-        settings.setValue(QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog);
+    const bool nordictrack = true; // to replace
+    if(!nordictrack) {
+        m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
+                                                "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
+        if(m_locationServices) {
+            QSettings settings;
+            // so if someone pressed the skip message but now he forgot to enable GPS it will prompt out
+            settings.setValue(QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog);
+        }
     }
 #endif
 
@@ -1078,7 +1094,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     
     // Android 14 restrics access to /Android/data folder
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
-    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    if (android_documents_folder || androidSdkInt() >= 34) {
         QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
         QDir().mkdir(getWritableAppDir());
         QDir().mkdir(getProfileDir());
@@ -1115,8 +1131,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 workoutModel->refresh();
             });
     fitProcessor->processDirectory(getWritableAppDir() + "fit");
-
-    m_speech.setLocale(QLocale::English);
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QBluetoothDeviceInfo b;
@@ -1648,12 +1662,27 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 
 }
 
+QTextToSpeech *homeform::ensureSpeech() {
+#if defined(Q_OS_ANDROID)
+    if (androidSdkInt() <= 23) {
+        return nullptr;
+    }
+#endif
+
+    if (!m_speech) {
+        m_speech = new QTextToSpeech(this);
+        m_speech->setLocale(QLocale::English);
+    }
+
+    return m_speech;
+}
+
 QString homeform::getWritableAppDir() {
     QString path = QLatin1String("");
 #if defined(Q_OS_ANDROID)
     QSettings settings;
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
-    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    if (android_documents_folder || androidSdkInt() >= 34) {
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
         QDir().mkdir(path);
         // Create .nomedia file to prevent gallery indexing
@@ -2039,7 +2068,9 @@ void homeform::onToastRequested(QString message) {
 
     // Use TTS if enabled
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
-        m_speech.say(message);
+        if (QTextToSpeech *speech = ensureSpeech()) {
+            speech->say(message);
+        }
     }
 }
 
@@ -5741,8 +5772,11 @@ void homeform::Start_inner(bool send_event_to_device) {
 
     m_overridePower = false;
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
-        m_speech.say("Start pressed");
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+        if (QTextToSpeech *speech = ensureSpeech()) {
+            speech->say("Start pressed");
+        }
+    }
 
     if (!paused && !stopped) {
         paused = true;
@@ -5907,8 +5941,11 @@ void homeform::Stop() {
         this->innerTemplateManager->reinit();
 #endif
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
-        m_speech.say("Stop pressed");
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+        if (QTextToSpeech *speech = ensureSpeech()) {
+            speech->say("Stop pressed");
+        }
+    }
 
     if (bluetoothManager->device()) {
         bluetoothManager->device()->stop(false);
@@ -8288,7 +8325,8 @@ void homeform::update() {
                 bool description =
                     settings.value(QZSettings::tts_description_enabled, QZSettings::default_tts_description_enabled)
                         .toBool();
-                if (m_speech.state() == QTextToSpeech::Ready) {
+                QTextToSpeech *speech = ensureSpeech();
+                if (speech && speech->state() == QTextToSpeech::Ready) {
                     if (++tts_summary_count >=
                         settings.value(QZSettings::tts_summary_sec, QZSettings::default_tts_summary_sec).toInt()) {
                         tts_summary_count = 0;
@@ -8502,7 +8540,7 @@ void homeform::update() {
                                      QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1));
 
                         qDebug() << "tts" << s;
-                        m_speech.say(s);
+                        speech->say(s);
                     } else if (bluetoothManager->device()->deviceType() == TREADMILL &&
                                bluetoothManager->device()->currentSpeed().value() != tts_speed_played &&
                                settings.value(QZSettings::tts_act_speed, QZSettings::default_tts_act_speed).toBool()) {
@@ -8516,7 +8554,7 @@ void homeform::update() {
                                                            'f', 1)) +
                                  (description ? tr(" miles per hour") : ""));
                         qDebug() << "tts" << s;
-                        m_speech.say(s);
+                        speech->say(s);
                     }
                 }
             }
@@ -8690,7 +8728,7 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
 QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 #ifdef Q_OS_ANDROID        
-    qDebug() << "Android Version:" << QOperatingSystemVersion::current();
+    qDebug() << "Android SDK_INT:" << androidSdkInt();
     const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(file);
     const QString destinationDir = getWritableAppDir() + subfolder + "/";
     QDir().mkpath(destinationDir);

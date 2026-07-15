@@ -24,7 +24,7 @@ concurrency:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   window-build:
-    runs-on: windows-2022
+    runs-on: windows-latest
     strategy:
       matrix:
         config:
@@ -116,7 +116,7 @@ jobs:
       - name: Build qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         run: |
-            cd src\qthttpserver
+            cd src\qthttpserver 
             qmake
             make -j8
             cd ../..
@@ -136,8 +136,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
 
@@ -277,7 +275,6 @@ jobs:
 #          repository: bluetiger9/SmtpClient-for-Qt
 #          path: "src/smtpclient/"
 #          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-#
 #
 #      - uses: msys2/setup-msys2@v2
 #        with:
@@ -599,20 +596,6 @@ jobs:
           dir: '${{ github.workspace }}/output/android/'
           cache: 'false'
 
-      - name: Install custom 16K-page-size Qt (overlay onto stock Qt install)
-        run: |
-          QT_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
-          curl -fsSL -o /tmp/qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
-          unzip -q /tmp/qt5.15.0-android-page16.zip -d /tmp/qt-page16k
-          # Overlay the 16K-page-aligned target libs/plugins/qml/mkspecs/jar/include onto the
-          # stock Qt install; keep the stock Linux host tools (bin/) since the custom Qt's
-          # host tools were built on macOS (Mach-O, not usable on this Linux runner).
-          rsync -a --exclude='bin/' "/tmp/qt-page16k/qt5.15.0-android-page16/usr/local/Qt-5.15.0/" "$QT_DIR/"
-          # qdevice.pri comes from the overlay carrying the macOS origin's NDK host value;
-          # fix it back to linux so qmake resolves the NDK toolchain path correctly.
-          sed -i 's/darwin-x86_64/linux-x86_64/' "$QT_DIR/mkspecs/qdevice.pri"
-          rm -rf /tmp/qt5.15.0-android-page16.zip /tmp/qt-page16k
-
       - name: Install Java
         uses: actions/setup-java@v4
         with:
@@ -629,13 +612,13 @@ jobs:
         id: cache-ndk
         uses: actions/cache@v4
         with:
-          path: /usr/local/lib/android/sdk/ndk/21.1.6352462
-          key: android-ndk-21.1.6352462-${{ runner.os }}
+          path: /usr/local/lib/android/sdk/ndk/21.4.7075529
+          key: android-ndk-21.4.7075529-${{ runner.os }}
 
       - name: Install Android SDK packages
         run: |
           SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.1.6352462" "platforms;android-35" "build-tools;35.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Setup ccache
         run: |
@@ -652,13 +635,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .ccache
-          key: ccache-android-ndk21_1-${{ hashFiles('src/**/*.cpp', 'src/**/*.h', 'src/*.pro') }}
+          key: ccache-android-ndk21-${{ hashFiles('src/**/*.cpp', 'src/**/*.h', 'src/*.pro') }}
           restore-keys: |
-            ccache-android-ndk21_1-
+            ccache-android-ndk21-
 
       - name: Setup NDK environment with ccache
         run: |
-          NDK_PATH=/usr/local/lib/android/sdk/ndk/21.1.6352462
+          NDK_PATH=/usr/local/lib/android/sdk/ndk/21.4.7075529
           NDK_BIN=$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin
           ln -sfn $NDK_PATH /usr/local/lib/android/sdk/ndk-bundle
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
@@ -681,10 +664,9 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
+          cd ..          
 
       - name: Prepare Android signing key
         env:
@@ -724,13 +706,12 @@ jobs:
 
       - name: Build QZ for Android (4 ABIs)
         run: |
+          # qmake reads defaults.pri while generating the Android deployment JSON,
+          # so force all ABIs there before the build starts.
+          sed -i 's/^ANDROID_ABIS = .*/ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64/' defaults.pri
           lrelease src/qdomyos-zwift.pri
-          # CONFIG+=debug matches the real reference build validated against the Mac-built
-          # APK: it keeps .so unstripped (matching the reference almost byte-for-byte) and,
-          # with this custom Qt, naturally leaves android-extra-libs unset - the bundled
-          # android_openssl libs are not 16K-page-aligned, so we must NOT inject them (see
-          # below); Qt's own QtNetwork already has openssl linked in.
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.1.6352462' 'CONFIG+=debug' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
           cat src/android-qdomyos-zwift-deployment-settings.json
 
       - name: Cache Gradle
@@ -769,6 +750,11 @@ jobs:
             unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
           fi
           "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
+          APK="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
+          for ABI in armeabi-v7a arm64-v8a x86 x86_64; do
+            unzip -l "$APK" "lib/$ABI/libqdomyos-zwift_$ABI.so"
+            unzip -l "$APK" "lib/$ABI/libQt5Core_$ABI.so"
+          done
 
       - name: Re-sign APK for stable App Links fingerprint
         run: |
@@ -1054,8 +1040,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
           qmake CONFIG+=debug CONFIG+=iphonesimulator \
@@ -1168,8 +1152,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
 
@@ -1372,11 +1354,9 @@ jobs:
           echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h          
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-          cd ..
+          cd ..                    
 
       - name: Cache vcpkg
         id: cache-vcpkg-aiserver
@@ -1479,8 +1459,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
@@ -1539,8 +1517,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
@@ -1758,8 +1734,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
 
@@ -2094,7 +2068,7 @@ jobs:
   nordictrack-build:
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule'
     
     strategy:
       matrix:
@@ -2104,9 +2078,6 @@ jobs:
             setting_value: localhost
           - name: bike
             setting_key: tdf_10_ip
-            setting_value: localhost
-          - name: rower
-            setting_key: proform_rower_ip
             setting_value: localhost
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -2171,8 +2142,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           # Set variant-specific IP setting
@@ -2322,14 +2291,14 @@ jobs:
           sed -i 's/property string ${{ matrix.variant.setting_key }}: ""/property string ${{ matrix.variant.setting_key }}: "${{ matrix.variant.setting_value }}"/' settings.qml
           cd ..
 
-          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
-          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
-          lrelease src/qdomyos-zwift.pri
-
           # Keep FitPro APKs usable on older 32-bit iFIT/ProForm consoles.
           # qmake reads defaults.pri while generating the Android deployment JSON,
           # so force all ABIs there before the build starts.
           sed -i 's/^ANDROID_ABIS = .*/ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64/' defaults.pri
+
+          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
+          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          lrelease src/qdomyos-zwift.pri
 
           # QTHTTPSERVER must use the same NDK
           cd src/qthttpserver
@@ -2374,12 +2343,8 @@ jobs:
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-fitpro-${{ matrix.variant.name }}.apk
           APK="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-fitpro-${{ matrix.variant.name }}.apk"
           for ABI in armeabi-v7a arm64-v8a x86 x86_64; do
-            for LIB in "libqdomyos-zwift_$ABI.so" "libQt5Core_$ABI.so"; do
-              if ! unzip -l "$APK" "lib/$ABI/$LIB" | grep -q "$LIB"; then
-                echo "::error::Missing lib/$ABI/$LIB in $APK - ABI packaging is broken"
-                exit 1
-              fi
-            done
+            unzip -l "$APK" "lib/$ABI/libqdomyos-zwift_$ABI.so"
+            unzip -l "$APK" "lib/$ABI/libQt5Core_$ABI.so"
           done
 
       - name: Archive fitpro binary
@@ -2455,8 +2420,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
@@ -2580,8 +2543,6 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
-          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..
@@ -2678,22 +2639,8 @@ jobs:
 
             ## Other Platforms:
             - **fdroid-android-trial**: Android build
-
-            ### NordicTrack / iFIT builds
-            There are two different ways QZ can talk to a NordicTrack / iFIT machine, pick the one that matches your console:
-
-            **gRPC builds** — these rely on the iFIT app: QZ talks to iFIT, which talks to the console. The iFIT app must be installed, running and signed in. They only work on the newer machines (the ones with the new iFIT 3D layout).
-            - **nordictrack-treadmill-android-trial**: Treadmill (gRPC via iFIT, new 3D-layout consoles only)
-            - **nordictrack-bike-android-trial**: Bike (gRPC via iFIT, new 3D-layout consoles only)
-            - **nordictrack-rower-android-trial**: Rower (gRPC via iFIT, new 3D-layout consoles only)
-
-            **FitPro builds** — these access the console directly over USB-HID, without going through iFIT. The iFIT app must be **closed**. They work with every iFIT version (both old and new consoles).
-            - **fitpro-treadmill-android-trial**: Treadmill (direct USB-HID FitPro, iFIT must be closed, all iFIT versions)
-            - **fitpro-bike-android-trial**: Bike (direct USB-HID FitPro, iFIT must be closed, all iFIT versions)
-            - **fitpro-elliptical-android-trial**: Elliptical (direct USB-HID FitPro, iFIT must be closed, all iFIT versions)
-            - **fitpro-rower-android-trial**: Rower (direct USB-HID FitPro, iFIT must be closed, all iFIT versions)
-
-            ### Peloton / Raspberry Pi
+            - **nordictrack-treadmill-android-trial**: Nordictrack Treadmill build for iFIT2 Tablets
+            - **nordictrack-bike-android-trial**: Nordictrack Bike build for iFIT2 Tablets
             - **peloton-bike-plus-android-trial**: Peloton Bike Plus build with Grupetto backend
             - **peloton-bike-android-trial**: Peloton Bike build with Grupetto backend
             - **raspberry-pi-binary-armv6hf**: Raspberry Pi 32-bit (ARMv6 hard-float, Pi Zero W compatible)
@@ -2711,11 +2658,6 @@ jobs:
             fdroid-android-trial/android-debug.apk
             nordictrack-treadmill-android-trial/android-debug-nordictrack-treadmill.apk
             nordictrack-bike-android-trial/android-debug-nordictrack-bike.apk
-            nordictrack-rower-android-trial/android-debug-nordictrack-rower.apk
-            fitpro-treadmill-android-trial/android-debug-fitpro-treadmill.apk
-            fitpro-bike-android-trial/android-debug-fitpro-bike.apk
-            fitpro-elliptical-android-trial/android-debug-fitpro-elliptical.apk
-            fitpro-rower-android-trial/android-debug-fitpro-rower.apk
             peloton-bike-plus-android-trial/android-debug-peloton-bike-plus.apk
             peloton-bike-android-trial/android-debug-peloton-bike.apk
             raspberry-pi-binary-armv6hf/qdomyos-zwift-armv6hf

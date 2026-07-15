@@ -1,0 +1,16 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "workout/data/WorkoutSessionItem.proto";
+import "workout/data/WorkoutTargetType.proto";
+option java_package = "com.ifit.glassos.workout.data.recovery";
+option java_outer_classname = "RecoveredWorkoutSessionItemProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message RecoveredWorkoutSessionItem {
+  WorkoutSessionItem sessionItem = 1;
+  bool workoutEnded = 2;
+  double targetProgress = 3;
+  double targetValue = 4;
+  WorkoutTargetType targetType = 5;
+}
