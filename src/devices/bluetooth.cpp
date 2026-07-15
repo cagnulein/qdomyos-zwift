@@ -1561,7 +1561,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(soleF80);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM01")) && !speraXTreadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM01")) || b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM-02"))) && !speraXTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 speraXTreadmill = new speraxtreadmill(this->pollDeviceTime, noConsole, noHeartService);
