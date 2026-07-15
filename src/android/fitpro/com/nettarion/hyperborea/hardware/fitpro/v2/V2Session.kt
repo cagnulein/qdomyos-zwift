@@ -324,6 +324,7 @@ class V2Session(
             V2FeatureId.TARGET_KPH -> accumulator.updateTargetSpeed(value)
             V2FeatureId.TARGET_GRADE -> accumulator.updateTargetIncline(value)
             V2FeatureId.HEART_BEAT_INTERVAL -> { /* Protocol keepalive echo */ }
+            V2FeatureId.IDLE_SYSTEM_MODE_LOCK -> { /* Write-only idle lock echo */ }
             V2FeatureId.SYSTEM_MODE -> { /* System on/standby/sleep — not the workout state, and not exercise data */ }
             // Translated to V1 [com.nettarion.hyperborea.hardware.fitpro.v1.WorkoutMode] numbering
             // when pushed to the accumulator, so the orchestrator's workout-mode monitor (which
@@ -365,6 +366,7 @@ class V2Session(
 
         writeWorkoutState(V2WorkoutMode.WARM_UP)
         confirmWorkoutMode("leave idle") { it != V2WorkoutMode.NONE && it != V2WorkoutMode.READY_TO_START }
+        releaseIdleModeLock()
         writeWorkoutState(V2WorkoutMode.RUNNING)
         val running = confirmWorkoutMode("reach RUNNING") { it == V2WorkoutMode.RUNNING }
         logger.i(TAG, "Console workout state: NONE → WARM_UP → ${if (running) V2WorkoutMode.RUNNING else V2WorkoutMode.UNKNOWN}")
@@ -429,6 +431,13 @@ class V2Session(
         transport.write(V2Codec.encode(V2Message.Outgoing.WriteFeature(V2FeatureId.WORKOUT_STATE, mode.raw)))
     }
 
+    private suspend fun releaseIdleModeLock() {
+        val supported = _supportedFeatures.value
+        if (supported != null && V2FeatureId.IDLE_SYSTEM_MODE_LOCK !in supported) return
+        logger.i(TAG, "Start: releasing IDLE_SYSTEM_MODE_LOCK before commanding RUNNING")
+        transport.write(V2Codec.encode(V2Message.Outgoing.WriteFeature(V2FeatureId.IDLE_SYSTEM_MODE_LOCK, IDLE_MODE_UNLOCKED)))
+    }
+
     /** Waits (up to [STATE_CONFIRM_TIMEOUT_MS]) for a [V2FeatureId.WORKOUT_STATE] event satisfying [accept]. */
     private suspend fun confirmWorkoutMode(what: String, accept: (V2WorkoutMode) -> Boolean): Boolean {
         val ok = withTimeoutOrNull(STATE_CONFIRM_TIMEOUT_MS) {
@@ -472,6 +481,7 @@ class V2Session(
         private const val STATE_CONFIRM_TIMEOUT_MS = 5_000L
         // How long to wait for the SupportedFeatures response before falling back to BIKE.
         private const val SUPPORTED_FEATURES_TIMEOUT_MS = 3_000L
+        private const val IDLE_MODE_UNLOCKED = 0f
 
         // V1 [com.nettarion.hyperborea.hardware.fitpro.v1.WorkoutMode] raw codes used by the
         // orchestrator's workout-mode monitor — kept here as a translation target for V2's WORKOUT_STATE.

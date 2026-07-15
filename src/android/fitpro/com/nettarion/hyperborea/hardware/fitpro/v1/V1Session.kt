@@ -324,7 +324,12 @@ class V1Session(
             mapOf(V1DataField.WORKOUT_MODE to WorkoutMode.PAUSE.raw)
         }
         is DeviceCommand.ResumeWorkout -> {
-            mapOf(V1DataField.WORKOUT_MODE to WorkoutMode.RUNNING.raw)
+            buildMap {
+                if (supportsIdleLockout()) {
+                    put(V1DataField.IDLE_MODE_LOCKOUT, FIELD_DISABLED)
+                }
+                put(V1DataField.WORKOUT_MODE, WorkoutMode.RUNNING.raw)
+            }
         }
         is DeviceCommand.CalibrateIncline -> emptyMap()
         is DeviceCommand.SetFanSpeed -> mapOf(V1DataField.FAN_STATE to command.level.toFloat())
@@ -587,15 +592,16 @@ class V1Session(
      */
     private suspend fun transitionToActive() {
         if (detectedDeviceType == DeviceType.TREADMILL) {
+            if (supportsIdleLockout()) {
+                writeConsoleField(V1DataField.IDLE_MODE_LOCKOUT, FIELD_DISABLED)
+            }
             val mode = writeAndConfirmWorkoutMode(WorkoutMode.WARM_UP) { it != WorkoutMode.IDLE }
             logger.i(TAG, "Console state: IDLE → ${mode ?: WorkoutMode.UNKNOWN} (awaiting physical Start key)")
             _degradedReason.value = null
             return
         }
 
-        val supportsIdleLockout = supportedBitFields.isEmpty() ||
-            V1DataField.IDLE_MODE_LOCKOUT.fieldIndex in supportedBitFields
-        if (supportsIdleLockout) {
+        if (supportsIdleLockout()) {
             writeConsoleField(V1DataField.IDLE_MODE_LOCKOUT, FIELD_DISABLED)
         }
         writeAndConfirmWorkoutMode(WorkoutMode.WARM_UP) { it != WorkoutMode.IDLE }
@@ -620,6 +626,9 @@ class V1Session(
         logger.w(TAG, "Console didn't reach $target — workout may be inactive; continuing")
         return null
     }
+
+    private fun supportsIdleLockout(): Boolean =
+        supportedBitFields.isEmpty() || V1DataField.IDLE_MODE_LOCKOUT.fieldIndex in supportedBitFields
 
     /**
      * Sends one ReadWriteData (writes [writeFields], requests [readFields]) and decodes the single-

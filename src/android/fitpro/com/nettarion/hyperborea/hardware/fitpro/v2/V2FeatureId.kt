@@ -2,6 +2,7 @@ package com.nettarion.hyperborea.hardware.fitpro.v2
 
 enum class V2FeatureId(val code: Int) {
     SYSTEM_MODE(102),
+    IDLE_SYSTEM_MODE_LOCK(103),
     HEART_BEAT_INTERVAL(161),
     CURRENT_CALORIES(202),
     PULSE(222),
