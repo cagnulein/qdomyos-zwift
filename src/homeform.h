@@ -437,6 +437,19 @@ class homeform : public QObject {
         return settings.value(QZSettings::confirm_stop_workout, QZSettings::default_confirm_stop_workout).toBool();
     }
 
+    Q_INVOKABLE bool rpeFeelPopupEnabled() {
+        QSettings settings;
+        return settings.value(QZSettings::rpe_feel_popup_enabled, QZSettings::default_rpe_feel_popup_enabled).toBool();
+    }
+
+    // Called from QML once the post-workout RPE/feel popup is dismissed (Save or Skip, rpe/feel -1 if skipped).
+    // Stop() defers fit_save_clicked() until this is called when the popup is enabled.
+    Q_INVOKABLE void finalizeFitSave(int rpe, int feel) {
+        m_workoutRpe = rpe;
+        m_workoutFeel = feel;
+        fit_save_clicked();
+    }
+
     Q_INVOKABLE bool locationServices() {
         return m_locationServices;
     }
@@ -1050,6 +1063,10 @@ public:
 
     QString lastFitFileSaved = QLatin1String("");
     QString lastTrainProgramFileSaved = QLatin1String("");
+
+    // Perceived exertion (RPE, 0-10) and feel (0-100) entered in the post-workout popup; -1 means not set
+    int m_workoutRpe = -1;
+    int m_workoutFeel = -1;
 
     QList<QString> chartImagesFilenames;
     bool mailSent = false;

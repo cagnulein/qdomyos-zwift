@@ -91,6 +91,9 @@ class QZSettings {
     static const QString garmin_upload_enabled;
     static constexpr bool default_garmin_upload_enabled = false;
 
+    static const QString rpe_feel_popup_enabled;
+    static constexpr bool default_rpe_feel_popup_enabled = false;
+
     static const QString garmin_download_workouts_on_start;
     static constexpr bool default_garmin_download_workouts_on_start = true;
 
