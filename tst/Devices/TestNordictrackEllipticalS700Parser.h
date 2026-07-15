@@ -25,14 +25,18 @@ TEST(NordictrackEllipticalS700ParserTest, RecognizesS700SpeedPacketsFromRealLog)
     // "<< 01 12 28 00 5a 00 50 05 00 0a 00 00 30 03 5e 01 17 01 00 00" from the same log
     EXPECT_TRUE(nordictrackelliptical::isS700SpeedPacket(
         QByteArray::fromHex("011228005a005005000a000030035e0117010000")));
+    // "<< 01 12 26 00 46 00 00 01 00 0a 00 00 21 03 00 00 24 01 00 00" from debug-Wed_Jul_15_12_14_08_2026b.log
+    // After SE7i init completes, the machine switches to byte[4]=0x46 (remote-control mode marker).
+    EXPECT_TRUE(nordictrackelliptical::isS700SpeedPacket(
+        QByteArray::fromHex("011226004600000100000000210300002401" "0000")));
 }
 
-TEST(NordictrackEllipticalS700ParserTest, DoesNotMatchLegacySe7iOrDefaultSpeedPackets) {
-    // Legacy SE7i marker (byte[4] == 0x46) used by other NordicTrack SE7i units: must stay untouched.
+TEST(NordictrackEllipticalS700ParserTest, DoesNotMatchNonSpeedPackets) {
+    // Packet with byte[3]!=0x00 (0x74 here): must not match regardless of byte[4].
     EXPECT_FALSE(nordictrackelliptical::isS700SpeedPacket(
-        QByteArray::fromHex("0112000046001711010300000000c20100000000")));
+        QByteArray::fromHex("0112007400330000000000000000000000000000")));
 
-    // Default (non-SE7i) protocol packet: marker 0x5a sits at byte[2] instead of byte[4], must not collide.
+    // Default (non-SE7i) protocol packet: 0x5a sits at byte[2] not byte[4], byte[4]=0x66: no match.
     EXPECT_FALSE(nordictrackelliptical::isS700SpeedPacket(
         QByteArray::fromHex("01125a00662100000000000a000069030a010000")));
 
@@ -47,6 +51,11 @@ TEST(NordictrackEllipticalS700ParserTest, SpeedIsDecodedFromBytes12And13LittleEn
     const QByteArray packet2 = QByteArray::fromHex("011228005a005005000a000030035e0117010000");
     ASSERT_TRUE(nordictrackelliptical::isS700SpeedPacket(packet2));
     EXPECT_NEAR(nordictrackelliptical::s700SpeedFromPacket(packet2), 8.16, 0.001);
+
+    // Post-init 0x46 packet from debug-Wed_Jul_15_12_14_08_2026b.log: speed 8.01 km/h
+    const QByteArray packet3 = QByteArray::fromHex("011226004600000100000000210300002401" "0000");
+    ASSERT_TRUE(nordictrackelliptical::isS700SpeedPacket(packet3));
+    EXPECT_NEAR(nordictrackelliptical::s700SpeedFromPacket(packet3), 8.01, 0.001);
 }
 
 TEST(NordictrackEllipticalS700ParserTest, CadenceIsDecodedFromByte2) {

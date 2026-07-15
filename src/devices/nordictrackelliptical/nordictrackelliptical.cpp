@@ -900,9 +900,12 @@ void nordictrackelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 bool nordictrackelliptical::isS700SpeedPacket(const QByteArray &packet) {
-    // Byte[2] is a free-running counter, not part of the marker.
+    // Byte[2] is a free-running counter/cadence, not part of the marker.
+    // Before SE7i init the machine sends byte[4]=0x5a; after init completes (remote-control mode)
+    // it switches to byte[4]=0x46. Both carry the same speed/cadence layout.
     return packet.length() == 20 && (uint8_t)packet.at(0) == 0x01 && (uint8_t)packet.at(1) == 0x12 &&
-           (uint8_t)packet.at(3) == 0x00 && (uint8_t)packet.at(4) == 0x5a;
+           (uint8_t)packet.at(3) == 0x00 &&
+           ((uint8_t)packet.at(4) == 0x5a || (uint8_t)packet.at(4) == 0x46);
 }
 
 double nordictrackelliptical::s700SpeedFromPacket(const QByteArray &packet) {
