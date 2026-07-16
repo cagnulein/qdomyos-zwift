@@ -17,6 +17,14 @@ constexpr quint8 MessageTypeHapticFeedback = 0x03;
 constexpr quint8 MessageTypeAppInfo = 0x04;
 constexpr quint8 ButtonShiftUp = 0x01;
 constexpr quint8 ButtonShiftDown = 0x02;
+constexpr quint8 ButtonNavUp = 0x10;
+constexpr quint8 ButtonNavDown = 0x11;
+constexpr quint8 ButtonNavLeft = 0x12;
+constexpr quint8 ButtonNavRight = 0x13;
+constexpr quint8 ButtonNavSelect = 0x14;
+constexpr quint8 ButtonNavBack = 0x15;
+constexpr quint8 ButtonNavMenu = 0x16;
+constexpr quint8 ButtonNavHome = 0x17;
 constexpr quint8 ButtonSteerLeft = 0x18;
 constexpr quint8 ButtonSteerRight = 0x19;
 constexpr quint8 ButtonEmote = 0x20;
@@ -358,6 +366,22 @@ quint8 MyWhooshLink::actionToButtonId(Action action) const {
             return ButtonEmote;
         case Tuck:
             return 0x00;
+        case NavUp:
+            return ButtonNavUp;
+        case NavDown:
+            return ButtonNavDown;
+        case NavLeft:
+            return ButtonNavLeft;
+        case NavRight:
+            return ButtonNavRight;
+        case NavSelect:
+            return ButtonNavSelect;
+        case NavBack:
+            return ButtonNavBack;
+        case NavMenu:
+            return ButtonNavMenu;
+        case NavHome:
+            return ButtonNavHome;
         case Disabled:
         default:
             return 0x00;

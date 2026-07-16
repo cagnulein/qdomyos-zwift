@@ -1726,6 +1726,14 @@ import AndroidStatusBar 1.0
             property real trainprogram_pid_hr_pushy_zone_limit: 0.8
             property real trainprogram_pid_hr_recovery_zone_limit: 60.0
             property bool rpe_feel_popup_enabled: false
+            property int zwiftplay_gear_ls1: 2
+            property int zwiftplay_gear_ls2: 2
+            property int zwiftplay_gear_rs1: 1
+            property int zwiftplay_gear_rs2: 1
+            property int zwiftplay_gear_paddle_left: 2
+            property int zwiftplay_gear_paddle_right: 1
+            property int zwiftplay_gear_lb: 2
+            property int zwiftplay_gear_rb: 1
         }
 
 
@@ -3456,7 +3464,14 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Enable OpenBikeControl")
                                 checked: settings.mywhoosh_link_enabled
                                 Layout.fillWidth: true
-                                onClicked: { settings.mywhoosh_link_enabled = checked; window.settings_restart_to_apply = true; }
+                                onClicked: {
+                                    settings.mywhoosh_link_enabled = checked;
+                                    if (checked && settings.dircon_yes) {
+                                        settings.dircon_yes = false;
+                                        toast.show(qsTr("OpenBikeControl enabled: Wahoo direct connect disabled."));
+                                    }
+                                    window.settings_restart_to_apply = true;
+                                }
                             }
 
                             Label {
@@ -3500,7 +3515,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_up
                                     onActivated: settings.mywhoosh_link_left_up = currentIndex
                                 }
@@ -3512,7 +3527,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_down
                                     onActivated: settings.mywhoosh_link_left_down = currentIndex
                                 }
@@ -3524,7 +3539,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_left
                                     onActivated: settings.mywhoosh_link_left_left = currentIndex
                                 }
@@ -3536,7 +3551,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_right
                                     onActivated: settings.mywhoosh_link_left_right = currentIndex
                                 }
@@ -3548,7 +3563,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_shoulder
                                     onActivated: settings.mywhoosh_link_left_shoulder = currentIndex
                                 }
@@ -3560,7 +3575,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_power
                                     onActivated: settings.mywhoosh_link_left_power = currentIndex
                                 }
@@ -3580,7 +3595,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_y
                                     onActivated: settings.mywhoosh_link_right_y = currentIndex
                                 }
@@ -3592,7 +3607,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_a
                                     onActivated: settings.mywhoosh_link_right_a = currentIndex
                                 }
@@ -3604,7 +3619,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_b
                                     onActivated: settings.mywhoosh_link_right_b = currentIndex
                                 }
@@ -3616,7 +3631,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_z
                                     onActivated: settings.mywhoosh_link_right_z = currentIndex
                                 }
@@ -3628,7 +3643,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_shoulder
                                     onActivated: settings.mywhoosh_link_right_shoulder = currentIndex
                                 }
@@ -3640,7 +3655,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck"]
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_power
                                     onActivated: settings.mywhoosh_link_right_power = currentIndex
                                 }
@@ -14823,6 +14838,123 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
+                            }
+
+                            Label {
+                                text: qsTr("Gear Controls")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                Layout.fillWidth: true
+                                Layout.topMargin: 20
+                            }
+
+                            Label {
+                                text: qsTr("Assign each physical button to Gear Up, Gear Down or Disabled. Applies before the Swap sides option above.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Shifter Up (LS1):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_ls1
+                                    onActivated: settings.zwiftplay_gear_ls1 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Shifter Down (LS2):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_ls2
+                                    onActivated: settings.zwiftplay_gear_ls2 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Shifter Up (RS1):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_rs1
+                                    onActivated: settings.zwiftplay_gear_rs1 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Shifter Down (RS2):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_rs2
+                                    onActivated: settings.zwiftplay_gear_rs2 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Paddle (ZL):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_paddle_left
+                                    onActivated: settings.zwiftplay_gear_paddle_left = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Paddle (ZR):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_paddle_right
+                                    onActivated: settings.zwiftplay_gear_paddle_right = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Power Up (LB):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_lb
+                                    onActivated: settings.zwiftplay_gear_lb = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Ride On (RB):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_rb
+                                    onActivated: settings.zwiftplay_gear_rb = currentIndex
+                                }
                             }
 
                             RowLayout {

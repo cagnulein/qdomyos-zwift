@@ -3282,6 +3282,27 @@ class QZSettings {
     static constexpr bool default_horizon_treadmill_omega_z = false;
 
     /**
+     * @brief Per-button gear mapping for Zwift Play/Ride controllers.
+     * Values follow MyWhoosh::Action: 0 = Disabled, 1 = Gear Up, 2 = Gear Down.
+     */
+    static const QString zwiftplay_gear_ls1; // Left Shift Up
+    static constexpr int default_zwiftplay_gear_ls1 = 2; // Gear Down
+    static const QString zwiftplay_gear_ls2; // Left Shift Down
+    static constexpr int default_zwiftplay_gear_ls2 = 2; // Gear Down
+    static const QString zwiftplay_gear_rs1; // Right Shift Up
+    static constexpr int default_zwiftplay_gear_rs1 = 1; // Gear Up
+    static const QString zwiftplay_gear_rs2; // Right Shift Down
+    static constexpr int default_zwiftplay_gear_rs2 = 1; // Gear Up
+    static const QString zwiftplay_gear_paddle_left; // Left Paddle (ZL)
+    static constexpr int default_zwiftplay_gear_paddle_left = 2; // Gear Down
+    static const QString zwiftplay_gear_paddle_right; // Right Paddle (ZR)
+    static constexpr int default_zwiftplay_gear_paddle_right = 1; // Gear Up
+    static const QString zwiftplay_gear_lb; // Power Up (LB)
+    static constexpr int default_zwiftplay_gear_lb = 2; // Gear Down
+    static const QString zwiftplay_gear_rb; // Ride On (RB)
+    static constexpr int default_zwiftplay_gear_rb = 1; // Gear Up
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */

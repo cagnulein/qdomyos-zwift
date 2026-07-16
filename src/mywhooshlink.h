@@ -32,7 +32,15 @@ public:
         UTurn = 5,
         CameraAngle = 6,
         Emote = 7,
-        Tuck = 8
+        Tuck = 8,
+        NavUp = 9,
+        NavDown = 10,
+        NavLeft = 11,
+        NavRight = 12,
+        NavSelect = 13,
+        NavBack = 14,
+        NavMenu = 15,
+        NavHome = 16
     };
     Q_ENUM(Action)
 
