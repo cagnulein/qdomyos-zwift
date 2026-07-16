@@ -2178,7 +2178,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("iConsole+ found as FTMS bike - ERG not supported");
             resistance_lvl_mode = true;
             ergModeSupported = false;
-            max_resistance = 16;
+            max_resistance = 24;
         }
 
 
