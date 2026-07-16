@@ -3488,7 +3488,7 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Override Local Gear Changes")
                                 checked: settings.mywhoosh_link_override_gears
                                 Layout.fillWidth: true
-                                onClicked: settings.mywhoosh_link_override_gears = checked
+                                onClicked: { settings.mywhoosh_link_override_gears = checked; window.settings_restart_to_apply = true; }
                             }
 
                             Label {
@@ -3517,7 +3517,7 @@ import AndroidStatusBar 1.0
                                 ComboBox {
                                     model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_up
-                                    onActivated: settings.mywhoosh_link_left_up = currentIndex
+                                    onActivated: { settings.mywhoosh_link_left_up = currentIndex; window.settings_restart_to_apply = true; }
                                 }
                             }
 
@@ -3529,7 +3529,7 @@ import AndroidStatusBar 1.0
                                 ComboBox {
                                     model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_down
-                                    onActivated: settings.mywhoosh_link_left_down = currentIndex
+                                    onActivated: { settings.mywhoosh_link_left_down = currentIndex; window.settings_restart_to_apply = true; }
                                 }
                             }
 
@@ -3541,7 +3541,7 @@ import AndroidStatusBar 1.0
                                 ComboBox {
                                     model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_left
-                                    onActivated: settings.mywhoosh_link_left_left = currentIndex
+                                    onActivated: { settings.mywhoosh_link_left_left = currentIndex; window.settings_restart_to_apply = true; }
                                 }
                             }
 
@@ -3553,7 +3553,7 @@ import AndroidStatusBar 1.0
                                 ComboBox {
                                     model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_right
-                                    onActivated: settings.mywhoosh_link_left_right = currentIndex
+                                    onActivated: { settings.mywhoosh_link_left_right = currentIndex; window.settings_restart_to_apply = true; }
                                 }
                             }
 
@@ -3565,7 +3565,7 @@ import AndroidStatusBar 1.0
                                 ComboBox {
                                     model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_shoulder
-                                    onActivated: settings.mywhoosh_link_left_shoulder = currentIndex
+                                    onActivated: { settings.mywhoosh_link_left_shoulder = currentIndex; window.settings_restart_to_apply = true; }
                                 }
                             }
 
@@ -3577,7 +3577,7 @@ import AndroidStatusBar 1.0
                                 ComboBox {
                                     model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_left_power
-                                    onActivated: settings.mywhoosh_link_left_power = currentIndex
+                                    onActivated: { settings.mywhoosh_link_left_power = currentIndex; window.settings_restart_to_apply = true; }
                                 }
                             }
 
@@ -3597,7 +3597,7 @@ import AndroidStatusBar 1.0
                                 ComboBox {
                                     model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_y
-                                    onActivated: settings.mywhoosh_link_right_y = currentIndex
+                                    onActivated: { settings.mywhoosh_link_right_y = currentIndex; window.settings_restart_to_apply = true; }
                                 }
                             }
 
@@ -3609,7 +3609,7 @@ import AndroidStatusBar 1.0
                                 ComboBox {
                                     model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_a
-                                    onActivated: settings.mywhoosh_link_right_a = currentIndex
+                                    onActivated: { settings.mywhoosh_link_right_a = currentIndex; window.settings_restart_to_apply = true; }
                                 }
                             }
 
@@ -3621,7 +3621,7 @@ import AndroidStatusBar 1.0
                                 ComboBox {
                                     model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_b
-                                    onActivated: settings.mywhoosh_link_right_b = currentIndex
+                                    onActivated: { settings.mywhoosh_link_right_b = currentIndex; window.settings_restart_to_apply = true; }
                                 }
                             }
 
@@ -3633,7 +3633,7 @@ import AndroidStatusBar 1.0
                                 ComboBox {
                                     model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_z
-                                    onActivated: settings.mywhoosh_link_right_z = currentIndex
+                                    onActivated: { settings.mywhoosh_link_right_z = currentIndex; window.settings_restart_to_apply = true; }
                                 }
                             }
 
@@ -3645,7 +3645,7 @@ import AndroidStatusBar 1.0
                                 ComboBox {
                                     model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_shoulder
-                                    onActivated: settings.mywhoosh_link_right_shoulder = currentIndex
+                                    onActivated: { settings.mywhoosh_link_right_shoulder = currentIndex; window.settings_restart_to_apply = true; }
                                 }
                             }
 
@@ -3657,7 +3657,7 @@ import AndroidStatusBar 1.0
                                 ComboBox {
                                     model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
                                     currentIndex: settings.mywhoosh_link_right_power
-                                    onActivated: settings.mywhoosh_link_right_power = currentIndex
+                                    onActivated: { settings.mywhoosh_link_right_power = currentIndex; window.settings_restart_to_apply = true; }
                                 }
                             }
 
