@@ -60,6 +60,7 @@
 	<string>Our app uses bluetooth to find, connect and transfer data between the treadmill/bike and 3rd app like Zwift</string>
 	<key>NSBonjourServices</key>
 	<array>
+		<string>_openbikecontrol._tcp</string>
 		<string>_wahoo-fitness-tnp._tcp</string>
 		<string>_qz_ipad._tcp</string>
 		<string>_qz_iphone._tcp</string>
