@@ -1715,8 +1715,8 @@ import AndroidStatusBar 1.0
             property int zwiftplay_gear_rs2: 1
             property int zwiftplay_gear_paddle_left: 2
             property int zwiftplay_gear_paddle_right: 1
-            property int zwiftplay_gear_lb: 2
-            property int zwiftplay_gear_rb: 1
+            property int zwiftplay_gear_lb: 0
+            property int zwiftplay_gear_rb: 0
             // OpenBikeControl settings
             property bool mywhoosh_link_enabled: false
             property bool mywhoosh_link_override_gears: false

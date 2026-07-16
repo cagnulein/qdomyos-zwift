@@ -19,7 +19,6 @@ QTimer* AbstractZapDevice::autoRepeatTimer = nullptr;
 bool AbstractZapDevice::lastButtonPlus = false;
 QDateTime AbstractZapDevice::lastFrame = QDateTime::currentDateTime();
 bool AbstractZapDevice::lastRideGearPlus = false;
-int AbstractZapDevice::lastRideGearSource = -1;
 QDateTime AbstractZapDevice::lastRideGearFrame;
 
 zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap) {

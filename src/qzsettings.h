@@ -3298,9 +3298,9 @@ class QZSettings {
     static const QString zwiftplay_gear_paddle_right; // Right Paddle (ZR)
     static constexpr int default_zwiftplay_gear_paddle_right = 1; // Gear Up
     static const QString zwiftplay_gear_lb; // Power Up (LB)
-    static constexpr int default_zwiftplay_gear_lb = 2; // Gear Down
+    static constexpr int default_zwiftplay_gear_lb = 0; // Disabled
     static const QString zwiftplay_gear_rb; // Ride On (RB)
-    static constexpr int default_zwiftplay_gear_rb = 1; // Gear Up
+    static constexpr int default_zwiftplay_gear_rb = 0; // Disabled
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
