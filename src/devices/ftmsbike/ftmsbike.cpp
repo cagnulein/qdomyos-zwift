@@ -2174,6 +2174,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("USDC-D700 found");
             USDC_D700 = true;
             resistance_lvl_mode = true;
+        } else if (device.name().toUpper().startsWith("ICONSOLE+")) {
+            qDebug() << QStringLiteral("iConsole+ found as FTMS bike - ERG not supported");
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 16;
         }
 
 
