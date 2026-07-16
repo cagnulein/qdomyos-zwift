@@ -67,13 +67,16 @@ class ypooelliptical : public elliptical {
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged2AD2 = QDateTime::currentDateTime();
     QDateTime lastStrideCountChanged = QDateTime::currentDateTime();
+    QDateTime lastTotalDistanceChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t lastStrideCount = 0;
+    uint32_t lastTotalDistance = 0;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     const uint8_t max_resistance = 72; // 24;
     const uint8_t default_resistance = 6;
     metric instantCadence;
+    metric instantSpeed;
 
     bool initDone = false;
     bool initRequest = false;
@@ -96,6 +99,7 @@ class ypooelliptical : public elliptical {
     bool FTMS = false;
     bool SOLE_E25 = false;
     bool GYMSTICK_GX60 = false;
+    bool LIFE_FITNESS_ELLIPTICAL = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
