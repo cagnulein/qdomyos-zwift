@@ -1284,8 +1284,9 @@ const QString QZSettings::shortcut_start_stop = QStringLiteral("shortcut_start_s
 const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
+const QString QZSettings::life_fitness_elliptical = QStringLiteral("life_fitness_elliptical");
 
-const uint32_t allSettingsCount = 1005;
+const uint32_t allSettingsCount = 1006;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2316,6 +2317,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb},
     {QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport},
     {QZSettings::renpho_bike_knob_gears, QZSettings::default_renpho_bike_knob_gears},
+    {QZSettings::life_fitness_elliptical, QZSettings::default_life_fitness_elliptical},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
