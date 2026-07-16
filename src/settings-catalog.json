@@ -9242,6 +9242,19 @@
       "options": null
     },
     {
+      "key": "nordictrack_elliptical_s700",
+      "name": "NordicTrack Elliptical Spacesaver S700",
+      "description": null,
+      "parent": "Proform/Nordictrack Elliptical Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null
+    },
+    {
       "key": "trainprogram_pid_hr_pushy_zone_limit",
       "name": "PID Pushy Zone Limit",
       "description": "Fraction of zone above the target zone where 'Pushy' mode stops pushing. 0.8 means the PID stops pushing at zone+0.8. Default: 0.8.",
