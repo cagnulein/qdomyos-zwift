@@ -1623,7 +1623,7 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_cst_505_pftl59420_0: false
 
             // OpenBikeControl settings
-            property bool mywhoosh_link_enabled: true
+            property bool mywhoosh_link_enabled: false
             property bool mywhoosh_link_override_gears: false
             property int mywhoosh_link_left_up: 1
             property int mywhoosh_link_left_down: 2
