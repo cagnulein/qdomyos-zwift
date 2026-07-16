@@ -495,13 +495,13 @@ class AbstractZapDevice: public QObject {
     }
 
     // Values follow MyWhoosh::Action: 0 = Disabled, 1 = Gear Up, 2 = Gear Down.
-    void applyGearButtonSetting(const QString &key, int defaultValue, bool zwiftplay_swap) {
+    void applyGearButtonSetting(const QString &key, int defaultValue, bool zwiftplay_swap, int source) {
         QSettings settings;
         const int action = settings.value(key, defaultValue).toInt();
         if (action == 1) {
-            emitRidePaddleGear(true, zwiftplay_swap);
+            emitRidePaddleGear(true, zwiftplay_swap, source);
         } else if (action == 2) {
-            emitRidePaddleGear(false, zwiftplay_swap);
+            emitRidePaddleGear(false, zwiftplay_swap, source);
         }
     }
 
@@ -517,10 +517,10 @@ class AbstractZapDevice: public QObject {
         }
 
         if (debounce && state.leftPaddle && !previousLeftPaddle) {
-            applyGearButtonSetting(QZSettings::zwiftplay_gear_paddle_left, QZSettings::default_zwiftplay_gear_paddle_left, zwiftplay_swap);
+            applyGearButtonSetting(QZSettings::zwiftplay_gear_paddle_left, QZSettings::default_zwiftplay_gear_paddle_left, zwiftplay_swap, 1);
         }
         if (debounce && state.rightPaddle && !previousRightPaddle) {
-            applyGearButtonSetting(QZSettings::zwiftplay_gear_paddle_right, QZSettings::default_zwiftplay_gear_paddle_right, zwiftplay_swap);
+            applyGearButtonSetting(QZSettings::zwiftplay_gear_paddle_right, QZSettings::default_zwiftplay_gear_paddle_right, zwiftplay_swap, 2);
         }
 
         lastRideAnalogState = state;
@@ -540,32 +540,32 @@ class AbstractZapDevice: public QObject {
         const bool previousRightPowerUp = lastRideButtonStateValid ? lastRideButtonState.rightPowerUp : false;
 
         if (state.leftShiftUp && !previousLeftShiftUp) {
-            applyGearButtonSetting(QZSettings::zwiftplay_gear_ls1, QZSettings::default_zwiftplay_gear_ls1, zwiftplay_swap);
+            applyGearButtonSetting(QZSettings::zwiftplay_gear_ls1, QZSettings::default_zwiftplay_gear_ls1, zwiftplay_swap, 3);
         }
         if (state.leftShiftDown && !previousLeftShiftDown) {
-            applyGearButtonSetting(QZSettings::zwiftplay_gear_ls2, QZSettings::default_zwiftplay_gear_ls2, zwiftplay_swap);
+            applyGearButtonSetting(QZSettings::zwiftplay_gear_ls2, QZSettings::default_zwiftplay_gear_ls2, zwiftplay_swap, 4);
         }
         if (state.rightShiftUp && !previousRightShiftUp) {
-            applyGearButtonSetting(QZSettings::zwiftplay_gear_rs1, QZSettings::default_zwiftplay_gear_rs1, zwiftplay_swap);
+            applyGearButtonSetting(QZSettings::zwiftplay_gear_rs1, QZSettings::default_zwiftplay_gear_rs1, zwiftplay_swap, 5);
         }
         if (state.rightShiftDown && !previousRightShiftDown) {
-            applyGearButtonSetting(QZSettings::zwiftplay_gear_rs2, QZSettings::default_zwiftplay_gear_rs2, zwiftplay_swap);
+            applyGearButtonSetting(QZSettings::zwiftplay_gear_rs2, QZSettings::default_zwiftplay_gear_rs2, zwiftplay_swap, 6);
         }
         if (state.leftPowerUp && !previousLeftPowerUp) {
-            applyGearButtonSetting(QZSettings::zwiftplay_gear_lb, QZSettings::default_zwiftplay_gear_lb, zwiftplay_swap);
+            applyGearButtonSetting(QZSettings::zwiftplay_gear_lb, QZSettings::default_zwiftplay_gear_lb, zwiftplay_swap, 7);
         }
         if (state.rightPowerUp && !previousRightPowerUp) {
-            applyGearButtonSetting(QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb, zwiftplay_swap);
+            applyGearButtonSetting(QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb, zwiftplay_swap, 8);
         }
     }
 
-    void emitRidePaddleGear(bool plusAction, bool zwiftplay_swap) {
+    void emitRidePaddleGear(bool plusAction, bool zwiftplay_swap, int source) {
         const bool emitPlus = zwiftplay_swap ? !plusAction : plusAction;
         QSettings settings;
         const bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
         const QDateTime now = QDateTime::currentDateTime();
 
-        if (gears_volume_debouncing && lastRideGearFrame.isValid() && lastRideGearPlus == emitPlus &&
+        if (gears_volume_debouncing && lastRideGearFrame.isValid() && lastRideGearPlus == emitPlus && lastRideGearSource == source &&
             lastRideGearFrame.msecsTo(now) < 250) {
             qDebug() << "ignoring duplicate ride gear" << emitPlus << lastRideGearFrame.msecsTo(now);
             return;
@@ -573,6 +573,7 @@ class AbstractZapDevice: public QObject {
 
         if (gears_volume_debouncing) {
             lastRideGearPlus = emitPlus;
+            lastRideGearSource = source;
             lastRideGearFrame = now;
         }
 
@@ -735,6 +736,7 @@ class AbstractZapDevice: public QObject {
     static bool lastButtonPlus;  // Static track of which button was last pressed
     static QDateTime lastFrame;
     static bool lastRideGearPlus;
+    static int lastRideGearSource;
     static QDateTime lastRideGearFrame;
     ControllerNotification lastLeftButtonState;
     ControllerNotification lastRightButtonState;

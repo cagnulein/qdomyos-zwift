@@ -135,12 +135,12 @@ void MyWhooshLink::start() {
     }
 
     qDebug() << "MyWhooshLink(OpenBikeControl): network interfaces:";
-    foreach (const QNetworkInterface &interface, QNetworkInterface::allInterfaces()) {
-        if (interface.flags().testFlag(QNetworkInterface::IsUp) &&
-            !interface.flags().testFlag(QNetworkInterface::IsLoopBack)) {
-            foreach (const QNetworkAddressEntry &entry, interface.addressEntries()) {
+    foreach (const QNetworkInterface &netInterface, QNetworkInterface::allInterfaces()) {
+        if (netInterface.flags().testFlag(QNetworkInterface::IsUp) &&
+            !netInterface.flags().testFlag(QNetworkInterface::IsLoopBack)) {
+            foreach (const QNetworkAddressEntry &entry, netInterface.addressEntries()) {
                 if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
-                    qDebug() << " " << interface.name() << ":" << entry.ip().toString();
+                    qDebug() << " " << netInterface.name() << ":" << entry.ip().toString();
                 }
             }
         }
