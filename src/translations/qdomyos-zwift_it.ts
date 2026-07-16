@@ -545,7 +545,7 @@ Desideri farlo ora?</translation>
     <message>
         <location filename="../webtranslation.cpp" line="28"/>
         <source>Del</source>
-        <translation type="unfinished"></translation>
+        <translation>Canc.</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="29"/>
@@ -565,7 +565,7 @@ Desideri farlo ora?</translation>
     <message>
         <location filename="../webtranslation.cpp" line="32"/>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>No</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="33"/>
@@ -1240,7 +1240,7 @@ Desideri farlo ora?</translation>
     <message>
         <location filename="../webtranslation.cpp" line="168"/>
         <source>Odometer</source>
-        <translation type="unfinished"></translation>
+        <translation>Distanza</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="169"/>
@@ -1457,7 +1457,7 @@ Le seguenti domande personalizzeranno QZ per la tua attrezzatura e i tuoi obiett
     <message>
         <location filename="../Wizard.qml" line="718"/>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Password</translation>
     </message>
     <message>
         <location filename="../Wizard.qml" line="780"/>
@@ -1716,7 +1716,7 @@ Le seguenti domande personalizzeranno QZ per la tua attrezzatura e i tuoi obiett
     <message>
         <location filename="../homeform.cpp" line="407"/>
         <source>Odometer (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Distanza (%1)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="411"/>
@@ -1761,7 +1761,7 @@ Le seguenti domande personalizzeranno QZ per la tua attrezzatura e i tuoi obiett
     <message>
         <location filename="../homeform.cpp" line="440"/>
         <source>T.Peloton R(%)</source>
-        <translation type="unfinished"></translation>
+        <translation>T.Peloton R(%)</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="442"/>
@@ -1776,7 +1776,7 @@ Le seguenti domande personalizzeranno QZ per la tua attrezzatura e i tuoi obiett
     <message>
         <location filename="../homeform.cpp" line="446"/>
         <source>T.Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Zona T.</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="448"/>
@@ -1831,7 +1831,7 @@ Le seguenti domande personalizzeranno QZ per la tua attrezzatura e i tuoi obiett
     <message>
         <location filename="../homeform.cpp" line="472"/>
         <source>KJouls</source>
-        <translation type="unfinished"></translation>
+        <translation>KJouls</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="475"/>
@@ -1866,7 +1866,7 @@ Le seguenti domande personalizzeranno QZ per la tua attrezzatura e i tuoi obiett
     <message>
         <location filename="../homeform.cpp" line="494"/>
         <source>METS</source>
-        <translation type="unfinished"></translation>
+        <translation>METS</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="496"/>
@@ -1876,7 +1876,7 @@ Le seguenti domande personalizzeranno QZ per la tua attrezzatura e i tuoi obiett
     <message>
         <location filename="../homeform.cpp" line="498"/>
         <source>RSS</source>
-        <translation type="unfinished"></translation>
+        <translation>RSS</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="500"/>
@@ -2039,14 +2039,14 @@ Le seguenti domande personalizzeranno QZ per la tua attrezzatura e i tuoi obiett
         <location filename="../homeform.cpp" line="6435"/>
         <location filename="../homeform.cpp" line="6575"/>
         <source>V.Hard</source>
-        <translation type="unfinished"></translation>
+        <translation>M.Difficile</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="6441"/>
         <location filename="../homeform.cpp" line="6581"/>
         <location filename="../homeform.cpp" line="6746"/>
         <source>N/A</source>
-        <translation type="unfinished"></translation>
+        <translation>N/D</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="8006"/>
@@ -2167,7 +2167,7 @@ Le seguenti domande personalizzeranno QZ per la tua attrezzatura e i tuoi obiett
     <message>
         <location filename="../homeform.cpp" line="8099"/>
         <source>, watt </source>
-        <translation type="unfinished"></translation>
+        <translation>, watt </translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="8102"/>
@@ -2413,13 +2413,15 @@ Vuoi farlo ora?</translation>
         <location filename="../main.qml" line="722"/>
         <source>Workout found:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Allenamento trovato:
+</translation>
     </message>
     <message>
         <location filename="../main.qml" line="723"/>
         <source>
 Date: </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Data </translation>
     </message>
     <message>
         <location filename="../main.qml" line="724"/>
@@ -5450,7 +5452,7 @@ NOTE IMPORTANTI:
     <message>
         <location filename="../settings.qml" line="2370"/>
         <source>Nickname:</source>
-        <translation type="unfinished"></translation>
+        <translation>Soprannome:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="2407"/>
@@ -5535,18 +5537,18 @@ NOTE IMPORTANTI:
     <message>
         <location filename="../settings.qml" line="6194"/>
         <source>Tiles Shadow</source>
-        <translation type="unfinished"></translation>
+        <translation>Ombra Mattonelle</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="6665"/>
         <source>PZP Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>PZP Password:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7180"/>
         <location filename="../settings.qml" line="15083"/>
         <source>Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Password:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7646"/>
@@ -5561,7 +5563,7 @@ NOTE IMPORTANTI:
     <message>
         <location filename="../settings.qml" line="8509"/>
         <source>PID &apos;Pushy&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>PID con Accelerazione</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="9825"/>
@@ -6253,7 +6255,7 @@ NOTE IMPORTANTI:
     <message>
         <location filename="../settings.qml" line="12905"/>
         <source>Watt 1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Watt 1:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="12928"/>
@@ -6263,7 +6265,7 @@ NOTE IMPORTANTI:
     <message>
         <location filename="../settings.qml" line="12951"/>
         <source>Watt 2:</source>
-        <translation type="unfinished"></translation>
+        <translation>Watt 2:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="12972"/>
@@ -6766,7 +6768,7 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings.qml" line="14975"/>
         <source>MQTT Host:</source>
-        <translation type="unfinished"></translation>
+        <translation>MQTT IP:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14995"/>
@@ -6811,7 +6813,7 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings.qml" line="15166"/>
         <source>OSC IP:</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC IP:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="15189"/>
@@ -6999,7 +7001,7 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-shortcuts.qml" line="129"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuno</translation>
     </message>
     <message>
         <location filename="../settings-shortcuts.qml" line="178"/>
@@ -7649,7 +7651,7 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="658"/>
         <source>Odometer</source>
-        <translation type="unfinished"></translation>
+        <translation>Distanza</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="689"/>
@@ -7949,7 +7951,7 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="2101"/>
         <source>METS</source>
-        <translation type="unfinished"></translation>
+        <translation>METS</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2132"/>

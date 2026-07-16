@@ -91,6 +91,9 @@ class QZSettings {
     static const QString garmin_upload_enabled;
     static constexpr bool default_garmin_upload_enabled = false;
 
+    static const QString rpe_feel_popup_enabled;
+    static constexpr bool default_rpe_feel_popup_enabled = false;
+
     static const QString garmin_download_workouts_on_start;
     static constexpr bool default_garmin_download_workouts_on_start = true;
 
@@ -2475,6 +2478,12 @@ class QZSettings {
 
     static const QString trainprogram_pid_pushy;
     static constexpr bool default_trainprogram_pid_pushy = true;
+
+    static const QString trainprogram_pid_hr_pushy_zone_limit;
+    static constexpr double default_trainprogram_pid_hr_pushy_zone_limit = 0.8;
+
+    static const QString trainprogram_pid_hr_recovery_zone_limit;
+    static constexpr double default_trainprogram_pid_hr_recovery_zone_limit = 60.0;
 
     static const QString min_inclination;
     static constexpr double default_min_inclination = -999.0;

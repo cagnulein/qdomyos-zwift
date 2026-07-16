@@ -191,6 +191,40 @@ QString uploadActivityLabelFromFitFile(const QString &fitFilePath) {
     return uploadActivityLabelFromSport(sport);
 }
 
+#ifdef Q_OS_ANDROID
+bool clearAndroidJniException(const char *context) {
+    QAndroidJniEnvironment env;
+    if (!env->ExceptionCheck()) {
+        return false;
+    }
+
+    env->ExceptionDescribe();
+    env->ExceptionClear();
+    qWarning() << "Android JNI exception cleared during" << context;
+    return true;
+}
+
+QString fallbackFileNameFromUri(const QString &uriString) {
+    QUrl url(uriString);
+    QString fileName = url.fileName();
+    if (!fileName.isEmpty()) {
+        return fileName;
+    }
+
+    const QString lastSegment = url.path().section('/', -1);
+    if (!lastSegment.isEmpty()) {
+        return lastSegment;
+    }
+
+    return QStringLiteral("imported_file");
+}
+
+constexpr int AndroidDocumentPickerProfileRequestCode = 4101;
+constexpr int AndroidDocumentPickerTrainingRequestCode = 4102;
+constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
+constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
+constexpr jint AndroidActivityResultOk = -1;
+#endif
 double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2, double zone3, double zone4) {
     const double z1 = std::max(1.0, zone1);
     const double z2 = zone2 > z1 ? zone2 : z1 + 10.0;
@@ -210,19 +244,75 @@ double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2
     return 4.0 + ((percentHeartRate - z4) / (top - z4));
 }
 
+quint32 crc32ForGzip(const QByteArray &data) {
+    quint32 crc = 0xffffffffU;
+    for (const char byte : data) {
+        crc ^= static_cast<quint8>(byte);
+        for (int bit = 0; bit < 8; ++bit) {
+            crc = (crc >> 1) ^ (0xedb88320U & (0U - (crc & 1U)));
+        }
+    }
+    return crc ^ 0xffffffffU;
+}
+
+void appendLittleEndian32(QByteArray *data, quint32 value) {
+    data->append(static_cast<char>(value & 0xffU));
+    data->append(static_cast<char>((value >> 8) & 0xffU));
+    data->append(static_cast<char>((value >> 16) & 0xffU));
+    data->append(static_cast<char>((value >> 24) & 0xffU));
+}
+
+QByteArray gzipCompress(const QByteArray &data, bool *ok) {
+    if (ok) {
+        *ok = false;
+    }
+
+    const QByteArray qtCompressed = qCompress(data, 9);
+    if (qtCompressed.size() < 11) {
+        return QByteArray();
+    }
+
+    QByteArray gzip;
+    gzip.reserve(qtCompressed.size() + 18);
+    gzip.append('\x1f');
+    gzip.append('\x8b');
+    gzip.append('\x08');
+    gzip.append('\x00');
+    appendLittleEndian32(&gzip, 0);
+    gzip.append('\x02');
+    gzip.append('\xff');
+
+    gzip.append(qtCompressed.constData() + 6, qtCompressed.size() - 10);
+    appendLittleEndian32(&gzip, crc32ForGzip(data));
+    appendLittleEndian32(&gzip, static_cast<quint32>(data.size()));
+
+    if (ok) {
+        *ok = true;
+    }
+    return gzip;
+}
+
 class MailSenderThread : public QThread {
   public:
-    MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail)
-        : message(message), filenameJPG(filenameJPG), chartImagesFilenamesForMail(chartImagesFilenamesForMail) {}
+    MailSenderThread(MimeMessage *message, const QString &filenameJPG, const QList<QString> &chartImagesFilenamesForMail,
+                     const QList<QString> &temporaryFilesForMail, QObject *toastTarget)
+        : message(message), filenameJPG(filenameJPG), chartImagesFilenamesForMail(chartImagesFilenamesForMail),
+          temporaryFilesForMail(temporaryFilesForMail), toastTarget(toastTarget) {}
 
   protected:
     void run() override {
+        auto showToast = [this](const QString &msg) {
+            QMetaObject::invokeMethod(toastTarget, "setToastRequested", Qt::QueuedConnection,
+                                     Q_ARG(QString, msg));
+        };
+
 #ifdef SMTP_SERVER
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
         SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
 #else
 #pragma message "stmp server is unset!"
+        qDebug() << QStringLiteral("SMTP server is unset, email not sent");
         SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
         delete message;
         return;
@@ -236,6 +326,7 @@ class MailSenderThread : public QThread {
         smtp.setUser(STRINGIFY(SMTP_USERNAME));
 #else
 #pragma message "smtp username is unset!"
+        qDebug() << QStringLiteral("SMTP username is unset, email not sent");
         delete message;
         return;
 #endif
@@ -245,25 +336,44 @@ class MailSenderThread : public QThread {
         smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
 #else
 #pragma message "smtp password is unset!"
+        qDebug() << QStringLiteral("SMTP password is unset, email not sent");
         delete message;
         return;
 #endif
+
+        // responseTimeout: time to wait for each SMTP command reply (including
+        // "250 OK" after DATA). 30s gives Brevo time to accept a large attachment
+        // without the client timing out and retrying (which would send a duplicate).
+        // sendMessageTimeout: time allowed for the raw socket write of the body; 120s
+        // covers a 10MB attachment even on a slow mobile connection.
+        smtp.setResponseTimeout(30000);
+        smtp.setSendMessageTimeout(120000);
+
+        showToast(QObject::tr("Sending workout email..."));
 
         bool r = false;
         uint8_t i = 0;
         while (!r) {
             qDebug() << "trying to send email #" << i;
-            r = smtp.connectToHost();
-            r = smtp.login();
-            r = smtp.sendMail(*message);
+            r = smtp.connectToHost() && smtp.login() && smtp.sendMail(*message);
             if (i++ == 3)
                 break;
+            if (!r)
+                smtp.quit();
         }
         smtp.quit();
+
+        if (r)
+            showToast(QObject::tr("Workout email sent successfully"));
+        else
+            showToast(QObject::tr("Failed to send workout email"));
 
         if (!filenameJPG.isEmpty())
             QFile::remove(filenameJPG);
         for (const QString &f : qAsConst(chartImagesFilenamesForMail)) {
+            QFile::remove(f);
+        }
+        for (const QString &f : qAsConst(temporaryFilesForMail)) {
             QFile::remove(f);
         }
         delete message;
@@ -273,6 +383,8 @@ class MailSenderThread : public QThread {
     MimeMessage *message;
     QString filenameJPG;
     QList<QString> chartImagesFilenamesForMail;
+    QList<QString> temporaryFilesForMail;
+    QObject *toastTarget;
 };
 } // namespace
 
@@ -538,7 +650,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                               QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingCruise"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Cruise", QStringLiteral("red"));
     autoVirtualShiftingClimb = new DataObject(tr("Climb"), QStringLiteral("icons/icons/inclination.png"),
                                              QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingClimb"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Climb", QStringLiteral("red"));
-    autoVirtualShiftingSprint = new DataObject(tr("Sprint"), QStringLiteral("icons/icons/watt.png"),
+    autoVirtualShiftingSprint = new DataObject(QStringLiteral("Sprint"), QStringLiteral("icons/icons/watt.png"),
                                               QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingSprint"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Sprint", QStringLiteral("red"));
     powerAvg = new DataObject(tr("Power Avg"), QStringLiteral("icons/icons/watt.png"),
                              QStringLiteral("0"), true, QStringLiteral("powerAvg"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Off", QStringLiteral("grey"));
@@ -1046,7 +1158,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                          if (f.contains("HR")) {
                                              QStringList values = f.split("=");
                                              if (values.length() > 1) {
-                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
+                                                 double hr = values[1].toDouble();
+                                                 emit homeform::singleton()->heartRate(hr);
+#ifndef IO_UNDER_QT
+                                                 lockscreen ls;
+                                                 ls.setHeartRate((unsigned char)hr);
+#endif
                                              }
                                          }
                                      }
@@ -1086,7 +1203,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                          if (f.contains("HR")) {
                                              QStringList values = f.split("=");
                                              if (values.length() > 1) {
-                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
+                                                 double hr = values[1].toDouble();
+                                                 emit homeform::singleton()->heartRate(hr);
+#ifndef IO_UNDER_QT
+                                                 lockscreen ls;
+                                                 ls.setHeartRate((unsigned char)hr);
+#endif
                                              }
                                          }
                                      }
@@ -1202,6 +1324,31 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnOAuthCallback(JNIEnv *en
         QMetaObject::invokeMethod(homeform::singleton(), "handleOAuthCallbackUrl", Qt::QueuedConnection,
                                   Q_ARG(QString, url));
     }
+}
+
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *env, jclass clazz, jint requestCode,
+                                                                       jint resultCode, jstring localPathString) {
+    Q_UNUSED(clazz)
+    if (resultCode != AndroidActivityResultOk || !homeform::singleton()) {
+        return;
+    }
+
+    QString localPath;
+    if (localPathString) {
+        const char *pathChars = env->GetStringUTFChars(localPathString, nullptr);
+        localPath = QString::fromUtf8(pathChars ? pathChars : "");
+        if (pathChars) {
+            env->ReleaseStringUTFChars(localPathString, pathChars);
+        }
+    }
+
+    if (localPath.isEmpty()) {
+        return;
+    }
+
+    QMetaObject::invokeMethod(homeform::singleton(), "handleAndroidDocumentPicked", Qt::QueuedConnection,
+                              Q_ARG(int, static_cast<int>(requestCode)), Q_ARG(QString, localPath));
 }
 
 JNIEXPORT void JNICALL
@@ -1859,9 +2006,18 @@ void homeform::trainProgramSignals() {
         connect(trainProgram, &trainprogram::zwiftLoginState, this, &homeform::zwiftLoginState);
 
         if (trainProgram) {
-            setChartIconVisible(trainProgram->chartTargetWorkout());
+            // chartTargetWorkout() also returns true for pure heart-rate-driven rows (HRabove/HRbelow/zoneHR/etc,
+            // e.g. Garmin-style HR triggered segments). Those don't have a target power/speed of their own, so a
+            // treadmill running one of them should still get the speed/inclination chart (which also renders the
+            // heart panel), not the bike/power chart.
+            bool treadmillMode = bluetoothManager->device()->deviceType() == TREADMILL &&
+                                  !trainProgram->powerzoneWorkout() &&
+                                  (trainProgram->speedInclinationTargetWorkout() || trainProgram->chartTargetWorkout());
+            setChartTreadmillMode(treadmillMode);
+            bool chartWorkout = trainProgram->chartTargetWorkout() || trainProgram->speedInclinationTargetWorkout();
+            setChartIconVisible(chartWorkout);
             if (chartFooterVisible()) {
-                if (trainProgram->chartTargetWorkout()) {
+                if (chartWorkout) {
                     // reloading
                     setChartFooterVisible(false);
                     setChartFooterVisible(true);
@@ -5215,26 +5371,23 @@ void homeform::Plus(const QString &name) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
                 m_overridePower = true;
                 ((bike *)bluetoothManager->device())
-                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() + powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((bike *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 m_overridePower = true;
                 ((treadmill *)bluetoothManager->device())
-                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() + powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
                 m_overridePower = true;
                 ((rower *)bluetoothManager->device())
-                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() + powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(powerJog);
                 }
             }
         }
@@ -5518,26 +5671,23 @@ void homeform::Minus(const QString &name) {
             if (bluetoothManager->device()->deviceType() == BIKE) {
                 m_overridePower = true;
                 ((bike *)bluetoothManager->device())
-                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((bike *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == TREADMILL) {
                 m_overridePower = true;
                 ((treadmill *)bluetoothManager->device())
-                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
                 m_overridePower = true;
                 ((rower *)bluetoothManager->device())
-                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                    ->changePower(((rower *)bluetoothManager->device())->lastRequestedPower().value() - powerJog);
                 if (trainProgram) {
-                    trainProgram->overridePowerForCurrentRow(
-                        ((rower *)bluetoothManager->device())->lastRequestedPower().value());
+                    trainProgram->adjustPowerOffsetForTrainingProgram(-powerJog);
                 }
             }
         }
@@ -5626,6 +5776,7 @@ void homeform::Start_inner(bool send_event_to_device) {
             }
             Session.clear();
             chartImagesFilenames.clear();
+            mailSent = false;
 
 #ifdef Q_OS_IOS
             // due to #857
@@ -5772,7 +5923,15 @@ void homeform::Stop() {
     if (!(pelotonHandler && !pelotonHandler->current_ride_id.isEmpty())) {
         saveSessionAsTrainingProgram();
     }
-    fit_save_clicked();
+
+    m_workoutRpe = -1;
+    m_workoutFeel = -1;
+    if (!settings.value(QZSettings::rpe_feel_popup_enabled, QZSettings::default_rpe_feel_popup_enabled).toBool()) {
+        // Popup disabled: save (and upload) the FIT file right away, as before.
+        fit_save_clicked();
+    }
+    // else: QML shows the RPE/feel popup and calls finalizeFitSave() once the user answers,
+    // which writes the FIT file (with RPE/feel embedded) and triggers the uploads.
 
     if (bluetoothManager->device()) {
         bluetoothManager->device()->setPaused(paused | stopped);
@@ -6108,8 +6267,13 @@ void homeform::update() {
 
         bool activeOnly = settings.value(QZSettings::calories_active_only, QZSettings::default_calories_active_only).toBool();
         calories->setValue(QString::number(bluetoothManager->device()->calories().value(), 'f', 0));
-        calories->setSecondLine(QString::number((activeOnly ? bluetoothManager->device()->activeCalories().rate1s() : bluetoothManager->device()->calories().rate1s()) * 60.0, 'f', 1) +
-                                " /min");
+        double caloriesPerMinute =
+            (activeOnly ? bluetoothManager->device()->activeCalories().rate1s()
+                        : bluetoothManager->device()->calories().rate1s()) *
+            60.0;
+        if (caloriesPerMinute < 0)
+            caloriesPerMinute = 0;
+        calories->setSecondLine(QString::number(caloriesPerMinute, 'f', 1) + " /min");
         if (!settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool())
             fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
         else
@@ -6378,6 +6542,15 @@ void homeform::update() {
                                                      QString::number(inclination, 'f', 1) + QStringLiteral("%"));
             this->target_power->setValue(
                 QString::number(((treadmill *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->powerOffsetForTrainingProgram() != 0) {
+                this->target_power->setSecondLine(
+                    QStringLiteral("%1%2W")
+                        .arg(trainProgram->powerOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                              : QStringLiteral(""))
+                        .arg(trainProgram->powerOffsetForTrainingProgram()));
+            } else {
+                this->target_power->setSecondLine(QStringLiteral(""));
+            }
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
                 QStringLiteral("AVG: ") +
@@ -6693,6 +6866,15 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
             this->target_power->setValue(
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->powerOffsetForTrainingProgram() != 0) {
+                this->target_power->setSecondLine(
+                    QStringLiteral("%1%2W")
+                        .arg(trainProgram->powerOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                              : QStringLiteral(""))
+                        .arg(trainProgram->powerOffsetForTrainingProgram()));
+            } else {
+                this->target_power->setSecondLine(QStringLiteral(""));
+            }
             this->resistance->setValue(QString::number(resistance, 'f', 0));
             updateGearsValue();
 
@@ -6829,6 +7011,15 @@ void homeform::update() {
                 QString::number(((rower *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
             this->target_power->setValue(
                 QString::number(((rower *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->powerOffsetForTrainingProgram() != 0) {
+                this->target_power->setSecondLine(
+                    QStringLiteral("%1%2W")
+                        .arg(trainProgram->powerOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                              : QStringLiteral(""))
+                        .arg(trainProgram->powerOffsetForTrainingProgram()));
+            } else {
+                this->target_power->setSecondLine(QStringLiteral(""));
+            }
             this->resistance->setValue(QString::number(resistance, 'f', 0));
 
             this->resistance->setSecondLine(
@@ -7625,6 +7816,8 @@ void homeform::update() {
                                (bluetoothManager->device()->elapsedTime().hour() * 3600);
             uint8_t delta = 10;
             bool trainprogram_pid_pushy = settings.value(QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy).toBool();
+            double trainprogram_pid_hr_pushy_zone_limit = settings.value(QZSettings::trainprogram_pid_hr_pushy_zone_limit, QZSettings::default_trainprogram_pid_hr_pushy_zone_limit).toDouble();
+            double trainprogram_pid_hr_recovery_zone_limit = settings.value(QZSettings::trainprogram_pid_hr_recovery_zone_limit, QZSettings::default_trainprogram_pid_hr_recovery_zone_limit).toDouble();
             bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR >= 0;
             double maxSpeed = 30;
             double minSpeed = 0;
@@ -7714,15 +7907,47 @@ void homeform::update() {
                                     newSpeed,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (currentSpeed < maxSpeed && trainprogram_pid_pushy) {
-                            pid_heart_zone_small_inc_counter++;
-                            if (fabs(((float)zone) - currentHRZone) < 0.5 && pid_heart_zone_small_inc_counter > (10 * fabs(((float)zone) - currentHRZone))) {
-                                double newSpeed = std::min(currentSpeed + step, maxSpeed);
+                        } else if (trainprogram_pid_pushy) {
+                            double pushyZoneLimit = (double)zone + trainprogram_pid_hr_pushy_zone_limit;
+                            // Slowdown threshold is symmetric: midpoint between pushyZoneLimit and zone top
+                            // e.g. pushy=0.8: slowdown at zone+0.9, neutral band [0.8, 0.9]
+                            double pushySlowdownThreshold = (double)zone + (1.0 + trainprogram_pid_hr_pushy_zone_limit) / 2.0;
+                            double pushyHRZone = currentHRZone;
+                            if (zone == 1) {
+                                double zone1Limit =
+                                    settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
+                                        .toDouble();
+                                double zone1LowerLimit = qBound(0.0, trainprogram_pid_hr_recovery_zone_limit, zone1Limit - 1.0);
+                                double effectiveZone1Width = zone1Limit - zone1LowerLimit;
+                                if (effectiveZone1Width > 0.0) {
+                                    double maxHeartRate = heartRateMax();
+                                    double currentHRPercent =
+                                        (bluetoothManager->device()->currentHeart().value() * 100.0) / maxHeartRate;
+                                    pushyHRZone =
+                                        1.0 + ((currentHRPercent - zone1LowerLimit) / effectiveZone1Width);
+                                    pushyHRZone = qBound(1.0, pushyHRZone, 1.9999);
+                                }
+                            }
+                            double distanceToNextZone = ((double)zone + 1.0) - pushyHRZone;
+                            if (pushyHRZone > pushySlowdownThreshold && currentSpeed > minSpeed) {
+                                double newSpeed = std::max(currentSpeed - step, minSpeed);
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
                                         newSpeed,
                                         ((treadmill *)bluetoothManager->device())->currentInclination().value());
                                 pid_heart_zone_small_inc_counter = 0;
+                            } else if (pushyHRZone < pushyZoneLimit && distanceToNextZone > 0.0 && currentSpeed < maxSpeed) {
+                                pid_heart_zone_small_inc_counter++;
+                                if (pid_heart_zone_small_inc_counter > (10 * distanceToNextZone)) {
+                                    double newSpeed = std::min(currentSpeed + step, maxSpeed);
+                                    ((treadmill *)bluetoothManager->device())
+                                        ->changeSpeedAndInclination(
+                                            newSpeed,
+                                            ((treadmill *)bluetoothManager->device())->currentInclination().value());
+                                    pid_heart_zone_small_inc_counter = 0;
+                                }
+                            } else {
+                                pid_heart_zone_small_inc_counter++;
                             }
                         }
                     } else if (bluetoothManager->device()->deviceType() == BIKE) {
@@ -8440,13 +8665,24 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
     QAndroidJniObject jUriString = QAndroidJniObject::fromString(uriString);
     QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
+    if (clearAndroidJniException("Uri.parse") || !jUri.isValid()) {
+        return fallbackFileNameFromUri(uriString);
+    }
     QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
         "org/cagnulen/qdomyoszwift/ContentHelper",
         "getFileName",
         "(Landroid/content/Context;Landroid/net/Uri;)Ljava/lang/String;",
         QtAndroid::androidContext().object(),
         jUri.object());
-    return result.toString();
+    if (clearAndroidJniException("ContentHelper.getFileName") || !result.isValid()) {
+        return fallbackFileNameFromUri(uriString);
+    }
+
+    QString fileName = result.toString();
+    if (fileName.isEmpty()) {
+        fileName = fallbackFileNameFromUri(uriString);
+    }
+    return fileName;
 #else
     return uriString;
 #endif
@@ -8454,40 +8690,80 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
 QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 #ifdef Q_OS_ANDROID        
-    QString fileNameLocal = "";
     qDebug() << "Android Version:" << QOperatingSystemVersion::current();
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 13))
-        fileNameLocal = getFileNameFromContentUri(file.toString());
-    if(fileNameLocal.contains(getWritableAppDir() + subfolder + "/")) {
+    const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(file);
+    const QString destinationDir = getWritableAppDir() + subfolder + "/";
+    QDir().mkpath(destinationDir);
+
+    if (!sourcePath.isEmpty() && sourcePath.startsWith(destinationDir)) {
         qDebug() << "no need to copy file, the file is already in QZ subfolder" << file << subfolder;
-        return file.toString();
+        return sourcePath;
     }
-    
-    QString filename = "";
-    QFile fileFile(QQmlFile::urlToLocalFileOrQrc(file));
-    // android <14 fallback
-    if(fileNameLocal.length() == 0) {
-        qDebug() << "android <14 fallback" << fileNameLocal << filename << file.fileName();
-        filename = file.fileName();
-    } else {
-        QFileInfo f(fileNameLocal);
-        filename = f.fileName();        
+
+    QString filename;
+    if (file.toString().startsWith(QStringLiteral("content"))) {
+        filename = getFileNameFromContentUri(file.toString());
     }
-    QString dest = getWritableAppDir() + subfolder + "/" + filename;
-    qDebug() << file.fileName() << fileNameLocal << filename;
+    if (filename.isEmpty() && !sourcePath.isEmpty()) {
+        filename = QFileInfo(sourcePath).fileName();
+    }
+    if (filename.isEmpty()) {
+        filename = QFileInfo(file.fileName()).fileName();
+    }
+    if (filename.isEmpty()) {
+        filename = QStringLiteral("imported_file");
+    }
+
+    const QString dest = destinationDir + filename;
+    qDebug() << file.fileName() << sourcePath << filename;
     QFile::remove(dest);
+
+    if (file.toString().startsWith(QStringLiteral("content"))) {
+        QAndroidJniObject jUriString = QAndroidJniObject::fromString(file.toString());
+        QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod(
+            "android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
+        if (clearAndroidJniException("Uri.parse for copy") || !jUri.isValid()) {
+            qWarning() << "Unable to parse content URI for copy" << file;
+            return QString();
+        }
+
+        QAndroidJniObject jDest = QAndroidJniObject::fromString(dest);
+        jboolean copied = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/ContentHelper",
+            "copyContentToFile",
+            "(Landroid/content/Context;Landroid/net/Uri;Ljava/lang/String;)Z",
+            QtAndroid::androidContext().object(),
+            jUri.object(),
+            jDest.object<jstring>());
+        if (clearAndroidJniException("ContentHelper.copyContentToFile")) {
+            QFile::remove(dest);
+            return QString();
+        }
+
+        qDebug() << "copyContentToFile" << dest << static_cast<bool>(copied);
+        if (!copied || !QFile::exists(dest)) {
+            QFile::remove(dest);
+            return QString();
+        }
+        return dest;
+    }
+
+    QFile fileFile(sourcePath);
     bool copy = fileFile.copy(dest);
     qDebug() << "copy" << dest << copy << fileFile.exists() << fileFile.isReadable();
-    return dest;
+    return copy ? dest : QString();
 #endif
     return file.toString();
 }
 
 void homeform::profile_open_clicked(const QUrl &fileName) {
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
 #ifdef Q_OS_ANDROID
-    copyAndroidContentsURI(fileName, "profiles");
+    const QString copiedFile = copyAndroidContentsURI(fileName, "profiles");
+    if (!copiedFile.isEmpty()) {
+        loadSettings(QUrl::fromLocalFile(copiedFile));
+    }
 #else
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     QFileInfo fileInfo(file);
     bool r = file.copy(getWritableAppDir() + "profiles/" + fileInfo.fileName());
     qDebug() << "profile copy" << r << getWritableAppDir() + "profiles/" + fileInfo.fileName();
@@ -8495,13 +8771,17 @@ void homeform::profile_open_clicked(const QUrl &fileName) {
 }
 
 void homeform::trainprogram_open_other_folder(const QUrl &fileName) {
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(fileName, "training");
+    const QString copiedFile = copyAndroidContentsURI(fileName, "training");
+    if (!copiedFile.isEmpty()) {
+        trainprogram_open_clicked(QUrl::fromLocalFile(copiedFile));
+    }
 }
 
 void homeform::gpx_open_other_folder(const QUrl &fileName) {
-    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(fileName, "gpx");
+    const QString copiedFile = copyAndroidContentsURI(fileName, "gpx");
+    if (!copiedFile.isEmpty()) {
+        gpx_open_clicked(QUrl::fromLocalFile(copiedFile));
+    }
 }
 
 bool homeform::startTrainingProgramFromFile(const QString &filePath) {
@@ -8518,6 +8798,77 @@ bool homeform::startTrainingProgramFromFile(const QString &filePath) {
     }
     trainprogram_open_clicked(QUrl::fromLocalFile(localPath));
     return true;
+}
+
+void homeform::openAndroidDocumentPicker(const QString &kind) {
+#ifdef Q_OS_ANDROID
+    int requestCode = 0;
+    QString mimeType = QStringLiteral("*/*");
+    QString destinationDir;
+    if (kind == QStringLiteral("profile")) {
+        requestCode = AndroidDocumentPickerProfileRequestCode;
+        destinationDir = getWritableAppDir() + QStringLiteral("profiles/");
+    } else if (kind == QStringLiteral("training")) {
+        requestCode = AndroidDocumentPickerTrainingRequestCode;
+        mimeType = QStringLiteral("*/*");
+        destinationDir = getWritableAppDir() + QStringLiteral("training/");
+    } else if (kind == QStringLiteral("gpx")) {
+        requestCode = AndroidDocumentPickerGpxRequestCode;
+        mimeType = QStringLiteral("*/*");
+        destinationDir = getWritableAppDir() + QStringLiteral("gpx/");
+    } else if (kind == QStringLiteral("settings")) {
+        requestCode = AndroidDocumentPickerSettingsRequestCode;
+        destinationDir = getWritableAppDir() + QStringLiteral("settings/");
+    } else {
+        qWarning() << "Unknown Android document picker kind" << kind;
+        return;
+    }
+
+    QAndroidJniObject javaMimeType = QAndroidJniObject::fromString(mimeType);
+    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(destinationDir);
+    QtAndroid::androidActivity().callMethod<void>("openDocumentPicker", "(Ljava/lang/String;ILjava/lang/String;)V",
+                                                  javaMimeType.object<jstring>(), requestCode,
+                                                  javaDestinationDir.object<jstring>());
+    if (clearAndroidJniException("CustomQtActivity.openDocumentPicker")) {
+        return;
+    }
+#else
+    Q_UNUSED(kind)
+#endif
+}
+
+void homeform::handleAndroidDocumentPicked(int requestCode, const QString &localPath) {
+#ifdef Q_OS_ANDROID
+    if (localPath.isEmpty()) {
+        qWarning() << "Android document picker returned empty local path for request code" << requestCode;
+        return;
+    }
+
+    const QUrl localUrl = QUrl::fromLocalFile(localPath);
+    QString kind;
+    switch (requestCode) {
+    case AndroidDocumentPickerProfileRequestCode:
+        kind = QStringLiteral("profile");
+        break;
+    case AndroidDocumentPickerTrainingRequestCode:
+        kind = QStringLiteral("training");
+        break;
+    case AndroidDocumentPickerGpxRequestCode:
+        kind = QStringLiteral("gpx");
+        break;
+    case AndroidDocumentPickerSettingsRequestCode:
+        kind = QStringLiteral("settings");
+        break;
+    default:
+        qWarning() << "Unknown Android document picker request code" << requestCode << localPath;
+        return;
+    }
+
+    emit androidDocumentPicked(kind, localUrl);
+#else
+    Q_UNUSED(requestCode)
+    Q_UNUSED(localPath)
+#endif
 }
 
 bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {
@@ -8969,7 +9320,8 @@ void homeform::fit_save_clicked() {
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
                    stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name(),
-                   workoutSource, pelotonWorkoutId, pelotonUrl, trainingProgramFile);
+                   workoutSource, pelotonWorkoutId, pelotonUrl, trainingProgramFile,
+                   m_workoutRpe, m_workoutFeel);
         lastFitFileSaved = filename;
 
         // Process the newly saved file immediately and refresh workout model
@@ -10237,6 +10589,12 @@ void homeform::sendMail() {
         return;
     }
 
+    if (mailSent) {
+        qDebug() << QStringLiteral("sendMail already requested, ignoring duplicate");
+        return;
+    }
+    mailSent = true;
+
     if (miles) {
         unit_conversion = 0.621371; // clang, don't touch it!
         weightLossUnit = QStringLiteral("Oz");
@@ -10437,6 +10795,56 @@ void homeform::sendMail() {
     textMessage += QStringLiteral("\n\nSMTP server: ") + QString(STRINGIFY(SMTP_SERVER));
 #endif
 
+    QStringList temporaryFilesForMail;
+    QString compressedDebugLogForMail;
+    QString debugLogMailNote;
+    constexpr qint64 maxDebugLogAttachmentBytes = 10 * 1024 * 1024;
+    const QStringList logCandidates =
+        QDir(getWritableAppDir()).entryList(QStringList() << QStringLiteral("debug-*.log"), QDir::Files, QDir::Time);
+    const QString logfilename = logCandidates.isEmpty() ? QString() : logCandidates.first();
+    if (settings.value(QZSettings::log_debug).toBool() && !logfilename.isEmpty() &&
+        QFile::exists(getWritableAppDir() + logfilename)) {
+        const QString debugLogFileName = getWritableAppDir() + logfilename;
+        QFile debugLogFile(debugLogFileName);
+        if (debugLogFile.open(QIODevice::ReadOnly)) {
+            bool gzipOk = false;
+            const QByteArray compressedDebugLog = gzipCompress(debugLogFile.readAll(), &gzipOk);
+            debugLogFile.close();
+
+            const QString compressedDebugLogFileName =
+                getWritableAppDir() + QUuid::createUuid().toString(QUuid::WithoutBraces) + QStringLiteral("_") +
+                QFileInfo(debugLogFileName).fileName() + QStringLiteral(".gz");
+            QFile compressedDebugLogFile(compressedDebugLogFileName);
+            if (!gzipOk) {
+                debugLogMailNote = QStringLiteral("\nDebug log not attached: unable to gzip log file.");
+            } else if (compressedDebugLogFile.open(QIODevice::WriteOnly)) {
+                compressedDebugLogFile.write(compressedDebugLog);
+                compressedDebugLogFile.close();
+
+                const qint64 compressedDebugLogSize = QFileInfo(compressedDebugLogFileName).size();
+                if (compressedDebugLogSize <= maxDebugLogAttachmentBytes) {
+                    compressedDebugLogForMail = compressedDebugLogFileName;
+                    temporaryFilesForMail.append(compressedDebugLogFileName);
+                    debugLogMailNote =
+                        QStringLiteral("\nDebug log attached: ") + QFileInfo(compressedDebugLogFileName).fileName() +
+                        QStringLiteral(" (") + QString::number(compressedDebugLogSize / 1024.0 / 1024.0, 'f', 1) +
+                        QStringLiteral(" MB gzip compressed)");
+                } else {
+                    QFile::remove(compressedDebugLogFileName);
+                    debugLogMailNote =
+                        QStringLiteral("\nDebug log not attached: compressed file is ") +
+                        QString::number(compressedDebugLogSize / 1024.0 / 1024.0, 'f', 1) +
+                        QStringLiteral(" MB, above the 10.0 MB mail limit.");
+                }
+            } else {
+                debugLogMailNote = QStringLiteral("\nDebug log not attached: unable to write compressed log file.");
+            }
+        } else {
+            debugLogMailNote = QStringLiteral("\nDebug log not attached: unable to read log file.");
+        }
+    }
+    textMessage += debugLogMailNote;
+
     text->setText(textMessage);
     message->addPart(text);
 
@@ -10515,32 +10923,14 @@ void homeform::sendMail() {
         message->addPart(pelotonImage);
     }
 
-    /* THE SMTP SERVER DOESN'T LIKE THE ZIP FILE
-    extern QString logfilename;
-    if (settings.value(QZSettings::log_debug).toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
-        QString fileName = getWritableAppDir() + logfilename;
-        QFile f(fileName);
-        f.open(QIODevice::ReadOnly);
-        QTextStream ts(&f);
-        QByteArray b = f.readAll();
-        f.close();
-        QByteArray c = qCompress(b, 9);
-        QFile fc(fileName.replace(".log", ".zip"));
-        fc.open(QIODevice::WriteOnly);
-        c.remove(0, 4);
-        fc.write(c);
-        fc.close();
+    if (!compressedDebugLogForMail.isEmpty()) {
+        MimeAttachment *log = new MimeAttachment(new QFile(compressedDebugLogForMail));
+        log->setContentId(compressedDebugLogForMail);
+        log->setContentType(QStringLiteral("application/gzip"));
+        message->addPart(log);
+    }
 
-        // Create a MimeInlineFile object for each image
-        MimeInlineFile *log = new MimeInlineFile((new QFile(fileName)));
-
-        // An unique content id must be setted
-        log->setContentId(fileName);
-        log->setContentType(QStringLiteral("application/octet-stream"));
-        message.addPart(log);
-    }*/
-
-    QThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail);
+    MailSenderThread *mailThread = new MailSenderThread(message, filenameJPG, chartImagesFilenamesForMail, temporaryFilesForMail, this);
     QObject::connect(mailThread, &QThread::finished, mailThread, &QObject::deleteLater);
     mailThread->start();
 }
@@ -10586,13 +10976,30 @@ QString homeform::getAndroidDataAppDir() {
             QAndroidJniObject file;
             for (int i = 0; i < dataSize; i++) {
                 file = env->GetObjectArrayElement(dataArray, i);
+                if (!file.isValid())
+                    continue;
+                // isExternalStorageRemovable throws IllegalArgumentException on Waydroid/emulators
+                // where vold can't resolve the storage volume — clear any pending exception.
                 jboolean val = QAndroidJniObject::callStaticMethod<jboolean>(
                     "android/os/Environment", "isExternalStorageRemovable", "(Ljava/io/File;)Z", file.object());
+                if (env->ExceptionCheck()) {
+                    env->ExceptionClear();
+                    val = JNI_FALSE;
+                }
                 mediaPath = file.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;");
                 out = mediaPath.toString();
                 if (!val)
                     break;
             }
+        }
+    }
+    // Fallback to internal storage when external storage is unavailable (e.g. Waydroid)
+    if (out.isEmpty()) {
+        QAndroidJniObject internalDir = QtAndroid::androidActivity().callObjectMethod(
+            "getFilesDir", "()Ljava/io/File;");
+        if (internalDir.isValid()) {
+            QAndroidJniObject internalPath = internalDir.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;");
+            out = internalPath.toString();
         }
     }
     path = out;
@@ -10640,12 +11047,18 @@ void homeform::saveSettings(const QUrl &filename) {
 void homeform::loadSettings(const QUrl &filename) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(filename));
-    copyAndroidContentsURI(filename, "settings");
+    QString settingsFile = file.fileName();
+#ifdef Q_OS_ANDROID
+    const QString copiedSettingsFile = copyAndroidContentsURI(filename, "settings");
+    if (!copiedSettingsFile.isEmpty()) {
+        settingsFile = copiedSettingsFile;
+    }
+#endif
 
     qDebug() << "homeform::loadSettings" << file.fileName();
 
     QSettings settings;
-    QSettings settings2Load(file.fileName(), QSettings::IniFormat);
+    QSettings settings2Load(settingsFile, QSettings::IniFormat);
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
@@ -11589,4 +12002,3 @@ extern "C" {
 }
 #endif
 // Force rebuild for Q_INVOKABLE changes
-

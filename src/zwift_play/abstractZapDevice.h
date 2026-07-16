@@ -535,8 +535,23 @@ class AbstractZapDevice: public QObject {
     }
 
     void emitRidePaddleGear(bool plusAction, bool zwiftplay_swap) {
-        risingEdge = 2;
         const bool emitPlus = zwiftplay_swap ? !plusAction : plusAction;
+        QSettings settings;
+        const bool gears_volume_debouncing = settings.value(QZSettings::gears_volume_debouncing, QZSettings::default_gears_volume_debouncing).toBool();
+        const QDateTime now = QDateTime::currentDateTime();
+
+        if (gears_volume_debouncing && lastRideGearFrame.isValid() && lastRideGearPlus == emitPlus &&
+            lastRideGearFrame.msecsTo(now) < 250) {
+            qDebug() << "ignoring duplicate ride gear" << emitPlus << lastRideGearFrame.msecsTo(now);
+            return;
+        }
+
+        if (gears_volume_debouncing) {
+            lastRideGearPlus = emitPlus;
+            lastRideGearFrame = now;
+        }
+
+        risingEdge = 2;
         if (emitPlus) {
             emit plus();
         } else {
@@ -694,6 +709,8 @@ class AbstractZapDevice: public QObject {
     static QTimer* autoRepeatTimer;    // Static timer for auto-repeat
     static bool lastButtonPlus;  // Static track of which button was last pressed
     static QDateTime lastFrame;
+    static bool lastRideGearPlus;
+    static QDateTime lastRideGearFrame;
     ControllerNotification lastLeftButtonState;
     ControllerNotification lastRightButtonState;
     bool lastLeftButtonStateValid = false;

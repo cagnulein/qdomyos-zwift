@@ -1723,6 +1723,9 @@ import AndroidStatusBar 1.0
             property bool tile_pace_color_enabled: true
             property bool treadmill_force_running_activity: false
             property bool proform_treadmill_105_cst: false
+            property real trainprogram_pid_hr_pushy_zone_limit: 0.8
+            property real trainprogram_pid_hr_recovery_zone_limit: 60.0
+            property bool rpe_feel_popup_enabled: false
         }
 
 
@@ -4824,7 +4827,7 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
                         accordionContent: IndicatorOnlySwitch {
                             id: spht9600iEBikeDelegate
-                            text: qsTr("SP-HT-9600iE")
+                            text: "SP-HT-9600iE"
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -4861,13 +4864,13 @@ import AndroidStatusBar 1.0
 
                     AccordionElement {
                         id: snodeBikeAccordion
-                        title: qsTr("Snode Bike Options")
+                        title: "Snode Bike Options"
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: IndicatorOnlySwitch {
                             id: snodeBikeDelegate
-                            text: qsTr("Snode Bike")
+                            text: "Snode Bike"
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -4993,7 +4996,7 @@ import AndroidStatusBar 1.0
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: lifespanBikeDelegate
-                                text: qsTr("LifeSpan C7000i Bike")
+                                text: "LifeSpan C7000i Bike"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -5041,7 +5044,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: lifeFitnessIC8Delegate
-                                text: qsTr("Life Fitness IC8")
+                                text: "Life Fitness IC8"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -5055,7 +5058,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: lifeFitnessIC5Delegate
-                                text: qsTr("Life Fitness IC5")
+                                text: "Life Fitness IC5"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -5392,7 +5395,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("TDF1 IP:")
+                                    text: "TDF1 IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -5416,7 +5419,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelproformTDF4IP
-                                    text: qsTr("TDF4 IP:")
+                                    text: "TDF4 IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -5775,7 +5778,7 @@ import AndroidStatusBar 1.0
 
                     AccordionElement {
                         id: toputureBikeAccordion
-                        title: qsTr("Toputure Bikes")
+                        title: "Toputure Bikes"
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -5783,7 +5786,7 @@ import AndroidStatusBar 1.0
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: toputureTeb1Delegate
-                                text: qsTr("Toputure TEB1")
+                                text: "Toputure TEB1"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -7873,6 +7876,33 @@ import AndroidStatusBar 1.0
                     }
 
                     IndicatorOnlySwitch {
+                        text: qsTr("Ask RPE / Feeling after workout")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.rpe_feel_popup_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.rpe_feel_popup_enabled = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("Show a popup after Stop to rate perceived exertion (RPE) and how you felt; the values are saved into the FIT file and shown in Garmin Connect.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
                         text: qsTr("Fetch Garmin Workouts on Startup")
                         spacing: 0
                         bottomPadding: 0
@@ -8807,6 +8837,74 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("PID Recovery Zone Lower Limit (%):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pidHrRecoveryZoneLimitTextField
+                            text: settings.trainprogram_pid_hr_recovery_zone_limit
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_pid_hr_recovery_zone_limit = parseFloat(pidHrRecoveryZoneLimitTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Lower HR boundary (% of max HR) that defines the bottom of Zone 1 for 'Pushy' mode. Below this percentage the treadmill is at the bottom of the recovery area. Default: 60.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("PID Pushy Zone Limit:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pidHrPushyZoneLimitTextField
+                            text: settings.trainprogram_pid_hr_pushy_zone_limit
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_pid_hr_pushy_zone_limit = parseFloat(pidHrPushyZoneLimitTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Fraction of zone above the target zone where 'Pushy' mode stops pushing. 0.8 means the PID stops pushing at zone+0.8. Default: 0.8.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -10209,7 +10307,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelproformtreadmillip
-                                    text: qsTr("Proform IP:")
+                                    text: "Proform IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -10233,7 +10331,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelnordictrack2950IP
-                                    text: qsTr("Nordictrack 2950 IP:")
+                                    text: "Nordictrack 2950 IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -10365,7 +10463,7 @@ import AndroidStatusBar 1.0
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: kingSmithTreadmillDelegate
-                                text: qsTr("WalkingPad X21")
+                                text: "WalkingPad X21"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10380,7 +10478,7 @@ import AndroidStatusBar 1.0
 
                             IndicatorOnlySwitch {
                                 id: kingSmithV3TreadmillDelegate
-                                text: qsTr("WalkingPad X21 v2")
+                                text: "WalkingPad X21 v2"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10395,7 +10493,7 @@ import AndroidStatusBar 1.0
 
                             IndicatorOnlySwitch {
                                 id: kingSmithV4TreadmillDelegate
-                                text: qsTr("WalkingPad X21 v3")
+                                text: "WalkingPad X21 v3"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10409,7 +10507,7 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("WalkingPad X21 v4")
+                                text: "WalkingPad X21 v4"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10423,7 +10521,7 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("WalkingPad G1")
+                                text: "WalkingPad G1"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10488,7 +10586,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.fitfiu_mc_v460 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Zero ZT-2500")
+                                text: "Zero ZT-2500"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10501,7 +10599,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.zero_zt2500_treadmill = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("UMAY S100")
+                                text: "UMAY S100"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10540,7 +10638,7 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("T900")
+                                text: "T900"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10805,7 +10903,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: soleF63Delegate
-                                text: qsTr("Sole F63")
+                                text: "Sole F63"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10819,7 +10917,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: soleF65Delegate
-                                text: qsTr("Sole F65")
+                                text: "Sole F65"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10833,7 +10931,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: soleTT8Delegate
-                                text: qsTr("Sole TT8")
+                                text: "Sole TT8"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11023,7 +11121,7 @@ import AndroidStatusBar 1.0
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: horizonParagonXTreadmillCadenzaDelegate
-                                text: qsTr("Paragon X")
+                                text: "Paragon X"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11065,7 +11163,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: horizonOmegaZTreadmillDelegate
-                                text: qsTr("Omega Z")
+                                text: "Omega Z"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11300,7 +11398,7 @@ import AndroidStatusBar 1.0
                     }
                     IndicatorOnlySwitch {
                         id: trxsevoDelegate
-                        text: qsTr("TRX 65s EVO")
+                        text: "TRX 65s EVO"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11343,7 +11441,7 @@ import AndroidStatusBar 1.0
                     }                    
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Toorx SRX 500")
+                        text: "Toorx SRX 500"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11358,7 +11456,7 @@ import AndroidStatusBar 1.0
 
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Toorx SRX 3500")
+                        text: "Toorx SRX 3500"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11400,7 +11498,7 @@ import AndroidStatusBar 1.0
                     }
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Taurua IC90 Bike")
+                        text: "Taurua IC90 Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11475,7 +11573,7 @@ import AndroidStatusBar 1.0
 
                     IndicatorOnlySwitch {
                         id: toorxBikeDelegate
-                        text: qsTr("Toorx/iConsole Bike")
+                        text: "Toorx/iConsole Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11535,7 +11633,7 @@ import AndroidStatusBar 1.0
 
                     IndicatorOnlySwitch {
                         id: toorxBikeJLLIC400Delegate
-                        text: qsTr("JLL IC400 Bike")
+                        text: "JLL IC400 Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11721,7 +11819,7 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
-                                text: qsTr("Proform Sport RL")
+                                text: "Proform Sport RL"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11734,7 +11832,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.proform_rower_sport_rl = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Proform Rower 750R")
+                                text: "Proform Rower 750R"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11755,7 +11853,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("ProForm Rower IP:")
+                                    text: "ProForm Rower IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -11833,7 +11931,7 @@ import AndroidStatusBar 1.0
                         }
                     }
                     AccordionElement {
-                        title: qsTr("Life Fitness 95xi (CSAFE)")
+                        title: "Life Fitness 95xi (CSAFE)"
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -11931,7 +12029,7 @@ import AndroidStatusBar 1.0
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
                                 id: proformHybridDelegate
-                                text: qsTr("Proform Hybrid Trainer XT")
+                                text: "Proform Hybrid Trainer XT"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11958,7 +12056,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.proform_hybrid_trainer_PFEL03815 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Nordictrack C7.5")
+                                text: "Nordictrack C7.5"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11971,7 +12069,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("NordicTrack Elliptical SE7i")
+                                text: "NordicTrack Elliptical SE7i"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -13210,7 +13308,7 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("Rogue Echo Bike")
+                                text: "Rogue Echo Bike"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0

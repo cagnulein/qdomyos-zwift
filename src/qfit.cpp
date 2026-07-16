@@ -31,7 +31,8 @@ qfit::qfit(QObject *parent) : QObject(parent) {}
 
 void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_TYPE type,
                 uint32_t processFlag, FIT_SPORT overrideSport, QString workoutName, QString bluetooth_device_name,
-                QString workoutSource, QString pelotonWorkoutId, QString pelotonUrl, QString trainingProgramFile) {
+                QString workoutSource, QString pelotonWorkoutId, QString pelotonUrl, QString trainingProgramFile,
+                int workoutRpe, int workoutFeel) {
     QSettings settings;
     bool strava_virtual_activity =
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
@@ -424,6 +425,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     sessionMesg.SetTrigger(FIT_SESSION_TRIGGER_ACTIVITY_END);
     sessionMesg.SetMessageIndex(FIT_MESSAGE_INDEX_RESERVED);
 
+    // Perceived exertion (Borg CR10, 0-10 scale multiplied 10x) and how the user felt (0-100 scale)
+    if (workoutRpe >= 0)
+        sessionMesg.SetWorkoutRpe(static_cast<FIT_UINT8>(workoutRpe * 10));
+    if (workoutFeel >= 0)
+        sessionMesg.SetWorkoutFeel(static_cast<FIT_UINT8>(workoutFeel));
+
     // Set training load in FIT file
     // Always set training_load_peak (Garmin uses this for acute training load)
     // COMMENTED OUT: Garmin Connect doesn't properly reflect these values
@@ -440,15 +447,17 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         qDebug() << "TSS will be stored in developer data:" << tss;
     }
 
+    const FIT_SPORT treadmill_activity_sport =
+        (speed_avg == 0 || speed_avg > 6.5 || strava_virtual_activity || treadmill_force_running_activity)
+            ? FIT_SPORT_RUNNING
+            : FIT_SPORT_WALKING;
+
     // First, set sport and subsport based on device type
     if (type == TREADMILL) {
         if(session.last().stepCount > 0)
             sessionMesg.SetTotalStrides(session.last().stepCount);
 
-        if (speed_avg == 0 || speed_avg > 6.5 || strava_virtual_activity || treadmill_force_running_activity)
-            sessionMesg.SetSport(FIT_SPORT_RUNNING);
-        else
-            sessionMesg.SetSport(FIT_SPORT_WALKING);
+        sessionMesg.SetSport(treadmill_activity_sport);
 
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
@@ -503,6 +512,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         sessionMesg.SetSport(FIT_SPORT_CYCLING);
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
+        } else {
+            sessionMesg.SetSubSport(FIT_SUB_SPORT_INDOOR_CYCLING);
         }
     }
 
@@ -792,7 +803,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         lapMesg.SetSport(FIT_SPORT_GENERIC);
     } else if (type == TREADMILL) {
 
-        lapMesg.SetSport(FIT_SPORT_RUNNING);
+        lapMesg.SetSport(treadmill_activity_sport);
     } else if (type == ELLIPTICAL) {
 
         lapMesg.SetSport(FIT_SPORT_RUNNING);

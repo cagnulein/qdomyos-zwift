@@ -45,6 +45,7 @@ const QString QZSettings::default_garmin_email = QStringLiteral("");
 const QString QZSettings::garmin_password = QStringLiteral("garmin_password");
 const QString QZSettings::default_garmin_password = QStringLiteral("");
 const QString QZSettings::garmin_upload_enabled = QStringLiteral("garmin_upload_enabled");
+const QString QZSettings::rpe_feel_popup_enabled = QStringLiteral("rpe_feel_popup_enabled");
 const QString QZSettings::garmin_download_workouts_on_start = QStringLiteral("garmin_download_workouts_on_start");
 const QString QZSettings::garmin_access_token = QStringLiteral("garmin_access_token");
 const QString QZSettings::default_garmin_access_token = QStringLiteral("");
@@ -906,6 +907,8 @@ const QString QZSettings::watt_bike_emulator = QStringLiteral("watt_bike_emulato
 const QString QZSettings::restore_specific_gear = QStringLiteral("restore_specific_gear");
 const QString QZSettings::skipLocationServicesDialog = QStringLiteral("skipLocationServicesDialog");
 const QString QZSettings::trainprogram_pid_pushy = QStringLiteral("trainprogram_pid_pushy");
+const QString QZSettings::trainprogram_pid_hr_pushy_zone_limit = QStringLiteral("trainprogram_pid_hr_pushy_zone_limit");
+const QString QZSettings::trainprogram_pid_hr_recovery_zone_limit = QStringLiteral("trainprogram_pid_hr_recovery_zone_limit");
 const QString QZSettings::min_inclination = QStringLiteral("min_inclination");
 const QString QZSettings::proform_performance_300i = QStringLiteral("proform_performance_300i");
 const QString QZSettings::proform_performance_400i = QStringLiteral("proform_performance_400i");
@@ -1263,7 +1266,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 988;
+const uint32_t allSettingsCount = 991;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1290,6 +1293,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::garmin_email, QZSettings::default_garmin_email},
     {QZSettings::garmin_password, QZSettings::default_garmin_password},
     {QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled},
+    {QZSettings::rpe_feel_popup_enabled, QZSettings::default_rpe_feel_popup_enabled},
     {QZSettings::garmin_download_workouts_on_start, QZSettings::default_garmin_download_workouts_on_start},
     {QZSettings::garmin_access_token, QZSettings::default_garmin_access_token},
     {QZSettings::garmin_refresh_token, QZSettings::default_garmin_refresh_token},
@@ -2019,6 +2023,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::restore_specific_gear, QZSettings::default_restore_specific_gear},
     {QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog},
     {QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy},
+    {QZSettings::trainprogram_pid_hr_pushy_zone_limit, QZSettings::default_trainprogram_pid_hr_pushy_zone_limit},
+    {QZSettings::trainprogram_pid_hr_recovery_zone_limit, QZSettings::default_trainprogram_pid_hr_recovery_zone_limit},
     {QZSettings::min_inclination, QZSettings::default_min_inclination},
     {QZSettings::proform_performance_300i, QZSettings::default_proform_performance_300i},
     {QZSettings::proform_performance_400i, QZSettings::default_proform_performance_400i},
