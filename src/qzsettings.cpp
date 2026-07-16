@@ -1247,8 +1247,9 @@ const QString QZSettings::shortcut_start_stop = QStringLiteral("shortcut_start_s
 const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
+const QString QZSettings::life_fitness_elliptical = QStringLiteral("life_fitness_elliptical");
 
-const uint32_t allSettingsCount = 975;
+const uint32_t allSettingsCount = 976;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2248,6 +2249,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_105_cst, QZSettings::default_proform_treadmill_105_cst},
     {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
     {QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z},
+    {QZSettings::life_fitness_elliptical, QZSettings::default_life_fitness_elliptical},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

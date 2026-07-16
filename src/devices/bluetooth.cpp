@@ -1232,7 +1232,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().startsWith(QStringLiteral("FS-")) &&
                          (iconsole_elliptical || settings.value(QZSettings::gymstick_gx6_0_elliptical,
                                                                QZSettings::default_gymstick_gx6_0_elliptical).toBool())) ||
-                        !b.name().compare(ftms_elliptical, Qt::CaseInsensitive)) && !ypooElliptical && !horizonTreadmill && ftms_bike.contains(QZSettings::default_ftms_bike) && filter) {
+                        !b.name().compare(ftms_elliptical, Qt::CaseInsensitive) ||
+                        // Route ANY Life Fitness elliptical here when the user opts in, so they don't
+                        // have to set ftms_elliptical to each machine's rotating name. Same LF+hex shape
+                        // as the LF treadmill, so it is guarded by an explicit setting (default off) and
+                        // the treadmill branch below is skipped when it is on.
+                        (settings.value(QZSettings::life_fitness_elliptical, QZSettings::default_life_fitness_elliptical).toBool() &&
+                         b.name().toUpper().startsWith(QStringLiteral("LF")) && (b.name().length() == 18 || b.name().length() == 15))) &&
+                       !ypooElliptical && !horizonTreadmill && ftms_bike.contains(QZSettings::default_ftms_bike) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 ypooElliptical =
@@ -1582,7 +1589,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(speraXTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("LF")) && (b.name().length() == 18 || b.name().length() == 15)) &&
-                       !lifefitnessTreadmill && !ypooElliptical && filter) {
+                       !lifefitnessTreadmill && !ypooElliptical && filter &&
+                       !settings.value(QZSettings::life_fitness_elliptical, QZSettings::default_life_fitness_elliptical).toBool()) {
                 // !ypooElliptical: Life Fitness ellipticals share this exact name shape with the treadmills.
                 // Once a device has been claimed as an FTMS elliptical (via the ftms_elliptical setting), a
                 // later advertisement must not also hand it to the treadmill driver - otherwise both drivers

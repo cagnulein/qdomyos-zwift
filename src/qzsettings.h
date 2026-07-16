@@ -3222,6 +3222,8 @@ class QZSettings {
 
     static const QString horizon_treadmill_omega_z;
     static constexpr bool default_horizon_treadmill_omega_z = false;
+    static const QString life_fitness_elliptical;
+    static constexpr bool default_life_fitness_elliptical = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

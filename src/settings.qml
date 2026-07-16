@@ -1709,6 +1709,7 @@ import AndroidStatusBar 1.0
             property real trainprogram_pid_hr_pushy_zone_limit: 0.8
             property real trainprogram_pid_hr_recovery_zone_limit: 60.0
             property bool rpe_feel_popup_enabled: false
+            property bool life_fitness_elliptical: false
         }
 
 
@@ -11785,6 +11786,21 @@ import AndroidStatusBar 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.gymstick_gx6_0_elliptical = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: lifeFitnessEllipticalDelegate
+                        text: "Life Fitness is an Elliptical"
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.life_fitness_elliptical
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.life_fitness_elliptical = checked; window.settings_restart_to_apply = true; }
                     }
 
                     AccordionElement {
