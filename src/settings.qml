@@ -1622,23 +1622,6 @@ import AndroidStatusBar 1.0
             property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"                        
             property bool proform_treadmill_cst_505_pftl59420_0: false
 
-            // OpenBikeControl settings
-            property bool mywhoosh_link_enabled: false
-            property bool mywhoosh_link_override_gears: false
-            property int mywhoosh_link_left_up: 1
-            property int mywhoosh_link_left_down: 2
-            property int mywhoosh_link_left_left: 0
-            property int mywhoosh_link_left_right: 0
-            property int mywhoosh_link_left_shoulder: 5
-            property int mywhoosh_link_left_power: 0
-            property int mywhoosh_link_right_y: 6
-            property int mywhoosh_link_right_a: 0
-            property int mywhoosh_link_right_b: 7
-            property int mywhoosh_link_right_z: 0
-            property int mywhoosh_link_right_shoulder: 0
-            property int mywhoosh_link_right_power: 0
-            property int mywhoosh_link_camera_value: 1
-            property int mywhoosh_link_emote_value: 1                        
             property bool domyos_run100e: false
 
             property bool shortcuts_enabled: false
@@ -1734,6 +1717,23 @@ import AndroidStatusBar 1.0
             property int zwiftplay_gear_paddle_right: 1
             property int zwiftplay_gear_lb: 2
             property int zwiftplay_gear_rb: 1
+            // OpenBikeControl settings
+            property bool mywhoosh_link_enabled: false
+            property bool mywhoosh_link_override_gears: false
+            property int mywhoosh_link_left_up: 1
+            property int mywhoosh_link_left_down: 2
+            property int mywhoosh_link_left_left: 0
+            property int mywhoosh_link_left_right: 0
+            property int mywhoosh_link_left_shoulder: 5
+            property int mywhoosh_link_left_power: 0
+            property int mywhoosh_link_right_y: 6
+            property int mywhoosh_link_right_a: 0
+            property int mywhoosh_link_right_b: 7
+            property int mywhoosh_link_right_z: 0
+            property int mywhoosh_link_right_shoulder: 0
+            property int mywhoosh_link_right_power: 0
+            property int mywhoosh_link_camera_value: 1
+            property int mywhoosh_link_emote_value: 1
         }
 
 
