@@ -47,6 +47,9 @@ class ftmsrower : public rower {
         bool distanceReceivedFromPm5 = false;
         qint64 lastRefreshMs = 0;
         qint64 lastPm5DistanceUpdateMs = 0;
+        qint64 lastStrokeMs = 0;
+        double strokesCount = 0.0;
+        double wattValue = 0.0;
     };
 
     ftmsrower(bool noWriteResistance, bool noHeartService);

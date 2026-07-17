@@ -192,6 +192,10 @@ void ftmsrower::processPm5ParserState(ParserRegressionState &state, const QStrin
         if (!state.hasFtmsService) {
             state.lastPm5DistanceUpdateMs = nowMs;
         }
+
+        if (state.cadence > 0) {
+            state.lastStrokeMs = nowMs;
+        }
     }
 }
 
@@ -222,13 +226,31 @@ void ftmsrower::processFtmsParserState(ParserRegressionState &state, const QByte
 
     flags Flags;
     int index = 0;
-    Q_UNUSED(whipr);
-    Q_UNUSED(kingsmith);
+    const double cadenceDivider = (whipr || kingsmith) ? 1.0 : 2.0;
 
     Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
     index += 2;
 
     if (!Flags.moreData) {
+        // Mirrors the pre-refactor "Resetting cadence!" fallback in characteristicChanged: if no
+        // fresh stroke count has moved lastStrokeMs forward in the last 3s, treat cadence as stale
+        // and zero it instead of trusting a possibly-frozen byte.
+        const bool cadenceStale = state.lastStrokeMs > 0 && (nowMs - state.lastStrokeMs) > 3000;
+        if (cadenceStale) {
+            state.cadence = 0;
+            state.wattValue = 0;
+            state.speedKmh = 0;
+        } else {
+            state.cadence = ((uint8_t)newValue.at(index)) / cadenceDivider;
+        }
+
+        const double strokeCount =
+            (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
+        if (state.strokesCount != strokeCount) {
+            state.lastStrokeMs = nowMs;
+        }
+        state.strokesCount = strokeCount;
+
         index += 3;
     }
 
@@ -281,6 +303,7 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
     parserState.distanceReceivedFromPm5 = pm5DistanceReceived;
     parserState.lastRefreshMs = lastRefreshCharacteristicChanged.toMSecsSinceEpoch();
     parserState.lastPm5DistanceUpdateMs = lastPm5DistanceUpdate.toMSecsSinceEpoch();
+    parserState.lastStrokeMs = lastStroke.toMSecsSinceEpoch();
 
     processPm5ParserState(parserState, charUuid, newValue, now.toMSecsSinceEpoch());
 
@@ -293,7 +316,10 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
     if (parserState.lastPm5DistanceUpdateMs > 0) {
         lastPm5DistanceUpdate = QDateTime::fromMSecsSinceEpoch(parserState.lastPm5DistanceUpdateMs);
     }
-    
+    if (parserState.lastStrokeMs > 0) {
+        lastStroke = QDateTime::fromMSecsSinceEpoch(parserState.lastStrokeMs);
+    }
+
     if (charUuid == QStringLiteral("{ce060031-43e5-11e4-916c-0800200c9a66}")) {
         // Parse characteristic CE060031 - Based on go-row implementation
         if (newValue.length() >= 10) {
@@ -305,9 +331,6 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
     else if (charUuid == QStringLiteral("{ce060032-43e5-11e4-916c-0800200c9a66}")) {
         // Parse characteristic CE060032 - Based on go-row implementation
         if (newValue.length() >= 7) {
-            if (Cadence.value() > 0) {
-                lastStroke = now;
-            }
 
             emit debug(QStringLiteral("PM5 CE060032 RAW: ") + newValue.toHex(' ') +
                       QStringLiteral(" Cadence: ") + QString::number(Cadence.value()) +
@@ -480,34 +503,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     index += 2;
 
     if (!Flags.moreData) {
-
-        if (lastStroke.secsTo(now) > 3) {
-            qDebug() << "Resetting cadence!";
-            Cadence = 0;
-            m_watt = 0;
-            Speed = 0;
-        } else {
-            Cadence = ((uint8_t)newValue.at(index)) / cadence_divider;
-        }
-
-        StrokesCount =
-            (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
-
-        if (lastStrokesCount != StrokesCount.value()) {
-            lastStroke = now;
-        }
-        lastStrokesCount = StrokesCount.value();
-
         index += 3;
-
-        /*
-         * the concept 2 sends the pace in 2 frames, so this condition will create a bogus speed
-        if (!Flags.instantPace) {
-            // eredited by echelon rower, probably we need to change this
-            Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
-            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-        }*/
-        emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
     }
 
     if (Flags.avgStroke) {
@@ -528,12 +524,26 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     parserState.distanceReceivedFromPm5 = pm5DistanceReceived;
     parserState.lastRefreshMs = lastRefreshCharacteristicChanged.toMSecsSinceEpoch();
     parserState.lastPm5DistanceUpdateMs = lastPm5DistanceUpdate.toMSecsSinceEpoch();
+    parserState.lastStrokeMs = lastStroke.toMSecsSinceEpoch();
+    parserState.strokesCount = lastStrokesCount;
+    parserState.wattValue = m_watt.value();
 
     processFtmsParserState(parserState, newValue, now.toMSecsSinceEpoch(), ICONSOLE_PLUS, FITSHOW, MRK_R11S, WHIPR,
                            KINGSMITH, DFIT_L_R);
 
     Distance = parserState.distanceKm;
     Speed = parserState.speedKmh;
+    Cadence = parserState.cadence;
+    m_watt = parserState.wattValue;
+    StrokesCount = parserState.strokesCount;
+    lastStrokesCount = parserState.strokesCount;
+    if (parserState.lastStrokeMs > 0) {
+        lastStroke = QDateTime::fromMSecsSinceEpoch(parserState.lastStrokeMs);
+    }
+
+    if (!Flags.moreData) {
+        emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
+    }
 
     if (Flags.totDistance) {
         index += 3;

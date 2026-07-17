@@ -77,6 +77,29 @@ protected:
             {1757870830402LL, fromHex("4e0d004603a5ff2ae9a9890000000000")},      // 0032
         };
     }
+
+    // Real bytes from debug-Fri_Nov_14_06_40_47_2025.log (#3872), a PM5 that exposes BOTH the
+    // Concept2-native characteristics and FTMS. None of the collected logs happen to contain a
+    // continuous capture of a transient single-packet cadence dip mid-row (spm briefly reporting 0
+    // while RowState stays "rowing"), so this composes three genuinely real payloads from the same
+    // session at chosen offsets to reproduce that topology: a real CE060032 packet with spm=22
+    // (from t=1763131316068 in the log), a real CE060032 packet with spm=0 (the same all-zero
+    // payload the log emits before/after active rowing), and a real FTMS 0x2AD1 payload with
+    // moreData=0 (from t=1763131261903 in the log, reused here since it is a genuine "no more
+    // data, cadence byte present" frame).
+    static PacketSample concept2CadenceNonZeroPacketFromIssue3872Log() {
+        return {1763131316068LL, fromHex("9e0100580a16fff349774a000000000000")}; // 0032, spm=22
+    }
+
+    static PacketSample concept2CadenceTransientZeroPacketFromIssue3872Log() {
+        return {0LL, fromHex("000000000000ff00000000000000000000")}; // 0032, spm=0 (real all-zero payload)
+    }
+
+    static PacketSample ftmsMoreDataZeroPacketFromIssue3872Log() {
+        // FTMS 0x2AD1, moreData=0, cadence byte (index 2) == 44 (nonzero), so this packet only
+        // reports cadence == 0 if the staleness check fires - it does not encode zero cadence itself.
+        return {0LL, fromHex("00012c02000000df01ff")};
+    }
 };
 
 TEST_F(FtmsRowerPm5RegressionTest, Pm5WithoutFtmsRealLogMustProducePositiveDistance) {
@@ -236,6 +259,99 @@ TEST_F(FtmsRowerPm5RegressionTest, Pm5WithoutFtmsActiveTransitionFromIssue3686Mu
            "reporter observed";
     EXPECT_GT(state.speedKmh, 0.0);
     EXPECT_GT(state.cadence, 0.0);
+    EXPECT_TRUE(std::isfinite(state.distanceKm));
+}
+
+TEST_F(FtmsRowerPm5RegressionTest,
+       Pm5WithFtmsCadenceCarryOverFromConcept2PathSuppressesFtmsStaleCadenceResetFromIssue3872) {
+    // Regression/gap test for a PM5 that exposes BOTH FTMS and the Concept2-native characteristics
+    // (the exact dual-path scenario already covered by the "MustIgnoreConcept2Distance*" tests
+    // above, using the same #3872 session). lastStrokeMs is shared between the two parser paths:
+    // processPm5ParserState (fed by CE060032 notifications) bumps it whenever the carried-over
+    // cadence is still positive, even on a tick whose own spm byte is 0; processFtmsParserState
+    // (fed by FTMS 0x2AD1 notifications) uses it to decide whether cadence is stale and should be
+    // reset to 0 after 3s of silence. This composes three real payloads from the #3872 log (see
+    // the PacketSample helpers above) to show the interaction: after a genuine nonzero-cadence
+    // CE060032 packet, a later CE060032 packet with spm=0 still refreshes lastStrokeMs merely
+    // because cadence carried over above 0 - even though this specific packet carried no fresh
+    // stroke data. That refresh then hides a real FTMS staleness window that pre-existed this
+    // refactor: replaying the same sequence against the pre-refactor logic (lastStroke only bumped
+    // when this tick's own spm byte was > 0) would have left lastStroke pinned at the first
+    // packet's timestamp, so the FTMS packet below - arriving 4.5s later - would have been treated
+    // as stale and reset cadence to 0.
+    ftmsrower::ParserRegressionState state;
+    state.hasFtmsService = true;
+    state.rowStateReceived = true;
+    state.rowState = 1; // matches the real RowState (CE060031 byte 9) during this window of #3872
+
+    const auto nonZeroSpmPacket = concept2CadenceNonZeroPacketFromIssue3872Log();
+    ftmsrower::processPm5ParserState(state, QStringLiteral("{ce060032-43e5-11e4-916c-0800200c9a66}"),
+                                     nonZeroSpmPacket.payload, nonZeroSpmPacket.timestampMs);
+    ASSERT_GT(state.cadence, 0.0);
+    ASSERT_EQ(state.lastStrokeMs, nonZeroSpmPacket.timestampMs);
+
+    // A real CE060032 payload the device also sent (spm byte == 0), replayed 3.5s after the
+    // genuine nonzero reading above - long enough that the *original* nonzero reading would
+    // already be considered stale by the time the FTMS packet below arrives.
+    const qint64 dipTimestampMs = nonZeroSpmPacket.timestampMs + 3500;
+    ftmsrower::processPm5ParserState(state, QStringLiteral("{ce060032-43e5-11e4-916c-0800200c9a66}"),
+                                     concept2CadenceTransientZeroPacketFromIssue3872Log().payload, dipTimestampMs);
+    // Cadence carries over unchanged (matches old and new behavior alike)...
+    EXPECT_GT(state.cadence, 0.0);
+    // ...but lastStrokeMs was refreshed anyway, purely because cadence stayed positive - this is
+    // the behavior change introduced by extracting the PM5 parser: the pre-refactor code only did
+    // this when spm itself was > 0 on this exact tick.
+    EXPECT_EQ(state.lastStrokeMs, dipTimestampMs)
+        << "known behavior change: lastStroke now advances on a zero-spm tick whenever cadence "
+           "carried over from a previous packet, not only when this tick's own spm byte is > 0";
+
+    // A real FTMS moreData=0 packet, 1s after the dip above (so not stale relative to the
+    // refreshed lastStrokeMs) but 4.5s after the last genuinely fresh nonzero spm reading (so it
+    // *would* have been stale under the pre-refactor lastStroke semantics).
+    const qint64 ftmsTimestampMs = dipTimestampMs + 1000;
+    ftmsrower::processFtmsParserState(state, ftmsMoreDataZeroPacketFromIssue3872Log().payload, ftmsTimestampMs,
+                                      false, false, false, false, false, false);
+
+    EXPECT_GT(state.cadence, 0.0) << "known gap: the FTMS stale-cadence-reset (normally fired after "
+                                     "3s of silence) is suppressed here because the Concept2-native "
+                                     "path kept refreshing lastStrokeMs on ticks with no fresh stroke "
+                                     "data; the pre-refactor code would have reset cadence to 0 at "
+                                     "this point instead";
+}
+
+TEST_F(FtmsRowerPm5RegressionTest, Pm5WithoutFtmsReplayingAnEarlierRealPacketMakesDistanceGoBackwards) {
+    // None of the collected real logs (#4609, #3686, #3872) happen to contain an actual mid-session
+    // PM5 distance-counter reset (e.g. a BLE reconnect, or the user pressing the erg's reset button),
+    // so this test does not come from one single continuous real session like the others in this file.
+    // Instead it replays two genuinely real CE060031 payloads from the SAME #4609 log
+    // (debug-Mon_May_4_14_48_43_2026.log) out of their original chronological order: the low-distance
+    // packet from the start of the session (303 dm) after the high-distance packet from near the end
+    // (3117 dm, the same bytes as concept2NoFtmsIdlePacketsFromUserLog()[0]). This reproduces exactly
+    // what would happen on a real reconnect/counter-reset mid-workout, using only bytes the device
+    // actually sent - it exposes a real gap: processPm5ParserState assigns
+    // `state.distanceKm = distance_dm / 10000.0` directly, with no guard against the new value being
+    // lower than the already-accumulated distance, so distance visibly goes backwards.
+    ftmsrower::ParserRegressionState state;
+    state.hasFtmsService = false;
+
+    const auto highDistancePacket = concept2NoFtmsIdlePacketsFromUserLog().front(); // real bytes, 3117 dm
+    const auto lowDistancePacket = concept2NoFtmsPacketsFromUserLog().front();      // real bytes, 303 dm
+
+    ftmsrower::processPm5ParserState(state, QStringLiteral("{ce060031-43e5-11e4-916c-0800200c9a66}"),
+                                     highDistancePacket.payload, highDistancePacket.timestampMs);
+    const double highDistanceKm = state.distanceKm;
+    ASSERT_GT(highDistanceKm, 0.03);
+
+    ftmsrower::processPm5ParserState(state, QStringLiteral("{ce060031-43e5-11e4-916c-0800200c9a66}"),
+                                     lowDistancePacket.payload, lowDistancePacket.timestampMs + 1);
+
+    // This EXPECT documents the current (buggy) behavior rather than the desired one: distance drops
+    // instead of staying pinned at the previous maximum. If a monotonicity guard is added to
+    // processPm5ParserState, this assertion should be updated to EXPECT_GE(state.distanceKm, highDistanceKm).
+    EXPECT_LT(state.distanceKm, highDistanceKm)
+        << "known gap: PM5-without-FTMS distance has no monotonicity guard, so a replayed/older "
+           "real packet (e.g. after a reconnect) makes distance jump backwards instead of staying "
+           "pinned at the previous maximum";
     EXPECT_TRUE(std::isfinite(state.distanceKm));
 }
 
