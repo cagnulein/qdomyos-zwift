@@ -146,8 +146,10 @@ void sportsplusrower::characteristicChanged(const QLowEnergyCharacteristic &char
     }
 
     if (!firstCharChanged) {
-        Distance +=
-            ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
+        double elapsedMs = lastTimeCharChanged.msecsTo(now);
+        Distance += ((Speed.value() / 3600.0) / (1000.0 / elapsedMs));
+        // Accumulate stroke count from cadence since the device doesn't send it directly
+        StrokesCount += (Cadence.value() / 60.0) * (elapsedMs / 1000.0);
     }
 
     lastTimeCharChanged = now;

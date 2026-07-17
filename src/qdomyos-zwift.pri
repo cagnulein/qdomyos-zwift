@@ -265,6 +265,7 @@ gpx.cpp \
 devices/heartratebelt/heartratebelt.cpp \
 homefitnessbuddy.cpp \
 homeform.cpp \
+mywhooshlink.cpp \
 garminconnect.cpp \
 devices/horizongr7bike/horizongr7bike.cpp \
 devices/horizontreadmill/horizontreadmill.cpp \
@@ -789,6 +790,7 @@ devices/ftmsbike/ftmsbike.h \
 devices/ftmsbike/speedracex_defaults.h \
 devices/heartratebelt/heartratebelt.h \
 homeform.h \
+mywhooshlink.h \
 garminconnect.h \
 devices/horizontreadmill/horizontreadmill.h \
 devices/inspirebike/inspirebike.h \
@@ -1066,4 +1068,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.21.5
+VERSION = 2.21.6

@@ -91,6 +91,9 @@ class QZSettings {
     static const QString garmin_upload_enabled;
     static constexpr bool default_garmin_upload_enabled = false;
 
+    static const QString rpe_feel_popup_enabled;
+    static constexpr bool default_rpe_feel_popup_enabled = false;
+
     static const QString garmin_download_workouts_on_start;
     static constexpr bool default_garmin_download_workouts_on_start = true;
 
@@ -3015,6 +3018,64 @@ class QZSettings {
     static const QString skandika_wiri_x2000_protocol;
     static constexpr bool default_skandika_wiri_x2000_protocol = true;
 
+    // MyWhoosh Link Options
+    /**
+     * @brief Enable MyWhoosh Link server for sending control commands to MyWhoosh app
+     */
+    static const QString mywhoosh_link_enabled;
+    static constexpr bool default_mywhoosh_link_enabled = false;
+
+    /**
+     * @brief Override local gear changes when MyWhoosh Link is enabled (true = only send to MyWhoosh, false = both)
+     */
+    static const QString mywhoosh_link_override_gears;
+    static constexpr bool default_mywhoosh_link_override_gears = false;
+
+    // Left Controller Button Mappings (0=Disabled, 1=GearUp, 2=GearDown, 3=SteerLeft, 4=SteerRight, 5=UTurn, 6=CameraAngle, 7=Emote, 8=Tuck)
+    static const QString mywhoosh_link_left_up;
+    static constexpr int default_mywhoosh_link_left_up = 1; // GearUp
+
+    static const QString mywhoosh_link_left_down;
+    static constexpr int default_mywhoosh_link_left_down = 2; // GearDown
+
+    static const QString mywhoosh_link_left_left;
+    static constexpr int default_mywhoosh_link_left_left = 0; // Disabled
+
+    static const QString mywhoosh_link_left_right;
+    static constexpr int default_mywhoosh_link_left_right = 0; // Disabled
+
+    static const QString mywhoosh_link_left_shoulder;
+    static constexpr int default_mywhoosh_link_left_shoulder = 5; // UTurn
+
+    static const QString mywhoosh_link_left_power;
+    static constexpr int default_mywhoosh_link_left_power = 0; // Disabled
+
+    // Right Controller Button Mappings
+    static const QString mywhoosh_link_right_y;
+    static constexpr int default_mywhoosh_link_right_y = 6; // CameraAngle
+
+    static const QString mywhoosh_link_right_a;
+    static constexpr int default_mywhoosh_link_right_a = 0; // Disabled
+
+    static const QString mywhoosh_link_right_b;
+    static constexpr int default_mywhoosh_link_right_b = 7; // Emote
+
+    static const QString mywhoosh_link_right_z;
+    static constexpr int default_mywhoosh_link_right_z = 0; // Disabled
+
+    static const QString mywhoosh_link_right_shoulder;
+    static constexpr int default_mywhoosh_link_right_shoulder = 0; // Disabled
+
+    static const QString mywhoosh_link_right_power;
+    static constexpr int default_mywhoosh_link_right_power = 0; // Disabled
+
+    // Cycling values for Camera Angle and Emote actions
+    static const QString mywhoosh_link_camera_value;
+    static constexpr int default_mywhoosh_link_camera_value = 1;
+
+    static const QString mywhoosh_link_emote_value;
+    static constexpr int default_mywhoosh_link_emote_value = 1;
+
     /**
      * @brief Automatically trigger a lap when completing each workout segment/row in TrainProgram
      */
@@ -3219,6 +3280,27 @@ class QZSettings {
 
     static const QString horizon_treadmill_omega_z;
     static constexpr bool default_horizon_treadmill_omega_z = false;
+
+    /**
+     * @brief Per-button gear mapping for Zwift Play/Ride controllers.
+     * Values follow MyWhoosh::Action: 0 = Disabled, 1 = Gear Up, 2 = Gear Down.
+     */
+    static const QString zwiftplay_gear_ls1; // Left Shift Up
+    static constexpr int default_zwiftplay_gear_ls1 = 2; // Gear Down
+    static const QString zwiftplay_gear_ls2; // Left Shift Down
+    static constexpr int default_zwiftplay_gear_ls2 = 2; // Gear Down
+    static const QString zwiftplay_gear_rs1; // Right Shift Up
+    static constexpr int default_zwiftplay_gear_rs1 = 1; // Gear Up
+    static const QString zwiftplay_gear_rs2; // Right Shift Down
+    static constexpr int default_zwiftplay_gear_rs2 = 1; // Gear Up
+    static const QString zwiftplay_gear_paddle_left; // Left Paddle (ZL)
+    static constexpr int default_zwiftplay_gear_paddle_left = 2; // Gear Down
+    static const QString zwiftplay_gear_paddle_right; // Right Paddle (ZR)
+    static constexpr int default_zwiftplay_gear_paddle_right = 1; // Gear Up
+    static const QString zwiftplay_gear_lb; // Power Up (LB)
+    static constexpr int default_zwiftplay_gear_lb = 0; // Disabled
+    static const QString zwiftplay_gear_rb; // Ride On (RB)
+    static constexpr int default_zwiftplay_gear_rb = 0; // Disabled
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

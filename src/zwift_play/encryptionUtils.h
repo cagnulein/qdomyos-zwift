@@ -4,6 +4,7 @@
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
 #include <iostream>
+#include <QDebug>
 
 class EncryptionUtils {
   public:
@@ -16,14 +17,11 @@ class EncryptionUtils {
         const EC_GROUP *group = EC_KEY_get0_group(eCPublicKey);
         BIGNUM *x = BN_new();
         BIGNUM *y = BN_new();
-        QByteArray result;
+        QByteArray result(KEY_LENGTH * 2, 0);
 
         if (EC_POINT_get_affine_coordinates_GFp(group, point, x, y, nullptr)) {
-            int sizeX = BN_num_bytes(x);
-            int sizeY = BN_num_bytes(y);
-            result.resize(sizeX + sizeY);
-            BN_bn2bin(x, reinterpret_cast<unsigned char *>(result.data()));
-            BN_bn2bin(y, reinterpret_cast<unsigned char *>(result.data()) + sizeX);
+            BN_bn2binpad(x, reinterpret_cast<unsigned char *>(result.data()), KEY_LENGTH);
+            BN_bn2binpad(y, reinterpret_cast<unsigned char *>(result.data()) + KEY_LENGTH, KEY_LENGTH);
         }
 
         BN_free(x);
