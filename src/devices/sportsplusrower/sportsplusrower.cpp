@@ -136,14 +136,19 @@ void sportsplusrower::characteristicChanged(const QLowEnergyCharacteristic &char
     double kcal = 0;
     bool cadence_eval = false;
 
-    m_watt = ((newValue.at(10) >> 4) * 10) + (newValue.at(10) & 0x0F);
-    emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
-
     if(newValue.at(1) == 0x10) {
         Cadence = ((newValue.at(3) >> 4) * 10) + (newValue.at(3) & 0x0F);
         Speed = 0.37497622 * ((double)Cadence.value());
         emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
     }
+
+    if (Speed.value() > 0) {
+        double paceSeconds = 1800.0 / Speed.value();
+        m_watt = rower::calculateWattsFromPace(paceSeconds);
+    } else {
+        m_watt = 0;
+    }
+    emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
 
     if (!firstCharChanged) {
         double elapsedMs = lastTimeCharChanged.msecsTo(now);
