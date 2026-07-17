@@ -186,7 +186,7 @@ void sportsplusrower::characteristicChanged(const QLowEnergyCharacteristic &char
     }
 
     Resistance = requestResistance;
-    KCal = kcal;
+    KCal += kcal;
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
