@@ -257,10 +257,12 @@ int FreebeatUSB::rawRead(char *buf, int maxLen, int timeoutMs) {
  * ---------------------------------------------------------------------- */
 int FreebeatUSB::openPort() {
 #ifdef Q_OS_ANDROID
+    QAndroidJniObject portName = QAndroidJniObject::fromString(QStringLiteral("auto"));
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "open",
-                                              "(Landroid/content/Context;I)V",
+                                              "(Landroid/content/Context;ILjava/lang/String;)V",
                                               QtAndroid::androidContext().object(),
-                                              baudrate);
+                                              baudrate,
+                                              portName.object<jstring>());
     return 0;
 #elif defined(WIN32)
     COMMTIMEOUTS timeouts;
