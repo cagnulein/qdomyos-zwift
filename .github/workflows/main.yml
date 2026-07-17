@@ -724,9 +724,6 @@ jobs:
 
       - name: Build QZ for Android (4 ABIs)
         run: |
-          # qmake reads defaults.pri while generating the Android deployment JSON,
-          # so force all ABIs there before the build starts.
-          sed -i 's/^ANDROID_ABIS = .*/ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64/' defaults.pri
           lrelease src/qdomyos-zwift.pri
           # CONFIG+=debug matches the real reference build validated against the Mac-built
           # APK: it keeps .so unstripped (matching the reference almost byte-for-byte) and,
@@ -772,11 +769,6 @@ jobs:
             unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
           fi
           "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
-          APK="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk"
-          for ABI in armeabi-v7a arm64-v8a x86 x86_64; do
-            unzip -l "$APK" "lib/$ABI/libqdomyos-zwift_$ABI.so"
-            unzip -l "$APK" "lib/$ABI/libQt5Core_$ABI.so"
-          done
 
       - name: Re-sign APK for stable App Links fingerprint
         run: |
