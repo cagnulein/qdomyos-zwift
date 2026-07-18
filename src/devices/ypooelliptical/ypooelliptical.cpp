@@ -393,11 +393,16 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                 if (totalDistanceMeters != lastTotalDistance) {
                     if (lastTotalDistance > 0 && totalDistanceMeters > lastTotalDistance) {
                         qint64 elapsedMs = lastTotalDistanceChanged.msecsTo(now);
-                        // Require a substantial sampling interval: a short/jittery gap turns the 1m
-                        // distance quantum into a huge apparent speed (a 3m step over 200ms reads as
-                        // 54 km/h). Replaying a full captured session with a 500ms floor still let
-                        // spikes to 28.6 km/h through - about 18 mph on an elliptical - so require
-                        // 2.5s of span. This removes the spikes without moving the median at all.
+                        // Require a substantial span before trusting a figure: the field has 1m
+                        // resolution at ~1Hz, so a single-tick delta is very coarse (a 2m vs 3m step
+                        // is 7.2 vs 10.8 km/h) and a short gap turns that quantum into a huge
+                        // apparent speed.
+                        //
+                        // The anchor (lastTotalDistance / lastTotalDistanceChanged) is deliberately
+                        // NOT advanced until a speed is actually computed. Advancing it on every tick
+                        // would pin elapsedMs to the ~1s inter-tick gap, so it could never reach the
+                        // threshold and speed would never be produced at all. Letting it accumulate
+                        // turns this into a true >=2.5s windowed average.
                         if (elapsedMs >= 2500) {
                             double candidate = (((double)(totalDistanceMeters - lastTotalDistance)) / 1000.0) /
                                                (((double)elapsedMs) / 3600000.0);
@@ -407,10 +412,15 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                                 emit debug(QStringLiteral("Current Speed (from totDistance): ") +
                                            QString::number(Speed.value()));
                             }
+                            // advance the anchor only after a computation
+                            lastTotalDistance = totalDistanceMeters;
+                            lastTotalDistanceChanged = now;
                         }
+                    } else {
+                        // first sample, or the machine reset its odometer: (re-)anchor here
+                        lastTotalDistance = totalDistanceMeters;
+                        lastTotalDistanceChanged = now;
                     }
-                    lastTotalDistance = totalDistanceMeters;
-                    lastTotalDistanceChanged = now;
                 } else if (lastTotalDistanceChanged.msecsTo(now) > 3000) {
                     // Distance stopped advancing: the user stopped pedalling, so don't hold the last speed.
                     instantSpeed = 0.0;
