@@ -16,6 +16,10 @@
 
 #include "FreebeatUSB.h"
 
+#ifdef Q_OS_ANDROID
+#include <QProcess>
+#endif
+
 /* ----------------------------------------------------------------------
  * CONSTRUCTOR/DESTRUCTOR
  * ---------------------------------------------------------------------- */
@@ -268,13 +272,17 @@ int FreebeatUSB::openPort() {
     return 0;
 #else
     // POSIX path — used on Linux, macOS, and Android.
-    // On Android the UART (/dev/ttyS4) is owned by root; chmod 777 grants access.
+    // On Android, /dev/ttyS4 is owned by root. Try to open first; if EACCES,
+    // escalate via su (same technique as DCUARTDriver in the original Freebeat APK).
 #ifdef Q_OS_ANDROID
-    {
-        QString cmd = "chmod 777 " + deviceFilename;
-        int rv = system(cmd.toLatin1().constData());
-        if (rv != 0)
-            qDebug() << "Freebeat: chmod failed for" << deviceFilename;
+    if (access(deviceFilename.toLatin1().constData(), R_OK | W_OK) != 0) {
+        qDebug() << "Freebeat: no rw access to" << deviceFilename << "- trying su chmod";
+        QProcess proc;
+        proc.start("su", QStringList() << "-c" << ("chmod 666 " + deviceFilename));
+        if (!proc.waitForFinished(3000))
+            qDebug() << "Freebeat: su chmod timed out";
+        else
+            qDebug() << "Freebeat: su chmod exit" << proc.exitCode();
     }
 #endif
 
