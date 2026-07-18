@@ -34,11 +34,6 @@
 #endif
 #endif
 
-#ifdef Q_OS_ANDROID
-#include "keepawakehelper.h"
-#include <QAndroidJniObject>
-#endif
-
 #include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
@@ -131,10 +126,6 @@ class FreebeatUSB : public QThread {
 #else
     int devicePort;
     struct termios deviceSettings;
-#endif
-
-#ifdef Q_OS_ANDROID
-    QByteArray rxBuffer;
 #endif
 };
 

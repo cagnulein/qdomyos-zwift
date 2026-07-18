@@ -16,10 +16,6 @@
 
 #include "FreebeatUSB.h"
 
-#ifdef Q_OS_ANDROID
-#include <QtAndroid>
-#endif
-
 /* ----------------------------------------------------------------------
  * CONSTRUCTOR/DESTRUCTOR
  * ---------------------------------------------------------------------- */
@@ -36,7 +32,9 @@ FreebeatUSB::FreebeatUSB(QObject *parent, QString deviceFilename, int baudrate) 
     devSpeed = 0.0;
     devWatt = 0.0;
     devValid = false;
-#ifndef WIN32
+#ifdef WIN32
+    devicePort = INVALID_HANDLE_VALUE;
+#else
     devicePort = -1;
 #endif
 }
@@ -172,19 +170,16 @@ bool FreebeatUSB::parsePacket(const QByteArray &pkt) {
 
 /* ----------------------------------------------------------------------
  * RAW I/O
+ * Note: Freebeat communicates via internal UART (/dev/ttyS4), NOT USB.
+ * We open the port directly with POSIX open() on all platforms (Android
+ * included) — NOT through Usbserial.java which is for USB-CDC/FTDI adapters.
+ * On Android, chmod 777 is required before open() to get rw access to the
+ * UART device node (same approach used by the original Freebeat app's
+ * DCUARTDriver class).
  * ---------------------------------------------------------------------- */
 int FreebeatUSB::rawWrite(const char *bytes, int size) {
     qDebug() << "Freebeat TX:" << QByteArray(bytes, size).toHex();
-#ifdef Q_OS_ANDROID
-    QAndroidJniEnvironment env;
-    jbyteArray d = env->NewByteArray(size);
-    jbyte *b = env->GetByteArrayElements(d, 0);
-    for (int i = 0; i < size; i++)
-        b[i] = bytes[i];
-    env->SetByteArrayRegion(d, 0, size, b);
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
-    return size;
-#elif defined(WIN32)
+#ifdef WIN32
     DWORD cBytes;
     if (!WriteFile(devicePort, bytes, size, &cBytes, NULL))
         return -1;
@@ -199,36 +194,7 @@ int FreebeatUSB::rawWrite(const char *bytes, int size) {
 
 // Read up to maxLen bytes with a timeout in ms; returns bytes read
 int FreebeatUSB::rawRead(char *buf, int maxLen, int timeoutMs) {
-#ifdef Q_OS_ANDROID
-    int total = 0;
-    int elapsed = 0;
-    const int step = 10;
-    while (elapsed < timeoutMs && total < maxLen) {
-        // Drain Android USB serial into rxBuffer
-        QAndroidJniObject dd = QAndroidJniObject::callStaticObjectMethod(
-            "org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
-        jint len = QAndroidJniObject::callStaticMethod<jint>(
-            "org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
-        if (len > 0) {
-            QAndroidJniEnvironment env;
-            jbyteArray d = dd.object<jbyteArray>();
-            jbyte *b = env->GetByteArrayElements(d, 0);
-            rxBuffer.append(reinterpret_cast<const char *>(b), len);
-            env->ReleaseByteArrayElements(d, b, JNI_ABORT);
-        }
-        int avail = qMin(maxLen - total, rxBuffer.size());
-        if (avail > 0) {
-            memcpy(buf + total, rxBuffer.constData(), avail);
-            rxBuffer.remove(0, avail);
-            total += avail;
-        }
-        if (total >= maxLen)
-            break;
-        QThread::msleep(step);
-        elapsed += step;
-    }
-    return total;
-#elif defined(WIN32)
+#ifdef WIN32
     DWORD cBytes = 0;
     COMMTIMEOUTS ct;
     GetCommTimeouts(devicePort, &ct);
@@ -256,15 +222,7 @@ int FreebeatUSB::rawRead(char *buf, int maxLen, int timeoutMs) {
  * PORT OPEN / CLOSE
  * ---------------------------------------------------------------------- */
 int FreebeatUSB::openPort() {
-#ifdef Q_OS_ANDROID
-    QAndroidJniObject portName = QAndroidJniObject::fromString(QStringLiteral("auto"));
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "open",
-                                              "(Landroid/content/Context;ILjava/lang/String;)V",
-                                              QtAndroid::androidContext().object(),
-                                              baudrate,
-                                              portName.object<jstring>());
-    return 0;
-#elif defined(WIN32)
+#ifdef WIN32
     COMMTIMEOUTS timeouts;
     QString portSpec;
     int portnum = deviceFilename.midRef(3).toString().toInt();
@@ -309,6 +267,17 @@ int FreebeatUSB::openPort() {
     SetCommTimeouts(devicePort, &timeouts);
     return 0;
 #else
+    // POSIX path — used on Linux, macOS, and Android.
+    // On Android the UART (/dev/ttyS4) is owned by root; chmod 777 grants access.
+#ifdef Q_OS_ANDROID
+    {
+        QString cmd = "chmod 777 " + deviceFilename;
+        int rv = system(cmd.toLatin1().constData());
+        if (rv != 0)
+            qDebug() << "Freebeat: chmod failed for" << deviceFilename;
+    }
+#endif
+
 #if defined(Q_OS_MACX)
     int ldisc = TTYDISC;
 #else
@@ -353,8 +322,6 @@ int FreebeatUSB::openPort() {
 int FreebeatUSB::closePort() {
 #ifdef WIN32
     return (int)!CloseHandle(devicePort);
-#elif defined(Q_OS_ANDROID)
-    return 0;
 #else
     tcflush(devicePort, TCIOFLUSH);
     return close(devicePort);
