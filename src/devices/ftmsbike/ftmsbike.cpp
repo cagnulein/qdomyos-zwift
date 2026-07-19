@@ -2124,6 +2124,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("MRK-S28 found");
             MRK_S28 = true;
             resistance_lvl_mode = true;
+        } else if(device.name().toUpper().startsWith("MRK-S36C-")) {
+            qDebug() << QStringLiteral("MRK-S36C found");
+            MRK_S36C = true;
+            resistance_lvl_mode = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively, target power must be converted to resistance
         } else if(device.name().toUpper().startsWith("HAMMER")) {
             qDebug() << QStringLiteral("HAMMER found");
             HAMMER = true;
