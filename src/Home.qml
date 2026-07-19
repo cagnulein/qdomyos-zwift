@@ -378,8 +378,8 @@ HomeForm {
 
                 // VoiceOver accessibility
                 Accessible.role: Accessible.Button
-                Accessible.name: qsTr("Decrease ") + name
-                Accessible.description: qsTr("Decrease the value of ") + name
+                Accessible.name: value.length > 0 ? qsTr("Decrease ") + name + qsTr(", current value ") + value : qsTr("Decrease ") + name
+                Accessible.description: value.length > 0 ? qsTr("Decrease the value of ") + name + qsTr(". Current value ") + value : qsTr("Decrease the value of ") + name
                 Accessible.focusable: id1.enabled
                 Accessible.ignored: !id1.enabled
                 Accessible.onPressAction: { minus_clicked(objectName) }
@@ -398,8 +398,8 @@ HomeForm {
 
                 // VoiceOver accessibility
                 Accessible.role: Accessible.Button
-                Accessible.name: qsTr("Increase ") + name
-                Accessible.description: qsTr("Increase the value of ") + name
+                Accessible.name: value.length > 0 ? qsTr("Increase ") + name + qsTr(", current value ") + value : qsTr("Increase ") + name
+                Accessible.description: value.length > 0 ? qsTr("Increase the value of ") + name + qsTr(". Current value ") + value : qsTr("Increase the value of ") + name
                 Accessible.focusable: id1.enabled
                 Accessible.ignored: !id1.enabled
                 Accessible.onPressAction: { plus_clicked(objectName) }
