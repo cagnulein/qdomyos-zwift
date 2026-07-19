@@ -47,8 +47,8 @@ freebeatbike::freebeatbike(bool noWriteResistance, bool noHeartService, int8_t b
     connect(refresh, &QTimer::timeout, this, &freebeatbike::update);
     refresh->start(200ms);
 
-    QString freebeatSerialPort =
-        settings.value(QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport).toString();
+    // The setting enables Freebeat support; the bike hardware is always on this UART.
+    QString freebeatSerialPort = QStringLiteral("/dev/ttyS4");
 
     myFreebeat = new FreebeatUSB(this, freebeatSerialPort, FREEBEAT_BAUD);
     myFreebeat->start();

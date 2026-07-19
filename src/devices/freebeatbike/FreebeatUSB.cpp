@@ -357,10 +357,8 @@ void FreebeatUSB::run() {
         pvars.lock();
         bool stop    = doStop;
         bool reset   = doReset;
-        bool query   = doQuery;
         bool writeR  = writeResistance;
         int  res     = targetResistance;
-        doQuery      = false;
         writeResistance = false;
         pvars.unlock();
 
@@ -383,7 +381,8 @@ void FreebeatUSB::run() {
             rawWrite(cmd.constData(), cmd.size());
         }
 
-        if (query) {
+        // Request fresh telemetry every cycle.
+        {
             QByteArray cmd = buildCmd5(FREEBEAT_CMD_START, FREEBEAT_ACT_QUERY, 0);
             rawWrite(cmd.constData(), cmd.size());
         }
