@@ -207,7 +207,7 @@ Page {
             width: parent.width
             anchors.top: row1.bottom
             anchors.topMargin: 30
-            text: qsTr("This app should automatically connect to your bike/treadmill/rower. <b>If it doesn't, please check</b>:<br>1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;<br>2) both Bluetooth and Bluetooth permissions MUST be enabled<br>3) your bike/treadmill/rower should be turned on BEFORE starting this app<br>4) try to restart your device<br><br>If your bike/treadmill disconnects every 30 seconds try to disable the 'virtual device' setting on the left bar.<br><br>In case of issues, please feel free to contact me at roberto.viola83@gmail.com.<br><br><b>Have a nice ride!</b><br/ ><i>QZ specifically disclaims liability for<br>incidental or consequential damages and assumes<br>no responsibility or liability for any loss<br>or damage suffered by any person as a result of<br>the use or misuse of the app.</i><br><br>Roberto Viola")
+            text: qsTr("This app should automatically connect to your bike, treadmill, or rower.\n\nIf it doesn't, check that:\n- the Echelon/Domyos app is closed while QZ is running\n- Bluetooth and Bluetooth permissions are enabled\n- your equipment is turned on before starting QZ\n- you have restarted your device\n\nIf your bike or treadmill disconnects every 30 seconds, disable the Virtual Device setting in the left bar.\n\nFor help, contact roberto.viola83@gmail.com.\n\nHave a nice ride!\n\nQZ disclaims liability for incidental or consequential damages and assumes no responsibility for any loss or damage caused by use or misuse of the app.\n\nRoberto Viola")
             wrapMode: Label.WordWrap
             visible: rootItem.labelHelp
         }
