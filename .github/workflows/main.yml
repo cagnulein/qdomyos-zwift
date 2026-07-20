@@ -599,6 +599,20 @@ jobs:
           dir: '${{ github.workspace }}/output/android/'
           cache: 'false'
 
+      - name: Install custom 16K-page-size Qt (overlay onto stock Qt install)
+        run: |
+          QT_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
+          curl -fsSL -o /tmp/qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
+          unzip -q /tmp/qt5.15.0-android-page16.zip -d /tmp/qt-page16k
+          # Overlay the 16K-page-aligned target libs/plugins/qml/mkspecs/jar/include onto the
+          # stock Qt install; keep the stock Linux host tools (bin/) since the custom Qt's
+          # host tools were built on macOS (Mach-O, not usable on this Linux runner).
+          rsync -a --exclude='bin/' "/tmp/qt-page16k/qt5.15.0-android-page16/usr/local/Qt-5.15.0/" "$QT_DIR/"
+          # qdevice.pri comes from the overlay carrying the macOS origin's NDK host value;
+          # fix it back to linux so qmake resolves the NDK toolchain path correctly.
+          sed -i 's/darwin-x86_64/linux-x86_64/' "$QT_DIR/mkspecs/qdevice.pri"
+          rm -rf /tmp/qt5.15.0-android-page16.zip /tmp/qt-page16k
+
       - name: Install Java
         uses: actions/setup-java@v4
         with:
@@ -615,13 +629,13 @@ jobs:
         id: cache-ndk
         uses: actions/cache@v4
         with:
-          path: /usr/local/lib/android/sdk/ndk/21.4.7075529
-          key: android-ndk-21.4.7075529-${{ runner.os }}
+          path: /usr/local/lib/android/sdk/ndk/21.1.6352462
+          key: android-ndk-21.1.6352462-${{ runner.os }}
 
       - name: Install Android SDK packages
         run: |
           SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.1.6352462" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Setup ccache
         run: |
@@ -638,13 +652,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .ccache
-          key: ccache-android-ndk21-${{ hashFiles('src/**/*.cpp', 'src/**/*.h', 'src/*.pro') }}
+          key: ccache-android-ndk21_1-${{ hashFiles('src/**/*.cpp', 'src/**/*.h', 'src/*.pro') }}
           restore-keys: |
-            ccache-android-ndk21-
+            ccache-android-ndk21_1-
 
       - name: Setup NDK environment with ccache
         run: |
-          NDK_PATH=/usr/local/lib/android/sdk/ndk/21.4.7075529
+          NDK_PATH=/usr/local/lib/android/sdk/ndk/21.1.6352462
           NDK_BIN=$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin
           ln -sfn $NDK_PATH /usr/local/lib/android/sdk/ndk-bundle
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
@@ -711,8 +725,12 @@ jobs:
       - name: Build QZ for Android (4 ABIs)
         run: |
           lrelease src/qdomyos-zwift.pri
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
-          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
+          # CONFIG+=debug matches the real reference build validated against the Mac-built
+          # APK: it keeps .so unstripped (matching the reference almost byte-for-byte) and,
+          # with this custom Qt, naturally leaves android-extra-libs unset - the bundled
+          # android_openssl libs are not 16K-page-aligned, so we must NOT inject them (see
+          # below); Qt's own QtNetwork already has openssl linked in.
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.1.6352462' 'CONFIG+=debug' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           cat src/android-qdomyos-zwift-deployment-settings.json
 
       - name: Cache Gradle
@@ -2303,6 +2321,15 @@ jobs:
           # Set variant-specific IP setting
           sed -i 's/property string ${{ matrix.variant.setting_key }}: ""/property string ${{ matrix.variant.setting_key }}: "${{ matrix.variant.setting_value }}"/' settings.qml
           cd ..
+
+          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
+          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          lrelease src/qdomyos-zwift.pri
+
+          # Keep FitPro APKs usable on older 32-bit iFIT/ProForm consoles.
+          # qmake reads defaults.pri while generating the Android deployment JSON,
+          # so force all ABIs there before the build starts.
+          sed -i 's/^ANDROID_ABIS = .*/ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64/' defaults.pri
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393

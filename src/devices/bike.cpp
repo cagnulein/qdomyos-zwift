@@ -2,6 +2,7 @@
 #include "devices/bike.h"
 #include "qdebugfixup.h"
 #include "homeform.h"
+#include "mywhooshlink.h"
 #include <QSettings>
 #include <QStringList>
 #include <cmath>
@@ -209,6 +210,7 @@ void bike::setGears(double gears) {
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
     bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool();
     double gears_offset = settings.value(QZSettings::gears_offset, QZSettings::default_gears_offset).toDouble();
+    const double previousGears = m_gears;
     if (!gears_custom_table_enabled) {
         gears -= gears_offset;
     }
@@ -282,6 +284,25 @@ void bike::setGears(double gears) {
     m_gears = gears;
     if(homeform::singleton()) {
         homeform::singleton()->updateGearsValue();
+    }
+
+    
+    if (MyWhooshLink::instance() && MyWhooshLink::instance()->isEnabled() &&
+        !qFuzzyCompare(previousGears + 1.0, m_gears + 1.0)) {
+        const bool uiAligned = settings.value(QZSettings::zwift_gear_ui_aligned,
+                                              QZSettings::default_zwift_gear_ui_aligned).toBool();
+        if (uiAligned) {
+            MyWhooshLink::instance()->syncGearValue(qRound(m_gears));
+        } else {
+            const int steps = qAbs(qRound(m_gears - previousGears));
+            for (int i = 0; i < steps; ++i) {
+                if (m_gears > previousGears) {
+                    MyWhooshLink::instance()->handleGearUp(true);
+                } else if (m_gears < previousGears) {
+                    MyWhooshLink::instance()->handleGearDown(true);
+                }
+            }
+        }
     }
 
     if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool())

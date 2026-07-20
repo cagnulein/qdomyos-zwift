@@ -103,6 +103,99 @@ HomeForm {
         onNoClicked: close()
     }
 
+    // Optional post-workout popup (settings.rpe_feel_popup_enabled) asking for perceived exertion
+    // and how the user felt. Saving the FIT file (rootItem.finalizeFitSave) is suspended until this
+    // popup is answered, so the values can be embedded in the FIT file before it's written/uploaded.
+    Popup {
+        id: rpeFeelPopup
+        parent: Overlay.overlay
+
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        width: 420
+        height: 340
+        modal: true
+        focus: true
+        palette.text: "white"
+        closePolicy: Popup.NoAutoClose
+
+        property int selectedRpe: 5
+        property int selectedFeel: 50
+        readonly property var rpeLabels: [
+            qsTr("Rest"), qsTr("Very Light"), qsTr("Light"), qsTr("Moderate"),
+            qsTr("Somewhat Hard"), qsTr("Hard"), qsTr("Harder"), qsTr("Very Hard"),
+            qsTr("Very Very Hard"), qsTr("Extremely Hard"), qsTr("Maximum Effort")
+        ]
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 16
+            spacing: 14
+
+            Label {
+                text: qsTr("How was this workout?")
+                font.bold: true
+                font.pixelSize: 18
+                width: parent.width
+                wrapMode: Text.WordWrap
+            }
+
+            Label {
+                text: qsTr("Perceived Exertion (RPE): ") + rpeFeelPopup.selectedRpe + " - " + rpeFeelPopup.rpeLabels[rpeFeelPopup.selectedRpe]
+                width: parent.width
+                wrapMode: Text.WordWrap
+            }
+
+            Slider {
+                id: rpeSlider
+                width: parent.width
+                from: 0
+                to: 10
+                stepSize: 1
+                value: rpeFeelPopup.selectedRpe
+                onValueChanged: rpeFeelPopup.selectedRpe = value
+            }
+
+            Label {
+                text: qsTr("How did you feel?")
+                width: parent.width
+                wrapMode: Text.WordWrap
+            }
+
+            ComboBox {
+                id: feelCombo
+                width: parent.width
+                model: [qsTr("Very Bad"), qsTr("Bad"), qsTr("OK"), qsTr("Good"), qsTr("Very Good")]
+                currentIndex: 2
+                onCurrentIndexChanged: rpeFeelPopup.selectedFeel = currentIndex * 25
+            }
+
+            Row {
+                spacing: 12
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Button {
+                    text: qsTr("Skip")
+                    onClicked: {
+                        rpeFeelPopup.close();
+                        rootItem.finalizeFitSave(-1, -1);
+                        finish_stop();
+                    }
+                }
+
+                Button {
+                    text: qsTr("Save")
+                    highlighted: true
+                    onClicked: {
+                        rpeFeelPopup.close();
+                        rootItem.finalizeFitSave(rpeFeelPopup.selectedRpe, rpeFeelPopup.selectedFeel);
+                        finish_stop();
+                    }
+                }
+            }
+        }
+    }
+
     Timer {
         id: popupLapAutoClose
         interval: 2000; running: false; repeat: false
@@ -160,6 +253,16 @@ HomeForm {
 
     function inner_stop() {
         stop_clicked();
+        if (rootItem.rpeFeelPopupEnabled()) {
+            rpeFeelPopup.selectedRpe = 5;
+            rpeFeelPopup.selectedFeel = 50;
+            rpeFeelPopup.open();
+        } else {
+            finish_stop();
+        }
+    }
+
+    function finish_stop() {
         rootItem.save_screenshot();
         if(CHARTJS)
             stackView.push("ChartJsTest.qml")

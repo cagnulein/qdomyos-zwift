@@ -31,7 +31,8 @@ qfit::qfit(QObject *parent) : QObject(parent) {}
 
 void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_TYPE type,
                 uint32_t processFlag, FIT_SPORT overrideSport, QString workoutName, QString bluetooth_device_name,
-                QString workoutSource, QString pelotonWorkoutId, QString pelotonUrl, QString trainingProgramFile) {
+                QString workoutSource, QString pelotonWorkoutId, QString pelotonUrl, QString trainingProgramFile,
+                int workoutRpe, int workoutFeel) {
     QSettings settings;
     bool strava_virtual_activity =
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
@@ -423,6 +424,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     sessionMesg.SetFirstLapIndex(0);
     sessionMesg.SetTrigger(FIT_SESSION_TRIGGER_ACTIVITY_END);
     sessionMesg.SetMessageIndex(FIT_MESSAGE_INDEX_RESERVED);
+
+    // Perceived exertion (Borg CR10, 0-10 scale multiplied 10x) and how the user felt (0-100 scale)
+    if (workoutRpe >= 0)
+        sessionMesg.SetWorkoutRpe(static_cast<FIT_UINT8>(workoutRpe * 10));
+    if (workoutFeel >= 0)
+        sessionMesg.SetWorkoutFeel(static_cast<FIT_UINT8>(workoutFeel));
 
     // Set training load in FIT file
     // Always set training_load_peak (Garmin uses this for acute training load)
