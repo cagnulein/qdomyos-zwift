@@ -1817,6 +1817,9 @@ class QZSettings {
     static const QString kettler_usb_baudrate;
     static constexpr int default_kettler_usb_baudrate = 9600;
 
+    static const QString freebeat_serialport;
+    static const QString default_freebeat_serialport;
+
     static const QString strava_virtual_activity;
     static constexpr bool default_strava_virtual_activity = true;
 

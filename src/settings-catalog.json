@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 963,
+  "settingCount": 964,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -46,7 +46,7 @@
     },
     {
       "key": "page_tts_text_to_speech_settings",
-      "name": "TTS (Text to Speech) Settings 🔊",
+      "name": "TTS (Text to Speech) Settings \ud83d\udd0a",
       "description": null,
       "parent": "General",
       "type": "page",
@@ -56,7 +56,7 @@
     },
     {
       "key": "page_keyboard_shortcuts",
-      "name": "Keyboard Shortcuts ⌨️",
+      "name": "Keyboard Shortcuts \u2328\ufe0f",
       "description": null,
       "parent": "Tiles",
       "type": "page",
@@ -461,7 +461,7 @@
     {
       "key": "bike_resistance_offset",
       "name": "Zwift Resistance Offset",
-      "description": "This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.",
+      "description": "This setting sets your \u201cflat road\u201d in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.",
       "parent": "Bike Options",
       "type": "integer",
       "qmlType": "int",
@@ -474,7 +474,7 @@
     {
       "key": "bike_resistance_gain_f",
       "name": "Zwift Resistance Gain",
-      "description": "(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.",
+      "description": "(for bikes and treadmills when using \u201ctreadmill as a bike\u201d setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.",
       "parent": "Bike Options",
       "type": "number",
       "qmlType": "real",
@@ -500,7 +500,7 @@
     {
       "key": "zwift_erg_filter",
       "name": "Zwift ERG Watt Up Filter",
-      "description": "In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.",
+      "description": "In ERG Mode or during a Power Zone workout on Peloton, the app sends a \u201ctarget output\u201d request. If the output requested doesn\u2019t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 watts or more than 110 watts. Default is 10.",
       "parent": "Bike Options",
       "type": "number",
       "qmlType": "real",
@@ -526,7 +526,7 @@
     {
       "key": "zwift_negative_inclination_x2",
       "name": "Double Negative Inclination",
-      "description": "Turn this on if you have a bike with inclination capabilities to fix Zwift’s bug that sends half-negative downhill inclination",
+      "description": "Turn this on if you have a bike with inclination capabilities to fix Zwift\u2019s bug that sends half-negative downhill inclination",
       "parent": "Advanced Settings",
       "type": "boolean",
       "qmlType": "bool",
@@ -708,7 +708,7 @@
     {
       "key": "treadmill_force_speed",
       "name": "Treadmill Speed Forcing",
-      "description": "Turn this on to have QZ control the speed of your treadmill during, for example, Peloton classes based on the coach’s speed callouts. Your speed will be in the low, upper or average range based on your Peloton Options > Difficulty setting. Default is off.",
+      "description": "Turn this on to have QZ control the speed of your treadmill during, for example, Peloton classes based on the coach\u2019s speed callouts. Your speed will be in the low, upper or average range based on your Peloton Options > Difficulty setting. Default is off.",
       "parent": "Treadmill Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -734,7 +734,7 @@
     {
       "key": "continuous_moving",
       "name": "Continuous Moving",
-      "description": "Turn this on for: - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment. - Capturing non-equipment-based workouts, such as yoga or strength training. NOTE: All such workouts are labeled as “Rides” in Strava, but you can edit the label in Strava.",
+      "description": "Turn this on for: - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment. - Capturing non-equipment-based workouts, such as yoga or strength training. NOTE: All such workouts are labeled as \u201cRides\u201d in Strava, but you can edit the label in Strava.",
       "parent": "General Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -975,7 +975,7 @@
     {
       "key": "pzp_username",
       "name": "PZP Username",
-      "description": "As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.",
+      "description": "As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of \u201cusername\u201d (without quotation marks, all lowercase and all one word) until further notice.",
       "parent": "Peloton Options",
       "type": "string",
       "qmlType": "string",
@@ -1217,7 +1217,7 @@
     {
       "key": "tile_resistance_order",
       "name": "order index",
-      "description": "Displays your bike’s resistance. The +/- buttons can be used to change resistance, if your bike is compatible.",
+      "description": "Displays your bike\u2019s resistance. The +/- buttons can be used to change resistance, if your bike is compatible.",
       "parent": "tile_resistance_enabled",
       "type": "integer",
       "qmlType": "int",
@@ -1536,7 +1536,7 @@
     {
       "key": "tile_peloton_offset_order",
       "name": "order index",
-      "description": "Allows you to sync resistance and cadence target changes with the Peloton coach’s callouts. If the targets are changing in QZ after the coach’s callouts, use the ‘+’ button to add seconds (essentially speeding QZ up). Use the ‘-’ button to slow QZ down. Use this tile in conjunction with the Remaining Time/Row tile (see below).",
+      "description": "Allows you to sync resistance and cadence target changes with the Peloton coach\u2019s callouts. If the targets are changing in QZ after the coach\u2019s callouts, use the \u2018+\u2019 button to add seconds (essentially speeding QZ up). Use the \u2018-\u2019 button to slow QZ down. Use this tile in conjunction with the Remaining Time/Row tile (see below).",
       "parent": "tile_peloton_offset_enabled",
       "type": "integer",
       "qmlType": "int",
@@ -1649,7 +1649,7 @@
     {
       "key": "tile_target_resistance_order",
       "name": "order index",
-      "description": "Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile.",
+      "description": "Displays target resistance in your bike\u2019s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile.",
       "parent": "tile_target_resistance_enabled",
       "type": "integer",
       "qmlType": "int",
@@ -1910,7 +1910,7 @@
     {
       "key": "tile_watt_kg_order",
       "name": "order index",
-      "description": "Calculates your output (watts) divided by your weight. This is the primary metric used by Zwift and similar apps to calculate your virtual speed. NOTE: This is a much better metric to use than Output/Watts when comparing your effort to other users. This is why Peloton’s leaderboard, which uses only Output, is flawed.",
+      "description": "Calculates your output (watts) divided by your weight. This is the primary metric used by Zwift and similar apps to calculate your virtual speed. NOTE: This is a much better metric to use than Output/Watts when comparing your effort to other users. This is why Peloton\u2019s leaderboard, which uses only Output, is flawed.",
       "parent": "tile_watt_kg_enabled",
       "type": "integer",
       "qmlType": "int",
@@ -1997,7 +1997,7 @@
     {
       "key": "tile_nextrowstrainprogram_order",
       "name": "order index",
-      "description": "Displays the next Peloton interval with duration and FTP Zone (in Power Zone classes) or Peloton Resistance (non–Power Zone classes).",
+      "description": "Displays the next Peloton interval with duration and FTP Zone (in Power Zone classes) or Peloton Resistance (non\u2013Power Zone classes).",
       "parent": "tile_nextrowstrainprogram_enabled",
       "type": "integer",
       "qmlType": "int",
@@ -2113,7 +2113,7 @@
     {
       "key": "tile_pid_hr_order",
       "name": "order index",
-      "description": "Use this tile to display the target heart rate zone in which you’ve chosen to work out in Settings > Training Program Options.",
+      "description": "Use this tile to display the target heart rate zone in which you\u2019ve chosen to work out in Settings > Training Program Options.",
       "parent": "tile_pid_hr_enabled",
       "type": "integer",
       "qmlType": "int",
@@ -2233,7 +2233,7 @@
     {
       "key": "peloton_offset",
       "name": "Conversion Offset",
-      "description": "Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)",
+      "description": "Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ\u2019s calculated conversion from your bike\u2019s resistance scale to Peloton\u2019s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton resistance of 30 and you enter 5, QZ will display 35.)",
       "parent": "Peloton Options",
       "type": "number",
       "qmlType": "real",
@@ -2246,7 +2246,7 @@
     {
       "key": "treadmill_pid_heart_zone",
       "name": "PID on Heart Zone",
-      "description": "QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.",
+      "description": "QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the \u2018+\u2019 and \u2018-\u2019 button on the PID HR Zone tile to change the target HR zone.",
       "parent": "Training Program Options",
       "type": "string",
       "qmlType": "string",
@@ -2269,7 +2269,7 @@
     {
       "key": "pacef_1mile",
       "name": "1 mile pace (total time)",
-      "description": "Enter your 1 mile time goal, click OK. This setting will be used when you’re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.",
+      "description": "Enter your 1 mile time goal, click OK. This setting will be used when you\u2019re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.",
       "parent": "Training Program Options",
       "type": "number",
       "qmlType": "real",
@@ -3232,7 +3232,7 @@
     {
       "key": "filter_device",
       "name": "Manual Device",
-      "description": "Allows you to force QZ to connect to your equipment (see “Bluetooth Troubleshooting” below). Default is “Disabled.”",
+      "description": "Allows you to force QZ to connect to your equipment (see \u201cBluetooth Troubleshooting\u201d below). Default is \u201cDisabled.\u201d",
       "parent": "Advanced Settings",
       "type": "string",
       "qmlType": "string",
@@ -3248,7 +3248,7 @@
     {
       "key": "strava_suffix",
       "name": "Suffix activity",
-      "description": "Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.",
+      "description": "Default is \u201cQZ.\u201d Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer\u2019s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.",
       "parent": "Advanced Settings",
       "type": "string",
       "qmlType": "string",
@@ -3371,7 +3371,7 @@
     {
       "key": "power_sensor_as_bike",
       "name": "Power Sensor as a Bike",
-      "description": "If your bike doesn’t have Bluetooth, this setting allows you to use a power meter pedal sensor so your bike will work with QZ. Default is off.",
+      "description": "If your bike doesn\u2019t have Bluetooth, this setting allows you to use a power meter pedal sensor so your bike will work with QZ. Default is off.",
       "parent": "Power Sensor Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -3384,7 +3384,7 @@
     {
       "key": "power_sensor_as_treadmill",
       "name": "Power Sensor as a Treadmill",
-      "description": "If your treadmill doesn’t have Bluetooth, this setting allows you to use a Stryde sensor (or similar) so your treadmill will work with QZ. Default is off.",
+      "description": "If your treadmill doesn\u2019t have Bluetooth, this setting allows you to use a Stryde sensor (or similar) so your treadmill will work with QZ. Default is off.",
       "parent": "Power Sensor Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -3472,7 +3472,7 @@
       "key": "fitmetria_fanfit_enable",
       "name": "Enable",
       "description": null,
-      "parent": "Fitmetria Fitfan™ Options",
+      "parent": "Fitmetria Fitfan\u2122 Options",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
@@ -3485,7 +3485,7 @@
       "key": "fitmetria_fanfit_mode",
       "name": "Mode",
       "description": null,
-      "parent": "Fitmetria Fitfan™ Options",
+      "parent": "Fitmetria Fitfan\u2122 Options",
       "type": "string",
       "qmlType": "string",
       "control": "select",
@@ -3505,7 +3505,7 @@
       "key": "fitmetria_fanfit_min",
       "name": "Min. value (0-100)",
       "description": null,
-      "parent": "Fitmetria Fitfan™ Options",
+      "parent": "Fitmetria Fitfan\u2122 Options",
       "type": "number",
       "qmlType": "real",
       "control": "text",
@@ -3518,7 +3518,7 @@
       "key": "fitmetria_fanfit_max",
       "name": "Max value (0-100)",
       "description": null,
-      "parent": "Fitmetria Fitfan™ Options",
+      "parent": "Fitmetria Fitfan\u2122 Options",
       "type": "number",
       "qmlType": "real",
       "control": "text",
@@ -3556,7 +3556,7 @@
     {
       "key": "bluetooth_30m_hangs",
       "name": "Bluetooth hangs after 30 m",
-      "description": "Same as “Relaxed Bluetooth for mad devices”. Leave off unless the Support staff asks you to turn it on. Default is off.",
+      "description": "Same as \u201cRelaxed Bluetooth for mad devices\u201d. Leave off unless the Support staff asks you to turn it on. Default is off.",
       "parent": "Experimental Features",
       "type": "boolean",
       "qmlType": "bool",
@@ -3725,7 +3725,7 @@
     {
       "key": "applewatch_fakedevice",
       "name": "Fake Device",
-      "description": "Simulates QZ being connected to a bike. When this is turned on QZ will calculate KCal based on your heart rate. Examples of when to use this setting: ○ To capture Peloton class data for classes without connected equipment (e.g., a strength or yoga workout).. ○ To arrange tiles on the QZ dashboard without connecting to your equipment. ○ To use the QZ Apple Watch app without connecting to your equipment.",
+      "description": "Simulates QZ being connected to a bike. When this is turned on QZ will calculate KCal based on your heart rate. Examples of when to use this setting: \u25cb To capture Peloton class data for classes without connected equipment (e.g., a strength or yoga workout).. \u25cb To arrange tiles on the QZ dashboard without connecting to your equipment. \u25cb To use the QZ Apple Watch app without connecting to your equipment.",
       "parent": "Experimental Features",
       "type": "boolean",
       "qmlType": "bool",
@@ -4986,7 +4986,7 @@
       "key": "maps_type",
       "name": "Maps Type",
       "description": null,
-      "parent": "Maps 🗺️",
+      "parent": "Maps \ud83d\uddfa\ufe0f",
       "type": "string",
       "qmlType": "string",
       "control": "select",
@@ -6370,7 +6370,7 @@
       "key": "gpx_loop",
       "name": "Loop Start-End-Start",
       "description": null,
-      "parent": "Maps 🗺️",
+      "parent": "Maps \ud83d\uddfa\ufe0f",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
@@ -7707,7 +7707,7 @@
     {
       "key": "ftms_rower",
       "name": "FTMS Rower",
-      "description": "Allows you to force QZ to connect to your FTMS Rower. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is “Disabled.”",
+      "description": "Allows you to force QZ to connect to your FTMS Rower. If you are in doubt, leave this Disabled and send an email to the QZ support. Default is \u201cDisabled.\u201d",
       "parent": "Rower Options",
       "type": "string",
       "qmlType": "string",
@@ -7829,7 +7829,7 @@
     {
       "key": "watt_ignore_builtin",
       "name": "Disable wattage from machinery",
-      "description": "This prevents your fitness device from sending its wattage calculation to QZ and defaults to QZ’s more accurate calculation.",
+      "description": "This prevents your fitness device from sending its wattage calculation to QZ and defaults to QZ\u2019s more accurate calculation.",
       "parent": "Advanced Settings",
       "type": "boolean",
       "qmlType": "bool",
@@ -12138,7 +12138,7 @@
     },
     {
       "key": "domyos_treadmill_ts100",
-      "name": "TS100 (Fixed 15° Inclination)",
+      "name": "TS100 (Fixed 15\u00b0 Inclination)",
       "description": null,
       "parent": "Domyos Treadmill Options",
       "type": "boolean",
@@ -12328,7 +12328,7 @@
     {
       "key": "cadence_sensor_as_treadmill",
       "name": "Cadence Sensor as a Treadmill",
-      "description": "If your equipment doesn’t have Bluetooth, these settings allow you to use a cadence sensor so it will work with QZ as a bike or treadmill. Default is off.",
+      "description": "If your equipment doesn\u2019t have Bluetooth, these settings allow you to use a cadence sensor so it will work with QZ as a bike or treadmill. Default is off.",
       "parent": "Cadence Sensor Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -12522,7 +12522,7 @@
     {
       "key": "power_sensor_speed_inclination_coeff_b",
       "name": "Power Sensor Speed/Incline Coefficient B",
-      "description": "Custom coefficients for power sensor inclination calculation using formula: vwatts = (A + B × speed) × inclination. For Stryd sensors use: A = -0.96, B = 1.33 Examples with these values: • 8 km/h, 10% incline: (-0.96 + 1.33×8) × 10 = 97W added • 11 km/h, 10% incline: (-0.96 + 1.33×11) × 10 = 137W added If both A and B are 0, QZ will use the default formula: 9.8 × weight × (inclination/100). Default: A = -0.96, B = 1.33",
+      "description": "Custom coefficients for power sensor inclination calculation using formula: vwatts = (A + B \u00d7 speed) \u00d7 inclination. For Stryd sensors use: A = -0.96, B = 1.33 Examples with these values: \u2022 8 km/h, 10% incline: (-0.96 + 1.33\u00d78) \u00d7 10 = 97W added \u2022 11 km/h, 10% incline: (-0.96 + 1.33\u00d711) \u00d7 10 = 137W added If both A and B are 0, QZ will use the default formula: 9.8 \u00d7 weight \u00d7 (inclination/100). Default: A = -0.96, B = 1.33",
       "parent": "Power Sensor Options",
       "type": "number",
       "qmlType": "double",
@@ -13693,6 +13693,19 @@
       "visible": true,
       "defaultValue": false,
       "defaultExpression": "false",
+      "options": null
+    },
+    {
+      "key": "freebeat_serialport",
+      "name": "Serial Port",
+      "description": null,
+      "parent": "Freebeat Bike Options",
+      "type": "string",
+      "qmlType": "string",
+      "control": "text",
+      "visible": true,
+      "defaultValue": "",
+      "defaultExpression": "\"\"",
       "options": null
     }
   ]
