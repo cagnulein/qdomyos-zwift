@@ -23,7 +23,7 @@ class lockscreen {
     void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories,
                                unsigned long long currentSteps, unsigned char deviceType, double currentDistance,
                                double totalKcal, bool useMiles, unsigned char heartRate,
-                               const char *compactLeadingMetric, int compactLeadingValue,
+                               int liveActivityHeartRate, const char *compactLeadingMetric, int compactLeadingValue,
                                const char *compactTrailingMetric, int compactTrailingValue);
     bool appleWatchAppInstalled();
 

@@ -437,6 +437,19 @@ class homeform : public QObject {
         return settings.value(QZSettings::confirm_stop_workout, QZSettings::default_confirm_stop_workout).toBool();
     }
 
+    Q_INVOKABLE bool rpeFeelPopupEnabled() {
+        QSettings settings;
+        return settings.value(QZSettings::rpe_feel_popup_enabled, QZSettings::default_rpe_feel_popup_enabled).toBool();
+    }
+
+    // Called from QML once the post-workout RPE/feel popup is dismissed (Save or Skip, rpe/feel -1 if skipped).
+    // Stop() defers fit_save_clicked() until this is called when the popup is enabled.
+    Q_INVOKABLE void finalizeFitSave(int rpe, int feel) {
+        m_workoutRpe = rpe;
+        m_workoutFeel = feel;
+        fit_save_clicked();
+    }
+
     Q_INVOKABLE bool locationServices() {
         return m_locationServices;
     }
@@ -679,6 +692,7 @@ public:
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
     Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
+    Q_INVOKABLE void openAndroidDocumentPicker(const QString &kind);
     Q_INVOKABLE bool deleteTrainingProgramFile(const QString &fileUrl);
 
     double wattMaxChart() {
@@ -1056,6 +1070,10 @@ public:
     QString lastFitFileSaved = QLatin1String("");
     QString lastTrainProgramFileSaved = QLatin1String("");
 
+    // Perceived exertion (RPE, 0-10) and feel (0-100) entered in the post-workout popup; -1 means not set
+    int m_workoutRpe = -1;
+    int m_workoutFeel = -1;
+
     QList<QString> chartImagesFilenames;
     bool mailSent = false;
 
@@ -1102,6 +1120,7 @@ public:
     static QString getFileNameFromContentUri(const QString &uriString);
 
     int16_t fanOverride = 0;
+    const float powerJog = 5.0;
 
     void update();
     void ten_hz();
@@ -1158,6 +1177,7 @@ public:
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_autostart_requested();
     void handleOAuthCallbackUrl(const QString &callbackUrl);
+    void handleAndroidDocumentPicked(int requestCode, const QString &uriString);
 
   private slots:
     void Start();
@@ -1255,6 +1275,7 @@ public:
     void nativeWorkoutEditorClosed();
     void changeOfdevice();
     void changeOflap();
+    void androidDocumentPicked(QString kind, QUrl localUrl);
     void signalChanged(QString value);
     void startTextChanged(QString value);
     void startIconChanged(QString value);

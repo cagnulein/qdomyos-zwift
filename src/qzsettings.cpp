@@ -45,6 +45,7 @@ const QString QZSettings::default_garmin_email = QStringLiteral("");
 const QString QZSettings::garmin_password = QStringLiteral("garmin_password");
 const QString QZSettings::default_garmin_password = QStringLiteral("");
 const QString QZSettings::garmin_upload_enabled = QStringLiteral("garmin_upload_enabled");
+const QString QZSettings::rpe_feel_popup_enabled = QStringLiteral("rpe_feel_popup_enabled");
 const QString QZSettings::garmin_download_workouts_on_start = QStringLiteral("garmin_download_workouts_on_start");
 const QString QZSettings::garmin_access_token = QStringLiteral("garmin_access_token");
 const QString QZSettings::default_garmin_access_token = QStringLiteral("");
@@ -906,6 +907,8 @@ const QString QZSettings::watt_bike_emulator = QStringLiteral("watt_bike_emulato
 const QString QZSettings::restore_specific_gear = QStringLiteral("restore_specific_gear");
 const QString QZSettings::skipLocationServicesDialog = QStringLiteral("skipLocationServicesDialog");
 const QString QZSettings::trainprogram_pid_pushy = QStringLiteral("trainprogram_pid_pushy");
+const QString QZSettings::trainprogram_pid_hr_pushy_zone_limit = QStringLiteral("trainprogram_pid_hr_pushy_zone_limit");
+const QString QZSettings::trainprogram_pid_hr_recovery_zone_limit = QStringLiteral("trainprogram_pid_hr_recovery_zone_limit");
 const QString QZSettings::min_inclination = QStringLiteral("min_inclination");
 const QString QZSettings::proform_performance_300i = QStringLiteral("proform_performance_300i");
 const QString QZSettings::proform_performance_400i = QStringLiteral("proform_performance_400i");
@@ -1113,6 +1116,34 @@ const QString QZSettings::proform_treadmill_105_cst = QStringLiteral("proform_tr
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
 const QString QZSettings::horizon_treadmill_omega_z = QStringLiteral("horizon_treadmill_omega_z");
 
+// Zwift Play/Ride per-button gear mapping
+const QString QZSettings::zwiftplay_gear_ls1 = QStringLiteral("zwiftplay_gear_ls1");
+const QString QZSettings::zwiftplay_gear_ls2 = QStringLiteral("zwiftplay_gear_ls2");
+const QString QZSettings::zwiftplay_gear_rs1 = QStringLiteral("zwiftplay_gear_rs1");
+const QString QZSettings::zwiftplay_gear_rs2 = QStringLiteral("zwiftplay_gear_rs2");
+const QString QZSettings::zwiftplay_gear_paddle_left = QStringLiteral("zwiftplay_gear_paddle_left");
+const QString QZSettings::zwiftplay_gear_paddle_right = QStringLiteral("zwiftplay_gear_paddle_right");
+const QString QZSettings::zwiftplay_gear_lb = QStringLiteral("zwiftplay_gear_lb");
+const QString QZSettings::zwiftplay_gear_rb = QStringLiteral("zwiftplay_gear_rb");
+
+// MyWhoosh Link settings
+const QString QZSettings::mywhoosh_link_enabled = QStringLiteral("mywhoosh_link_enabled");
+const QString QZSettings::mywhoosh_link_override_gears = QStringLiteral("mywhoosh_link_override_gears");
+const QString QZSettings::mywhoosh_link_left_up = QStringLiteral("mywhoosh_link_left_up");
+const QString QZSettings::mywhoosh_link_left_down = QStringLiteral("mywhoosh_link_left_down");
+const QString QZSettings::mywhoosh_link_left_left = QStringLiteral("mywhoosh_link_left_left");
+const QString QZSettings::mywhoosh_link_left_right = QStringLiteral("mywhoosh_link_left_right");
+const QString QZSettings::mywhoosh_link_left_shoulder = QStringLiteral("mywhoosh_link_left_shoulder");
+const QString QZSettings::mywhoosh_link_left_power = QStringLiteral("mywhoosh_link_left_power");
+const QString QZSettings::mywhoosh_link_right_y = QStringLiteral("mywhoosh_link_right_y");
+const QString QZSettings::mywhoosh_link_right_a = QStringLiteral("mywhoosh_link_right_a");
+const QString QZSettings::mywhoosh_link_right_b = QStringLiteral("mywhoosh_link_right_b");
+const QString QZSettings::mywhoosh_link_right_z = QStringLiteral("mywhoosh_link_right_z");
+const QString QZSettings::mywhoosh_link_right_shoulder = QStringLiteral("mywhoosh_link_right_shoulder");
+const QString QZSettings::mywhoosh_link_right_power = QStringLiteral("mywhoosh_link_right_power");
+const QString QZSettings::mywhoosh_link_camera_value = QStringLiteral("mywhoosh_link_camera_value");
+const QString QZSettings::mywhoosh_link_emote_value = QStringLiteral("mywhoosh_link_emote_value");
+
 const QString QZSettings::shortcuts_enabled = QStringLiteral("shortcuts_enabled");
 const QString QZSettings::shortcut_speed_plus = QStringLiteral("shortcut_speed_plus");
 const QString QZSettings::default_shortcut_speed_plus = QStringLiteral("");
@@ -1245,7 +1276,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 972;
+const uint32_t allSettingsCount = 999;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1272,6 +1303,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::garmin_email, QZSettings::default_garmin_email},
     {QZSettings::garmin_password, QZSettings::default_garmin_password},
     {QZSettings::garmin_upload_enabled, QZSettings::default_garmin_upload_enabled},
+    {QZSettings::rpe_feel_popup_enabled, QZSettings::default_rpe_feel_popup_enabled},
     {QZSettings::garmin_download_workouts_on_start, QZSettings::default_garmin_download_workouts_on_start},
     {QZSettings::garmin_access_token, QZSettings::default_garmin_access_token},
     {QZSettings::garmin_refresh_token, QZSettings::default_garmin_refresh_token},
@@ -2001,6 +2033,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::restore_specific_gear, QZSettings::default_restore_specific_gear},
     {QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog},
     {QZSettings::trainprogram_pid_pushy, QZSettings::default_trainprogram_pid_pushy},
+    {QZSettings::trainprogram_pid_hr_pushy_zone_limit, QZSettings::default_trainprogram_pid_hr_pushy_zone_limit},
+    {QZSettings::trainprogram_pid_hr_recovery_zone_limit, QZSettings::default_trainprogram_pid_hr_recovery_zone_limit},
     {QZSettings::min_inclination, QZSettings::default_min_inclination},
     {QZSettings::proform_performance_300i, QZSettings::default_proform_performance_300i},
     {QZSettings::proform_performance_400i, QZSettings::default_proform_performance_400i},
@@ -2168,6 +2202,22 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0},
     {QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token},
     {QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret},
+    {QZSettings::mywhoosh_link_enabled, QZSettings::default_mywhoosh_link_enabled},
+    {QZSettings::mywhoosh_link_override_gears, QZSettings::default_mywhoosh_link_override_gears},
+    {QZSettings::mywhoosh_link_left_up, QZSettings::default_mywhoosh_link_left_up},
+    {QZSettings::mywhoosh_link_left_down, QZSettings::default_mywhoosh_link_left_down},
+    {QZSettings::mywhoosh_link_left_left, QZSettings::default_mywhoosh_link_left_left},
+    {QZSettings::mywhoosh_link_left_right, QZSettings::default_mywhoosh_link_left_right},
+    {QZSettings::mywhoosh_link_left_shoulder, QZSettings::default_mywhoosh_link_left_shoulder},
+    {QZSettings::mywhoosh_link_left_power, QZSettings::default_mywhoosh_link_left_power},
+    {QZSettings::mywhoosh_link_right_y, QZSettings::default_mywhoosh_link_right_y},
+    {QZSettings::mywhoosh_link_right_a, QZSettings::default_mywhoosh_link_right_a},
+    {QZSettings::mywhoosh_link_right_b, QZSettings::default_mywhoosh_link_right_b},
+    {QZSettings::mywhoosh_link_right_z, QZSettings::default_mywhoosh_link_right_z},
+    {QZSettings::mywhoosh_link_right_shoulder, QZSettings::default_mywhoosh_link_right_shoulder},
+    {QZSettings::mywhoosh_link_right_power, QZSettings::default_mywhoosh_link_right_power},
+    {QZSettings::mywhoosh_link_camera_value, QZSettings::default_mywhoosh_link_camera_value},
+    {QZSettings::mywhoosh_link_emote_value, QZSettings::default_mywhoosh_link_emote_value},
     {QZSettings::shortcuts_enabled, QZSettings::default_shortcuts_enabled},
     {QZSettings::shortcut_speed_plus, QZSettings::default_shortcut_speed_plus},
     {QZSettings::shortcut_speed_minus, QZSettings::default_shortcut_speed_minus},
@@ -2242,6 +2292,14 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_105_cst, QZSettings::default_proform_treadmill_105_cst},
     {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
     {QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z},
+    {QZSettings::zwiftplay_gear_ls1, QZSettings::default_zwiftplay_gear_ls1},
+    {QZSettings::zwiftplay_gear_ls2, QZSettings::default_zwiftplay_gear_ls2},
+    {QZSettings::zwiftplay_gear_rs1, QZSettings::default_zwiftplay_gear_rs1},
+    {QZSettings::zwiftplay_gear_rs2, QZSettings::default_zwiftplay_gear_rs2},
+    {QZSettings::zwiftplay_gear_paddle_left, QZSettings::default_zwiftplay_gear_paddle_left},
+    {QZSettings::zwiftplay_gear_paddle_right, QZSettings::default_zwiftplay_gear_paddle_right},
+    {QZSettings::zwiftplay_gear_lb, QZSettings::default_zwiftplay_gear_lb},
+    {QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
