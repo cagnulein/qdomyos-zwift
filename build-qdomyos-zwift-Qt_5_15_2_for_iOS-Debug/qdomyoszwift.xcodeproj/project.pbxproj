@@ -202,6 +202,8 @@
 		87310B1F266FBB59008BA0D6 /* homefitnessbuddy.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87310B1C266FBB57008BA0D6 /* homefitnessbuddy.cpp */; };
 		87310B22266FBB78008BA0D6 /* moc_homefitnessbuddy.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87310B20266FBB6E008BA0D6 /* moc_homefitnessbuddy.cpp */; };
 		87310B23266FBB78008BA0D6 /* moc_smartrowrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87310B21266FBB77008BA0D6 /* moc_smartrowrower.cpp */; };
+		1010C5FA2F9542C4A29D45AF /* waterrowerusb.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 989CF289E68C405BB4611498 /* waterrowerusb.cpp */; };
+		379A5F030DD74566B5EDF9C8 /* moc_waterrowerusb.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 53238C87D8804F37ABB4A2B5 /* moc_waterrowerusb.cpp */; };
 		87318AAD2683799100770F13 /* echelonstride.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87318AAB2683799100770F13 /* echelonstride.cpp */; };
 		87318AAF2683799C00770F13 /* moc_echelonstride.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87318AAE2683799C00770F13 /* moc_echelonstride.cpp */; };
 		87318AB126837C7600770F13 /* libQt5WebSockets.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87318AB026837AA500770F13 /* libQt5WebSockets.a */; };
@@ -1130,6 +1132,9 @@
 		87310B1D266FBB58008BA0D6 /* smartrowrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = smartrowrower.h; path = ../src/devices/smartrowrower/smartrowrower.h; sourceTree = "<group>"; };
 		87310B20266FBB6E008BA0D6 /* moc_homefitnessbuddy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_homefitnessbuddy.cpp; sourceTree = "<group>"; };
 		87310B21266FBB77008BA0D6 /* moc_smartrowrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_smartrowrower.cpp; sourceTree = "<group>"; };
+		989CF289E68C405BB4611498 /* waterrowerusb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = waterrowerusb.cpp; path = ../src/devices/waterrowerusb/waterrowerusb.cpp; sourceTree = "<group>"; };
+		2C00064A47904C7F9E743174 /* waterrowerusb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = waterrowerusb.h; path = ../src/devices/waterrowerusb/waterrowerusb.h; sourceTree = "<group>"; };
+		53238C87D8804F37ABB4A2B5 /* moc_waterrowerusb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_waterrowerusb.cpp; sourceTree = "<group>"; };
 		87318AAB2683799100770F13 /* echelonstride.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = echelonstride.cpp; path = ../src/devices/echelonstride/echelonstride.cpp; sourceTree = "<group>"; };
 		87318AAC2683799100770F13 /* echelonstride.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = echelonstride.h; path = ../src/devices/echelonstride/echelonstride.h; sourceTree = "<group>"; };
 		87318AAE2683799C00770F13 /* moc_echelonstride.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_echelonstride.cpp; sourceTree = "<group>"; };
@@ -2312,6 +2317,7 @@
 				87318AAE2683799C00770F13 /* moc_echelonstride.cpp */,
 				87310B20266FBB6E008BA0D6 /* moc_homefitnessbuddy.cpp */,
 				87310B21266FBB77008BA0D6 /* moc_smartrowrower.cpp */,
+				53238C87D8804F37ABB4A2B5 /* moc_waterrowerusb.cpp */,
 				87A18F082660D5D9002D7C96 /* moc_ftmsrower.cpp */,
 				871B9FD3265E6A9A00DB41F4 /* moc_powerzonepack.cpp */,
 				87A3BC25265642A200D302E3 /* moc_echelonrower.cpp */,
@@ -2794,6 +2800,8 @@
 				87310B1A266FBB54008BA0D6 /* homefitnessbuddy.h */,
 				87310B1B266FBB54008BA0D6 /* smartrowrower.cpp */,
 				87310B1D266FBB58008BA0D6 /* smartrowrower.h */,
+				989CF289E68C405BB4611498 /* waterrowerusb.cpp */,
+				2C00064A47904C7F9E743174 /* waterrowerusb.h */,
 				87083D9526678EFA0072410D /* zwiftworkout.cpp */,
 				87083D9426678EFA0072410D /* zwiftworkout.h */,
 				87A18F052660D5C0002D7C96 /* ftmsrower.cpp */,
@@ -4050,6 +4058,7 @@
 				873824E427E647A8004F1B46 /* cache.cpp in Compile Sources */,
 				87A2E0222B2B053E00E6168F /* swiftDebug.mm in Compile Sources */,
 				87310B1E266FBB59008BA0D6 /* smartrowrower.cpp in Compile Sources */,
+				1010C5FA2F9542C4A29D45AF /* waterrowerusb.cpp in Compile Sources */,
 				87A3BC222656429600D302E3 /* rower.cpp in Compile Sources */,
 				C719682D8D421AF6B2DAAEA9 /* main.cpp in Compile Sources */,
 				87BB1774269E983200F46A1C /* moc_webserverinfosender.cpp in Compile Sources */,
@@ -4297,6 +4306,7 @@
 				87C5F0B626285E5F0067A1B5 /* quotedprintable.cpp in Compile Sources */,
 				87DBD5DB2F2CEE1900342F2B /* thinkridercontroller.cpp in Compile Sources */,
 				87310B23266FBB78008BA0D6 /* moc_smartrowrower.cpp in Compile Sources */,
+				379A5F030DD74566B5EDF9C8 /* moc_waterrowerusb.cpp in Compile Sources */,
 				EE29228550794460E7654533 /* moc_trxappgateusbtreadmill.cpp in Compile Sources */,
 				3DB7B5F0CE1E2390CEFFC1E8 /* moc_virtualbike.cpp in Compile Sources */,
 				8738249527E646E3004F1B46 /* characteristicnotifier2a37.cpp in Compile Sources */,
