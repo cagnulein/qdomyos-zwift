@@ -1477,15 +1477,33 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (!ensureBytesAvailable(2, QStringLiteral("instant power")))
                 return;
 
-            double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
-            m_rawWatt = ftms_watt;  // Always update rawWatt from FTMS bike data
-            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled"))) {
-                m_watt = ftms_watt;  // Only update watt if no external power sensor
+            if (TOPUTURE_TEB5 && settings.value(QZSettings::toputure_teb1, QZSettings::default_toputure_teb1).toBool()) {
+                // The 0x2ACE characteristic carries a raw watt value that is unrealistically low.
+                // Apply the same formula used in the 0x2AD2 handler to avoid watt oscillation
+                // between the two characteristics (see GitHub issue #4828).
+                const double k[32] = {0.60, 0.64, 0.68, 0.72, 0.76, 0.80, 0.84, 0.88, 0.92, 0.96, 1.00, 1.05, 1.10, 1.15, 1.20, 1.26, 1.32, 1.39, 1.46, 1.54, 1.62, 1.70, 1.79, 1.88, 1.97, 2.05, 2.12, 2.18, 2.24, 2.30, 2.35, 2.40};
+                double ac = 0.01243107769;
+                double bc = 1.145964912;
+                double cc = -23.50977444;
+                double baseline_watt = ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc;
+                int resistance_level = (int)Resistance.value();
+                if (resistance_level < 1) resistance_level = 1;
+                if (resistance_level > 32) resistance_level = 32;
+                m_watt = baseline_watt * k[resistance_level - 1];
+                if (m_watt.value() < 0) m_watt = 0;
+                emit debug(QStringLiteral("Current Watt (TOPUTURE_TEB5 formula - R%1 x%2): %3")
+                    .arg(resistance_level).arg(k[resistance_level - 1]).arg(m_watt.value()));
+            } else {
+                double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                       (uint16_t)((uint8_t)newValue.at(index))));
+                m_rawWatt = ftms_watt;
+                if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                        .toString()
+                        .startsWith(QStringLiteral("Disabled"))) {
+                    m_watt = ftms_watt;
+                }
+                emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             }
-            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             index += 2;
         }
 
