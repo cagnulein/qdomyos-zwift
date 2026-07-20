@@ -9626,9 +9626,11 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
     qDebug() << "File size to upload:" << data.size() << "bytes";
     qDebug() << "Remote filename:" << remotename;
 
-    // The V3 API doc said "https://api.strava.com" but it is not working yet
-    QUrl url = QUrl(QStringLiteral("https://www.strava.com/api/v3/uploads"));
+    // New base URL per Strava breaking change effective June 1, 2027
+    QUrl url = QUrl(QStringLiteral("https://www.api-v3.strava.com/uploads"));
     QNetworkRequest request = QNetworkRequest(url);
+    // Authorization token must be sent in request header (not form params) per Strava breaking change
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(token).toUtf8());
 
     // QString boundary = QString::number(qrand() * (90000000000) / (RAND_MAX + 1) + 10000000000, 16);
     QString boundary = QVariant(QRandomGenerator::global()->generate()).toString() +
@@ -9639,12 +9641,6 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
 
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
     multiPart->setBoundary(boundary.toLatin1());
-
-    QHttpPart accessTokenPart;
-    accessTokenPart.setHeader(QNetworkRequest::ContentDispositionHeader,
-                              QVariant(QStringLiteral("form-data; name=\"access_token\"")));
-    accessTokenPart.setBody(token.toLatin1());
-    multiPart->append(accessTokenPart);
 
     QHttpPart activityNamePart;
     activityNamePart.setHeader(QNetworkRequest::ContentDispositionHeader,
