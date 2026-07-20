@@ -781,6 +781,21 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         setGears(gear);
     }
 
+    auto applyToputureTEB5Watt = [&]() {
+        const double k[32] = {0.60, 0.64, 0.68, 0.72, 0.76, 0.80, 0.84, 0.88, 0.92, 0.96, 1.00, 1.05, 1.10, 1.15, 1.20, 1.26, 1.32, 1.39, 1.46, 1.54, 1.62, 1.70, 1.79, 1.88, 1.97, 2.05, 2.12, 2.18, 2.24, 2.30, 2.35, 2.40};
+        const double ac = 0.01243107769;
+        const double bc = 1.145964912;
+        const double cc = -23.50977444;
+        const double baseline_watt = ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc;
+        int resistance_level = (int)Resistance.value();
+        if (resistance_level < 1) resistance_level = 1;
+        if (resistance_level > 32) resistance_level = 32;
+        m_watt = baseline_watt * k[resistance_level - 1];
+        if (m_watt.value() < 0) m_watt = 0;
+        emit debug(QStringLiteral("Current Watt (TOPUTURE_TEB5 formula - R%1 x%2): %3")
+            .arg(resistance_level).arg(k[resistance_level - 1]).arg(m_watt.value()));
+    };
+
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
         union flags {
             struct {
@@ -990,30 +1005,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 emit debug(QStringLiteral("Current Watt (SPORT01 formula - R%1 x%2): %3")
                     .arg(resistance_level).arg(k[resistance_level - 1]).arg(m_watt.value()));
             } else if (TOPUTURE_TEB5 && settings.value(QZSettings::toputure_teb1, QZSettings::default_toputure_teb1).toBool()) {
-                // Custom power calculation for TOPUTURE_TEB5
-                // Resistance multipliers for levels 1-32
-                const double k[32] = {0.60, 0.64, 0.68, 0.72, 0.76, 0.80, 0.84, 0.88, 0.92, 0.96, 1.00, 1.05, 1.10, 1.15, 1.20, 1.26, 1.32, 1.39, 1.46, 1.54, 1.62, 1.70, 1.79, 1.88, 1.97, 2.05, 2.12, 2.18, 2.24, 2.30, 2.35, 2.40};
-
-                // Baseline power curve coefficients (MyWhoosh cadence-power at resistance 5)
-                double ac = 0.01243107769;
-                double bc = 1.145964912;
-                double cc = -23.50977444;
-
-                // Calculate baseline power from cadence (resistance level 5 baseline)
-                double baseline_watt = ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc;
-
-                // Get current resistance level (1-32) and apply multiplier
-                int resistance_level = (int)Resistance.value();
-                if(resistance_level < 1) resistance_level = 1;
-                if(resistance_level > 32) resistance_level = 32;
-
-                // Apply resistance multiplier
-                m_watt = baseline_watt * k[resistance_level - 1];
-
-                if(m_watt.value() < 0) m_watt = 0;
-
-                emit debug(QStringLiteral("Current Watt (TOPUTURE_TEB5 formula - R%1 x%2): %3")
-                    .arg(resistance_level).arg(k[resistance_level - 1]).arg(m_watt.value()));                    
+                applyToputureTEB5Watt();
             } else if (MRK_S26C) {
                 m_watt = Cadence.value() * (Resistance.value() * 1.16);
                 emit debug(QStringLiteral("Current Watt (MRK-S26C formula): ") + QString::number(m_watt.value()));
@@ -1479,20 +1471,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
             if (TOPUTURE_TEB5 && settings.value(QZSettings::toputure_teb1, QZSettings::default_toputure_teb1).toBool()) {
                 // The 0x2ACE characteristic carries a raw watt value that is unrealistically low.
-                // Apply the same formula used in the 0x2AD2 handler to avoid watt oscillation
-                // between the two characteristics (see GitHub issue #4828).
-                const double k[32] = {0.60, 0.64, 0.68, 0.72, 0.76, 0.80, 0.84, 0.88, 0.92, 0.96, 1.00, 1.05, 1.10, 1.15, 1.20, 1.26, 1.32, 1.39, 1.46, 1.54, 1.62, 1.70, 1.79, 1.88, 1.97, 2.05, 2.12, 2.18, 2.24, 2.30, 2.35, 2.40};
-                double ac = 0.01243107769;
-                double bc = 1.145964912;
-                double cc = -23.50977444;
-                double baseline_watt = ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc;
-                int resistance_level = (int)Resistance.value();
-                if (resistance_level < 1) resistance_level = 1;
-                if (resistance_level > 32) resistance_level = 32;
-                m_watt = baseline_watt * k[resistance_level - 1];
-                if (m_watt.value() < 0) m_watt = 0;
-                emit debug(QStringLiteral("Current Watt (TOPUTURE_TEB5 formula - R%1 x%2): %3")
-                    .arg(resistance_level).arg(k[resistance_level - 1]).arg(m_watt.value()));
+                // Use the same formula as the 0x2AD2 handler to avoid oscillation (#4828).
+                applyToputureTEB5Watt();
             } else {
                 double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
