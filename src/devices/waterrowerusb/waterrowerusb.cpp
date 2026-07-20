@@ -186,7 +186,6 @@ waterrowerusb::waterrowerusb(bool noWriteResistance, bool noHeartService, bool n
 
 #ifdef Q_OS_IOS
     h = new lockscreen();
-    h->setKeepalive(true);
 #endif
 
     // Create and start worker thread
