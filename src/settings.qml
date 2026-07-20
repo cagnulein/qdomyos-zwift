@@ -15056,6 +15056,14 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         onClicked: settings.gpx_loop = checked
                     }
+
+                    Label {
+                        text: qsTr("The metrics shown in the map's data box follow the same on/off switches as the Tiles settings.")
+                        Layout.topMargin: 10
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        font.italic: true
+                    }
                 }
             }
 
