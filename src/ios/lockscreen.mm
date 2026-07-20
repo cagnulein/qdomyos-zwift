@@ -153,7 +153,7 @@ void lockscreen::setTotalKcal(double totalKcal)
 
 void lockscreen::setDistance(double distance)
 {
-    [h setDistanceWithDistance:distance * 0.621371];
+    [h setDistanceWithDistance:distance];
 }
 
 void lockscreen::setSteps(double steps)

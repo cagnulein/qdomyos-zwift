@@ -110,11 +110,11 @@ extension MainController: WorkoutTrackingDelegate {
         WorkoutTracking.cadence = WatchKitConnection.cadence
         WorkoutTracking.steps = WatchKitConnection.steps
                 
-		if Locale.current.measurementSystem != "Metric" {
-			self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance))")
-		} else {
-			self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance * 1.60934))")
-		}
+        if Locale.current.measurementSystem != "Metric" {
+            self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance * 0.621371)) mi")
+        } else {
+            self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance)) km")
+        }
         self.caloriesLabel.setText("KCal \(Int(WorkoutTracking.kcal))")
         //WorkoutTracking.cadenceSteps = pedometer.
     }
