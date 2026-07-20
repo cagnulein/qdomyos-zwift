@@ -1508,6 +1508,7 @@ import AndroidStatusBar 1.0
             property int tile_auto_virtual_shifting_sprint_order: 57
             property string proform_rower_ip: ""
             property string ftms_elliptical: "Disabled"
+            
             property bool calories_active_only: false
             property real height: 175.0
             property bool calories_from_hr: false
@@ -1705,7 +1706,7 @@ import AndroidStatusBar 1.0
             property bool tile_watt_color_enabled: true
             property bool tile_pace_color_enabled: true
             property bool treadmill_force_running_activity: false
-            property bool proform_treadmill_105_cst: false
+            property bool proform_treadmill_105_cst: false            
             property real trainprogram_pid_hr_pushy_zone_limit: 0.8
             property real trainprogram_pid_hr_recovery_zone_limit: 60.0
             property bool rpe_feel_popup_enabled: false
@@ -1734,6 +1735,8 @@ import AndroidStatusBar 1.0
             property int mywhoosh_link_right_power: 0
             property int mywhoosh_link_camera_value: 1
             property int mywhoosh_link_emote_value: 1
+            
+            property bool waterrower_usb: false
         }
 
 
@@ -11806,7 +11809,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ftms_rower = stripRssi(ftmsRowerTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
-                    }
+                    }                   
 
                     Button {
                         text: qsTr("Refresh Devices List")
@@ -11825,6 +11828,21 @@ import AndroidStatusBar 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    CheckBox {
+                        id: waterrowerUSBCheckBox
+                        text: qsTr("WaterRower USB")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.waterrower_usb
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.waterrower_usb = checked; window.settings_restart_to_apply = true; }
                     }
 
                     AccordionElement {

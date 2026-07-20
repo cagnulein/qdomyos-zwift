@@ -409,6 +409,7 @@ class homeform : public QObject {
         bool fakedevice_elliptical =
             settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical).toBool();
         bool fakedevice_rower = settings.value(QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower).toBool();
+        bool waterrower_usb = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
         bool fakedevice_treadmill =
             settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
         bool antbike =
@@ -416,7 +417,7 @@ class homeform : public QObject {
 
         return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty() && 
                 nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical &&
-                !fakedevice_rower && !fakedevice_treadmill && !antbike && !android_antbike && proform_elliptical_ip.isEmpty() && 
+                !fakedevice_rower && !waterrower_usb && !fakedevice_treadmill && !antbike && !android_antbike && proform_elliptical_ip.isEmpty() &&
                 proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty();
     }
 

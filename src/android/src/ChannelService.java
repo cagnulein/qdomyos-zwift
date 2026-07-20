@@ -251,13 +251,15 @@ public class ChannelService extends Service {
          */
         void updateBikeTransmitterExtendedMetrics(long distanceMeters, int heartRate, 
                                                  double elapsedTimeSeconds, int resistance, 
-                                                 double inclination) {
+                                                 double inclination, int equipmentType, int strokeCount) {
             if (!Ant.treadmill && bikeTransmitterController != null) {
                 bikeTransmitterController.setDistance(distanceMeters);
                 bikeTransmitterController.setHeartRate(heartRate);
                 bikeTransmitterController.setElapsedTime(elapsedTimeSeconds);
                 bikeTransmitterController.setResistance(resistance);
                 bikeTransmitterController.setInclination(inclination);
+                bikeTransmitterController.setEquipmentType(equipmentType);
+                bikeTransmitterController.setStrokeCount(strokeCount);
             }
         }
 
