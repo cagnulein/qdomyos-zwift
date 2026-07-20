@@ -1706,10 +1706,10 @@ import AndroidStatusBar 1.0
             property bool tile_watt_color_enabled: true
             property bool tile_pace_color_enabled: true
             property bool treadmill_force_running_activity: false
-            property bool proform_treadmill_105_cst: false
-            property bool waterrower_usb: false
+            property bool proform_treadmill_105_cst: false            
             property real trainprogram_pid_hr_pushy_zone_limit: 0.8
             property real trainprogram_pid_hr_recovery_zone_limit: 60.0
+			property bool waterrower_usb: false
         }
 
 
