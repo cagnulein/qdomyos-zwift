@@ -280,12 +280,14 @@ void wahookickruntreadmill::stateChanged(QLowEnergyService::ServiceState state) 
             emit debug(QStringLiteral("char uuid=") + c.uuid().toString() +
                        QStringLiteral(" handle=0x") + QString::number(c.handle(), 16));
 
-            // The command characteristic is the one with BOTH Write-Without-Response and Notify.
-            // In the observed trace it sits at handle 0x0023.
-            bool hasWriteNoResp = c.properties() & QLowEnergyCharacteristic::WriteNoResponse;
-            bool hasNotify      = c.properties() & QLowEnergyCharacteristic::Notify;
+            // Command characteristic: UUID a026e03e at handle 0x0023.
+            // a026e002 (handle 0x0019) is the Wahoo debug/console stream — it also has
+            // WriteNoResponse+Notify so a property-only heuristic always picks it first,
+            // causing all init/speed writes to be silently swallowed by the wrong channel.
+            static const QBluetoothUuid cmdCharUuid(
+                QStringLiteral("a026e03e-0a7d-4ab3-97fa-f1500f9feb8b"));
 
-            if (hasWriteNoResp && hasNotify && !gattCmdCharacteristic.isValid()) {
+            if (c.uuid() == cmdCharUuid) {
                 gattCmdCharacteristic = c;
                 gattCmdService = s;
                 emit debug(QStringLiteral("KickRun cmd char found: handle=0x") +
