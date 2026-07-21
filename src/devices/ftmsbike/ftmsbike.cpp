@@ -354,7 +354,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         } else {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-            if(_3G_Cardio_RB || SL010)
+            if(_3G_Cardio_RB || SL010 || MRK_S36C)
                 requestResistance = requestResistance * 10;
             write[1] = ((uint8_t)(requestResistance));
             writeCharacteristic(write, sizeof(write),
@@ -2124,6 +2124,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("MRK-S28 found");
             MRK_S28 = true;
             resistance_lvl_mode = true;
+        } else if(device.name().toUpper().startsWith("MRK-S36C-")) {
+            qDebug() << QStringLiteral("MRK-S36C found");
+            MRK_S36C = true;
+            resistance_lvl_mode = true;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively, target power must be converted to resistance
         } else if(device.name().toUpper().startsWith("HAMMER")) {
             qDebug() << QStringLiteral("HAMMER found");
             HAMMER = true;
