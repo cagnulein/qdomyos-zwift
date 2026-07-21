@@ -1624,6 +1624,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(lifefitnessTreadmill);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("KICKR RUN")) &&
+                       !wahooKickRunTreadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                wahooKickRunTreadmill = new wahookickruntreadmill(noWriteResistance, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit deviceConnected(b);
+                connect(wahooKickRunTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(wahooKickRunTreadmill, &wahookickruntreadmill::debug, this, &bluetooth::debug);
+                wahooKickRunTreadmill->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(wahooKickRunTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_T101-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_7.0AT-")) ||
@@ -1685,7 +1702,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("FOCUS M3")) ||
                          b.name().toUpper().startsWith(QStringLiteral("ANPIUS-")) ||
                          b.name().toUpper().startsWith(QStringLiteral("SWALK LITE-")) ||
-                         b.name().toUpper().startsWith(QStringLiteral("KICKR RUN")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM-01")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TP1")) && b.name().length() == 3) ||
                         (b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) ||                     // Kingsmith WalkingPad Z1
