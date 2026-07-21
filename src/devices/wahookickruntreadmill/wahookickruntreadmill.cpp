@@ -294,6 +294,8 @@ void wahookickruntreadmill::stateChanged(QLowEnergyService::ServiceState state) 
                            QString::number(c.handle(), 16));
             }
 
+            bool hasNotify = c.properties() & QLowEnergyCharacteristic::Notify;
+
             // Subscribe to all notify/indicate characteristics
             if (hasNotify) {
                 QByteArray descriptor;
