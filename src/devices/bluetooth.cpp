@@ -1877,6 +1877,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DHZ-")) ||                         // JK fitness 577
                         (b.name().toUpper().startsWith("MKSM")) ||                         // MKSM3600036
                         (b.name().toUpper().startsWith("YS_C1_")) ||                       // Yesoul C1H
+                        (b.name().toUpper().startsWith("YS_C1EV_")) ||                     // Yesoul C1EV
                         (b.name().toUpper().startsWith("YS_G1_")) ||                       // Yesoul S3
 						(b.name().toUpper().startsWith("YS_M1P_")) ||                      // Yesoul M1
                         (b.name().toUpper().startsWith("YS_G1MPLUS")) ||                   // Yesoul G1M Plus
