@@ -3,6 +3,7 @@
 #include "keepawakehelper.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
+#include <QLowEnergyConnectionParameters>
 #include <QDateTime>
 #include <QMetaEnum>
 #include <QSettings>
