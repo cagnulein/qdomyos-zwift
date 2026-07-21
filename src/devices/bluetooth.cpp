@@ -3761,6 +3761,11 @@ void bluetooth::restart() {
         delete horizonTreadmill;
         horizonTreadmill = nullptr;
     }
+    if (wahooKickRunTreadmill) {
+
+        delete wahooKickRunTreadmill;
+        wahooKickRunTreadmill = nullptr;
+    }
     if (speraXTreadmill) {
 
         delete speraXTreadmill;
@@ -4473,6 +4478,8 @@ bluetoothdevice *bluetooth::device() {
         return ultraSportBike;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
+    } else if (wahooKickRunTreadmill) {
+        return wahooKickRunTreadmill;
     } else if (lifefitnessTreadmill) {
         return lifefitnessTreadmill;
     } else if (speraXTreadmill) {
