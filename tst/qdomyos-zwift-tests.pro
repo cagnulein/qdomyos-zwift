@@ -28,6 +28,7 @@ SOURCES += \
         ToolTests/zwiftworkouttestsuite.cpp \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
+        Devices/TestFtmsRowerPm5Regression.cpp \
         Devices/TestSchwinn411510EParser.cpp \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
@@ -60,6 +61,7 @@ HEADERS += \
     Devices/deviceindex.h \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
+    Devices/TestFtmsRowerPm5Regression.h \
     Devices/TestSchwinn411510EParser.h \
     Devices/TestApexBikeParser.h \
     Devices/TestKeepBikeParser.h \

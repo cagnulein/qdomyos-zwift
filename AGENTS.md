@@ -224,6 +224,9 @@ tst/Devices/
 - Configuration-based test scenarios
 - XML output support for CI/CD integration
 - Tests must be built after main application (links against libqdomyos-zwift.a)
+- When changing shared protocol parsing logic (FTMS, PM5/Concept2, characteristic parsers reused across devices), add or update regression tests in `tst/Devices/` using real user debug logs whenever possible. Cover both the new bugfix scenario and at least one nearby scenario that must keep working to prevent regressions in GitHub Actions.
+- Prefer tests that call the production parser path directly, or a shared parser helper extracted from production code. Do not duplicate protocol parsing logic inside the test itself, or the regression test can drift with the bug.
+- A regression test that duplicates protocol parsing logic in the test body is not sufficient protection. If the parser needs to become testable, first extract the parsing logic into a shared production helper and have both runtime code and tests use that same implementation.
 
 ## Configuration & Settings
 
