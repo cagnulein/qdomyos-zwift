@@ -1024,6 +1024,7 @@ ios {
 
 ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
+    ios/ios_accessibility_helper.mm \
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
     ios/ios_liveactivity.mm \
@@ -1039,6 +1040,7 @@ ios {
     SOURCES += ios/M3iNSQT.cpp
 
     OBJECTIVE_HEADERS += ios/M3iNS.h \
+    ios/ios_accessibility_helper.h \
     ios/ios_liveactivity.h
 
     QMAKE_INFO_PLIST = ios/Info.plist

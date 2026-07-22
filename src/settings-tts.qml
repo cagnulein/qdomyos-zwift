@@ -105,12 +105,17 @@ ScrollView {
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
                 onAccepted: settings.tts_summary_sec = text
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                Accessible.role: Accessible.EditableText
+                Accessible.name: qsTr("Announcement interval in seconds")
+                Accessible.description: qsTr("How often workout metrics are read aloud. Default: 120 seconds")
             }
             Button {
                 id: okTTSSummarySec
                 text: qsTr("OK")
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 onClicked: { settings.tts_summary_sec = ttsSummarySecTextField.text; toast.show(qsTr("Setting saved!")); }
+                Accessible.role: Accessible.Button
+                Accessible.name: qsTr("Save announcement interval")
             }
         }
         SwitchDelegate {

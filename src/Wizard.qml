@@ -56,27 +56,60 @@ Page {
         initialItem: welcomeComponent
     }
 
+    component AccessibleText: Text {
+        Accessible.role: Accessible.StaticText
+        Accessible.name: text
+        Accessible.focusable: visible && text !== ""
+        Accessible.ignored: !visible || text === ""
+    }
+
+    component WizardStep: Item {
+        property string accessibleTitle: ""
+
+        anchors.fill: parent
+        Accessible.ignored: true
+    }
+
     component WizardButton: Button {
-             property color textColor: "#800080"
-             property color backgroundColor: "white"
-             background: Rectangle {
-                 color: parent.backgroundColor
-                 radius: 5
-             }
-             contentItem: Text {
-                 font.pixelSize: 20
-                 text: parent.text
-                 color: parent.textColor
-                 horizontalAlignment: Text.AlignHCenter
-                 verticalAlignment: Text.AlignVCenter
-             }
-     }
+        id: wizardButton
+
+        property color textColor: "#800080"
+        property color backgroundColor: "white"
+
+        signal activated()
+
+        function activate() {
+            activated()
+        }
+
+        onClicked: activate()
+
+        background: Rectangle {
+            color: parent.backgroundColor
+            radius: 5
+        }
+
+        contentItem: Text {
+            font.pixelSize: 20
+            text: parent.text
+            color: parent.textColor
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            Accessible.ignored: true
+        }
+
+        Accessible.role: Accessible.Button
+        Accessible.name: text
+        Accessible.focusable: visible && enabled
+        Accessible.ignored: !visible
+        Accessible.onPressAction: activate()
+    }
 
     Component {
         id: welcomeComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Welcome to QZ")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -94,9 +127,10 @@ Page {
                         source: "qrc:/inner_templates/chartjs/qzlogo.png" // Replace with your logo path
                         width: 100
                         height: 100
+                        Accessible.ignored: true
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Welcome to QZ")
                         font.pixelSize: 28
@@ -104,14 +138,14 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Created by Roberto Viola")
                         font.pixelSize: 24
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("QZ is designed to maximize your workout experience on a range of fitness equipment, including indoor bikes, treadmills, ellipticals, and rower. By connecting seamlessly with your devices, QZ provides realtime data, personalized workout plans, and interactive elements to keep you motivated.\n\nThe following questions will customize QZ for your equipment and goals.")
                         font.pixelSize: 20
@@ -125,7 +159,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Start")
-                        onClicked: stackViewLocal.push(step1Component)
+                        onActivated: stackViewLocal.push(step1Component)
                     }
                 }
             }
@@ -135,8 +169,8 @@ Page {
     Component {
         id: step1Component
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("How can I help you?")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -150,7 +184,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("How can I help you?")
                         font.pixelSize: 24
@@ -161,7 +195,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("First-time setup")
-                        onClicked: {
+                        onActivated: {
                             selectedOptions.step1 = "First-time setup"
                             stackViewLocal.push(step2Component)
                         }
@@ -170,7 +204,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Help with a specific feature")
-                        onClicked: {
+                        onActivated: {
                             selectedOptions.step1 = "Help with a specific feature"
                             stackViewLocal.push(step2HelpComponent)
                         }
@@ -179,7 +213,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("I'm fine, thanks.")
-                        onClicked: {
+                        onActivated: {
                                 stackView.pop();
                         }
                     }
@@ -191,8 +225,8 @@ Page {
     Component {
         id: step2Component
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("What's your fitness device?")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -206,7 +240,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("What's your fitness device?")
                         font.pixelSize: 24
@@ -219,7 +253,7 @@ Page {
                         delegate: WizardButton {
                             Layout.alignment: Qt.AlignHCenter
                             text: qsTr(modelData)
-                            onClicked: {
+                            onActivated: {
                                 if (modelData === "Rower") {
                                     settings.virtual_device_rower = true
                                 } else {
@@ -239,7 +273,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -249,8 +283,8 @@ Page {
     Component {
         id: step3Component
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Choose your preferred app")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -263,7 +297,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Choose your preferred app")
                         font.pixelSize: 24
@@ -271,7 +305,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("QZ allows you to connect to both of them, even simultaneously if you want!")
                         font.pixelSize: 20
@@ -292,7 +326,7 @@ Page {
                             delegate: WizardButton {
                                 Layout.preferredWidth: 150
                                 text: modelData
-                                onClicked: {
+                                onActivated: {
                                     selectedOptions.step3 = modelData
                                     if (modelData === "Peloton") {
                                         stackViewLocal.push(pelotonLoginComponent)
@@ -316,7 +350,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -326,8 +360,8 @@ Page {
     Component {
         id: pelotonLoginComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Connect to Peloton")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -340,7 +374,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Connect to Peloton")
                         font.pixelSize: 24
@@ -348,7 +382,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Click the button below to connect your Peloton account")
                         font.pixelSize: 20
@@ -359,23 +393,33 @@ Page {
                         color: "white"
                     }
 
-                    Image {
-                        Layout.alignment: Qt.AlignHCenter
-                        source: "icons/icons/Button_Connect_Rect_DarkMode.png"
-                        fillMode: Image.PreserveAspectFit
-                        width: parent.width * 0.8
+                    Button {
+                        id: pelotonConnectButton
 
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                stackViewLocal.push("WebPelotonAuth.qml")
-                                stackViewLocal.currentItem.goBack.connect(function() {
-                                            stackViewLocal.pop();
-                                            stackViewLocal.push(pelotonDifficultyComponent)
-                                        })
-                                peloton_connect_clicked()
-                            }
+                        function activate() {
+                            stackViewLocal.push("WebPelotonAuth.qml")
+                            stackViewLocal.currentItem.goBack.connect(function() {
+                                        stackViewLocal.pop();
+                                        stackViewLocal.push(pelotonDifficultyComponent)
+                                    })
+                            peloton_connect_clicked()
                         }
+
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.preferredWidth: parent.width * 0.8
+                        Layout.preferredHeight: 56
+                        background: Image {
+                            source: "icons/icons/Button_Connect_Rect_DarkMode.png"
+                            fillMode: Image.PreserveAspectFit
+                        }
+                        contentItem: null
+                        Accessible.role: Accessible.Button
+                        Accessible.name: qsTr("Connect to Peloton")
+                        Accessible.description: qsTr("Opens the Peloton login page")
+                        Accessible.focusable: visible && enabled
+                        Accessible.ignored: !visible
+                        Accessible.onPressAction: activate()
+                        onClicked: activate()
                     }
 
                     Item {
@@ -385,7 +429,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -395,8 +439,8 @@ Page {
     Component {
         id: pelotonDifficultyComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Peloton Difficulty")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -409,7 +453,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Peloton Difficulty")
                         font.pixelSize: 24
@@ -417,7 +461,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         text: qsTr("Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average")
                         font.pixelSize: 20
                         wrapMode: Text.WordWrap
@@ -427,7 +471,7 @@ Page {
                         Layout.fillWidth: true
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Difficulty")
                         font.pixelSize: 20
@@ -446,12 +490,15 @@ Page {
                             displayText = pelotonDifficultyTextField.currentValue
                             settings.peloton_difficulty = pelotonDifficultyTextField.displayText;
                         }
+                        Accessible.role: Accessible.ComboBox
+                        Accessible.name: qsTr("Peloton difficulty level")
+                        Accessible.description: qsTr("Choose whether QZ targets the lower, upper or average of the instructor's range")
                     }
 
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Finish")
-                        onClicked: {
+                        onActivated: {
                             settings.peloton_difficulty = pelotonDifficultyTextField.displayText;
                             stackViewLocal.push(finalStepComponent)
                         }
@@ -464,7 +511,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -474,8 +521,8 @@ Page {
     Component {
         id: zwiftComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Bike Resistance Level")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -488,7 +535,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Bike Resistance Level")
                         font.pixelSize: 24
@@ -496,7 +543,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("What resistance level feels like a flat road on your bike?")
                         font.pixelSize: 20
@@ -514,6 +561,8 @@ Page {
                         to: 100
                         value: 18
                         editable: true
+                        Accessible.name: qsTr("Resistance level for flat road")
+                        Accessible.description: qsTr("Resistance level that feels like riding on flat ground. Range 0 to 100.")
                     }
 
                     Item {
@@ -523,7 +572,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
-                        onClicked: {
+                        onActivated: {
                             settings.bike_resistance_offset = spinBoxResistanceOffset.value;
                             settings.speed_power_based = true;
                             stackViewLocal.push(finalStepComponent);
@@ -533,7 +582,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -543,8 +592,8 @@ Page {
     Component {
         id: step4Component
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Custom Configurations")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -557,7 +606,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Custom Configurations")
                         font.pixelSize: 20
@@ -565,7 +614,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Here you will see custom configurations based on your previous choices.")
                         wrapMode: Text.WordWrap
@@ -582,13 +631,13 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
 
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Finish")
-                        onClicked: stackViewLocal.push(finalStepComponent)
+                        onActivated: stackViewLocal.push(finalStepComponent)
                     }
                 }
             }
@@ -598,8 +647,8 @@ Page {
     Component {
         id: step2HelpComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Select a feature")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -612,7 +661,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select a feature")
                         font.pixelSize: 24
@@ -630,7 +679,7 @@ Page {
                         delegate: WizardButton {
                             Layout.alignment: Qt.AlignHCenter
                             text: modelData
-                            onClicked: {
+                            onActivated: {
                                 selectedOptions.step2Help = modelData
                                 if(modelData === "Auto-incline with treadmill and Zwift")
                                     stackViewLocal.push(zwiftAutoInclination)
@@ -653,7 +702,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -663,8 +712,8 @@ Page {
     Component {
         id: zwiftAutoInclination
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Zwift Credentials")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -677,7 +726,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Zwift Credentials")
                         font.pixelSize: 24
@@ -685,7 +734,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout")
                         wrapMode: Text.WordWrap
@@ -695,7 +744,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Username")
                         font.pixelSize: 20
@@ -711,9 +760,11 @@ Page {
                         Layout.fillHeight: false
                         onAccepted: settings.zwift_username = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        Accessible.role: Accessible.EditableText
+                        Accessible.name: qsTr("Zwift username")
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Password")
                         font.pixelSize: 20
@@ -731,6 +782,8 @@ Page {
                         echoMode: TextInput.PasswordEchoOnEdit
                         onAccepted: settings.zwift_password = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        Accessible.role: Accessible.EditableText
+                        Accessible.name: qsTr("Zwift password")
                     }
 
                     Item {
@@ -740,7 +793,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
-                        onClicked: {
+                        onActivated: {
                             settings.zwift_username = zwiftUsernameTextField.text;
                             settings.zwift_password = zwiftPasswordTextField.text;
                             settings.zwift_api_autoinclination = true;
@@ -751,7 +804,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -761,8 +814,8 @@ Page {
     Component {
         id: zwiftPlayClick
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Zwift Play and Click")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -775,7 +828,7 @@ Page {
                     spacing: 24
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Zwift Play and Click")
                         font.pixelSize: 20
@@ -783,7 +836,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         id: zwiftPlayClickDescription
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Enable the one that you would like to use directly with QZ. Remember to update their firmware before using it.")
@@ -796,6 +849,10 @@ Page {
 
                     SwitchDelegate {
                         text: qsTr("Zwift Click")
+                        function activate() {
+                            checked = !checked
+                            settings.zwift_click = checked
+                        }
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -808,10 +865,18 @@ Page {
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.zwift_click = checked;  }
+                        Accessible.name: text
+                        Accessible.description: checked ? qsTr("Enabled") : qsTr("Disabled")
+                        Accessible.focusable: visible && enabled
+                        Accessible.onPressAction: activate()
                     }
 
                     SwitchDelegate {
                         text: qsTr("Zwift Play")
+                        function activate() {
+                            checked = !checked
+                            settings.zwift_play = checked
+                        }
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -824,9 +889,13 @@ Page {
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.zwift_play = checked; }
+                        Accessible.name: text
+                        Accessible.description: checked ? qsTr("Enabled") : qsTr("Disabled")
+                        Accessible.focusable: visible && enabled
+                        Accessible.onPressAction: activate()
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Correct startup phase:\n\n1. close any app that can connect to your Zwift devices\n2. wake up your Zwift devices\n3. wake up your trainer\n4. open qz\n5. now if you change gear on your Zwift device you will see a reaction in the gear tile on qz and so on your trainer.")
                         wrapMode: Text.WordWrap
@@ -843,13 +912,13 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
 
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Finish")
-                        onClicked: {
+                        onActivated: {
                             settings.tile_gears_enabled = true;
                             stackViewLocal.push(finalStepComponent);
                         }
@@ -862,8 +931,8 @@ Page {
     Component {
         id: virtualShifting
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Virtual Shifting")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -876,7 +945,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Virtual Shifting")
                         font.pixelSize: 24
@@ -884,7 +953,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Virtual shifting enabled! You can change gears using the gears tile in QZ directly, or you can also add a bluetooth remote or a Zwift Play or a Zwift Click to control it!")
                         wrapMode: Text.WordWrap
@@ -901,13 +970,13 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
 
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Finish")
-                        onClicked: {
+                        onActivated: {
                             settings.tile_gears_enabled = true;
                             stackViewLocal.push(finalStepComponent);
                         }
@@ -920,8 +989,8 @@ Page {
     Component {
         id: step3HelpComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Custom Configurations")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -934,7 +1003,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Custom Configurations")
                         font.pixelSize: 20
@@ -942,7 +1011,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Here you will see custom configurations based on the selected feature.")
                         wrapMode: Text.WordWrap
@@ -958,13 +1027,13 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
 
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Finish")
-                        onClicked: stackViewLocal.push(finalStepComponent)
+                        onActivated: stackViewLocal.push(finalStepComponent)
                     }
                 }
             }
@@ -974,8 +1043,8 @@ Page {
     Component {
         id: finalStepComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Thank you for setting up QZ!")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -988,7 +1057,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Thank you for setting up QZ!")
                         font.pixelSize: 20
@@ -996,7 +1065,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("If you have any questions or need further assistance, feel free to write to me at roberto.viola83@gmail.com. You can also restart this wizard from the left side bar menu. To apply some changes, you may need to restart the app.")
                         wrapMode: Text.WordWrap
@@ -1004,9 +1073,14 @@ Page {
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
                         Layout.fillWidth: true
+                        Accessible.role: Accessible.Button
+                        Accessible.name: qsTr("Email support")
+                        Accessible.description: text
+                        Accessible.onPressAction: Qt.openUrlExternally("mailto:roberto.viola83@gmail.com")
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
+                            Accessible.ignored: true
                             onClicked: {
                                 Qt.openUrlExternally("mailto:roberto.viola83@gmail.com")
                             }
@@ -1016,7 +1090,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Close")
-                        onClicked: {
+                        onActivated: {
                             stackView.pop();
                         }
                     }
@@ -1027,8 +1101,8 @@ Page {
     Component {
         id: bluetoothDeviceSelectionComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Select Your Fitness Device")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -1042,7 +1116,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select Your Fitness Device")
                         font.pixelSize: 24
@@ -1063,14 +1137,17 @@ Page {
                                 console.log("combomodel activated" + filterDeviceTextField.currentIndex)
                                 displayText = filterDeviceTextField.currentValue
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Fitness device")
+                            Accessible.description: qsTr("Select your fitness device from the list of nearby Bluetooth devices. Tap Refresh to scan again.")
                         }
                     }
 
                     WizardButton {
                         id: refreshFilterDeviceButton
-                        text: "Refresh"
+                        text: qsTr("Refresh")
                         Layout.alignment: Qt.AlignHCenter
-                        onClicked: refresh_bluetooth_devices_clicked();
+                        onActivated: refresh_bluetooth_devices_clicked();
                     }
 
                     Item {
@@ -1080,7 +1157,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
-                        onClicked: {
+                        onActivated: {
                             settings.filter_device = stripRssi(filterDeviceTextField.displayText);
                             stackViewLocal.push(unitSelectionComponent)
                         }
@@ -1089,7 +1166,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -1099,8 +1176,8 @@ Page {
     Component {
         id: unitSelectionComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Unit System")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -1114,7 +1191,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Unit System")
                         font.pixelSize: 24
@@ -1122,7 +1199,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select your preferred unit system")
                         font.pixelSize: 20
@@ -1134,6 +1211,9 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         model: ["Metric", "Imperial"]
                         currentIndex: settings.miles_unit ? 1 : 0
+                        Accessible.role: Accessible.ComboBox
+                        Accessible.name: qsTr("Unit system")
+                        Accessible.description: qsTr("Metric uses kilometers and kilograms. Imperial uses miles and pounds.")
                     }
 
                     Item {
@@ -1143,7 +1223,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
-                        onClicked: {
+                        onActivated: {
                             settings.miles_unit = unitSystemComboBox.currentIndex === 1
                             stackViewLocal.push(userInfoComponent)
                         }
@@ -1152,7 +1232,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -1162,8 +1242,8 @@ Page {
     Component {
         id: userInfoComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("User Information")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -1177,7 +1257,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("User Information")
                         font.pixelSize: 24
@@ -1185,7 +1265,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Weight (" + ((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg") + ")")
                         font.pixelSize: 20
@@ -1214,9 +1294,12 @@ Page {
                         onValueChanged: {
                             settings.weight = realValue
                         }
+
+                        Accessible.name: qsTr("Body weight")
+                        Accessible.description: (settings.miles_unit && !settings.weight_kg_unit) ? qsTr("Your weight in pounds") : qsTr("Your weight in kilograms")
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Age")
                         font.pixelSize: 20
@@ -1230,9 +1313,11 @@ Page {
                         to: 120
                         value: settings.age
                         editable: true
+                        Accessible.name: qsTr("Age")
+                        Accessible.description: qsTr("Your age in years. Used for heart rate zone calculations.")
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Gender")
                         font.pixelSize: 20
@@ -1244,6 +1329,9 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         model: ["Male", "Female"]
                         currentIndex: settings.sex === "Male" ? 0 : 1
+                        Accessible.role: Accessible.ComboBox
+                        Accessible.name: qsTr("Gender")
+                        Accessible.description: qsTr("Used for calorie calculations")
                     }
 
                     Item {
@@ -1253,7 +1341,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
-                        onClicked: {
+                        onActivated: {
                             settings.weight = weightSpinBox.realValue
                             settings.age = ageSpinBox.value
                             settings.sex = genderComboBox.currentText
@@ -1264,7 +1352,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }
@@ -1274,8 +1362,8 @@ Page {
     Component {
         id: heartRateDeviceSelectionComponent
 
-        Item {
-            anchors.fill: parent
+        WizardStep {
+            accessibleTitle: qsTr("Select Your Heart Rate Device")
             ScrollView {
                 contentWidth: -1
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -1289,7 +1377,7 @@ Page {
                     spacing: 20
                     width: parent.width * 0.9
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select Your Heart Rate Device")
                         font.pixelSize: 24
@@ -1297,7 +1385,7 @@ Page {
                         color: "white"
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Choose your heart rate belt or select a smartwatch option:")
                         font.pixelSize: 20
@@ -1321,17 +1409,20 @@ Page {
                                 console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
                                 displayText = heartBeltNameTextField.currentValue
                             }
+                            Accessible.role: Accessible.ComboBox
+                            Accessible.name: qsTr("Heart rate belt")
+                            Accessible.description: qsTr("Select your Bluetooth heart rate belt from the list. Tap Refresh to scan again. Choose Disabled if using a smartwatch.")
                         }
                     }
 
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         id: refreshHeartBeltNameButton
-                        text: "Refresh"
-                        onClicked: refresh_bluetooth_devices_clicked();
+                        text: qsTr("Refresh")
+                        onActivated: refresh_bluetooth_devices_clicked();
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Or select a smartwatch option:")
                         font.pixelSize: 20
@@ -1342,14 +1433,14 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Apple Watch")
-                        onClicked: {
+                        onActivated: {
                             settings.heart_rate_belt_name = "Disabled"
                             settings.garmin_companion = false
                             stackViewLocal.push(step3Component)
                         }
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Download the QZ Companion App there")
                         color: "white"
@@ -1359,14 +1450,14 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Wear OS watch")
-                        onClicked: {
+                        onActivated: {
                             settings.heart_rate_belt_name = "Disabled"
                             settings.garmin_companion = false
                             stackViewLocal.push(step3Component)
                         }
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Download the QZ Companion App there")
                         color: "white"
@@ -1376,14 +1467,14 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Garmin watch")
-                        onClicked: {
+                        onActivated: {
                             settings.heart_rate_belt_name = "Disabled"
                             settings.garmin_companion = true
                             stackViewLocal.push(step3Component)
                         }
                     }
 
-                    Text {
+                    AccessibleText {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Download the QZ Companion App there")
                         color: "white"
@@ -1396,7 +1487,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
-                        onClicked: {
+                        onActivated: {
                             settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.displayText);
                             settings.garmin_companion = false
                             stackViewLocal.push(step3Component)
@@ -1406,7 +1497,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Back")
-                        onClicked: stackViewLocal.pop()
+                        onActivated: stackViewLocal.pop()
                     }
                 }
             }

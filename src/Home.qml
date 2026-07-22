@@ -314,11 +314,16 @@ HomeForm {
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
 
-            // VoiceOver accessibility support
-            Accessible.role: largeButton ? Accessible.Button : (writable ? Accessible.Pane : Accessible.StaticText)
-            Accessible.name: name + (largeButton ? "" : (": " + value))
-            Accessible.description: largeButton ? largeButtonLabel : (secondLine !== "" ? secondLine : (writable ? qsTr("Adjustable. Current value: ") + value : qsTr("Current value: ") + value))
-            Accessible.focusable: true
+            // Non-writable static tiles: this item is the single accessible element (leaf).
+            // Writable tiles: parent is a container (children expose value + +/- buttons).
+            // Large button tiles: the RoundButton child handles accessibility.
+            // When the StackView is disabled (drawer open), id1.enabled is false via
+            // Qt's enabled propagation, so all tiles disappear from the accessibility tree.
+            Accessible.role: Accessible.StaticText
+            Accessible.name: name + ": " + value
+            Accessible.description: secondLine !== "" ? secondLine : qsTr("Current value: ") + value
+            Accessible.focusable: !largeButton && !writable && id1.enabled
+            Accessible.ignored: largeButton || writable || !id1.enabled
 
             Behavior on x {
                 enabled: id1.state != "active"
@@ -408,8 +413,14 @@ HomeForm {
                 font.bold: true
                 visible: !largeButton
 
-                // Ignore for VoiceOver - parent Item handles accessibility
-                Accessible.ignored: true
+                // Writable tiles: VoiceOver reads "Metric: CurrentValue, Adjustable"
+                // so the user hears the value before using +/- buttons.
+                // Non-writable tiles: parent Item is the leaf element instead.
+                Accessible.role: Accessible.StaticText
+                Accessible.name: name + ": " + value
+                Accessible.description: qsTr("Adjustable. Current value: ") + value
+                Accessible.focusable: writable && id1.enabled
+                Accessible.ignored: !writable || !id1.enabled
             }
             Text {
                 objectName: "secondLine"
@@ -470,9 +481,10 @@ HomeForm {
 
                 // VoiceOver accessibility
                 Accessible.role: Accessible.Button
-                Accessible.name: qsTr("Decrease ") + name
-                Accessible.description: qsTr("Decrease the value of ") + name
-                Accessible.focusable: true
+                Accessible.name: value.length > 0 ? qsTr("Decrease ") + name + qsTr(", current value ") + value : qsTr("Decrease ") + name
+                Accessible.description: value.length > 0 ? qsTr("Decrease the value of ") + name + qsTr(". Current value ") + value : qsTr("Decrease the value of ") + name
+                Accessible.focusable: id1.enabled
+                Accessible.ignored: !id1.enabled
                 Accessible.onPressAction: { minus_clicked(objectName) }
             }
             RoundButton {
@@ -489,9 +501,10 @@ HomeForm {
 
                 // VoiceOver accessibility
                 Accessible.role: Accessible.Button
-                Accessible.name: qsTr("Increase ") + name
-                Accessible.description: qsTr("Increase the value of ") + name
-                Accessible.focusable: true
+                Accessible.name: value.length > 0 ? qsTr("Increase ") + name + qsTr(", current value ") + value : qsTr("Increase ") + name
+                Accessible.description: value.length > 0 ? qsTr("Increase the value of ") + name + qsTr(". Current value ") + value : qsTr("Increase the value of ") + name
+                Accessible.focusable: id1.enabled
+                Accessible.ignored: !id1.enabled
                 Accessible.onPressAction: { plus_clicked(objectName) }
             }
             RoundButton {
@@ -511,7 +524,8 @@ HomeForm {
                 Accessible.role: Accessible.Button
                 Accessible.name: largeButtonLabel
                 Accessible.description: name + ": " + largeButtonLabel
-                Accessible.focusable: true
+                Accessible.focusable: id1.enabled
+                Accessible.ignored: !id1.enabled
                 Accessible.onPressAction: { largeButton_clicked(objectName) }
             }
         }

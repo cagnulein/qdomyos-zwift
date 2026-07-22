@@ -956,6 +956,11 @@ jobs:
 
             echo "Orientation test completed - 4 screenshots captured"
 
+            # Dump the full UI accessibility tree, useful to write/parse automated UI tests
+            echo "Dumping UI hierarchy..."
+            adb shell uiautomator dump /sdcard/ui.xml
+            adb pull /sdcard/ui.xml ui_dump.xml
+
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
 
@@ -975,7 +980,8 @@ jobs:
             process_list.txt
             full_logcat.txt
             qdomyos_logcat.txt
-          if-no-files-found: warn                
+            ui_dump.xml
+          if-no-files-found: warn
 
   ios-build:
     # The type of runner that the job will run on
@@ -1058,7 +1064,7 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
-          qmake CONFIG+=debug CONFIG+=iphonesimulator \
+          qmake CONFIG+=debug CONFIG+=iphonesimulator "LIBS+=-framework WebKit" \
             && make -j4
 
       - name: Show ccache stats
