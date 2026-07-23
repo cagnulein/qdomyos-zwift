@@ -867,10 +867,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     // System Timestamp: Same as timestamp (session start)
     timestampCorrelationMesg.SetSystemTimestamp(sessionStartTimestamp);
 
-    // Local Timestamp: User's local time at session start
-    // Convert the local time to FIT format
-    fit::DateTime localDateTime((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
-    timestampCorrelationMesg.SetLocalTimestamp(localDateTime.GetTimeStamp());
+    // Local Timestamp: session start expressed in the user's local wall-clock time.
+    // Per the FIT spec, local_timestamp = timestamp + UTC offset, so consumers can
+    // derive the offset as (local_timestamp - timestamp).
+    qint64 utcOffsetSeconds = session.at(firstRealIndex).time.offsetFromUtc();
+    timestampCorrelationMesg.SetLocalTimestamp(sessionStartTimestamp + utcOffsetSeconds);
 
     encode.Write(timestampCorrelationMesg);
 
