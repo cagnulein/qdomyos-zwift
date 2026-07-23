@@ -81,6 +81,9 @@ QString openEndedRowLabel(const trainrow &row) {
     item[QStringLiteral("lower_requested_peloton_resistance")] = row.lower_requested_peloton_resistance;    \
     item[QStringLiteral("upper_requested_peloton_resistance")] = row.upper_requested_peloton_resistance;    \
     item[QStringLiteral("power")] = row.power;                                                              \
+    item[QStringLiteral("rampIsFtpFraction")] = row.rampIsFtpFraction;                                      \
+    item[QStringLiteral("rampPowerFromOriginal")] = row.rampPowerFromOriginal;                               \
+    item[QStringLiteral("rampPowerToOriginal")] = row.rampPowerToOriginal;                                   \
     item[QStringLiteral("cadence")] = row.cadence;                                                          \
     item[QStringLiteral("lower_cadence")] = row.lower_cadence;                                              \
     item[QStringLiteral("upper_cadence")] = row.upper_cadence;                                              \
@@ -576,20 +579,58 @@ void TemplateInfoSenderBuilder::onGetTrainingProgram(const QJsonValue &msgConten
     QString fileXml;
     if (homeform::singleton() && homeform::singleton()->trainingProgram()) {
         QList<trainrow> lst = homeform::singleton()->trainingProgram()->loadedRows;
-        for (auto &row : lst) {
-            QJsonObject item;
-            TRAINPROGRAM_FIELD_TO_STRING();
-            if (!row.textEvents.isEmpty()) {
-                QJsonArray textEvents;
-                for (const auto &evt : row.textEvents) {
-                    QJsonObject textEvent;
-                    textEvent[QStringLiteral("timeoffset")] = static_cast<int>(evt.timeoffset);
-                    textEvent[QStringLiteral("message")] = evt.message;
-                    textEvents.append(textEvent);
+        int idx = 0;
+        while (idx < lst.size()) {
+            const trainrow &curRow = lst[idx];
+            if (curRow.rampPowerFromOriginal >= 0.0) {
+                double fromOrig = curRow.rampPowerFromOriginal;
+                double toOrig = curRow.rampPowerToOriginal;
+                bool isFtp = curRow.rampIsFtpFraction;
+                trainrow firstRow = curRow;
+                int totalSecs = 0;
+                while (idx < lst.size() &&
+                       lst[idx].rampPowerFromOriginal == fromOrig &&
+                       lst[idx].rampPowerToOriginal == toOrig) {
+                    totalSecs += QTime(0,0,0).secsTo(lst[idx].duration);
+                    idx++;
                 }
-                item[QStringLiteral("textEvents")] = textEvents;
+                QJsonObject item;
+                {
+                    trainrow compactRow = firstRow;
+                    compactRow.duration = QTime(0,0,0).addSecs(totalSecs);
+                    compactRow.rampPowerFromOriginal = -1.0;
+                    compactRow.rampPowerToOriginal = -1.0;
+                    const trainrow &row = compactRow;
+                    TRAINPROGRAM_FIELD_TO_STRING();
+                }
+                item[QStringLiteral("duration")] = QTime(0,0,0).addSecs(totalSecs).toString(QStringLiteral("hh:mm:ss"));
+                if (isFtp) {
+                    item[QStringLiteral("powerzonefrom")] = fromOrig;
+                    item[QStringLiteral("powerzoneto")] = toOrig;
+                    item[QStringLiteral("powerrampunit")] = QStringLiteral("% FTP");
+                } else {
+                    item[QStringLiteral("powerfrom")] = (int)fromOrig;
+                    item[QStringLiteral("powerto")] = (int)toOrig;
+                    item[QStringLiteral("powerrampunit")] = QStringLiteral("W");
+                }
+                outArr.append(item);
+            } else {
+                QJsonObject item;
+                const trainrow &row = curRow;
+                TRAINPROGRAM_FIELD_TO_STRING();
+                if (!curRow.textEvents.isEmpty()) {
+                    QJsonArray textEvents;
+                    for (const auto &evt : curRow.textEvents) {
+                        QJsonObject textEvent;
+                        textEvent[QStringLiteral("timeoffset")] = static_cast<int>(evt.timeoffset);
+                        textEvent[QStringLiteral("message")] = evt.message;
+                        textEvents.append(textEvent);
+                    }
+                    item[QStringLiteral("textEvents")] = textEvents;
+                }
+                outArr.append(item);
+                idx++;
             }
-            outArr.append(item);
         }
         outObj[QStringLiteral("device")] =
             trainprogram::deviceTypeToXmlKey(homeform::singleton()->trainingProgram()->loadedDeviceType);
@@ -881,6 +922,7 @@ void TemplateInfoSenderBuilder::onWorkoutEditorEnv(TemplateInfoSender *tempSende
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     outObj[QStringLiteral("miles")] = miles;
+    outObj[QStringLiteral("ftp")] = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
     if (device) {
         outObj[QStringLiteral("device")] = trainprogram::deviceTypeToXmlKey(device->deviceType());
     } else {
@@ -1123,6 +1165,24 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             }
             if (row.contains(QStringLiteral("power"))) {
                 tR.power = row[QStringLiteral("power")].toInt();
+            }
+            if (row.contains(QStringLiteral("powerfrom")) && row.contains(QStringLiteral("powerto"))) {
+                double from = row[QStringLiteral("powerfrom")].toDouble();
+                double to = row[QStringLiteral("powerto")].toDouble();
+                tR.power = (int)from;
+                tR.rampPowerFromOriginal = from;
+                tR.rampPowerToOriginal = to;
+                tR.rampIsFtpFraction = false;
+            }
+            if (row.contains(QStringLiteral("powerzonefrom")) && row.contains(QStringLiteral("powerzoneto"))) {
+                QSettings localSettings;
+                double from = row[QStringLiteral("powerzonefrom")].toDouble();
+                double to = row[QStringLiteral("powerzoneto")].toDouble();
+                double ftp = localSettings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                tR.power = (int)(from * ftp);
+                tR.rampPowerFromOriginal = from;
+                tR.rampPowerToOriginal = to;
+                tR.rampIsFtpFraction = true;
             }
             if (row.contains(QStringLiteral("cadence"))) {
                 tR.cadence = row[QStringLiteral("cadence")].toInt();
