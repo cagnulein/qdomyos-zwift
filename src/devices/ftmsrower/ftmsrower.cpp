@@ -78,15 +78,17 @@ void ftmsrower::update() {
     }
 
     if (initRequest) {
-        if(I_ROWER || SF_RW || ROWER || MRK_R06) {
-            uint8_t write[] = {FTMS_REQUEST_CONTROL};
-            writeCharacteristic(write, sizeof(write), "start", false, true);
+        if (!V_BLE_R) {
+            if(I_ROWER || SF_RW || ROWER || MRK_R06) {
+                uint8_t write[] = {FTMS_REQUEST_CONTROL};
+                writeCharacteristic(write, sizeof(write), "start", false, true);
 
-            uint8_t write1[] = {FTMS_START_RESUME};
-            writeCharacteristic(write1, sizeof(write1), "start simulation", false, true);
-        } else {
-            uint8_t write[] = {FTMS_START_RESUME};
-            writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+                uint8_t write1[] = {FTMS_START_RESUME};
+                writeCharacteristic(write1, sizeof(write1), "start simulation", false, true);
+            } else {
+                uint8_t write[] = {FTMS_START_RESUME};
+                writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+            }
         }
 
         initRequest = false;
@@ -880,6 +882,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("DOMYOS-ROW-"))) {
             DOMYOS = true;
             qDebug() << "DOMYOS found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("V-BLE-R-"))) {
+            V_BLE_R = true;
+            qDebug() << "V-BLE-R found! skipping init request";
         } else if (deviceName.size() >= 7 && deviceName.startsWith(QStringLiteral("WDK")) &&
                    deviceName.at(3).isDigit() && deviceName.at(4).isDigit() &&
                    deviceName.at(5).isDigit() && deviceName.at(6).isDigit()) {
