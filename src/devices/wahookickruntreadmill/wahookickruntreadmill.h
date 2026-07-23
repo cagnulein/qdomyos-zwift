@@ -56,8 +56,10 @@ class wahookickruntreadmill : public treadmill {
 
   private:
     void writeCharacteristic(const QByteArray &data, const QString &info);
+    void writeFTMSControlPoint(const QByteArray &data, const QString &info);
     void btinit();
     void forceSpeed(double speed);
+    void forceIncline(double requestIncline);
     void startDiscover();
 
     bool noWriteResistance = false;
@@ -66,6 +68,7 @@ class wahookickruntreadmill : public treadmill {
     bool initRequest = false;
     bool firstSpeedSent = false;    // tracks whether to use 0xFF or 0x0A flag
     bool workoutModeStarted = false;
+    bool ftmsControlStarted = false;
 
     QByteArray deviceId;            // 4-byte device ID from the 0x86 init response
     bool deviceIdReceived = false;
@@ -75,8 +78,10 @@ class wahookickruntreadmill : public treadmill {
     QList<QLowEnergyService *> gattServices;
     QLowEnergyService *gattCmdService = nullptr;    // service owning the cmd char
     QLowEnergyService *gattTelService = nullptr;    // service owning the telemetry char
+    QLowEnergyService *gattFTMSService = nullptr;   // Fitness Machine service for standard incline control
     QLowEnergyCharacteristic gattCmdCharacteristic; // write+notify: handle 0x0023
     QLowEnergyCharacteristic gattTelCharacteristic; // notify only: handle 0x0026
+    QLowEnergyCharacteristic gattFTMSControlPointCharacteristic;
 
     int notificationsSubscribed = 0;
 
@@ -99,6 +104,7 @@ class wahookickruntreadmill : public treadmill {
     void controllerStateChanged(QLowEnergyController::ControllerState state);
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
+    void changeInclinationRequested(double grade, double percentage);
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);

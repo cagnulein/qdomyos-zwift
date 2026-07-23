@@ -1,4 +1,5 @@
 #include "wahookickruntreadmill.h"
+#include "devices/ftmsbike/ftmsbike.h"
 #include "homeform.h"
 #include "keepawakehelper.h"
 #include "virtualdevices/virtualtreadmill.h"
@@ -36,6 +37,24 @@ void wahookickruntreadmill::writeCharacteristic(const QByteArray &data, const QS
     gattCmdService->writeCharacteristic(gattCmdCharacteristic, *writeBuffer,
                                         QLowEnergyService::WriteWithoutResponse);
     emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
+}
+
+void wahookickruntreadmill::writeFTMSControlPoint(const QByteArray &data, const QString &info) {
+    if (!gattFTMSControlPointCharacteristic.isValid() || !gattFTMSService) {
+        emit debug(QStringLiteral("writeFTMSControlPoint: FTMS control point not valid"));
+        return;
+    }
+
+    if (writeBuffer)
+        delete writeBuffer;
+    writeBuffer = new QByteArray(data);
+
+    QLowEnergyService::WriteMode mode = QLowEnergyService::WriteWithResponse;
+    if (gattFTMSControlPointCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse)
+        mode = QLowEnergyService::WriteWithoutResponse;
+
+    gattFTMSService->writeCharacteristic(gattFTMSControlPointCharacteristic, *writeBuffer, mode);
+    emit debug(QStringLiteral(" >> ftms ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
 }
 
 void wahookickruntreadmill::btinit() {
@@ -90,6 +109,38 @@ void wahookickruntreadmill::forceSpeed(double speed) {
                         QStringLiteral("forceSpeed ") + QString::number(speed));
 }
 
+void wahookickruntreadmill::forceIncline(double requestIncline) {
+    if (noWriteResistance)
+        return;
+
+    if (requestIncline < 0.0)
+        requestIncline = 0.0;
+    if (requestIncline > 15.0)
+        requestIncline = 15.0;
+
+    if (!ftmsControlStarted) {
+        ftmsControlStarted = true;
+        uint8_t requestControl[] = {FTMS_REQUEST_CONTROL};
+        writeFTMSControlPoint(QByteArray(reinterpret_cast<const char *>(requestControl), sizeof(requestControl)),
+                              QStringLiteral("ftms request control"));
+
+        uint8_t startResume[] = {FTMS_START_RESUME};
+        writeFTMSControlPoint(QByteArray(reinterpret_cast<const char *>(startResume), sizeof(startResume)),
+                              QStringLiteral("ftms start/resume"));
+    }
+
+    const int16_t incline = static_cast<int16_t>(std::round(requestIncline * 10.0));
+    uint8_t cmd[] = {
+        FTMS_SET_TARGET_INCLINATION,
+        static_cast<uint8_t>(incline & 0xFF),
+        static_cast<uint8_t>((incline >> 8) & 0xFF),
+    };
+
+    writeFTMSControlPoint(QByteArray(reinterpret_cast<const char *>(cmd), sizeof(cmd)),
+                          QStringLiteral("forceIncline ") + QString::number(requestIncline));
+    Inclination = requestIncline;
+}
+
 void wahookickruntreadmill::changeSpeed(double speed) {
     if (requestSpeed >= 0) {
         // Another command is already pending (not yet sent by update()).
@@ -124,6 +175,8 @@ void wahookickruntreadmill::update() {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
             auto *vt = new virtualtreadmill(this, noHeartService);
             connect(vt, &virtualtreadmill::debug, this, &wahookickruntreadmill::debug);
+            connect(vt, &virtualtreadmill::changeInclination, this,
+                    &wahookickruntreadmill::changeInclinationRequested);
             this->setVirtualDevice(vt, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
@@ -141,6 +194,14 @@ void wahookickruntreadmill::update() {
             paddlePending = true;
         }
         requestSpeed = -1;
+    }
+
+    if (requestInclination != -100) {
+        if (std::abs(requestInclination - currentInclination().value()) > 0.01 && requestInclination >= 0) {
+            emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+            forceIncline(requestInclination);
+        }
+        requestInclination = -100;
     }
 
     if (requestStart != -1) {
@@ -164,6 +225,10 @@ void wahookickruntreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
+void wahookickruntreadmill::changeInclinationRequested(double grade, double percentage) {
+    changeInclination(grade, percentage);
+}
+
 void wahookickruntreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                                   const QByteArray &newValue) {
     QSettings settings;
@@ -171,6 +236,16 @@ void wahookickruntreadmill::characteristicChanged(const QLowEnergyCharacteristic
                characteristic.uuid().toString());
 
     const int len = newValue.length();
+
+    if (gattFTMSControlPointCharacteristic.isValid() &&
+        characteristic.uuid() == gattFTMSControlPointCharacteristic.uuid() && len >= 3 &&
+        static_cast<uint8_t>(newValue.at(0)) == FTMS_RESPONSE_CODE) {
+        emit debug(QStringLiteral("KickRun FTMS response request=0x") +
+                   QString::number(static_cast<uint8_t>(newValue.at(1)), 16) +
+                   QStringLiteral(" result=0x") +
+                   QString::number(static_cast<uint8_t>(newValue.at(2)), 16));
+        return;
+    }
 
     // --- Command/response channel (same char used for writes) ---
     // FE 86 01 [id0 id1 id2 id3] ... → store device ID, send 87+id
@@ -308,11 +383,22 @@ void wahookickruntreadmill::stateChanged(QLowEnergyService::ServiceState state) 
             // causing all init/speed writes to be silently swallowed by the wrong channel.
             static const QBluetoothUuid cmdCharUuid(
                 QStringLiteral("a026e03e-0a7d-4ab3-97fa-f1500f9feb8b"));
+            static const QBluetoothUuid ftmsServiceUuid(
+                QStringLiteral("00001826-0000-1000-8000-00805f9b34fb"));
+            static const QBluetoothUuid ftmsControlPointUuid(
+                QStringLiteral("00002ad9-0000-1000-8000-00805f9b34fb"));
 
             if (c.uuid() == cmdCharUuid) {
                 gattCmdCharacteristic = c;
                 gattCmdService = s;
                 emit debug(QStringLiteral("KickRun cmd char found: handle=0x") +
+                           QString::number(c.handle(), 16));
+            }
+
+            if (s->serviceUuid() == ftmsServiceUuid && c.uuid() == ftmsControlPointUuid) {
+                gattFTMSControlPointCharacteristic = c;
+                gattFTMSService = s;
+                emit debug(QStringLiteral("KickRun FTMS control point found: handle=0x") +
                            QString::number(c.handle(), 16));
             }
 
@@ -419,10 +505,13 @@ void wahookickruntreadmill::controllerStateChanged(QLowEnergyController::Control
         initDone = false;
         firstSpeedSent = false;
         workoutModeStarted = false;
+        ftmsControlStarted = false;
         deviceIdReceived = false;
         gattCmdCharacteristic = QLowEnergyCharacteristic();
+        gattFTMSControlPointCharacteristic = QLowEnergyCharacteristic();
         gattCmdService = nullptr;
         gattTelService = nullptr;
+        gattFTMSService = nullptr;
         qDeleteAll(gattServices);
         gattServices.clear();
         m_control->connectToDevice();
