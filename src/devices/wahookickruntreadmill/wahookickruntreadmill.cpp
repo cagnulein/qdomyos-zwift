@@ -90,6 +90,18 @@ void wahookickruntreadmill::forceSpeed(double speed) {
                         QStringLiteral("forceSpeed ") + QString::number(speed));
 }
 
+void wahookickruntreadmill::changeSpeed(double speed) {
+    if (requestSpeed >= 0) {
+        // Another command is already pending (not yet sent by update()).
+        // Accumulate from the pending speed rather than the (stale) telemetry speed.
+        double step = speed - currentSpeed().value();
+        requestSpeed = qMax(0.0, requestSpeed + step);
+        RequestedSpeed = requestSpeed;
+    } else {
+        treadmill::changeSpeed(speed);
+    }
+}
+
 void wahookickruntreadmill::update() {
     if (!m_control || m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -120,9 +132,13 @@ void wahookickruntreadmill::update() {
     update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
     if (requestSpeed != -1) {
-        if (requestSpeed != currentSpeed().value() && requestSpeed >= 0) {
+        if (std::abs(requestSpeed - currentSpeed().value()) > 0.01 && requestSpeed >= 0) {
             emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
             forceSpeed(requestSpeed);
+            // Show commanded speed immediately; suppress telemetry overwrite until paddle push.
+            Speed = requestSpeed;
+            lastSpeed = requestSpeed;
+            paddlePending = true;
         }
         requestSpeed = -1;
     }
@@ -132,6 +148,7 @@ void wahookickruntreadmill::update() {
         if (lastSpeed == 0.0)
             lastSpeed = 0.5;
         forceSpeed(lastSpeed);
+        paddlePending = true;
         requestStart = -1;
         emit tapeStarted();
     }
@@ -171,6 +188,7 @@ void wahookickruntreadmill::characteristicChanged(const QLowEnergyCharacteristic
     // FD E0 01 [code_hi] [code_lo] → paddle pushed, treadmill issued challenge
     if (len >= 5 && (uint8_t)newValue.at(0) == 0xFD && (uint8_t)newValue.at(1) == 0xE0 &&
         (uint8_t)newValue.at(2) == 0x01) {
+        paddlePending = false;  // paddle was pushed; telemetry can now reflect actual belt speed
         QByteArray confirm;
         confirm.append((char)0xE0);
         confirm.append(newValue.at(3));
@@ -197,9 +215,13 @@ void wahookickruntreadmill::characteristicChanged(const QLowEnergyCharacteristic
 
         emit debug(QStringLiteral("KickRun speed=") + QString::number(tgt_kmh, 'f', 2));
 
-        if (Speed.value() != tgt_kmh)
-            emit speedChanged(tgt_kmh);
-        Speed = tgt_kmh;
+        // While waiting for the user to push the paddle, suppress telemetry overwrites
+        // so the UI keeps showing the commanded speed rather than the old belt speed.
+        if (!paddlePending) {
+            if (Speed.value() != tgt_kmh)
+                emit speedChanged(tgt_kmh);
+            Speed = tgt_kmh;
+        }
 
         if (tgt_kmh > 0) {
             lastSpeed = tgt_kmh;

@@ -52,6 +52,7 @@ class wahookickruntreadmill : public treadmill {
     bool connected() override;
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
+    void changeSpeed(double speed) override;
 
   private:
     void writeCharacteristic(const QByteArray &data, const QString &info);
@@ -68,6 +69,7 @@ class wahookickruntreadmill : public treadmill {
 
     QByteArray deviceId;            // 4-byte device ID from the 0x86 init response
     bool deviceIdReceived = false;
+    bool paddlePending = false;     // speed command sent, waiting for paddle push
 
     QTimer *refresh;
     QList<QLowEnergyService *> gattServices;
