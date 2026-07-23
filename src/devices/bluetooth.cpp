@@ -1994,6 +1994,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||
                         (b.name().toUpper().startsWith("DIRETO X")) || (b.name().toUpper().startsWith("MERACH-667-")) ||
                         (b.name().toUpper().startsWith("USDC-D700-")) ||
+						(b.name().toUpper().startsWith("RCR-")) || // Van Rysel RCR (Decathlon)
                         !b.name().compare(ftms_bike, Qt::CaseInsensitive) || (b.name().toUpper().startsWith("SMB1")) ||
                         (b.name().toUpper().startsWith("UBIKE FTMS")) || (b.name().toUpper().startsWith("INRIDE")) ||
                         (b.name().toUpper().startsWith("INCONDI")) || // inCondi S150i
