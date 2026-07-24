@@ -2077,6 +2077,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 //connect(kineticInroadBike, &kineticinroadbike::debug, this, &bluetooth::debug);
                 kineticInroadBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(kineticInroadBike);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("ERGO C12")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("KETTLER C12"))) &&
+                       !kettlerC12Bike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kettlerC12Bike = new kettlerc12bike(noWriteResistance, noHeartService, testResistance,
+                                                     bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(kettlerC12Bike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(kettlerC12Bike, &kettlerc12bike::debug, this, &bluetooth::debug);
+                kettlerC12Bike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kettlerC12Bike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
                         (b.name().toUpper().startsWith("TACX SATORI")) ||
                         (b.name().toUpper().startsWith("RACER S")) ||
@@ -4215,6 +4228,11 @@ void bluetooth::restart() {
         delete computrainerBike;
         computrainerBike = nullptr;
     }
+    if (kettlerC12Bike) {
+
+        delete kettlerC12Bike;
+        kettlerC12Bike = nullptr;
+    }	
     if (kettlerUsbBike) {
 
         delete kettlerUsbBike;
@@ -4587,6 +4605,8 @@ bluetoothdevice *bluetooth::device() {
 #ifndef Q_OS_IOS
     } else if (computrainerBike) {
         return computrainerBike;
+    } else if (kettlerC12Bike) {
+        return kettlerC12Bike;		
     } else if (kettlerUsbBike) {
         return kettlerUsbBike;
     } else if (csafeRower) {

@@ -330,6 +330,7 @@ templateinfosender.cpp \
 templateinfosenderbuilder.cpp \
 webtranslation.cpp \
 devices/stagesbike/stagesbike.cpp \
+devices/kettlerc12bike/kettlerc12bike.cpp \
 devices/toorxtreadmill/toorxtreadmill.cpp \
 devices/iconsolebike/iconsolebike.cpp \
 devices/treadmill.cpp \
@@ -858,6 +859,7 @@ templateinfosender.h \
 templateinfosenderbuilder.h \
 webtranslation.h \
 devices/stagesbike/stagesbike.h \
+devices/kettlerc12bike/kettlerc12bike.h \
 devices/toorxtreadmill/toorxtreadmill.h \
 devices/iconsolebike/iconsolebike.h \
 gpx.h \
