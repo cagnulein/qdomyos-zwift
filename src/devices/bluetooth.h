@@ -185,6 +185,8 @@ class bluetooth : public QObject, public SignalHandler {
     volatile bool homeformLoaded = false;
 
   private:
+    void attachHeartRateBeltSignals();
+    void connectHeartRateBelt(const QBluetoothDeviceInfo &deviceInfo);
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
