@@ -1,4 +1,5 @@
 #include "toorxtreadmill.h"
+#include "homeform.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -18,6 +19,13 @@ toorxtreadmill::toorxtreadmill() {
     refresh->start(1s);
 }
 
+double toorxtreadmill::minStepInclination() {
+    if (BHDualkitTread) {
+        return 1.0;
+    }
+    return treadmill::minStepInclination();
+}
+
 void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
@@ -27,6 +35,10 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().toUpper().startsWith(QStringLiteral("MASTERT40"))) {
             MASTERT409 = true;
             qDebug() << "MASTERT409 workarkound enabled";
+        }
+        if (device.name().toUpper().contains(QStringLiteral("BH DUALKIT TREAD"))) {
+            BHDualkitTread = true;
+            qDebug() << "BH DUALKIT TREAD workaround enabled";
         }
 
         // Create a discovery agent and connect to its signals
@@ -158,6 +170,15 @@ void toorxtreadmill::update() {
             requestInclination = -100;
         } else if (requestStart != -1 && start_phase == -1) {
             emit debug(QStringLiteral("starting..."));
+            bhDualkitState2RecoveryRequested = false;
+            bhDualkitState2RecoveryApplied = false;
+            if (BHDualkitTread) {
+                const uint8_t incline[] = {0x55, 0x0a, 0x01, 0x01};
+                send((char *)incline, sizeof(incline));
+                Inclination = 1;
+                const uint8_t start[] = {0x55, 0x07, 0x01, 0xff};
+                send((char *)start, sizeof(start));
+            }
             //const uint8_t start[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0xb5, 0x01, 0xff};
             //send((char *)start, sizeof(start));
             start_phase = 0;
@@ -169,6 +190,12 @@ void toorxtreadmill::update() {
             }
         } else if (start_phase != -1) {
             requestStart = -1;
+            if (BHDualkitTread && bhDualkitState2RecoveryRequested && !bhDualkitState2RecoveryApplied) {
+                emit debug(QStringLiteral("BH DUALKIT TREAD state 2 during init, switching to recovery sequence"));
+                start_phase = 3;
+                bhDualkitState2RecoveryRequested = false;
+                bhDualkitState2RecoveryApplied = true;
+            }
             if(toorx_65s_evo) {
                 switch (start_phase) {
                     case 0: {
@@ -335,6 +362,86 @@ void toorxtreadmill::update() {
                         break;
                     }
                 }
+            } else if (BHDualkitTread) {
+                switch (start_phase) {
+                    case 0: {
+                        const uint8_t init2[] = {0x55, 0x0c, 0x01, 0xff, 0x55, 0xbb, 0x01, 0xff, 0x55, 0x24, 0x01, 0xff,
+                                                 0x55, 0x25, 0x01, 0xff, 0x55, 0x26, 0x01, 0xff, 0x55, 0x27, 0x01, 0xff, 0x55, 0x02,
+                                                 0x01, 0xff, 0x55, 0x03, 0x01, 0xff, 0x55, 0x04, 0x01, 0xff, 0x55, 0x06, 0x01, 0xff,
+                                                 0x55, 0x1f, 0x01, 0xff, 0x55, 0xa0, 0x01, 0xff, 0x55, 0xb0, 0x01, 0xff, 0x55, 0xb2,
+                                                 0x01, 0xff, 0x55, 0xb3, 0x01, 0xff, 0x55, 0xb4, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff,
+                                                 0x55, 0xb6, 0x01, 0xff, 0x55, 0xb7, 0x01, 0xff, 0x55, 0xb8, 0x01, 0xff, 0x55, 0xb9,
+                                                 0x01, 0xff, 0x55, 0xba, 0x01, 0xff, 0x55, 0x0b, 0x01, 0xff, 0x55, 0x18, 0x01, 0xff,
+                                                 0x55, 0x19, 0x01, 0xff, 0x55, 0x1a, 0x01, 0xff, 0x55, 0x1b, 0x01, 0xff};
+                        send((char *)init2, sizeof(init2));
+                        start_phase++;
+                        break;
+                    }
+                    case 1:
+                        start_phase++;
+                        break;
+                    case 2: {
+                        const uint8_t poll[] = {0x55, 0x17, 0x01, 0x01};
+                        send((char *)poll, sizeof(poll));
+                        start_phase++;
+                        break;
+                    }
+                    case 3: {
+                        const uint8_t start0[] = {0x55, 0x0a, 0x01, 0x02};
+                        send((char *)start0, sizeof(start0));
+                        start_phase++;
+                        break;
+                    }
+                    case 4: {
+                        const uint8_t nativeInit[] = {0x55, 0x01, 0x06, 0x23, 0x01, 0x46, 0x00, 0xb4, 0x00};
+                        send((char *)nativeInit, sizeof(nativeInit));
+                        start_phase++;
+                        break;
+                    }
+                    case 5: {
+                        const uint8_t poll[] = {0x55, 0x17, 0x01, 0x01};
+                        send((char *)poll, sizeof(poll));
+                        start_phase++;
+                        break;
+                    }
+                    case 6: {
+                        const uint8_t start1[] = {0x55, 0x15, 0x01, 0x00};
+                        send((char *)start1, sizeof(start1));
+                        start_phase++;
+                        break;
+                    }
+                    case 7: {
+                        const uint8_t poll[] = {0x55, 0x17, 0x01, 0x01};
+                        send((char *)poll, sizeof(poll));
+                        start_phase++;
+                        break;
+                    }
+                    case 8: {
+                        const uint8_t start2[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
+                        send((char *)start2, sizeof(start2));
+                        start_phase++;
+                        break;
+                    }
+                    case 9: {
+                        const uint8_t start3[] = {0x55, 0x11, 0x01, 0x01};
+                        send((char *)start3, sizeof(start3));
+                        start_phase++;
+                        break;
+                    }
+                    case 10: {
+                        const uint8_t poll[] = {0x55, 0x17, 0x01, 0x01};
+                        send((char *)poll, sizeof(poll));
+                        start_phase++;
+                        break;
+                    }
+                    case 11: {
+                        const uint8_t start4[] = {0x55, 0x08, 0x01, 0x01};
+                        send((char *)start4, sizeof(start4));
+                        start_phase = -1;
+                        homeform::singleton()->setToastRequested("treadmill initialized");
+                        break;
+                    }
+                }
             } else {
                 switch (start_phase) {
                     case 0: {
@@ -429,6 +536,7 @@ void toorxtreadmill::update() {
 
 void toorxtreadmill::rfCommConnected() {
     emit debug(QStringLiteral("connected ") + socket->peerName());
+    homeform::singleton()->setToastRequested("initializing...");
 
     this->initDone = true;
     this->requestStart = 1;
@@ -448,16 +556,47 @@ void toorxtreadmill::readSocket() {
         return;
 
     while (socket->bytesAvailable()) {
-        QByteArray line = socket->readAll();
-        qDebug() << QStringLiteral(" << ") + line.toHex(' ');
+        rxBuffer.append(socket->readAll());
+    }
 
-        if (line.length() == 17 && line.at(1) != 0x27) {
-            elapsed = GetElapsedTimeFromPacket(line);
-            Distance = GetDistanceFromPacket(line);
-            KCal = GetCaloriesFromPacket(line);
-            Speed = GetSpeedFromPacket(line);
-            Inclination = GetInclinationFromPacket(line);
-            Heart = GetHeartRateFromPacket(line);
+    if (rxBuffer.isEmpty())
+        return;
+
+    qDebug() << QStringLiteral(" << ") + rxBuffer.toHex(' ');
+
+    // RFCOMM can coalesce/split frames. Decode as 0x55 + command + payload_len + payload.
+    while (rxBuffer.size() >= 3) {
+        if (static_cast<uint8_t>(rxBuffer.at(0)) != 0x55) {
+            rxBuffer.remove(0, 1);
+            continue;
+        }
+
+        const uint8_t command = static_cast<uint8_t>(rxBuffer.at(1));
+        const int payloadLen = static_cast<uint8_t>(rxBuffer.at(2));
+        const int frameLen = payloadLen + 3;
+        if (rxBuffer.size() < frameLen)
+            break;
+
+        const QByteArray payload = rxBuffer.mid(3, payloadLen);
+        rxBuffer.remove(0, frameLen);
+
+        if (command == 0x09 && payloadLen >= 1) {
+            const uint8_t treadmillState = static_cast<uint8_t>(payload.at(0));
+            emit debug(QStringLiteral("Current state: ") + QString::number(treadmillState));
+
+            // In captures from the vendor app, a BH Dualkit treadmill that reports state 0x02 during
+            // startup is recovered by resuming from the 0x0a 0x02 stage rather than replaying the
+            // full preamble. Apply that branch once per start attempt while initialization is active.
+            if (BHDualkitTread && treadmillState == 0x02 && !bhDualkitState2RecoveryApplied) {
+                bhDualkitState2RecoveryRequested = true;
+            }
+        } else if (command == 0x0d && payloadLen >= 10) {
+            elapsed = GetElapsedTimeFromPacket(payload);
+            Distance = GetDistanceFromPacket(payload);
+            KCal = GetCaloriesFromPacket(payload);
+            Speed = GetSpeedFromPacket(payload);
+            Inclination = GetInclinationFromPacket(payload);
+            Heart = GetHeartRateFromPacket(payload);
 
             emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
             emit debug(QStringLiteral("Current incline: ") + QString::number(Inclination.value()));
@@ -468,34 +607,34 @@ void toorxtreadmill::readSocket() {
     }
 }
 
-uint8_t toorxtreadmill::GetHeartRateFromPacket(const QByteArray &packet) { return packet.at(16); }
+uint16_t toorxtreadmill::GetElapsedTimeFromPacket(const QByteArray &payload) {
+    return (static_cast<uint8_t>(payload.at(0)) << 8) | static_cast<uint8_t>(payload.at(1));
+}
 
-uint8_t toorxtreadmill::GetInclinationFromPacket(const QByteArray &packet) { return packet.at(15); }
+double toorxtreadmill::GetDistanceFromPacket(const QByteArray &payload) {
+    return static_cast<double>((static_cast<uint8_t>(payload.at(2)) << 8) | static_cast<uint8_t>(payload.at(3))) / 100.0;
+}
 
-double toorxtreadmill::GetSpeedFromPacket(const QByteArray &packet) {
+uint16_t toorxtreadmill::GetCaloriesFromPacket(const QByteArray &payload) {
+    return (static_cast<uint8_t>(payload.at(4)) << 8) | static_cast<uint8_t>(payload.at(5));
+}
+
+double toorxtreadmill::GetSpeedFromPacket(const QByteArray &payload) {
     QSettings settings;
-    // the treadmill send the speed in miles for some models
-    double miles = 1;
-    if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
-        miles = 1.60934;
-
-    double convertedData = ((double)((double)((uint8_t)packet.at(13)) * 100.0) + ((double)packet.at(14))) / 100.0;
-    return convertedData * miles;
+    // Some models report speed in miles, keep existing conversion toggle.
+    const double miles = settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool()
+                             ? 1.60934
+                             : 1.0;
+    const double rawSpeed = static_cast<uint8_t>(payload.at(6)) + (static_cast<uint8_t>(payload.at(7)) / 100.0);
+    return rawSpeed * miles;
 }
 
-uint16_t toorxtreadmill::GetCaloriesFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(11) << 8) | packet.at(12);
-    return convertedData;
+uint8_t toorxtreadmill::GetInclinationFromPacket(const QByteArray &payload) {
+    return static_cast<uint8_t>(payload.at(8));
 }
 
-double toorxtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
-    double convertedData = (double)((packet.at(9) << 8) | packet.at(10)) / 100.0;
-    return convertedData;
-}
-
-uint16_t toorxtreadmill::GetElapsedTimeFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
-    return convertedData;
+uint8_t toorxtreadmill::GetHeartRateFromPacket(const QByteArray &payload) {
+    return static_cast<uint8_t>(payload.at(9));
 }
 
 void toorxtreadmill::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {

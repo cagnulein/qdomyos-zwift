@@ -33,6 +33,7 @@ class toorxtreadmill : public treadmill {
     Q_OBJECT
   public:
     explicit toorxtreadmill();
+    double minStepInclination() override;
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -54,17 +55,19 @@ class toorxtreadmill : public treadmill {
     QTimer *refresh;
     bool initDone = false;
     bool found = false;
+    QByteArray rxBuffer;
+    bool bhDualkitState2RecoveryRequested = false;
+    bool bhDualkitState2RecoveryApplied = false;
 
     void send(char * buffer, int size);
-
     bool MASTERT409 = false;
-
-    uint16_t GetElapsedTimeFromPacket(const QByteArray &packet);
-    double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t GetCaloriesFromPacket(const QByteArray &packet);
-    double GetSpeedFromPacket(const QByteArray &packet);
-    uint8_t GetInclinationFromPacket(const QByteArray &packet);
-    uint8_t GetHeartRateFromPacket(const QByteArray &packet);
+    bool BHDualkitTread = false;
+    uint16_t GetElapsedTimeFromPacket(const QByteArray &payload);
+    double GetDistanceFromPacket(const QByteArray &payload);
+    uint16_t GetCaloriesFromPacket(const QByteArray &payload);
+    double GetSpeedFromPacket(const QByteArray &payload);
+    uint8_t GetInclinationFromPacket(const QByteArray &payload);
+    uint8_t GetHeartRateFromPacket(const QByteArray &payload);
 
   signals:
     void disconnected();
