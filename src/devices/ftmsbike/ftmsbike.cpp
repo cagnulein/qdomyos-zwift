@@ -611,9 +611,46 @@ void ftmsbike::update() {
             lastRequestedPower().value() > 0 && autoResistance()) {
             resistance_t newR = resistanceFromPowerRequest(
                 (uint16_t)lastRequestedPower().value());
+
+            // Apply same floor as bike::changeResistance so zwift_erg_resistance_down is honoured
+            // even when resistance is set directly via forceResistance (bypassing changeResistance)
+            double erg_res_down = settings.value(QZSettings::zwift_erg_resistance_down,
+                                                  QZSettings::default_zwift_erg_resistance_down).toDouble();
+            if ((double)newR < erg_res_down)
+                newR = (resistance_t)erg_res_down;
+
             if (newR != m_lastErgResistance && newR > 0) {
+                const double targetPower = lastRequestedPower().value();
+                const double erg_filter_upper =
+                    settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+                const double erg_filter_lower = settings
+                                                     .value(QZSettings::zwift_erg_filter_down,
+                                                            QZSettings::default_zwift_erg_filter_down)
+                                                     .toDouble();
+                const double smoothedWatts = (m_watt.average5s() > 0) ? m_watt.average5s() : wattsMetric().value();
+                const double deltaUp = targetPower - smoothedWatts;
+                const double deltaDown = smoothedWatts - targetPower;
+                const bool inPowerDeadband =
+                    m_lastErgResistance > 0 && smoothedWatts > 0 &&
+                    ((newR > m_lastErgResistance && deltaUp <= erg_filter_upper) ||
+                     (newR < m_lastErgResistance && deltaDown <= erg_filter_lower));
+
+                // Respect the configured ERG watt deadband during continuous recalculation too.
+                if (inPowerDeadband) {
+                    qDebug() << "continuous ERG: power deadband, skipping resistance change"
+                             << m_lastErgResistance << "->" << newR
+                             << "watts" << smoothedWatts
+                             << "target" << targetPower
+                             << "deltaUp" << deltaUp
+                             << "deltaDown" << deltaDown
+                             << "filter" << erg_filter_upper << erg_filter_lower;
+                // 2-second debounce: prevents oscillation between adjacent resistance levels
+                // when ergTable calibration produces alternating best-match results
+                } else if (m_ergResistanceLastChange.isValid() && m_ergResistanceLastChange.elapsed() < 2000) {
+                    qDebug() << "continuous ERG: debounce, skipping resistance change"
+                             << m_lastErgResistance << "->" << newR;
                 // ERG death spiral protection: below 50 RPM, only allow resistance decreases
-                if (Cadence.value() > 0 && Cadence.value() < 50 && newR > m_lastErgResistance) {
+                } else if (Cadence.value() > 0 && Cadence.value() < 50 && newR > m_lastErgResistance) {
                     qDebug() << "ERG death spiral protection: cadence" << Cadence.value()
                              << "< 50, blocking resistance increase"
                              << m_lastErgResistance << "->" << newR;
@@ -623,6 +660,7 @@ void ftmsbike::update() {
                              << "resistance" << m_lastErgResistance << "->" << newR;
                     forceResistance(newR);
                     m_lastErgResistance = newR;
+                    m_ergResistanceLastChange.restart();
                 }
             }
         }
