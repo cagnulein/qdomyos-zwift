@@ -185,19 +185,22 @@ void cscbike::update() {
 
     bool rogue_echo_bike = settings.value(QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike).toBool();
     
-    if (manualResistancePowerAdjustmentActive && jorotoBike) {
-        m_watt = manualResistanceAdjustedWatts();
-    } else if (manualResistancePowerAdjustmentActive && useCustomResistancePowerTable()) {
-        m_watt = customResistanceAdjustedWatts(currentCadence().value(), manualResistanceTarget);
-    } else if (rogue_echo_bike) {
-        double rpm = currentCadence().value();
-        m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404;
-    } else {
-        // When cadence is zero, watts should be zero regardless of HR
-        if (currentCadence().value() == 0) {
-            m_watt = 0;
+    bool recentJorotoVendorWatt = JOROTO_X2PRO && lastJorotoVendorPacket.msecsTo(QDateTime::currentDateTime()) < 2000;
+    if (!recentJorotoVendorWatt) {
+        if (manualResistancePowerAdjustmentActive && jorotoBike) {
+            m_watt = manualResistanceAdjustedWatts();
+        } else if (manualResistancePowerAdjustmentActive && useCustomResistancePowerTable()) {
+            m_watt = customResistanceAdjustedWatts(currentCadence().value(), manualResistanceTarget);
+        } else if (rogue_echo_bike) {
+            double rpm = currentCadence().value();
+            m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404;
         } else {
-            m_watt = wattFromHR(false);
+            // When cadence is zero, watts should be zero regardless of HR
+            if (currentCadence().value() == 0) {
+                m_watt = 0;
+            } else {
+                m_watt = wattFromHR(false);
+            }
         }
     }
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
@@ -291,6 +294,65 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         battery_level = battery;
         qDebug() << QStringLiteral("battery: ") << battery;
         return;
+    }
+
+    if (JOROTO_X2PRO &&
+        characteristic.uuid() == QBluetoothUuid(QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb")) &&
+        newValue.length() >= 5) {
+        uint8_t messageType = (uint8_t)newValue.at(1);
+
+        if (messageType == 0x42 && newValue.length() >= 11) {
+            double vendorSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) |
+                                           (uint16_t)((uint8_t)newValue.at(3)))) / 100.0;
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = vendorSpeed;
+            }
+
+            Resistance = (double)((uint8_t)newValue.at(5));
+            emit resistanceRead(Resistance.value());
+            emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+
+            bool externalCadenceSensorEnabled =
+                !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                     .toString()
+                     .startsWith(QStringLiteral("Disabled"));
+            bool externalPowerSensorEnabled =
+                !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                     .toString()
+                     .startsWith(QStringLiteral("Disabled"));
+            if (!externalCadenceSensorEnabled && !externalPowerSensorEnabled) {
+                double vendorCadence = (double)((uint8_t)newValue.at(6));
+                if (vendorCadence > 0) {
+                    Cadence = vendorCadence;
+                    lastGoodCadence = now;
+                } else if (lastGoodCadence.msecsTo(now) > 2000) {
+                    Cadence = 0;
+                }
+                emit cadenceChanged(Cadence.value());
+                emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+            }
+
+            double vendorWatt = ((double)(((uint16_t)((uint8_t)newValue.at(10)) << 8) |
+                                          (uint16_t)((uint8_t)newValue.at(9)))) / 10.0;
+            m_rawWatt = vendorWatt;
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                m_watt = vendorWatt;
+            }
+            lastJorotoVendorPacket = now;
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+
+            if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            }
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+            return;
+        } else if (messageType == 0x43) {
+            return;
+        }
     }
 
     if (characteristic.uuid() != QBluetoothUuid((quint16)0x2A5B)) {
@@ -475,6 +537,7 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
     QBluetoothUuid Battery(QBluetoothUuid::BatteryService);
+    QBluetoothUuid JorotoVendorService(QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb"));
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
 #ifdef Q_OS_WINDOWS
@@ -500,7 +563,8 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
                 cadenceService = s;
             }
 
-            if(s->serviceUuid() != CyclingSpeedAndCadence && s->serviceUuid() != Battery) {
+            if(s->serviceUuid() != CyclingSpeedAndCadence && s->serviceUuid() != Battery &&
+               !(JOROTO_X2PRO && s->serviceUuid() == JorotoVendorService)) {
                 //  No data from sensors and avatar won’t move in Zwift (even when data showed on first try) (Issue #2178)
                 qDebug() << "avoid unwaned service";
                 continue;
@@ -677,6 +741,11 @@ void cscbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        if (device.name().toUpper().startsWith(QStringLiteral("JOROTO-BK-")) ||
+            device.name().toUpper().startsWith(QStringLiteral("JOROTO-X2PRO"))) {
+            qDebug() << QStringLiteral("JOROTO-X2PRO found");
+            JOROTO_X2PRO = true;
+        }
         jorotoBike = bluetoothDevice.name().toUpper().startsWith(QStringLiteral("JOROTO-BK-"));
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
