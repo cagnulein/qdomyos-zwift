@@ -246,11 +246,8 @@ void lifespantreadmill::characteristicChanged(const QLowEnergyCharacteristic& ch
     }
 
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) {
-            KCal += ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
-                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) / 200.0) /
-                   (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
-        }
+        KCal += calculateKCalChange(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                    lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()));
 
         Distance += ((Speed.value() / 3600.0) /
                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));

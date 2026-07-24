@@ -326,15 +326,8 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
     }
 
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-            KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                    1.19) *
-                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                  200.0) /
-                 (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-        // kg * 3.5) / 200 ) / 60
+        KCal += calculateKCalChange(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                    lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()));
 
         Distance += ((speed / (double)3600.0) /
                      ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
