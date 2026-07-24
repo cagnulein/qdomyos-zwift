@@ -170,6 +170,7 @@ class bluetoothdevice : public QObject {
      * Expected range: 0 to maxResistance()
      */
     virtual metric currentResistance();
+    virtual bool currentResistanceValueAvailable() { return true; }
 
     /**
      * @brief currentCadence Gets a metric object to get and set the current cadence. Units: revolutions per minute
