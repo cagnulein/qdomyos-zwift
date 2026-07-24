@@ -27,6 +27,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QList>
+#include <QTimer>
 #ifdef CHARTJS
 #include <QtWebView/QtWebView>
 #endif
@@ -880,7 +881,9 @@ int main(int argc, char *argv[]) {
     QString mqtt_username = settings.value(QZSettings::mqtt_username, QZSettings::default_mqtt_username).toString();
     QString mqtt_password = settings.value(QZSettings::mqtt_password, QZSettings::default_mqtt_password).toString();
     if(mqtt_host.length() > 0) {
-        new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl, &bl);
+        QTimer::singleShot(5000, &bl, [&bl, mqtt_host, mqtt_port, mqtt_username, mqtt_password]() {
+            new MQTTPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password, &bl, &bl);
+        });
     }
 
     QString OSC_ip = settings.value(QZSettings::OSC_ip, QZSettings::default_OSC_ip).toString();
