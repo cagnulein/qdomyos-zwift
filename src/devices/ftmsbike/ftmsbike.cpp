@@ -976,6 +976,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (SMARTBIKE_3DIGIT && manualResistancePowerAdjustmentActive) {
                 m_watt = cscbike::customResistanceAdjustedWatts(currentCadence().value(), manualResistanceTarget);
                 emit debug(QStringLiteral("Current Watt (custom resistance table): ") + QString::number(m_watt.value()));
+            } else if (MOK_FITNESS && cscbike::useCustomResistancePowerTable()) {
+                m_watt = cscbike::customResistanceAdjustedWatts(currentCadence().value(), Resistance.value());
+                emit debug(QStringLiteral("Current Watt (custom resistance table): ") + QString::number(m_watt.value()));
             } else if(DU30_bike) {
                 m_watt = wattsFromResistance(Resistance.value());
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
@@ -2149,6 +2152,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             ergModeSupported = false;
             max_resistance = 10;
             Resistance = 1; // Initialize resistance to 1 for SPORT01
+        } else if(device.name().toUpper().startsWith("MOKFITNESS-")) {
+            qDebug() << QStringLiteral("MOKFITNESS found");
+            MOK_FITNESS = true;
+            max_resistance = 32;
         } else if (isSmartBikeThreeDigitName(device.name())) {
             qDebug() << QStringLiteral("SMARTBIKE-### found");
             SMARTBIKE_3DIGIT = true;
