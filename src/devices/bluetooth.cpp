@@ -627,6 +627,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
     QString kettlerUsbSerialPort =
         settings.value(QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport).toString();
+    QString freebeatSerialPort =
+        settings.value(QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport).toString();
     QString csaferowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
     bool waterrowerUSBEnabled = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
     QString csafeellipticalSerialPort =
@@ -954,6 +956,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(kettlerUsbBike);
+            } else if (!freebeatSerialPort.isEmpty() && !freebeatBike) {
+                this->stopDiscovery();
+                freebeatBike =
+                    new freebeatbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(freebeatBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(freebeatBike, &freebeatbike::debug, this, &bluetooth::debug);
+                freebeatBike->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(freebeatBike);
             } else if (!csaferowerSerialPort.isEmpty() && !csafeRower) {
                 this->stopDiscovery();
                 csafeRower = new csaferower(noWriteResistance, noHeartService, false);
@@ -4220,6 +4235,11 @@ void bluetooth::restart() {
         delete kettlerUsbBike;
         kettlerUsbBike = nullptr;
     }
+    if (freebeatBike) {
+
+        delete freebeatBike;
+        freebeatBike = nullptr;
+    }
     if (csafeRower) {
 
         delete csafeRower;
@@ -4589,6 +4609,8 @@ bluetoothdevice *bluetooth::device() {
         return computrainerBike;
     } else if (kettlerUsbBike) {
         return kettlerUsbBike;
+    } else if (freebeatBike) {
+        return freebeatBike;
     } else if (csafeRower) {
         return csafeRower;
     } else if (csafeElliptical) {
