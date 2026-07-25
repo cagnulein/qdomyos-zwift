@@ -13707,6 +13707,19 @@
       "defaultValue": "",
       "defaultExpression": "\"\"",
       "options": null
+    },
+    {
+      "key": "waterrower_usb",
+      "name": "WaterRower USB",
+      "description": null,
+      "parent": "Rower Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null
     }
   ]
 }
