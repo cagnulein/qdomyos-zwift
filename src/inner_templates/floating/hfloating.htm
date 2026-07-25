@@ -389,6 +389,16 @@
                 <td style="text-align: left">NEXT</td>
                 <td class="nextrow-value values" colspan="5"><b></b></td>
               </tr>
+              <tr class="movingtime" sort-order="18">
+                <td class="icon">⏲️</td>
+                <td style="text-align: left">MOVING T.</td>
+                <td class="movingtime-value values" colspan="5"><b>0:00:00</b></td>
+              </tr>
+              <tr class="datetime" sort-order="19">
+                <td class="icon">⏰</td>
+                <td style="text-align: left">CLOCK</td>
+                <td class="datetime-value values" colspan="5"><b>00:00:00</b></td>
+              </tr>
               <tr sort-order="255">
                 <td colspan=2 style="text-align:left"><button style="font-size: 16px; color: white; background-color:#4C70BF"
                     onclick="Lap()">CLEAR</button></td>
@@ -470,7 +480,9 @@
               { id: "rowremainingtime", name: "REM.TIME", order: 14 },
               { id: "pelotonoffset", name: "P.OFFSET", order: 15 },
               { id: "gears", name: "GEARS", order: 16 },
-              { id: "nextrow", name: "NEXT", order: 17 }
+              { id: "nextrow", name: "NEXT", order: 17 },
+              { id: "movingtime", name: "MOVING T.", order: 18 },
+              { id: "datetime", name: "CLOCK", order: 19 }
             ];
 
             var displayedMetricsCount = 5; // Default number of metrics to display
@@ -672,6 +684,8 @@
                   settingsToUpdate['tile_peloton_offset_enabled'] = metricsPreference["pelotonoffset"];
                   settingsToUpdate['tile_gears_enabled'] = metricsPreference["gears"];
                   settingsToUpdate['tile_ftp_enabled'] = metricsPreference["powerzone"];
+                  settingsToUpdate['tile_moving_time_enabled'] = metricsPreference["movingtime"];
+                  settingsToUpdate['tile_datetime_enabled'] = metricsPreference["datetime"];
 
                   // Send settings update to backend
                   let el = new MainWSQueueElement({
@@ -733,7 +747,7 @@
                         } else if (["calories", "jouls", "distance", "elevation"].includes(id)) {
                           // These metrics don't have averages
                           html += '<div class="metric-avg">TOTAL</div>';
-                        } else if (id === "elapsed" || id === "rowremainingtime") {
+                        } else if (id === "elapsed" || id === "rowremainingtime" || id === "movingtime" || id === "datetime") {
                           // Time metrics don't need a label
                           html += '<div class="metric-avg"></div>';
                         } else if (id === "nextrow") {
@@ -1035,7 +1049,7 @@
                                   'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
                                   'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_target_pace_enabled', 'tile_inclination_enabled',
                                   'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled', 'tile_remainingtimetrainprogramrow_enabled', 'tile_gears_enabled',
-                                  'tile_elevation_enabled', 'tile_pace_enabled', 'horizontal_display_count', /* New setting for horizontal display */
+                                  'tile_elevation_enabled', 'tile_pace_enabled', 'tile_moving_time_enabled', 'tile_datetime_enabled', 'horizontal_display_count', /* New setting for horizontal display */
                                   'tile_speed_order', 'tile_cadence_order', 'tile_calories_order', 'tile_odometer_order', 'tile_resistance_order', 'tile_watt_order',
                                   'tile_heart_order', 'tile_elapsed_order', 'tile_peloton_resistance_order', 'floating_transparency', 'tile_target_resistance_order', 'tile_target_peloton_resistance_order',
                                   'tile_target_cadence_order', 'tile_target_power_order', 'tile_peloton_offset_order', 'tile_target_speed_order', 'tile_target_pace_order', 'tile_inclination_order',
@@ -1113,6 +1127,12 @@
                                       else if (key === 'tile_ftp_enabled') {
                                         metricsPreference["powerzone"] = (msg.content[key] === true || msg.content[key] === 'true');
                                       }
+                                      else if (key === 'tile_moving_time_enabled') {
+                                        metricsPreference["movingtime"] = (msg.content[key] === true || msg.content[key] === 'true');
+                                      }
+                                      else if (key === 'tile_datetime_enabled') {
+                                        metricsPreference["datetime"] = (msg.content[key] === true || msg.content[key] === 'true');
+                                      }
                                       else if(key === 'floating_transparency') {
                                         $(".transparency").css("opacity", msg.content[key] / 100.0);
                                       }
@@ -1172,7 +1192,8 @@
                                               'inclination', 'inclination_lapavg',
                                               'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
                                               'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation', 'pace_s' , 'pace_m',
-                                              'avgpace_s', 'avgpace_m', 'maxpace_s' , 'maxpace_m', 'remaining_time_s', 'remaining_time_m', 'remaining_time_h', 'nextrow']
+                                              'avgpace_s', 'avgpace_m', 'maxpace_s' , 'maxpace_m', 'remaining_time_s', 'remaining_time_m', 'remaining_time_h', 'nextrow',
+                                              'moving_s', 'moving_m', 'moving_h']
 
                                             // Set up workout data listener
                                             let ell = new MainWSQueueElement(null, function (msg) {
@@ -1215,6 +1236,9 @@
                                                           var remaining_time_s = 0;
                                                           var remaining_time_m = 0;
                                                           var remaining_time_h = 0;
+                                                          var moving_s = 0;
+                                                          var moving_m = 0;
+                                                          var moving_h = 0;
                                                           var resistance = 0;
                                                           var resistance_lapavg = 0;
                                                           var resistance_lapmax = 0;
@@ -1318,6 +1342,12 @@
                                                               remaining_time_s = msg.content[key];
                                                             } else if (key === 'nextrow') {
                                                               nextrow = msg.content[key];
+                                                            } else if (key === 'moving_s') {
+                                                              moving_s = msg.content[key];
+                                                            } else if (key === 'moving_m') {
+                                                              moving_m = msg.content[key];
+                                                            } else if (key === 'moving_h') {
+                                                              moving_h = msg.content[key];
                                                             } else if (key === 'target_pace_h') {
                                                               target_pace_h = msg.content[key];
                                                             } else if (key === 'target_pace_m') {
@@ -1440,6 +1470,9 @@
                                                                                       peloton_offset: peloton_offset,
                                                                                       gears: gears,
                                                                                       nextrow: nextrow,
+                                                                                      moving_s: moving_s,
+                                                                                      moving_m: moving_m,
+                                                                                      moving_h: moving_h,
                                                                                       deviceType: deviceType,
                                                                                       TREADMILL_TYPE: TREADMILL_TYPE
                                                                                     });
@@ -1562,6 +1595,11 @@
                                                                                                                  " / " + "<b>" + data.remaining_time_h.toString().padStart(2, "0") + ":" +
                                                                                                                  data.remaining_time_m.toString().padStart(2, "0") + ":" +
                                                                                                                  data.remaining_time_s.toString().padStart(2, "0") + "</b>" : ""));
+
+                                                                                        // Moving time
+                                                                                        $('.movingtime-value').html("<b>" + data.moving_h.toString().padStart(2, "0") + ":" +
+                                                                                                                    data.moving_m.toString().padStart(2, "0") + ":" +
+                                                                                                                    data.moving_s.toString().padStart(2, "0") + "</b>");
 
                                                                                         // Gears
                                                                                         $('.gears-value').html("<b>" + data.gears.toFixed(0) + "</b>");
@@ -1744,11 +1782,30 @@
                                                                                                     if ($('.horizontal-bar .nextrow').length > 0) {
                                                                                                       $('.horizontal-bar .nextrow-value').html(data.nextrow);
                                                                                                     }
+
+                                                                                                    // Update moving time
+                                                                                                    if ($('.horizontal-bar .movingtime').length > 0) {
+                                                                                                      $('.horizontal-bar .movingtime-value').html(data.moving_h.toString().padStart(2, "0") + ":" +
+                                                                                                                             data.moving_m.toString().padStart(2, "0") + ":" +
+                                                                                                                             data.moving_s.toString().padStart(2, "0"));
+                                                                                                    }
                                                                                                   }
 
                                                                                                   // Initialize the template when the page loads
                                                                                                   setTimeout(initializeTemplate, 0);
-                                                                                                  
+
+                                                                                                  function updateClock() {
+                                                                                                    var now = new Date();
+                                                                                                    var clockStr = now.getHours().toString().padStart(2, "0") + ":" + now.getMinutes().toString().padStart(2, "0") + ":" + now.getSeconds().toString().padStart(2, "0");
+                                                                                                    $('.datetime-value').html("<b>" + clockStr + "</b>");
+                                                                                                    if ($('.horizontal-bar .datetime').length > 0) {
+                                                                                                      $('.horizontal-bar .datetime-value').html(clockStr);
+                                                                                                    }
+                                                                                                  }
+                                                                                                  updateClock();
+                                                                                                  setInterval(updateClock, 1000);
+
+
                                                                                                   // Add global event listeners for any touch/click to enable dragging margins
                                                                                                   document.addEventListener('click', function(event) {
                                                                                                     if (typeof Android !== 'undefined' && Android.enableDraggingMargins) {
