@@ -2156,6 +2156,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("MOKFITNESS found");
             MOK_FITNESS = true;
             max_resistance = 32;
+            ergModeSupported = false; // this bike doesn't have ERG mode natively
         } else if (isSmartBikeThreeDigitName(device.name())) {
             qDebug() << QStringLiteral("SMARTBIKE-### found");
             SMARTBIKE_3DIGIT = true;
