@@ -1735,9 +1735,8 @@ import AndroidStatusBar 1.0
             property int mywhoosh_link_right_power: 0
             property int mywhoosh_link_camera_value: 1
             property int mywhoosh_link_emote_value: 1
-            property string freebeat_serialport: ""
-
             property bool waterrower_usb: false
+            property string freebeat_serialport: ""
         }
 
 
