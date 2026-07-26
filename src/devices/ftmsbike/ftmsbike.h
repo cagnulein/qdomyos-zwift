@@ -131,6 +131,11 @@ class ftmsbike : public bike {
     QLowEnergyCharacteristic zwiftPlayWriteChar;
     QLowEnergyService *zwiftPlayService = nullptr;
 
+    // MOK Fitness bikes don't use the FTMS control point (0x2AD9) to change resistance,
+    // they need a raw command written to a proprietary characteristic (0xFFF2) instead.
+    QLowEnergyCharacteristic gattWriteCharMokFitnessId;
+    QLowEnergyService *gattMokFitnessService = nullptr;
+
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QByteArray lastPacketFromFTMS;
