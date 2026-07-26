@@ -3428,6 +3428,29 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 
+    // OpenBikeControl (OBC) listener — qz as a BLE central to an OBC button controller. Matches either
+    // the advertised OBC service UUID or an "OBC-"-prefixed advert name: OBC-over-BLE controllers carry
+    // the service in their GATT table but advertise their identity by name (the 128-bit service UUID
+    // rarely fits the 31-byte advert beside the name), so the name is the reliable discriminator. The
+    // name match is safe here even though it is broad: it is opt-in (default off), only runs once a BIKE
+    // is connected, and — crucially — obclistener only subscribes after it actually discovers the OBC
+    // service on the connected device (see obclistener::serviceScanDone), so a stray name match connects,
+    // finds no OBC service, and harmlessly does nothing. bike-only; one controller.
+    if (settings.value(QZSettings::obc_listener_enabled, QZSettings::default_obc_listener_enabled).toBool() &&
+        this->device() && this->device()->deviceType() == BIKE && !obcListener) {
+        const QBluetoothUuid obcSvc(obclistener::OBC_SERVICE_UUID);
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (!b.serviceUuids().contains(obcSvc) && !b.name().toUpper().startsWith(QStringLiteral("OBC-")))
+                continue;
+            obcListener = new obclistener(this);
+            connect(obcListener, &obclistener::debug, this, &bluetooth::debug);
+            obcListener->deviceDiscovered(b);
+            if (homeform::singleton())
+                homeform::singleton()->setToastRequested("OBC Controller Connected!");
+            break;
+        }
+    }
+
     if(settings.value(QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller).toBool()) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().toUpper().startsWith("THINK VS")) || (b.name().toUpper().startsWith("THINKRIDER"))) && !thinkriderController && this->device() &&
