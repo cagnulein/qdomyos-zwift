@@ -2112,6 +2112,10 @@ class QZSettings {
     static const QString watt_ignore_builtin;
     static constexpr bool default_watt_ignore_builtin = true;
 
+    // Stages SB20: map the handlebar shifter buttons to in-app controls (target power / peloton offset)
+    static const QString sb20_buttons_enabled;
+    static constexpr bool default_sb20_buttons_enabled = true;
+
     static const QString proform_treadmill_z1300i;
     static constexpr bool default_proform_treadmill_z1300i = false;
 

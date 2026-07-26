@@ -1737,6 +1737,7 @@ import AndroidStatusBar 1.0
             property int mywhoosh_link_emote_value: 1
             property bool waterrower_usb: false
             property string freebeat_serialport: ""
+            property bool sb20_buttons_enabled: true
         }
 
 
@@ -3189,6 +3190,31 @@ import AndroidStatusBar 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Stages SB20 handlebar buttons")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.sb20_buttons_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.sb20_buttons_enabled = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Use the SB20's own handlebar buttons: LEFT up/down = target power, RIGHT up/down = Peloton offset, LEFT/RIGHT 3rd = gear down/up. Hold to repeat.")
+                                font.bold: false
+                                font.italic: true
+                                font.pixelSize: window.labelFontSize
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.fillWidth: true
+                            }
                     IndicatorOnlySwitch {
                         id: speedPowerBasedDelegate
                         text: qsTr("Speed calculates on Power")
