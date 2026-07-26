@@ -547,16 +547,23 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         
         if (Flags.resistanceLvl) {
             if (!ensurePacketBytes(2, "resistanceLvl")) return;
-            Resistance = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)lastPacket.at(index))));
-            
+            double resCandidate = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                            (uint16_t)((uint8_t)lastPacket.at(index))));
+
             // FTMS Spec Compliant Machines (0.1 Resolution, so 50 = 5.0)
             // Life Fitness is in the same family: the field reads a constant 10 while the console displays
             // LEVEL 1, so without the /10 the resistance would be reported an order of magnitude too high.
             if(TRUE_ELLIPTICAL || LIFE_FITNESS_ELLIPTICAL) {
-                Resistance = Resistance.value() / 10.0;
+                resCandidate = resCandidate / 10.0;
             }
-            
+
+            // Life Fitness intermittently emits an invalid resistance (a 0xFF "not available"
+            // sentinel that reads as ~255). Forwarding it spikes the resistance graph and wrecks
+            // the session max/avg. Reject the implausible value and hold the last good level - an
+            // elliptical never reaches 30. Observed live: 57 of 3675 packets in one session.
+            if (!(LIFE_FITNESS_ELLIPTICAL && resCandidate > 30.0))
+                Resistance = resCandidate;
+
             // emit resistanceRead(Resistance.value());
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
