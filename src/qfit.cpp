@@ -378,14 +378,21 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             else              time_in_zone[4] += 1.0;
         }
 
-        // Aerobic TE: weighted zone time / duration, scaled to 0-5 Garmin range
+        // Aerobic TE: prefer the accumulated TRIMP load already calculated above.
+        // Garmin Training Effect accumulates during the activity, so a duration-normalized
+        // zone average underestimates steady aerobic workouts.
         const double zone_weights[5] = {0.2, 0.5, 1.0, 1.5, 2.0};
         double weighted = 0;
         for (int z = 0; z < 5; z++)
             weighted += (time_in_zone[z] / 60.0) * zone_weights[z];
         double dur_min = duration_seconds / 60.0;
         if (dur_min > 0) {
-            aerobic_te = std::min(5.0f, (float)((weighted / dur_min) * 2.0));
+            if (training_load > 0) {
+                aerobic_te = std::min(5.0f,
+                                       (float)(5.0 * (1.0 - std::exp(-training_load / 90.0))));
+            } else {
+                aerobic_te = std::min(5.0f, (float)((weighted / dur_min) * 2.0));
+            }
             qDebug() << "Aerobic TE:" << aerobic_te
                      << "Z1-Z5 min:" << time_in_zone[0]/60 << time_in_zone[1]/60
                      << time_in_zone[2]/60 << time_in_zone[3]/60 << time_in_zone[4]/60;
