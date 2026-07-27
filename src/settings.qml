@@ -1606,8 +1606,7 @@ import AndroidStatusBar 1.0
             property bool gym_mode: false
             property bool tile_grade_adjusted_pace_enabled: false
             property int tile_grade_adjusted_pace_order: 79
-            property bool cycplus_bc2_controller: false
-            property bool obc_listener_enabled: false
+            property bool cycplus_bc2_controller: false            
       		property bool lifespan_bike: false
 
             property double power_sensor_speed_inclination_coeff_a: 0.0
@@ -1738,6 +1737,8 @@ import AndroidStatusBar 1.0
             property int mywhoosh_link_emote_value: 1
             property bool waterrower_usb: false
             property string freebeat_serialport: ""
+
+			property bool obc_listener_enabled: false
         }
 
 
