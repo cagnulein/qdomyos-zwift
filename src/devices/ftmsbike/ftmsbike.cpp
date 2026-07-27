@@ -304,6 +304,31 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
     }
     enableManualResistancePowerAdjustment(requestResistance);
 
+    if (MOK_FITNESS) {
+        // The MOK Fitness S10 Ultra NAKs the FTMS control point (0x2AD9) for resistance changes.
+        // Its own app changes resistance with a single write to 0xFFF2: AF 05 04 <level> AA.
+        if (requestResistance < 0) {
+            qDebug() << "Negative resistance detected:" << requestResistance << "using fallback value 1";
+            requestResistance = 1;
+        }
+        if (max_resistance > 0 && requestResistance > max_resistance) {
+            qDebug() << "Resistance" << requestResistance << "exceeds max_resistance" << max_resistance << "- clamping";
+            requestResistance = max_resistance;
+        }
+
+        Resistance = requestResistance;
+
+        if (gattMokFitnessService && gattWriteCharMokFitnessId.isValid()) {
+            uint8_t write[] = {0xAF, 0x05, 0x04, (uint8_t)requestResistance, 0xAA};
+            enqueueWrite(gattMokFitnessService, gattWriteCharMokFitnessId, write, sizeof(write),
+                        QStringLiteral("forceResistance MOK ") + QString::number(requestResistance), false, false,
+                        gattWriteCharMokFitnessId.properties() & QLowEnergyCharacteristic::WriteNoResponse);
+        } else {
+            qDebug() << QStringLiteral("MOK Fitness resistance characteristic (0xFFF2) not found");
+        }
+        return;
+    }
+
     QSettings settings;
     bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
     if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
@@ -1719,6 +1744,16 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("Zwift Play service and Control Point found");
                     zwiftPlayWriteChar = c;
                     zwiftPlayService = s;
+                }
+
+                QBluetoothUuid _mokFitnessWriteCharId((quint16)0xFFF2);
+                if (MOK_FITNESS &&
+                    (c.properties() & QLowEnergyCharacteristic::Write ||
+                     c.properties() & QLowEnergyCharacteristic::WriteNoResponse) &&
+                    c.uuid() == _mokFitnessWriteCharId) {
+                    qDebug() << QStringLiteral("MOK Fitness resistance control characteristic found");
+                    gattWriteCharMokFitnessId = c;
+                    gattMokFitnessService = s;
                 }
             }
         }
