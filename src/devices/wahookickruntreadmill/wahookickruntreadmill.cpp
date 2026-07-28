@@ -138,7 +138,32 @@ void wahookickruntreadmill::forceIncline(double requestIncline) {
 
     writeFTMSControlPoint(QByteArray(reinterpret_cast<const char *>(cmd), sizeof(cmd)),
                           QStringLiteral("forceIncline ") + QString::number(requestIncline));
-    Inclination = requestIncline;
+}
+
+wahookickruntreadmill::FtmsTreadmillData wahookickruntreadmill::parseFtmsTreadmillData(const QByteArray &data) {
+    FtmsTreadmillData parsed;
+    if (data.length() < 2)
+        return parsed;
+
+    const quint16 flags = static_cast<quint8>(data.at(0)) |
+                          (static_cast<quint16>(static_cast<quint8>(data.at(1))) << 8);
+    int index = 2;
+
+    // FTMS Treadmill Data fields are optional and ordered by the flags.
+    if (!(flags & 0x0001)) // Instantaneous Speed
+        index += 2;
+    if (flags & 0x0002) // Average Speed
+        index += 2;
+    if (flags & 0x0004) // Total Distance
+        index += 3;
+    if (!(flags & 0x0008) || data.length() < index + 2)
+        return parsed;
+
+    const quint16 rawInclination = static_cast<quint8>(data.at(index)) |
+                                  (static_cast<quint16>(static_cast<quint8>(data.at(index + 1))) << 8);
+    parsed.hasInclination = true;
+    parsed.inclination = static_cast<qint16>(rawInclination) / 10.0;
+    return parsed;
 }
 
 void wahookickruntreadmill::changeSpeed(double speed) {
@@ -244,6 +269,15 @@ void wahookickruntreadmill::characteristicChanged(const QLowEnergyCharacteristic
                    QString::number(static_cast<uint8_t>(newValue.at(1)), 16) +
                    QStringLiteral(" result=0x") +
                    QString::number(static_cast<uint8_t>(newValue.at(2)), 16));
+        return;
+    }
+
+    if (characteristic.uuid() == QBluetoothUuid(static_cast<quint16>(0x2ACD))) {
+        const FtmsTreadmillData ftmsData = parseFtmsTreadmillData(newValue);
+        if (ftmsData.hasInclination) {
+            Inclination = ftmsData.inclination;
+            emit debug(QStringLiteral("KickRun inclination=") + QString::number(Inclination.value(), 'f', 1));
+        }
         return;
     }
 

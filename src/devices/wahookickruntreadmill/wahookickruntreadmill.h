@@ -48,7 +48,13 @@
 class wahookickruntreadmill : public treadmill {
     Q_OBJECT
   public:
+    struct FtmsTreadmillData {
+        bool hasInclination = false;
+        double inclination = 0.0;
+    };
+
     wahookickruntreadmill(bool noWriteResistance, bool noHeartService);
+    static FtmsTreadmillData parseFtmsTreadmillData(const QByteArray &data);
     bool connected() override;
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
