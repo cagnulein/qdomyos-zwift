@@ -277,3 +277,4 @@ jobs:
           releaseFiles: ${{ github.workspace }}/output/android-release-signed.aab
           track: internal
           status: completed
+          changesNotSentForReview: true
