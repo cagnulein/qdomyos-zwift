@@ -525,7 +525,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
             qDebug() << QStringLiteral("Current VerticalOscillationMM:") << VerticalOscillationMM.value();
         } else if (strydIndoorModeRequested && newValue.length() >= 3 && (uint8_t)newValue.at(0) == 0x15 &&
                    (uint8_t)newValue.at(1) == 0x00) {
-            // ack of the 15 00/15 01 mode switch written to 7e78aa18: byte 2 echoes back the confirmed
+            // ack of the 15 00/15 01 mode switch written to 7e78aa20: byte 2 echoes back the confirmed
             // mode (0x00 = Indoor, 0x01 = Outdoor)
             uint8_t confirmedMode = (uint8_t)newValue.at(2);
             if (confirmedMode == 0x00) {
@@ -620,7 +620,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
                 // formula. Switching the pod to Indoor mode makes it stop compensating for incline on its
                 // own, leaving QZ's formula as the only source of the incline adjustment.
                 if (bluetoothDevice.name().startsWith(QStringLiteral("Stryd5"), Qt::CaseInsensitive) &&
-                    c.uuid() == QBluetoothUuid(QStringLiteral("7e78aa18-72cd-d3b8-a81f-5b7e589bea0f")) &&
+                    c.uuid() == QBluetoothUuid(QStringLiteral("7e78aa20-72cd-d3b8-a81f-5b7e589bea0f")) &&
                     (c.properties() & QLowEnergyCharacteristic::Write)) {
                     strydIndoorModeService = s;
                     strydIndoorModeChar = c;
