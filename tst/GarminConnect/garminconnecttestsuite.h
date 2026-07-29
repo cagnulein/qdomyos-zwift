@@ -163,6 +163,45 @@ public:
      * @brief Test calendar workout filenames are sanitized.
      */
     void test_workoutFileName_sanitizesUnsafeCharacters();
+
+    /**
+     * @brief Regression test for issue #4805 using a real "Bike FTP Test" workout log
+     * (debug-Sun_Jul_12_21_00_57_2026.log) where cadence is the PRIMARY target and heart
+     * rate is the SECONDARY target, expressed as explicit bpm bounds.
+     *
+     * Verifies that both the primary cadence target and the secondary heart-rate target
+     * are serialized on the same row, instead of the secondary target being silently dropped.
+     */
+    void test_workoutDetailsJson_issue4805_cadencePrimaryHeartRateSecondaryExplicitBpm();
+
+    /**
+     * @brief Regression test for issue #4805 using the same real workout log, for steps
+     * where the secondary heart-rate target is expressed only as an HR zone number
+     * (secondaryZoneNumber) with no explicit bpm bounds.
+     *
+     * Verifies that a zone-number-only secondary HR target is serialized as "zonehr"
+     * instead of being dropped.
+     */
+    void test_workoutDetailsJson_issue4805_cadencePrimaryHeartRateSecondaryZoneNumber();
+
+    /**
+     * @brief Regression test for issue #4805 using a real "Bike FTP Test" workout log
+     * (debug-Sat_Jul_11_21_00_57_2026.log) where power is the PRIMARY target and cadence
+     * is the SECONDARY target.
+     *
+     * Verifies that the secondary cadence target is serialized alongside the primary power
+     * target.
+     */
+    void test_workoutDetailsJson_issue4805_powerPrimaryCadenceSecondary();
+
+    /**
+     * @brief Regression test for issue #4805: cadence-only steps (no secondary target)
+     * inside a repeat group, taken from the real workout log.
+     *
+     * Verifies that a plain cadence primary target (previously unhandled entirely) is
+     * serialized as lower_cadence/upper_cadence/cadence attributes.
+     */
+    void test_workoutDetailsJson_issue4805_cadenceOnlyStepInRepeat();
 };
 
 // Register individual tests with Google Test
@@ -236,6 +275,22 @@ TEST_F(GarminConnectTestSuite, WorkoutFileNameAppendsSportSuffix) {
 
 TEST_F(GarminConnectTestSuite, WorkoutFileNameSanitizesUnsafeCharacters) {
     this->test_workoutFileName_sanitizesUnsafeCharacters();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonIssue4805CadencePrimaryHeartRateSecondaryExplicitBpm) {
+    this->test_workoutDetailsJson_issue4805_cadencePrimaryHeartRateSecondaryExplicitBpm();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonIssue4805CadencePrimaryHeartRateSecondaryZoneNumber) {
+    this->test_workoutDetailsJson_issue4805_cadencePrimaryHeartRateSecondaryZoneNumber();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonIssue4805PowerPrimaryCadenceSecondary) {
+    this->test_workoutDetailsJson_issue4805_powerPrimaryCadenceSecondary();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonIssue4805CadenceOnlyStepInRepeat) {
+    this->test_workoutDetailsJson_issue4805_cadenceOnlyStepInRepeat();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H

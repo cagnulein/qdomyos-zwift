@@ -3387,7 +3387,7 @@ Vuoi avviarlo ora?</translation>
     <message>
         <location filename="../settings.qml" line="5790"/>
         <source>General UI Options</source>
-        <translation>Opzioni generali</translation>
+        <translation>Opzioni Interfaccia Utente</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5801"/>

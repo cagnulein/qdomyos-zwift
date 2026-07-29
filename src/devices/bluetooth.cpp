@@ -1,5 +1,6 @@
 #include "bluetooth.h"
 #include "homeform.h"
+#include "mywhooshlink.h"
 #include <QBluetoothLocalDevice>
 #include <QRegularExpression>
 #include <QDateTime>
@@ -74,6 +75,8 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         settings.value(QZSettings::proform_elliptical_ip, QZSettings::default_proform_elliptical_ip).toString();
     QString proform_rower_ip_ctor =
         settings.value(QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip).toString();
+    bool waterrower_usb_ctor =
+        settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
     bool fake_bike =
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fake_treadmill =
@@ -94,7 +97,8 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     bool reliesOnFakeOrVirtualDevice = fake_bike || fake_treadmill || fakedevice_elliptical_ctor ||
                                         fakedevice_rower_ctor || !nordictrack_2950_ip.isEmpty() ||
                                         !tdf_10_ip_ctor.isEmpty() || !proform_elliptical_ip_ctor.isEmpty() ||
-                                        !proform_rower_ip_ctor.isEmpty() || antbike_ctor || android_antbike_ctor;
+                                        !proform_rower_ip_ctor.isEmpty() || antbike_ctor || android_antbike_ctor ||
+                                        waterrower_usb_ctor;
 
     if (!gymMode && settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() &&
         !pelotonBike) {
@@ -219,10 +223,11 @@ void bluetooth::finished() {
     bool fakedevice_rower = settings.value(QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower).toBool();
     bool fakedevice_treadmill =
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
+    bool waterrower_usb = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
     // wifi devices on windows
-    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike) {
-        // faking a bluetooth device
-        qDebug() << "faking a bluetooth device for nordictrack_2950_ip";
+    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike || waterrower_usb) {
+        // faking a bluetooth device for non-BLE devices
+        qDebug() << "faking a bluetooth device for non-BLE device";
         deviceDiscovered(QBluetoothDeviceInfo());
     }
 
@@ -622,7 +627,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
     QString kettlerUsbSerialPort =
         settings.value(QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport).toString();
+    QString freebeatSerialPort =
+        settings.value(QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport).toString();
     QString csaferowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
+    bool waterrowerUSBEnabled = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
     QString csafeellipticalSerialPort =
         settings.value(QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port).toString();
     bool manufacturerDeviceFound = false;
@@ -948,6 +956,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(kettlerUsbBike);
+            } else if (!freebeatSerialPort.isEmpty() && !freebeatBike) {
+                this->stopDiscovery();
+                freebeatBike =
+                    new freebeatbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(freebeatBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(freebeatBike, &freebeatbike::debug, this, &bluetooth::debug);
+                freebeatBike->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(freebeatBike);
             } else if (!csaferowerSerialPort.isEmpty() && !csafeRower) {
                 this->stopDiscovery();
                 csafeRower = new csaferower(noWriteResistance, noHeartService, false);
@@ -962,6 +983,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(csafeRower);
 
+            } else if (waterrowerUSBEnabled && !waterRowerUSB) {
+                qDebug() << QStringLiteral("WaterRower USB enabled, creating USB rower device");
+                this->stopDiscovery();
+                waterRowerUSB = new waterrowerusb(noWriteResistance, noHeartService, false);
+                emit deviceConnected(b);
+                connect(waterRowerUSB, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(waterRowerUSB, &waterrowerusb::debug, this, &bluetooth::debug);
+                waterRowerUSB->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(waterRowerUSB);
             } else if (!csafeellipticalSerialPort.isEmpty() && !csafeElliptical) {
                 this->stopDiscovery();
                 // csafeElliptical = new csafeelliptical(noWriteResistance, noHeartService, false);
@@ -1561,7 +1594,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(soleF80);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM01")) && !speraXTreadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM01")) || b.name().toUpper().startsWith(QStringLiteral("SPERAX_RM-02"))) && !speraXTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 speraXTreadmill = new speraxtreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -1961,6 +1994,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("RIVO COG")) ||
                         (b.name().toUpper().startsWith("RAVE")) ||
                         (b.name().toUpper().startsWith("TOPUTURE-")) ||
+						(b.name().toUpper().startsWith("TOPUTURE TEB")) ||
                         (b.name().toUpper().startsWith("BESP-")) ||  // FITFIU BESP 250 indoor bike
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith("SPORT01-") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // Labgrey Magnetic Exercise Bike https://www.amazon.co.uk/dp/B0CXMF1NPY?_encoding=UTF8&psc=1&ref=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&ref_=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&social_share=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&skipTwisterOG=1
@@ -1975,6 +2009,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||
                         (b.name().toUpper().startsWith("DIRETO X")) || (b.name().toUpper().startsWith("MERACH-667-")) ||
                         (b.name().toUpper().startsWith("USDC-D700-")) ||
+						(b.name().toUpper().startsWith("RCR-")) || // Van Rysel RCR (Decathlon)
                         !b.name().compare(ftms_bike, Qt::CaseInsensitive) || (b.name().toUpper().startsWith("SMB1")) ||
                         (b.name().toUpper().startsWith("UBIKE FTMS")) || (b.name().toUpper().startsWith("INRIDE")) ||
                         (b.name().toUpper().startsWith("INCONDI")) || // inCondi S150i
@@ -2125,6 +2160,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("MRK-CRYDN-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MRK-R06-")) ||
 						b.name().toUpper().startsWith(QStringLiteral("MRK-R28-")) ||
+						b.name().toUpper().startsWith(QStringLiteral("MRK-R15-")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("MRK-R11S-")) && !iconsole_rower) ||
                         b.name().toUpper().startsWith(QStringLiteral("YOROTO-RW-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||
@@ -3332,8 +3368,22 @@ void bluetooth::connectedAndDiscovered() {
                 if (!zwiftClickRemote) {
                     zwiftClickRemote = new zwiftclickremote(this->device(), AbstractZapDevice::ZWIFT_PLAY_TYPE::NONE);
                     connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
-                    connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
-                    connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                    connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, this, [this]() {
+                        auto *myWhoosh = MyWhooshLink::instance();
+                        if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
+                            myWhoosh->handleGearUp(true);
+                        } else if (this->device() && this->device()->deviceType() == BIKE) {
+                            static_cast<bike *>(this->device())->gearUp();
+                        }
+                    });
+                    connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, this, [this]() {
+                        auto *myWhoosh = MyWhooshLink::instance();
+                        if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
+                            myWhoosh->handleGearDown(true);
+                        } else if (this->device() && this->device()->deviceType() == BIKE) {
+                            static_cast<bike *>(this->device())->gearDown();
+                        }
+                    });
                     zwiftClickRemote->deviceDiscovered(b);
                     if(homeform::singleton())
                         homeform::singleton()->setToastRequested("Zwift Click Connected!");
@@ -3348,8 +3398,67 @@ void bluetooth::connectedAndDiscovered() {
                     type = zwiftPlayDevice.isEmpty() ? AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT : AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT;
                 zwiftPlayDevice.append(new zwiftclickremote(this->device(), type));
                 connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
-                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
-                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftUp, this, &bluetooth::zwiftPlayLeftUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftDown, this, &bluetooth::zwiftPlayLeftDown);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftLeft, this, &bluetooth::zwiftPlayLeftLeft);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftRight, this, &bluetooth::zwiftPlayLeftRight);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftShoulder, this, &bluetooth::zwiftPlayLeftShoulder);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPower, this, &bluetooth::zwiftPlayLeftPower);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPaddle, this, &bluetooth::zwiftPlayLeftPaddle);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftShiftUp, this, &bluetooth::zwiftRideLeftShiftUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftShiftDown, this, &bluetooth::zwiftRideLeftShiftDown);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftPower, this, &bluetooth::zwiftRideLeftPower);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftPowerUp, this, &bluetooth::zwiftRideLeftPowerUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftOnOff, this, &bluetooth::zwiftRideLeftOnOff);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightY, this, &bluetooth::zwiftPlayRightY);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, this, &bluetooth::zwiftPlayRightZ);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, this, &bluetooth::zwiftPlayRightA);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB, this, &bluetooth::zwiftPlayRightB);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, this, &bluetooth::zwiftPlayRightShoulder);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPower, this, &bluetooth::zwiftPlayRightPower);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, this, &bluetooth::zwiftPlayRightPaddle);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightZAlt, this, &bluetooth::zwiftRideRightZAlt);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightShiftUp, this, &bluetooth::zwiftRideRightShiftUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightShiftDown, this, &bluetooth::zwiftRideRightShiftDown);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPower, this, &bluetooth::zwiftRideRightPower);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPowerUp, this, &bluetooth::zwiftRideRightPowerUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightOnOff, this, &bluetooth::zwiftRideRightOnOff);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, this, [this]() {
+                    auto *myWhoosh = MyWhooshLink::instance();
+                    if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
+                        myWhoosh->handleGearUp(true);
+                    } else if (this->device() && this->device()->deviceType() == BIKE) {
+                        static_cast<bike *>(this->device())->gearUp();
+                    }
+                });
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, this, [this]() {
+                    auto *myWhoosh = MyWhooshLink::instance();
+                    if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
+                        myWhoosh->handleGearDown(true);
+                    } else if (this->device() && this->device()->deviceType() == BIKE) {
+                        static_cast<bike *>(this->device())->gearDown();
+                    }
+                });
+                if (MyWhooshLink::instance() && MyWhooshLink::instance()->isEnabled()) {
+                    auto *myWhoosh = MyWhooshLink::instance();
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftUp, myWhoosh, &MyWhooshLink::handleLeftUp);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftDown, myWhoosh, &MyWhooshLink::handleLeftDown);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftLeft, myWhoosh, &MyWhooshLink::handleLeftLeft);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftRight, myWhoosh, &MyWhooshLink::handleLeftRight);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftShoulder, myWhoosh, &MyWhooshLink::handleLeftShoulder);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPower, myWhoosh, &MyWhooshLink::handleLeftPower);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPaddle, myWhoosh, &MyWhooshLink::handleLeftPaddle);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftPower, myWhoosh, &MyWhooshLink::handleLeftPower);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightY, myWhoosh, &MyWhooshLink::handleRightY);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, myWhoosh, &MyWhooshLink::handleRightZ);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightZAlt, myWhoosh, &MyWhooshLink::handleRightZ);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, myWhoosh, &MyWhooshLink::handleRightA);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB, myWhoosh, &MyWhooshLink::handleRightB);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, myWhoosh, &MyWhooshLink::handleRightShoulder);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPower, myWhoosh, &MyWhooshLink::handleRightPower);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, myWhoosh, &MyWhooshLink::handleRightPaddle);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPower, myWhoosh, &MyWhooshLink::handleRightPower);
+                }
                 if((zwiftPlayDevice.last()->typeZap == AbstractZapDevice::LEFT && !zwiftplay_swap) ||
                    (zwiftPlayDevice.last()->typeZap == AbstractZapDevice::RIGHT && zwiftplay_swap)) {
                     connect((bike*)this->device(), &bike::gearOkUp, this, &bluetooth::gearUp);
@@ -3441,8 +3550,69 @@ void bluetooth::connectedAndDiscovered() {
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
-                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
-                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, this, &bluetooth::zwiftPlayPlus);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, this, &bluetooth::zwiftPlayMinus);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftUp, this, &bluetooth::zwiftPlayLeftUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftDown, this, &bluetooth::zwiftPlayLeftDown);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftLeft, this, &bluetooth::zwiftPlayLeftLeft);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftRight, this, &bluetooth::zwiftPlayLeftRight);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftShoulder, this, &bluetooth::zwiftPlayLeftShoulder);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPower, this, &bluetooth::zwiftPlayLeftPower);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPaddle, this, &bluetooth::zwiftPlayLeftPaddle);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftShiftUp, this, &bluetooth::zwiftRideLeftShiftUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftShiftDown, this, &bluetooth::zwiftRideLeftShiftDown);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftPower, this, &bluetooth::zwiftRideLeftPower);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftPowerUp, this, &bluetooth::zwiftRideLeftPowerUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftOnOff, this, &bluetooth::zwiftRideLeftOnOff);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightY, this, &bluetooth::zwiftPlayRightY);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, this, &bluetooth::zwiftPlayRightZ);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, this, &bluetooth::zwiftPlayRightA);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB, this, &bluetooth::zwiftPlayRightB);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, this, &bluetooth::zwiftPlayRightShoulder);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPower, this, &bluetooth::zwiftPlayRightPower);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, this, &bluetooth::zwiftPlayRightPaddle);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightZAlt, this, &bluetooth::zwiftRideRightZAlt);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightShiftUp, this, &bluetooth::zwiftRideRightShiftUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightShiftDown, this, &bluetooth::zwiftRideRightShiftDown);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPower, this, &bluetooth::zwiftRideRightPower);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPowerUp, this, &bluetooth::zwiftRideRightPowerUp);
+                connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightOnOff, this, &bluetooth::zwiftRideRightOnOff);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, this, [this]() {
+                    auto *myWhoosh = MyWhooshLink::instance();
+                    if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
+                        myWhoosh->handleGearUp(true);
+                    } else if (this->device() && this->device()->deviceType() == BIKE) {
+                        static_cast<bike *>(this->device())->gearUp();
+                    }
+                });
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, this, [this]() {
+                    auto *myWhoosh = MyWhooshLink::instance();
+                    if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
+                        myWhoosh->handleGearDown(true);
+                    } else if (this->device() && this->device()->deviceType() == BIKE) {
+                        static_cast<bike *>(this->device())->gearDown();
+                    }
+                });
+                if (MyWhooshLink::instance() && MyWhooshLink::instance()->isEnabled()) {
+                    auto *myWhoosh = MyWhooshLink::instance();
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftUp, myWhoosh, &MyWhooshLink::handleLeftUp);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftDown, myWhoosh, &MyWhooshLink::handleLeftDown);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftLeft, myWhoosh, &MyWhooshLink::handleLeftLeft);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftRight, myWhoosh, &MyWhooshLink::handleLeftRight);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftShoulder, myWhoosh, &MyWhooshLink::handleLeftShoulder);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPower, myWhoosh, &MyWhooshLink::handleLeftPower);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftPaddle, myWhoosh, &MyWhooshLink::handleLeftPaddle);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideLeftPower, myWhoosh, &MyWhooshLink::handleLeftPower);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightY, myWhoosh, &MyWhooshLink::handleRightY);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightZ, myWhoosh, &MyWhooshLink::handleRightZ);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightZAlt, myWhoosh, &MyWhooshLink::handleRightZ);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightA, myWhoosh, &MyWhooshLink::handleRightA);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightB, myWhoosh, &MyWhooshLink::handleRightB);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightShoulder, myWhoosh, &MyWhooshLink::handleRightShoulder);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPower, myWhoosh, &MyWhooshLink::handleRightPower);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rightPaddle, myWhoosh, &MyWhooshLink::handleRightPaddle);
+                    connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPower, myWhoosh, &MyWhooshLink::handleRightPower);
+                }
                 if((zwiftPlayDevice.last()->typeZap == AbstractZapDevice::LEFT && !zwiftplay_swap) ||
                    (zwiftPlayDevice.last()->typeZap == AbstractZapDevice::RIGHT && zwiftplay_swap)) {
                     connect((bike*)this->device(), &bike::gearOkUp, this, &bluetooth::gearUp);
@@ -3786,6 +3956,11 @@ void bluetooth::restart() {
         delete nordictrackifitadbRower;
         nordictrackifitadbRower = nullptr;
     }
+    if (waterRowerUSB) {
+
+        delete waterRowerUSB;
+        waterRowerUSB = nullptr;
+    }
     if (powerBike) {
 
         delete powerBike;
@@ -4106,6 +4281,11 @@ void bluetooth::restart() {
         delete kettlerUsbBike;
         kettlerUsbBike = nullptr;
     }
+    if (freebeatBike) {
+
+        delete freebeatBike;
+        freebeatBike = nullptr;
+    }
     if (csafeRower) {
 
         delete csafeRower;
@@ -4392,6 +4572,8 @@ bluetoothdevice *bluetooth::device() {
         return concept2Skierg;
     } else if (smartrowRower) {
         return smartrowRower;
+    } else if (waterRowerUSB) {
+        return waterRowerUSB;
     } else if (yesoulBike) {
         return yesoulBike;
     } else if (proformBike) {
@@ -4473,6 +4655,8 @@ bluetoothdevice *bluetooth::device() {
         return computrainerBike;
     } else if (kettlerUsbBike) {
         return kettlerUsbBike;
+    } else if (freebeatBike) {
+        return freebeatBike;
     } else if (csafeRower) {
         return csafeRower;
     } else if (csafeElliptical) {

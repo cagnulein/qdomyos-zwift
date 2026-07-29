@@ -29,6 +29,7 @@ SOURCES += \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
         Devices/TestSchwinn411510EParser.cpp \
+        Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
         Devices/TestKeepBikeParser.cpp \
         main.cpp

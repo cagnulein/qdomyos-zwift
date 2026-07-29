@@ -399,6 +399,8 @@ class homeform : public QObject {
         QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString();
         QString proformtdf1ip = settings.value(QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip).toString();
         QString proformtreadmillip = settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString();
+        QString freebeatSerialPort =
+            settings.value(QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport).toString();
 
         QString nordictrack_2950_ip =
             settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
@@ -409,6 +411,7 @@ class homeform : public QObject {
         bool fakedevice_elliptical =
             settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical).toBool();
         bool fakedevice_rower = settings.value(QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower).toBool();
+        bool waterrower_usb = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
         bool fakedevice_treadmill =
             settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
         bool antbike =
@@ -416,8 +419,9 @@ class homeform : public QObject {
 
         return settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString().isEmpty() && 
                 nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical &&
-                !fakedevice_rower && !fakedevice_treadmill && !antbike && !android_antbike && proform_elliptical_ip.isEmpty() && 
-                proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty();
+                !fakedevice_rower && !waterrower_usb && !fakedevice_treadmill && !antbike && !android_antbike && proform_elliptical_ip.isEmpty() &&
+                proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty() &&
+                freebeatSerialPort.isEmpty();
     }
 
 
@@ -435,6 +439,19 @@ class homeform : public QObject {
     Q_INVOKABLE bool confirmStopEnabled() {
         QSettings settings;
         return settings.value(QZSettings::confirm_stop_workout, QZSettings::default_confirm_stop_workout).toBool();
+    }
+
+    Q_INVOKABLE bool rpeFeelPopupEnabled() {
+        QSettings settings;
+        return settings.value(QZSettings::rpe_feel_popup_enabled, QZSettings::default_rpe_feel_popup_enabled).toBool();
+    }
+
+    // Called from QML once the post-workout RPE/feel popup is dismissed (Save or Skip, rpe/feel -1 if skipped).
+    // Stop() defers fit_save_clicked() until this is called when the popup is enabled.
+    Q_INVOKABLE void finalizeFitSave(int rpe, int feel) {
+        m_workoutRpe = rpe;
+        m_workoutFeel = feel;
+        fit_save_clicked();
     }
 
     Q_INVOKABLE bool locationServices() {
@@ -1043,6 +1060,10 @@ public:
 
     QString lastFitFileSaved = QLatin1String("");
     QString lastTrainProgramFileSaved = QLatin1String("");
+
+    // Perceived exertion (RPE, 0-10) and feel (0-100) entered in the post-workout popup; -1 means not set
+    int m_workoutRpe = -1;
+    int m_workoutFeel = -1;
 
     QList<QString> chartImagesFilenames;
     bool mailSent = false;
