@@ -585,6 +585,18 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
                 if (c.uuid() == QBluetoothUuid::CSCMeasurement) {
                     cadenceChar = c;
                 }
+
+                // Stryd 5 broadcasts a power value that already reacts to the incline it detects on its own
+                // (confirmed via BLE sniffing, see #4480), which conflicts with QZ's own inclination gain
+                // formula. Switching the pod to Indoor mode makes it stop compensating for incline on its
+                // own, leaving QZ's formula as the only source of the incline adjustment.
+                if (bluetoothDevice.name().startsWith(QStringLiteral("Stryd5"), Qt::CaseInsensitive) &&
+                    c.uuid() == QBluetoothUuid(QStringLiteral("7e78aa18-72cd-d3b8-a81f-5b7e589bea0f")) &&
+                    (c.properties() & QLowEnergyCharacteristic::Write)) {
+                    qDebug() << QStringLiteral("Stryd5: switching power mode to Indoor");
+                    s->writeCharacteristic(c, QByteArray::fromHex("1500"));
+                }
+
                 qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
