@@ -110,7 +110,24 @@ void strydrunpowersensor::update() {
             sec1Update = 0;
             // updateDisplay(elapsed);
         }
+
+        if (strydIndoorModeRequested && !strydIndoorModeConfirmed && strydIndoorModeRetries < 3 &&
+            strydIndoorModeRequestedAt.msecsTo(QDateTime::currentDateTime()) > 1000) {
+            qDebug() << QStringLiteral("Stryd5: no ack for Indoor mode switch, retrying");
+            requestStrydIndoorMode();
+        }
     }
+}
+
+void strydrunpowersensor::requestStrydIndoorMode() {
+    if (!strydIndoorModeService || !strydIndoorModeChar.isValid())
+        return;
+
+    qDebug() << QStringLiteral("Stryd5: switching power mode to Indoor");
+    strydIndoorModeService->writeCharacteristic(strydIndoorModeChar, QByteArray::fromHex("1500"));
+    strydIndoorModeRequested = true;
+    strydIndoorModeRequestedAt = QDateTime::currentDateTime();
+    strydIndoorModeRetries++;
 }
 
 void strydrunpowersensor::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -506,6 +523,18 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
             //emit verticalOscillationChanged(VerticalOscillationMM.value());
             qDebug() << QStringLiteral("Current GroundContactMS:") << GroundContactMS.value();
             qDebug() << QStringLiteral("Current VerticalOscillationMM:") << VerticalOscillationMM.value();
+        } else if (strydIndoorModeRequested && newValue.length() >= 3 && (uint8_t)newValue.at(0) == 0x15 &&
+                   (uint8_t)newValue.at(1) == 0x00) {
+            // ack of the 15 00/15 01 mode switch written to 7e78aa18: byte 2 echoes back the confirmed
+            // mode (0x00 = Indoor, 0x01 = Outdoor)
+            uint8_t confirmedMode = (uint8_t)newValue.at(2);
+            if (confirmedMode == 0x00) {
+                strydIndoorModeConfirmed = true;
+                qDebug() << QStringLiteral("Stryd5: Indoor mode confirmed by the pod");
+            } else {
+                qDebug() << QStringLiteral("Stryd5: pod acked mode ") << confirmedMode
+                          << QStringLiteral(" instead of Indoor, will retry");
+            }
         }
     }
 
@@ -593,8 +622,9 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
                 if (bluetoothDevice.name().startsWith(QStringLiteral("Stryd5"), Qt::CaseInsensitive) &&
                     c.uuid() == QBluetoothUuid(QStringLiteral("7e78aa18-72cd-d3b8-a81f-5b7e589bea0f")) &&
                     (c.properties() & QLowEnergyCharacteristic::Write)) {
-                    qDebug() << QStringLiteral("Stryd5: switching power mode to Indoor");
-                    s->writeCharacteristic(c, QByteArray::fromHex("1500"));
+                    strydIndoorModeService = s;
+                    strydIndoorModeChar = c;
+                    requestStrydIndoorMode();
                 }
 
                 qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
