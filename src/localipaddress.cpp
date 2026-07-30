@@ -91,45 +91,119 @@ int getIpAddress(JNIEnv *env, jobject wifiInfoObj) {
     jmethodID mid = env->GetMethodID(jclz, "getIpAddress", "()I");
     return env->CallIntMethod(wifiInfoObj, mid);
 }
+
+/*
+ * Get the device's own IPv4 address via ConnectivityManager.getLinkProperties()
+ * on the active network. Unlike QNetworkInterface (which reads netlink route
+ * sockets and is blocked by SELinux for untrusted apps on modern Android) and
+ * the deprecated WifiManager.getConnectionInfo().getIpAddress() (which returns
+ * 0 on Android 10+ without extra permissions), this goes through the regular
+ * ConnectivityManager system service and is not subject to either restriction.
+ */
+QString getConnectivityManagerIp(JNIEnv *env, jobject jCtxObj) {
+    qDebug() << "getConnectivityManagerIp....";
+
+    jclass jCtxClz = env->FindClass("android/content/Context");
+    jfieldID fidConnService = env->GetStaticFieldID(jCtxClz, "CONNECTIVITY_SERVICE", "Ljava/lang/String;");
+    jstring jstrConnService = (jstring)env->GetStaticObjectField(jCtxClz, fidConnService);
+    jmethodID midGetSystemService =
+        env->GetMethodID(jCtxClz, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
+    jobject connManager = env->CallObjectMethod(jCtxObj, midGetSystemService, jstrConnService);
+    env->DeleteLocalRef(jCtxClz);
+    env->DeleteLocalRef(jstrConnService);
+    if (connManager == NULL) {
+        return QString();
+    }
+
+    jclass connManagerClz = env->GetObjectClass(connManager);
+    // getActiveNetwork() is only available on API 23+; on older devices this
+    // GetMethodID throws NoSuchMethodError and returns NULL.
+    jmethodID midGetActiveNetwork = env->GetMethodID(connManagerClz, "getActiveNetwork", "()Landroid/net/Network;");
+    if (midGetActiveNetwork == NULL) {
+        env->ExceptionClear();
+        env->DeleteLocalRef(connManagerClz);
+        env->DeleteLocalRef(connManager);
+        return QString();
+    }
+    jobject network = env->CallObjectMethod(connManager, midGetActiveNetwork);
+    env->DeleteLocalRef(connManager);
+    if (network == NULL) {
+        env->DeleteLocalRef(connManagerClz);
+        return QString();
+    }
+
+    jmethodID midGetLinkProperties = env->GetMethodID(
+        connManagerClz, "getLinkProperties", "(Landroid/net/Network;)Landroid/net/LinkProperties;");
+    jobject linkProperties = env->CallObjectMethod(connManager, midGetLinkProperties, network);
+    env->DeleteLocalRef(connManagerClz);
+    env->DeleteLocalRef(network);
+    if (linkProperties == NULL) {
+        return QString();
+    }
+
+    jclass linkPropertiesClz = env->GetObjectClass(linkProperties);
+    jmethodID midGetLinkAddresses = env->GetMethodID(linkPropertiesClz, "getLinkAddresses", "()Ljava/util/List;");
+    jobject linkAddresses = env->CallObjectMethod(linkProperties, midGetLinkAddresses);
+    env->DeleteLocalRef(linkPropertiesClz);
+    env->DeleteLocalRef(linkProperties);
+    if (linkAddresses == NULL) {
+        return QString();
+    }
+
+    jclass listClz = env->GetObjectClass(linkAddresses);
+    jmethodID midSize = env->GetMethodID(listClz, "size", "()I");
+    jmethodID midGet = env->GetMethodID(listClz, "get", "(I)Ljava/lang/Object;");
+    const jint size = env->CallIntMethod(linkAddresses, midSize);
+
+    jclass linkAddressClz = env->FindClass("android/net/LinkAddress");
+    jmethodID midGetAddress = env->GetMethodID(linkAddressClz, "getAddress", "()Ljava/net/InetAddress;");
+    jclass inet4Clz = env->FindClass("java/net/Inet4Address");
+
+    QString result;
+    for (jint i = 0; i < size; ++i) {
+        jobject linkAddress = env->CallObjectMethod(linkAddresses, midGet, i);
+        if (linkAddress == NULL) {
+            continue;
+        }
+        jobject inetAddress = env->CallObjectMethod(linkAddress, midGetAddress);
+        env->DeleteLocalRef(linkAddress);
+        if (inetAddress == NULL) {
+            continue;
+        }
+        if (!env->IsInstanceOf(inetAddress, inet4Clz)) {
+            env->DeleteLocalRef(inetAddress);
+            continue;
+        }
+
+        jclass inetAddressClz = env->GetObjectClass(inetAddress);
+        jmethodID midIsLoopback = env->GetMethodID(inetAddressClz, "isLoopbackAddress", "()Z");
+        const bool isLoopback = env->CallBooleanMethod(inetAddress, midIsLoopback);
+        if (!isLoopback) {
+            jmethodID midGetHostAddress = env->GetMethodID(inetAddressClz, "getHostAddress", "()Ljava/lang/String;");
+            jstring jHostAddress = (jstring)env->CallObjectMethod(inetAddress, midGetHostAddress);
+            const char *hostAddressChars = env->GetStringUTFChars(jHostAddress, NULL);
+            result = QString::fromUtf8(hostAddressChars);
+            env->ReleaseStringUTFChars(jHostAddress, hostAddressChars);
+            env->DeleteLocalRef(jHostAddress);
+        }
+        env->DeleteLocalRef(inetAddressClz);
+        env->DeleteLocalRef(inetAddress);
+        if (!result.isEmpty()) {
+            break;
+        }
+    }
+
+    env->DeleteLocalRef(linkAddressClz);
+    env->DeleteLocalRef(inet4Clz);
+    env->DeleteLocalRef(listClz);
+    env->DeleteLocalRef(linkAddresses);
+    return result;
+}
 #endif
 
 static bool isValidUsableIPv4(const QHostAddress &address) {
     return address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback() &&
            !address.isNull() && address != QHostAddress::AnyIPv4;
-}
-
-static QHostAddress findLocalInterfaceIPv4() {
-    const auto interfaces = QNetworkInterface::allInterfaces();
-    QHostAddress fallbackAddress;
-
-    for (const QNetworkInterface &networkInterface : interfaces) {
-        const auto flags = networkInterface.flags();
-        const bool interfaceIsUsable =
-            flags.testFlag(QNetworkInterface::IsUp) && flags.testFlag(QNetworkInterface::IsRunning) &&
-            !flags.testFlag(QNetworkInterface::IsLoopBack);
-        if (!interfaceIsUsable) {
-            continue;
-        }
-
-        const auto entries = networkInterface.addressEntries();
-        for (const QNetworkAddressEntry &entry : entries) {
-            const QHostAddress address = entry.ip();
-            if (!isValidUsableIPv4(address)) {
-                continue;
-            }
-
-            // Android Wi-Fi interfaces are usually wlan*. Prefer them when available.
-            if (networkInterface.name().startsWith("wlan", Qt::CaseInsensitive)) {
-                return address;
-            }
-
-            if (fallbackAddress.isNull()) {
-                fallbackAddress = address;
-            }
-        }
-    }
-
-    return fallbackAddress;
 }
 
 QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
@@ -154,13 +228,20 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
         }
     }
 #ifdef Q_OS_ANDROID
-    QHostAddress interfaceIp = findLocalInterfaceIPv4();
-    if (!interfaceIp.isNull()) {
-        qDebug() << "getIP from interface scan" << interfaceIp;
-        return interfaceIp;
+    QAndroidJniEnvironment env;
+
+    const QString connectivityIp = getConnectivityManagerIp(env, QtAndroid::androidContext().object());
+    if (env->ExceptionCheck()) {
+        // getActiveNetwork()/getLinkProperties() require API 23+; ignore on older devices.
+        env->ExceptionClear();
+    } else if (!connectivityIp.isEmpty()) {
+        QHostAddress connectivityAddress(connectivityIp);
+        if (isValidUsableIPv4(connectivityAddress)) {
+            qDebug() << "getIP from ConnectivityManager" << connectivityAddress;
+            return connectivityAddress;
+        }
     }
 
-    QAndroidJniEnvironment env;
     jobject wifiManagerObj = getWifiManagerObj(env, QtAndroid::androidContext().object());
     jobject wifiInfoObj = getWifiInfoObj(env, wifiManagerObj);
     int ip = getIpAddress(env, wifiInfoObj);
