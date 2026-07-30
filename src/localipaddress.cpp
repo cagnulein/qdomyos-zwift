@@ -103,15 +103,20 @@ int getIpAddress(JNIEnv *env, jobject wifiInfoObj) {
 QString getConnectivityManagerIp(JNIEnv *env, jobject jCtxObj) {
     qDebug() << "getConnectivityManagerIp....";
 
+    // Reserve enough local reference slots for this whole call, regardless of
+    // the caller thread's default JNI local reference frame capacity.
+    if (env->PushLocalFrame(32) < 0) {
+        return QString();
+    }
+
     jclass jCtxClz = env->FindClass("android/content/Context");
     jfieldID fidConnService = env->GetStaticFieldID(jCtxClz, "CONNECTIVITY_SERVICE", "Ljava/lang/String;");
     jstring jstrConnService = (jstring)env->GetStaticObjectField(jCtxClz, fidConnService);
     jmethodID midGetSystemService =
         env->GetMethodID(jCtxClz, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
     jobject connManager = env->CallObjectMethod(jCtxObj, midGetSystemService, jstrConnService);
-    env->DeleteLocalRef(jCtxClz);
-    env->DeleteLocalRef(jstrConnService);
     if (connManager == NULL) {
+        env->PopLocalFrame(NULL);
         return QString();
     }
 
@@ -121,32 +126,28 @@ QString getConnectivityManagerIp(JNIEnv *env, jobject jCtxObj) {
     jmethodID midGetActiveNetwork = env->GetMethodID(connManagerClz, "getActiveNetwork", "()Landroid/net/Network;");
     if (midGetActiveNetwork == NULL) {
         env->ExceptionClear();
-        env->DeleteLocalRef(connManagerClz);
-        env->DeleteLocalRef(connManager);
+        env->PopLocalFrame(NULL);
         return QString();
     }
     jobject network = env->CallObjectMethod(connManager, midGetActiveNetwork);
-    env->DeleteLocalRef(connManager);
     if (network == NULL) {
-        env->DeleteLocalRef(connManagerClz);
+        env->PopLocalFrame(NULL);
         return QString();
     }
 
     jmethodID midGetLinkProperties = env->GetMethodID(
         connManagerClz, "getLinkProperties", "(Landroid/net/Network;)Landroid/net/LinkProperties;");
     jobject linkProperties = env->CallObjectMethod(connManager, midGetLinkProperties, network);
-    env->DeleteLocalRef(connManagerClz);
-    env->DeleteLocalRef(network);
     if (linkProperties == NULL) {
+        env->PopLocalFrame(NULL);
         return QString();
     }
 
     jclass linkPropertiesClz = env->GetObjectClass(linkProperties);
     jmethodID midGetLinkAddresses = env->GetMethodID(linkPropertiesClz, "getLinkAddresses", "()Ljava/util/List;");
     jobject linkAddresses = env->CallObjectMethod(linkProperties, midGetLinkAddresses);
-    env->DeleteLocalRef(linkPropertiesClz);
-    env->DeleteLocalRef(linkProperties);
     if (linkAddresses == NULL) {
+        env->PopLocalFrame(NULL);
         return QString();
     }
 
@@ -193,10 +194,7 @@ QString getConnectivityManagerIp(JNIEnv *env, jobject jCtxObj) {
         }
     }
 
-    env->DeleteLocalRef(linkAddressClz);
-    env->DeleteLocalRef(inet4Clz);
-    env->DeleteLocalRef(listClz);
-    env->DeleteLocalRef(linkAddresses);
+    env->PopLocalFrame(NULL);
     return result;
 }
 #endif
