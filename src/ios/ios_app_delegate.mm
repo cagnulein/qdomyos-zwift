@@ -70,6 +70,14 @@
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     qDebug() << "QZ iOS launch";
+
+    // when CoreBluetooth state restoration is in place iOS can relaunch us in
+    // background to deliver a BLE event: useful to know it while reading a log
+    NSArray *restoredCentrals = [launchOptions objectForKey:UIApplicationLaunchOptionsBluetoothCentralsKey];
+    if (restoredCentrals.count > 0) {
+        qDebug() << "QZ iOS launch: relaunched by CoreBluetooth for" << (int)restoredCentrals.count << "central(s)";
+    }
+
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
     [center requestAuthorizationWithOptions:UNAuthorizationOptionBadge
       completionHandler:^(BOOL granted, NSError *error){
@@ -92,6 +100,19 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     Q_UNUSED(application)
     qDebug() << "QZ iOS lifecycle: applicationDidBecomeActive";
+}
+
+- (void)applicationWillResignActive:(UIApplication *)application {
+    Q_UNUSED(application)
+    qDebug() << "QZ iOS lifecycle: applicationWillResignActive";
+}
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    // With the background keep alive running the app stays in the "background"
+    // state instead of being suspended, so every QTimer (homeform::update, the
+    // per device refresh timers) and the BLE connections keep working.
+    qDebug() << "QZ iOS lifecycle: applicationDidEnterBackground, remaining background time"
+             << application.backgroundTimeRemaining;
 }
 
 - (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {

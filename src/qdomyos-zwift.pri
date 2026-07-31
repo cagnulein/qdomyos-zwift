@@ -1027,10 +1027,14 @@ ios {
 }
 
 ios {
+    # AVFoundation is used by the background keep alive (silent audio session)
+    LIBS += -framework AVFoundation
+
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
     ios/ios_bluetooth_background.mm \
+    ios/ios_background_keepalive.mm \
     ios/ios_liveactivity.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
@@ -1044,7 +1048,8 @@ ios {
     SOURCES += ios/M3iNSQT.cpp
 
     OBJECTIVE_HEADERS += ios/M3iNS.h \
-    ios/ios_liveactivity.h
+    ios/ios_liveactivity.h \
+    ios/ios_background_keepalive.h
 
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
