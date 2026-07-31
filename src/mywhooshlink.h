@@ -106,7 +106,7 @@ private:
 
     bool enabled;
     bool overrideGears;
-    static const int PORT = 21587;
+    static const int PORT = 36867;
 
     // Button action mappings
     Action leftUpAction;
