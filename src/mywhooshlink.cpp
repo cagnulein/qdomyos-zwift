@@ -8,6 +8,11 @@
 #include <QNetworkDatagram>
 #include <QSysInfo>
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
+
 MyWhooshLink *MyWhooshLink::s_instance = nullptr;
 
 namespace {
@@ -134,6 +139,14 @@ void MyWhooshLink::start() {
         return;
     }
 
+#ifdef Q_OS_ANDROID
+    // Without a multicast lock Android silently drops the incoming mDNS queries
+    // that MyWhoosh sends to discover us.
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MulticastLockHelper", "acquire",
+                                              "(Landroid/content/Context;)V",
+                                              QtAndroid::androidContext().object());
+#endif
+
     qDebug() << "MyWhooshLink(OpenBikeControl): network interfaces:";
     foreach (const QNetworkInterface &netInterface, QNetworkInterface::allInterfaces()) {
         if (netInterface.flags().testFlag(QNetworkInterface::IsUp) &&
@@ -212,6 +225,10 @@ void MyWhooshLink::stop() {
         mdnsServer->deleteLater();
         mdnsServer = nullptr;
     }
+
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/MulticastLockHelper", "release", "()V");
+#endif
 
     qDebug() << "MyWhooshLink(OpenBikeControl): stopped";
 }
