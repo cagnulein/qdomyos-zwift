@@ -1,0 +1,279 @@
+name: Release Android to Play Store (internal testing)
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Actually upload to Play Console internal track (unchecked = build + sign only, nothing leaves this workflow run)'
+        type: boolean
+        required: true
+        default: false
+
+concurrency:
+  group: release-playstore
+  cancel-in-progress: false
+
+jobs:
+  release-android:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: 'false'
+
+      - name: Checkout submodules with specific branches
+        run: |
+          git submodule init
+          git submodule update --init --recursive
+
+      - name: Install packages required to run QZ inside workflow
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+
+      - name: Install Qt Android
+        uses: jdpurcell/install-qt-action@v5
+        with:
+          version: '5.15.0'
+          host: 'linux'
+          target: 'android'
+          arch: 'android'
+          modules: 'qtcharts qtnetworkauth qtpurchasing'
+          dir: '${{ github.workspace }}/output/android/'
+          cache: 'false'
+
+      - name: Install custom 16K-page-size Qt (overlay onto stock Qt install)
+        run: |
+          QT_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
+          curl -fsSL -o /tmp/qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
+          unzip -q /tmp/qt5.15.0-android-page16.zip -d /tmp/qt-page16k
+          # Overlay the 16K-page-aligned target libs/plugins/qml/mkspecs/jar/include onto the
+          # stock Qt install; keep the stock Linux host tools (bin/) since the custom Qt's
+          # host tools were built on macOS (Mach-O, not usable on this Linux runner).
+          rsync -a --exclude='bin/' "/tmp/qt-page16k/qt5.15.0-android-page16/usr/local/Qt-5.15.0/" "$QT_DIR/"
+          # qdevice.pri comes from the overlay carrying the macOS origin's NDK host value;
+          # fix it back to linux so qmake resolves the NDK toolchain path correctly.
+          sed -i 's/darwin-x86_64/linux-x86_64/' "$QT_DIR/mkspecs/qdevice.pri"
+          rm -rf /tmp/qt5.15.0-android-page16.zip /tmp/qt-page16k
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
+
+      - name: download 3rd party files for qthttpserver
+        run: cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      - name: Cache Android NDK
+        id: cache-ndk
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/lib/android/sdk/ndk/21.1.6352462
+          key: android-ndk-21.1.6352462-${{ runner.os }}
+
+      - name: Install Android SDK packages
+        run: |
+          SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
+          echo "y" | $SDKMANAGER "ndk;21.1.6352462" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Setup ccache
+        run: |
+          sudo apt-get install -y ccache
+          echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
+          ccache --set-config=max_size=2G
+          ccache --set-config=compression=true
+          ccache --set-config=compression_level=6
+          ccache --set-config=base_dir=${{ github.workspace }}
+          ccache --set-config=sloppiness=pch_defines,time_macros,include_file_mtime,file_macro
+          ccache --zero-stats
+
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ccache-android-ndk21_1-${{ hashFiles('src/**/*.cpp', 'src/**/*.h', 'src/*.pro') }}
+          restore-keys: |
+            ccache-android-ndk21_1-
+
+      - name: Setup NDK environment with ccache
+        run: |
+          NDK_PATH=/usr/local/lib/android/sdk/ndk/21.1.6352462
+          NDK_BIN=$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin
+          ln -sfn $NDK_PATH /usr/local/lib/android/sdk/ndk-bundle
+          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          echo "ANDROID_NDK=/usr/local/lib/android/sdk/ndk-bundle" >> $GITHUB_ENV
+          echo "ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk-bundle" >> $GITHUB_ENV
+          if [ ! -f "$NDK_BIN/clang.real" ]; then
+            mv $NDK_BIN/clang $NDK_BIN/clang.real
+            mv $NDK_BIN/clang++ $NDK_BIN/clang++.real
+          fi
+          printf '#!/bin/bash\nexec /usr/bin/ccache %s/clang.real "$@"\n' "$NDK_BIN" > $NDK_BIN/clang
+          printf '#!/bin/bash\nexec /usr/bin/ccache %s/clang++.real "$@"\n' "$NDK_BIN" > $NDK_BIN/clang++
+          chmod +x $NDK_BIN/clang $NDK_BIN/clang++
+
+      - name: Generate secrets
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define PELOTON_SECRET_KEY ${{ secrets.peloton_secret_key }}" >> secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_ID ${{ secrets.intervalsicu_client_id }}" >> secret.h
+          echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+
+      - name: Prepare Android signing key
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+        run: |
+          if [ -z "$SIGNING_KEY" ] || [ -z "${{ secrets.ALIAS }}" ] || [ -z "${{ secrets.KEY_STORE_PASSWORD }}" ] || [ -z "${{ secrets.KEY_PASSWORD }}" ]; then
+            echo "Android signing secrets are required to publish a release build; aborting."
+            exit 1
+          fi
+          KEYSTORE="${{ github.workspace }}/src/android/ci-signing-key.jks"
+          printf '%s' "$SIGNING_KEY" | base64 --decode > "$KEYSTORE"
+          if [ ! -s "$KEYSTORE" ]; then
+            echo "Failed to decode Android signing key."
+            rm -f "$KEYSTORE"
+            exit 1
+          fi
+          echo "CI_ANDROID_SIGNING_KEYSTORE=$KEYSTORE" >> "$GITHUB_ENV"
+
+      - name: Compute next Play Store versionCode
+        id: next_version
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          echo "$PLAY_SERVICE_ACCOUNT_JSON" > /tmp/play-sa.json
+          NEXT_VC=$(python3 scripts/play_next_version_code.py --sa-json /tmp/play-sa.json)
+          rm -f /tmp/play-sa.json
+          echo "version_code=$NEXT_VC" >> "$GITHUB_OUTPUT"
+          echo "Computed next versionCode: $NEXT_VC"
+
+      - name: Bump Android versionCode/versionName for this release (ephemeral, never committed)
+        run: |
+          NEXT_VC="${{ steps.next_version.outputs.version_code }}"
+          BASE_VERSION_NAME=$(grep -oE 'android:versionName="[^"]+"' src/android/AndroidManifest.xml | sed -E 's/.*"(.*)"/\1/')
+          NEW_VERSION_NAME="${BASE_VERSION_NAME}-internal.${{ github.run_number }}"
+          sed -i "s/android:versionCode=\"[0-9]*\"/android:versionCode=\"$NEXT_VC\"/" src/android/AndroidManifest.xml
+          sed -i "s/android:versionName=\"[^\"]*\"/android:versionName=\"$NEW_VERSION_NAME\"/" src/android/AndroidManifest.xml
+          echo "Using versionCode=$NEXT_VC versionName=$NEW_VERSION_NAME (this change is not committed back to the repo)"
+
+      - name: Build qthttpserver for Android
+        run: |
+          cd src/qthttpserver
+          qmake
+          make -j8
+          make install
+
+      - name: Build QZ for Android (4 ABIs)
+        run: |
+          lrelease src/qdomyos-zwift.pri
+          # CONFIG+=debug matches the validated reference build: keeps .so unstripped and,
+          # with this custom Qt, naturally leaves android-extra-libs unset - the bundled
+          # android_openssl libs are not 16K-page-aligned, so we must NOT inject them.
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.1.6352462' 'CONFIG+=debug' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          cat src/android-qdomyos-zwift-deployment-settings.json
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.gradle-android/caches
+            ${{ github.workspace }}/.gradle-android/wrapper
+          key: gradle-android-${{ runner.os }}-v2
+          restore-keys: |
+            gradle-android-${{ runner.os }}-
+
+      - name: Build Android package (release)
+        run: |
+          cd src
+          mkdir -p ${{ github.workspace }}/output/android
+          rsync -a --exclude build --exclude .gradle android/ ${{ github.workspace }}/output/android/
+          androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-35 --gradle --aux-mode
+          export GRADLE_USER_HOME="${{ github.workspace }}/.gradle-android"
+          export GRADLE_OPTS="-Dgradle.user.home=$GRADLE_USER_HOME"
+          export GRADLE_DIST_DIR="${{ github.workspace }}/gradle-8.13"
+          export QT_ANDROID_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
+          mkdir -p "$GRADLE_USER_HOME"
+          rm -f "$GRADLE_USER_HOME/gradle.properties"
+          rm -f "$HOME/.gradle/gradle.properties"
+          find ${{ github.workspace }}/output/android \( -name '*.properties' -o -name '*.gradle' -o -name '*.gradle.kts' \) -exec sed -i '/android\.bundle\.enableUncompressedNativeLibs/d' {} +
+          printf '\nqt5AndroidDir=%s/src/android/java\n' "$QT_ANDROID_DIR" >> ${{ github.workspace }}/output/android/gradle.properties
+          if grep -RInE "android\\.bundle\\.enableUncompressedNativeLibs|enableUncompressedNativeLibs" ${{ github.workspace }}/output/android "$GRADLE_USER_HOME" "$HOME/.gradle" 2>/dev/null; then
+            echo "Unexpected residual enableUncompressedNativeLibs matches found"
+            exit 1
+          fi
+          if [ ! -x "$GRADLE_DIST_DIR/bin/gradle" ]; then
+            curl -fsSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o /tmp/gradle-8.13-bin.zip
+            unzip -q /tmp/gradle-8.13-bin.zip -d ${{ github.workspace }}
+          fi
+          "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleRelease bundleRelease
+
+      - name: Sign release APK and AAB
+        run: |
+          APK_PATH="${{ github.workspace }}/output/android/build/outputs/apk/release/android-release-unsigned.apk"
+          AAB_PATH="${{ github.workspace }}/output/android/build/outputs/bundle/release/android-release.aab"
+          APKSIGNER=$(find /usr/local/lib/android/sdk/build-tools -name apksigner | sort | tail -n 1)
+          "$APKSIGNER" sign \
+            --ks "$CI_ANDROID_SIGNING_KEYSTORE" \
+            --ks-key-alias "${{ secrets.ALIAS }}" \
+            --ks-pass "pass:${{ secrets.KEY_STORE_PASSWORD }}" \
+            --key-pass "pass:${{ secrets.KEY_PASSWORD }}" \
+            --out "${{ github.workspace }}/output/android-release-signed.apk" \
+            "$APK_PATH"
+          jarsigner -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore "$CI_ANDROID_SIGNING_KEYSTORE" \
+            -storepass "${{ secrets.KEY_STORE_PASSWORD }}" \
+            -keypass "${{ secrets.KEY_PASSWORD }}" \
+            -signedjar "${{ github.workspace }}/output/android-release-signed.aab" \
+            "$AAB_PATH" "${{ secrets.ALIAS }}"
+          rm -f "$CI_ANDROID_SIGNING_KEYSTORE"
+
+      - name: Verify 16K page-size alignment
+        run: |
+          NDK_LIBDIR=/usr/local/lib/android/sdk/ndk/21.1.6352462/toolchains/llvm/prebuilt/linux-x86_64/bin
+          FAIL=0
+          OK=0
+          WORKDIR=$(mktemp -d)
+          unzip -q "${{ github.workspace }}/output/android-release-signed.apk" -d "$WORKDIR"
+          while IFS= read -r -d '' so; do
+            ALIGN=$("$NDK_LIBDIR/llvm-readelf" -lW "$so" 2>/dev/null | awk '/LOAD/ {print $NF}' | sort -u | tail -1)
+            if [ "$ALIGN" = "0x4000" ]; then
+              OK=$((OK+1))
+            else
+              echo "FAIL (align=$ALIGN): $so"
+              FAIL=$((FAIL+1))
+            fi
+          done < <(find "$WORKDIR/lib" -name '*.so' -print0)
+          rm -rf "$WORKDIR"
+          echo "-- Summary: OK=$OK, FAIL=$FAIL --"
+          if [ "$FAIL" -ne 0 ]; then
+            echo "16K page-size check failed - aborting before publish."
+            exit 1
+          fi
+
+      - name: Archive signed APK/AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-playstore-${{ steps.next_version.outputs.version_code }}
+          path: |
+            ${{ github.workspace }}/output/android-release-signed.apk
+            ${{ github.workspace }}/output/android-release-signed.aab
+
+      - name: Publish to Play Store (internal testing track)
+        if: ${{ inputs.publish }}
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: org.cagnulen.qdomyoszwift
+          releaseFiles: ${{ github.workspace }}/output/android-release-signed.aab
+          track: internal
+          status: completed

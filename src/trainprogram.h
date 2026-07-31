@@ -117,7 +117,8 @@ class trainprogram : public QObject {
     int TotalGPXSecs();
     double weightedInclination(int step);
     double medianInclination(int step);
-    bool overridePowerForCurrentRow(double power);
+    bool adjustPowerOffsetForTrainingProgram(int32_t delta);
+    int32_t powerOffsetForTrainingProgram() const { return trainingProgramPowerOffset; }
     bool overrideZoneHRForCurrentRow(uint8_t zone);
     bool advanceLapButtonStep();
     static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
@@ -133,6 +134,12 @@ class trainprogram : public QObject {
         foreach(trainrow r, rows) {
             if(r.power != -1 || r.zoneHR != -1 || r.HRmin != -1 || r.HRmax != -1 ||
                r.HRabove != -1 || r.HRbelow != -1) return true;
+        }
+        return false;
+    }
+    bool speedInclinationTargetWorkout() {
+        foreach(trainrow r, rows) {
+            if(r.speed != -1 || r.inclination != -200) return true;
         }
         return false;
     }
@@ -205,6 +212,7 @@ private slots:
     int lastStepTimestampChanged = 0;
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
+    int32_t trainingProgramPowerOffset = 0;
     int lastLapButtonToastStep = -1;
     int lastLapButtonToastTick = -30;
     

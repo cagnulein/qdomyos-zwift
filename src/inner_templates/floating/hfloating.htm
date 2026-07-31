@@ -511,6 +511,7 @@
                       event.target.closest("#metric-selector") === null &&
                       event.target.closest("#complete-panel") === null &&
                       event.target.closest(".quick-actions") === null &&
+                      event.target.closest("button") === null &&
                       !event.target.classList.contains("quick-action-btn")) {
                     toggleControlsPanel();
                   }

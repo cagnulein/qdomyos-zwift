@@ -32,6 +32,12 @@ ColumnLayout {
         onTriggered: {if(rootItem.startRequested) {rootItem.startRequested = false; rootItem.stopRequested = false; stackView.pop(); }}
     }
 
+    Timer {
+        id: sendMailFallback
+        interval: 10000; running: true; repeat: false
+        onTriggered: rootItem.sendMail()
+    }
+
     Button {
         id: closeButton
         height: 50

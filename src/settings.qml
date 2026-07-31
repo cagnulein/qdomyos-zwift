@@ -1207,7 +1207,7 @@ import AndroidStatusBar 1.0
 
             // from version 2.16.40
             property bool nordictrack_treadmill_t8_5s: false
-            
+
             // from version 2.16.41
             property bool proform_treadmill_705_cst: false
             property bool zwift_click: false
@@ -1468,7 +1468,7 @@ import AndroidStatusBar 1.0
             property int  tile_heat_time_in_zone_4_order: 71
 
             property bool proform_treadmill_carbon_tls: false
-            
+
             // 2.19.1            
             property bool proform_treadmill_995i: false
             property bool rogue_echo_bike: false
@@ -1484,7 +1484,7 @@ import AndroidStatusBar 1.0
             property int ant_heart_device_number: 0
             property int peloton_treadmill_walk_level: 1
             property int pid_heart_zone_erg_mode_watt_step: 5            
-            
+
             // Automatic Virtual Shifting settings
             property bool automatic_virtual_shifting_enabled: false
             property int automatic_virtual_shifting_gear_up_cadence: 95
@@ -1508,6 +1508,7 @@ import AndroidStatusBar 1.0
             property int tile_auto_virtual_shifting_sprint_order: 57
             property string proform_rower_ip: ""
             property string ftms_elliptical: "Disabled"
+            
             property bool calories_active_only: false
             property real height: 175.0
             property bool calories_from_hr: false
@@ -1528,7 +1529,7 @@ import AndroidStatusBar 1.0
             property int kettler_usb_baudrate: 9600
             property bool nordictrack_se7i: false
             property real treadmill_speed_max: 100
-            
+
             // Intervals.icu settings
             property string intervalsicu_accesstoken: ""
             property string intervalsicu_refreshtoken: ""
@@ -1555,9 +1556,9 @@ import AndroidStatusBar 1.0
             property var garmin_refresh_token_expires_at: 0
             property string garmin_domain: "garmin.com"
             property string garmin_last_refresh: ""
-            
-            property bool power_sensor_cadence_instead_treadmill: false            
-            
+
+            property bool power_sensor_cadence_instead_treadmill: false
+
             property string garmin_oauth1_token: ""
             property string garmin_oauth1_token_secret: ""
 
@@ -1567,16 +1568,16 @@ import AndroidStatusBar 1.0
 			property real peloton_treadmill_walking_min_speed: 0.0
 			property real peloton_treadmill_running_min_speed: 0.0
 			property bool trainprogram_auto_lap_on_segment: false
-            
+
 			property bool power_avg_3s: false
 			property bool tile_power_avg_enabled: false
 			property int tile_power_avg_order: 77
 			property bool life_fitness_ic5: false
 			property bool technogym_bike: false
-            
+
 			property bool kingsmith_r2_enable_hw_buttons: false
 			property bool treadmill_direct_distance: false
-      
+
 			property bool domyos_treadmill_ts100: false
 			property bool thinkrider_controller: false			
 			property bool weight_kg_unit: false 
@@ -1584,13 +1585,13 @@ import AndroidStatusBar 1.0
 			property bool tile_heart_show_as_percent: false
 			property bool tile_hrv_enabled: false
 			property int tile_hrv_order: 78                 
-                             
+
             property bool nordictrack_gx_4_5_pro: false            
             property double step_gain: 1.0
             property bool sportstech_esx500: false
             property bool proform_bike_325_csx_PFEX439210INT_0: false
             property bool proform_carbon_tlx_treadmill: false
-                    
+
             property bool nordictrack_vr21: false
             property bool gymstick_gx6_0_elliptical: false
             property bool cadence_sensor_as_treadmill: false
@@ -1607,10 +1608,10 @@ import AndroidStatusBar 1.0
             property int tile_grade_adjusted_pace_order: 79
             property bool cycplus_bc2_controller: false
       		property bool lifespan_bike: false
-      
+
             property double power_sensor_speed_inclination_coeff_a: 0.0
             property double power_sensor_speed_inclination_coeff_b: 0.0
-            
+
             property bool proform_carbon_tlx_v84_314_treadmill: false            
             property bool cscbike_custom_resistance_power_table: false
             property real cscbike_custom_resistance_level_1: 1
@@ -1703,9 +1704,39 @@ import AndroidStatusBar 1.0
             property real trainprogram_rest_speed: 420
             property bool trainprogram_sound_on_segment: false
             property bool tile_watt_color_enabled: true
-            property bool tile_pace_color_enabled: true                        
+            property bool tile_pace_color_enabled: true
             property bool treadmill_force_running_activity: false
-            property bool proform_treadmill_105_cst: false
+            property bool proform_treadmill_105_cst: false            
+            property real trainprogram_pid_hr_pushy_zone_limit: 0.8
+            property real trainprogram_pid_hr_recovery_zone_limit: 60.0
+            property bool rpe_feel_popup_enabled: false
+            property int zwiftplay_gear_ls1: 2
+            property int zwiftplay_gear_ls2: 2
+            property int zwiftplay_gear_rs1: 1
+            property int zwiftplay_gear_rs2: 1
+            property int zwiftplay_gear_paddle_left: 2
+            property int zwiftplay_gear_paddle_right: 1
+            property int zwiftplay_gear_lb: 0
+            property int zwiftplay_gear_rb: 0
+            // OpenBikeControl settings
+            property bool mywhoosh_link_enabled: false
+            property bool mywhoosh_link_override_gears: false
+            property int mywhoosh_link_left_up: 1
+            property int mywhoosh_link_left_down: 2
+            property int mywhoosh_link_left_left: 0
+            property int mywhoosh_link_left_right: 0
+            property int mywhoosh_link_left_shoulder: 5
+            property int mywhoosh_link_left_power: 0
+            property int mywhoosh_link_right_y: 6
+            property int mywhoosh_link_right_a: 0
+            property int mywhoosh_link_right_b: 7
+            property int mywhoosh_link_right_z: 0
+            property int mywhoosh_link_right_shoulder: 0
+            property int mywhoosh_link_right_power: 0
+            property int mywhoosh_link_camera_value: 1
+            property int mywhoosh_link_emote_value: 1
+            property bool waterrower_usb: false
+            property string freebeat_serialport: ""
         }
 
 
@@ -3423,6 +3454,229 @@ import AndroidStatusBar 1.0
                         color: Material.color(Material.Lime)
                     }                    
 
+                    AccordionElement {
+                        id: openBikeControlAccordion
+                        title: qsTr("OpenBikeControl")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Grey)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Enable OpenBikeControl")
+                                checked: settings.mywhoosh_link_enabled
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    settings.mywhoosh_link_enabled = checked;
+                                    if (checked && settings.dircon_yes) {
+                                        settings.dircon_yes = false;
+                                        toast.show(qsTr("OpenBikeControl enabled: Wahoo direct connect disabled."));
+                                    }
+                                    window.settings_restart_to_apply = true;
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Enable TCP server on port 21587 to send control commands using the OpenBikeControl link protocol")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("Override Local Gear Changes")
+                                checked: settings.mywhoosh_link_override_gears
+                                Layout.fillWidth: true
+                                onClicked: { settings.mywhoosh_link_override_gears = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("When enabled, gear shift commands go only to OpenBikeControl clients. When disabled, they go to both OpenBikeControl clients and the local gear system")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            Label {
+                                text: qsTr("Left Controller Buttons")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                Layout.fillWidth: true
+                                Layout.topMargin: 20
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Up:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    currentIndex: settings.mywhoosh_link_left_up
+                                    onActivated: { settings.mywhoosh_link_left_up = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Down:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    currentIndex: settings.mywhoosh_link_left_down
+                                    onActivated: { settings.mywhoosh_link_left_down = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Left:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    currentIndex: settings.mywhoosh_link_left_left
+                                    onActivated: { settings.mywhoosh_link_left_left = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Right:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    currentIndex: settings.mywhoosh_link_left_right
+                                    onActivated: { settings.mywhoosh_link_left_right = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Shoulder:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    currentIndex: settings.mywhoosh_link_left_shoulder
+                                    onActivated: { settings.mywhoosh_link_left_shoulder = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Power:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    currentIndex: settings.mywhoosh_link_left_power
+                                    onActivated: { settings.mywhoosh_link_left_power = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Right Controller Buttons")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                Layout.fillWidth: true
+                                Layout.topMargin: 20
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Y:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    currentIndex: settings.mywhoosh_link_right_y
+                                    onActivated: { settings.mywhoosh_link_right_y = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right A:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    currentIndex: settings.mywhoosh_link_right_a
+                                    onActivated: { settings.mywhoosh_link_right_a = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right B:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    currentIndex: settings.mywhoosh_link_right_b
+                                    onActivated: { settings.mywhoosh_link_right_b = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Z:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    currentIndex: settings.mywhoosh_link_right_z
+                                    onActivated: { settings.mywhoosh_link_right_z = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Shoulder:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    currentIndex: settings.mywhoosh_link_right_shoulder
+                                    onActivated: { settings.mywhoosh_link_right_shoulder = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Power:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    currentIndex: settings.mywhoosh_link_right_power
+                                    onActivated: { settings.mywhoosh_link_right_power = currentIndex; window.settings_restart_to_apply = true; }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Note: Left and Right paddles are fixed to Steer Left/Right and cannot be configured")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                                Layout.topMargin: 10
+                                color: Material.color(Material.Orange)
+                            }
+                        }
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -4222,7 +4476,7 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-                
+
                     Label {
                         text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about the QZ settings for your equipment, open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
                         font.bold: true
@@ -4582,7 +4836,7 @@ import AndroidStatusBar 1.0
                             onClicked: { settings.saris_trainer = checked; window.settings_restart_to_apply = true; }
                         }
                     }
-                    
+
                     AccordionElement {
                         id: cardioFitBikeAccordion
                         title: qsTr("CardioFIT Bike Options")
@@ -4591,7 +4845,7 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
                         accordionContent: IndicatorOnlySwitch {
                             id: spht9600iEBikeDelegate
-                            text: qsTr("SP-HT-9600iE")
+                            text: "SP-HT-9600iE"
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -4628,13 +4882,13 @@ import AndroidStatusBar 1.0
 
                     AccordionElement {
                         id: snodeBikeAccordion
-                        title: qsTr("Snode Bike Options")
+                        title: "Snode Bike Options"
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: IndicatorOnlySwitch {
                             id: snodeBikeDelegate
-                            text: qsTr("Snode Bike")
+                            text: "Snode Bike"
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -4760,7 +5014,7 @@ import AndroidStatusBar 1.0
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: lifespanBikeDelegate
-                                text: qsTr("LifeSpan C7000i Bike")
+                                text: "LifeSpan C7000i Bike"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -4808,7 +5062,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: lifeFitnessIC8Delegate
-                                text: qsTr("Life Fitness IC8")
+                                text: "Life Fitness IC8"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -4822,7 +5076,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: lifeFitnessIC5Delegate
-                                text: qsTr("Life Fitness IC5")
+                                text: "Life Fitness IC5"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -5159,7 +5413,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("TDF1 IP:")
+                                    text: "TDF1 IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -5183,7 +5437,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelproformTDF4IP
-                                    text: qsTr("TDF4 IP:")
+                                    text: "TDF4 IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -5355,6 +5609,41 @@ import AndroidStatusBar 1.0
 
 
                     AccordionElement {
+                        id: freebeatBikeAccordion
+                        title: qsTr("Freebeat Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelFreebeatSerialPort
+                                    text: qsTr("Serial Port:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: freebeatSerialPortTextField
+                                    text: settings.freebeat_serialport
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.freebeat_serialport = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okFreebeatSerialPortButton
+                                    text: qsTr("OK")
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.freebeat_serialport = freebeatSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+                        }
+                    }
+
+
+                    AccordionElement {
                         id: m3iBikeAccordion
                         title: qsTr("M3i Bike Options")
                         indicatRectColor: Material.color(Material.Grey)
@@ -5513,7 +5802,7 @@ import AndroidStatusBar 1.0
                                     window.settings_restart_to_apply = true; 
                                 }
                             }
-                            
+
                             RowLayout {
                                 spacing: 10
                                 Label {
@@ -5542,7 +5831,7 @@ import AndroidStatusBar 1.0
 
                     AccordionElement {
                         id: toputureBikeAccordion
-                        title: qsTr("Toputure Bikes")
+                        title: "Toputure Bikes"
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -5550,7 +5839,7 @@ import AndroidStatusBar 1.0
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: toputureTeb1Delegate
-                                text: qsTr("Toputure TEB1")
+                                text: "Toputure TEB1"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -7640,6 +7929,33 @@ import AndroidStatusBar 1.0
                     }
 
                     IndicatorOnlySwitch {
+                        text: qsTr("Ask RPE / Feeling after workout")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.rpe_feel_popup_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.rpe_feel_popup_enabled = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("Show a popup after Stop to rate perceived exertion (RPE) and how you felt; the values are saved into the FIT file and shown in Garmin Connect.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
                         text: qsTr("Fetch Garmin Workouts on Startup")
                         spacing: 0
                         bottomPadding: 0
@@ -8574,6 +8890,74 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Enabling this the PID is trying to motivate yourself to always increase a little the effort trying anyway to keep you in the zone. Default: Enabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("PID Recovery Zone Lower Limit (%):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pidHrRecoveryZoneLimitTextField
+                            text: settings.trainprogram_pid_hr_recovery_zone_limit
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_pid_hr_recovery_zone_limit = parseFloat(pidHrRecoveryZoneLimitTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Lower HR boundary (% of max HR) that defines the bottom of Zone 1 for 'Pushy' mode. Below this percentage the treadmill is at the bottom of the recovery area. Default: 60.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("PID Pushy Zone Limit:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pidHrPushyZoneLimitTextField
+                            text: settings.trainprogram_pid_hr_pushy_zone_limit
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_pid_hr_pushy_zone_limit = parseFloat(pidHrPushyZoneLimitTextField.text); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Fraction of zone above the target zone where 'Pushy' mode stops pushing. 0.8 means the PID stops pushing at zone+0.8. Default: 0.8.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -9976,7 +10360,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelproformtreadmillip
-                                    text: qsTr("Proform IP:")
+                                    text: "Proform IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -10000,7 +10384,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelnordictrack2950IP
-                                    text: qsTr("Nordictrack 2950 IP:")
+                                    text: "Nordictrack 2950 IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -10132,7 +10516,7 @@ import AndroidStatusBar 1.0
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: kingSmithTreadmillDelegate
-                                text: qsTr("WalkingPad X21")
+                                text: "WalkingPad X21"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10147,7 +10531,7 @@ import AndroidStatusBar 1.0
 
                             IndicatorOnlySwitch {
                                 id: kingSmithV3TreadmillDelegate
-                                text: qsTr("WalkingPad X21 v2")
+                                text: "WalkingPad X21 v2"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10162,7 +10546,7 @@ import AndroidStatusBar 1.0
 
                             IndicatorOnlySwitch {
                                 id: kingSmithV4TreadmillDelegate
-                                text: qsTr("WalkingPad X21 v3")
+                                text: "WalkingPad X21 v3"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10176,7 +10560,7 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("WalkingPad X21 v4")
+                                text: "WalkingPad X21 v4"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10190,7 +10574,7 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("WalkingPad G1")
+                                text: "WalkingPad G1"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10255,7 +10639,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.fitfiu_mc_v460 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Zero ZT-2500")
+                                text: "Zero ZT-2500"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10268,7 +10652,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.zero_zt2500_treadmill = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("UMAY S100")
+                                text: "UMAY S100"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10307,7 +10691,7 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("T900")
+                                text: "T900"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10572,7 +10956,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: soleF63Delegate
-                                text: qsTr("Sole F63")
+                                text: "Sole F63"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10586,7 +10970,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: soleF65Delegate
-                                text: qsTr("Sole F65")
+                                text: "Sole F65"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10600,7 +10984,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: soleTT8Delegate
-                                text: qsTr("Sole TT8")
+                                text: "Sole TT8"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10790,7 +11174,7 @@ import AndroidStatusBar 1.0
                             spacing: 0
                             IndicatorOnlySwitch {
                                 id: horizonParagonXTreadmillCadenzaDelegate
-                                text: qsTr("Paragon X")
+                                text: "Paragon X"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -10832,7 +11216,7 @@ import AndroidStatusBar 1.0
                             }
                             IndicatorOnlySwitch {
                                 id: horizonOmegaZTreadmillDelegate
-                                text: qsTr("Omega Z")
+                                text: "Omega Z"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11067,7 +11451,7 @@ import AndroidStatusBar 1.0
                     }
                     IndicatorOnlySwitch {
                         id: trxsevoDelegate
-                        text: qsTr("TRX 65s EVO")
+                        text: "TRX 65s EVO"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11110,7 +11494,7 @@ import AndroidStatusBar 1.0
                     }                    
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Toorx SRX 500")
+                        text: "Toorx SRX 500"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11125,7 +11509,7 @@ import AndroidStatusBar 1.0
 
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Toorx SRX 3500")
+                        text: "Toorx SRX 3500"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11167,7 +11551,7 @@ import AndroidStatusBar 1.0
                     }
 
                     IndicatorOnlySwitch {
-                        text: qsTr("Taurua IC90 Bike")
+                        text: "Taurua IC90 Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11242,7 +11626,7 @@ import AndroidStatusBar 1.0
 
                     IndicatorOnlySwitch {
                         id: toorxBikeDelegate
-                        text: qsTr("Toorx/iConsole Bike")
+                        text: "Toorx/iConsole Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11302,7 +11686,7 @@ import AndroidStatusBar 1.0
 
                     IndicatorOnlySwitch {
                         id: toorxBikeJLLIC400Delegate
-                        text: qsTr("JLL IC400 Bike")
+                        text: "JLL IC400 Bike"
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -11460,7 +11844,7 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ftms_rower = stripRssi(ftmsRowerTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
-                    }
+                    }                   
 
                     Button {
                         text: qsTr("Refresh Devices List")
@@ -11481,6 +11865,21 @@ import AndroidStatusBar 1.0
                         color: Material.color(Material.Lime)
                     }
 
+                    CheckBox {
+                        id: waterrowerUSBCheckBox
+                        text: qsTr("WaterRower USB")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.waterrower_usb
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.waterrower_usb = checked; window.settings_restart_to_apply = true; }
+                    }
+
                     AccordionElement {
                         title: qsTr("Proform/Nordictrack Rower Options")
                         indicatRectColor: Material.color(Material.Grey)
@@ -11488,7 +11887,7 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
-                                text: qsTr("Proform Sport RL")
+                                text: "Proform Sport RL"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11501,7 +11900,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.proform_rower_sport_rl = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Proform Rower 750R")
+                                text: "Proform Rower 750R"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11522,7 +11921,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: qsTr("ProForm Rower IP:")
+                                    text: "ProForm Rower IP:"
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -11600,7 +11999,7 @@ import AndroidStatusBar 1.0
                         }
                     }
                     AccordionElement {
-                        title: qsTr("Life Fitness 95xi (CSAFE)")
+                        title: "Life Fitness 95xi (CSAFE)"
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -11698,7 +12097,7 @@ import AndroidStatusBar 1.0
                         accordionContent: ColumnLayout {
                             IndicatorOnlySwitch {
                                 id: proformHybridDelegate
-                                text: qsTr("Proform Hybrid Trainer XT")
+                                text: "Proform Hybrid Trainer XT"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11725,7 +12124,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.proform_hybrid_trainer_PFEL03815 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("Nordictrack C7.5")
+                                text: "Nordictrack C7.5"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11738,7 +12137,7 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
-                                text: qsTr("NordicTrack Elliptical SE7i")
+                                text: "NordicTrack Elliptical SE7i"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -11949,7 +12348,7 @@ import AndroidStatusBar 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhDigitsOnly
+                            //inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.watt_offset = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -12977,7 +13376,7 @@ import AndroidStatusBar 1.0
                             }
 
                             IndicatorOnlySwitch {
-                                text: qsTr("Rogue Echo Bike")
+                                text: "Rogue Echo Bike"
                                 spacing: 0
                                 bottomPadding: 0
                                 topPadding: 0
@@ -14494,6 +14893,123 @@ import AndroidStatusBar 1.0
                                 color: Material.color(Material.Lime)
                             }
 
+                            Label {
+                                text: qsTr("Gear Controls")
+                                font.bold: true
+                                font.pixelSize: Qt.application.font.pixelSize + 2
+                                Layout.fillWidth: true
+                                Layout.topMargin: 20
+                            }
+
+                            Label {
+                                text: qsTr("Assign each physical button to Gear Up, Gear Down or Disabled. Applies before the Swap sides option above.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Shifter Up (LS1):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_ls1
+                                    onActivated: settings.zwiftplay_gear_ls1 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Shifter Down (LS2):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_ls2
+                                    onActivated: settings.zwiftplay_gear_ls2 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Shifter Up (RS1):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_rs1
+                                    onActivated: settings.zwiftplay_gear_rs1 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Shifter Down (RS2):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_rs2
+                                    onActivated: settings.zwiftplay_gear_rs2 = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Left Paddle (ZL):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_paddle_left
+                                    onActivated: settings.zwiftplay_gear_paddle_left = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Right Paddle (ZR):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_paddle_right
+                                    onActivated: settings.zwiftplay_gear_paddle_right = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Power Up (LB):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_lb
+                                    onActivated: settings.zwiftplay_gear_lb = currentIndex
+                                }
+                            }
+
+                            RowLayout {
+                                Label {
+                                    text: qsTr("Ride On (RB):")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    currentIndex: settings.zwiftplay_gear_rb
+                                    onActivated: settings.zwiftplay_gear_rb = currentIndex
+                                }
+                            }
+
                             RowLayout {
                                 spacing: 10
                                 Label {
@@ -15122,7 +15638,7 @@ import AndroidStatusBar 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 0
-                            
+
                             RowLayout {
                                 spacing: 10
                                 Label {
@@ -15798,14 +16314,14 @@ import AndroidStatusBar 1.0
 
                     RowLayout {
                         Layout.fillWidth: true
-                        
+
                         Button {
                             id: clearLogs
                             text: qsTr("Clear History")
                             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                             onClicked: rootItem.clearFiles();
                         }
-                        
+
                         Button {
                             text: qsTr("Show Logs Folder")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
