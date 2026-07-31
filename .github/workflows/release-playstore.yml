@@ -276,4 +276,5 @@ jobs:
           packageName: org.cagnulen.qdomyoszwift
           releaseFiles: ${{ github.workspace }}/output/android-release-signed.aab
           track: internal
+          changesNotSentForReview: true
           status: completed
