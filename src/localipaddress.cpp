@@ -116,6 +116,7 @@ QString getConnectivityManagerIp(JNIEnv *env, jobject jCtxObj) {
         env->GetMethodID(jCtxClz, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
     jobject connManager = env->CallObjectMethod(jCtxObj, midGetSystemService, jstrConnService);
     if (connManager == NULL) {
+        qDebug() << "getConnectivityManagerIp: ConnectivityManager unavailable";
         env->PopLocalFrame(NULL);
         return QString();
     }
@@ -125,12 +126,14 @@ QString getConnectivityManagerIp(JNIEnv *env, jobject jCtxObj) {
     // GetMethodID throws NoSuchMethodError and returns NULL.
     jmethodID midGetActiveNetwork = env->GetMethodID(connManagerClz, "getActiveNetwork", "()Landroid/net/Network;");
     if (midGetActiveNetwork == NULL) {
+        qDebug() << "getConnectivityManagerIp: getActiveNetwork() not available (pre-API23)";
         env->ExceptionClear();
         env->PopLocalFrame(NULL);
         return QString();
     }
     jobject network = env->CallObjectMethod(connManager, midGetActiveNetwork);
     if (network == NULL) {
+        qDebug() << "getConnectivityManagerIp: no active network (device offline?)";
         env->PopLocalFrame(NULL);
         return QString();
     }
@@ -139,6 +142,7 @@ QString getConnectivityManagerIp(JNIEnv *env, jobject jCtxObj) {
         connManagerClz, "getLinkProperties", "(Landroid/net/Network;)Landroid/net/LinkProperties;");
     jobject linkProperties = env->CallObjectMethod(connManager, midGetLinkProperties, network);
     if (linkProperties == NULL) {
+        qDebug() << "getConnectivityManagerIp: no link properties for the active network";
         env->PopLocalFrame(NULL);
         return QString();
     }
@@ -147,6 +151,7 @@ QString getConnectivityManagerIp(JNIEnv *env, jobject jCtxObj) {
     jmethodID midGetLinkAddresses = env->GetMethodID(linkPropertiesClz, "getLinkAddresses", "()Ljava/util/List;");
     jobject linkAddresses = env->CallObjectMethod(linkProperties, midGetLinkAddresses);
     if (linkAddresses == NULL) {
+        qDebug() << "getConnectivityManagerIp: link addresses list is null";
         env->PopLocalFrame(NULL);
         return QString();
     }
@@ -192,6 +197,10 @@ QString getConnectivityManagerIp(JNIEnv *env, jobject jCtxObj) {
         if (!result.isEmpty()) {
             break;
         }
+    }
+
+    if (result.isEmpty()) {
+        qDebug() << "getConnectivityManagerIp: active network has no usable IPv4 address, link addresses:" << size;
     }
 
     env->PopLocalFrame(NULL);
