@@ -74,6 +74,37 @@ void renphobike::forcePower(int16_t requestPower) {
     writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(r));
 }
 
+int renphobike::KnobGearTracker::feed(double resistance) {
+    if (!initialized) {
+        initialized = true;
+        stableResistance = resistance;
+        pendingResistance = resistance;
+        pendingCount = 1;
+        return 0;
+    }
+
+    if (!qFuzzyCompare(resistance + 1.0, pendingResistance + 1.0)) {
+        // value changed since the last sample: it needs to be confirmed again before
+        // it can be trusted, so just start tracking it and report no gear change yet.
+        pendingResistance = resistance;
+        pendingCount = 1;
+        return 0;
+    }
+
+    pendingCount++;
+    if (pendingCount != 2)
+        // already confirmed (or still the very first sample of a repeated value)
+        return 0;
+
+    double delta = pendingResistance - stableResistance;
+    int steps = (int)(delta / stepSize); // truncate toward zero, keep the remainder pending
+    if (steps == 0)
+        return 0;
+
+    stableResistance += steps * stepSize;
+    return steps;
+}
+
 void renphobike::forceResistance(resistance_t requestResistance) {
     // requestPower = powerFromResistanceRequest(requestResistance);
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
@@ -284,6 +315,26 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
         index += 2;
         debug("Current Resistance: " + QString::number(Resistance.value()));
+
+        bool renpho_bike_knob_gears =
+            settings.value(QZSettings::renpho_bike_knob_gears, QZSettings::default_renpho_bike_knob_gears).toBool();
+        // Only trust these readings as physical knob movements when QZ is not itself driving
+        // the bike's resistance (e.g. the "writing resistance for renpho forever" ERG path):
+        // otherwise the resistance changes we commanded (which already depend on the current
+        // gear) would be read back here and cause a feedback loop with the gears.
+        auto virtualBike = this->VirtualBike();
+        if (renpho_bike_knob_gears && virtualBike && virtualBike->ftmsDeviceConnected()) {
+            int gearSteps = knobGearTracker.feed(Resistance.value());
+            if (gearSteps > 0) {
+                debug("Renpho knob moved, applying " + QString::number(gearSteps) + " gear up step(s)");
+                for (int i = 0; i < gearSteps; i++)
+                    gearUp();
+            } else if (gearSteps < 0) {
+                debug("Renpho knob moved, applying " + QString::number(-gearSteps) + " gear down step(s)");
+                for (int i = 0; i < -gearSteps; i++)
+                    gearDown();
+            }
+        }
     }
 
     if (Flags.instantPower) {

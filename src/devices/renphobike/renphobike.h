@@ -41,6 +41,24 @@ class renphobike : public bike {
     bool connected() override;
     resistance_t maxResistance() override { return max_resistance; }
 
+    // Converts physical resistance-knob movements (read back from the bike's own FTMS
+    // Indoor Bike Data notifications) into QZ virtual gear steps. A single noisy/glitched
+    // BLE sample must never move the gear: a resistance reading is only considered
+    // "stable" once it has been observed twice in a row (the RENPHO sends roughly one
+    // notification per second, and the knob was reported to occasionally get bumped).
+    // Kept as a plain, Qt-BLE-free struct so it can be unit tested in isolation.
+    struct KnobGearTracker {
+        double stepSize = 1.0;
+        double stableResistance = 0.0;
+        double pendingResistance = 0.0;
+        int pendingCount = 0;
+        bool initialized = false;
+
+        // Feeds a new resistance reading and returns the number of gear steps to apply:
+        // positive => gearUp() that many times, negative => gearDown(), 0 => no change yet.
+        int feed(double resistance);
+    };
+
   private:
     const resistance_t max_resistance = 80;
     double bikeResistanceToPeloton(double resistance);
@@ -64,6 +82,7 @@ class renphobike : public bike {
     QByteArray lastFTMSPacketReceived;
     resistance_t lastRequestResistance = -1;
     double lastPowerRequestedFactor = 1;
+    KnobGearTracker knobGearTracker;
 
     bool initDone = false;
     bool initRequest = false;
