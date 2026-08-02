@@ -974,26 +974,13 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         
         if (requestSpeed != -1) {
-            if (qEnvironmentVariableIsSet("QZ_DEBUG_SPEED_001_STEP")) {
-                // DEBUG ONLY: skip the .1 rounding and the minStepSpeed threshold so a raw
-                // 0.01 km/h delta actually reaches forceSpeed()/FTMS instead of being filtered out.
-                if (requestSpeed >= 0 && requestSpeed <= 22 && requestSpeed != currentSpeed().value()) {
-                    qDebug() << "[QZ_DEBUG_SPEED_001_STEP]" << QDateTime::currentDateTime().toString(Qt::ISODateWithMs)
-                             << "forcing raw requestSpeed=" << requestSpeed
-                             << "currentSpeed=" << currentSpeed().value();
-                    forceSpeed(requestSpeed);
-                }
-            } else {
-                bool minSpeed =
-                    fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
-                bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
-                qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
-                         << float_one_point_round(currentSpeed().value());
-                if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
-                    forceSpeedNeed) {
-                    emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                    forceSpeed(float_one_point_round(requestSpeed));
-                }
+            // DEBUG BUILD: always skip the .1 rounding and the minStepSpeed threshold so a raw
+            // 0.01 km/h delta actually reaches forceSpeed()/FTMS instead of being filtered out.
+            if (requestSpeed >= 0 && requestSpeed <= 22 && requestSpeed != currentSpeed().value()) {
+                qDebug() << "[QZ_DEBUG_SPEED_001_STEP]" << QDateTime::currentDateTime().toString(Qt::ISODateWithMs)
+                         << "forcing raw requestSpeed=" << requestSpeed
+                         << "currentSpeed=" << currentSpeed().value();
+                forceSpeed(requestSpeed);
             }
             requestSpeed = -1;
         }
@@ -1248,13 +1235,11 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
             write[12] = datas[2];
             write[13] = datas[3];
 
-            if (qEnvironmentVariableIsSet("QZ_DEBUG_SPEED_001_STEP")) {
-                qDebug() << "[QZ_DEBUG_SPEED_001_STEP]" << QDateTime::currentDateTime().toString(Qt::ISODateWithMs)
-                         << "raw Horizon custom-protocol bytes="
-                         << QByteArray((const char *)write, sizeof(write)).toHex(' ')
-                         << "requestSpeed=" << requestSpeed
-                         << "(note: this protocol only has 0.1 km/h resolution, a 0.01 step won't change the bytes)";
-            }
+            qDebug() << "[QZ_DEBUG_SPEED_001_STEP]" << QDateTime::currentDateTime().toString(Qt::ISODateWithMs)
+                     << "raw Horizon custom-protocol bytes="
+                     << QByteArray((const char *)write, sizeof(write)).toHex(' ')
+                     << "requestSpeed=" << requestSpeed
+                     << "(note: this protocol only has 0.1 km/h resolution, a 0.01 step won't change the bytes)";
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
                                 QStringLiteral("forceSpeed"), false, true);
@@ -1280,13 +1265,11 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
             initData02_paragon[11] = datas[1];
             initData02_paragon[12] = datas[2];
 
-            if (qEnvironmentVariableIsSet("QZ_DEBUG_SPEED_001_STEP")) {
-                qDebug() << "[QZ_DEBUG_SPEED_001_STEP]" << QDateTime::currentDateTime().toString(Qt::ISODateWithMs)
-                         << "raw Horizon Paragon-X custom-protocol bytes="
-                         << QByteArray((const char *)initData02_paragon, sizeof(initData02_paragon)).toHex(' ')
-                         << "requestSpeed=" << requestSpeed
-                         << "(note: this protocol only has 0.1 km/h resolution, a 0.01 step won't change the bytes)";
-            }
+            qDebug() << "[QZ_DEBUG_SPEED_001_STEP]" << QDateTime::currentDateTime().toString(Qt::ISODateWithMs)
+                     << "raw Horizon Paragon-X custom-protocol bytes="
+                     << QByteArray((const char *)initData02_paragon, sizeof(initData02_paragon)).toHex(' ')
+                     << "requestSpeed=" << requestSpeed
+                     << "(note: this protocol only has 0.1 km/h resolution, a 0.01 step won't change the bytes)";
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon,
                                 sizeof(initData02_paragon), QStringLiteral("forceSpeed"), false, false);
@@ -1316,12 +1299,10 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         writeS[1] = speed_int & 0xFF;
         writeS[2] = speed_int >> 8;
 
-        if (qEnvironmentVariableIsSet("QZ_DEBUG_SPEED_001_STEP")) {
-            qDebug() << "[QZ_DEBUG_SPEED_001_STEP]" << QDateTime::currentDateTime().toString(Qt::ISODateWithMs)
-                     << "raw FTMS SetTargetSpeed bytes="
-                     << QByteArray((const char *)writeS, sizeof(writeS)).toHex(' ')
-                     << "requestSpeed=" << requestSpeed;
-        }
+        qDebug() << "[QZ_DEBUG_SPEED_001_STEP]" << QDateTime::currentDateTime().toString(Qt::ISODateWithMs)
+                 << "raw FTMS SetTargetSpeed bytes="
+                 << QByteArray((const char *)writeS, sizeof(writeS)).toHex(' ')
+                 << "requestSpeed=" << requestSpeed;
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceSpeed"), false, false);
