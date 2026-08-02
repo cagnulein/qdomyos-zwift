@@ -25,6 +25,7 @@
 #include <QByteArray>
 #include <QClipboard>
 #include <QCryptographicHash>
+#include <QDateTime>
 #include <QDesktopServices>
 #include <QDir>
 #include <QDirIterator>
@@ -5222,20 +5223,28 @@ void homeform::Plus(const QString &name) {
                 speed = targetspeed;
             if (requestedspeed != -1)
                 speed = requestedspeed;
-            double minStepSpeed = ((treadmill *)bluetoothManager->device())->minStepSpeed();
-            double step =
-                settings.value(QZSettings::treadmill_step_speed, QZSettings::default_treadmill_step_speed).toDouble();
-            if (!miles)
-                step = ((double)qRound(step * 10.0)) / 10.0;
-            if (step > minStepSpeed)
-                minStepSpeed = step;
-            int rest = 0;
-            if (!miles)
-                rest = (minStepSpeed * 10.0) - (((int)(speed * 10.0)) % (uint8_t)(minStepSpeed * 10.0));
-            if (rest == 5 || rest == 0)
-                speed = speed + minStepSpeed;
-            else
-                speed = speed + (((double)rest) / 10.0);
+            if (qEnvironmentVariableIsSet("QZ_DEBUG_SPEED_001_STEP")) {
+                // DEBUG ONLY: forces a raw 0.01 km/h increment per tap to probe how the
+                // treadmill firmware reacts to the smallest possible FTMS set-speed step.
+                speed = speed + 0.01;
+                qDebug() << "[QZ_DEBUG_SPEED_001_STEP]" << QDateTime::currentDateTime().toString(Qt::ISODateWithMs)
+                         << "plus tapped, requesting speed =" << speed;
+            } else {
+                double minStepSpeed = ((treadmill *)bluetoothManager->device())->minStepSpeed();
+                double step =
+                    settings.value(QZSettings::treadmill_step_speed, QZSettings::default_treadmill_step_speed).toDouble();
+                if (!miles)
+                    step = ((double)qRound(step * 10.0)) / 10.0;
+                if (step > minStepSpeed)
+                    minStepSpeed = step;
+                int rest = 0;
+                if (!miles)
+                    rest = (minStepSpeed * 10.0) - (((int)(speed * 10.0)) % (uint8_t)(minStepSpeed * 10.0));
+                if (rest == 5 || rest == 0)
+                    speed = speed + minStepSpeed;
+                else
+                    speed = speed + (((double)rest) / 10.0);
+            }
 
             ((treadmill *)bluetoothManager->device())->changeSpeed(speed);
         }
