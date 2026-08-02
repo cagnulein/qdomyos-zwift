@@ -37,8 +37,28 @@
 class ftmsrower : public rower {
     Q_OBJECT
   public:
+    struct ParserRegressionState {
+        double distanceKm = 0.0;
+        double speedKmh = 0.0;
+        double cadence = 0.0;
+        uint8_t rowState = 0;
+        bool rowStateReceived = false;
+        bool hasFtmsService = false;
+        bool distanceReceivedFromPm5 = false;
+        qint64 lastRefreshMs = 0;
+        qint64 lastPm5DistanceUpdateMs = 0;
+        qint64 lastStrokeMs = 0;
+        double strokesCount = 0.0;
+        double wattValue = 0.0;
+    };
+
     ftmsrower(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    static void processPm5ParserState(ParserRegressionState &state, const QString &charUuid, const QByteArray &newValue,
+                                      qint64 nowMs);
+    static void processFtmsParserState(ParserRegressionState &state, const QByteArray &newValue, qint64 nowMs,
+                                       bool iconsolePlus, bool fitshow, bool mrkR11s, bool whipr, bool kingsmith,
+                                       bool dfitLR);
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -89,6 +109,9 @@ class ftmsrower : public rower {
     // PM5 specific variables
     uint8_t pm5RowState = 0;
     bool pm5RowStateReceived = false;
+    bool pm5HasFTMSService = false;
+    bool pm5DistanceReceived = false;
+    QDateTime lastPm5DistanceUpdate = QDateTime::currentDateTime();
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
