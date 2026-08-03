@@ -1032,7 +1032,7 @@
 
                                 // Settings array - same as in original template
                                 settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
-                                  'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
+                                  'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_remaining_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
                                   'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_target_pace_enabled', 'tile_inclination_enabled',
                                   'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled', 'tile_remainingtimetrainprogramrow_enabled', 'tile_gears_enabled',
                                   'tile_elevation_enabled', 'tile_pace_enabled', 'horizontal_display_count', /* New setting for horizontal display */
@@ -1095,6 +1095,9 @@
                                       else if (key === 'tile_elapsed_enabled') {
                                         metricsPreference["elapsed"] = (msg.content[key] === true || msg.content[key] === 'true');
                                       }
+                                      else if (key === 'tile_peloton_remaining_enabled') {
+                                        metricsPreference["pelotonremaining"] = (msg.content[key] === true || msg.content[key] === 'true');
+                                      }
                                       else if (key === 'tile_remainingtimetrainprogramrow_enabled') {
                                         metricsPreference["rowremainingtime"] = (msg.content[key] === true || msg.content[key] === 'true');
                                       }
@@ -1150,6 +1153,7 @@
                                                 }
 
                                                 // Update which metrics are displayed based on preferences
+                                                metricsPreference["elapsed"] = metricsPreference["elapsed"] || metricsPreference["pelotonremaining"];
                                                 updateHorizontalMetrics();
 
                                                 return msg.content;
@@ -1424,6 +1428,9 @@
                                                                           row_remaining_time_h: row_remaining_time_h,
                                                                                       row_remaining_time_m: row_remaining_time_m,
                                                                                       row_remaining_time_s: row_remaining_time_s,
+                                                                                      remaining_time_h: remaining_time_h,
+                                                                                      remaining_time_m: remaining_time_m,
+                                                                                      remaining_time_s: remaining_time_s,
                                                                                       resistance: resistance,
                                                                                       resistance_lapavg: resistance_lapavg,
                                                                                       resistance_lapmax: resistance_lapmax,
@@ -1691,6 +1698,11 @@
                                                                                                       $('.horizontal-bar .elapsed-value').html(data.elapsed_h.toString().padStart(2, "0") + ":" +
                                                                                                                              data.elapsed_m.toString().padStart(2, "0") + ":" +
                                                                                                                              data.elapsed_s.toString().padStart(2, "0"));
+                                                                                                      var remainingTime = (data.remaining_time_h > 0 || data.remaining_time_m > 0 || data.remaining_time_s > 0) ?
+                                                                                                        data.remaining_time_h.toString().padStart(2, "0") + ":" +
+                                                                                                        data.remaining_time_m.toString().padStart(2, "0") + ":" +
+                                                                                                        data.remaining_time_s.toString().padStart(2, "0") : "";
+                                                                                                      $('.horizontal-bar .elapsed .metric-avg').html(remainingTime);
                                                                                                     }
 
                                                                                                     // Update remaining time
