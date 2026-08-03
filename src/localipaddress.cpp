@@ -93,6 +93,57 @@ int getIpAddress(JNIEnv *env, jobject wifiInfoObj) {
 }
 #endif
 
+namespace {
+
+// Best guess of our own IPv4 when there is no peer address to match against.
+// Interfaces are scored by type so that virtual adapters (VirtualBox host-only,
+// VPNs, ...) don't win over the real Wi-Fi/Ethernet one.
+QHostAddress bestLocalIPv4() {
+    QHostAddress best;
+    int bestScore = -1;
+
+    const auto interfaces = QNetworkInterface::allInterfaces();
+    for (const QNetworkInterface &networkInterface : interfaces) {
+        const auto flags = networkInterface.flags();
+        if (!flags.testFlag(QNetworkInterface::IsUp) || !flags.testFlag(QNetworkInterface::IsRunning) ||
+            flags.testFlag(QNetworkInterface::IsLoopBack)) {
+            continue;
+        }
+
+        int score;
+        switch (networkInterface.type()) {
+        case QNetworkInterface::Wifi:
+            score = 3;
+            break;
+        case QNetworkInterface::Ethernet:
+            score = 2;
+            break;
+        case QNetworkInterface::Virtual:
+            score = 0;
+            break;
+        default:
+            score = 1;
+            break;
+        }
+
+        const auto entries = networkInterface.addressEntries();
+        for (const QNetworkAddressEntry &entry : entries) {
+            const QHostAddress address = entry.ip();
+            if (address.protocol() != QAbstractSocket::IPv4Protocol || address.isLoopback() ||
+                address.isLinkLocal()) {
+                continue;
+            }
+            if (score > bestScore) {
+                bestScore = score;
+                best = address;
+            }
+        }
+    }
+    return best;
+}
+
+} // namespace
+
 QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
     // Attempt to find the interface that corresponds with the provided
     // address and determine this device's address from the interface
@@ -121,7 +172,14 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
     int ip = getIpAddress(env, wifiInfoObj);
     QHostAddress qip = QHostAddress(qFromBigEndian<quint32>(ip));
     qDebug() << "getIP from JNI" << qip;
-    return qip;
+    // WifiInfo.getIpAddress() returns 0 on Android 10+ and on non-wifi connections
+    if (!qip.isNull() && qip != QHostAddress(QHostAddress::AnyIPv4))
+        return qip;
 #endif
-    return QHostAddress();
+    // No peer address to match against (this is how provider.cpp announces the
+    // mDNS A record), so fall back to enumerating our own interfaces. Without
+    // this the A record is published empty and the service is unreachable.
+    const QHostAddress fallback = bestLocalIPv4();
+    qDebug() << "getIP fallback" << fallback;
+    return fallback;
 }
