@@ -38,12 +38,24 @@ HomeForm {
         property string theme_tile_shadow_color: "#9C27B0"
         property int theme_tile_secondline_textsize: 12
         property bool skipLocationServicesDialog: false
+        property bool trainprogram_sound_on_segment: false
+    }
+
+    SoundEffect {
+        id: trainingProgramSegmentSound
+        source: "qrc:/sounds/training-program-segment.wav"
+        volume: 0.9
+    }
+
+    Connections {
+        target: rootItem
+        onTrainingProgramIntervalSoundRequested: trainingProgramSegmentSound.play()
     }
 
     MessageDialog {
         id: messagePelotonAskStart
-        text: "Peloton Workout in progress"
-        informativeText: "Do you want to follow the resistance? " + rootItem.pelotonProvider
+        text: qsTr("Peloton Workout in progress")
+        informativeText: qsTr("Do you want to follow the resistance? ") + rootItem.pelotonProvider
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {rootItem.pelotonAskStart = false; peloton_start_workout();}
         onNoClicked: {rootItem.pelotonAskStart = false; peloton_abort_workout();}
@@ -91,6 +103,99 @@ HomeForm {
         onNoClicked: close()
     }
 
+    // Optional post-workout popup (settings.rpe_feel_popup_enabled) asking for perceived exertion
+    // and how the user felt. Saving the FIT file (rootItem.finalizeFitSave) is suspended until this
+    // popup is answered, so the values can be embedded in the FIT file before it's written/uploaded.
+    Popup {
+        id: rpeFeelPopup
+        parent: Overlay.overlay
+
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        width: 420
+        height: 340
+        modal: true
+        focus: true
+        palette.text: "white"
+        closePolicy: Popup.NoAutoClose
+
+        property int selectedRpe: 5
+        property int selectedFeel: 50
+        readonly property var rpeLabels: [
+            qsTr("Rest"), qsTr("Very Light"), qsTr("Light"), qsTr("Moderate"),
+            qsTr("Somewhat Hard"), qsTr("Hard"), qsTr("Harder"), qsTr("Very Hard"),
+            qsTr("Very Very Hard"), qsTr("Extremely Hard"), qsTr("Maximum Effort")
+        ]
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 16
+            spacing: 14
+
+            Label {
+                text: qsTr("How was this workout?")
+                font.bold: true
+                font.pixelSize: 18
+                width: parent.width
+                wrapMode: Text.WordWrap
+            }
+
+            Label {
+                text: qsTr("Perceived Exertion (RPE): ") + rpeFeelPopup.selectedRpe + " - " + rpeFeelPopup.rpeLabels[rpeFeelPopup.selectedRpe]
+                width: parent.width
+                wrapMode: Text.WordWrap
+            }
+
+            Slider {
+                id: rpeSlider
+                width: parent.width
+                from: 0
+                to: 10
+                stepSize: 1
+                value: rpeFeelPopup.selectedRpe
+                onValueChanged: rpeFeelPopup.selectedRpe = value
+            }
+
+            Label {
+                text: qsTr("How did you feel?")
+                width: parent.width
+                wrapMode: Text.WordWrap
+            }
+
+            ComboBox {
+                id: feelCombo
+                width: parent.width
+                model: [qsTr("Very Bad"), qsTr("Bad"), qsTr("OK"), qsTr("Good"), qsTr("Very Good")]
+                currentIndex: 2
+                onCurrentIndexChanged: rpeFeelPopup.selectedFeel = currentIndex * 25
+            }
+
+            Row {
+                spacing: 12
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Button {
+                    text: qsTr("Skip")
+                    onClicked: {
+                        rpeFeelPopup.close();
+                        rootItem.finalizeFitSave(-1, -1);
+                        finish_stop();
+                    }
+                }
+
+                Button {
+                    text: qsTr("Save")
+                    highlighted: true
+                    onClicked: {
+                        rpeFeelPopup.close();
+                        rootItem.finalizeFitSave(rpeFeelPopup.selectedRpe, rpeFeelPopup.selectedFeel);
+                        finish_stop();
+                    }
+                }
+            }
+        }
+    }
+
     Timer {
         id: popupLapAutoClose
         interval: 2000; running: false; repeat: false
@@ -107,8 +212,8 @@ HomeForm {
 
     MessageDialog {
         id: locationServicesDialog
-        text: "Permissions Required"
-        informativeText: "QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?"
+        text: qsTr("Permissions Required")
+        informativeText: qsTr("QZ requires both Bluetooth and Location Services to be enabled.\nLocation Services are necessary on Android to allow the app to find Bluetooth devices.\nThe GPS will not be used.\n\nWould you like to enable them?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             locationServiceRequsted = true
@@ -120,8 +225,8 @@ HomeForm {
 
     MessageDialog {
         id: remindLocationServicesDialog
-        text: "Reminder Preference"
-        informativeText: "Would you like to be reminded about enabling Location Services next time?"
+        text: qsTr("Reminder Preference")
+        informativeText: qsTr("Would you like to be reminded about enabling Location Services next time?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: settings.skipLocationServicesDialog = false
         onNoClicked: settings.skipLocationServicesDialog = true
@@ -129,8 +234,8 @@ HomeForm {
     }
 
     MessageDialog {
-        text: "Restart the app"
-        informativeText: "To apply the changes, you need to restart the app.\nWould you like to do that now?"
+        text: qsTr("Restart the app")
+        informativeText: qsTr("To apply the changes, you need to restart the app.\nWould you like to do that now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
@@ -148,6 +253,16 @@ HomeForm {
 
     function inner_stop() {
         stop_clicked();
+        if (rootItem.rpeFeelPopupEnabled()) {
+            rpeFeelPopup.selectedRpe = 5;
+            rpeFeelPopup.selectedFeel = 50;
+            rpeFeelPopup.open();
+        } else {
+            finish_stop();
+        }
+    }
+
+    function finish_stop() {
         rootItem.save_screenshot();
         if(CHARTJS)
             stackView.push("ChartJsTest.qml")
@@ -285,7 +400,11 @@ HomeForm {
                 }
                 text: value
                 horizontalAlignment: Text.AlignHCenter
+                width: Math.max(50, parent.width - (writable ? 100 * settings.ui_zoom / 100 : 12 * settings.ui_zoom / 100))
+                height: 58 * settings.ui_zoom / 100
                 font.pointSize: valueFontSize * settings.ui_zoom / 100
+                fontSizeMode: Text.Fit
+                minimumPointSize: 10
                 font.bold: true
                 visible: !largeButton
 
@@ -303,7 +422,11 @@ HomeForm {
                 }
                 text: secondLine
                 horizontalAlignment: Text.AlignHCenter
+                width: Math.max(50, parent.width - 12 * settings.ui_zoom / 100)
+                height: 24 * settings.ui_zoom / 100
                 font.pointSize: settings.theme_tile_secondline_textsize * settings.ui_zoom / 100
+                fontSizeMode: Text.Fit
+                minimumPointSize: 7
                 font.bold: false
                 visible: !largeButton
 
@@ -314,13 +437,19 @@ HomeForm {
                 id: myText
                 anchors {
                     top: myIcon.top
+                    horizontalCenter: settings.theme_tile_icon_enabled ? undefined : parent.horizontalCenter
+                    left: settings.theme_tile_icon_enabled ? parent.left : undefined
                 }
                 font.bold: true
-                     font.pointSize: labelFontSize
+                font.pointSize: labelFontSize
+                fontSizeMode: Text.Fit
+                minimumPointSize: 8
                 color: "white"
                 text: name
-                anchors.left: parent.left
-                anchors.leftMargin: 55 * settings.ui_zoom / 100
+                horizontalAlignment: settings.theme_tile_icon_enabled ? Text.AlignLeft : Text.AlignHCenter
+                anchors.leftMargin: settings.theme_tile_icon_enabled ? 55 * settings.ui_zoom / 100 : 0
+                width: Math.max(40, parent.width - (settings.theme_tile_icon_enabled ? 61 : 12) * settings.ui_zoom / 100)
+                height: 40 * settings.ui_zoom / 100
                 anchors.topMargin: 20 * settings.ui_zoom / 100
                 visible: !largeButton
 

@@ -39,14 +39,16 @@ class cscbike : public bike {
     bool connected() override;
     bool isJorotoBike() const { return jorotoBike; }
     void enableManualResistancePowerAdjustment(resistance_t resistance);
+    static uint16_t customResistanceAdjustedWatts(double cadence, resistance_t resistance);
+    static resistance_t customResistanceMax();
+    static bool useCustomResistancePowerTable();
+    static resistance_t clampedCustomResistance(resistance_t resistance);
 
   private:
     //    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false, //Unused
     //                             bool wait_for_response = false);
     void startDiscover();
     uint16_t watts() override;
-    bool useCustomResistancePowerTable() const;
-    resistance_t clampedCustomResistance(resistance_t resistance) const;
 
     QTimer *refresh;
 
@@ -84,7 +86,6 @@ class cscbike : public bike {
 #endif
 
     uint16_t manualResistanceAdjustedWatts();
-    uint16_t customResistanceAdjustedWatts();
     double manualResistancePowerMultiplier();
 
   signals:
@@ -113,7 +114,4 @@ class cscbike : public bike {
 };
 
 #endif // CSCBIKE_H
-
-
-
 

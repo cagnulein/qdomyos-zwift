@@ -658,6 +658,12 @@ void DeviceTestDataIndex::Initialize() {
         ->excluding(ftmsBikeConfigureExclusions)
         ->configureSettingsWith(QBluetoothUuid((quint16)0x1826));
 
+    // FTMS Bike Horizon 5.0R
+    RegisterNewDeviceTestData(DeviceIndex::FTMSBikeHorizon5R)
+        ->expectDevice<ftmsbike>()
+        ->acceptDeviceName("JFBK5.0R", DeviceNameComparison::IgnoreCase)
+        ->excluding(ftmsBikeConfigureExclusions);
+
     // FTMS Rower
     RegisterNewDeviceTestData(DeviceIndex::FTMSRower)
         ->expectDevice<ftmsrower>()        
@@ -1115,7 +1121,8 @@ void DeviceTestDataIndex::Initialize() {
     // Sole Bike
     RegisterNewDeviceTestData(DeviceIndex::SoleBike)
         ->expectDevice<solebike>()
-        ->acceptDeviceNames({"LCB", "R92"}, DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceNames({"LCB", "LCR", "R92"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith(QZSettings::ftms_bike, QZSettings::default_ftms_bike, "XX");
 
     // Sole Elliptical
     RegisterNewDeviceTestData(DeviceIndex::SoleElliptical)
@@ -1154,6 +1161,11 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::SportsPlusBike)
         ->expectDevice<sportsplusbike>()        
         ->acceptDeviceName("CARDIOFIT", DeviceNameComparison::StartsWithIgnoreCase);
+
+    // Sports Plus Rower
+    RegisterNewDeviceTestData(DeviceIndex::SportsPlusRower)
+        ->expectDevice<sportsplusrower>()
+        ->acceptDeviceName("CARE10692135", DeviceNameComparison::IgnoreCase);
 
     // Sports Tech Bike
     RegisterNewDeviceTestData(DeviceIndex::SportsTechBike)

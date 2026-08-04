@@ -336,10 +336,26 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     lastPacket = value;
 
     if(characteristic.uuid() == QBluetoothUuid((quint16)0x2a53) && value.length() >= 4) {
-        evaluateStepCount();
-        parseCadence(value.at(3));
-        cadenceAvailable = true;
-        emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+        bool hasExternalCadenceSensor =
+            !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                 .toString()
+                 .startsWith(QStringLiteral("Disabled"));
+        bool ignoreTreadmillCadence =
+            settings.value(QZSettings::power_sensor_cadence_instead_treadmill,
+                           QZSettings::default_power_sensor_cadence_instead_treadmill)
+                .toBool();
+        bool garminCompanionEnabled =
+            settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
+
+        if (!hasExternalCadenceSensor && !ignoreTreadmillCadence && !garminCompanionEnabled) {
+            evaluateStepCount();
+            parseCadence((uint8_t)value.at(3));
+            cadenceAvailable = true;
+            emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+        } else {
+            emit debug(QStringLiteral("Current cadence from treadmill ignored due to settings/external source"));
+        }
+        cadenceFromAppleWatch();
         return;
     }
 
@@ -540,7 +556,9 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
                 {
                     if (settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString().startsWith(QStringLiteral("Disabled"))) {
-                        if (heart == 0 || disable_hr_frommachinery)
+                        bool garminCompanionEnabledForHeart =
+                            settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
+                        if (heart == 0 || disable_hr_frommachinery || garminCompanionEnabledForHeart)
                             update_hr_from_external();
                         else 
                             Heart = heart;
@@ -648,7 +666,11 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         bool hasPowerSensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                                   .toString()
                                   .startsWith(QStringLiteral("Disabled"));
-        if (!hasPowerSensor && !garminCompanion) {
+        bool hasCadenceSensor =
+            !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                 .toString()
+                 .startsWith(QStringLiteral("Disabled"));
+        if (!hasPowerSensor && !hasCadenceSensor && !garminCompanion) {
             double calculatedCadence = calculateCadenceFromSpeed(Speed.value());
             if (calculatedCadence > 0) {
                 if (!stepCountAvailable)

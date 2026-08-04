@@ -19,6 +19,7 @@
 #endif
 #include <QtCore/qlist.h>
 #include <QtCore/qmutex.h>
+#include <QtCore/qqueue.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
@@ -34,6 +35,15 @@ class wahookickrheadwind : public bluetoothdevice {
     bool connected() override;
 
   private:
+    struct WriteRequest {
+        QLowEnergyService *service;
+        QLowEnergyCharacteristic writeChar;
+        QByteArray data;
+        QString info;
+        bool disable_log;
+        bool wait_for_response;
+    };
+
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
@@ -45,6 +55,7 @@ class wahookickrheadwind : public bluetoothdevice {
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic *writeChar, uint8_t *data,
                              uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    void processWriteQueue();
 
     bluetoothdevice *parentDevice = nullptr;
 
@@ -52,6 +63,10 @@ class wahookickrheadwind : public bluetoothdevice {
     bool initRequest = false;
 
     QTimer *refresh;
+    QQueue<WriteRequest> writeQueue;
+    bool isWriting = false;
+    bool currentWriteWaitingForResponse = false;
+    QTimer *writeTimeoutTimer = nullptr;
 
   signals:
     void disconnected();

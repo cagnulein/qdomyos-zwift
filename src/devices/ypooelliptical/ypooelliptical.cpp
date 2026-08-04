@@ -133,6 +133,10 @@ void ypooelliptical::update() {
         if(E35 || SCH_590E || SCH_411_510E || KETTLER || CARDIOPOWER_EEGO || MYELLIPTICAL || SKANDIKA || DOMYOS || FEIER || MX_AS || FTMS || SOLE_E25 || TRUE_ELLIPTICAL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write), "requestControl", false, true);
+            if(FEIER || FTMS) {
+                write[0] = FTMS_START_RESUME;
+                writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write), "startResume", false, true);
+            }
         } else {
             uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
             uint8_t init2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
@@ -1045,7 +1049,7 @@ void ypooelliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, c
         if(!iconsole_elliptical)
             initRequest = true;
         emit connectedAndDiscovered();
-    } else if(E35) {
+    } else if(gattFTMSService != nullptr) {
         initRequest = true;
         emit connectedAndDiscovered();
     }

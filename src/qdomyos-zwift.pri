@@ -150,6 +150,7 @@ virtualdevices/virtualdevice.cpp \
 androidactivityresultreceiver.cpp \
 androidadblog.cpp \
 devices/apexbike/apexbike.cpp \
+devices/volavabike/volavabike.cpp \
 handleurl.cpp \
 devices/iconceptelliptical/iconceptelliptical.cpp \
 localipaddress.cpp \
@@ -162,6 +163,7 @@ devices/ziprotreadmill/ziprotreadmill.cpp \
 zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
 devices/kettlerusbbike/KettlerUSB.cpp \
+devices/freebeatbike/FreebeatUSB.cpp \
 PathController.cpp \
 characteristics/characteristicnotifier2a53.cpp \
 characteristics/characteristicnotifier2a5b.cpp \
@@ -172,6 +174,7 @@ characteristics/characteristicwriteprocessor.cpp \
 characteristics/characteristicwriteprocessore005.cpp \
 devices/computrainerbike/computrainerbike.cpp \
 devices/kettlerusbbike/kettlerusbbike.cpp \
+devices/freebeatbike/freebeatbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.cpp \
@@ -264,6 +267,7 @@ gpx.cpp \
 devices/heartratebelt/heartratebelt.cpp \
 homefitnessbuddy.cpp \
 homeform.cpp \
+mywhooshlink.cpp \
 garminconnect.cpp \
 devices/horizongr7bike/horizongr7bike.cpp \
 devices/horizontreadmill/horizontreadmill.cpp \
@@ -299,6 +303,7 @@ simplecrypt.cpp \
 devices/skandikawiribike/skandikawiribike.cpp \
 devices/smartrowrower/smartrowrower.cpp \
 devices/smartspin2k/smartspin2k.cpp \
+devices/waterrowerusb/waterrowerusb.cpp \
 smtpclient/src/emailaddress.cpp \
 smtpclient/src/mimeattachment.cpp \
 smtpclient/src/mimecontentformatter.cpp \
@@ -325,7 +330,9 @@ devices/technogymmyruntreadmill/technogymmyruntreadmill.cpp \
 devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.cpp \
 templateinfosender.cpp \
 templateinfosenderbuilder.cpp \
+webtranslation.cpp \
 devices/stagesbike/stagesbike.cpp \
+devices/kettlerc12bike/kettlerc12bike.cpp \
 devices/toorxtreadmill/toorxtreadmill.cpp \
 devices/iconsolebike/iconsolebike.cpp \
 devices/treadmill.cpp \
@@ -460,6 +467,7 @@ virtualdevices/virtualdevice.h \
 androidactivityresultreceiver.h \
 androidadblog.h \
 devices/apexbike/apexbike.h \
+devices/volavabike/volavabike.h \
 devices/discoveryoptions.h \
 handleurl.h \
 devices/iconceptelliptical/iconceptelliptical.h \
@@ -471,6 +479,7 @@ devices/ypooelliptical/ypooelliptical.h \
 devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
 devices/kettlerusbbike/KettlerUSB.h \
+devices/freebeatbike/FreebeatUSB.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
 characteristics/characteristicnotifier2a5b.h \
@@ -480,6 +489,7 @@ characteristics/characteristicnotifier2ad9.h \
 characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
 devices/kettlerusbbike/kettlerusbbike.h \
+devices/freebeatbike/freebeatbike.h \
 definitions.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \
@@ -783,9 +793,11 @@ fit-sdk/fit_zones_target_mesg.hpp \
 fit-sdk/fit_zones_target_mesg_listener.hpp \
 devices/flywheelbike/flywheelbike.h \
 devices/ftmsbike/ftmsbike.h \
+devices/ftmsbike/horizon5r_defaults.h \
 devices/ftmsbike/speedracex_defaults.h \
 devices/heartratebelt/heartratebelt.h \
 homeform.h \
+mywhooshlink.h \
 garminconnect.h \
 devices/horizontreadmill/horizontreadmill.h \
 devices/inspirebike/inspirebike.h \
@@ -821,6 +833,7 @@ simplecrypt.h \
 devices/skandikawiribike/skandikawiribike.h \
 devices/smartrowrower/smartrowrower.h \
 devices/smartspin2k/smartspin2k.h \
+devices/waterrowerusb/waterrowerusb.h \
 smtpclient/src/SmtpMime \
 smtpclient/src/emailaddress.h \
 smtpclient/src/mimeattachment.h \
@@ -849,7 +862,9 @@ devices/technogymmyruntreadmill/technogymmyruntreadmill.h \
 devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.h \
 templateinfosender.h \
 templateinfosenderbuilder.h \
+webtranslation.h \
 devices/stagesbike/stagesbike.h \
+devices/kettlerc12bike/kettlerc12bike.h \
 devices/toorxtreadmill/toorxtreadmill.h \
 devices/iconsolebike/iconsolebike.h \
 gpx.h \
@@ -881,9 +896,49 @@ exists(secret.h): HEADERS += secret.h
    charts.ui \
 	mainwindow.ui
 
+# Translation files - 30 most used languages worldwide
+CONFIG += lrelease
+LRELEASE_DIR = $$PWD/translations
+
+TRANSLATIONS += \
+    $$PWD/translations/qdomyos-zwift_it.ts \
+    $$PWD/translations/qdomyos-zwift_de.ts \
+    $$PWD/translations/qdomyos-zwift_fr.ts \
+    $$PWD/translations/qdomyos-zwift_es.ts \
+    $$PWD/translations/qdomyos-zwift_pt.ts \
+    $$PWD/translations/qdomyos-zwift_pt_BR.ts \
+    $$PWD/translations/qdomyos-zwift_ru.ts \
+    $$PWD/translations/qdomyos-zwift_zh_CN.ts \
+    $$PWD/translations/qdomyos-zwift_zh_TW.ts \
+    $$PWD/translations/qdomyos-zwift_ja.ts \
+    $$PWD/translations/qdomyos-zwift_ko.ts \
+    $$PWD/translations/qdomyos-zwift_ar.ts \
+    $$PWD/translations/qdomyos-zwift_hi.ts \
+    $$PWD/translations/qdomyos-zwift_tr.ts \
+    $$PWD/translations/qdomyos-zwift_vi.ts \
+    $$PWD/translations/qdomyos-zwift_pl.ts \
+    $$PWD/translations/qdomyos-zwift_uk.ts \
+    $$PWD/translations/qdomyos-zwift_nl.ts \
+    $$PWD/translations/qdomyos-zwift_th.ts \
+    $$PWD/translations/qdomyos-zwift_id.ts \
+    $$PWD/translations/qdomyos-zwift_ro.ts \
+    $$PWD/translations/qdomyos-zwift_cs.ts \
+    $$PWD/translations/qdomyos-zwift_el.ts \
+    $$PWD/translations/qdomyos-zwift_sv.ts \
+    $$PWD/translations/qdomyos-zwift_hu.ts \
+    $$PWD/translations/qdomyos-zwift_fi.ts \
+    $$PWD/translations/qdomyos-zwift_no.ts \
+    $$PWD/translations/qdomyos-zwift_da.ts \
+    $$PWD/translations/qdomyos-zwift_he.ts \
+    $$PWD/translations/qdomyos-zwift_ca.ts
+
+# Qt compiles .ts to .qm files before building the resource file.
+# .qm files are ignored by git and embedded through translations.qrc.
+
 RESOURCES += \
    icons.qrc \
-	qml.qrc
+	qml.qrc \
+	translations.qrc
 
 DISTFILES += \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
@@ -1022,4 +1077,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.21.2
+VERSION = 2.21.6
