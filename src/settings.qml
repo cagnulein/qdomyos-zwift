@@ -1737,7 +1737,6 @@ import AndroidStatusBar 1.0
             property int mywhoosh_link_emote_value: 1
             property bool waterrower_usb: false
             property string freebeat_serialport: ""
-            property string strava_current_user_id: ""
         }
 
 

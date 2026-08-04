@@ -26,6 +26,7 @@ SOURCES += \
         ToolTests/testsettingstestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
         ToolTests/zwiftworkouttestsuite.cpp \
+        ToolTests/profiletokenstoresuite.cpp \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
         Devices/TestSchwinn411510EParser.cpp \
@@ -72,6 +73,7 @@ HEADERS += \
     ToolTests/testsettingstestsuite.h \
     ToolTests/testtrainingloadtestsuite.h \
     ToolTests/zwiftworkouttestsuite.h \
+    ToolTests/profiletokenstoresuite.h \
     Tools/devicetypeid.h \
     Tools/testsettings.h \
     Tools/typeidgenerator.h
