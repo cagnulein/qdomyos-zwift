@@ -131,6 +131,8 @@
 		870A5DB32CEF8FB100839641 /* moc_technogymbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870A5DB22CEF8FB100839641 /* moc_technogymbike.cpp */; };
 		870A5DB52CEF8FD200839641 /* technogymbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870A5DB42CEF8FD200839641 /* technogymbike.cpp */; };
 		870C72652E91565E00DC8A84 /* ios_liveactivity.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870C72632E91565E00DC8A84 /* ios_liveactivity.mm */; };
+		87BA10032F0000010000BA03 /* ios_background_keepalive.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BA10022F0000010000BA02 /* ios_background_keepalive.mm */; };
+		87BA10052F0000010000BA05 /* ios_bluetooth_background.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BA10042F0000010000BA04 /* ios_bluetooth_background.mm */; };
 		870F72D62FDEC0FD00181280 /* webtranslation.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870F72D52FDEC0FD00181280 /* webtranslation.cpp */; };
 		8710706C29C48AEA0094D0F3 /* handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706B29C48AEA0094D0F3 /* handleurl.cpp */; };
 		8710706E29C48AF30094D0F3 /* moc_handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */; };
@@ -1024,6 +1026,9 @@
 		870A5DB42CEF8FD200839641 /* technogymbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = technogymbike.cpp; path = ../src/devices/technogymbike/technogymbike.cpp; sourceTree = SOURCE_ROOT; };
 		870C72622E91565E00DC8A84 /* ios_liveactivity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_liveactivity.h; path = ../src/ios/ios_liveactivity.h; sourceTree = SOURCE_ROOT; };
 		870C72632E91565E00DC8A84 /* ios_liveactivity.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_liveactivity.mm; path = ../src/ios/ios_liveactivity.mm; sourceTree = SOURCE_ROOT; };
+		87BA10012F0000010000BA01 /* ios_background_keepalive.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_background_keepalive.h; path = ../src/ios/ios_background_keepalive.h; sourceTree = SOURCE_ROOT; };
+		87BA10022F0000010000BA02 /* ios_background_keepalive.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_background_keepalive.mm; path = ../src/ios/ios_background_keepalive.mm; sourceTree = SOURCE_ROOT; };
+		87BA10042F0000010000BA04 /* ios_bluetooth_background.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_bluetooth_background.mm; path = ../src/ios/ios_bluetooth_background.mm; sourceTree = SOURCE_ROOT; };
 		870F72D52FDEC0FD00181280 /* webtranslation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = webtranslation.cpp; path = ../src/webtranslation.cpp; sourceTree = SOURCE_ROOT; };
 		8710706A29C48AE90094D0F3 /* handleurl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = handleurl.h; path = ../src/handleurl.h; sourceTree = "<group>"; };
 		8710706B29C48AEA0094D0F3 /* handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = handleurl.cpp; path = ../src/handleurl.cpp; sourceTree = "<group>"; };
@@ -2425,6 +2430,9 @@
 				87EFC57C2E918DAA005BB573 /* LiveActivityBridge.swift */,
 				870C72622E91565E00DC8A84 /* ios_liveactivity.h */,
 				870C72632E91565E00DC8A84 /* ios_liveactivity.mm */,
+				87BA10012F0000010000BA01 /* ios_background_keepalive.h */,
+				87BA10022F0000010000BA02 /* ios_background_keepalive.mm */,
+				87BA10042F0000010000BA04 /* ios_bluetooth_background.mm */,
 				876C646E2E74139F00F1BEC0 /* fitbackupwriter.h */,
 				876C646F2E74139F00F1BEC0 /* fitbackupwriter.cpp */,
 				876C64702E74139F00F1BEC0 /* moc_fitbackupwriter.cpp */,
@@ -3790,6 +3798,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				870C72652E91565E00DC8A84 /* ios_liveactivity.mm in Compile Sources */,
+				87BA10032F0000010000BA03 /* ios_background_keepalive.mm in Compile Sources */,
+				87BA10052F0000010000BA05 /* ios_bluetooth_background.mm in Compile Sources */,
 				8738249627E646E3004F1B46 /* characteristicnotifier2acd.cpp in Compile Sources */,
 				8738249127E646E3004F1B46 /* dirconpacket.cpp in Compile Sources */,
 				870A5DB52CEF8FD200839641 /* technogymbike.cpp in Compile Sources */,

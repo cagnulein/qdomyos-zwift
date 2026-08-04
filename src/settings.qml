@@ -1737,6 +1737,7 @@ import AndroidStatusBar 1.0
             property int mywhoosh_link_emote_value: 1
             property bool waterrower_usb: false
             property string freebeat_serialport: ""
+            property bool ios_background_keepalive: true
         }
 
 
@@ -16051,6 +16052,33 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("If you are experiencing crash on iOS midride, try to turn this on. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    IndicatorOnlySwitch {
+                        text: qsTr("iOS Background Keep Alive")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_background_keepalive
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.ios_background_keepalive = checked; }
+                    }
+
+                    Label {
+                        text: qsTr("iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don't freeze. It uses a silent audio track mixed with your music, so nothing you're listening to is interrupted. Turn it off only if you don't need to train with the screen locked. Default is on.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
