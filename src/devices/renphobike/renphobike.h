@@ -47,7 +47,8 @@ class renphobike : public bike {
     // -- renphobike never overrides virtualbike's default bikeResistanceGain/bikeResistanceOffset,
     // so those defaults (1.0 / 4) are used here too.
     static double autoResistanceFromSlope(int16_t iresistance, uint8_t crr, uint8_t cw, double CRRGain,
-                                          double CWGain);
+                                          double CWGain, double bikeResistanceGain = 1.0,
+                                          int bikeResistanceOffset = 4);
 
     // Reconciles QZ's virtual gear with the physical RENPHO resistance knob.
     //

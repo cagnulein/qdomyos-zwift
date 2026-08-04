@@ -33,6 +33,19 @@ TEST(RenphoAutoResistanceFromSlopeTest, MatchesRealRideLogValues) {
     EXPECT_DOUBLE_EQ(renphobike::autoResistanceFromSlope(754, 0, 0, 0.0, 0.0), 16.0);
 }
 
+TEST(RenphoAutoResistanceFromSlopeTest, FlatGroundBaselineIsTunable) {
+    // With the defaults a 0% grade lands on resistance 5, which testers reported as far too
+    // light on a RENPHO whose physical dial goes to 20 (issue #4873). The rider's configured
+    // "Bike Resistance Offset/Gain" must shift that baseline, so this is tunable rather than
+    // hardcoded -- renphobike previously ignored those settings entirely.
+    EXPECT_DOUBLE_EQ(renphobike::autoResistanceFromSlope(0, 0, 0, 0.0, 0.0), 5.0);
+    EXPECT_DOUBLE_EQ(renphobike::autoResistanceFromSlope(0, 0, 0, 0.0, 0.0, 1.0, 10), 11.0);
+
+    // Gain scales how strongly grade swings the resistance around that baseline.
+    EXPECT_DOUBLE_EQ(renphobike::autoResistanceFromSlope(400, 0, 0, 0.0, 0.0, 1.0, 4), 11.0);
+    EXPECT_DOUBLE_EQ(renphobike::autoResistanceFromSlope(400, 0, 0, 0.0, 0.0, 2.0, 4), 17.0);
+}
+
 TEST(RenphoAutoResistanceFromSlopeTest, CRRAndCWGainsAreOffByDefault) {
     // CRRGain/CWGain default to 0 in QZSettings, so an arbitrary crr byte must not perturb the
     // result unless the user has explicitly tuned those gains.

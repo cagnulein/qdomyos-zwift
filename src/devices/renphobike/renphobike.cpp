@@ -75,14 +75,13 @@ void renphobike::forcePower(int16_t requestPower) {
 }
 
 double renphobike::autoResistanceFromSlope(int16_t iresistance, uint8_t crr, uint8_t cw, double CRRGain,
-                                           double CWGain) {
-    // Mirrors CharacteristicWriteProcessor::changeSlope(), using virtualbike's default
-    // bikeResistanceGain (1.0) / bikeResistanceOffset (4), since renphobike never overrides
-    // them when it creates its virtualbike. NOTE: CW_offset intentionally uses `crr`, not
-    // `cw`, matching the (pre-existing) formula in changeSlope() exactly.
+                                           double CWGain, double bikeResistanceGain, int bikeResistanceOffset) {
+    // Mirrors CharacteristicWriteProcessor::changeSlope(). gain/offset come from the user's
+    // "Bike Resistance Gain/Offset" settings so the flat-ground baseline is tunable: with the
+    // defaults (1.0 / 4) a 0% grade lands on resistance 5, which several riders find too light
+    // (issue #4873). NOTE: CW_offset intentionally uses `crr`, not `cw`, matching the
+    // (pre-existing) formula in changeSlope() exactly.
     Q_UNUSED(cw);
-    const double bikeResistanceGain = 1.0;
-    const int bikeResistanceOffset = 4;
 
     const double resistance = ((double)iresistance * 1.5) / 100.0;
     const double CRR_offset = ((crr - 40) * 0.05) * CRRGain;
@@ -358,7 +357,13 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
                           " vs expected " + QString::number(resistanceReconciler.expectedResistance) +
                           ", moving gears from " + QString::number(gears()) + " to " + QString::number(newGear));
                     setGears(newGear);
-                    resistanceReconciler.setExpected(m_autoResistanceBaseline * difficult() + gearsModifier());
+                    double newTarget = m_autoResistanceBaseline * difficult() + gearsModifier();
+                    resistanceReconciler.setExpected(newTarget);
+                    // the bike is already sitting on the value the rider dialled in, which is
+                    // exactly the new target: record it so the next unchanged grade doesn't
+                    // trigger a pointless re-write of a value the bike already holds.
+                    m_lastWrittenResistance =
+                        (resistance_t)qBound(1.0, round(newTarget), (double)max_resistance);
                 } else {
                     // gearsModifier() isn't a simple additive offset here (custom table or
                     // zwift-ratio clamping), so an exact inverse isn't well defined: skip
@@ -677,8 +682,15 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
                 uint8_t cw = (uint8_t)lastFTMSPacketReceived.at(6);
                 double CRRGain = settings.value(QZSettings::CRRGain, QZSettings::default_CRRGain).toDouble();
                 double CWGain = settings.value(QZSettings::CWGain, QZSettings::default_CWGain).toDouble();
+                double bikeResistanceGain =
+                    settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                        .toDouble();
+                int bikeResistanceOffset =
+                    settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                        .toInt();
 
-                m_autoResistanceBaseline = autoResistanceFromSlope(slope, crr, cw, CRRGain, CWGain);
+                m_autoResistanceBaseline =
+                    autoResistanceFromSlope(slope, crr, cw, CRRGain, CWGain, bikeResistanceGain, bikeResistanceOffset);
                 double target = m_autoResistanceBaseline * difficult() + gearsModifier();
                 resistanceReconciler.setExpected(target);
 
