@@ -4677,6 +4677,13 @@ void homeform::LargeButton(const QString &name) {
     if (!bluetoothManager || !bluetoothManager->device())
         return;
 
+    if (name.startsWith(QStringLiteral("preset_powerzone_")) || name.contains(QStringLiteral("target_power")) ||
+        name.contains(QStringLiteral("target_zone"))) {
+        settings.setValue(QZSettings::zwift_erg, true);
+    } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("inclination"))) {
+        settings.setValue(QZSettings::zwift_erg, false);
+    }
+
     if (bluetoothManager->device()->deviceType() == BIKE || 
         bluetoothManager->device()->deviceType() == ELLIPTICAL ||
         bluetoothManager->device()->deviceType() == ROWING) {
@@ -5155,6 +5162,11 @@ void homeform::Plus(const QString &name) {
 
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     qDebug() << QStringLiteral("Plus") << name;
+    if (name.contains(QStringLiteral("target_power")) || name.contains(QStringLiteral("target_zone"))) {
+        settings.setValue(QZSettings::zwift_erg, true);
+    } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("inclination"))) {
+        settings.setValue(QZSettings::zwift_erg, false);
+    }
     if (name.contains(QStringLiteral("target_speed")) || name.contains(QStringLiteral("target_pace"))) {
         if (bluetoothManager->device()) {
 
@@ -5458,6 +5470,11 @@ void homeform::Minus(const QString &name) {
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     qDebug() << QStringLiteral("Minus") << name;
+    if (name.contains(QStringLiteral("target_power")) || name.contains(QStringLiteral("target_zone"))) {
+        settings.setValue(QZSettings::zwift_erg, true);
+    } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("inclination"))) {
+        settings.setValue(QZSettings::zwift_erg, false);
+    }
     if (name.contains(QStringLiteral("target_speed")) || name.contains(QStringLiteral("target_pace"))) {
         if (bluetoothManager->device()) {
 
