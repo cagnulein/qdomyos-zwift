@@ -11,6 +11,8 @@ TEST(ApexBikeWlt8266BmRegressionTest, DistanceCounterMetricsAreScopedToBluetooth
     EXPECT_TRUE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("wlt8266bm_025b")));
     EXPECT_TRUE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("WLT8266BM_0000")));
 
+    EXPECT_FALSE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("WLT8266BM_07E2")));
+    EXPECT_FALSE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("wlt8266bm_07e2")));
     EXPECT_FALSE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("WLT8266BM")));
     EXPECT_FALSE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("WLT8266BM025B")));
     EXPECT_FALSE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("APEX Bike")));
