@@ -686,7 +686,16 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
                 debug("Renpho auto resistance from slope " + QString::number(slope) + " = " +
                       QString::number(m_autoResistanceBaseline) + ", + gears " + QString::number(gearsModifier()) +
                       " = " + QString::number(target));
-                forceResistance(clampedTarget);
+                // ROUVY re-sends simulation params every 1-3s even when nothing actually
+                // changed (77% of writes were redundant in a real ride log): only write to the
+                // bike when the target actually moves, so the physical knob isn't fought by a
+                // periodic re-assertion of a stale value it never got a chance to override.
+                if (clampedTarget != m_lastWrittenResistance) {
+                    forceResistance(clampedTarget);
+                    m_lastWrittenResistance = clampedTarget;
+                } else {
+                    debug("Renpho auto resistance unchanged, skipping redundant write");
+                }
                 return; // the target resistance was already written directly, don't also forward the slope packet
             }
 

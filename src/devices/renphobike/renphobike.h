@@ -100,6 +100,7 @@ class renphobike : public bike {
     double lastPowerRequestedFactor = 1;
     ResistanceReconciler resistanceReconciler;
     double m_autoResistanceBaseline = 0.0; // last autoResistanceFromSlope() result
+    resistance_t m_lastWrittenResistance = -1; // last value actually sent via forceResistance()
 
     bool initDone = false;
     bool initRequest = false;
