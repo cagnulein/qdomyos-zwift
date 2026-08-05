@@ -13,10 +13,10 @@
 using namespace std::chrono_literals;
 
 bool apexbike::usesWlt8266bmDistanceCounterMetrics(const QString &deviceName) {
-    // WLT8266BM_07E2 reports real cadence/distance in 0x31 packets.
-    // Its 0x30 packet is only a counter and must not be used as distance.
-    return deviceName.startsWith(QStringLiteral("WLT8266BM_"), Qt::CaseInsensitive) &&
-           deviceName.compare(QStringLiteral("WLT8266BM_07E2"), Qt::CaseInsensitive) != 0;
+    // WLT8266BM bikes report cadence and distance in 0x31 packets.
+    // Their 0x30 packet is a counter and must not be used as distance.
+    Q_UNUSED(deviceName);
+    return false;
 }
 
 bool apexbike::isWlt8266bmDistanceCounterMetricsPacket(const QString &deviceName, const QByteArray &newValue) {
