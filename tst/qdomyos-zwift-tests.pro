@@ -23,6 +23,7 @@ SOURCES += \
         GarminConnect/garminconnecttestsuite.cpp \
         TrainingProgram/trainprogramtestsuite.cpp \
         ToolTests/qfittestsuite.cpp \
+        ToolTests/dircontestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
         ToolTests/zwiftworkouttestsuite.cpp \
@@ -69,6 +70,7 @@ HEADERS += \
     GarminConnect/garminconnecttestsuite.h \
     TrainingProgram/trainprogramtestsuite.h \
     ToolTests/qfittestsuite.h \
+    ToolTests/dircontestsuite.h \
     ToolTests/testsettingstestsuite.h \
     ToolTests/testtrainingloadtestsuite.h \
     ToolTests/zwiftworkouttestsuite.h \

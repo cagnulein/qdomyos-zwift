@@ -280,48 +280,60 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
 }
 
 void DirconProcessor::tcpDataAvailable() {
-    QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
-    DirconProcessorClient *client = clientsMap.value(socket);
+    QObject *source = sender();
+    if (!source)
+        return;
+
+    // A queued readyRead callback can arrive after tcpDisconnected() removed
+    // the socket from clientsMap() and scheduled it for deletion. Do not use
+    // qobject_cast() or dereference the socket until it is known to be active.
+    QTcpSocket *socket = static_cast<QTcpSocket *>(source);
+    auto clientIt = clientsMap.constFind(socket);
+    if (clientIt == clientsMap.constEnd() || !clientIt.value()) {
+        qDebug() << "Ignoring stale Dircon data callback for" << serverName;
+        return;
+    }
+
+    DirconProcessorClient *client = clientIt.value();
     QByteArray data = socket->readAll();
     qDebug() << "Data available for uuid " << serverName << ":" << data.toHex();
-    if (client) {
-        int buflimit, rembuf;
-        client->buffer.append(data);
-        while (1) {
-            DirconPacket pkt;
-            buflimit = pkt.parse(client->buffer, client->seq);
-            qDebug() << "Pkt for uuid" << serverName << "parsed rv=" << buflimit << " ->" << pkt;
-            if (buflimit > 0) {
-                rembuf = buflimit;
-                if (pkt.isRequest)
-                    client->seq = pkt.SequenceNumber;
-                else if (pkt.Identifier != DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION)
-                    client->seq += 1;
-            } else if (buflimit < DPKT_PARSE_ERROR) {
-                rembuf = -buflimit - DPKT_PARSE_ERROR;
-                qDebug() << "Unexpected packet" << client->buffer.mid(0, rembuf).toHex();
-            } else
-                rembuf = -1;
-            if (rembuf >= 0)
-                client->buffer = client->buffer.mid(rembuf);
-            if (buflimit > 0) {
-                DirconPacket resp = processPacket(client, pkt);
-                qDebug() << "Sending resp for uuid" << serverName << ":" << resp;
-                if (resp.Identifier != DPKT_MSGID_ERROR) {
-                    QByteArray byteout = resp.encode(pkt.SequenceNumber);
-                    if (byteout.size() && client && client->sock)
-                        client->sock->write(byteout);
-                }
-            } else if (rembuf >= 0) {
-                DirconPacket resp;
-                resp.isRequest = false;
-                resp.ResponseCode = DPKT_RESPCODE_UNEXPECTED_ERROR;
-                resp.Identifier = pkt.Identifier;
+
+    int buflimit, rembuf;
+    client->buffer.append(data);
+    while (1) {
+        DirconPacket pkt;
+        buflimit = pkt.parse(client->buffer, client->seq);
+        qDebug() << "Pkt for uuid" << serverName << "parsed rv=" << buflimit << " ->" << pkt;
+        if (buflimit > 0) {
+            rembuf = buflimit;
+            if (pkt.isRequest)
+                client->seq = pkt.SequenceNumber;
+            else if (pkt.Identifier != DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION)
+                client->seq += 1;
+        } else if (buflimit < DPKT_PARSE_ERROR) {
+            rembuf = -buflimit - DPKT_PARSE_ERROR;
+            qDebug() << "Unexpected packet" << client->buffer.mid(0, rembuf).toHex();
+        } else
+            rembuf = -1;
+        if (rembuf >= 0)
+            client->buffer = client->buffer.mid(rembuf);
+        if (buflimit > 0) {
+            DirconPacket resp = processPacket(client, pkt);
+            qDebug() << "Sending resp for uuid" << serverName << ":" << resp;
+            if (resp.Identifier != DPKT_MSGID_ERROR) {
                 QByteArray byteout = resp.encode(pkt.SequenceNumber);
                 if (byteout.size() && client && client->sock)
                     client->sock->write(byteout);
-            } else
-                break;
-        }
+            }
+        } else if (rembuf >= 0) {
+            DirconPacket resp;
+            resp.isRequest = false;
+            resp.ResponseCode = DPKT_RESPCODE_UNEXPECTED_ERROR;
+            resp.Identifier = pkt.Identifier;
+            QByteArray byteout = resp.encode(pkt.SequenceNumber);
+            if (byteout.size() && client && client->sock)
+                client->sock->write(byteout);
+        } else
+            break;
     }
 }
