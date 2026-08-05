@@ -55,6 +55,7 @@ class wahookickruntreadmill : public treadmill {
 
     wahookickruntreadmill(bool noWriteResistance, bool noHeartService);
     static FtmsTreadmillData parseFtmsTreadmillData(const QByteArray &data);
+    static QByteArray encodeFtmsInclination(double inclination);
     bool connected() override;
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;

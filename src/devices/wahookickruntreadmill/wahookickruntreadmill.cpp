@@ -113,10 +113,7 @@ void wahookickruntreadmill::forceIncline(double requestIncline) {
     if (noWriteResistance)
         return;
 
-    if (requestIncline < 0.0)
-        requestIncline = 0.0;
-    if (requestIncline > 15.0)
-        requestIncline = 15.0;
+    requestIncline = qBound(-3.0, requestIncline, 15.0);
 
     if (!ftmsControlStarted) {
         ftmsControlStarted = true;
@@ -129,15 +126,18 @@ void wahookickruntreadmill::forceIncline(double requestIncline) {
                               QStringLiteral("ftms start/resume"));
     }
 
-    const int16_t incline = static_cast<int16_t>(std::round(requestIncline * 10.0));
-    uint8_t cmd[] = {
-        FTMS_SET_TARGET_INCLINATION,
-        static_cast<uint8_t>(incline & 0xFF),
-        static_cast<uint8_t>((incline >> 8) & 0xFF),
-    };
-
-    writeFTMSControlPoint(QByteArray(reinterpret_cast<const char *>(cmd), sizeof(cmd)),
+    writeFTMSControlPoint(encodeFtmsInclination(requestIncline),
                           QStringLiteral("forceIncline ") + QString::number(requestIncline));
+}
+
+QByteArray wahookickruntreadmill::encodeFtmsInclination(double inclination) {
+    const int16_t rawInclination = static_cast<int16_t>(std::round(inclination * 10.0));
+    const uint8_t cmd[] = {
+        FTMS_SET_TARGET_INCLINATION,
+        static_cast<uint8_t>(rawInclination & 0xFF),
+        static_cast<uint8_t>((rawInclination >> 8) & 0xFF),
+    };
+    return QByteArray(reinterpret_cast<const char *>(cmd), sizeof(cmd));
 }
 
 wahookickruntreadmill::FtmsTreadmillData wahookickruntreadmill::parseFtmsTreadmillData(const QByteArray &data) {
@@ -222,7 +222,7 @@ void wahookickruntreadmill::update() {
     }
 
     if (requestInclination != -100) {
-        if (std::abs(requestInclination - currentInclination().value()) > 0.01 && requestInclination >= 0) {
+        if (std::abs(requestInclination - currentInclination().value()) > 0.01) {
             emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
             forceIncline(requestInclination);
         }

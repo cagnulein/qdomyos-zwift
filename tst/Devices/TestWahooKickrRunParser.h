@@ -23,3 +23,9 @@ TEST(WahooKickrRunFtmsRegressionTest, HandlesTreadmillDataWithoutAnInclinationFi
 
     EXPECT_FALSE(data.hasInclination);
 }
+
+TEST(WahooKickrRunFtmsRegressionTest, EncodesSignedInclinationWithinKickrRunRange) {
+    EXPECT_EQ(wahookickruntreadmill::encodeFtmsInclination(-3.0), QByteArray::fromHex("03e2ff"));
+    EXPECT_EQ(wahookickruntreadmill::encodeFtmsInclination(-2.0), QByteArray::fromHex("03ecff"));
+    EXPECT_EQ(wahookickruntreadmill::encodeFtmsInclination(15.0), QByteArray::fromHex("039600"));
+}
