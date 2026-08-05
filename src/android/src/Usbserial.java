@@ -48,6 +48,13 @@ public class Usbserial {
     static byte[] receiveData = new byte[4096];
     static int lastReadLen = 0;
     static final String[] localSerialCandidates = {
+        "/dev/ttyS4",
+        "/dev/ttyS0",
+        "/dev/ttyS1",
+        "/dev/ttyS2",
+        "/dev/ttyS3"
+    };
+    static final String[] hydrowSerialCandidates = {
         "/dev/ttyMT1",
         "/dev/ttyUSB0",
         "/dev/ttyACM0"
@@ -132,6 +139,11 @@ public class Usbserial {
         }
     }
 
+    public static void openHydrow(Context context, int baudRate) {
+        QLog.d("QZ", "UsbSerial Hydrow local serial candidate scan");
+        openLocalSerialCandidates(baudRate, hydrowSerialCandidates);
+    }
+
     private static void openLocalSerial(String devicePath, int baudRate) {
         QLog.d("QZ","UsbSerial local serial open " + devicePath + " with baud rate: " + baudRate);
         port = null;
@@ -140,16 +152,20 @@ public class Usbserial {
         lastReadLen = 0;
 
         if (devicePath.equalsIgnoreCase("auto")) {
-            for (String candidate : localSerialCandidates) {
-                if (openLocalSerialPath(candidate, baudRate)) {
-                    return;
-                }
-            }
+            openLocalSerialCandidates(baudRate, localSerialCandidates);
             QLog.d("QZ","UsbSerial local serial auto open failed");
             return;
         }
 
         openLocalSerialPath(devicePath, baudRate);
+    }
+
+    private static void openLocalSerialCandidates(int baudRate, String[] candidates) {
+        for (String candidate : candidates) {
+            if (openLocalSerialPath(candidate, baudRate)) {
+                return;
+            }
+        }
     }
 
     private static boolean openLocalSerialPath(String devicePath, int baudRate) {

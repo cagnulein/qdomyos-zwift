@@ -101,11 +101,10 @@ void HydrowSerialThread::run() {
 bool HydrowSerialThread::openPort() {
 #ifdef Q_OS_ANDROID
     QAndroidJniObject::callStaticMethod<void>(
-        "org/cagnulen/qdomyoszwift/Usbserial", "open",
-        "(Landroid/content/Context;ILjava/lang/String;)V",
-        QtAndroid::androidContext().object(), HYDROW_BAUD,
-        QAndroidJniObject::fromString(QStringLiteral("auto")).object<jstring>());
-    emit debug(QStringLiteral("Hydrow Android UART automatic candidate scan requested"));
+        "org/cagnulen/qdomyoszwift/Usbserial", "openHydrow",
+        "(Landroid/content/Context;I)V",
+        QtAndroid::androidContext().object(), HYDROW_BAUD);
+    emit debug(QStringLiteral("Hydrow Android UART candidate scan requested"));
     return true;
 #elif defined(WIN32)
     const QStringList candidates = {QStringLiteral("COM1"), QStringLiteral("COM2"), QStringLiteral("COM3")};
