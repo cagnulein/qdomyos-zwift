@@ -164,6 +164,8 @@ zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
 devices/kettlerusbbike/KettlerUSB.cpp \
 devices/freebeatbike/FreebeatUSB.cpp \
+devices/ic15dbike/IC15DProtocol.cpp \
+devices/ic15dbike/IC15DUART.cpp \
 PathController.cpp \
 characteristics/characteristicnotifier2a53.cpp \
 characteristics/characteristicnotifier2a5b.cpp \
@@ -175,6 +177,7 @@ characteristics/characteristicwriteprocessore005.cpp \
 devices/computrainerbike/computrainerbike.cpp \
 devices/kettlerusbbike/kettlerusbbike.cpp \
 devices/freebeatbike/freebeatbike.cpp \
+devices/ic15dbike/ic15dbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.cpp \
@@ -480,6 +483,8 @@ devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
 devices/kettlerusbbike/KettlerUSB.h \
 devices/freebeatbike/FreebeatUSB.h \
+devices/ic15dbike/IC15DProtocol.h \
+devices/ic15dbike/IC15DUART.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
 characteristics/characteristicnotifier2a5b.h \
@@ -490,6 +495,7 @@ characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
 devices/kettlerusbbike/kettlerusbbike.h \
 devices/freebeatbike/freebeatbike.h \
+devices/ic15dbike/ic15dbike.h \
 definitions.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \

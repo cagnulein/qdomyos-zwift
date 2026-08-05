@@ -969,6 +969,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(freebeatBike);
+            } else if (ic15dbike::isIC15DConsole() && !ic15DBike) {
+                this->stopDiscovery();
+                ic15DBike =
+                    new ic15dbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(ic15DBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(ic15DBike, &ic15dbike::debug, this, &bluetooth::debug);
+                ic15DBike->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(ic15DBike);
             } else if (!csaferowerSerialPort.isEmpty() && !csafeRower) {
                 this->stopDiscovery();
                 csafeRower = new csaferower(noWriteResistance, noHeartService, false);
@@ -4305,6 +4318,11 @@ void bluetooth::restart() {
         delete freebeatBike;
         freebeatBike = nullptr;
     }
+    if (ic15DBike) {
+
+        delete ic15DBike;
+        ic15DBike = nullptr;
+    }
     if (csafeRower) {
 
         delete csafeRower;
@@ -4678,6 +4696,8 @@ bluetoothdevice *bluetooth::device() {
         return kettlerUsbBike;
     } else if (freebeatBike) {
         return freebeatBike;
+    } else if (ic15DBike) {
+        return ic15DBike;
     } else if (csafeRower) {
         return csafeRower;
     } else if (csafeElliptical) {
