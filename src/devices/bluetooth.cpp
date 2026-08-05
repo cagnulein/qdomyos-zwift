@@ -629,6 +629,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::kettler_usb_serialport, QZSettings::default_kettler_usb_serialport).toString();
     QString freebeatSerialPort =
         settings.value(QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport).toString();
+    QString hydrowSerialPort =
+        settings.value(QZSettings::hydrow_serialport, QZSettings::default_hydrow_serialport).toString();
     QString csaferowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
     bool waterrowerUSBEnabled = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
     QString csafeellipticalSerialPort =
@@ -969,6 +971,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(freebeatBike);
+            } else if (!hydrowSerialPort.isEmpty() && !hydrowRower) {
+                qDebug() << QStringLiteral("Hydrow serial enabled on") << hydrowSerialPort;
+                this->stopDiscovery();
+                hydrowRower = new hydrowrower(noWriteResistance, noHeartService, false);
+                emit deviceConnected(b);
+                connect(hydrowRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(hydrowRower, &hydrowrower::debug, this, &bluetooth::debug);
+                hydrowRower->deviceDiscovered(b);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(hydrowRower);
             } else if (!csaferowerSerialPort.isEmpty() && !csafeRower) {
                 this->stopDiscovery();
                 csafeRower = new csaferower(noWriteResistance, noHeartService, false);

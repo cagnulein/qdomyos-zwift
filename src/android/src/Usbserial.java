@@ -48,11 +48,9 @@ public class Usbserial {
     static byte[] receiveData = new byte[4096];
     static int lastReadLen = 0;
     static final String[] localSerialCandidates = {
-        "/dev/ttyS4",
-        "/dev/ttyS0",
-        "/dev/ttyS1",
-        "/dev/ttyS2",
-        "/dev/ttyS3"
+        "/dev/ttyMT1",
+        "/dev/ttyUSB0",
+        "/dev/ttyACM0"
     };
 
     public static void open(Context context) {
@@ -187,6 +185,29 @@ public class Usbserial {
         }
         catch (Exception e) {
             QLog.d("QZ","UsbSerial local serial stty failed: " + e.getMessage());
+        }
+    }
+
+    public static void close() {
+        if(localSerialMode && localSerialFd != null) {
+            try {
+                Os.close(localSerialFd);
+            }
+            catch (ErrnoException e) {
+                QLog.d("QZ","UsbSerial local serial close failed: " + e.getMessage());
+            }
+        }
+        localSerialFd = null;
+        localSerialMode = false;
+        lastReadLen = 0;
+        if(port != null) {
+            try {
+                port.close();
+            }
+            catch (IOException e) {
+                QLog.d("QZ","UsbSerial close failed: " + e.getMessage());
+            }
+            port = null;
         }
     }
 

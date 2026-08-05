@@ -13709,6 +13709,19 @@
       "options": null
     },
     {
+      "key": "hydrow_serialport",
+      "name": "Enable Hydrow (any non-empty value)",
+      "description": null,
+      "parent": "Hydrow Rower Options",
+      "type": "string",
+      "qmlType": "string",
+      "control": "text",
+      "visible": true,
+      "defaultValue": "",
+      "defaultExpression": "\"\"",
+      "options": null
+    },
+    {
       "key": "waterrower_usb",
       "name": "WaterRower USB",
       "description": null,
