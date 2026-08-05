@@ -13712,7 +13712,7 @@
       "key": "hydrow_serialport",
       "name": "Enable Hydrow (any non-empty value)",
       "description": null,
-      "parent": "Hydrow Rower Options",
+      "parent": "Rower Options",
       "type": "string",
       "qmlType": "string",
       "control": "text",

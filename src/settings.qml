@@ -5642,39 +5642,6 @@ import AndroidStatusBar 1.0
                         }
                     }
 
-                    AccordionElement {
-                        id: hydrowRowerAccordion
-                        title: qsTr("Hydrow Rower Options")
-                        indicatRectColor: Material.color(Material.Grey)
-                        textColor: Material.color(Material.Yellow)
-                        color: Material.backgroundColor
-                        accordionContent: RowLayout {
-                            spacing: 10
-                            Label {
-                                text: qsTr("Enable Hydrow (any non-empty value):")
-                                Layout.fillWidth: true
-                            }
-                            TextField {
-                                id: hydrowSerialPortTextField
-                                text: settings.hydrow_serialport
-                                horizontalAlignment: Text.AlignRight
-                                Layout.fillHeight: false
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onAccepted: settings.hydrow_serialport = text
-                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                            }
-                            Button {
-                                text: qsTr("OK")
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: {
-                                    settings.hydrow_serialport = hydrowSerialPortTextField.text;
-                                    window.settings_restart_to_apply = true;
-                                    toast.show(qsTr("Setting saved!"));
-                                }
-                            }
-                        }
-                    }
-
 
                     AccordionElement {
                         id: m3iBikeAccordion
@@ -11848,6 +11815,39 @@ import AndroidStatusBar 1.0
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.csafe_rower = csaferowerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+                        }
+                    }
+
+                    AccordionElement {
+                        id: hydrowRowerAccordion
+                        title: qsTr("Hydrow Rower Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Enable Hydrow (any non-empty value):")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: hydrowSerialPortTextField
+                                text: settings.hydrow_serialport
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.hydrow_serialport = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: qsTr("OK")
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: {
+                                    settings.hydrow_serialport = hydrowSerialPortTextField.text;
+                                    window.settings_restart_to_apply = true;
+                                    toast.show(qsTr("Setting saved!"));
                                 }
                             }
                         }
