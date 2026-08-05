@@ -224,8 +224,10 @@ void bluetooth::finished() {
     bool fakedevice_treadmill =
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     bool waterrower_usb = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
+    QString hydrow_serialport =
+        settings.value(QZSettings::hydrow_serialport, QZSettings::default_hydrow_serialport).toString();
     // wifi devices on windows
-    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike || waterrower_usb) {
+    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike || waterrower_usb || !hydrow_serialport.isEmpty()) {
         // faking a bluetooth device for non-BLE devices
         qDebug() << "faking a bluetooth device for non-BLE device";
         deviceDiscovered(QBluetoothDeviceInfo());
@@ -4320,6 +4322,11 @@ void bluetooth::restart() {
         delete freebeatBike;
         freebeatBike = nullptr;
     }
+    if (hydrowRower) {
+
+        delete hydrowRower;
+        hydrowRower = nullptr;
+    }
     if (csafeRower) {
 
         delete csafeRower;
@@ -4608,6 +4615,8 @@ bluetoothdevice *bluetooth::device() {
         return smartrowRower;
     } else if (waterRowerUSB) {
         return waterRowerUSB;
+    } else if (hydrowRower) {
+        return hydrowRower;
     } else if (yesoulBike) {
         return yesoulBike;
     } else if (proformBike) {
