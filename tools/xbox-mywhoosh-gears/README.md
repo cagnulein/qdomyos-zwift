@@ -62,12 +62,45 @@ QZ setup:
 
 1. Settings → Template Settings → enable the **web server** (port 6666 by
    default, `src/webserverinfosender.cpp:94`).
-2. Settings → **OpenBikeControl** → *Enable OpenBikeControl*. QZ then advertises
-   `_openbikecontrol._tcp` on port 36867 and MyWhoosh discovers it. Enable
+2. Settings → **OpenBikeControl** → *Enable OpenBikeControl*, then **restart
+   QZ**: the link is only constructed at startup (`src/main.cpp:892`), so the
+   toggle does nothing until the app is relaunched. QZ then advertises
+   `_openbikecontrol._tcp` on port **36867** and MyWhoosh discovers it. Enable
    *override local gears* if the shift should go only to MyWhoosh instead of
    also moving QZ's local gear.
 3. Start the workout with auto resistance on — `homeform::gearUp()` is a no-op
    otherwise (`src/homeform.cpp:2073`).
+
+Note: the settings screen still describes the OpenBikeControl server as being on
+"port 21587" (`src/settings.qml:3481`). That label predates commit `e55e4b3`,
+which moved the server to the OpenBikeControl port 36867
+(`src/mywhooshlink.h:109`). Trust the code, not the label.
+
+### Topology: QZ on a tablet, MyWhoosh on a Windows PC
+
+This is the case the bridge is actually built for, and it works — but the two
+connections MyWhoosh needs (trainer data, and the controller) take different
+paths:
+
+- **Trainer data** (power/cadence/controllable): enabling OpenBikeControl in QZ
+  turns *Wahoo Direct Connect* off (`src/settings.qml:3472`), so the Wi-Fi
+  pairing route disappears and MyWhoosh must pair with the QZ virtual bike over
+  **Bluetooth**. The Windows PC therefore needs a working Bluetooth adapter. If
+  you would rather keep the Wi-Fi (Direct Connect) pairing, stay on Route A —
+  the two are mutually exclusive.
+- **Controller**: MyWhoosh → Connection screen → the **OpenBikeControl icon in
+  the top right** finds QZ over mDNS. Tablet and PC must be on the **same Wi-Fi
+  SSID and subnet** — mDNS does not cross VLANs, guest networks, AP client
+  isolation, or a USB/phone tether. Windows Firewall must let MyWhoosh receive
+  mDNS (UDP 5353); the outbound TCP connection to the tablet on 36867 is not
+  blocked by default.
+- **The gear bridge** runs on the PC and connects the other way, to the tablet:
+  `python qz_gear_bridge.py --host <tablet-ip>`. Nothing listens on the PC, so
+  no firewall rule is needed for it.
+
+To confirm QZ's side is up, check its debug log: the link prints
+`MyWhooshLink(OpenBikeControl): ACTIVE on port 36867` every 10 seconds
+(`src/mywhooshlink.cpp:600`), plus the interface list it bound to at startup.
 
 Then, on the Windows PC:
 
@@ -121,6 +154,13 @@ what makes Route B possible.
   same idea as Route A but aimed at QZ's own UI.
 - [#4608 — *Support Zwift Play buttons (A/B/X/Y) and directional controls*](https://github.com/cagnulein/qdomyos-zwift/issues/4608)
   is the mapping UI those OBC actions are configured with.
+
+On the connection side, there is exactly one open report of MyWhoosh failing to
+find QZ: [#4862 — *MyWhoosh app (Android tablet) can't pair with QZ app (Android
+phone)*](https://github.com/cagnulein/qdomyos-zwift/issues/4862) (open since
+2026-07-30). The reporter's phone and tablet were joined by USB tethering rather
+than a shared Wi-Fi network, which is exactly the case mDNS discovery cannot
+serve. Nothing else upstream reports OpenBikeControl discovery problems.
 
 Non-QZ prior art for Route A: Paul Stallard's
 [handlebar-mounted virtual shifters](https://paulstallard.com/posts/2026-01-06_picow_ble_keyboard/)
