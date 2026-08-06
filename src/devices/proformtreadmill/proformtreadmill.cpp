@@ -71,7 +71,13 @@ void proformtreadmill::forceIncline(double incline) {
     write[12] = ((uint16_t)(incline * 100) >> 8) & 0xFF;
     write[11] = ((uint16_t)(incline * 100) & 0xFF);
 
-    if (norditrack_s25i_treadmill) {
+    if (proform_treadmill_105_cst) {
+        write[9] = 0x02;
+        write[10] = 0x00;
+        write[11] = 0x10;
+        write[12] = (uint8_t)incline;
+        write[14] = write[11] + write[12] + 0x11;
+    } else if (norditrack_s25i_treadmill) {
         write[14] = write[11] + write[12] + 0x11;
     } else if (proform_treadmill_8_0 || proform_treadmill_705_cst || proform_treadmill_705_cst_V78_239 || proform_treadmill_9_0 || proform_treadmill_se ||
                 proform_treadmill_z1300i || proform_treadmill_l6_0s || norditrack_s25_treadmill || proform_8_5_treadmill || nordictrack_treadmill_exp_5i || proform_2000_treadmill ||
@@ -110,7 +116,7 @@ void proformtreadmill::forceSpeed(double speed) {
                proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_300i || proform_performance_400i || proform_treadmill_c700 ||
                proform_treadmill_c960i || nordictrack_tseries5_treadmill || proform_carbon_tl_PFTL59722c || proform_treadmill_1500_pro || proform_trainer_8_0 || proform_trainer_8_0_pftl59721_int_0 || proform_treadmill_705_cst_V80_44 ||
                nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_treadmill_sport_3_0 || proform_treadmill_995i || nordictrack_series_7 ||
-               proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || proform_treadmill_cst_505_pftl59420_0) {
+               proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || proform_treadmill_cst_505_pftl59420_0 || proform_treadmill_105_cst) {
         write[14] = write[11] + write[12] + 0x11;
     } else if (!nordictrack_t65s_treadmill && !nordictrack_elite_800 && !nordictrack_t65s_treadmill_81_miles && !nordictrack_s30_treadmill && !nordictrack_s20_treadmill && !nordictrack_t65s_83_treadmill) {
         for (uint8_t i = 0; i < 7; i++) {
@@ -1059,6 +1065,78 @@ void proformtreadmill::update() {
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"), false, true);
                 if (requestStart != -1) {
                     emit debug(QStringLiteral("starting..."));
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1 || requestPause != -1) {
+                    forceSpeed(0);
+                    emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                    requestPause = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else if (proform_treadmill_105_cst) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00, 0x0d, 0x11, 0x94, 0x71, 0x00, 0x10, 0x40, 0x00, 0x00, 0x80};
+            uint8_t noOpData3[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x81, 0x8d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00, 0x0d, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData5[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x10, 0xb6, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
+            uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
+                                0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
+            uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xef, 0x1a, 0x58, 0x02, 0x00,
+                                0xb4, 0x00, 0x58, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00};
+            uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
+            uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
+                                0x03, 0x10, 0xa0, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xd2, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                break;
+            case 3:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"), false, true);
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+                    writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
+                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
+                    writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
+                    writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
+                    writeCharacteristic(start5, sizeof(start5), QStringLiteral("start5"), false, true);
                     requestStart = -1;
                     emit tapeStarted();
                 }
@@ -3886,6 +3964,7 @@ void proformtreadmill::btinit() {
     proform_carbon_tlx_v84_314_treadmill = settings.value(QZSettings::proform_carbon_tlx_v84_314_treadmill, QZSettings::default_proform_carbon_tlx_v84_314_treadmill).toBool();
     proform_carbon_tl_PFTL59723_6 = settings.value(QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6).toBool();
     proform_treadmill_cst_505_pftl59420_0 = settings.value(QZSettings::proform_treadmill_cst_505_pftl59420_0, QZSettings::default_proform_treadmill_cst_505_pftl59420_0).toBool();
+    proform_treadmill_105_cst = settings.value(QZSettings::proform_treadmill_105_cst, QZSettings::default_proform_treadmill_105_cst).toBool();
 
     if (proform_treadmill_995i) {
         // ProForm 995i initialization frames from pkt4658 to pkt4756 (all 25 frames)
@@ -8643,6 +8722,56 @@ void proformtreadmill::btinit() {
         QThread::msleep(sleepms);
         writeCharacteristic(tlx_init_048, sizeof(tlx_init_048), QStringLiteral("init"), false, true);
         QThread::msleep(sleepms);
+    } else if (proform_treadmill_105_cst) {
+        QByteArray initFrames[] = {
+            QByteArray::fromHex("fe020802"),
+            QByteArray::fromHex("ff08020402040204818700000000000000000000"),
+            QByteArray::fromHex("fe020802"),
+            QByteArray::fromHex("ff08020402040404808800000000000000000000"),
+            QByteArray::fromHex("fe020802"),
+            QByteArray::fromHex("ff08020402040404889000000000000000000000"),
+            QByteArray::fromHex("fe020b02"),
+            QByteArray::fromHex("ff0b020402070207820000008b00000000000000"),
+            QByteArray::fromHex("fe020a02"),
+            QByteArray::fromHex("ff0a0204020602068400008c0000000000000000"),
+            QByteArray::fromHex("fe020802"),
+            QByteArray::fromHex("ff08020402040204959b00000000000000000000"),
+            QByteArray::fromHex("fe022c04"),
+            QByteArray::fromHex("0012020402280428900701ea943ce29648f8ae52"),
+            QByteArray::fromHex("01121cc48a4e10d0965a04ccb2665808fea28c74"),
+            QByteArray::fromHex("ff085a3e2080020000e000000000000000000000"),
+            QByteArray::fromHex("fe021903"),
+            QByteArray::fromHex("0012020402150415020e00000000000000000000"),
+            QByteArray::fromHex("ff070000001001003a0000000000000000000000"),
+            QByteArray::fromHex("fe021703"),
+            QByteArray::fromHex("0012020402130413020c00000000000000000000"),
+            QByteArray::fromHex("ff0500800000a500000000000000000000000000"),
+            QByteArray::fromHex("fe021703"),
+            QByteArray::fromHex("001202040213041302000d001000c01c480000e0"),
+            QByteArray::fromHex("ff05000000104a00000000000000000000000000"),
+            QByteArray::fromHex("fe021703"),
+            QByteArray::fromHex("001202040213041302000d119471001040000080"),
+            QByteArray::fromHex("ff05000000818d00000000000000000000000000"),
+            QByteArray::fromHex("fe021102"),
+            QByteArray::fromHex("ff110204020d040d020500000000085802007a00"),
+            QByteArray::fromHex("fe021102"),
+            QByteArray::fromHex("ff110204020d040d020500000000085802007a00"),
+            QByteArray::fromHex("fe021903"),
+            QByteArray::fromHex("0012020402150415020e00000000000000000000"),
+            QByteArray::fromHex("ff070000001001003a0000000000000000000000"),
+            QByteArray::fromHex("fe021002"),
+            QByteArray::fromHex("ff100204020c040c020400000002e41f001b0000"),
+            QByteArray::fromHex("fe021703"),
+            QByteArray::fromHex("001202040213041302000d800000000000000000"),
+            QByteArray::fromHex("ff0500000010b600000000000000000000000000"),
+            QByteArray::fromHex("fe021002"),
+            QByteArray::fromHex("ff100204020c040c020500000000100100280000"),
+        };
+
+        for (QByteArray &frame : initFrames) {
+            writeCharacteristic(reinterpret_cast<uint8_t *>(frame.data()), frame.length(), QStringLiteral("init"), false, false);
+            QThread::msleep(sleepms);
+        }
     } else if (proform_treadmill_cst_505_pftl59420_0) {
         // ProForm CST 505 PFTL59420.0 init sequence captured from the iFit app
         uint8_t init_001[] = {0xfe, 0x02, 0x08, 0x02};

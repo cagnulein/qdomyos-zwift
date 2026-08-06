@@ -105,6 +105,7 @@
         <file>WebStravaAuth.qml</file>
         <file>Toast.qml</file>
         <file>ToastManager.qml</file>
+        <file>sounds/training-program-segment.wav</file>
         <file>inner_templates/chartjs/elliptical.png</file>
         <file>inner_templates/chartjs/row.png</file>
         <file>inner_templates/chartjs/run.png</file>

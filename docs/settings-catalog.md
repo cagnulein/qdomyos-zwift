@@ -1,6 +1,6 @@
 # Settings Catalog
 
-`src/settings-catalog.json` is a generated catalog of every persistent setting declared in the settings QML files:
+`src/settings-catalog.json` is a manually maintained catalog of every persistent setting declared in the settings QML files:
 
 - `src/settings.qml`
 - `src/settings-tiles.qml`
@@ -48,16 +48,14 @@ Each virtual setting contains:
 
 ## Updating
 
-When adding, removing, or renaming a setting in any settings QML file, regenerate the catalog:
+When adding, removing, or renaming a setting in any settings QML file, update the catalog by hand in the same change.
 
-```bash
-python tools/generate_settings_catalog.py
-```
+For a new persistent setting:
 
-Then validate that the catalog still exactly covers the QML declarations:
+- Add the QML property at the end of the property list.
+- Add one matching entry to `src/settings-catalog.json`.
+- Increment top-level `settingCount`.
+- Keep `key`, `qmlType`, `defaultValue`, and `defaultExpression` aligned with the QML declaration.
+- Set `parent`, `name`, `description`, `control`, and `options` from the visible UI control.
 
-```bash
-python tools/generate_settings_catalog.py --check
-```
-
-The check fails if any QML setting is missing from the catalog, if the catalog contains an undeclared setting, if a setting is duplicated, or if declaration metadata no longer matches the QML sources.
+For a removed setting, delete its catalog entry and decrement `settingCount`. For a rename, update the catalog key in the same commit as the QML and `QZSettings` changes.

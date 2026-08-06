@@ -73,6 +73,7 @@ public:
     DEFINE_DEVICE(FTMSBike, "FTMS Bike");
     DEFINE_DEVICE(FTMSBike2, "FTMS Bike 2");
     DEFINE_DEVICE(FTMSBike3, "FTMS Bike 3");
+    DEFINE_DEVICE(FTMSBikeHorizon5R, "FTMS Bike Horizon 5.0R");
     DEFINE_DEVICE(FTMSKICKRCORE, "FTMS KICKR CORE");
     DEFINE_DEVICE(FTMSRower, "FTMS Rower");
     DEFINE_DEVICE(FakeBike, "Fake Bike");
@@ -140,6 +141,7 @@ public:
     DEFINE_DEVICE(SoleF85Treadmill, "Sole F85 Treadmill");
     DEFINE_DEVICE(SpiritTreadmill, "Spirit Treadmill");
     DEFINE_DEVICE(SportsPlusBike, "Sports Plus Bike");
+    DEFINE_DEVICE(SportsPlusRower, "Sports Plus Rower");
     DEFINE_DEVICE(SportsTechBike, "Sports Tech Bike");
     DEFINE_DEVICE(StagesBike_Assioma_PowerSensorDisabled, "Stages Bike (Assioma / Power Sensor disabled)");
     DEFINE_DEVICE(StagesBike, "Stages Bike");
@@ -178,5 +180,4 @@ public:
 
 
 };
-
 

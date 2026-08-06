@@ -1787,5 +1787,9 @@ void virtualbike::error(QLowEnergyController::Error newError) {
 void virtualbike::dirconFtmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                                   const QByteArray &newValue) {
     lastDirconFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
+    // Dircon is now the active transport for this ride: invalidate the BLE latch so the
+    // iOS lockscreen bridge in bikeProvider() stops re-pushing its stale cached power/slope
+    // request (e.g. from a single early BLE handshake byte) on top of the correct Dircon value.
+    lastFTMSFrameReceived = 0;
     qDebug() << QStringLiteral("lastDirconFTMSFrameReceived") << lastDirconFTMSFrameReceived;
 }

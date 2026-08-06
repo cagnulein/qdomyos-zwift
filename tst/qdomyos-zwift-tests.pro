@@ -21,6 +21,7 @@ SOURCES += \
         Devices/devicetestdataindex.cpp \
         Erg/ergtabletestsuite.cpp \
         GarminConnect/garminconnecttestsuite.cpp \
+        TrainingProgram/trainprogramtestsuite.cpp \
         ToolTests/qfittestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
@@ -28,6 +29,7 @@ SOURCES += \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
         Devices/TestSchwinn411510EParser.cpp \
+        Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
         Devices/TestKeepBikeParser.cpp \
         main.cpp
@@ -65,6 +67,7 @@ HEADERS += \
     Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \
     GarminConnect/garminconnecttestsuite.h \
+    TrainingProgram/trainprogramtestsuite.h \
     ToolTests/qfittestsuite.h \
     ToolTests/testsettingstestsuite.h \
     ToolTests/testtrainingloadtestsuite.h \
