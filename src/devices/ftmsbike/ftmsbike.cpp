@@ -335,7 +335,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
     if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
         resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false) {
 
-        uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
+        uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x33};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
         if(ergModeNotSupported) {
@@ -396,7 +396,9 @@ void ftmsbike::forceInclination(double requestInclination) {
     // Byte 3-4: Grade/Inclination (sint16, 0.01%)
     // Byte 5-6: Coefficient of Rolling Resistance (uint8, 0.0001)
 
-    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
+    // Dirty Flux 2 test: use the simulation parameters observed in the native app
+    // BTSnoop (zero wind, 0x28 / 0x33 resistance coefficients).
+    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x33};
 
     // Convert inclination to FTMS format (multiply by 100 for 0.01% units)
     int16_t inclination = (int16_t)(requestInclination * 100.0);
@@ -1858,6 +1860,16 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
     QByteArray b = newValue;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+
+    // Dirty Flux 2 test: match the native app's FTMS simulation parameters
+    // captured in the BTSnoop (zero wind, 0x28 / 0x33 coefficients).
+    if (b.length() >= 7 && (uint8_t)b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+        b[1] = 0x00;
+        b[2] = 0x00;
+        b[5] = 0x28;
+        b[6] = 0x33;
+        qDebug() << "Flux 2 dirty FTMS parameters" << b.toHex(' ');
+    }
 
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
