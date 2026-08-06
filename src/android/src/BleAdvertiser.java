@@ -45,6 +45,52 @@ public class BleAdvertiser {
     private static final byte[] SERVICE_DATA_ROWER = {0x01, 0x10, 0x00};
     private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
 
+    public static void startAdvertisingBike(Context context) {
+        try {
+            if (context == null) {
+                QLog.e("BleAdvertiser", "Context is null for bike advertising");
+                return;
+            }
+
+            BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            if (bluetoothManager == null || bluetoothManager.getAdapter() == null) {
+                QLog.e("BleAdvertiser", "Bluetooth adapter is null for bike advertising");
+                return;
+            }
+
+            android.bluetooth.BluetoothAdapter adapter = bluetoothManager.getAdapter();
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = adapter.getBluetoothLeAdvertiser();
+            if (advertiser == null) {
+                QLog.e("BleAdvertiser", "BluetoothLeAdvertiser is null for bike advertising");
+                return;
+            }
+
+            try {
+                adapter.setName("QZ");
+            } catch (SecurityException | IllegalArgumentException e) {
+                QLog.e("BleAdvertiser", "Unable to set bike device name: " + e.getMessage());
+            }
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            // Keep each legacy BLE payload below 31 bytes. Some Android 8 consoles
+            // expand Qt's UUID list and reject the resulting advertisement.
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .addServiceUuid(new ParcelUuid(SERVICE_UUID))
+                    .build();
+
+            QLog.d("BleAdvertiser", "Starting compact FTMS bike advertising");
+            advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+        } catch (Throwable t) {
+            QLog.e("BleAdvertiser", "Bike advertising crash: " + t.toString());
+        }
+    }
+
     public static void startAdvertisingEchelon(Context context, String deviceName) {
         try {
             if (context == null) {

@@ -1118,7 +1118,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     m_speech.setLocale(QLocale::English);
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+#if defined(Q_OS_LINUX)
     QBluetoothDeviceInfo b;
     deviceConnected(b);
 #endif
