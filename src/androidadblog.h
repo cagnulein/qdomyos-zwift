@@ -6,7 +6,7 @@
 #include <QThread>
 
 class androidadblog : public QThread
-{   
+{
     Q_OBJECT
 
   public:

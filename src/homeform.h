@@ -49,6 +49,8 @@
 #endif
 #endif
 
+#define PELOTONBIKE
+
 class DataObject : public QObject {
 
     Q_OBJECT
@@ -1125,7 +1127,7 @@ public:
     QTextToSpeech m_speech;
     int tts_summary_count = 0;
 
-#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || defined(PELOTONBIKE)
     QTimer tLicense;
     QNetworkAccessManager *mgr = nullptr;
     void licenseRequest();
@@ -1253,7 +1255,7 @@ public:
     void PauseFromDevice();  // Called when physical pause button pressed on hardware
     void StopFromDevice();   // Called when physical stop button pressed on hardware
 
-#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || defined(PELOTONBIKE)
     void licenseReply(QNetworkReply *reply);
     void licenseTimeout();
 #endif
