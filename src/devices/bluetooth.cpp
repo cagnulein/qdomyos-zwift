@@ -77,6 +77,10 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         settings.value(QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip).toString();
     bool waterrower_usb_ctor =
         settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
+#ifndef Q_OS_IOS
+    QString inspireIC15DSerialPort =
+        settings.value(QZSettings::inspire_ic15d_serialport, QZSettings::default_inspire_ic15d_serialport).toString();
+#endif
     bool fake_bike =
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fake_treadmill =
@@ -141,6 +145,21 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     this->signalBluetoothDeviceConnected(schwinnIC4Bike);
     connectedAndDiscovered();
     return;
+#endif
+
+#ifndef Q_OS_IOS
+    if (!inspireIC15DSerialPort.isEmpty()) {
+        inspireIC15DSerialBike =
+            new inspireic15dserialbike(inspireIC15DSerialPort, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+        emit deviceConnected(QBluetoothDeviceInfo());
+        connect(inspireIC15DSerialBike, &bluetoothdevice::connectedAndDiscovered, this,
+                &bluetooth::connectedAndDiscovered);
+        connect(inspireIC15DSerialBike, &bluetoothdevice::connectedAndDiscovered, this,
+                [this]() { emit deviceConnected(QBluetoothDeviceInfo()); });
+        connect(inspireIC15DSerialBike, &inspireic15dserialbike::debug, this, &bluetooth::debug);
+        this->signalBluetoothDeviceConnected(inspireIC15DSerialBike);
+        return;
+    }
 #endif
 
     if (!startDiscovery) {
@@ -4305,6 +4324,10 @@ void bluetooth::restart() {
         delete freebeatBike;
         freebeatBike = nullptr;
     }
+    if (inspireIC15DSerialBike) {
+        delete inspireIC15DSerialBike;
+        inspireIC15DSerialBike = nullptr;
+    }
     if (csafeRower) {
 
         delete csafeRower;
@@ -4678,6 +4701,8 @@ bluetoothdevice *bluetooth::device() {
         return kettlerUsbBike;
     } else if (freebeatBike) {
         return freebeatBike;
+    } else if (inspireIC15DSerialBike) {
+        return inspireIC15DSerialBike;
     } else if (csafeRower) {
         return csafeRower;
     } else if (csafeElliptical) {

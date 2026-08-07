@@ -1737,6 +1737,8 @@ import AndroidStatusBar 1.0
             property int mywhoosh_link_emote_value: 1
             property bool waterrower_usb: false
             property string freebeat_serialport: ""
+            property string inspire_ic15d_serialport: ""
+            property bool inspire_ic15d_metric_polling: false
         }
 
 
@@ -5637,6 +5639,53 @@ import AndroidStatusBar 1.0
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.freebeat_serialport = freebeatSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+                        }
+                    }
+
+
+                    AccordionElement {
+                        id: inspireIC15DSerialBikeAccordion
+                        title: qsTr("Inspire IC15D Serial Diagnostics")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Serial Port:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: inspireIC15DSerialPortTextField
+                                    text: settings.inspire_ic15d_serialport
+                                    placeholderText: "/dev/ttyS2"
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.inspire_ic15d_serialport = text
+                                    onActiveFocusChanged: if (this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: {
+                                        settings.inspire_ic15d_serialport = inspireIC15DSerialPortTextField.text
+                                        window.settings_restart_to_apply = true
+                                        toast.show(qsTr("Setting saved!"))
+                                    }
+                                }
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Enable metric polling")
+                                checked: settings.inspire_ic15d_metric_polling
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                onClicked: {
+                                    settings.inspire_ic15d_metric_polling = checked
+                                    window.settings_restart_to_apply = true
                                 }
                             }
                         }
