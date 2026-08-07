@@ -945,31 +945,45 @@ ApplicationWindow {
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
 
+        function activateMainNavigationButton() {
+            if (stackView.depth > 1) {
+                if(window.settings_restart_to_apply === true) {
+                    window.settings_restart_to_apply = false;
+                    popupRestartApp.visible = true;
+                }
+
+                stackView.pop()
+                toolButtonLoadSettings.visible = false;
+                toolButtonSaveSettings.visible = false;
+                rootItem.sortTiles()
+            } else {
+                drawer.open()
+            }
+        }
+
         ToolButton {
             id: toolButton
             icon.source: "icons/icons/icon.png"
             text: stackView.depth > 1 ? "◄" : "◄"
             font.pixelSize: Qt.application.font.pixelSize * 1.6
-            onClicked: {
-                if (stackView.depth > 1) {
-                    if(window.settings_restart_to_apply === true) {
-                        window.settings_restart_to_apply = false;
-                        popupRestartApp.visible = true;
-                    }
-
-                    stackView.pop()
-                    toolButtonLoadSettings.visible = false;
-                    toolButtonSaveSettings.visible = false;
-                    rootItem.sortTiles()
-                } else {
-                    drawer.open()
-                }
-            }
+            Accessible.role: Accessible.Button
+            Accessible.name: stackView.depth > 1 ? qsTr("Back") : qsTr("Main menu")
+            Accessible.description: stackView.depth > 1 ? qsTr("Return to the previous screen") : qsTr("Open the main navigation menu")
+            Accessible.focusable: !drawer.opened
+            Accessible.ignored: drawer.opened
+            Accessible.onPressAction: headerToolbar.activateMainNavigationButton()
+            onClicked: headerToolbar.activateMainNavigationButton()
         }
 
         ToolButton {
             id: toolButtonFloating
             icon.source: "icons/icons/mini-display.png"
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Floating window")
+            Accessible.description: qsTr("Open the floating workout display")
+            Accessible.focusable: !drawer.opened
+            Accessible.ignored: drawer.opened
+            Accessible.onPressAction: { console.log("floating!"); floatingOpen(); }
             onClicked: { console.log("floating!"); floatingOpen(); }
             anchors.left: toolButton.right
             visible: OS_VERSION === "Android" ? true : false
@@ -1045,23 +1059,36 @@ ApplicationWindow {
             onTriggered: popuplockTiles.close();
         }
 
+        function activateLoadSettingsButton() {
+            stackView.push("SettingsList.qml")
+            stackView.currentItem.loadSettings.connect(loadSettings)
+            stackView.currentItem.loadSettings.connect(function(url) {
+                stackView.pop();
+                if (stackView.depth > 1) {
+                    stackView.pop()
+                }
+                popupLoadSettings.open();
+             });
+            drawer.close()
+        }
+
         ToolButton {
             id: toolButtonLoadSettings
             icon.source: "icons/icons/tray-arrow-up.png"
-            onClicked: {
-                stackView.push("SettingsList.qml")
-                stackView.currentItem.loadSettings.connect(loadSettings)
-                stackView.currentItem.loadSettings.connect(function(url) {
-                    stackView.pop();
-                    if (stackView.depth > 1) {
-                        stackView.pop()
-                    }
-                    popupLoadSettings.open();
-                 });
-                drawer.close()
-            }
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Load settings")
+            Accessible.description: qsTr("Open the saved settings list")
+            Accessible.focusable: !drawer.opened
+            Accessible.ignored: drawer.opened
+            Accessible.onPressAction: headerToolbar.activateLoadSettingsButton()
+            onClicked: headerToolbar.activateLoadSettingsButton()
             anchors.right: toolButtonSaveSettings.left
             visible: false
+        }
+
+        function activateSaveSettingsButton() {
+            saveSettings("settings");
+            popupSaveFile.open()
         }
 
         ToolButton {
@@ -1081,10 +1108,13 @@ ApplicationWindow {
         ToolButton {
             id: toolButtonSaveSettings
             icon.source: "icons/icons/tray-arrow-down.png"
-            onClicked: {
-                saveSettings("settings");
-                popupSaveFile.open()
-            }
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Save settings")
+            Accessible.description: qsTr("Save the current settings profile")
+            Accessible.focusable: !drawer.opened
+            Accessible.ignored: drawer.opened
+            Accessible.onPressAction: headerToolbar.activateSaveSettingsButton()
+            onClicked: headerToolbar.activateSaveSettingsButton()
             anchors.right: toolButtonAutoResistance.left/*toolClassifica.left*/
             visible: false
         }
@@ -1111,10 +1141,16 @@ ApplicationWindow {
             }
             id: toolButtonMaps
             icon.source: ( "icons/icons/maps-icon-16.png" )
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Map")
+            Accessible.description: qsTr("Open the route map")
+            Accessible.focusable: !drawer.opened
+            Accessible.ignored: drawer.opened
+            Accessible.onPressAction: loadMaps()
             onClicked: { loadMaps(); }
             anchors.right: toolButtonChart.left
             visible: rootItem.mapsVisible
-        }      
+        }
 
         ToolButton {
             function loadVideo() {
@@ -1128,6 +1164,12 @@ ApplicationWindow {
             }
             id: toolButtonVideo
             icon.source: ( "icons/icons/video.png" )
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Video")
+            Accessible.description: qsTr("Show or hide the workout video")
+            Accessible.focusable: !drawer.opened
+            Accessible.ignored: drawer.opened
+            Accessible.onPressAction: loadVideo()
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
             visible: rootItem.videoIconVisible
@@ -1136,23 +1178,55 @@ ApplicationWindow {
         ToolButton {
             id: toolButtonChart
             icon.source: ( "icons/icons/chart.png" )
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Chart")
+            Accessible.description: qsTr("Show or hide the workout chart")
+            Accessible.focusable: !drawer.opened
+            Accessible.ignored: drawer.opened
+            Accessible.onPressAction: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
             onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
             anchors.right: toolButtonLockTiles.left
             visible: rootItem.chartIconVisible
         }
 
+        function activateLockTilesButton() {
+            window.lockTiles = !window.lockTiles;
+            console.log("lock tiles toggled " + window.lockTiles);
+            popuplockTiles.open();
+            popuplockTilesAutoClose.running = true;
+        }
+
         ToolButton {
             id: toolButtonLockTiles
             icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
-            onClicked: { window.lockTiles = !window.lockTiles; console.log("lock tiles toggled " + window.lockTiles); popuplockTiles.open(); popuplockTilesAutoClose.running = true; }
+            Accessible.role: Accessible.Button
+            Accessible.name: window.lockTiles ? qsTr("Unlock tiles") : qsTr("Lock tiles")
+            Accessible.description: window.lockTiles ? qsTr("Allow workout tiles to be moved") : qsTr("Prevent workout tiles from being moved")
+            Accessible.focusable: !drawer.opened
+            Accessible.ignored: drawer.opened
+            Accessible.onPressAction: headerToolbar.activateLockTilesButton()
+            onClicked: headerToolbar.activateLockTilesButton()
             anchors.right: toolButtonAutoResistance.left
             visible: !toolButtonSaveSettings.visible
+        }
+
+        function activateAutoResistanceButton() {
+            rootItem.autoResistance = !rootItem.autoResistance;
+            console.log("auto resistance toggled " + rootItem.autoResistance);
+            popupAutoResistance.open();
+            popupAutoResistanceAutoClose.running = true;
         }
 
         ToolButton {
             id: toolButtonAutoResistance
             icon.source: ( rootItem.autoResistance ? "icons/icons/resistance.png" : "icons/icons/pause.png")
-            onClicked: { rootItem.autoResistance = !rootItem.autoResistance; console.log("auto resistance toggled " + rootItem.autoResistance); popupAutoResistance.open(); popupAutoResistanceAutoClose.running = true; }
+            Accessible.role: Accessible.Button
+            Accessible.name: rootItem.autoResistance ? qsTr("Disable auto resistance") : qsTr("Enable auto resistance")
+            Accessible.description: qsTr("Toggle automatic resistance control")
+            Accessible.focusable: !drawer.opened
+            Accessible.ignored: drawer.opened
+            Accessible.onPressAction: headerToolbar.activateAutoResistanceButton()
+            onClicked: headerToolbar.activateAutoResistanceButton()
             anchors.right: parent.right
             visible: !headerToolbar.settingsPageActive
             width: visible ? implicitWidth : 0
@@ -1161,6 +1235,12 @@ ApplicationWindow {
         Label {
             text: stackView.currentItem.title
             anchors.centerIn: parent
+            // Announce the page title to VoiceOver as a heading.
+            // Ignored when the drawer is open (toolbar disappears from a11y tree).
+            Accessible.role: Accessible.StaticText
+            Accessible.name: stackView.currentItem.title
+            Accessible.focusable: stackView.currentItem.title !== "" && !drawer.opened
+            Accessible.ignored: stackView.currentItem.title === "" || drawer.opened
         }
     }
 
@@ -1168,13 +1248,53 @@ ApplicationWindow {
         id: drawer
         width: window.width * 0.66
         height: window.height
+        modal: true
+        dim: true
+        focus: true
         topPadding: getTopPadding()
         bottomPadding: getBottomPadding()
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
         Accessible.ignored: !drawer.opened
+        onOpened: {
+            console.log("[VoiceOver drawer] opened; stack enabled before blocker=" + stackView.enabled)
+            forceActiveFocus()
+            drawerScrollView.forceActiveFocus()
+            if (OS_VERSION === "iOS") {
+                // Delay slightly so Qt's accessibility tree updates (Accessible.ignored
+                // bindings flush) before we tell VoiceOver the screen changed.
+                // The delay also lets the drawer slide-in animation finish.
+                drawerAccessibilityTimer.restart()
+            }
+        }
+        onClosed: {
+            console.log("[VoiceOver drawer] closed; stack enabled=" + stackView.enabled)
+            if (OS_VERSION === "iOS") {
+                // Tell VoiceOver the content screen is back so it re-focuses the toolbar.
+                drawerCloseAccessibilityTimer.restart()
+            }
+        }
+
+        Timer {
+            id: drawerAccessibilityTimer
+            interval: 150
+            repeat: false
+            onTriggered: {
+                rootItem.setDrawerAccessibilityModal(true)
+            }
+        }
+
+        Timer {
+            id: drawerCloseAccessibilityTimer
+            interval: 100
+            repeat: false
+            onTriggered: {
+                rootItem.setDrawerAccessibilityModal(false)
+            }
+        }
 
         ScrollView {
+            id: drawerScrollView
             contentWidth: -1
             focus: true
             anchors.horizontalCenter: parent.horizontalCenter
@@ -1183,10 +1303,13 @@ ApplicationWindow {
             Column {
                 anchors.fill: parent
                 spacing: 3
+                enabled: drawer.position > 0.9
 
                 ItemDelegate {
                     text: qsTr("Profile: ") + settings.profile_name
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Profile: ") + settings.profile_name
                     onClicked: {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
@@ -1199,20 +1322,26 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Settings")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Settings")
                     onClicked: {
                         toolButtonLoadSettings.visible = true;
-                        toolButtonSaveSettings.visible = true;                        
-                        stackView.push("settings.qml")
-                        stackView.currentItem.peloton_connect_clicked.connect(function() {
-                            peloton_connect_clicked()
-                         });
-                         drawer.close()
+                        toolButtonSaveSettings.visible = true;
+                        var pushed = stackView.push("settings.qml")
+                        if (stackView.currentItem && stackView.currentItem.peloton_connect_clicked) {
+                            stackView.currentItem.peloton_connect_clicked.connect(function() {
+                                peloton_connect_clicked()
+                            });
+                        }
+                        drawer.close()
                     }
                 }
 
             ItemDelegate {
                 text: qsTr("Workouts History")
                 width: parent.width
+                Accessible.role: Accessible.Button
+                Accessible.name: qsTr("Workouts History")
                 onClicked: {
                     stackView.push("WorkoutsHistory.qml")
                     stackView.currentItem.fitfile_preview_clicked.connect(fitfile_preview_clicked)
@@ -1222,6 +1351,8 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Swag Bag")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Swag Bag")
                     onClicked: {
                         stackView.push("SwagBagView.qml")
                         drawer.close()
@@ -1231,6 +1362,8 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Charts")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Charts")
                     onClicked: {
                         console.log(CHARTJS)
                         if(CHARTJS)
@@ -1244,6 +1377,8 @@ ApplicationWindow {
                     id: gpx_open
                     text: qsTr("Open GPX")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Open GPX")
                     onClicked: {
                         stackView.push("GPXList.qml")
                         stackView.currentItem.trainprogram_open_clicked.connect(gpx_open_clicked)
@@ -1260,6 +1395,8 @@ ApplicationWindow {
                     id: trainprogram_open
                     text: qsTr("Open Train Program")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Open Train Program")
                     onClicked: {
                         if(CHARTJS)
                             stackView.push("TrainingProgramsListJS.qml")
@@ -1278,16 +1415,20 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Workout Editor")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Workout Editor")
                     onClicked: {
                         var editorPage = stackView.push("WorkoutEditor.qml")
                         if (editorPage) {
                             editorPage.closeRequested.connect(function() {
                                 stackView.pop()
                             })
-                            // Close editor when workout is started from Save & Start
+                            // Close editor when workout is started from Save & Start.
+                            // Use closeEditor() so the native modal (VoiceOver path) is
+                            // dismissed before the page is popped.
                             trainprogram_autostart_requested.connect(function() {
                                 console.log("[main.qml] trainprogram_autostart_requested received, closing editor")
-                                editorPage.closeRequested()
+                                editorPage.closeEditor()
                             })
                         }
                         drawer.close()
@@ -1306,6 +1447,8 @@ ApplicationWindow {
                     id: gpx_save
                     text: qsTr("Save GPX")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Save GPX")
                     onClicked: {
                         gpx_save_clicked()
                         drawer.close()
@@ -1316,6 +1459,8 @@ ApplicationWindow {
                     id: fit_save
                     text: qsTr("Save FIT")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Save FIT")
                     onClicked: {
                         fit_save_clicked()
                         drawer.close()
@@ -1326,6 +1471,8 @@ ApplicationWindow {
                     id: wizardItem
                     text: qsTr("Wizard")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Wizard")
                     onClicked: {
                         stackView.push("Wizard.qml")
                         drawer.close()
@@ -1335,6 +1482,8 @@ ApplicationWindow {
                     id: help
                     text: qsTr("Help")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Help")
                     onClicked: {
                         Qt.openUrlExternally("https://robertoviola.cloud/qdomyos-zwift-guide/");
                         drawer.close()
@@ -1344,6 +1493,8 @@ ApplicationWindow {
                     id: community
                     text: qsTr("Community")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Community")
                     onClicked: {
                         Qt.openUrlExternally("https://www.facebook.com/groups/149984563348738");
                         drawer.close()
@@ -1352,6 +1503,8 @@ ApplicationWindow {
                 ItemDelegate {
                     text: qsTr("Credits")
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Credits")
                     onClicked: {
                         stackView.push("Credits.qml")
                         drawer.close()
@@ -1381,8 +1534,12 @@ ApplicationWindow {
                         fillMode: Image.PreserveAspectFit
                         visible: true
                         width: parent.width
+                        Accessible.ignored: true
                     }
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: rootItem.isStravaLoggedIn() ? qsTr("Disconnect from Strava") : qsTr("Connect with Strava")
+                    Accessible.description: rootItem.isStravaLoggedIn() ? qsTr("Tap to log out of Strava") : qsTr("Tap to connect your Strava account")
                     onClicked: {
                         if (rootItem.isStravaLoggedIn()) {
                             stravaLogoutConfirm.visible = true
@@ -1403,8 +1560,12 @@ ApplicationWindow {
                         fillMode: Image.PreserveAspectFit
                         visible: true
                         width: parent.width
+                        Accessible.ignored: true
                     }
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: rootItem.isPelotonLoggedIn() ? qsTr("Disconnect from Peloton") : qsTr("Connect with Peloton")
+                    Accessible.description: rootItem.isPelotonLoggedIn() ? qsTr("Tap to log out of Peloton") : qsTr("Tap to connect your Peloton account")
                     onClicked: {
                         if (rootItem.isPelotonLoggedIn()) {
                             pelotonLogoutConfirm.visible = true
@@ -1429,8 +1590,12 @@ ApplicationWindow {
                         visible: true
                         width: parent.width
                         height: 48
+                        Accessible.ignored: true
                     }
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: qsTr("Garmin Connect settings")
+                    Accessible.description: qsTr("Open Garmin Connect integration settings")
                     onClicked: {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;
@@ -1449,7 +1614,7 @@ ApplicationWindow {
                     }
                 }
 
-				ItemDelegate {
+                ItemDelegate {
                     Image {
                         anchors.left: parent.left;
                         anchors.verticalCenter: parent.verticalCenter
@@ -1457,8 +1622,12 @@ ApplicationWindow {
                         fillMode: Image.PreserveAspectFit
                         visible: true
                         width: parent.width
+                        Accessible.ignored: true
                     }
                     width: parent.width
+                    Accessible.role: Accessible.Button
+                    Accessible.name: rootItem.isIntervalsICULoggedIn() ? qsTr("Disconnect from Intervals.icu") : qsTr("Connect with Intervals.icu")
+                    Accessible.description: rootItem.isIntervalsICULoggedIn() ? qsTr("Tap to log out of Intervals.icu") : qsTr("Tap to connect your Intervals.icu account")
                     onClicked: {
                         if (rootItem.isIntervalsICULoggedIn()) {
                             intervalsICULogoutConfirm.visible = true
@@ -1502,6 +1671,7 @@ ApplicationWindow {
             anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
+            Accessible.ignored: drawer.opened
             focus: true
             Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
             Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
@@ -1582,6 +1752,32 @@ ApplicationWindow {
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_lap; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLap() }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_start_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStartStop() }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStop() }
+        }
+
+        MouseArea {
+            id: drawerInputBlocker
+            // Cover only the area to the right of the open drawer so that
+            // taps on drawer items still reach the drawer's own event handlers.
+            x: drawer.width
+            y: 0
+            width: parent.width - drawer.width
+            height: parent.height
+            visible: drawer.opened
+            enabled: drawer.opened
+            z: 9999
+            acceptedButtons: Qt.AllButtons
+            hoverEnabled: true
+            preventStealing: true
+            propagateComposedEvents: false
+            Accessible.ignored: true
+            onPressed: {
+                mouse.accepted = true
+                console.log("[VoiceOver drawer] blocked press behind drawer at " + mouse.x + "," + mouse.y)
+            }
+            onClicked: {
+                mouse.accepted = true
+                console.log("[VoiceOver drawer] blocked click behind drawer at " + mouse.x + "," + mouse.y)
+            }
         }
     }
 }

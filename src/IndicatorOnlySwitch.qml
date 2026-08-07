@@ -8,6 +8,11 @@ import QtQuick.Dialogs 1.0
 SwitchDelegate {
     id: root
 
+    Accessible.name: root.text
+    Accessible.role: Accessible.CheckBox
+    Accessible.checkable: true
+    Accessible.checked: root.checked
+
     MouseArea {
         anchors.fill: parent
         onClicked: {

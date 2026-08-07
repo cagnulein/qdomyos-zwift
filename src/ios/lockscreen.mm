@@ -688,4 +688,8 @@ void lockscreen::clearWebViewCache() {
         [cookieStorage deleteCookie:cookie];
     }
 }
+
+void lockscreen::postAccessibilityScreenChanged() {
+    UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
+}
 #endif

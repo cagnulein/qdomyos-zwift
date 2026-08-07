@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
@@ -29,17 +29,17 @@
     <script src="workout-editor-app.js" defer></script>
 </head>
 <body>
-    <div id="app">
+    <div id="app" aria-labelledby="workoutEditorTitle">
         <div class="toolbar">
-            <div class="toolbar-title" data-i18n="workoutEditor.title">Workout Editor</div>
+            <h1 class="toolbar-title" id="workoutEditorTitle" data-i18n="workoutEditor.title">Workout Editor</h1>
             <div class="toolbar-controls">
                 <label>
                     <span data-i18n="workoutEditor.name">Name</span>
-                    <input type="text" id="workoutName" placeholder="New workout" data-i18n-placeholder="workoutEditor.newWorkoutPlaceholder">
+                    <input type="text" id="workoutName" placeholder="New workout" autocomplete="off" aria-label="Workout name" data-i18n-placeholder="workoutEditor.newWorkoutPlaceholder">
                 </label>
                 <label>
                     <span data-i18n="workoutEditor.device">Device</span>
-                    <select id="deviceSelect">
+                    <select id="deviceSelect" aria-label="Workout device type">
                         <option value="bike" data-i18n="device.bike">Bike</option>
                         <option value="treadmill" data-i18n="device.treadmill">Treadmill</option>
                         <option value="elliptical" data-i18n="device.elliptical">Elliptical</option>
@@ -48,59 +48,60 @@
                         <option value="stairclimber" data-i18n="device.stairclimber">Stair Climber</option>
                     </select>
                 </label>
-                <button id="newWorkout" class="small" data-i18n="common.new">New</button>
-                <button id="pasteClipboard" class="small" data-i18n="workoutEditor.pasteXml">Paste XML</button>
-                <button id="saveWorkout" class="primary small" data-i18n="common.save">Save</button>
-                <button id="saveStartWorkout" class="primary small" data-i18n="workoutEditor.saveStart">Save &amp; Start</button>
+                <button id="newWorkout" class="small" type="button" aria-label="Create a new workout" data-i18n="common.new">New</button>
+                <button id="pasteClipboard" class="small" type="button" aria-label="Paste XML from the Clipboard to the Workout Editor" data-i18n="workoutEditor.pasteXml">Paste XML</button>
+                <button id="saveWorkout" class="primary small" type="button" aria-label="Save workout" data-i18n="common.save">Save</button>
+                <button id="saveStartWorkout" class="primary small" type="button" aria-label="Save workout and start it" data-i18n="workoutEditor.saveStart">Save &amp; Start</button>
                 <label class="checkbox-label">
-                    <input type="checkbox" id="advancedToggle">
+                    <input type="checkbox" id="advancedToggle" aria-label="Show advanced interval fields">
                     <span data-i18n="workoutEditor.advanced">Advanced</span>
                 </label>
             </div>
         </div>
 
-        <div class="content">
-            <div class="interval-panel">
+        <main class="content" aria-label="Workout editor controls">
+            <section class="interval-panel" aria-labelledby="intervalPanelTitle">
                 <div class="interval-panel-header">
+                    <h2 id="intervalPanelTitle" class="visually-hidden">Intervals</h2>
                     <div class="interval-panel-actions">
-                        <button id="addInterval" class="primary small" data-i18n="workoutEditor.addInterval">Add Interval</button>
-                        <button id="repeatSelection" class="small" data-i18n="workoutEditor.repeatSelection">Repeat Selection</button>
-                        <button id="clearIntervals" class="small danger" data-i18n="common.clear">Clear</button>
+                        <button id="addInterval" class="primary small" type="button" aria-label="Add interval" data-i18n="workoutEditor.addInterval">Add Interval</button>
+                        <button id="repeatSelection" class="small" type="button" aria-label="Repeat selected intervals" data-i18n="workoutEditor.repeatSelection">Repeat Selection</button>
+                        <button id="clearIntervals" class="small danger" type="button" aria-label="Clear all intervals" data-i18n="common.clear">Clear</button>
                     </div>
-                    <div class="interval-panel-hint" data-i18n="workoutEditor.repeatHint">Select consecutive rows to repeat them quickly.</div>
+                    <div class="interval-panel-hint" id="intervalPanelHint" data-i18n="workoutEditor.repeatHint">Select consecutive rows to repeat them quickly.</div>
                 </div>
-                <div id="intervalList" class="interval-list"></div>
-            </div>
+                <div id="intervalList" class="interval-list" role="list" aria-describedby="intervalPanelHint"></div>
+            </section>
 
-            <div class="preview-panel">
+            <section class="preview-panel" aria-labelledby="chartTitle">
                 <div class="chart-card">
                     <header>
                         <div class="chart-title" id="chartTitle" data-i18n="workoutEditor.workoutPreview">Workout Preview</div>
                         <div class="chart-meta" id="chartMeta"></div>
                     </header>
                     <div class="chart-wrapper">
-                        <canvas id="workoutChart"></canvas>
+                        <canvas id="workoutChart" role="img" aria-label="Workout preview chart"></canvas>
                     </div>
-                    <div class="legend" id="legend"></div>
+                    <div class="legend" id="legend" aria-label="Chart legend"></div>
                 </div>
-                <div class="status-strip">
+                <div class="status-strip" role="status" aria-live="polite">
                     <div><span data-i18n="workoutEditor.total">Total:</span> <span id="statusDuration">0:00</span></div>
                     <div><span data-i18n="workoutEditor.intervals">Intervals:</span> <span id="statusIntervals">0</span></div>
-                    <div class="status-message" id="statusMessage"></div>
+                    <div class="status-message" id="statusMessage" aria-live="polite"></div>
                     <div class="status-message error hidden" id="offlineBanner" data-i18n="workoutEditor.offlineModeChangesNotSaved">Offline mode: changes not saved</div>
                 </div>
                 <div class="program-bar">
-                    <select id="programSelect"></select>
-                    <button id="loadProgram" class="small" data-i18n="common.load">Load</button>
-                    <button id="deleteProgram" class="small danger" data-i18n="common.delete">Delete</button>
-                    <button id="refreshPrograms" class="small" data-i18n="common.refresh">Refresh</button>
+                    <select id="programSelect" aria-label="Saved workout programs"></select>
+                    <button id="loadProgram" class="small" type="button" aria-label="Load selected workout program" data-i18n="common.load">Load</button>
+                    <button id="deleteProgram" class="small danger" type="button" aria-label="Delete selected workout program" data-i18n="common.delete">Delete</button>
+                    <button id="refreshPrograms" class="small" type="button" aria-label="Refresh workout program list" data-i18n="common.refresh">Refresh</button>
                 </div>
-            </div>
-        </div>
+            </section>
+        </main>
     </div>
 
     <!-- Custom dialogs for iOS WebView compatibility -->
-    <div id="customDialog" class="custom-dialog hidden">
+    <div id="customDialog" class="custom-dialog hidden" role="dialog" aria-hidden="true" aria-modal="true" aria-labelledby="customDialogTitle" aria-describedby="customDialogMessage">
         <div class="custom-dialog-overlay"></div>
         <div class="custom-dialog-content">
             <div class="custom-dialog-header">
@@ -108,11 +109,11 @@
             </div>
             <div class="custom-dialog-body">
                 <p id="customDialogMessage"></p>
-                <input type="text" id="customDialogInput" class="hidden">
+                <input type="text" id="customDialogInput" class="hidden" aria-label="Dialog input">
             </div>
             <div class="custom-dialog-footer">
-                <button id="customDialogCancel" class="small" data-i18n="common.cancel">Cancel</button>
-                <button id="customDialogConfirm" class="small primary" data-i18n="common.ok">OK</button>
+                <button id="customDialogCancel" class="small" type="button" data-i18n="common.cancel">Cancel</button>
+                <button id="customDialogConfirm" class="small primary" type="button" data-i18n="common.ok">OK</button>
             </div>
         </div>
     </div>

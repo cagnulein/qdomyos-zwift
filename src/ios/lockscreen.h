@@ -123,6 +123,9 @@ class lockscreen {
 
     // web view cache
     static void clearWebViewCache();
+
+    // accessibility
+    static void postAccessibilityScreenChanged();
 };
 
 #endif // LOCKSCREEN_H
