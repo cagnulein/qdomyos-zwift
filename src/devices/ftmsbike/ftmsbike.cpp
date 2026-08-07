@@ -182,6 +182,18 @@ void ftmsbike::init() {
     
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
     bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
+
+    // Dirty Tacx Flux 2 test: the native app requests control, pauses, requests
+    // control again, and only then starts/resumes the simulation. Each command
+    // is queued with response waiting enabled so the next command is not sent
+    // until the previous FTMS response has been received (or timed out).
+    const bool tacx_flux_2 = bluetoothDevice.name().compare(QStringLiteral("Tacx Flux-2 33326"), Qt::CaseInsensitive) == 0;
+    if (tacx_flux_2) {
+        uint8_t pause[] = {FTMS_STOP_PAUSE};
+        ret = writeCharacteristic(pause, sizeof(pause), "tacx flux 2 pause", false, true);
+        ret = writeCharacteristic(write, sizeof(write), "tacx flux 2 requestControl", false, true);
+    }
+
     if (USDC_D700) {
         // Kinomap keeps this bike streaming by following request-control with STOP/PAUSE(0x01)
         // instead of the usual START/RESUME opcode.
