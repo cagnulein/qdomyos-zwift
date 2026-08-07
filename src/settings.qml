@@ -1606,7 +1606,7 @@ import AndroidStatusBar 1.0
             property bool gym_mode: false
             property bool tile_grade_adjusted_pace_enabled: false
             property int tile_grade_adjusted_pace_order: 79
-            property bool cycplus_bc2_controller: false
+            property bool cycplus_bc2_controller: false            
       		property bool lifespan_bike: false
 
             property double power_sensor_speed_inclination_coeff_a: 0.0
@@ -1737,6 +1737,8 @@ import AndroidStatusBar 1.0
             property int mywhoosh_link_emote_value: 1
             property bool waterrower_usb: false
             property string freebeat_serialport: ""
+
+			property bool obc_listener_enabled: false
         }
 
 
@@ -4059,6 +4061,23 @@ import AndroidStatusBar 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                        IndicatorOnlySwitch {
+                            text: qsTr("OBC Controller (input)")
+                            checked: settings.obc_listener_enabled
+                            Layout.fillWidth: true
+                            onClicked: { settings.obc_listener_enabled = checked; window.settings_restart_to_apply = true; }
+                        }
+
+                        Label {
+                            text: qsTr("Listen to an OpenBikeControl button controller and use its buttons to change gears, ERG target and more on QZ. This is the INPUT side; the switch above sends QZ's own buttons OUT to other apps.")
+                            font.bold: false
+                            font.italic: true
+                            font.pixelSize: window.labelFontSize
+                            textFormat: Text.PlainText
+                            wrapMode: Text.WordWrap
+                            verticalAlignment: Text.AlignVCenter
+                            Layout.fillWidth: true
+                        }
                     }
 
                     AccordionElement {

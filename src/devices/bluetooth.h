@@ -164,6 +164,7 @@
 #include "zwift_play/zwiftclickremote.h"
 #include "devices/cycplusbc2controller/cycplusbc2controller.h"
 #include "devices/thinkridercontroller/thinkridercontroller.h"
+#include "devices/obclistener/obclistener.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -326,6 +327,7 @@ class bluetooth : public QObject, public SignalHandler {
     zwiftclickremote* zwiftClickRemote = nullptr;
     cycplusbc2controller* cycplusBC2Controller = nullptr;
     thinkridercontroller* thinkriderController = nullptr;
+    obclistener* obcListener = nullptr;
     sramaxscontroller* sramAXSController = nullptr;
     elitesquarecontroller* eliteSquareController = nullptr;
     QString filterDevice = QLatin1String("");

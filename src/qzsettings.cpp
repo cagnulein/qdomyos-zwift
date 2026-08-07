@@ -825,6 +825,7 @@ const QString QZSettings::proform_treadmill_705_cst = QStringLiteral("proform_tr
 const QString QZSettings::zwift_click = QStringLiteral("zwift_click");
 const QString QZSettings::thinkrider_controller = QStringLiteral("thinkrider_controller");
 const QString QZSettings::cycplus_bc2_controller = QStringLiteral("cycplus_bc2_controller");
+const QString QZSettings::obc_listener_enabled = QStringLiteral("obc_listener_enabled");
 const QString QZSettings::hop_sport_hs_090h_bike = QStringLiteral("hop_sport_hs_090h_bike");
 const QString QZSettings::zwift_play = QStringLiteral("zwift_play");
 const QString QZSettings::zwift_play_vibration = QStringLiteral("zwift_play_vibration");
@@ -1279,7 +1280,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1001;
+const uint32_t allSettingsCount = 1002;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1964,6 +1965,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwift_click, QZSettings::default_zwift_click},
     {QZSettings::thinkrider_controller, QZSettings::default_thinkrider_controller},
     {QZSettings::cycplus_bc2_controller, QZSettings::default_cycplus_bc2_controller},
+    {QZSettings::obc_listener_enabled, QZSettings::default_obc_listener_enabled},
     {QZSettings::hop_sport_hs_090h_bike, QZSettings::default_hop_sport_hs_090h_bike},
     {QZSettings::zwift_play, QZSettings::default_zwift_play},
     {QZSettings::zwift_play_vibration, QZSettings::default_zwift_play_vibration},

@@ -161,6 +161,7 @@ windows_zwift_workout_paddleocr_thread.cpp \
 devices/ypooelliptical/ypooelliptical.cpp \
 devices/ziprotreadmill/ziprotreadmill.cpp \
 zwift_play/zwiftclickremote.cpp \
+devices/obclistener/obclistener.cpp \
 devices/computrainerbike/Computrainer.cpp \
 devices/kettlerusbbike/KettlerUSB.cpp \
 devices/freebeatbike/FreebeatUSB.cpp \
@@ -463,6 +464,7 @@ zwift_play/zapBleUuids.h \
 zwift_play/zapConstants.h \
 zwift_play/zwiftPlayDevice.h \
 zwift_play/zwiftclickremote.h \
+devices/obclistener/obclistener.h \
 virtualdevices/virtualdevice.h \
 androidactivityresultreceiver.h \
 androidadblog.h \
