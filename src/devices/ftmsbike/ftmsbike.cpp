@@ -146,6 +146,15 @@ void ftmsbike::processWriteQueue() {
 
     isWriting = true;
     currentWriteWaitingForResponse = request.wait_for_response;
+    currentWriteExpectedResponse.clear();
+    if (request.wait_for_response && request.characteristic.uuid() == QBluetoothUuid((quint16)0x2AD9) &&
+        request.data.length() > 0) {
+        // FTMS Control Point responses must identify the command they acknowledge
+        // and report success: 0x80 <request opcode> 0x01.
+        currentWriteExpectedResponse.append((char)FTMS_RESPONSE_CODE);
+        currentWriteExpectedResponse.append(request.data.at(0));
+        currentWriteExpectedResponse.append((char)FTMS_SUCCESS);
+    }
     currentWriteService = request.service;
 
     if (request.write_without_response) {
@@ -165,6 +174,7 @@ void ftmsbike::completeCurrentWrite() {
     writeTimeoutTimer->stop();
     isWriting = false;
     currentWriteWaitingForResponse = false;
+    currentWriteExpectedResponse.clear();
     currentWriteService = nullptr;
     processWriteQueue();
 }
@@ -724,7 +734,18 @@ bool ftmsbike::shouldUseCalculatedResistanceFallback(const QDateTime &now) {
 
 void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     if (isWriting && currentWriteWaitingForResponse && sender() == currentWriteService) {
-        completeCurrentWrite();
+        if (currentWriteExpectedResponse.isEmpty()) {
+            // Non-FTMS writes retain the previous generic response behavior.
+            completeCurrentWrite();
+        } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD9) &&
+                   newValue == currentWriteExpectedResponse) {
+            qDebug() << "matched FTMS response" << newValue.toHex(' ');
+            completeCurrentWrite();
+        } else {
+            qDebug() << "ignoring unexpected FTMS response while waiting for"
+                     << currentWriteExpectedResponse.toHex(' ') << "received" << newValue.toHex(' ')
+                     << "from" << characteristic.uuid();
+        }
     }
 
     QDateTime now = QDateTime::currentDateTime();
