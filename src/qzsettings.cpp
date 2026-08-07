@@ -768,6 +768,7 @@ const QString QZSettings::poll_device_time = QStringLiteral("poll_device_time");
 const QString QZSettings::proform_bike_PFEVEX71316_1 = QStringLiteral("proform_bike_PFEVEX71316_1");
 const QString QZSettings::schwinn_bike_resistance_v3 = QStringLiteral("schwinn_bike_resistance_v3");
 const QString QZSettings::watt_ignore_builtin = QStringLiteral("watt_ignore_builtin");
+const QString QZSettings::sb20_buttons_enabled = QStringLiteral("sb20_buttons_enabled");
 const QString QZSettings::proform_treadmill_z1300i = QStringLiteral("proform_treadmill_z1300i");
 const QString QZSettings::ftms_bike = QStringLiteral("ftms_bike");
 const QString QZSettings::default_ftms_bike = QStringLiteral("Disabled");
@@ -1279,7 +1280,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1001;
+const uint32_t allSettingsCount = 1002;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1913,6 +1914,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1},
     {QZSettings::schwinn_bike_resistance_v3, QZSettings::default_schwinn_bike_resistance_v3},
     {QZSettings::watt_ignore_builtin, QZSettings::default_watt_ignore_builtin},
+    {QZSettings::sb20_buttons_enabled, QZSettings::default_sb20_buttons_enabled},
     {QZSettings::proform_treadmill_z1300i, QZSettings::default_proform_treadmill_z1300i},
     {QZSettings::ftms_bike, QZSettings::default_ftms_bike},
     {QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill},

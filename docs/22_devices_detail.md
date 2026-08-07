@@ -36,6 +36,17 @@ QZ takes control and sets a target, and the bike honours it:
 0x2AD9 <- 05 XX XX  Set Target Power    -> 80 05 01 XX XX  (success)
 ```
 
+#### Handlebar buttons
+The SB20's six handlebar buttons can control QZ — target power +/-, Peloton offset +/-, and gear
+down/up — behind **Settings -> Stages Bike Options -> SB20 handlebar buttons**. Holding a button
+repeats the action.
+
+They arrive on a vendor characteristic (`0c46be60`, service `0c46be5f`) as
+`<type:u8> 00 <bitmask:u16 LE>`, where the bitmask is a one-hot button id (bits 0-5: LEFT
+up/down/3rd, RIGHT up/down/3rd). A press streams `0x01` frames while held and ends with a `0x04`
+or `0x08` terminator; a `0x03` "commit" frame is only sent for a minority of presses, so the
+decode keys off the held-stream rather than the commit frame.
+
 #### Rare issue: telemetry drops to zero
 Uncommon — power and cadence are reliable in normal use. Documented because the symptom looks like
 a QZ bug when it is not.
