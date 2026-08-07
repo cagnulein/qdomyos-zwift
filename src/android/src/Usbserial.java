@@ -54,6 +54,11 @@ public class Usbserial {
         "/dev/ttyS2",
         "/dev/ttyS3"
     };
+    static final String[] hydrowSerialCandidates = {
+        "/dev/ttyMT1",
+        "/dev/ttyUSB0",
+        "/dev/ttyACM0"
+    };
 
     public static void open(Context context) {
         open(context, 2400); // Default baud rate for Computrainer
@@ -134,6 +139,11 @@ public class Usbserial {
         }
     }
 
+    public static void openHydrow(Context context, int baudRate) {
+        QLog.d("QZ", "UsbSerial Hydrow local serial candidate scan");
+        openLocalSerialCandidates(baudRate, hydrowSerialCandidates);
+    }
+
     private static void openLocalSerial(String devicePath, int baudRate) {
         QLog.d("QZ","UsbSerial local serial open " + devicePath + " with baud rate: " + baudRate);
         port = null;
@@ -142,16 +152,20 @@ public class Usbserial {
         lastReadLen = 0;
 
         if (devicePath.equalsIgnoreCase("auto")) {
-            for (String candidate : localSerialCandidates) {
-                if (openLocalSerialPath(candidate, baudRate)) {
-                    return;
-                }
-            }
+            openLocalSerialCandidates(baudRate, localSerialCandidates);
             QLog.d("QZ","UsbSerial local serial auto open failed");
             return;
         }
 
         openLocalSerialPath(devicePath, baudRate);
+    }
+
+    private static void openLocalSerialCandidates(int baudRate, String[] candidates) {
+        for (String candidate : candidates) {
+            if (openLocalSerialPath(candidate, baudRate)) {
+                return;
+            }
+        }
     }
 
     private static boolean openLocalSerialPath(String devicePath, int baudRate) {
@@ -187,6 +201,29 @@ public class Usbserial {
         }
         catch (Exception e) {
             QLog.d("QZ","UsbSerial local serial stty failed: " + e.getMessage());
+        }
+    }
+
+    public static void close() {
+        if(localSerialMode && localSerialFd != null) {
+            try {
+                Os.close(localSerialFd);
+            }
+            catch (ErrnoException e) {
+                QLog.d("QZ","UsbSerial local serial close failed: " + e.getMessage());
+            }
+        }
+        localSerialFd = null;
+        localSerialMode = false;
+        lastReadLen = 0;
+        if(port != null) {
+            try {
+                port.close();
+            }
+            catch (IOException e) {
+                QLog.d("QZ","UsbSerial close failed: " + e.getMessage());
+            }
+            port = null;
         }
     }
 

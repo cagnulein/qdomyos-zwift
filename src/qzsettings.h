@@ -1820,6 +1820,9 @@ class QZSettings {
     static const QString freebeat_serialport;
     static const QString default_freebeat_serialport;
 
+    static const QString hydrow_serialport;
+    static const QString default_hydrow_serialport;
+
     static const QString strava_virtual_activity;
     static constexpr bool default_strava_virtual_activity = true;
 
