@@ -1,48 +1,153 @@
-# Wired Xbox controller → MyWhoosh virtual gears
+# Wired Xbox controller → MyWhoosh / Rouvy virtual gears
 
-Shift MyWhoosh's virtual gears from a wired Xbox controller on Windows, without
-the BikeControl companion app.
+Shift virtual gears from a wired Xbox controller on Windows, without the
+BikeControl or ROUVY Companion apps. (The directory keeps its original
+MyWhoosh-only name; Rouvy support was added later.)
 
 Two routes are provided, and they answer different questions:
 
 | | Route A — keystrokes | Route B — QZ bridge |
 |---|---|---|
 | Script | `xbox-mywhoosh-gears.ahk` | `qz_gear_bridge.py` |
-| Path | pad → AutoHotkey → `I`/`K` → MyWhoosh | pad → Python → QZ WebSocket → OpenBikeControl → MyWhoosh |
-| Who owns the gears | MyWhoosh (MyShift) | QZ (gear table, gear→resistance mapping, gear tile) |
+| Apps | MyWhoosh and Rouvy | MyWhoosh |
+| Path | pad → AutoHotkey → shift keys → app | pad → Python → QZ WebSocket → OpenBikeControl → MyWhoosh |
+| Who owns the gears | the app | QZ (gear table, gear→resistance mapping, gear tile) |
 | Needs QZ running | no | yes, on a host the PC can reach |
-| Needs MyWhoosh focused | yes | no |
+| Needs the app focused | yes | no |
 
 Start with Route A. Move to Route B only if you want QZ's gearing model rather
-than MyWhoosh's.
+than MyWhoosh's. Route B is MyWhoosh-only — it works by speaking
+OpenBikeControl, which Rouvy does not implement.
 
-## Route A — AutoHotkey sends MyWhoosh's own shift keys
+## Route A — AutoHotkey sends each app's own shift keys
 
-MyWhoosh shifts with the `I` (up) and `K` (down) keys, the same keys the
-handlebar-shifter DIY builds emulate with a BLE keyboard. The script polls the
-pad through XInput and sends those keystrokes only while the MyWhoosh window is
-active.
+The script polls the pad through XInput and sends the focused app's shortcuts.
+It ships with one **profile** per app, and picks whichever profile's window is
+active — so the same script covers both, with nothing to change between rides.
+When neither app is in front, it stays completely silent.
 
-1. Install [AutoHotkey v2](https://www.autohotkey.com/).
-2. Plug in the controller and run `xbox-mywhoosh-gears.ahk`.
-3. `RB` shifts up (harder), `LB` shifts down (easier). Hold a button to repeat.
-   `Ctrl+Alt+P` pauses the script.
+1. Install [AutoHotkey v2](https://www.autohotkey.com/), e.g.
+   `winget install --id AutoHotkey.AutoHotkey --exact`. A silent/user-scope
+   install does not always register the `.ahk` file association; `run-gears.cmd`
+   sidesteps that by calling `AutoHotkey64.exe` directly.
+2. Plug in the controller and run `run-gears.cmd` (or `xbox-mywhoosh-gears.ahk`
+   itself, if double-clicking scripts works on the machine).
+3. `Ctrl+Alt+P` pauses the script; the tray icon exits it.
 
-Rebinding is at the top of the file: `BTN_GEAR_UP` / `BTN_GEAR_DOWN` take the
-XInput masks listed in the comments (D-pad, A/B/X/Y, thumb clicks, …), and
-`TARGET_WINDOW` restricts where keys are sent — set it to `""` to send
-regardless of focus.
+### Pad mapping — MyWhoosh
+
+MyWhoosh's keyboard support is deliberately small — steering, shifting, seven
+emotes and two UI toggles is the whole of it. All of it is bound:
+
+| Pad | Key | Action |
+|---|---|---|
+| `RB` | `I` | Shift up (harder) — hold to repeat |
+| `LB` | `K` | Shift down (easier) — hold to repeat |
+| Left stick ←/→, or D-pad ←/→ | `←` / `→` | Steer, held for as long as the input is |
+| `Y` | `1` | Peace |
+| `B` | `2` | Wave |
+| `X` | `3` | Fist bump |
+| D-pad ↓ | `4` | Dab |
+| `L3` | `5` | Elbow flick |
+| D-pad ↑ | `6` | Toast |
+| `A` | `7` | Thumbs up |
+| `Back` | `U` | Toggle minimal UI |
+| `Start` | `H` | Hide all controls (HD version only) |
+
+`R3` is left free: `F11` (fullscreen) is the only shortcut still spare, and a
+stray thumb-click dropping MyWhoosh out of fullscreen mid-ride is worse than not
+having it.
+
+### Pad mapping — Rouvy
+
+Rouvy's shortcut surface is smaller still: 24 virtual gears, and the OmniMode
+camera views. There is no steering and there are no emotes, so the sticks,
+D-pad, `Back` and `Start` are left unbound rather than mapped to something
+invented.
+
+| Pad | Key | Action |
+|---|---|---|
+| `RB` | `.` | Shift up — hold to repeat |
+| `LB` | `,` | Shift down — hold to repeat |
+| `Y` | `F` | Front view |
+| `B` | `B` | Look back |
+| `X` | `P` | Panorama |
+
+Rouvy accepts either `.` / `,` or `+` / `-` for shifting. The unshifted pair is
+bound because `+` is `Shift`+`=` on most layouts (and on the ABNT2 layout this
+machine uses), which is a messier event for a game engine to read than a single
+unshifted key. Both forms were checked to send correctly; swap them in the
+profile if your build disagrees.
+
+The camera keys apply to OmniMode (360°) routes — on a normal route there is
+nothing for them to switch.
+
+### Rebinding
+
+Each profile is an entry in the `PROFILES` table at the top of the script, with
+a `window` to match on and a list of bindings. A binding takes an XInput mask
+(the masks are listed just above the table), the key to send, and a mode:
+
+- `tap` sends the key once per press, with optional hold-to-repeat. Correct for
+  shifting, emotes and camera views.
+- `hold` presses the key down with the button and releases it when the button
+  comes up. Steering needs this; a tap would produce a twitch rather than a
+  turn.
+
+The first profile whose window is active wins, so order matters; a profile with
+`window: ""` matches anything and is only useful as a last-entry catch-all.
+Adding a third app is a new entry, not a code change.
+
+Held keys are released whenever the profile changes, the app loses focus, the
+pad disconnects, the script is paused, or it exits — so a steering key can never
+get stuck down.
+
+Windows are matched on the process rather than the title, so a mid-ride title
+change cannot silently stop the shifting:
+
+- MyWhoosh — the Microsoft Store build
+  (`MyWhooshTechnologyService.644173E064ED2`) ships its binary at
+  `MyWhoosh\Binaries\Win64\MyWhoosh.exe`.
+- Rouvy — installs outside Program Files' usual layout, at
+  `C:\Program Files\VirtualTraining\Rouvy\Rouvy.exe`.
+
+If a build names its executable differently, check with AutoHotkey's bundled
+WindowSpy.
 
 Requirements and caveats:
 
-- MyWhoosh virtual shifting (MyShift) must be active for the ride — that means
-  the trainer paired in a mode MyWhoosh can control. The gear indicator sits at
-  the bottom right and starts at 15.
-- Because MyWhoosh owns the gears here, do not run QZ's virtual gearing against
+- Virtual shifting must be active for the ride. On MyWhoosh that is MyShift,
+  which needs the trainer paired in a mode MyWhoosh can control; its gear
+  indicator sits at the bottom right and starts at 15. On Rouvy it is the
+  virtual shifting mode, giving 24 gears.
+- Because the app owns the gears here, do not run QZ's virtual gearing against
   the same ride as well, or you get two gearboxes fighting over resistance.
 - The analog triggers are not buttons in XInput; they are separate 0–255 axes
   (offsets 6 and 7 of `XINPUT_STATE`). The script reads the button word only, so
   bind shoulder buttons, D-pad or face buttons.
+
+### When a button does nothing
+
+Work down the chain rather than guessing — set `DEBUG := true` at the top of the
+script and it logs every profile switch, button edge and keystroke to
+`xbox-mywhoosh-gears.log` next to the script. That separates the failures that
+look identical from the saddle:
+
+1. **Nothing in the log at all** — the pad is not being read. An unplugged or
+   asleep controller makes the script silently do nothing, by design.
+2. **The log stops at `profile -> (none)`** — no profile's window is active.
+   The script is deliberately quiet unless the app is in front, so alt-tabbing
+   away stops it.
+3. **The log shows the keystroke, but the app ignores it** — the usual cause is
+   the app sampling input once per frame and missing a keystroke that went down
+   and up inside that frame. Both are game engines (MyWhoosh is Unreal, Rouvy is
+   Unity), so raise `KEY_HOLD_MS` (default 60 ms).
+4. **The wrong thing happens** — the shortcut is bound the other way round in
+   your build. Swap the two `key:` values in that profile.
+
+If the app is running elevated and AutoHotkey is not, Windows blocks the
+keystrokes outright (UIPI) and nothing reaches the app whatever the log says;
+run both the same way.
 
 ## Route B — bridge the pad into QZ, let QZ drive MyWhoosh
 
@@ -139,7 +244,8 @@ one direct request was declined, and the OpenBikeControl work that landed is
 what makes Route B possible.
 
 - [#2783 — *Create Qz compatible with Xbox Controller*](https://github.com/cagnulein/qdomyos-zwift/issues/2783)
-  asked for exactly this (for Rouvy). Closed `enhancement` + `wontfix`.
+  asked for exactly this, for Rouvy. Closed `enhancement` + `wontfix` — the
+  Rouvy profile in Route A is what that request wanted, done outside QZ.
 - [#4512 — *[REQ] Add openbikecontrol protocol support*](https://github.com/cagnulein/qdomyos-zwift/issues/4512)
   requested the protocol so QZ could drive MyWhoosh's shifting directly. The
   producer side shipped as #4504 (`MyWhooshLink`, mDNS + TCP/UDP on 36867).
@@ -173,4 +279,9 @@ keystroke path, in hardware.
 - [MyWhoosh keyboard shortcuts](https://mywhooshinfo.com/blog/mywhoosh-keyboard-shortcuts)
 - [MyWhoosh now officially supports BikeControl / OpenBikeControl](https://bikecontrol.app/blog/mywhoosh-bikecontrol-partnership/)
 - [OpenBikeControl protocol](https://github.com/OpenBikeControl/openbikecontrol-protocol)
+- [ROUVY — Virtual Shifting](https://support.rouvy.com/hc/en-us/articles/32452137189393-Virtual-Shifting)
+  (`.` / `,` or `+` / `-`, 24 gears)
+- [ROUVY — virtual shifting overview](https://rouvy.com/virtual-shifting)
+- [ROUVY — Display and Video Issues and Tips](https://support.rouvy.com/hc/en-us/articles/12988220814225-Display-and-Video-Issues-and-Tips)
+  (camera hotkeys `B` / `P` / `F`)
 - [QZ wiki — Virtual Gearing with Zwift, Rouvy, MyWhoosh and Training Peaks](https://github.com/cagnulein/qdomyos-zwift/wiki/Virtual-Gearing-on-QZ-with-Zwift,-Rouvy,-Mywhoosh-and-Traning-Peaks)
