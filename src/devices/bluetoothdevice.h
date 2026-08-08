@@ -235,6 +235,9 @@ class bluetoothdevice : public QObject {
      */
     double wattsMetricforUI() {
         QSettings settings;
+        if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause).toBool()) {
+            return wattsMetric().value();
+        }
         bool power3s = settings.value(QZSettings::power_avg_3s, QZSettings::default_power_avg_3s).toBool();
         bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
         if (power3s)
