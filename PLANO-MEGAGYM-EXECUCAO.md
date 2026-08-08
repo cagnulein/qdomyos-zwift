@@ -317,13 +317,37 @@ histograma de intervalos entre comandos, mais `corr(cadência, R)`. Custo zero, 
 > Interage com a Frente A: banda morta menor gera mais trocas, que o limitador vai suavizar.
 > **Testar A e B separadamente antes de combinar**, senão não se sabe o que causou o quê.
 
-### 4.3 Auto-ERG — continua fazendo sentido ❓
+### 4.3 Auto-ERG — continua fazendo sentido ❓ **(não implementado)**
 
 A Fase 6 da `PLANO-MEGAGYM` (settings `zwift_erg_auto` e `zwift_erg_auto_hold`, engate no
 primeiro `0x05` e soltura por timeout) evita ter de alternar `zwift_erg` entre free ride e
 treino. Você faz os dois, então o incômodo é real.
 
 Prioridade **abaixo** de A e de 4.2: é conveniência, não correção.
+
+> **Estado verificado em 8/8:** `zwift_erg_auto` e `zwift_erg_auto_hold` **não existem em
+> lugar nenhum** — 0 ocorrências em `src/` nos 7 branches locais e 8 remotos, incluindo
+> `master`, e nenhuma chave correspondente em `qzsettings.h`. Não é "não testado", é **não
+> construído**. Não há o que testar até alguém escrever.
+
+#### 4.3.1 O tile de potência-alvo — o que dá e o que não dá para testar hoje
+
+Pergunta separável e legítima: uma mudança de alvo chega mesmo ao tile da GUI?
+
+O caminho é `homeform.h:899` (`DataObject *target_power`), alimentado em
+`homeform.cpp:6868` a partir de `((bike *)device)->lastRequestedPower().value()`. Ou seja,
+**o tile não tem lógica própria** — ele renderiza `lastRequestedPower()`. Isso parte o teste
+em duas metades de custo muito diferente:
+
+| Metade | Custo | O que cobre |
+|---|---|---|
+| Contrato do dispositivo: `changePower()` → `lastRequestedPower()` | Barato, dá para hoje, sem GUI | Que o valor que o tile lê é o que o app mandou. É onde um defeito real moraria |
+| Fim a fim: `lastRequestedPower()` → pixel do tile | Caro | `homeform` é um QObject grande acoplado a QML; instanciá-lo num teste pede `QQmlApplicationEngine` e um `bluetoothManager`. **Não existe andaime para isso**: a única menção a `homeform` em `tst/` é `bt.homeformLoaded = true` em `bluetoothdevicetestsuite.cpp:22`, uma flag |
+
+A segunda metade também é a que menos paga: como o tile só espelha o campo, um teste de GUI
+falharia quase sempre por causa do andaime, não por causa do produto. **Recomendação:
+cobrir a primeira metade e verificar a segunda com o olho**, que é como ela já foi
+verificada em 7/8 — o alvo do MyWhoosh apareceu no tile.
 
 ### 4.4 Marcha em dobro — encerrado como contorno
 
@@ -586,3 +610,93 @@ Ordenadas por quanto travam decisão.
 R$ 2.000–4.500. Não é pré-requisito de nada. É a única coisa que tornaria falsificável
 qualquer afirmação sobre watt absoluto — inclusive o critério da §3.5, que hoje se apoia
 numa premissa em vez de numa referência.
+
+---
+
+## 9. Defeitos abertos — levantados em 8/8
+
+Três relatos do uso real. Nenhum corrigido ainda; os dois primeiros têm causa localizada no
+código, o terceiro está na §4.3.
+
+### 9.1 Nada re-arma a busca quando o dispositivo cai ❗
+
+**Sintoma relatado:** desligar a bike derruba o QZ em vez de fazê-lo voltar para
+"procurando".
+
+**Achado.** Em `src/devices/bluetooth.cpp` existem **105 linhas** da forma
+`connect(<device>, SIGNAL(disconnected()), this, SLOT(restart()))` — **todas comentadas.
+Nenhuma ativa**, para nenhum tipo de dispositivo. O `disconnected()` é emitido
+(`ftmsbike.cpp:2376–2379`, no `QLowEnergyController::disconnected`) e **não tem quem
+escute**. Não há caminho de volta para a descoberta.
+
+Consequência direta: o objeto do dispositivo continua vivo com um `QLowEnergyController`
+morto pendurado, e todo mundo que ainda segura `bluetoothManager->device()` — `homeform`,
+o tick de `update()`, os virtual devices — segue chamando método em cima disso. É o
+candidato natural ao crash, e explica por que o sintoma é "morre" em vez de "volta a
+procurar".
+
+**Duas correções de premissa, ambas verificadas:**
+
+1. **`android_daemon_mode` é chave morta.** Não existe em `qzsettings.h` nem em
+   `qzsettings.cpp`, e nada no código a lê — as únicas ocorrências de "daemon" em `src/`
+   são os fontes do `adb` embarcado para iOS, sem relação. Ela aparece no log porque
+   `main.cpp:710` despeja `settings.allKeys()`, isto é, o arquivo de settings inteiro,
+   incluindo chaves legadas de versões antigas. **Não existe "modo daemon" neste build**;
+   não há o que configurar nem o que consertar aí.
+2. **Log terminando no meio não é prova de crash.** A §1.6 já estabeleceu que o log trunca.
+   Os três logs de 7/8 terminam abruptamente numa escrita do virtualbike e têm **0**
+   ocorrências de "disconnected" — o que é consistente tanto com crash quanto com a
+   truncagem conhecida. **O log do QZ não vai conter o stack.**
+
+**O que logar.** O stack está no Android, não no QZ. Agora que o adb funciona:
+
+```bash
+"/c/Android/sdk/platform-tools/adb.exe" logcat -b crash -d          # buffer de crash
+"/c/Android/sdk/platform-tools/adb.exe" shell dumpsys dropbox --print | head -200
+"/c/Android/sdk/platform-tools/adb.exe" shell ls /data/tombstones   # se acessível
+```
+Reproduzir com `adb logcat` aberto e desligar a bike. Somar a isso um `qDebug` no
+`disconnected()` de `ftmsbike` com o estado do controller no momento — hoje não há nenhum.
+
+**Teste.** O acoplamento de `bluetooth.cpp` ao BLE real torna caro um teste fim a fim. O
+teste que paga é sobre a **máquina de estados**: dado um dispositivo em estado conectado,
+emitir `disconnected()` e verificar que (a) a descoberta re-arma e (b) ninguém mais
+desreferencia o dispositivo antigo. Isso pede um device falso — `fakebike` já existe e
+serve de ponto de partida.
+
+### 9.2 O handshake de START/RESUME não espera confirmação, e o resultado fica travado ❗
+
+**Sintoma relatado:** às vezes o comando de "start" não sai, ou sai cedo demais; a console
+nunca faz a contagem "3..2..1"; só resolve reiniciando o QZ.
+
+**Achado.** `ftmsbike::init()` (`ftmsbike.cpp:171`) tem quatro problemas somados, e os
+quatro batem com o sintoma:
+
+| | |
+|---|---|
+| 1 | `ret` recebe o retorno do `REQUEST_CONTROL` (0x00) e é **sobrescrito** pelo do `START_RESUME` (0x07). O resultado do request-control é descartado sem ser olhado |
+| 2 | `writeCharacteristic` devolve o retorno de `enqueueWrite`: **"foi enfileirado"**, não "a bike confirmou". `ret == true` não diz nada sobre o controle ter sido concedido |
+| 3 | **Não há espera pela indicação do control point entre 0x00 e 0x07.** Pelo FTMS o servidor precisa responder ao request-control antes de aceitar as operações seguintes. Emitir 0x07 na sequência é corrida — se o controle ainda não foi concedido, a bike descarta o start. É literalmente "cedo demais" |
+| 4 | `initDone = true` **trava**: `init()` retorna cedo para sempre. Um handshake que falhou **nunca é repetido** — daí "só resolve reiniciando" |
+
+O workaround do D500V2 no mesmo arquivo (`:1976–1994`) mostra que a ordem 0x00 → 0x07 já é
+conhecida como frágil, mas o tratamento existe do lado do **dispositivo virtual**, não do
+lado da bike real.
+
+**O que logar.** Cada resposta do control point com o **result code** (o FTMS devolve
+`0x80 <opcode> <result>`; `0x01` é sucesso), e o intervalo em ms entre o 0x00 e o 0x07.
+Hoje o log mostra a escrita saindo e nada sobre a resposta, que é justamente a metade que
+decide.
+
+**Teste.** É o defeito mais barato de testar dos três: o control point é um caminho de
+bytes. Alimentando as respostas do dispositivo dá para verificar sem BLE que (a) o 0x07 só
+sai depois do ack do 0x00, (b) `initDone` só trava quando o 0x07 é confirmado, e (c) um ack
+que não vem provoca nova tentativa em vez de silêncio permanente.
+
+**Correção candidata, não aplicada:** tratar a indicação do control point, marcar `initDone`
+apenas com o 0x07 confirmado, e repetir o handshake se a confirmação não chegar.
+
+### 9.3 Auto-ERG — ver §4.3
+
+Não é "não testado", é **não construído**. A verificação e o que dá para testar do tile de
+potência-alvo estão na §4.3.1.
