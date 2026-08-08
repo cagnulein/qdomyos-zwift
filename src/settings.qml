@@ -1737,6 +1737,8 @@ import AndroidStatusBar 1.0
             property int mywhoosh_link_emote_value: 1
             property bool waterrower_usb: false
             property string freebeat_serialport: ""
+            property real resistance_slew_up: 0.0
+            property real resistance_slew_down: 0.0
         }
 
 
@@ -3856,6 +3858,82 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("See above. Default is 10.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelResistanceSlewUp
+                            text: qsTr("Resistance Rate Limit Up (levels/s):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: resistanceSlewUpTextField
+                            text: settings.resistance_slew_up
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.resistance_slew_up = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okResistanceSlewUpButton
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.resistance_slew_up = resistanceSlewUpTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("On bikes that move the magnets with a motor, the app can ask for a resistance level faster than the motor can reach it. Since these bikes report back the level they were asked for and not the one the magnets are at, the power they publish is then higher than the effort you actually made. This setting caps how fast the resistance command is allowed to rise, in levels per second, so the target never outruns the magnets: set it to the speed your bike actually changes resistance at. You lose some responsiveness on rolling terrain and gain a power figure you can trust. 0 disables it. Default is 0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelResistanceSlewDown
+                            text: qsTr("Resistance Rate Limit Down (levels/s):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: resistanceSlewDownTextField
+                            text: settings.resistance_slew_down
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.resistance_slew_down = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okResistanceSlewDownButton
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.resistance_slew_down = resistanceSlewDownTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("See above, for decreasing resistance. These motors are usually faster coming down than going up, so this value is normally the larger of the two. 0 disables it. Default is 0.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

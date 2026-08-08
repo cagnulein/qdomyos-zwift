@@ -29,6 +29,7 @@
 
 #include "wheelcircumference.h"
 #include "devices/bike.h"
+#include "devices/ftmsbike/resistanceslewlimiter.h"
 #include "inclinationresistancetable.h"
 
 #ifdef Q_OS_IOS
@@ -114,6 +115,10 @@ class ftmsbike : public bike {
     uint16_t watts() override;
     void init();
     void forceResistance(resistance_t requestResistance);
+    void commandResistance(resistance_t requestResistance);
+    void configureResistanceSlew(QSettings &settings);
+    void resistanceSlewTick();
+    bool ergResistanceAccepted(resistance_t newResistance);
     void forcePower(int16_t requestPower);
     void forceInclination(double requestInclination);
     void sendZwiftPlayInclination(double inclination);
@@ -159,6 +164,16 @@ class ftmsbike : public bike {
 
     bool powerForced = false;
     resistance_t m_lastErgResistance = 0;
+
+    // Rate limiter for resistance commands, so the target never outruns the magnets.
+    // Inert unless resistance_slew_up/_down are configured.
+    resistanceSlewLimiter resistanceSlew;
+
+    // How long a single-level ERG change has to be asked for before it is acted on. Anything
+    // larger is a real move and is not delayed. See ergResistanceAccepted().
+    static constexpr qint64 ergSingleLevelHoldMs = 3000;
+    resistance_t m_ergPendingResistance = 0;
+    qint64 m_ergPendingSince = 0;
     bool manualResistancePowerAdjustmentActive = false;
     bool manualResistancePowerAdjustmentToastShown = false;
     resistance_t manualResistanceTarget = 1;

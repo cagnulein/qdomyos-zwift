@@ -3309,6 +3309,25 @@ class QZSettings {
     static constexpr int default_zwiftplay_gear_rb = 0; // Disabled
 
     /**
+     *@brief resistance_slew_up Maximum rate, in resistance levels per second, at which the resistance
+     *command is allowed to increase. On bikes whose console reports the commanded target instead of the
+     *magnet position, a target that climbs faster than the actuator makes the bike publish an effort the
+     *rider never made. Limiting the command to the actuator's own rate keeps the published value honest,
+     *at the cost of responsiveness on rolling terrain. 0 disables the limiter and keeps the previous
+     *behaviour exactly. Measured on a YPOO-based console: 2-3 levels/s.
+     */
+    static const QString resistance_slew_up;
+    static constexpr double default_resistance_slew_up = 0.0;
+
+    /**
+     *@brief resistance_slew_down Same as resistance_slew_up, for decreasing resistance. The actuator is
+     *usually faster coming down than going up, which is exactly why the error is one-sided when it is not
+     *limited. Measured on a YPOO-based console: 4-5 levels/s. 0 disables it.
+     */
+    static const QString resistance_slew_down;
+    static constexpr double default_resistance_slew_down = 0.0;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */

@@ -32,6 +32,8 @@ SOURCES += \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
         Devices/TestKeepBikeParser.cpp \
+        Devices/TestResistanceSlewLimiter.cpp \
+        Erg/TestErgTableSelection.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests
@@ -63,9 +65,11 @@ HEADERS += \
     Devices/TestSchwinn411510EParser.h \
     Devices/TestApexBikeParser.h \
     Devices/TestKeepBikeParser.h \
+    Devices/TestResistanceSlewLimiter.h \
     Devices/TestOctaneTreadmillZR8.h \
     Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \
+    Erg/TestErgTableSelection.h \
     GarminConnect/garminconnecttestsuite.h \
     TrainingProgram/trainprogramtestsuite.h \
     ToolTests/qfittestsuite.h \

@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 965,
+  "settingCount": 967,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -13719,6 +13719,32 @@
       "visible": true,
       "defaultValue": false,
       "defaultExpression": "false",
+      "options": null
+    },
+    {
+      "key": "resistance_slew_up",
+      "name": "Resistance Rate Limit Up (levels/s)",
+      "description": "On bikes that move the magnets with a motor, the app can ask for a resistance level faster than the motor can reach it. Since these bikes report back the level they were asked for and not the one the magnets are at, the power they publish is then higher than the effort you actually made. This setting caps how fast the resistance command is allowed to rise, in levels per second, so the target never outruns the magnets: set it to the speed your bike actually changes resistance at. You lose some responsiveness on rolling terrain and gain a power figure you can trust. 0 disables it. Default is 0.",
+      "parent": "Bike Options",
+      "type": "number",
+      "qmlType": "real",
+      "control": "text",
+      "visible": true,
+      "defaultValue": 0.0,
+      "defaultExpression": "0.0",
+      "options": null
+    },
+    {
+      "key": "resistance_slew_down",
+      "name": "Resistance Rate Limit Down (levels/s)",
+      "description": "See above, for decreasing resistance. These motors are usually faster coming down than going up, so this value is normally the larger of the two. 0 disables it. Default is 0.",
+      "parent": "Bike Options",
+      "type": "number",
+      "qmlType": "real",
+      "control": "text",
+      "visible": true,
+      "defaultValue": 0.0,
+      "defaultExpression": "0.0",
       "options": null
     }
   ]

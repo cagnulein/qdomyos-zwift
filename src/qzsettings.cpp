@@ -1129,6 +1129,9 @@ const QString QZSettings::zwiftplay_gear_paddle_right = QStringLiteral("zwiftpla
 const QString QZSettings::zwiftplay_gear_lb = QStringLiteral("zwiftplay_gear_lb");
 const QString QZSettings::zwiftplay_gear_rb = QStringLiteral("zwiftplay_gear_rb");
 
+const QString QZSettings::resistance_slew_up = QStringLiteral("resistance_slew_up");
+const QString QZSettings::resistance_slew_down = QStringLiteral("resistance_slew_down");
+
 // MyWhoosh Link settings
 const QString QZSettings::mywhoosh_link_enabled = QStringLiteral("mywhoosh_link_enabled");
 const QString QZSettings::mywhoosh_link_override_gears = QStringLiteral("mywhoosh_link_override_gears");
@@ -1279,7 +1282,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1001;
+const uint32_t allSettingsCount = 1003;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2305,6 +2308,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwiftplay_gear_lb, QZSettings::default_zwiftplay_gear_lb},
     {QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb},
     {QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport},
+    {QZSettings::resistance_slew_up, QZSettings::default_resistance_slew_up},
+    {QZSettings::resistance_slew_down, QZSettings::default_resistance_slew_down},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
