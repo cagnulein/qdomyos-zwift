@@ -268,8 +268,15 @@ jobs:
             ${{ github.workspace }}/output/android-release-signed.apk
             ${{ github.workspace }}/output/android-release-signed.aab
 
+      # Whether Play requires (or forbids) changesNotSentForReview on commit
+      # depends on that specific release, not on the app/track - it flips
+      # between "must be set" and "must not be set" across otherwise
+      # identical runs. So try one way, and if Play rejects it, retry the
+      # other way instead of hardcoding a value that will eventually be wrong.
       - name: Publish to Play Store (internal testing track)
+        id: publish_attempt1
         if: ${{ inputs.publish }}
+        continue-on-error: true
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
@@ -277,3 +284,21 @@ jobs:
           releaseFiles: ${{ github.workspace }}/output/android-release-signed.aab
           track: internal
           status: completed
+
+      - name: Publish to Play Store (retry with changesNotSentForReview inverted)
+        id: publish_attempt2
+        if: ${{ inputs.publish && steps.publish_attempt1.outcome == 'failure' }}
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: org.cagnulen.qdomyoszwift
+          releaseFiles: ${{ github.workspace }}/output/android-release-signed.aab
+          track: internal
+          changesNotSentForReview: true
+          status: completed
+
+      - name: Fail job if both publish attempts failed
+        if: ${{ inputs.publish && steps.publish_attempt1.outcome == 'failure' && steps.publish_attempt2.outcome != 'success' }}
+        run: |
+          echo "Both publish attempts failed (with and without changesNotSentForReview) - see the two steps above for the actual errors."
+          exit 1

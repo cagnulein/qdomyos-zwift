@@ -36,6 +36,7 @@
 #ifndef Q_OS_IOS
 #include "devices/computrainerbike/computrainerbike.h"
 #include "devices/kettlerusbbike/kettlerusbbike.h"
+#include "devices/freebeatbike/freebeatbike.h"
 #include "devices/csaferower/csaferower.h"
 #include "devices/csafeelliptical/csafeelliptical.h"
 #endif
@@ -132,6 +133,7 @@
 #include "devices/sportstechrower/sportstechrower.h"
 #include "devices/sramAXSController/sramAXSController.h"
 #include "devices/stagesbike/stagesbike.h"
+#include "devices/kettlerc12bike/kettlerc12bike.h"
 
 #include "devices/renphobike/renphobike.h"
 #include "devices/tacxneo2/tacxneo2.h"
@@ -150,6 +152,7 @@
 #include "devices/trxappgateusbelliptical/trxappgateusbelliptical.h"
 #include "devices/trxappgateusbrower/trxappgateusbrower.h"
 #include "devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h"
+#include "devices/waterrowerusb/waterrowerusb.h"
 #include "devices/ultrasportbike/ultrasportbike.h"
 #include "devices/wahookickrheadwind/wahookickrheadwind.h"
 #include "devices/wahookickrsnapbike/wahookickrsnapbike.h"
@@ -202,6 +205,7 @@ class bluetooth : public QObject, public SignalHandler {
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
     kettlerusbbike *kettlerUsbBike = nullptr;
+    freebeatbike *freebeatBike = nullptr;
     csaferower *csafeRower = nullptr;
     csafeelliptical *csafeElliptical = nullptr;
 #endif
@@ -270,6 +274,7 @@ class bluetooth : public QObject, public SignalHandler {
     mcfbike *mcfBike = nullptr;
     npecablebike *npeCableBike = nullptr;
     stagesbike *stagesBike = nullptr;
+    kettlerc12bike *kettlerC12Bike = nullptr;
     solebike *soleBike = nullptr;
     soleelliptical *soleElliptical = nullptr;
     solef80treadmill *soleF80 = nullptr;
@@ -279,6 +284,7 @@ class bluetooth : public QObject, public SignalHandler {
     echelonrower *echelonRower = nullptr;
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
+    waterrowerusb *waterRowerUSB = nullptr;
     sunnyfitstepper *sunnyfitStepper = nullptr;
     echelonstride *echelonStride = nullptr;
     echelonstairclimber *echelonStairclimber = nullptr;
@@ -384,6 +390,35 @@ class bluetooth : public QObject, public SignalHandler {
 
     void bluetoothDeviceConnected(bluetoothdevice *b);
     void bluetoothDeviceDisconnected();
+    void zwiftClickPlus();
+    void zwiftClickMinus();
+    void zwiftPlayPlus();
+    void zwiftPlayMinus();
+    void zwiftPlayLeftUp(bool pressed);
+    void zwiftPlayLeftDown(bool pressed);
+    void zwiftPlayLeftLeft(bool pressed);
+    void zwiftPlayLeftRight(bool pressed);
+    void zwiftPlayLeftShoulder(bool pressed);
+    void zwiftPlayLeftPower(bool pressed);
+    void zwiftPlayLeftPaddle(int value);
+    void zwiftRideLeftShiftUp(bool pressed);
+    void zwiftRideLeftShiftDown(bool pressed);
+    void zwiftRideLeftPower(bool pressed);
+    void zwiftRideLeftPowerUp(bool pressed);
+    void zwiftRideLeftOnOff(bool pressed);
+    void zwiftPlayRightY(bool pressed);
+    void zwiftPlayRightZ(bool pressed);
+    void zwiftPlayRightA(bool pressed);
+    void zwiftPlayRightB(bool pressed);
+    void zwiftPlayRightShoulder(bool pressed);
+    void zwiftPlayRightPower(bool pressed);
+    void zwiftPlayRightPaddle(int value);
+    void zwiftRideRightZAlt(bool pressed);
+    void zwiftRideRightShiftUp(bool pressed);
+    void zwiftRideRightShiftDown(bool pressed);
+    void zwiftRideRightPower(bool pressed);
+    void zwiftRideRightPowerUp(bool pressed);
+    void zwiftRideRightOnOff(bool pressed);
   public slots:
     void restart();
     void selectGymModeDevice(const QString &deviceName);

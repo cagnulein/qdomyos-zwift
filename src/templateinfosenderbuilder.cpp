@@ -490,21 +490,18 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue &msgContent, Temp
     QJsonObject outObj;
     QSettings settings;
     for (auto &key : keys) {
+        val = obj[key];
+        valConv = val.toVariant();
         if (settings.contains(key)) {
-            val = obj[key];
-            valConv = val.toVariant();
             settingVal = settings.value(key);
-            if (valConv.type() == settingVal.type()) {
-                settings.setValue(key, valConv);
-                outObj.insert(key, val);
-            } else {
-                outObj.insert(key, QJsonValue::fromVariant(settingVal));
+            if (valConv.type() != settingVal.type() && valConv.canConvert(settingVal.type())) {
+                // QSettings backends don't always round-trip the original type (e.g. bool
+                // coming back as QString/int), so coerce instead of silently dropping the update.
+                valConv.convert(settingVal.type());
             }
-        } else {
-            val = obj[key];
-            settings.setValue(key, val.toVariant());
-            outObj.insert(key, val);
         }
+        settings.setValue(key, valConv);
+        outObj.insert(key, QJsonValue::fromVariant(valConv));
     }
     settings.sync();
     QJsonObject main;

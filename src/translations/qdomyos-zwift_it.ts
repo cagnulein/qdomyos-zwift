@@ -1477,7 +1477,7 @@ Le seguenti domande personalizzeranno QZ per la tua attrezzatura e i tuoi obiett
     <message>
         <location filename="../Wizard.qml" line="814"/>
         <source>Zwift Play</source>
-        <translation>Zwift Gioco</translation>
+        <translation>Zwift Play</translation>
     </message>
     <message>
         <location filename="../Wizard.qml" line="831"/>
@@ -1906,7 +1906,7 @@ Le seguenti domande personalizzeranno QZ per la tua attrezzatura e i tuoi obiett
     <message>
         <location filename="../homeform.cpp" line="512"/>
         <source>Gears</source>
-        <translation>Ingranaggi</translation>
+        <translation>Marce</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="514"/>
@@ -2931,12 +2931,12 @@ Vuoi avviarlo ora?</translation>
     <message>
         <location filename="../settings.qml" line="3164"/>
         <source>Restore Gears on Startup</source>
-        <translation>Ripristina gli ingranaggi all&apos;avvio</translation>
+        <translation>Ripristina le marce all&apos;avvio</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="3179"/>
         <source>QZ will remember the last Gears value and it will restore on startup</source>
-        <translation>QZ ricorderà l&apos;ultimo valore di Gears e lo ripristinerà all&apos;avvio</translation>
+        <translation>QZ ricorderà l&apos;ultimo valore delle marce e lo ripristinerà all&apos;avvio</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="3194"/>
@@ -2951,7 +2951,7 @@ Vuoi avviarlo ora?</translation>
     <message>
         <location filename="../settings.qml" line="3243"/>
         <source>Specify a particular gear value to be restored at startup. This will override the &apos;Restore Gears on Startup&apos; setting.</source>
-        <translation>Specifica un valore di ingranaggio specifico da ripristinare all&apos;avvio. Questo sovrascriverà l&apos;impostazione &apos;Ripristina ingranaggi all&apos;avvio&apos;.</translation>
+        <translation>Specifica una marcia da ripristinare all&apos;avvio. Questo sovrascriverà l&apos;impostazione &apos;Ripristina marce all&apos;avvio&apos;.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="3258"/>
@@ -3387,7 +3387,7 @@ Vuoi avviarlo ora?</translation>
     <message>
         <location filename="../settings.qml" line="5790"/>
         <source>General UI Options</source>
-        <translation>Opzioni generali</translation>
+        <translation>Opzioni Interfaccia Utente</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="5801"/>
@@ -4463,7 +4463,7 @@ Vuoi avviarlo ora?</translation>
     <message>
         <location filename="../settings.qml" line="3751"/>
         <source>Gears Offset:</source>
-        <translation>Ingranaggi Offset:</translation>
+        <translation>Marce Offset:</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="3772"/>
@@ -4822,7 +4822,7 @@ Vuoi avviarlo ora?</translation>
     <message>
         <location filename="../settings.qml" line="7231"/>
         <source>Get Gears from Zwift</source>
-        <translation>Ottieni i Pignoni da Zwift</translation>
+        <translation>Ottieni le marce da Zwift</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="7254"/>
@@ -6553,7 +6553,7 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings.qml" line="14196"/>
         <source>Use it to change the gears on QZ!</source>
-        <translation>Usalo per cambiare i rapporti su QZ!</translation>
+        <translation>Usalo per cambiare le marce su QZ!</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14209"/>
@@ -6598,12 +6598,12 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings.qml" line="14317"/>
         <source>Use Zwift app ratio for gears (Experimental)</source>
-        <translation>Usa il rapporto dell&apos;app Zwift per i pignoni (Sperimentale)</translation>
+        <translation>Usa il rapporto dell&apos;app Zwift per le marce (Sperimentale)</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14331"/>
         <source>Use the zwift gears table instead of the QZ classic gears algorithm.  Default is off.</source>
-        <translation>Utilizza la tabella ingranaggi di Zwift invece dell&apos;algoritmo ingranaggi classico QZ. Predefinito è disattivato.</translation>
+        <translation>Utilizza la tabella delle marce di Zwift invece dell&apos;algoritmo classico QZ. Predefinito è disattivato.</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="14366"/>
@@ -7050,12 +7050,12 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-shortcuts.qml" line="218"/>
         <source>Gears + / -</source>
-        <translation>Ingranaggi + / -</translation>
+        <translation>Marce + / -</translation>
     </message>
     <message>
         <location filename="../settings-shortcuts.qml" line="223"/>
         <source>Gears Big Buttons + / -</source>
-        <translation>Ingranaggi Pulsanti Grandi + / -</translation>
+        <translation>Marce Pulsanti Grandi + / -</translation>
     </message>
     <message>
         <location filename="../settings-shortcuts.qml" line="231"/>
@@ -7906,7 +7906,7 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="1909"/>
         <source>Gears</source>
-        <translation>Ingranaggi</translation>
+        <translation>Marce</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="1940"/>
@@ -7916,7 +7916,7 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="1953"/>
         <source>Gears Big Buttons</source>
-        <translation>Ingranaggi Pulsanti Grandi</translation>
+        <translation>Marce Pulsanti Grandi</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="1981"/>

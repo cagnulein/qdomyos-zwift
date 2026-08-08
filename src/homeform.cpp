@@ -638,7 +638,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                        true, QStringLiteral("peloton_remaining"), valueElapsedFontSize, labelFontSize);
     strokesCount = new DataObject(tr("Strokes Count"), QStringLiteral("icons/icons/cadence.png"),
                                   QStringLiteral("0"), false, QStringLiteral("strokes_count"), 48, labelFontSize);
-    strokesLength = new DataObject(tr("Stroke Length"), QStringLiteral("icons/icons/cadence.png"),
+    strokesLength = new DataObject(tr("Strokes Length"), QStringLiteral("icons/icons/cadence.png"),
                                    QStringLiteral("0"), false, QStringLiteral("strokes_length"), 48, labelFontSize);
     gears = new DataObject(tr("Gears"), QStringLiteral("icons/icons/elevationgain.png"),
                            QStringLiteral("0"), true, QStringLiteral("gears"), 48, labelFontSize);
@@ -4537,35 +4537,37 @@ void homeform::moveTile(QString name, int newIndex, int oldIndex) {
     if (current) {
         qDebug() << "moveTile" << name << newIndex << oldIndex;
 
-        foreach (QString s, settings.allKeys()) {
-            if (s.contains(QStringLiteral("tile_")) && s.contains(QStringLiteral("_order"))) {
-
-                qDebug() << s << settings.value(s);
-            }
-        }
+        // Some DataObject m_ids don't match their QZSettings _order key (camelCase vs snake_case).
+        // This lambda returns the correct settings key for a given DataObject.
+        auto orderKey = [](const DataObject *d) -> QString {
+            static const QHash<QString, QString> overrides = {
+                {QStringLiteral("avgWattLap"),          QStringLiteral("tile_avg_watt_lap_order")},
+                {QStringLiteral("joul"),                QStringLiteral("tile_jouls_order")},
+                {QStringLiteral("steeringangle"),       QStringLiteral("tile_steering_angle_order")},
+                {QStringLiteral("stride_length"),       QStringLiteral("tile_instantaneous_stride_length_order")},
+                {QStringLiteral("external_inclination"),QStringLiteral("tile_ext_incline_order")},
+                {QStringLiteral("target_inclination"),  QStringLiteral("tile_target_incline_order")},
+            };
+            auto it = overrides.constFind(d->m_id);
+            if (it != overrides.constEnd()) return it.value();
+            return QStringLiteral("tile_") + d->m_id.toLower() + QStringLiteral("_order");
+        };
 
         int i = 0;
         foreach (QObject *d, dataList) {
             if (i == newIndex) {
-                settings.setValue("tile_" + current->m_id.toLower() + "_order", i);
+                settings.setValue(orderKey(current), i);
                 i++;
             }
-            QString n = ((DataObject *)d)->m_id;
             if (((DataObject *)d)->name().compare(name)) {
-                settings.setValue("tile_" + n.toLower() + "_order", i);
+                settings.setValue(orderKey((DataObject *)d), i);
                 i++;
             }
         }
-
-        foreach (QString s, settings.allKeys()) {
-            if (s.contains(QStringLiteral("tile_")) && s.contains(QStringLiteral("_order"))) {
-
-                qDebug() << s << settings.value(s);
-            }
+        if (i <= newIndex) {
+            settings.setValue(orderKey(current), newIndex);
         }
 
-        // sortTiles();
-        // dataList.move(oldIndex, newIndex);
         // very dirty, but i needed a way to synchronize QML with C++
         QTimer::singleShot(100, this, &homeform::sortTilesTimeout);
     }
@@ -7626,6 +7628,8 @@ void homeform::update() {
             // Get resistance and inclination values
             int resistance = 0;
             double inclination = 0.0;
+            int antEquipmentType = 0x19; // ANT+ FE Trainer/Stationary Bike
+            int strokeCount = 0;
             
             if (bluetoothManager->device()->deviceType() == BIKE) {
                 resistance = (int)((bike*)bluetoothManager->device())->currentResistance().value();
@@ -7634,17 +7638,21 @@ void homeform::update() {
                 resistance = (int)((elliptical*)bluetoothManager->device())->currentResistance().value();
                 inclination = ((elliptical*)bluetoothManager->device())->currentInclination().value();
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                antEquipmentType = 0x16; // ANT+ FE Rower
                 resistance = (int)((rower*)bluetoothManager->device())->currentResistance().value();
+                strokeCount = (int)((rower*)bluetoothManager->device())->currentStrokesCount().value();
             }
             
             // Call the extended metrics update via JNI
             KeepAwakeHelper::antObject(false)->callMethod<void>("updateBikeTransmitterExtendedMetrics", 
-                "(JIDID)V", 
+                "(JIDIDII)V",
                 distanceMeters, 
                 heartRate, 
                 elapsedTimeSeconds, 
                 resistance, 
-                inclination);                                      
+                inclination,
+                antEquipmentType,
+                strokeCount);
         }
 #endif
 
@@ -10754,7 +10762,7 @@ void homeform::sendMail() {
                        ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")) +
                        QStringLiteral("\n");
         textMessage +=
-            QStringLiteral("Average Stroke Length: ") +
+            QStringLiteral("Average Strokes Length: ") +
             QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1) + "\n";
     } else if (bluetoothManager->device()->deviceType() == TREADMILL || bluetoothManager->device()->deviceType() == ELLIPTICAL) {
         textMessage += QStringLiteral("Average Pace: ") +
