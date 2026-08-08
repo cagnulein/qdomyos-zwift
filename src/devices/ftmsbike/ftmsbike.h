@@ -29,6 +29,7 @@
 
 #include "wheelcircumference.h"
 #include "devices/bike.h"
+#include "devices/ftmsbike/ftmscontrolpointhandshake.h"
 #include "devices/ftmsbike/resistanceslewlimiter.h"
 #include "inclinationresistancetable.h"
 
@@ -115,6 +116,7 @@ class ftmsbike : public bike {
     uint16_t watts() override;
     void init();
     void forceResistance(resistance_t requestResistance);
+    void initHandshakeTick();
     void commandResistance(resistance_t requestResistance);
     void configureResistanceSlew(QSettings &settings);
     void resistanceSlewTick();
@@ -164,6 +166,10 @@ class ftmsbike : public bike {
 
     bool powerForced = false;
     resistance_t m_lastErgResistance = 0;
+
+    // Sequences REQUEST_CONTROL then START_RESUME, each behind its acknowledgement, so the
+    // start cannot arrive before the bike has granted control. See ftmsbike::init().
+    ftmsControlPointHandshake initHandshake;
 
     // Rate limiter for resistance commands, so the target never outruns the magnets.
     // Inert unless resistance_slew_up/_down are configured.

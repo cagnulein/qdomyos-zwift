@@ -168,30 +168,86 @@ void ftmsbike::completeCurrentWrite() {
     processWriteQueue();
 }
 
+/**
+ * @brief Begin - or continue - the FTMS control point handshake.
+ *
+ * This used to write REQUEST_CONTROL and START_RESUME back to back and then latch initDone on
+ * whether the *second* write could be queued. Three things were wrong with that: the
+ * request-control result was overwritten before anyone looked at it, "queued" is not
+ * "acknowledged", and FTMS requires the server to answer request-control before it will accept
+ * anything else - so the start could arrive before control was granted and be discarded, leaving
+ * the console without its countdown. Because initDone had already latched, the failed handshake
+ * was never retried and only restarting the app recovered it.
+ *
+ * The sequencing now lives in ftmsControlPointHandshake, which waits for each acknowledgement
+ * and repeats an unanswered command. init() is safe to call repeatedly - the poll drives it -
+ * and it is that repetition that replaces the old restart.
+ */
 void ftmsbike::init() {
     if (initDone)
         return;
 
-    if(ICSE || HAMMER) {
-        uint8_t write[] = {FTMS_REQUEST_CONTROL};
-        bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
-        write[0] = {FTMS_RESET};
-        ret = writeCharacteristic(write, sizeof(write), "reset", false, true);
-    }
-    
-    uint8_t write[] = {FTMS_REQUEST_CONTROL};
-    bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
-    if (USDC_D700) {
-        // Kinomap keeps this bike streaming by following request-control with STOP/PAUSE(0x01)
+    if (!initHandshake.active()) {
+        if (ICSE || HAMMER) {
+            // Unacknowledged prelude, left exactly as it was: these bikes want a reset first and
+            // nothing here has ever been able to observe whether they took it.
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(write, sizeof(write), "requestControl", false, true);
+            write[0] = {FTMS_RESET};
+            writeCharacteristic(write, sizeof(write), "reset", false, true);
+        }
+
+        // Kinomap keeps the USDC D700 streaming by following request-control with STOP/PAUSE(0x01)
         // instead of the usual START/RESUME opcode.
-        uint8_t usdcStart[] = {FTMS_STOP_PAUSE, 0x01};
-        ret = writeCharacteristic(usdcStart, sizeof(usdcStart), "usdc d700 start workaround", false, true);
-    } else {
-        write[0] = {FTMS_START_RESUME};
-        ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+        initHandshake.begin(FTMS_REQUEST_CONTROL, USDC_D700 ? FTMS_STOP_PAUSE : FTMS_START_RESUME,
+                            QDateTime::currentMSecsSinceEpoch());
     }
 
-    if(ret) {
+    initHandshakeTick();
+}
+
+/**
+ * @brief Write whatever the handshake says is due, and finish it when it is complete.
+ */
+void ftmsbike::initHandshakeTick() {
+    if (initDone || !initHandshake.active())
+        return;
+
+    uint8_t opcode = 0;
+    if (initHandshake.nextCommand(QDateTime::currentMSecsSinceEpoch(), &opcode)) {
+        bool ret;
+        if (opcode == FTMS_STOP_PAUSE) {
+            uint8_t write[] = {FTMS_STOP_PAUSE, 0x01};
+            ret = writeCharacteristic(write, sizeof(write), "usdc d700 start workaround", false, true);
+        } else {
+            uint8_t write[] = {opcode};
+            ret = writeCharacteristic(write, sizeof(write), opcode == FTMS_REQUEST_CONTROL
+                                                                ? "requestControl"
+                                                                : "start simulation",
+                                      false, true);
+        }
+
+        if (!ret) {
+            // Never reached the wire, so it does not count as a command in flight.
+            qDebug() << QStringLiteral("FTMS handshake: write of opcode") << opcode
+                     << QStringLiteral("could not be queued");
+            initHandshake.onWriteFailed();
+        } else {
+            qDebug() << QStringLiteral("FTMS handshake: wrote opcode") << opcode
+                     << QStringLiteral("attempt") << initHandshake.attempts();
+        }
+    }
+
+    if (initHandshake.done()) {
+        if (initHandshake.degraded()) {
+            // Worth saying out loud: every future diagnosis of this bike has to treat the control
+            // point as write-only, because nothing it is sent is ever confirmed.
+            qDebug() << QStringLiteral(
+                "FTMS handshake: finished without the bike ever acknowledging - control point "
+                "appears write-only on this console");
+        } else {
+            qDebug() << QStringLiteral("FTMS handshake: control granted and start acknowledged");
+        }
         initDone = true;
         initRequest = false;
     }
@@ -657,6 +713,10 @@ void ftmsbike::update() {
             }
         }
 
+        // An unfinished handshake has to keep moving on the poll: init() is not called on every
+        // tick, and waiting for an acknowledgement means there is always a next step pending.
+        initHandshakeTick();
+
         // The pending slew target outlives requestResistance, so the ramp keeps moving
         // on its own after the demand that started it is gone.
         configureResistanceSlew(settings);
@@ -875,10 +935,21 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         const uint8_t requestCode = (uint8_t)newValue.at(1);
         const uint8_t resultCode = (uint8_t)newValue.at(2);
 
+        if (responseCode == FTMS_RESPONSE_CODE) {
+            // The half of the handshake that was never being read. Ordering the start behind this
+            // is the whole point; see ftmsbike::init().
+            initHandshake.onResponse(requestCode, resultCode == FTMS_SUCCESS,
+                                     QDateTime::currentMSecsSinceEpoch());
+            if (initHandshake.active() || initHandshake.done())
+                qDebug() << QStringLiteral("FTMS control point response: request") << requestCode
+                         << QStringLiteral("result") << resultCode;
+        }
+
         if (DOMYOS && responseCode == FTMS_RESPONSE_CODE && requestCode == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
             if (resultCode == FTMS_CONTROL_NOT_PERMITTED) {
                 domyosResistanceRetryAfter = now.addMSecs(3000);
                 initDone = false;
+                initHandshake.reset(); // re-init means the handshake runs again from the top
                 qDebug() << "DOMYOS resistance command rejected with CONTROL_NOT_PERMITTED"
                          << "lastRequestedResistance:" << lastDomyosRequestedResistance
                          << "backoffUntil:" << domyosResistanceRetryAfter;
@@ -2420,6 +2491,7 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        initHandshake.reset();
         gearInclinationSent = false;
         m_control->connectToDevice();
     }

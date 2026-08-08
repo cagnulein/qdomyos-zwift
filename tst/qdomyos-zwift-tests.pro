@@ -33,6 +33,7 @@ SOURCES += \
         Devices/TestApexBikeParser.cpp \
         Devices/TestKeepBikeParser.cpp \
         Devices/TestResistanceSlewLimiter.cpp \
+        Devices/TestFtmsControlPointHandshake.cpp \
         Erg/TestErgTableSelection.cpp \
         main.cpp
 
@@ -66,6 +67,7 @@ HEADERS += \
     Devices/TestApexBikeParser.h \
     Devices/TestKeepBikeParser.h \
     Devices/TestResistanceSlewLimiter.h \
+    Devices/TestFtmsControlPointHandshake.h \
     Devices/TestOctaneTreadmillZR8.h \
     Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \
