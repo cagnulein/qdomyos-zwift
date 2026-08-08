@@ -717,6 +717,8 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     qDebug() << QStringLiteral("all services discovered!");
 
+    const QBluetoothUuid cyclingPowerMeasurementUuid = QBluetoothUuid::CyclingPowerMeasurement;
+
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
@@ -743,6 +745,15 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("Custom service and Control Point found");
                     gattWriteCharacteristic = c;
                     gattPowerChannelService = s;
+                }
+
+                // Only subscribe to CyclingPowerMeasurement to avoid a race where the
+                // descriptorWritten counter (17 descriptors on KICKR CORE) hasn't reached
+                // zero before Zwift sends the first indoor-bike-simulation-parameters
+                // write, causing setSimGrade to be sent without a prior setSimMode.
+                if (c.uuid() != cyclingPowerMeasurementUuid) {
+                    qDebug() << QStringLiteral("skipping subscription for") << s->serviceUuid() << c.uuid();
+                    continue;
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
@@ -782,6 +793,15 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
             }
         }
+    }
+
+    // If no CyclingPowerMeasurement subscription was established (e.g. device not yet
+    // advertising that characteristic), fire init immediately so setSimMode is always
+    // sent before the first setSimGrade arrives from Zwift.
+    if (!notificationSubscribed) {
+        qDebug() << QStringLiteral("No CyclingPowerMeasurement subscription established, firing init immediately");
+        initRequest = true;
+        emit connectedAndDiscovered();
     }
 
     // ******************************************* virtual bike init *************************************
