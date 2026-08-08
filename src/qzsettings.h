@@ -3294,6 +3294,8 @@ class QZSettings {
      */
     static const QString nordictrack_elliptical_s700;
     static constexpr bool default_nordictrack_elliptical_s700 = false;
+    
+    /**
      * @brief Per-button gear mapping for Zwift Play/Ride controllers.
      * Values follow MyWhoosh::Action: 0 = Disabled, 1 = Gear Up, 2 = Gear Down.
      */
