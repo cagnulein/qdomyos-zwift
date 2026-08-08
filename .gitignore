@@ -62,3 +62,4 @@ src/android/.gradle/
 src/android/local.properties
 src/translations/*.qm
 /tools/__pycache__
+.claude/

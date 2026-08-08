@@ -127,13 +127,8 @@ void sunnyfitstepper::processDataFrame(const QByteArray &completeFrame) {
 
     // Calculate metrics
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) {
-            KCal += ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
-                        1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(now))));
-        }
+        KCal += calculateKCalChange(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                    lastTimeCharacteristicChanged.msecsTo(now));
         Distance += ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharacteristicChanged.msecsTo(now))));
     }
 
