@@ -33,6 +33,10 @@ REPEAT_EVERY_MS := 180   ; interval between repeats while held
 ; stick and the D-pad both steer. 7849 is Microsoft's own left-stick deadzone.
 STICK_DEADZONE := 7849
 
+; A trigger pulled past this counts as pressed. Triggers are analog (0-255);
+; 30 is Microsoft's own XINPUT_GAMEPAD_TRIGGER_THRESHOLD.
+TRIGGER_THRESHOLD := 30
+
 TOGGLE_HOTKEY := "^!p"   ; suspend/resume
 
 ; Log every button edge and keystroke to xbox-mywhoosh-gears.log, next to this
@@ -47,7 +51,12 @@ DEBUG := false
 ;   START   0x0010  BACK      0x0020  LTHUMB    0x0040  RTHUMB     0x0080
 ;   LB      0x0100  RB        0x0200  A         0x1000  B          0x2000
 ;   X       0x4000  Y         0x8000
-; (The analog triggers are not buttons; they live at offsets 6 and 7.)
+;
+; The analog triggers are not part of that word - the hardware reports them as
+; two bytes elsewhere in the state struct. XInputButtons() converts them into
+; the two synthetic masks below so a trigger can be bound like any button.
+; These sit above 16 bits precisely so they can never collide with a real one:
+;   LT      0x10000 RT        0x20000
 ;
 ; mode "tap"  - press sends the key once, held down for KEY_HOLD_MS.
 ; mode "hold" - key goes down with the button and up when it is released, which
@@ -66,7 +75,12 @@ PROFILES := [
     window: "ahk_exe MyWhoosh.exe",
     bindings: [
         ; --- virtual shifting (MyShift) ----------------------------------
-        { mask: 0x0200, key: "i",     mode: "tap",  repeat: true,  name: "shift up"    },  ; RB
+        ; Triggers shift up, bumpers shift down, on both sides - so either hand
+        ; has a full shifter under it, the way a road bike's right lever works
+        ; both ways. The rule is the pair you are touching, not which side.
+        { mask: 0x20000, key: "i",    mode: "tap",  repeat: true,  name: "shift up"    },  ; RT
+        { mask: 0x10000, key: "i",    mode: "tap",  repeat: true,  name: "shift up"    },  ; LT
+        { mask: 0x0200, key: "k",     mode: "tap",  repeat: true,  name: "shift down"  },  ; RB
         { mask: 0x0100, key: "k",     mode: "tap",  repeat: true,  name: "shift down"  },  ; LB
 
         ; --- steering (left stick or D-pad) ------------------------------
@@ -95,7 +109,9 @@ PROFILES := [
         ; Rouvy accepts either "." / "," or "+" / "-". The unshifted pair is
         ; used because "+" is Shift+= on most layouts, which is a messier key
         ; event for a game engine to read. Swap if your build disagrees.
-        { mask: 0x0200, key: ".",     mode: "tap",  repeat: true,  name: "shift up"    },  ; RB
+        { mask: 0x20000, key: ".",    mode: "tap",  repeat: true,  name: "shift up"    },  ; RT
+        { mask: 0x10000, key: ".",    mode: "tap",  repeat: true,  name: "shift up"    },  ; LT
+        { mask: 0x0200, key: ",",     mode: "tap",  repeat: true,  name: "shift down"  },  ; RB
         { mask: 0x0100, key: ",",     mode: "tap",  repeat: true,  name: "shift down"  },  ; LB
 
         ; --- camera views (OmniMode routes) --------------------------------
@@ -128,7 +144,8 @@ if !XInputGetStateAddr {
 global XInputState := Buffer(16, 0)
 
 ; Returns the button word with the left stick folded into the D-pad left/right
-; bits, or -1 when that slot has no pad.
+; bits and the two triggers folded in as 0x10000 / 0x20000, or -1 when that slot
+; has no pad. Everything downstream then treats a trigger as just another mask.
 XInputButtons(padIndex) {
     if DllCall(XInputGetStateAddr, "UInt", padIndex, "Ptr", XInputState, "UInt") != 0
         return -1  ; ERROR_DEVICE_NOT_CONNECTED
@@ -138,6 +155,10 @@ XInputButtons(padIndex) {
         buttons |= 0x0004
     else if (lx >= STICK_DEADZONE)
         buttons |= 0x0008
+    if (NumGet(XInputState, 6, "UChar") >= TRIGGER_THRESHOLD)
+        buttons |= 0x10000
+    if (NumGet(XInputState, 7, "UChar") >= TRIGGER_THRESHOLD)
+        buttons |= 0x20000
     return buttons
 }
 

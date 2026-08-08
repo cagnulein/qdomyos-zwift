@@ -41,8 +41,8 @@ emotes and two UI toggles is the whole of it. All of it is bound:
 
 | Pad | Key | Action |
 |---|---|---|
-| `RB` | `I` | Shift up (harder) — hold to repeat |
-| `LB` | `K` | Shift down (easier) — hold to repeat |
+| `RT` or `LT` | `I` | Shift up (harder) — hold to repeat |
+| `RB` or `LB` | `K` | Shift down (easier) — hold to repeat |
 | Left stick ←/→, or D-pad ←/→ | `←` / `→` | Steer, held for as long as the input is |
 | `Y` | `1` | Peace |
 | `B` | `2` | Wave |
@@ -53,6 +53,11 @@ emotes and two UI toggles is the whole of it. All of it is bound:
 | `A` | `7` | Thumbs up |
 | `Back` | `U` | Toggle minimal UI |
 | `Start` | `H` | Hide all controls (HD version only) |
+
+Shifting is on both shoulder pairs, by pair rather than by side: **triggers
+shift up, bumpers shift down**, left and right alike. Either hand therefore has
+a complete shifter under it, so it does not matter which way the pad ends up
+mounted on the bars. The same rule applies to Rouvy below.
 
 `R3` is left free: `F11` (fullscreen) is the only shortcut still spare, and a
 stray thumb-click dropping MyWhoosh out of fullscreen mid-ride is worse than not
@@ -67,8 +72,8 @@ invented.
 
 | Pad | Key | Action |
 |---|---|---|
-| `RB` | `.` | Shift up — hold to repeat |
-| `LB` | `,` | Shift down — hold to repeat |
+| `RT` or `LT` | `.` | Shift up — hold to repeat |
+| `RB` or `LB` | `,` | Shift down — hold to repeat |
 | `Y` | `F` | Front view |
 | `B` | `B` | Look back |
 | `X` | `P` | Panorama |
@@ -123,8 +128,12 @@ Requirements and caveats:
 - Because the app owns the gears here, do not run QZ's virtual gearing against
   the same ride as well, or you get two gearboxes fighting over resistance.
 - The analog triggers are not buttons in XInput; they are separate 0–255 axes
-  (offsets 6 and 7 of `XINPUT_STATE`). The script reads the button word only, so
-  bind shoulder buttons, D-pad or face buttons.
+  (offsets 6 and 7 of `XINPUT_STATE`), absent from the button word every other
+  binding is matched against. `XInputButtons()` reads them and folds them in as
+  two invented masks, `0x10000` for `LT` and `0x20000` for `RT`, deliberately
+  above 16 bits so they can never collide with a real button. A trigger counts
+  as pressed past `TRIGGER_THRESHOLD` (30, Microsoft's own value) — everything
+  downstream then treats it as an ordinary button.
 
 ### When a button does nothing
 
@@ -144,6 +153,12 @@ look identical from the saddle:
    Unity), so raise `KEY_HOLD_MS` (default 60 ms).
 4. **The wrong thing happens** — the shortcut is bound the other way round in
    your build. Swap the two `key:` values in that profile.
+5. **The button tests fine in Windows but does nothing here** — check which
+   button it actually is. `R2` and `L2` are PlayStation names for the *triggers*,
+   which Xbox calls `RT`/`LT`; the bumpers are `R1`/`L1` there and `RB`/`LB`
+   here. A pad tester showing the button alive says nothing about whether this
+   script has it bound. Both pairs shift now, so either naming reaches a
+   shifter, but the tables above use Xbox names throughout — read `R2` as `RT`.
 
 If the app is running elevated and AutoHotkey is not, Windows blocks the
 keystrokes outright (UIPI) and nothing reaches the app whatever the log says;
