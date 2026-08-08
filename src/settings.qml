@@ -1708,7 +1708,7 @@ import AndroidStatusBar 1.0
             property bool treadmill_force_running_activity: false
             property bool proform_treadmill_105_cst: false            
             property real trainprogram_pid_hr_pushy_zone_limit: 0.8
-            property real trainprogram_pid_hr_recovery_zone_limit: 60.0
+            property real trainprogram_pid_hr_recovery_zone_limit: 60.0            
             property bool rpe_feel_popup_enabled: false
             property int zwiftplay_gear_ls1: 2
             property int zwiftplay_gear_ls2: 2
@@ -1737,6 +1737,7 @@ import AndroidStatusBar 1.0
             property int mywhoosh_link_emote_value: 1
             property bool waterrower_usb: false
             property string freebeat_serialport: ""
+            property bool nordictrack_elliptical_s700: false
         }
 
 
@@ -12148,6 +12149,19 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: { settings.nordictrack_se7i = checked; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                text: "NordicTrack Elliptical Spacesaver S700"
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.nordictrack_elliptical_s700
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.nordictrack_elliptical_s700 = checked; window.settings_restart_to_apply = true; }
                             }
                             RowLayout {
                                 spacing: 10
