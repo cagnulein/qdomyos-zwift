@@ -2621,6 +2621,11 @@ void horizontreadmill::serviceScanDone(void) {
                 qDebug() << s << "skipping (DOMYOS-TC will use only FTMS)";
                 continue;
             }
+            // FS- beta devices: discover only FTMS (1826) to avoid issues with other services
+            if (FS_BETA_TREADMILL && s != _FTMSServiceId) {
+                qDebug() << s << "skipping (FS- beta: using only FTMS 0x1826)";
+                continue;
+            }
 
             qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
@@ -2779,6 +2784,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("FS- treadmill found");
             FS_TREADMILL = true;
             maxInclination = 40.0;
+            if (device.name().contains(QStringLiteral("(beta)"))) {
+                qDebug() << QStringLiteral("FS- beta treadmill: will use only FTMS service (0x1826)");
+                FS_BETA_TREADMILL = true;
+            }
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
