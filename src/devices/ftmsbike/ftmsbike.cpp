@@ -62,6 +62,12 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     writeTimeoutTimer = new QTimer(this);
     writeTimeoutTimer->setSingleShot(true);
     connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
+        if (currentWriteWaitingForResponse && !currentWriteExpectedResponse.isEmpty()) {
+            qDebug() << QStringLiteral("writeCharacteristic timeout - still waiting for exact FTMS response")
+                     << currentWriteExpectedResponse.toHex(' ');
+            writeTimeoutTimer->start(2000);
+            return;
+        }
         qDebug() << QStringLiteral("writeCharacteristic timeout - processing next in queue");
         completeCurrentWrite();
     });
@@ -193,14 +199,14 @@ void ftmsbike::init() {
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
     bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
 
-    // Dirty Tacx Flux 2 test: the native app requests control, pauses, requests
+    // Dirty Tacx Flux 2 test: the native app requests control, resets, requests
     // control again, and only then starts/resumes the simulation. Each command
     // is queued with response waiting enabled so the next command is not sent
-    // until the previous FTMS response has been received (or timed out).
+    // until the previous FTMS response has been received.
     const bool tacx_flux_2 = bluetoothDevice.name().compare(QStringLiteral("Tacx Flux-2 33326"), Qt::CaseInsensitive) == 0;
     if (tacx_flux_2) {
-        uint8_t pause[] = {FTMS_STOP_PAUSE};
-        ret = writeCharacteristic(pause, sizeof(pause), "tacx flux 2 pause", false, true);
+        uint8_t reset[] = {FTMS_RESET};
+        ret = writeCharacteristic(reset, sizeof(reset), "tacx flux 2 reset", false, true);
         ret = writeCharacteristic(write, sizeof(write), "tacx flux 2 requestControl", false, true);
     }
 
