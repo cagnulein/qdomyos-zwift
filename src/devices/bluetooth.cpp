@@ -649,6 +649,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool sole_inclination =
         settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
     QString ftms_rower = settings.value(QZSettings::ftms_rower, QZSettings::default_ftms_rower).toString();
+    bool careBikeEnableSupport =
+        settings.value(QZSettings::care_bike_enable_support, QZSettings::default_care_bike_enable_support).toBool();
     QString ftms_bike = settings.value(QZSettings::ftms_bike, QZSettings::default_ftms_bike).toString();
     QString ftms_treadmill = settings.value(QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill).toString();
     QString ftms_elliptical = settings.value(QZSettings::ftms_elliptical, QZSettings::default_ftms_elliptical).toString();
@@ -2482,7 +2484,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         ((b.name().toUpper().startsWith(QStringLiteral("HT")) && b.name().length() == 10) &&
                          ftms_bike.contains(QZSettings::default_ftms_bike)) ||
                         (b.name().toUpper().contains(QStringLiteral("CARE")) &&
-                         b.name().length() == 11)) // CARE9040177 - Carefitness CV-351
+                         (b.name().length() == 11 || careBikeEnableSupport))) // CARE9040177 - Carefitness CV-351
                        && !sportsPlusBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2498,7 +2500,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 sportsPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsPlusBike);
-            } else if (((b.name().toUpper().contains(QStringLiteral("CARE")) && b.name().length() >= 12) ||  // CARE968300122, CARE10692135
+            } else if (((b.name().toUpper().contains(QStringLiteral("CARE")) && b.name().length() >= 12 &&
+                        !careBikeEnableSupport) ||  // CARE968300122, CARE10692135
                        (b.name().toUpper().startsWith(QStringLiteral("VMAX"))))
                        && !sportsPlusRower && filter) {
                 this->setLastBluetoothDevice(b);

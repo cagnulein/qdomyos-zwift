@@ -3294,6 +3294,9 @@ class QZSettings {
      */
     static const QString nordictrack_elliptical_s700;
     static constexpr bool default_nordictrack_elliptical_s700 = false;
+
+    static const QString care_bike_enable_support;
+    static constexpr bool default_care_bike_enable_support = false;
     
     /**
      * @brief Per-button gear mapping for Zwift Play/Ride controllers.

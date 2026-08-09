@@ -1162,6 +1162,12 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<sportsplusbike>()        
         ->acceptDeviceName("CARDIOFIT", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Care Bike with support enabled
+    RegisterNewDeviceTestData(DeviceIndex::CareBike_EnableSupport)
+        ->expectDevice<sportsplusbike>()
+        ->acceptDeviceName("CARE10692135", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith(QZSettings::care_bike_enable_support);
+
     // Sports Plus Rower
     RegisterNewDeviceTestData(DeviceIndex::SportsPlusRower)
         ->expectDevice<sportsplusrower>()

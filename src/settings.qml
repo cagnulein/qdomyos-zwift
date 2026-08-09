@@ -1738,6 +1738,7 @@ import AndroidStatusBar 1.0
             property bool waterrower_usb: false
             property string freebeat_serialport: ""
             property bool nordictrack_elliptical_s700: false
+            property bool care_bike_enable_support: false
         }
 
 
@@ -4490,6 +4491,20 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }                    
+
+                    AccordionElement {
+                        id: careBikeAccordion
+                        title: qsTr("Care Bike Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: IndicatorOnlySwitch {
+                            text: qsTr("Enable Support")
+                            checked: settings.care_bike_enable_support
+                            Layout.fillWidth: true
+                            onClicked: { settings.care_bike_enable_support = checked; window.settings_restart_to_apply = true; }
+                        }
+                    }
 
                     NewPageElement {
                         title: qsTr("Wahoo Options")
