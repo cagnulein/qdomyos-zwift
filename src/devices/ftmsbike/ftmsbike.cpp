@@ -210,11 +210,15 @@ void ftmsbike::init() {
  * @brief Write whatever the handshake says is due, and finish it when it is complete.
  */
 void ftmsbike::initHandshakeTick() {
-    if (initDone || !initHandshake.active())
+    if (initDone)
         return;
 
+    // Completion is what makes the handshake inactive, so the finish below has to stay reachable
+    // after active() has gone false. Guarding the whole function on active() - as this did - left
+    // initDone unable to latch anywhere in this file, and every later ride command re-entered
+    // init() and started the handshake again, re-sending request-control and start mid-ride.
     uint8_t opcode = 0;
-    if (initHandshake.nextCommand(QDateTime::currentMSecsSinceEpoch(), &opcode)) {
+    if (initHandshake.active() && initHandshake.nextCommand(QDateTime::currentMSecsSinceEpoch(), &opcode)) {
         bool ret;
         if (opcode == FTMS_STOP_PAUSE) {
             uint8_t write[] = {FTMS_STOP_PAUSE, 0x01};
@@ -1965,8 +1969,14 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
             homeform::singleton()->setToastRequested("PM5 rower found. Restart QZ to apply the fix, thanks.");
     }
 
-    if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
-        (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_290R || SMB1 || FIT_BK)) {
+    // FTMS wants request-control acknowledged before it accepts anything else, and the console
+    // does not count down until it has been started. This used to run for a handful of named
+    // models only, leaving every other bike to be initialised by whatever ride command happened
+    // to come first. That is why a bike reset left the console dead: the reconnection succeeded,
+    // but nothing was commanded afterwards, so request-control and start were never sent and the
+    // bike sat there connected and idle. Service discovery is the one point that happens on both
+    // the first connection and every reconnection, so the handshake belongs here.
+    if (gattFTMSService && gattWriteCharControlPointId.isValid()) {
         init();
     }
 

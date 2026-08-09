@@ -214,6 +214,34 @@ TEST(FtmsControlPointHandshakeTest, ResetMakesItInertAgain) {
     EXPECT_EQ(before, d.writes.size()) << "a reset handshake still wrote to the bike";
 }
 
+TEST(FtmsControlPointHandshakeTest, CompletionIsVisibleOnlyWhileInactive) {
+    // The trap that shipped: completion is *what makes* the handshake inactive, so done() and
+    // active() are never both true. A caller that guards its completion handling on active() -
+    // ftmsbike::initHandshakeTick() did - can never observe the finish, never latches its own
+    // initDone, and re-enters the handshake on every later command. Pinned here because the
+    // machine below is correct and the bug was entirely in how it was driven.
+    handshakeDriver d;
+    d.handshake.begin(kControl, kStart, d.nowMs);
+    d.pump();
+    d.handshake.onResponse(kControl, true, d.nowMs);
+    d.pump();
+    d.handshake.onResponse(kStart, true, d.nowMs);
+
+    EXPECT_TRUE(d.handshake.done());
+    EXPECT_FALSE(d.handshake.active()) << "done and active were both true, so the trap is gone";
+}
+
+TEST(FtmsControlPointHandshakeTest, TheSilentBikePathAlsoFinishesInactive) {
+    // Same invariant on the degraded route, which is the one a non-acknowledging console takes.
+    handshakeDriver d;
+    d.handshake.begin(kControl, kStart, d.nowMs);
+    d.runSilent(10000);
+
+    EXPECT_TRUE(d.handshake.done());
+    EXPECT_TRUE(d.handshake.degraded());
+    EXPECT_FALSE(d.handshake.active());
+}
+
 TEST(FtmsControlPointHandshakeTest, AClockGoingBackwardsDoesNotStall) {
     handshakeDriver d;
     d.handshake.begin(kControl, kStart, 10000);

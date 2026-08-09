@@ -305,6 +305,15 @@ void bluetooth::startDiscovery() {
     if (!this->useDiscovery)
         return;
 
+    // Every scan gets its own completion. finished() latches a one-shot guard so that a timeout
+    // and the agent's own signal cannot both be handled for the same scan; leaving it latched
+    // across scans meant the second completion was swallowed along with its restart, so discovery
+    // stopped for good about twenty seconds after launch and a bike powered on later was never
+    // seen. Clearing it here - and only here - keeps the double-handling guard intact within a
+    // scan while letting the cycle continue. finished() still returns early once a device has been
+    // found, so a connected session never scans over itself.
+    discoveryFinishedHandled = false;
+
 #ifndef Q_OS_IOS
     QSettings settings;
     bool technogym_myrun_treadmill_experimental = settings

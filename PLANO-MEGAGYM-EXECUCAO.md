@@ -615,8 +615,10 @@ numa premissa em vez de numa referência.
 
 ## 9. Defeitos abertos — levantados em 8/8
 
-Três relatos do uso real. Nenhum corrigido ainda; os dois primeiros têm causa localizada no
-código, o terceiro está na §4.3.
+Três relatos do uso real. O levantamento abaixo é de 8/8, quando nenhum estava corrigido; a
+§9.4 registra o que a captura de `logcat` de 9/8 mediu e o que foi corrigido a partir dela —
+**leia a §9.4 antes de agir sobre a §9.1 ou a §9.2**, porque ela corrige a causa atribuída à
+§9.1 e documenta uma regressão na correção da §9.2.
 
 ### 9.1 Nada re-arma a busca quando o dispositivo cai ❗
 
@@ -700,3 +702,82 @@ apenas com o 0x07 confirmado, e repetir o handshake se a confirmação não cheg
 
 Não é "não testado", é **não construído**. A verificação e o que dá para testar do tile de
 potência-alvo estão na §4.3.1.
+
+### 9.4 Captura de logcat de 9/8 — o que ela decidiu ✅⚙️
+
+Primeira captura de `logcat` com a bike na mão, feita por adb sobre Wi-Fi
+(`192.168.0.104:5555`) depois que o cabo derrubou duas capturas por re-enumeração do USB.
+O script `install-to-tablet.sh` ganhou um irmão, `build-and-run-tests.sh`, e a captura
+resiliente ficou em `capture-logcat.sh`. Quatro conclusões, três delas fechando dúvidas
+que estavam abertas desde 8/8.
+
+**A bike confirma no control point.** É o fato que faltava para saber se o handshake da
+§9.2 tinha como funcionar neste console:
+
+```
+18:42:09.594  wrote opcode 0 attempt 1  →  2ad9 << 80 00 01   (request-control, SUCCESS)
+18:42:10.165  wrote opcode 7 attempt 1  →  2ad9 << 80 07 01   (start,           SUCCESS)
+```
+
+Não é `degraded()`. E a ordenação segurou: o 0x07 saiu 571 ms **depois** da concessão.
+Mais: as duas primeiras tentativas do 0x00 falharam com `gattFTMSService is null!` porque
+o serviço ainda não tinha sido atribuído — **o código antigo teria disparado os dois
+writes exatamente aí e travado `initDone` em cima disso**. É a §9.2 flagrada em ação, e a
+retentativa é o que fez a conexão pegar.
+
+**Não houve crash.** `am_proc_died` às 18:42:00 foi precedido de
+`Killing 12327 ... (adj 905): remove task` — o app saiu dos recentes, não caiu. Zero
+`Fatal signal`, zero backtrace, zero tombstone em toda a captura. A §9.1 continua sem
+evidência de crash; o que ela tem agora é causa medida (abaixo).
+
+**Regressão introduzida pela correção da §9.2.** `initHandshakeTick()` abria com
+`if (initDone || !initHandshake.active()) return;` — mas concluir é justamente o que torna
+o handshake inativo, então o bloco de conclusão era inalcançável: `initDone` não latchava
+em lugar nenhum do arquivo e cada comando de pedalada re-entrava em `init()`, reiniciando
+o handshake e reenviando 0x00/0x07 no meio da volta. Os 12 testes não pegaram porque a
+máquina de estados está correta — o defeito estava em quem a dirige. Corrigido, com dois
+testes novos fixando o invariante `done() && !active()`.
+
+**O handshake não começava na reconexão.** `init()` só era chamado por comandos de
+pedalada (resistência, potência), nunca pela conexão. Depois do reset da bike às 18:42:32 a
+reconexão funcionou sozinha (18:42:34, com as descriptor writes de 1826 refeitas), mas
+nenhum comando veio depois — logo `begin()` nunca aconteceu e a bike ficou **conectada e
+parada**, sem contagem. Corrigido movendo o `init()` para o ponto de descoberta de serviço
+(`stateChanged`), que é o único que roda tanto na primeira conexão quanto em toda
+reconexão — confirmado no log: `FTMS service and Control Point found` aparece às 18:42:09
+**e** às 18:42:35. Ao mesmo tempo caiu a lista de modelos que restringia essa chamada a
+`hammer_racer_s`/`SCH_290R`/`SMB1`/`FIT_BK`.
+
+**A descoberta para depois de dois ciclos** — esta é a causa medida da §9.1, e não tem
+nada a ver com queda de dispositivo. `discoveryFinishedHandled` (upstream, `e3b15152`) é
+armado em `bluetooth::finished()` e **nunca é rearmado**, então o `startDiscovery()` do fim
+de `finished()` roda uma única vez:
+
+```
+18:38:00.551  scan #1 começa
+18:38:10.396  "BTLE scanning finished"   ← única ocorrência; guarda trava, reinicia
+18:38:10.443  scan #2 começa
+      …       scan #2 termina em silêncio — a guarda engole, sem reinício e sem log
+18:38:11.573  último dispositivo visto; nada por 3m50s até o app ser morto
+```
+
+Ou seja: ligar a bike depois do QZ só funciona nos ~20 primeiros segundos. Não é
+intermitente, é determinístico. Corrigido zerando a guarda em `startDiscovery()` — o que
+preserva a proteção contra tratamento duplo *dentro* de um scan (que é para o que ela foi
+criada, o contorno do Waydroid) e mantém o `if (device())` que impede uma sessão conectada
+de varrer por cima de si mesma.
+
+**O alvo declarado pelo usuário**, e o que essas três correções entregam junto: deixar o
+QZ ligado o tempo todo; se achar a bike, conecta; se não, fica ocioso procurando.
+
+| situação | antes | depois |
+| --- | --- | --- |
+| QZ aberto, bike desligada | para de varrer em ~20 s | varre continuamente |
+| bike ligada depois | só nos primeiros 20 s | achada a qualquer momento |
+| bike reiniciada no meio | reconecta, mas fica parada sem contagem | reconecta e refaz o handshake |
+| durante a pedalada | reenvio de 0x00/0x07 a cada comando | handshake uma vez por conexão |
+
+**O que ainda não foi medido.** Nenhuma dessas três correções foi vista rodando na bike —
+a captura que as motivou é de um build anterior. A verificação é uma volta com o log
+aberto procurando por `FTMS handshake: control granted and start acknowledged` na conexão
+**e** na reconexão, e por reinícios de scan enquanto a bike está desligada.
