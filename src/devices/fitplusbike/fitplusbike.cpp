@@ -91,7 +91,7 @@ void fitplusbike::forceResistance(resistance_t requestResistance) {
     bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
     requestResistanceCompleted = false;
-    if (virtufit_etappe || merach_MRK || H9110_OSAKA) {
+    if (virtufit_etappe || merach_MRK || H9110_OSAKA || burever_BE1) {
         if (requestResistance == 1) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x01, 0xf9, 0xb9, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
@@ -188,6 +188,13 @@ void fitplusbike::forceResistance(resistance_t requestResistance) {
         } else if (requestResistance == 32) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x20, 0x00, 0x61, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        }
+
+        if (burever_BE1) {
+            requestResistanceCompleted = true;
+            Resistance = requestResistance;
+            emit resistanceRead(Resistance.value());
+            m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
         }
     } else if (sportstech_sx600) {
         if (requestResistance == 1) {
@@ -309,7 +316,7 @@ void fitplusbike::update() {
         bool sportstech_sx600 =
             settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
-        if (virtufit_etappe || merach_MRK || sportstech_sx600 || H9110_OSAKA) {
+        if (virtufit_etappe || merach_MRK || sportstech_sx600 || H9110_OSAKA || burever_BE1) {
 
         } else {
             m_watt = wattFromHR(false);
@@ -397,6 +404,62 @@ void fitplusbike::update() {
     }
 }
 
+bool fitplusbike::parseBureverPacket(const QByteArray &newValue, const QDateTime &now) {
+    QSettings settings;
+
+    if (newValue.length() == 15 && (uint8_t)newValue.at(0) == 0x02 && (uint8_t)newValue.at(1) == 0x42 &&
+        (uint8_t)newValue.at(2) == 0x02) {
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            Cadence = (uint8_t)newValue.at(6);
+        }
+
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            m_watt = (double)((((uint8_t)newValue.at(10)) << 8) | ((uint8_t)newValue.at(9))) / 10.0;
+        }
+
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            Speed = (double)((((uint8_t)newValue.at(4)) << 8) | ((uint8_t)newValue.at(3))) / 100.0;
+        } else {
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        }
+
+        qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
+        qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
+        qDebug() << QStringLiteral("Current Watt: ") + QString::number(m_watt.value());
+        qDebug() << QStringLiteral("Current Resistance: ") + QString::number(Resistance.value());
+        lastRefreshCharacteristicChanged = now;
+        return true;
+    }
+
+    if (newValue.length() == 14 && (uint8_t)newValue.at(0) == 0x02 && (uint8_t)newValue.at(1) == 0x43 &&
+        (uint8_t)newValue.at(2) == 0x01) {
+        const uint16_t elapsedSeconds = (((uint8_t)newValue.at(4)) << 8) | ((uint8_t)newValue.at(3));
+        const uint16_t distanceRaw = (((uint8_t)newValue.at(6)) << 8) | ((uint8_t)newValue.at(5));
+        const uint16_t caloriesRaw = (((uint8_t)newValue.at(8)) << 8) | ((uint8_t)newValue.at(7));
+        const uint16_t crankRevsRaw = (((uint8_t)newValue.at(10)) << 8) | ((uint8_t)newValue.at(9));
+
+        Distance = ((double)distanceRaw) / 1000.0;
+        KCal = caloriesRaw;
+        CrankRevs = crankRevsRaw;
+        LastCrankEventTime = (uint16_t)((elapsedSeconds * 1024U) & 0xffff);
+
+        qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
+        qDebug() << QStringLiteral("Current KCal: ") + QString::number(KCal.value());
+        qDebug() << QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs);
+        qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
+        lastRefreshCharacteristicChanged = now;
+        return true;
+    }
+
+    return false;
+}
+
 void fitplusbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
@@ -415,6 +478,10 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
+
+    if (burever_BE1 && parseBureverPacket(newValue, now)) {
+        return;
+    }
 
     if (sportstech_sx600 && characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
         bool disable_hr_frommachinery =
@@ -1018,6 +1085,10 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("H9110 OSAKA workaround enabled!");
             max_resistance = 32;
             H9110_OSAKA = true;
+        } else if (device.name().toUpper().startsWith("BUREVER BE1")) {
+            qDebug() << QStringLiteral("Burever BE1 workaround enabled!");
+            burever_BE1 = true;
+            max_resistance = 32;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
