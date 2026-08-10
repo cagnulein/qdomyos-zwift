@@ -82,6 +82,7 @@ public:
     DEFINE_DEVICE(FakeTreadmill, "Fake Treadmill");
     DEFINE_DEVICE(FitPlusBike_MRK_NoSettings, "FitPlus Bike (MRK, no settings)");
     DEFINE_DEVICE(FitPlusF5, "FitPlus F5");
+    DEFINE_DEVICE(FitPlusVirtufitEtappeX100, "FitPlus VirtuFit Etappe 2.0i (X100)");
     DEFINE_DEVICE(FitShowBF, "FitShow BF");
     DEFINE_DEVICE(FitShowFS, "FitShow FS");
     DEFINE_DEVICE(FitShowTR510T, "FitShow TR510-T");
