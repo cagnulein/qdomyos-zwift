@@ -235,6 +235,14 @@ jobs:
             mkdir appx
             cp qdomyos-zwift.* output/
             cd output
+            # The exe lands here around 346 MB because CI builds src/debug, and the
+            # artifact is downloaded by hand on every iteration. Discarding the debug
+            # symbols takes it to roughly a tenth of that. Nothing else changes - the
+            # import table windeployqt reads is untouched, and the only thing given up
+            # is symbolised stack traces.
+            Write-Host ("before strip: {0:N0} bytes" -f (Get-Item qdomyos-zwift.exe).Length)
+            strip qdomyos-zwift.exe
+            Write-Host ("after strip:  {0:N0} bytes" -f (Get-Item qdomyos-zwift.exe).Length)
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
