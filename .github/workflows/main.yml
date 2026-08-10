@@ -26,9 +26,14 @@ jobs:
   window-build:
     runs-on: windows-2022
     strategy:
+      # Only the no-python artifact is used here, and building both halves of the
+      # matrix cost more than runtime: fail-fast cancels the sibling the moment one
+      # side fails, so the cancelled job's log filled up with "The operation was
+      # canceled" mid-download and read like a second, separate failure. The python
+      # half also drags in paddleocr and a bundled interpreter for the Zwift-workout
+      # OCR and NordicTrack ADB paths, neither of which is wanted on this fork.
       matrix:
         config:
-          - {python: true}
           - {python: false}
 
     steps:
