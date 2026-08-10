@@ -1982,7 +1982,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("ROBX")) ||
                         (b.name().toUpper().startsWith("ORLAUF_ARES")) ||
                         (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
-                        (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("SMARTBIKE-")) ||
                         (b.name().toUpper().startsWith("D500V2")) ||
                         (b.name().toUpper().startsWith("FBIKE-HEAVY-PRO")) ||
@@ -2479,6 +2478,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 sportsTechRower->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsTechRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("XCX-")) ||
                         ((b.name().toUpper().startsWith(QStringLiteral("HT")) && b.name().length() == 10) &&
                          ftms_bike.contains(QZSettings::default_ftms_bike)) ||
                         (b.name().toUpper().contains(QStringLiteral("CARE")) &&

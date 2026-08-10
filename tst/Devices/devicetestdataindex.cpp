@@ -1160,7 +1160,7 @@ void DeviceTestDataIndex::Initialize() {
     // Sports Plus Bike
     RegisterNewDeviceTestData(DeviceIndex::SportsPlusBike)
         ->expectDevice<sportsplusbike>()        
-        ->acceptDeviceName("CARDIOFIT", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceNames({"CARDIOFIT", "XCX-"}, DeviceNameComparison::StartsWithIgnoreCase);
 
     // Sports Plus Rower
     RegisterNewDeviceTestData(DeviceIndex::SportsPlusRower)
