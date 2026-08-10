@@ -117,30 +117,32 @@ jobs:
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         run: |
             cd src\qthttpserver
-            # -r matters. A plain qmake only writes the top Makefile, and the
-            # generated rule defers each submodule's qmake to make time:
+            # Only the libraries are wanted here. qt_parts.prf adds examples/ and
+            # tests/ to SUBDIRS whenever those .pro files exist, and QT_BUILD_PARTS
+            # does not help: it only marks them no_default_target, which keeps make
+            # from building them but does not keep qmake -r from recursing in.
+            # examples/httpserver then aborts qmake outright with "You cannot build
+            # examples inside the Qt source tree", so no Makefile is written at all
+            # and make has nothing to do. Deleting them is what actually excludes
+            # them, and nothing downstream needs either directory.
+            Remove-Item -Recurse -Force examples, tests -ErrorAction SilentlyContinue
+            # -r is load-bearing, for a reason that is not obvious. A plain qmake
+            # writes only the top Makefile and defers each submodule's qmake to make
+            # time:
             #   cd sslserver/ && ( test -e Makefile || qmake -o Makefile ... ) && make
-            # syncqt runs from that deferred qmake, so include/ does not exist yet when
-            # the top-level qmake returns - repairing there found nothing to fix, and
-            # make then produced the broken headers anyway. Recursing now generates
-            # every sub-Makefile and runs syncqt up front; the guard above means make
-            # will not re-run qmake and undo the repair.
+            # that nested qmake inherits make's shell, where perl reports MSYS-style
+            # paths - syncqt logged <srcbase> = /d/a/qz/... against the
+            # <bldbase> = D:/a/qz/... it was given, took them for different roots, and
+            # wrote every forwarding header as a relative path climbing between them.
+            # Recursing here instead runs syncqt in-process from pwsh, where both come
+            # out as D:/a/qz/..., and the generated headers are simply correct.
             qmake -r
-            # syncqt.pl runs under MSYS2's perl, which setup-msys2 puts on PATH, and
-            # that perl reports absolute paths in MSYS form: syncqt logs
-            # <srcbase> = /d/a/qz/... against the <bldbase> = D:/a/qz/... qmake gave
-            # it. Taking the two for different roots, it writes every forwarding
-            # header as a relative path climbing between them:
-            #   #include "../../../../../../../../../../../d/a/qz/.../qsslserver_p.h"
-            # which resolves to nothing, and the sslserver module fails to compile.
-            #
-            # Repairing the generated headers is deliberate: pointing PATH at a
-            # native perl was tried first and did nothing, because the runner image
-            # documents only "Perl 5.32.1" with no path and ships no C:\Strawberry.
-            # Rewriting the output depends on nothing but the output itself.
-            #
-            # The msvc jobs run this same step and are unaffected - they never set
-            # MSYS2 up, so their perl was native all along.
+            # Guard, not the fix. With qmake -r above the headers come out correct
+            # already - the run that introduced this reported "25 scanned, 0
+            # repaired". It stays because the failure it catches is silent and
+            # extremely hard to read backwards from, and it costs one pass over 25
+            # files. It always prints its counts, so a no-op can never again be
+            # mistaken for a fix that worked.
             $repaired = 0
             $scanned = 0
             if (Test-Path include) {
