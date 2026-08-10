@@ -143,7 +143,14 @@ jobs:
             # wrote every forwarding header as a relative path climbing between them.
             # Recursing here instead runs syncqt in-process from pwsh, where both come
             # out as D:/a/qz/..., and the generated headers are simply correct.
-            qmake -r
+            #
+            # CONFIG-=create_cmake goes with deleting tests/. qt_module.prf sets
+            # create_cmake unconditionally, and that feature insists on finding
+            # tests/auto/cmake - with the directory gone it stops with "Missing CMake
+            # tests". All it would generate is Qt5HttpServerConfig.cmake and friends,
+            # which nothing here consumes: QZ is a qmake project and links this module
+            # through its .prl/.pri files.
+            qmake -r CONFIG-=create_cmake
             # Guard, not the fix. With qmake -r above the headers come out correct
             # already - the run that introduced this reported "25 scanned, 0
             # repaired". It stays because the failure it catches is silent and
