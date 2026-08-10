@@ -99,7 +99,14 @@ jobs:
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
           cache: 'true'
-          cache-key-prefix: 'install-qt-action-windows'          
+          cache-key-prefix: 'install-qt-action-windows'
+          # The action's default aqtinstall is 3.1.21, which cannot read the
+          # archives any more: py7zr went to 1.x and tightened path validation, so
+          # extraction dies with "Bad7zFile: Specified path is bad:
+          # 5.15.2/mingw81_64/lib/cmake/Qt5AxContainer". aqt 3.3.0 handles py7zr 1.x.
+          # This only began biting once a cache miss forced a real download - the
+          # cancelled run before it never got to save its cache.
+          aqtversion: '==3.3.0'
 
       - name: Cache qthttpserver build
         id: cache-qthttpserver-mingw
@@ -1163,7 +1170,10 @@ jobs:
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
           cache: 'true'
-          cache-key-prefix: 'install-qt-action-windows'          
+          cache-key-prefix: 'install-qt-action-windows'
+          # see window-build: the action's default aqtinstall 3.1.21 cannot extract
+          # Qt's archives once py7zr reaches 1.x
+          aqtversion: '==3.3.0'
 
       - name: Install MSVC compiler
         uses: ilammy/msvc-dev-cmd@v1
@@ -1368,7 +1378,10 @@ jobs:
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
           cache: 'true'
-          cache-key-prefix: 'install-qt-action-windows'          
+          cache-key-prefix: 'install-qt-action-windows'
+          # see window-build: the action's default aqtinstall 3.1.21 cannot extract
+          # Qt's archives once py7zr reaches 1.x
+          aqtversion: '==3.3.0'
 
       - name: Install MSVC compiler
         uses: ilammy/msvc-dev-cmd@v1
