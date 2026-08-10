@@ -340,6 +340,7 @@ jobs:
 
   # This workflow contains a single job called "build"
   linux-x86-build:
+    if: false # fork: disabled - only android-build and window-* build here
     # The type of runner that the job will run on
     runs-on: ubuntu-24.04
 
@@ -805,6 +806,7 @@ jobs:
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
 
   android-emulator-test:
+    if: false # fork: disabled - only android-build and window-* build here
     runs-on: ubuntu-latest
     needs: android-build
     continue-on-error: ${{ matrix.flaky || false }}
@@ -978,6 +980,7 @@ jobs:
           if-no-files-found: warn                
 
   ios-build:
+    if: false # fork: disabled - only android-build and window-* build here
     # The type of runner that the job will run on
     runs-on: macos-14
     permissions:
@@ -1460,6 +1463,7 @@ jobs:
           path: windows-msvc2019-ai-server-binary.zip
 
   raspberry-pi-build:
+    if: false # fork: disabled - only android-build and window-* build here
     runs-on: ubuntu-22.04-arm
 
     steps:
@@ -1523,6 +1527,7 @@ jobs:
           path: src/qdomyos-zwift-armv6hf
 
   raspberry-pi-build-and-image-64bit:
+    if: false # fork: disabled - only android-build and window-* build here
     runs-on: ubuntu-22.04-arm
 
     steps:
@@ -1583,6 +1588,7 @@ jobs:
           path: src/qdomyos-zwift-aarch64
 
   raspberry-pi-smoke-test:
+    if: false # fork: disabled - only android-build and window-* build here
     runs-on: ubuntu-22.04-arm
     needs: [raspberry-pi-build, raspberry-pi-build-and-image-64bit]
 
@@ -2094,7 +2100,7 @@ jobs:
   nordictrack-build:
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: false # fork: disabled - only android-build and window-* build here
     
     strategy:
       matrix:
@@ -2234,7 +2240,7 @@ jobs:
   fitpro-build:
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: false # fork: disabled - only android-build and window-* build here
 
     strategy:
       matrix:
