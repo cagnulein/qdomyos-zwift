@@ -116,6 +116,15 @@ jobs:
       - name: Build qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         run: |
+            # syncqt.pl has to run under a native Windows perl. MSYS2 puts its own
+            # perl on PATH, and that one reports absolute paths in MSYS form
+            # (/d/a/qz/...) while qmake hands it Windows ones (D:/a/qz/...). syncqt
+            # treats the two as different roots and writes each forwarding header as
+            # a relative path between them, e.g.
+            #   #include "../../../../../../../../../../../d/a/qz/.../qsslserver_p.h"
+            # which resolves to nothing and fails the sslserver module. The msvc jobs
+            # never hit this because they do not set MSYS2 up at all.
+            $env:PATH = "C:\Strawberry\perl\bin;" + $env:PATH
             cd src\qthttpserver
             qmake
             make -j8
