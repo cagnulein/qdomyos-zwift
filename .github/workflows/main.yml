@@ -116,17 +116,30 @@ jobs:
       - name: Build qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         run: |
-            # syncqt.pl has to run under a native Windows perl. MSYS2 puts its own
-            # perl on PATH, and that one reports absolute paths in MSYS form
-            # (/d/a/qz/...) while qmake hands it Windows ones (D:/a/qz/...). syncqt
-            # treats the two as different roots and writes each forwarding header as
-            # a relative path between them, e.g.
-            #   #include "../../../../../../../../../../../d/a/qz/.../qsslserver_p.h"
-            # which resolves to nothing and fails the sslserver module. The msvc jobs
-            # never hit this because they do not set MSYS2 up at all.
-            $env:PATH = "C:\Strawberry\perl\bin;" + $env:PATH
             cd src\qthttpserver
             qmake
+            # syncqt.pl runs under MSYS2's perl, which setup-msys2 puts on PATH, and
+            # that perl reports absolute paths in MSYS form: syncqt logs
+            # <srcbase> = /d/a/qz/... against the <bldbase> = D:/a/qz/... qmake gave
+            # it. Taking the two for different roots, it writes every forwarding
+            # header as a relative path climbing between them:
+            #   #include "../../../../../../../../../../../d/a/qz/.../qsslserver_p.h"
+            # which resolves to nothing, and the sslserver module fails to compile.
+            #
+            # Repairing the generated headers is deliberate: pointing PATH at a
+            # native perl was tried first and did nothing, because the runner image
+            # documents only "Perl 5.32.1" with no path and ships no C:\Strawberry.
+            # Rewriting the output depends on nothing but the output itself.
+            #
+            # The msvc jobs run this same step and are unaffected - they never set
+            # MSYS2 up, so their perl was native all along.
+            if (Test-Path include) {
+              Get-ChildItem -Path include -Recurse -Filter *.h | ForEach-Object {
+                $c = Get-Content -Raw $_.FullName
+                $n = [regex]::Replace($c, '#include "(?:\.\./)+([a-zA-Z])/([^"]+)"', '#include "$1:/$2"')
+                if ($n -ne $c) { Set-Content -Path $_.FullName -Value $n -NoNewline; Write-Host "repaired forwarding header: $($_.FullName)" }
+              }
+            }
             make -j8
             cd ../..
 
