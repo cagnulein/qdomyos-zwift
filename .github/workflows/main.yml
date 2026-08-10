@@ -129,10 +129,18 @@ jobs:
             # does not help: it only marks them no_default_target, which keeps make
             # from building them but does not keep qmake -r from recursing in.
             # examples/httpserver then aborts qmake outright with "You cannot build
-            # examples inside the Qt source tree", so no Makefile is written at all
-            # and make has nothing to do. Deleting them is what actually excludes
-            # them, and nothing downstream needs either directory.
-            Remove-Item -Recurse -Force examples, tests -ErrorAction SilentlyContinue
+            # examples inside the Qt source tree".
+            Remove-Item -Recurse -Force examples -ErrorAction SilentlyContinue
+            # tests/ is emptied rather than deleted. Deleting it took tests/auto/cmake
+            # with it, and qt_module.prf sets CONFIG += create_cmake unconditionally -
+            # that feature then stops with "Missing CMake tests". Passing
+            # CONFIG-=create_cmake on the command line does not answer it either:
+            # qmake applies command-line assignments before reading the project, and
+            # qt_module.prf adds the flag straight back afterwards. Replacing the .pro
+            # with an empty subdirs project keeps the directory create_cmake looks for
+            # while giving qmake -r nothing to walk into, which settles both without
+            # depending on assignment ordering.
+            Set-Content -Path tests\tests.pro -Value "TEMPLATE = subdirs"
             # -r is load-bearing, for a reason that is not obvious. A plain qmake
             # writes only the top Makefile and defers each submodule's qmake to make
             # time:
@@ -143,14 +151,7 @@ jobs:
             # wrote every forwarding header as a relative path climbing between them.
             # Recursing here instead runs syncqt in-process from pwsh, where both come
             # out as D:/a/qz/..., and the generated headers are simply correct.
-            #
-            # CONFIG-=create_cmake goes with deleting tests/. qt_module.prf sets
-            # create_cmake unconditionally, and that feature insists on finding
-            # tests/auto/cmake - with the directory gone it stops with "Missing CMake
-            # tests". All it would generate is Qt5HttpServerConfig.cmake and friends,
-            # which nothing here consumes: QZ is a qmake project and links this module
-            # through its .prl/.pri files.
-            qmake -r CONFIG-=create_cmake
+            qmake -r
             # Guard, not the fix. With qmake -r above the headers come out correct
             # already - the run that introduced this reported "25 scanned, 0
             # repaired". It stays because the failure it catches is silent and
