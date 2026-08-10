@@ -3262,8 +3262,10 @@ void bluetooth::connectedAndDiscovered() {
 
                     connect(powerSensor, &stagesbike::debug, this, &bluetooth::debug);
                     connect(powerSensor, &bluetoothdevice::powerChanged, this->device(), &bluetoothdevice::powerSensor);
-                    connect(powerSensor, &bluetoothdevice::cadenceChanged, this->device(),
-                            &bluetoothdevice::cadenceSensor);
+                    if (cscName.startsWith(QStringLiteral("Disabled"))) {
+                        connect(powerSensor, &bluetoothdevice::cadenceChanged, this->device(),
+                                &bluetoothdevice::cadenceSensor);
+                    }
                     powerSensor->deviceDiscovered(b);
                 } else if (device() && device()->deviceType() == TREADMILL) {
                     powerSensorRun = new strydrunpowersensor(false, false, true);

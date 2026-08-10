@@ -170,6 +170,10 @@ void cscbike::update() {
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool externalPowerSensorEnabled =
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString()
+             .startsWith(QStringLiteral("Disabled"));
 
     if (!noVirtualDevice) {
 #ifdef Q_OS_ANDROID
@@ -183,21 +187,24 @@ void cscbike::update() {
         }
     }
 
-    bool rogue_echo_bike = settings.value(QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike).toBool();
-    
-    if (manualResistancePowerAdjustmentActive && jorotoBike) {
-        m_watt = manualResistanceAdjustedWatts();
-    } else if (manualResistancePowerAdjustmentActive && useCustomResistancePowerTable()) {
-        m_watt = customResistanceAdjustedWatts(currentCadence().value(), manualResistanceTarget);
-    } else if (rogue_echo_bike) {
-        double rpm = currentCadence().value();
-        m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404;
-    } else {
-        // When cadence is zero, watts should be zero regardless of HR
-        if (currentCadence().value() == 0) {
-            m_watt = 0;
+    if (!externalPowerSensorEnabled) {
+        bool rogue_echo_bike =
+            settings.value(QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike).toBool();
+
+        if (manualResistancePowerAdjustmentActive && jorotoBike) {
+            m_watt = manualResistanceAdjustedWatts();
+        } else if (manualResistancePowerAdjustmentActive && useCustomResistancePowerTable()) {
+            m_watt = customResistanceAdjustedWatts(currentCadence().value(), manualResistanceTarget);
+        } else if (rogue_echo_bike) {
+            double rpm = currentCadence().value();
+            m_watt = 0.000602337 * pow(rpm, 3.11762) + 32.6404;
         } else {
-            m_watt = wattFromHR(false);
+            // When cadence is zero, watts should be zero regardless of HR
+            if (currentCadence().value() == 0) {
+                m_watt = 0;
+            } else {
+                m_watt = wattFromHR(false);
+            }
         }
     }
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
@@ -272,6 +279,15 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     qDebug() << "characteristicChanged << " << characteristic.uuid() << newValue.toHex(' ') << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
+    bool externalCadenceSensorEnabled =
+        !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+             .toString()
+             .startsWith(QStringLiteral("Disabled"));
+    bool externalPowerSensorEnabled =
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString()
+             .startsWith(QStringLiteral("Disabled"));
+    bool useMachineCadence = !externalCadenceSensorEnabled && !externalPowerSensorEnabled;
     // QString heartRateBeltName = //unused QString
     // settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
@@ -356,7 +372,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         deltaT = LastCrankEventTime + 65535 - oldLastCrankEventTime;
     }
 
-    if (CrankRevs != oldCrankRevs && deltaT) {
+    if (useMachineCadence && CrankRevs != oldCrankRevs && deltaT) {
         double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
 
         // Cadence Validation Logic
@@ -377,7 +393,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         if ((cadence >= 0 && (cadence < 256 || _CrankRevs == 0) && CrankPresent) || (!CrankPresent && WheelPresent))
             Cadence = cadence;
         lastGoodCadence = now;
-    } else if (lastGoodCadence.msecsTo(now) > 2000) {
+    } else if (useMachineCadence && lastGoodCadence.msecsTo(now) > 2000) {
         Cadence = 0;
     }
     emit cadenceChanged(Cadence.value());
