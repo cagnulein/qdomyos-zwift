@@ -35,6 +35,7 @@ SOURCES += \
         Devices/TestResistanceSlewLimiter.cpp \
         Devices/TestFtmsControlPointHandshake.cpp \
         Erg/TestErgTableSelection.cpp \
+        Erg/TestErgAutoMode.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests
@@ -72,6 +73,7 @@ HEADERS += \
     Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \
     Erg/TestErgTableSelection.h \
+    Erg/TestErgAutoMode.h \
     GarminConnect/garminconnecttestsuite.h \
     TrainingProgram/trainprogramtestsuite.h \
     ToolTests/qfittestsuite.h \
