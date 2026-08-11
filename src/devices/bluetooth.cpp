@@ -4346,6 +4346,11 @@ void bluetooth::restart() {
         delete ftmsBike;
         ftmsBike = nullptr;
     }
+    if (xcxBike) {
+
+        delete xcxBike;
+        xcxBike = nullptr;
+    }
     if (wahooKickrSnapBike) {
 
         delete wahooKickrSnapBike;
@@ -4661,6 +4666,8 @@ bluetoothdevice *bluetooth::device() {
         return snodeBike;
     } else if (ftmsBike) {
         return ftmsBike;
+    } else if (xcxBike) {
+        return xcxBike;
     } else if (wahooKickrSnapBike) {
         return wahooKickrSnapBike;
     } else if (technogymBike) {
