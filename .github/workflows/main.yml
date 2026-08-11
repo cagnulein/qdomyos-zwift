@@ -2175,8 +2175,33 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
-          # Set variant-specific IP setting
-          sed -i 's/property string ${{ matrix.variant.setting_key }}: ""/property string ${{ matrix.variant.setting_key }}: "${{ matrix.variant.setting_value }}"/' settings.qml
+          # Keep the QML and C++ defaults identical for this artifact variant.
+          SETTING_KEY='${{ matrix.variant.setting_key }}' \
+          SETTING_VALUE='${{ matrix.variant.setting_value }}' \
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          key = os.environ["SETTING_KEY"]
+          value = os.environ["SETTING_VALUE"]
+          replacements = {
+              Path("settings.qml"): (
+                  f'            property string {key}: ""',
+                  f'            property string {key}: "{value}"',
+              ),
+              Path("qzsettings.cpp"): (
+                  f'const QString QZSettings::default_{key} = QStringLiteral("");',
+                  f'const QString QZSettings::default_{key} = QStringLiteral("{value}");',
+              ),
+          }
+          for path, (original, variant) in replacements.items():
+              contents = path.read_text()
+              if contents.count(original) != 1:
+                  raise SystemExit(f"Expected exactly one {original!r} in {path}")
+              path.write_text(contents.replace(original, variant))
+              if path.read_text().count(variant) != 1:
+                  raise SystemExit(f"Failed to set {variant!r} in {path}")
+          PY
           cd ..
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
@@ -2318,8 +2343,33 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
-          # Set variant-specific IP setting
-          sed -i 's/property string ${{ matrix.variant.setting_key }}: ""/property string ${{ matrix.variant.setting_key }}: "${{ matrix.variant.setting_value }}"/' settings.qml
+          # Keep the QML and C++ defaults identical for this artifact variant.
+          SETTING_KEY='${{ matrix.variant.setting_key }}' \
+          SETTING_VALUE='${{ matrix.variant.setting_value }}' \
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          key = os.environ["SETTING_KEY"]
+          value = os.environ["SETTING_VALUE"]
+          replacements = {
+              Path("settings.qml"): (
+                  f'            property string {key}: ""',
+                  f'            property string {key}: "{value}"',
+              ),
+              Path("qzsettings.cpp"): (
+                  f'const QString QZSettings::default_{key} = QStringLiteral("");',
+                  f'const QString QZSettings::default_{key} = QStringLiteral("{value}");',
+              ),
+          }
+          for path, (original, variant) in replacements.items():
+              contents = path.read_text()
+              if contents.count(original) != 1:
+                  raise SystemExit(f"Expected exactly one {original!r} in {path}")
+              path.write_text(contents.replace(original, variant))
+              if path.read_text().count(variant) != 1:
+                  raise SystemExit(f"Failed to set {variant!r} in {path}")
+          PY
           cd ..
 
           # Keep FitPro APKs usable on older 32-bit iFIT/ProForm consoles.
