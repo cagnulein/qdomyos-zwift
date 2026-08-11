@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>QZ Gear Overlay</title>
+<style>
+  :root {
+    --bg: rgba(12, 14, 18, 0.82);
+    --fg: #f5f7fa;
+    --dim: #9aa4b2;
+    --ok: #46d17b;
+    --bad: #e2564a;
+    --accent: #ffb020;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: transparent;
+    font-family: "Segoe UI", Roboto, system-ui, sans-serif;
+    color: var(--fg);
+    user-select: none;
+    overflow: hidden;
+    cursor: default;
+  }
+  #app {
+    height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px;
+    background: var(--bg);
+    border-radius: 14px;
+    padding: 8px 14px;
+    -webkit-app-region: drag;
+  }
+  #label {
+    font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--dim); display: flex; align-items: center; gap: 6px;
+  }
+  #dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bad); transition: background .3s; }
+  #dot.on { background: var(--ok); }
+  #gear {
+    font-size: 84px; font-weight: 700; line-height: 0.95;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 2px 12px rgba(0,0,0,.75);
+  }
+  #gear.bump { color: var(--accent); }
+  #stats {
+    font-size: 13px; color: var(--dim); font-variant-numeric: tabular-nums;
+    display: flex; gap: 12px;
+  }
+  #stats b { color: var(--fg); font-weight: 600; }
+  #setup {
+    position: absolute; inset: 0;
+    background: rgba(12,14,18,.96);
+    display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    border-radius: 14px; padding: 16px; text-align: center;
+  }
+  #setup.show { display: flex; }
+  #setup input {
+    background: #1b1f27; border: 1px solid #333a45; color: var(--fg);
+    padding: 8px 10px; border-radius: 8px; font-size: 15px; width: 210px; text-align: center;
+  }
+  #setup button {
+    background: var(--accent); border: 0; color: #16181d; font-weight: 700;
+    padding: 8px 18px; border-radius: 8px; font-size: 14px; cursor: pointer;
+  }
+  #setup p { margin: 0; font-size: 12px; color: var(--dim); max-width: 260px; line-height: 1.5; }
+  #hint {
+    position: absolute; bottom: 3px; right: 9px;
+    font-size: 10px; color: #5b6472; opacity: 0; transition: opacity .2s;
+  }
+  #app:hover #hint { opacity: 1; }
+  body.compact #stats, body.compact #label span { display: none; }
+  body.compact #gear { font-size: 64px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="label"><span id="dot"></span><span id="title">MARCHA QZ</span></div>
+  <div id="gear">--</div>
+  <div id="stats">
+    <span><b id="w">0</b>w</span>
+    <span><b id="c">0</b>rpm</span>
+    <span><b id="s">0.0</b>km/h</span>
+  </div>
+  <div id="hint">H = host · C = compacto</div>
+</div>
+
+<div id="setup">
+  <p>Endereço do QZ no tablet (IP:porta do QZ Web Server)</p>
+  <input id="hostInput" placeholder="192.168.1.50:8080" autocomplete="off">
+  <button id="save">Conectar</button>
+  <p>No QZ: Settings › Template Settings › <b>user_QZWS</b> = Enabled.<br>
+     Troque a porta 6666 para <b>8080</b> — navegadores bloqueiam a 6666.</p>
+</div>
+
+<script>
+(function () {
+  var qs = new URLSearchParams(location.search);
+  var host = qs.get('host') || localStorage.getItem('qzHost') || '';
+  var ws = null, retry = null, lastGear = null, staleTimer = null;
+
+  var el = {
+    dot: document.getElementById('dot'),
+    gear: document.getElementById('gear'),
+    w: document.getElementById('w'),
+    c: document.getElementById('c'),
+    s: document.getElementById('s'),
+    setup: document.getElementById('setup'),
+    input: document.getElementById('hostInput')
+  };
+
+  function fmtGear(v) {
+    if (v === null || v === undefined || isNaN(v)) return '--';
+    var n = Number(v);
+    return Math.abs(n - Math.round(n)) < 0.05 ? String(Math.round(n)) : n.toFixed(1);
+  }
+
+  function setOnline(on) {
+    el.dot.classList.toggle('on', on);
+    if (!on) el.gear.style.opacity = 0.45;
+    else el.gear.style.opacity = 1;
+  }
+
+  function showSetup(show) {
+    el.setup.classList.toggle('show', show);
+    if (show) { el.input.value = host; el.input.focus(); }
+  }
+
+  function connect() {
+    if (!host) { showSetup(true); return; }
+    clearTimeout(retry);
+    try { if (ws) { ws.onclose = null; ws.close(); } } catch (e) {}
+
+    // Qualquer path serve, exceto /fetcher (reservado pelo QZ).
+    ws = new WebSocket('ws://' + host + '/qzgear-ws');
+
+    ws.onopen = function () { setOnline(true); };
+
+    ws.onmessage = function (ev) {
+      var msg;
+      try { msg = JSON.parse(ev.data); } catch (e) { return; }
+      if (msg.msg !== 'workout' || !msg.content) return;
+      var c = msg.content;
+
+      setOnline(true);
+      clearTimeout(staleTimer);
+      staleTimer = setTimeout(function () { setOnline(false); }, 8000);
+
+      if ('gears' in c) {
+        var g = fmtGear(c.gears);
+        if (g !== lastGear) {
+          lastGear = g;
+          el.gear.textContent = g;
+          el.gear.classList.add('bump');
+          setTimeout(function () { el.gear.classList.remove('bump'); }, 400);
+        }
+      }
+      if ('watts' in c) el.w.textContent = Math.round(c.watts);
+      if ('cadence' in c) el.c.textContent = Math.round(c.cadence);
+      if ('speed' in c) el.s.textContent = Number(c.speed).toFixed(1);
+    };
+
+    ws.onclose = function () {
+      setOnline(false);
+      retry = setTimeout(connect, 2000);
+    };
+    ws.onerror = function () { try { ws.close(); } catch (e) {} };
+  }
+
+  document.getElementById('save').onclick = function () {
+    var v = el.input.value.trim();
+    if (!v) return;
+    if (!/:\d+$/.test(v)) v += ':8080';
+    host = v;
+    localStorage.setItem('qzHost', host);
+    showSetup(false);
+    connect();
+  };
+  el.input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') document.getElementById('save').click();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    var k = e.key.toLowerCase();
+    if (k === 'h') showSetup(!el.setup.classList.contains('show'));
+    if (k === 'c') document.body.classList.toggle('compact');
+  });
+
+  setOnline(false);
+  connect();
+})();
+</script>
+</body>
+</html>
