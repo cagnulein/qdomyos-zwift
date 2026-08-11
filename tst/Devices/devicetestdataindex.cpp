@@ -387,6 +387,11 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
         ->configureSettingsWith( QZSettings::fitplus_bike);
 
+    // VirtuFit Etappe 2.0i
+    RegisterNewDeviceTestData(DeviceIndex::FitPlusVirtufitEtappeX100)
+        ->expectDevice<fitplusbike>()
+        ->acceptDeviceName("X100-", DeviceNameComparison::StartsWith);
+
 
     // FitPlus MRK
     RegisterNewDeviceTestData(DeviceIndex::FitPlusBike_MRK_NoSettings)
