@@ -147,11 +147,83 @@ arrives:
   that handler. Discovery is effectively one-shot at launch, so the bike must be
   advertising before QZ starts. This also means the reconnection work on
   `kind-of-stable` has no effect on Windows.
-- `ftmsbike::stateChanged()` refuses to subscribe to any characteristic until
-  *every* discovered service reaches `ServiceDiscovered`. `cscbike` and
-  `renphobike` bind a single service on Windows specifically to keep that gate
-  passable; `ftmsbike` does not. If a Windows debug log shows repeated
-  `not all services discovered`, that is the cause.
+- **The bike must be paired in Windows Settings first.** Until it is bonded at the
+  OS level, the connection succeeds and the services enumerate, but no
+  notifications are ever delivered - `characteristicChanged` stays at 0 and every
+  tile reads zero. After bonding it jumped straight to 158 on the same build.
+- **`applewatch_fakedevice` hijacks the connection.** The `fake_bike` branch in
+  `bluetooth::deviceDiscovered` is evaluated *before* the `ftmsbike` branch, so
+  with that setting on, the real bike is never reached. Turn it off before
+  concluding anything about a Windows connection failure.
+
+An earlier version of this file blamed `ftmsbike::stateChanged()` for refusing to
+subscribe until every service reaches `ServiceDiscovered`. That was wrong: a
+Windows debug log from this bike shows `all services discovered!` firing normally.
+The gate exists, but it was not what broke here, and the speculative patch written
+against it was reverted before it shipped.
 
 Enable the debug log from QZ's settings; it is written to QZ's writable app
 directory as `debug-<timestamp>.log`.
+
+## Rouvy on the same PC (DIRCON over mDNS)
+
+QZ advertises `_wahoo-fitness-tnp._tcp.local` on port 36866 and Rouvy browses for
+it. Two things had to be true before that worked, and each failed silently:
+
+- **QZ must publish a real A record.** `ProviderPrivate::publish` calls
+  `localipaddress::getIP(QHostAddress())` with a *null* argument, which skips the
+  subnet-matching block; with only an Android JNI fallback behind it, every
+  desktop platform returned a null address and advertised a service that resolved
+  to nothing. Fixed by `bestLocalIPv4()` (commit `e390b331`), which enumerates
+  interfaces and scores them so real Wi-Fi/Ethernet beats virtual adapters - which
+  matters on any machine with VirtualBox's `192.168.56.1` in the list. Verify in
+  QZ's log: `ProviderPrivate::publish QHostAddress("192.168.x.y")`, not `("")`.
+- **Windows' own mDNS resolver must stay enabled.** Rouvy's
+  `DnsZeroConfLib.dll` imports `DnsServiceBrowse` from `DNSAPI.dll`, i.e. the
+  Dnscache mDNS client - *not* Apple Bonjour, which is unused (`mdnsNSP.dll` loads
+  only as a Winsock namespace provider). Setting
+  `HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters\EnableMDNS = 0`
+  makes the browse fail and **hard-crashes Rouvy**: its failure callback re-enters
+  `StopBrowsing` on a handle `StartScan` has not finished building. The
+  crash is preceded by `ERROR WindowsBonjourBrowser - Network Service Discovery:
+  scan failed`, and `NetworkCheckingManagerOnStatusChanged` re-triggers it on every
+  address change, so a DHCP renewal becomes a crash loop.
+
+- **Announcements must leave by the right interface.** qmdnsengine joins the
+  multicast group on every interface, so queries are always *received* - but a
+  socket bound to the any-address *sends* out only one interface, whichever the
+  OS picks for `224.0.0.251`. Every virtual adapter on a typical dev box
+  (VirtualBox host-only, Tailscale, Docker, Hyper-V) tends to outrank Wi-Fi on
+  interface metric, so the answers go somewhere nobody is listening and the
+  failure is completely silent. `Server::sendMessage` /
+  `sendMessageToAll` now call `ServerPrivate::writeToAllInterfaces()`, which sets
+  `setMulticastInterface()` and sends one copy per usable interface.
+
+To see what the OS would pick, connect a UDP socket to the group and read back
+the local address it chose:
+
+```powershell
+$u = New-Object System.Net.Sockets.UdpClient
+$u.Client.Bind((New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Any,0)))
+$u.Connect((New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Parse('224.0.0.251'),5353)))
+$u.Client.LocalEndPoint.Address    # the interface announcements would go out
+```
+
+Changing `Set-NetIPInterface -InterfaceMetric` does *not* reliably move this:
+Windows caches a best-interface for the group and kept using a VirtualBox adapter
+demoted to metric 9000. Disabling the adapter does take effect immediately.
+`netsh interface ip show joins` confirms group membership per interface, which is
+a separate question from egress and will look healthy either way.
+
+There is no port conflict between QZ and Dnscache: qmdnsengine binds 5353 with
+`ShareAddress` (falling back to `ReuseAddressHint`), so the two coexist.
+Do not try to make QZ the sole owner of 5353 - Rouvy's client *is* the Windows
+resolver.
+
+Rouvy's logs are worth reading directly:
+`%USERPROFILE%\AppData\LocalLow\VirtualTraining\ROUVY\rouvy.log` and crash dumps
+in `%LOCALAPPDATA%\Temp\VirtualTraining\ROUVY\Crashes\*\Player.log`.
+
+`rouvy_compatibility` in QZ's settings shortens the mDNS rebroadcast interval from
+30 minutes to 5 seconds (`src/qmdnsengine/src/src/hostname.cpp`), which is what
+makes Rouvy notice QZ within a reasonable time.
