@@ -162,6 +162,7 @@ public:
     DEFINE_DEVICE(TrueTreadmill2, "True Treadmill 2");
     DEFINE_DEVICE(TrxAppGateUSBElliptical, "TrxAppGateUSB Elliptical");
     DEFINE_DEVICE(UltrasportBike, "Ultrasport Bike");
+    DEFINE_DEVICE(XcxBike, "XCX Bike");
     DEFINE_DEVICE(WahooKickrSnapBike_KICKRCORE, "Wahoo KICKR CORE");
     DEFINE_DEVICE(WahooKickrSarisTrainer, "Wahoo Kickr Saris Trainer");
     DEFINE_DEVICE(WahooKickrSnapBike, "Wahoo Kickr Snap Bike");
@@ -181,4 +182,3 @@ public:
 
 
 };
-
