@@ -4101,6 +4101,11 @@ void bluetooth::restart() {
         delete ultraSportBike;
         ultraSportBike = nullptr;
     }
+    if (xcxBike) {
+
+        delete xcxBike;
+        xcxBike = nullptr;
+    }
     if (mepanelBike) {
 
         delete mepanelBike;
@@ -4551,6 +4556,8 @@ bluetoothdevice *bluetooth::device() {
         return bkoolBike;
     } else if (ultraSportBike) {
         return ultraSportBike;
+    } else if (xcxBike) {
+        return xcxBike;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
     } else if (lifefitnessTreadmill) {
