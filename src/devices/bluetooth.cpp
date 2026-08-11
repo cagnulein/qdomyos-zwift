@@ -1851,6 +1851,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(tacxneo2Bike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 tacxneo2Bike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(tacxneo2Bike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("XCX-")) && !xcxBike && filter) {
+                // XCX exposes FTMS, CSC and Cycling Power services, but its working telemetry is
+                // proprietary FFF6. This name-specific branch must remain before generic FTMS.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                xcxBike = new xcxbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(xcxBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                xcxBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(xcxBike);
             } else if (((b.name().toUpper().startsWith("INDOORCYCLE")) ||
                         ((b.name().toUpper().startsWith("MAGNUS ")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) &&
                        !cycleopsphantomBike && filter) {
@@ -1982,7 +1992,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("ROBX")) ||
                         (b.name().toUpper().startsWith("ORLAUF_ARES")) ||
                         (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
-                        (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("SMARTBIKE-")) ||
                         (b.name().toUpper().startsWith("D500V2")) ||
                         (b.name().toUpper().startsWith("FBIKE-HEAVY-PRO")) ||

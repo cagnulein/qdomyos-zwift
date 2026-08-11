@@ -339,6 +339,7 @@ devices/treadmill.cpp \
 devices/truetreadmill/truetreadmill.cpp \
 devices/trxappgateusbbike/trxappgateusbbike.cpp \
 devices/ultrasportbike/ultrasportbike.cpp \
+devices/xcxbike/xcxbike.cpp \
 virtualdevices/virtualrower.cpp \
 devices/wahookickrsnapbike/wahookickrsnapbike.cpp \
 devices/yesoulbike/yesoulbike.cpp \
@@ -875,6 +876,7 @@ devices/truetreadmill/truetreadmill.h \
 devices/trxappgateusbbike/trxappgateusbbike.h \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 devices/ultrasportbike/ultrasportbike.h \
+devices/xcxbike/xcxbike.h \
 virtualdevices/virtualbike.h \
 virtualdevices/virtualrower.h \
 virtualdevices/virtualtreadmill.h \
