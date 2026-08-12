@@ -213,9 +213,20 @@ do not own" mode.
 ### Risks
 
 The DIRCON service construction is the part that currently works, and this change
-touches it directly. Suggested order: land the ownership move with the device still
-required (no behaviour change, pure refactor), verify a ride still works, then make
-the device optional in a second commit.
+touches it directly.
+
+The order originally suggested here was: ownership move first with the device still
+required, then make the device optional. **Step 2 has to come first instead.** Hoisting
+ownership without `setDevice()` means a process-lifetime manager keeps serving whichever
+device it was built for; if that device is ever replaced — `bluetooth::restart()` deletes
+and rebuilds the device objects, and it is reachable from the gym-mode handler at
+`bluetooth.cpp:3786` — the manager dereferences a freed pointer. `setDevice()` with the
+device still required is a pure internal refactor with no behaviour change, and it is
+what makes the ownership move safe. Actual order:
+
+1. `setDevice()` and the rebinding it needs — no ownership change, no behaviour change.
+2. The ownership move, with the device still required.
+3. Null device serving zeros, and creation at startup.
 
 Three things to check on the first commit, all of which are silent if wrong:
 

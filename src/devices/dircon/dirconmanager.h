@@ -41,6 +41,21 @@ class DirconManager : public QObject {
     double currentGear();
     explicit DirconManager(bluetoothdevice *t, int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
                            QObject *parent = nullptr);
+
+    /**
+     * @brief Rebind every consumer of the bound device in one pass.
+     *
+     * The device pointer is copied into three places when the manager is built:
+     * `bt`, the CharacteristicNotifier chain, and the write processors. Rebinding
+     * only some of them leaves a live object dereferencing a freed device, so this
+     * is the only supported way to change it.
+     *
+     * Neither the TCP listener nor the mDNS advertisement is touched: swapping the
+     * device must stay invisible to a connected client, which is the whole point of
+     * giving the endpoint a lifetime longer than the bike's.
+     */
+    void setDevice(bluetoothdevice *t);
+    bluetoothdevice *device() const { return bt; }
   private slots:
     void bikeProvider();
   signals:
