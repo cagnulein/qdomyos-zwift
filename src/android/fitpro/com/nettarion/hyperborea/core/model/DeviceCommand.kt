@@ -9,6 +9,7 @@ sealed interface DeviceCommand {
     data class AdjustSpeed(val increase: Boolean) : DeviceCommand
     data object PauseWorkout : DeviceCommand
     data object ResumeWorkout : DeviceCommand
+    data object StopWorkout : DeviceCommand
     data object CalibrateIncline : DeviceCommand
     data class SetFanSpeed(val level: Int) : DeviceCommand
     data class SetVolume(val level: Int) : DeviceCommand
