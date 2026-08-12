@@ -154,6 +154,7 @@ devices/volavabike/volavabike.cpp \
 handleurl.cpp \
 devices/iconceptelliptical/iconceptelliptical.cpp \
 localipaddress.cpp \
+rtssosd.cpp \
 devices/pelotonbike/pelotonbike.cpp \
 devices/schwinn170bike/schwinn170bike.cpp \
 devices/wahookickrheadwind/wahookickrheadwind.cpp \
@@ -472,6 +473,7 @@ devices/discoveryoptions.h \
 handleurl.h \
 devices/iconceptelliptical/iconceptelliptical.h \
 localipaddress.h \
+rtssosd.h \
 devices/pelotonbike/pelotonbike.h \
 devices/schwinn170bike/schwinn170bike.h \
 devices/wahookickrheadwind/wahookickrheadwind.h \

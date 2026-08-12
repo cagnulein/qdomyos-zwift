@@ -8,6 +8,7 @@
 #include "gpx.h"
 #include "OAuth2.h"
 #include "peloton.h"
+#include "rtssosd.h"
 #include "garminconnect.h"
 #include "qmdnsengine/browser.h"
 #include "qmdnsengine/cache.h"
@@ -1137,6 +1138,12 @@ public:
     QGeoPath gpx_preview;
     PathController pathController;
     bool videoMustBeReset = true;
+
+    // Gear/resistance/ERG drawn over a training app that owns the screen. Costs
+    // nothing when RivaTuner Statistics Server is not running, and is Windows
+    // only - see rtssosd.h.
+    RtssOsd rtssOsd;
+    void updateRtssOsd();
 
 #ifdef Q_OS_ANDROID
     bool floating_open = false;    

@@ -6,6 +6,7 @@
 #include "ios/ios_liveactivity.h"
 #endif
 #include "localipaddress.h"
+#include "rtssosd.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <jni.h>
@@ -1864,6 +1865,10 @@ void homeform::aboutToQuit() {
         qDebug() << "fit_file_saved_on_quit true";
         fit_save_clicked();
     }
+
+    // Before the device goes: RTSS keeps drawing whatever was left behind, so a
+    // stale gear number would stay frozen over the training app.
+    rtssOsd.release();
 
     if (bluetoothManager->device())
         bluetoothManager->device()->disconnectBluetooth();
@@ -6068,6 +6073,29 @@ void homeform::handleRestoreDefaultWheelDiameter() {
     }
 }
 
+void homeform::updateRtssOsd() {
+    bluetoothdevice *device = bluetoothManager ? bluetoothManager->device() : nullptr;
+    if (!device) {
+        rtssOsd.publish(QStringLiteral("QZ: no device"));
+        return;
+    }
+
+    QSettings settings;
+    const bool erg = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+
+    // Only bikes and rowers carry a gear; everything else just gets the rest.
+    QString gearLine;
+    if (device->deviceType() == BIKE) {
+        gearLine = QStringLiteral("Gear: %1\n").arg(((bike *)device)->gears());
+    } else if (device->deviceType() == ROWING) {
+        gearLine = QStringLiteral("Gear: %1\n").arg(((rower *)device)->gears());
+    }
+
+    rtssOsd.publish(gearLine + QStringLiteral("ERG: %1\nResistance: %2")
+                                   .arg(erg ? QStringLiteral("ON") : QStringLiteral("OFF"))
+                                   .arg(device->currentResistance().value()));
+}
+
 void homeform::update() {
 
     QSettings settings;
@@ -8640,6 +8668,9 @@ void homeform::update() {
 
     emit changeOfdevice();
     emit changeOflap();
+
+    // Last, so the overlay shows the values this tick settled on.
+    updateRtssOsd();
 }
 
 bool homeform::getDevice() {
