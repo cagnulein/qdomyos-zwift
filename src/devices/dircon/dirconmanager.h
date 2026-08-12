@@ -56,6 +56,42 @@ class DirconManager : public QObject {
      */
     void setDevice(bluetoothdevice *t);
     bluetoothdevice *device() const { return bt; }
+
+    /**
+     * @brief Keep the resistance conversion in step with the device.
+     *
+     * Previously a fresh manager was built per virtual device, so these came along
+     * with the constructor. The shared manager is built once, so a later device
+     * carrying different settings has to push them in.
+     */
+    void setResistanceParameters(int8_t bikeResistanceOffset, double bikeResistanceGain);
+
+    /**
+     * @brief The process-lifetime DIRCON endpoint, created on first use.
+     *
+     * The TCP listener and the mDNS advertisement must outlive any single virtual
+     * device: destroying and rebuilding them mid-session leaves clients that cache
+     * discovery results (Rouvy) holding a record for a port nobody is listening on.
+     * The instance is parented to the application object, so no virtual device owns
+     * it and `bluetoothdevice::setVirtualDevice()` cannot take it down.
+     *
+     * Subsequent calls rebind the existing manager to @p t rather than building a
+     * second one, which would collide on the listening port.
+     */
+    static DirconManager *shared(bluetoothdevice *t, int8_t bikeResistanceOffset = 4,
+                                 double bikeResistanceGain = 1.0);
+    static DirconManager *sharedIfAny();
+
+    /**
+     * @brief Tear the shared endpoint down, freeing its ports and withdrawing its
+     * advertisement.
+     *
+     * Only for callers that need to build a DIRCON endpoint with a different service
+     * profile - today that means `virtualtreadmill`, whose machine type maps to the
+     * same base port. Destroying the manager sends the mDNS goodbye through
+     * `~ProviderPrivate()`, so clients are told before the socket disappears.
+     */
+    static void releaseShared();
   private slots:
     void bikeProvider();
   signals:

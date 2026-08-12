@@ -1,8 +1,14 @@
 #include "devices/dircon/dirconmanager.h"
 #include "devices/bike.h"
+#include <QCoreApplication>
 #include <QNetworkInterface>
+#include <QPointer>
 #include <QSettings>
 #include <chrono>
+
+// The one endpoint for the process. A QPointer so that teardown of the application
+// object clears it instead of leaving a dangling pointer behind.
+static QPointer<DirconManager> sharedDirconManager;
 
 using namespace std::chrono_literals;
 
@@ -275,6 +281,49 @@ void DirconManager::setDevice(bluetoothdevice *t) {
         writeP0003->setDevice(t);
 }
 
+void DirconManager::setResistanceParameters(int8_t bikeResistanceOffset, double bikeResistanceGain) {
+    if (writeP2AD9) {
+        writeP2AD9->bikeResistanceOffset = bikeResistanceOffset;
+        writeP2AD9->bikeResistanceGain = bikeResistanceGain;
+    }
+    if (writePE005) {
+        writePE005->bikeResistanceOffset = bikeResistanceOffset;
+        writePE005->bikeResistanceGain = bikeResistanceGain;
+    }
+    if (writeP0003) {
+        writeP0003->bikeResistanceOffset = bikeResistanceOffset;
+        writeP0003->bikeResistanceGain = bikeResistanceGain;
+    }
+}
+
+DirconManager *DirconManager::shared(bluetoothdevice *t, int8_t bikeResistanceOffset, double bikeResistanceGain) {
+    if (sharedDirconManager) {
+        qDebug() << "Reusing the shared Dircon manager for a new virtual device";
+        sharedDirconManager->setResistanceParameters(bikeResistanceOffset, bikeResistanceGain);
+        sharedDirconManager->setDevice(t);
+        return sharedDirconManager;
+    }
+
+    // Parented to the application object rather than to the virtual device that
+    // happened to ask for it first: setVirtualDevice() deletes the outgoing virtual
+    // device outright, and taking the listener and the advertisement down with it is
+    // exactly the failure this refactor removes.
+    sharedDirconManager = new DirconManager(t, bikeResistanceOffset, bikeResistanceGain, QCoreApplication::instance());
+    return sharedDirconManager;
+}
+
+DirconManager *DirconManager::sharedIfAny() { return sharedDirconManager; }
+
+void DirconManager::releaseShared() {
+    if (!sharedDirconManager) {
+        return;
+    }
+
+    qDebug() << "Releasing the shared Dircon endpoint";
+    delete sharedDirconManager.data();
+    sharedDirconManager = nullptr;
+}
+
 #define DM_CHAR_NOTIF_NOTIF1_OP(UUID, P1, P2, P3)                                                                      \
     QByteArray all##UUID;                                                                                              \
     int rv##UUID = notif##UUID ? notif##UUID->notify(all##UUID) : 0;
@@ -284,6 +333,14 @@ void DirconManager::setDevice(bluetoothdevice *t) {
         P1->sendCharacteristicNotification(0x##UUID, all##UUID);
 
 void DirconManager::bikeProvider() {
+    // The manager now outlives the bike, so it can tick with nothing attached. Every
+    // CharacteristicNotifier dereferences its device, so there is nothing to send
+    // until one is bound. The listener and the advertisement stay up regardless -
+    // that is the point.
+    if (!bt) {
+        return;
+    }
+
     QSettings settings;
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
 

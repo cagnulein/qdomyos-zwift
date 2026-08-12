@@ -210,6 +210,32 @@ do not own" mode.
    sequences this correctly via `farewell()` when re-confirming an existing name
    (`provider.cpp:111`).
 
+### Implementation status
+
+| Step | State |
+|---|---|
+| 1. `setDevice()` and the rebinding it needs | done — `DirconManager::setDevice()`, `dirconmanager.cpp` |
+| 2. Ownership move, device still required | done — `DirconManager::shared()`, parented to the application object |
+| 3. Null device serving zeros, creation at startup | not started |
+
+After step 2 the endpoint survives a bike disconnecting and reconnecting: the listener
+and the advertisement stay up, and the reconnect rebinds the device without a re-probe
+or a re-announcement. What is still open is the startup window — with no bike ever
+connected in this run, `shared()` has not been called and nothing is listening. That is
+what step 3 closes, and it is the case in the 21:19:55 log above.
+
+Two things step 2 settled that the plan had left open:
+
+- **`virtualbike` borrows, it does not own.** `attachDirconManager()` no longer
+  re-parents, and `~virtualbike()` releases the device binding (`setDevice(nullptr)`)
+  only when nothing detached the manager first and it is still bound to that virtual
+  device's own bike — so a bridge switch hands the endpoint over untouched.
+- **Treadmills opt out explicitly.** `virtualtreadmill` keeps the old
+  per-virtual-device ownership, but a shared endpoint left over from a bike earlier in
+  the session would still hold the same base port, so it calls
+  `DirconManager::releaseShared()` first. Without that, connecting a treadmill after a
+  bike in one run would fail to listen.
+
 ### Risks
 
 The DIRCON service construction is the part that currently works, and this change
