@@ -29,6 +29,9 @@
 class DirconManager : public QObject {
     Q_OBJECT
     QTimer bikeTimer;
+    // Milliseconds, decided at construction from zwift_play_emulator / race_mode.
+    // Kept so the timer can be stopped while idle and restarted on setDevice().
+    int bikeTimerInterval = 1000;
     CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
     CharacteristicWriteProcessor0003 *writeP0003 = 0;
     CharacteristicWriteProcessorE005 *writePE005 = 0;
@@ -36,6 +39,9 @@ class DirconManager : public QObject {
     QList<DirconProcessor *> processors;
     static QString getMacAddress();
     bluetoothdevice* bt = 0;
+    // Which DM_MACHINE_TYPE_* this endpoint was built for. It fixes both the advertised
+    // service set and the listening port, so it cannot be changed by rebinding.
+    uint8_t machineType = 0;
 
   public:
     double currentGear();
@@ -81,6 +87,26 @@ class DirconManager : public QObject {
     static DirconManager *shared(bluetoothdevice *t, int8_t bikeResistanceOffset = 4,
                                  double bikeResistanceGain = 1.0);
     static DirconManager *sharedIfAny();
+
+    /**
+     * @brief Bring the endpoint up at launch, before any device is connected.
+     *
+     * This is the point of the whole refactor. A client that caches discovery results
+     * and does not retry a failed connect - Rouvy does both - will otherwise latch on
+     * to a record for a port nobody is listening on, and stay broken until its cache is
+     * cleared by hand. Listening from launch means a cached record is always
+     * connectable.
+     *
+     * Guarded by `dircon_yes` and idempotent. The endpoint serves the bike profile;
+     * see machineTypeFor().
+     */
+    static void startIdleEndpoint();
+
+    /**
+     * @brief The DM_MACHINE_TYPE_* an endpoint for @p t has to be built as.
+     * Returns the bike profile for a null device.
+     */
+    static uint8_t machineTypeFor(bluetoothdevice *t);
 
     /**
      * @brief Tear the shared endpoint down, freeing its ports and withdrawing its
