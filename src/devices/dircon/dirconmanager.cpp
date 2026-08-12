@@ -249,6 +249,34 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
         bikeTimer.start(1s);
 }
 
+#define DM_CHAR_NOTIF_SETDEVICE_OP(UUID, P1, P2, P3)                                                                   \
+    if (notif##UUID)                                                                                                   \
+        notif##UUID->setDevice(P1);
+
+void DirconManager::setDevice(bluetoothdevice *t) {
+    if (bt == t)
+        return;
+
+    qDebug() << "DirconManager::setDevice rebinding from" << (void *)bt << "to" << (void *)t;
+
+    bt = t;
+
+    // Every notifier built by DM_CHAR_NOTIF_BUILD_OP holds its own copy of the
+    // pointer; the macro list is the same one used to build them, so this cannot
+    // drift out of sync with the constructor.
+    DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_SETDEVICE_OP, t, 0, 0)
+
+    // The write processors are the control path. A stale pointer here turns a
+    // client's power or resistance write into a use-after-free, not a stale
+    // reading, so they are rebound in the same pass.
+    if (writeP2AD9)
+        writeP2AD9->setDevice(t);
+    if (writePE005)
+        writePE005->setDevice(t);
+    if (writeP0003)
+        writeP0003->setDevice(t);
+}
+
 #define DM_CHAR_NOTIF_NOTIF1_OP(UUID, P1, P2, P3)                                                                      \
     QByteArray all##UUID;                                                                                              \
     int rv##UUID = notif##UUID ? notif##UUID->notify(all##UUID) : 0;
