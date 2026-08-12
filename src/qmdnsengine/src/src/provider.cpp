@@ -22,6 +22,7 @@
  * IN THE SOFTWARE.
  */
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QNetworkInterface>
 #include <qmdnsengine/abstractserver.h>
@@ -39,9 +40,21 @@
 using namespace QMdnsEngine;
 
 ProviderPrivate::ProviderPrivate(QObject *parent, AbstractServer *server, Hostname *hostname)
-    : QObject(parent), server(server), hostname(hostname), prober(nullptr), initialized(false), confirmed(false) {
+    : QObject(parent), server(server), hostname(hostname), prober(nullptr), initialized(false), confirmed(false),
+      saidGoodbye(false), announcesRemaining(0), announceDelayMs(0) {
     connect(server, &AbstractServer::messageReceived, this, &ProviderPrivate::onMessageReceived);
     connect(hostname, &Hostname::hostnameChanged, this, &ProviderPrivate::onHostnameChanged);
+
+    announceTimer.setSingleShot(true);
+    connect(&announceTimer, &QTimer::timeout, this, &ProviderPrivate::onAnnounceTimeout);
+
+    // Destruction is not guaranteed to run on every exit path, and a client that
+    // keeps the cached record will then try to connect to a port nobody is
+    // listening on and remember the failure. Sending the goodbye when the app
+    // decides to quit covers the ordinary window-close case too.
+    if (QCoreApplication::instance()) {
+        connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &ProviderPrivate::sayGoodbye);
+    }
 
     browsePtrProposed.setName(MdnsBrowseType);
     browsePtrProposed.setType(PTR);
@@ -51,9 +64,21 @@ ProviderPrivate::ProviderPrivate(QObject *parent, AbstractServer *server, Hostna
 }
 
 ProviderPrivate::~ProviderPrivate() {
-    if (confirmed) {
-        farewell();
+    sayGoodbye();
+}
+
+void ProviderPrivate::sayGoodbye() {
+    if (!confirmed || saidGoodbye) {
+        return;
     }
+    saidGoodbye = true;
+
+    // Nothing should re-announce the records we are about to invalidate.
+    announceTimer.stop();
+    announcesRemaining = 0;
+
+    qDebug() << "ProviderPrivate::sayGoodbye" << ptrRecord.name();
+    farewell();
 }
 
 void ProviderPrivate::announce() {
@@ -131,6 +156,28 @@ void ProviderPrivate::publish() {
         ARecord.setAddress(r);
 
     announce();
+
+    // Repeat the announcement a few times with a widening gap. A single
+    // datagram is easily lost on Wi-Fi, and a browser that misses it stays
+    // blind until it happens to query again.
+    announcesRemaining = 3;
+    announceDelayMs = 1000;
+    announceTimer.start(announceDelayMs);
+}
+
+void ProviderPrivate::onAnnounceTimeout() {
+    if (!confirmed || saidGoodbye || announcesRemaining <= 0) {
+        return;
+    }
+
+    --announcesRemaining;
+    qDebug() << "ProviderPrivate::onAnnounceTimeout repeat, remaining" << announcesRemaining;
+    announce();
+
+    if (announcesRemaining > 0) {
+        announceDelayMs *= 2;
+        announceTimer.start(announceDelayMs);
+    }
 }
 
 void ProviderPrivate::onMessageReceived(const Message &message) {

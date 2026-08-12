@@ -26,6 +26,7 @@
 #define QMDNSENGINE_PROVIDER_P_H
 
 #include <QObject>
+#include <QTimer>
 
 #include <qmdnsengine/record.h>
 #include <qmdnsengine/service.h>
@@ -47,7 +48,10 @@ class ProviderPrivate : public QObject {
     void announce();
     void confirm();
     void farewell();
-    void publish();    
+    void publish();
+
+    // Send the goodbye exactly once, however we are being torn down.
+    void sayGoodbye();
 
     AbstractServer *server;
     Hostname *hostname;
@@ -56,6 +60,13 @@ class ProviderPrivate : public QObject {
     Service service;
     bool initialized;
     bool confirmed;
+    bool saidGoodbye;
+
+    // RFC 6762 8.3 asks for repeated announcements; a single one is easily lost
+    // on Wi-Fi and the service then stays invisible until the next query.
+    QTimer announceTimer;
+    int announcesRemaining;
+    int announceDelayMs;
 
     Record browsePtrRecord;
     Record ptrRecord;
@@ -72,6 +83,7 @@ class ProviderPrivate : public QObject {
 
     void onMessageReceived(const Message &message);
     void onHostnameChanged(const QByteArray &hostname);
+    void onAnnounceTimeout();
 };
 
 } // namespace QMdnsEngine
