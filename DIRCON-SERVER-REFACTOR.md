@@ -4,9 +4,24 @@ Written 2026-08-12, to continue the work elsewhere. Everything below was establi
 by debugging QZ and Rouvy running on the same Windows 11 machine over one session.
 Branch point: `e6e1e34e` on `kind-of-stable`.
 
+Amended after a re-read against the code: one claim about mid-session disconnects was
+wrong and is corrected in "Why it matters", two line references were off, and the plan
+gained the device-rebinding and port-derivation detail it was missing. The claims about
+Rouvy's own behaviour (its DLL imports, its caching, the log timestamps) come from that
+debugging session and were not re-verifiable from this repository.
+
 The goal of that session was to get Rouvy to discover and connect to QZ's DIRCON
 endpoint. It now does. What is left is the last structural problem, described in
 "The refactor" below, which is the reason this branch exists.
+
+## Scope
+
+**Bikes only, desktop only.** The target is the FTMS test bike (`YPBM001264`) talking to
+Rouvy on Windows. Treadmills, ellipticals and rowers are explicitly out of scope, and so
+are the iOS-specific virtual-device paths. Where this document mentions
+`virtualtreadmill` or an iOS branch it is for context, not as work to be done — narrowing
+to one machine type is what makes the refactor small, and the reasoning behind that is in
+"Shape of the change" step 3.
 
 ## What the session fixed (all merged on `kind-of-stable`)
 
@@ -41,14 +56,15 @@ QZ's DIRCON endpoint is **ephemeral**. Both the TCP listener and the mDNS
 advertisement are created when a bike connects, and destroyed when it goes away:
 
 ```
-virtualbike::virtualbike(...)                      // src/virtualdevices/virtualbike.cpp:47
+virtualbike::virtualbike(...)                      // src/virtualdevices/virtualbike.cpp:48
     -> new DirconManager(Bike, ...)                // only if dircon_yes
         -> DirconProcessor::init()                 // src/devices/dircon/dirconprocessor.cpp
             -> initServer()                        // listen on 36866
             -> initAdvertising()                   // publish _wahoo-fitness-tnp._tcp
 ```
 
-`virtualtreadmill` does the same at `src/virtualdevices/virtualtreadmill.cpp:26`.
+`virtualtreadmill` does the same at `src/virtualdevices/virtualtreadmill.cpp:26`, but
+without the attach/detach machinery described below — out of scope, see "Scope".
 
 The internal ordering is already correct - the log shows `Dircon TCP Server RV true`
 before `Dircon Adv init`, so QZ never advertises a port it is not yet listening on.
@@ -71,9 +87,25 @@ service repeatedly afterwards (`Creating device: [WFTNP, ELITE AVANTI 01234 W]` 
 21:20:44, 21:21:32, 21:22:25) but never attempted another connection.
 
 `e6e1e34e` narrows the window - a goodbye now invalidates the record on a clean quit -
-but it cannot close it. A hard kill, a crash, or a bike that disconnects mid-session
-all still leave a record pointing at a dead port, and the user-visible symptom is a
-trainer that Rouvy lists but refuses to pair with.
+but it cannot close it. A hard kill or a crash still leaves a record pointing at a dead
+port, and the user-visible symptom is a trainer that Rouvy lists but refuses to pair
+with.
+
+A bike that drops mid-session is **not** one of those cases, contrary to what the first
+draft of this document claimed. Neither of the two possible outcomes produces a live
+record over a dead port:
+
+- The device object survives — the normal path. Every
+  `connect(..., SLOT(restart()))` in `src/devices/bluetooth.cpp` is commented out (105 of
+  them), and the only live `restart()` call comes from the gym-mode device-name handler
+  at `bluetooth.cpp:3786`. The listener stays up and the record stays valid; the client
+  just sees stale values.
+- The device object is destroyed, and `~ProviderPrivate()` calls `sayGoodbye()`
+  (`provider.cpp:66-68`), which invalidates the record before the socket goes.
+
+So the window that actually matters is the one at startup: QZ running, no bike connected
+yet, nothing listening on 36866. That is the case in the log below, and it is what the
+refactor closes.
 
 ### The workaround users need today
 
@@ -105,41 +137,78 @@ mechanism for preserving it across virtual-device recreation:
 machinery the refactor needs — the change is to hoist ownership one level further, so
 that no device owns it at all.
 
+One caveat before reusing it literally: `attachDirconManager()` calls
+`dirconManager->setParent(this)` (`virtualbike.cpp:570`), which is exactly what must
+*not* happen once the manager outlives the device — a re-parented manager is deleted
+with the virtual bike by `bluetoothdevice::setVirtualDevice()`, which deletes the old
+virtual device outright (`src/devices/bluetoothdevice.cpp:257-258`). The reusable part
+is the signal wiring; the parenting line has to go, or `attach` has to grow a "borrow,
+do not own" mode.
+
 ### Shape of the change
 
 1. **Move ownership out of the virtual devices.** Create the `DirconManager` once, at
    a process-lifetime scope (`homeform` is the natural holder; a singleton is the
-   alternative), guarded by `dircon_yes`. The virtual bike/treadmill then only
-   attaches to it, using the existing `attachDirconManager()` path.
+   alternative), guarded by `dircon_yes`. The virtual bike then only attaches to it,
+   using the existing `attachDirconManager()` path minus the `setParent()` line noted
+   above.
 
 2. **Make the bound device swappable.** `DirconManager::DirconManager(bluetoothdevice *t, ...)`
    captures the device at construction (`src/devices/dircon/dirconmanager.cpp:193`).
-   It needs a `setDevice(bluetoothdevice *)` that rebinds the notifier chain, plus a
-   null state that serves zeros. Check `bikeProvider()` and the
-   `CharacteristicNotifier*` objects built by `DM_CHAR_NOTIF_BUILD_OP`
-   (`dirconmanager.cpp:191`) for assumptions that the device is non-null and
-   unchanging.
+   It needs a `setDevice(bluetoothdevice *)` plus a null state that serves zeros. The
+   device pointer is copied into **three** places, all of which have to be rebound —
+   missing any one leaves a live object pointing at a freed device:
 
-3. **Decide the default advertised profile.** The service definition is generated by
-   the `DM_SERV_OP` / `DM_CHAR_OP` macro tables at `dirconmanager.cpp:12-70`, selected
-   by machine type (`DM_MACHINE_TYPE_BIKE` / `DM_MACHINE_TYPE_TREADMILL`). With no
-   device connected there is nothing to select from. Options, in order of preference:
-   - advertise a generic FTMS bike, and rebuild the service set if a treadmill later
-     attaches (rebuild means a fresh probe and announcement, which is acceptable);
-   - defer only the *advertisement* until the device type is known, keeping the
-     listener up — this does not fully solve the problem and is a fallback;
-   - use the last-known device type from settings as the initial guess.
+   - `DirconManager::bt` (`dirconmanager.h:38`), read by `currentGear()`;
+   - every `CharacteristicNotifier*` built by `DM_CHAR_NOTIF_BUILD_OP`
+     (`dirconmanager.cpp:191`, expanded at `:210`) — each takes `Bike` in its
+     constructor;
+   - the write processors `writeP2AD9`, `writePE005` and `writeP0003`
+     (`dirconmanager.cpp:212-215`), which also take `Bike`.
+
+   The write processors matter most and are the easiest to forget: they are the
+   *control* path, so one left pointing at a dead device turns a client's resistance or
+   power write into a use-after-free rather than a stale reading. Check `bikeProvider()`
+   (`dirconmanager.cpp:258-273`) for the same non-null assumption on the notifier side.
+
+3. **Fix the advertised profile at "bike", permanently.** The service definition is
+   generated by the `DM_SERV_OP` / `DM_CHAR_OP` macro tables at
+   `dirconmanager.cpp:12-86`, selected by machine type (`DM_MACHINE_TYPE_BIKE` /
+   `DM_MACHINE_TYPE_TREADMILL`). With no device connected there is nothing to select
+   from, so the profile has to be chosen up front. Given the scope above, choose
+   `DM_MACHINE_TYPE_BIKE` unconditionally and never rebuild the service set.
+
+   Do not implement the "rebuild if a treadmill attaches" option an earlier draft
+   preferred. **The listening port is derived from the machine type**, not just the
+   name: `server_base_port + DM_MACHINE_##DESC` at `dirconmanager.cpp:143`, with the
+   enum ordered `WAHOO_KICKR=0, WAHOO_BLUEHR=1, WAHOO_RPM_SPEED=2, WAHOO_TREADMILL=3`
+   (`dirconmanager.cpp:24-28`). Rebuilding for a treadmill therefore moves the listener
+   from 36866 to 36869 and invalidates every cached record — which is precisely the
+   failure this refactor exists to remove. A profile switch is not a re-announcement;
+   it is a new endpoint.
+
+   For a bike, the tables yield two processors: `WAHOO_KICKR` on 36866 (services 0x1826,
+   0x1818, 0x1816) and `WAHOO_BLUEHR` on 36867 (0x180D). `WAHOO_RPM_SPEED` matches the
+   bike type but has no services mapped in `DM_SERV_OP`, so no processor is built for
+   it. Rouvy connects to 36866.
 
    Note `rouvy_compatibility` also changes the advertised name: `DM_MACHINE_OP_ROUVY`
    at `dirconmanager.cpp:30-31` replaces the whole machine table with a single
-   `"ELITE AVANTI $uuid_hex$ W"` entry. Whatever default is chosen has to work for
-   both name tables.
+   `"ELITE AVANTI $uuid_hex$ W"` entry — still `WAHOO_KICKR`, so still port 36866.
+   Whatever default is chosen has to work for both name tables.
 
 4. **Keep the goodbye correct.** `ProviderPrivate::sayGoodbye()` is idempotent and
-   fires from both `aboutToQuit` and the destructor (`provider.cpp:70-82`). If the
-   service set is ever rebuilt for a device-type change, that path must send a
-   goodbye for the old records before probing the new ones — `confirm()` already does
-   this via `farewell()` when re-confirming an existing name.
+   fires from both `aboutToQuit` and the destructor (`provider.cpp:70-82`). With step 3
+   as written the service set is never rebuilt, so nothing else is required here — the
+   goodbye fires once, at quit.
+
+   It is still worth understanding why any future rebuild must send a goodbye *before*
+   probing the new records, in case the treadmill case is ever revisited: the service
+   name comes from `dircon_id`, not from the instance (`dirconmanager.cpp:133-143`), so
+   old and new records share an identical name. A goodbye arriving after the new
+   announcement invalidates the *new* record in the client's cache. `confirm()` already
+   sequences this correctly via `farewell()` when re-confirming an existing name
+   (`provider.cpp:111`).
 
 ### Risks
 
@@ -147,6 +216,19 @@ The DIRCON service construction is the part that currently works, and this chang
 touches it directly. Suggested order: land the ownership move with the device still
 required (no behaviour change, pure refactor), verify a ride still works, then make
 the device optional in a second commit.
+
+Three things to check on the first commit, all of which are silent if wrong:
+
+- **Nothing else deletes the manager.** With ownership hoisted, the only remaining
+  delete should be at process teardown. `bluetoothdevice::setVirtualDevice()` deletes
+  the outgoing virtual device unconditionally (`bluetoothdevice.cpp:257-258`), so any
+  path that still parents the manager to a virtual bike will take it down on the next
+  bridge switch.
+- **The port does not move.** 36866 before the change and 36866 after, with a bike
+  connected and with none. If it moved, step 3 was not followed.
+- **Exactly one announcement cycle at startup**, not one per device connect. The log
+  line to count is `ProviderPrivate::onAnnounceTimeout repeat, remaining N` — three
+  repeats, then silence until a query arrives.
 
 Also unresolved and worth folding in only if convenient: `ftmsbike` runs its
 service-discovery handler twice, subscribing to every CCCD twice and producing ~25
