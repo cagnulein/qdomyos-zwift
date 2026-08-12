@@ -193,6 +193,10 @@ QByteArray CharacteristicWriteProcessor0003::buildCurrentHubRidingData() {
 }
 
 int CharacteristicWriteProcessor0003::writeProcess(quint16 uuid, const QByteArray &data, QByteArray &reply) {
+    if (!Bike) {
+        qDebug() << "CharacteristicWriteProcessor0003: write with no device attached, ignoring";
+        return CP_INVALID;
+    }
     static const QByteArray expectedHexArray = QByteArray::fromHex("52696465 4F6E02");
     static const QByteArray expectedHexArray2 = QByteArray::fromHex("410805");
     static const QByteArray expectedHexArray3 = QByteArray::fromHex("00088804");
