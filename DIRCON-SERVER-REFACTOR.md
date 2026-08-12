@@ -107,12 +107,15 @@ So the window that actually matters is the one at startup: QZ running, no bike c
 yet, nothing listening on 36866. That is the case in the log below, and it is what the
 refactor closes.
 
-### The workaround users need today
+### The workaround users needed before step 3
 
 1. Start Rouvy, let it browse
 2. Start QZ
 3. **Connect the bike in QZ** — this is when the endpoint actually appears
 4. Only then connect the trainer in Rouvy
+
+Step 3 is meant to retire this: the endpoint is up as soon as QZ is, so the order no
+longer matters. Confirming that against a real Rouvy is the outstanding test.
 
 ## The refactor
 
@@ -216,13 +219,49 @@ do not own" mode.
 |---|---|
 | 1. `setDevice()` and the rebinding it needs | done — `DirconManager::setDevice()`, `dirconmanager.cpp` |
 | 2. Ownership move, device still required | done — `DirconManager::shared()`, parented to the application object |
-| 3. Null device serving zeros, creation at startup | not started |
+| 3. Idle endpoint, created at startup | done — `DirconManager::startIdleEndpoint()`, called from `main.cpp` |
 
-After step 2 the endpoint survives a bike disconnecting and reconnecting: the listener
-and the advertisement stay up, and the reconnect rebinds the device without a re-probe
-or a re-announcement. What is still open is the startup window — with no bike ever
-connected in this run, `shared()` has not been called and nothing is listening. That is
-what step 3 closes, and it is the case in the 21:19:55 log above.
+All three steps compile: CI run 31596576237 built steps 1-2 green on MinGW, MSVC2019 and
+Android. Nothing has been run against a bike or against Rouvy yet.
+
+The endpoint now listens on 36866 from launch and keeps listening for the life of the
+process. A bike connecting binds itself to it; a bike going away unbinds. Neither
+touches the listener or the advertisement, so a cached discovery record is always
+connectable — which is the whole point.
+
+**Deviation worth knowing about.** Step 3 as planned said "serve zeroed values until a
+device attaches". What is implemented instead is: serve *discovery and reads* while
+idle, and send no notifications at all until a device attaches. The reasoning:
+
+- Discovery, characteristic discovery and reads already work with no device — the read
+  values in the `DM_CHAR_OP` table are static byte arrays, not device readings. So a
+  client can connect, enumerate and subscribe against an idle endpoint. Under
+  `rouvy_compatibility` the initial 0x2AD2 frame sent on connect
+  (`dirconprocessor.cpp:127-140`) is a hardcoded 29-byte zero payload, so that arrives
+  too.
+- Fabricating zeroed *notifications* would mean null-handling inside all ten
+  `CharacteristicNotifier::notify()` implementations, each of which dereferences the
+  device throughout. That is a large change to the part of the code that currently
+  works.
+- A stream of 0 W / 0 rpm is not obviously better than silence: a client could latch on
+  to it as real trainer data.
+
+`bikeProvider()` returns early with no device, and the tick timer is stopped entirely
+while idle and restarted by `setDevice()` — a 50ms timer whose handler returns
+immediately is pure waste.
+
+**Open question this leaves.** Whether Rouvy is content with an endpoint that answers
+discovery and reads but sends no notifications until a bike appears cannot be
+determined from this repository. If it turns out to need traffic to stay interested,
+the fallback is zeroed notifications, and the work is the null-handling in the ten
+notifiers described above. This needs a real test.
+
+**Machine type is now explicit.** `machineTypeFor()` returns the bike profile for a null
+device, and `shared()` compares it against what the live endpoint was built as. A
+device of the other kind cannot reuse the endpoint — the port follows the machine type —
+so it withdraws the old one (destructor sends the mDNS goodbye) and builds the right
+one. That covers an elliptical arriving through `virtualbike`, which would otherwise
+have been served a bike profile.
 
 Two things step 2 settled that the plan had left open:
 
