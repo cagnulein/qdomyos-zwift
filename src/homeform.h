@@ -1125,7 +1125,10 @@ public:
     QTextToSpeech m_speech;
     int tts_summary_count = 0;
 
-#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
+// Keep this condition identical to the one in homeform.cpp and to the slot block
+// below: these are declarations for definitions that only exist under the same
+// guard, and moc emits calls to the slots, so a mismatch is a link error.
+#if defined(LICENSE) && (defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || defined(Q_OS_ANDROID))
     QTimer tLicense;
     QNetworkAccessManager *mgr = nullptr;
     void licenseRequest();
@@ -1253,7 +1256,7 @@ public:
     void PauseFromDevice();  // Called when physical pause button pressed on hardware
     void StopFromDevice();   // Called when physical stop button pressed on hardware
 
-#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
+#if defined(LICENSE) && (defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || defined(Q_OS_ANDROID))
     void licenseReply(QNetworkReply *reply);
     void licenseTimeout();
 #endif
