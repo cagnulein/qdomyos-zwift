@@ -1851,6 +1851,19 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     qDebug() << QStringLiteral("all services discovered!");
 
+    // Every service is connected to this slot, so once the last one reaches
+    // ServiceDiscovered the remaining firings all get here and used to repeat the
+    // whole subscription pass. On this bike that wrote the control point's CCCD
+    // four times per session. A fresh connection tolerates the repeats; a
+    // reconnection does not - the device rejects them, indications are never
+    // enabled, the control point never acknowledges REQUEST_CONTROL, and the bike
+    // reports nothing but battery. Subscribe once per set of service objects.
+    if (servicesSubscribed) {
+        qDebug() << QStringLiteral("services already subscribed, skipping the subscription pass");
+        return;
+    }
+    servicesSubscribed = true;
+
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (!s) {
             qDebug() << QStringLiteral("skipping null service object during subscription setup");
@@ -2190,6 +2203,9 @@ void ftmsbike::serviceScanDone(void) {
 #endif
 
     initRequest = false;
+    // A new set of service objects is about to be built, so the previous pass's
+    // subscriptions no longer refer to anything live.
+    servicesSubscribed = false;
     auto services_list = m_control->services();
     QBluetoothUuid ftmsService((quint16)0x1826);
     bool JK_fitness_577 = bluetoothDevice.name().toUpper().startsWith("DHZ-");

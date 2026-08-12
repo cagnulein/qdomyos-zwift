@@ -160,6 +160,11 @@ class ftmsbike : public bike {
 
     bool initDone = false;
     bool initRequest = false;
+    // stateChanged() is connected to every service, so it fires once per service
+    // even after the last one is discovered. Without this the whole subscription
+    // pass runs again on each firing and rewrites every CCCD. Reset in
+    // serviceScanDone(), which is where the service objects are rebuilt.
+    bool servicesSubscribed = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
