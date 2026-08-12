@@ -1462,8 +1462,7 @@ void DeviceTestDataIndex::Initialize() {
     // XCX Bike (proprietary FFF6 telemetry; explicitly not generic FTMS)
     RegisterNewDeviceTestData(DeviceIndex::XcxBike)
         ->expectDevice<xcxbike>()
-        ->acceptDeviceName("XCX-001048", DeviceNameComparison::StartsWithIgnoreCase)
-        ->excluding<ftmsbike>();
+        ->acceptDeviceName("XCX-001048", DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Wahoo KICKR CORE
