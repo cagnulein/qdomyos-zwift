@@ -28,8 +28,12 @@ enum class ServiceDiscoveryState {
  * Keeping it opaque is what lets this whole decision be tested without a Bluetooth stack.
  */
 struct ServiceView {
-    uint64_t id = 0;
-    ServiceDiscoveryState state = ServiceDiscoveryState::Required;
+    // A plain aggregate, with no default member initializers on purpose: the test
+    // project builds at -std=gnu++11, where a struct carrying them is not an
+    // aggregate and ServiceView{id, state} does not compile. Keeping it C++11 is
+    // part of "builds anywhere", so construct these with both members supplied.
+    uint64_t id;
+    ServiceDiscoveryState state;
 };
 
 /**

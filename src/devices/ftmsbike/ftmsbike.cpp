@@ -1848,24 +1848,23 @@ std::vector<ServiceView> ftmsbike::serviceViews() const {
         if (!s) {
             continue;
         }
-        ServiceView v;
-        v.id = serviceId(s);
+        ServiceDiscoveryState mapped;
         switch (s->state()) {
         case QLowEnergyService::InvalidService:
-            v.state = ServiceDiscoveryState::Invalid;
+            mapped = ServiceDiscoveryState::Invalid;
             break;
         case QLowEnergyService::ServiceDiscovered:
-            v.state = ServiceDiscoveryState::Discovered;
+            mapped = ServiceDiscoveryState::Discovered;
             break;
         case QLowEnergyService::DiscoveryRequired:
-            v.state = ServiceDiscoveryState::Required;
+            mapped = ServiceDiscoveryState::Required;
             break;
         default:
             // Discovering, and whatever else a future Qt adds: not settled either way.
-            v.state = ServiceDiscoveryState::Discovering;
+            mapped = ServiceDiscoveryState::Discovering;
             break;
         }
-        views.push_back(v);
+        views.push_back(ServiceView{serviceId(s), mapped});
     }
     return views;
 }
