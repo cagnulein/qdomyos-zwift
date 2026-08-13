@@ -4,6 +4,7 @@
 
 #include <QByteArray>
 #include <QObject>
+#include <QSettings>
 
 namespace {
 
@@ -367,6 +368,9 @@ TEST(ZwiftRideControllerTest, May12ReplayMatchesLegendOrderWithoutAliases) {
 }
 
 TEST(ZwiftRideControllerTest, May14ReplayRestoresPaddleGearsAndAvoidsPlayAliases) {
+    QSettings settings;
+    settings.setValue(QZSettings::gears_volume_debouncing, true);
+
     ZwiftPlayDevice device;
     ButtonEvents events;
     connectButtonEvents(device, events);
@@ -428,4 +432,103 @@ TEST(ZwiftRideControllerTest, May14ReplayRestoresPaddleGearsAndAvoidsPlayAliases
     EXPECT_EQ(events.rightPaddleReleased, 1);
     EXPECT_EQ(events.gearMinus, 3);
     EXPECT_EQ(events.gearPlus, 3);
+
+    settings.remove(QZSettings::gears_volume_debouncing);
+}
+
+TEST(ZwiftRideControllerTest, HeldShiftButtonsFollowGearDebouncingSetting) {
+    QSettings settings;
+    settings.setValue(QZSettings::gears_volume_debouncing, true);
+
+    {
+        ZwiftPlayDevice device;
+        ButtonEvents events;
+        connectButtonEvents(device, events);
+
+        processRideFrame(device, kIdle);
+        processRideFrame(device, 0xfffffeff); // LS1
+        processRideFrame(device, 0xfffffeff);
+        processRideFrame(device, 0xfffffeff);
+        processRideFrame(device, kIdle);
+        processRideFrame(device, 0xffffefff); // RS1
+        processRideFrame(device, 0xffffefff);
+
+        EXPECT_EQ(events.gearMinus, 1);
+        EXPECT_EQ(events.gearPlus, 1);
+    }
+
+    settings.setValue(QZSettings::gears_volume_debouncing, false);
+
+    {
+        ZwiftPlayDevice device;
+        ButtonEvents events;
+        connectButtonEvents(device, events);
+
+        processRideFrame(device, kIdle);
+        processRideFrame(device, 0xfffffeff); // LS1
+        processRideFrame(device, 0xfffffeff);
+        processRideFrame(device, 0xfffffeff);
+        processRideFrame(device, kIdle);
+        processRideFrame(device, 0xffffefff); // RS1
+        processRideFrame(device, 0xffffefff);
+
+        EXPECT_EQ(events.gearMinus, 3);
+        EXPECT_EQ(events.gearPlus, 2);
+    }
+
+    settings.setValue(QZSettings::zwiftplay_swap, true);
+
+    {
+        ZwiftPlayDevice device;
+        ButtonEvents events;
+        connectButtonEvents(device, events);
+
+        processRideFrame(device, kIdle);
+        processRideFrame(device, 0xfffffeff); // LS1, swapped to gear up
+        processRideFrame(device, 0xfffffeff);
+
+        EXPECT_EQ(events.gearMinus, 0);
+        EXPECT_EQ(events.gearPlus, 2);
+    }
+
+    settings.remove(QZSettings::zwiftplay_swap);
+    settings.remove(QZSettings::gears_volume_debouncing);
+}
+
+TEST(ZwiftRideControllerTest, HeldRidePaddlesRepeatGearActionsOnlyWithDebouncingDisabled) {
+    const char *leftPaddlePressed = "2308ffffffff0f1a05080010c7011a04080110001a04080210001a0408031000";
+    QSettings settings;
+    settings.setValue(QZSettings::gears_volume_debouncing, true);
+
+    {
+        ZwiftPlayDevice device;
+        ButtonEvents events;
+        connectButtonEvents(device, events);
+
+        processRideFrame(device, kIdle);
+        processRideFrame(device, leftPaddlePressed);
+        processRideFrame(device, leftPaddlePressed);
+        processRideFrame(device, leftPaddlePressed);
+
+        EXPECT_EQ(events.leftPaddlePressed, 1);
+        EXPECT_EQ(events.gearMinus, 1);
+    }
+
+    settings.setValue(QZSettings::gears_volume_debouncing, false);
+
+    {
+        ZwiftPlayDevice device;
+        ButtonEvents events;
+        connectButtonEvents(device, events);
+
+        processRideFrame(device, kIdle);
+        processRideFrame(device, leftPaddlePressed);
+        processRideFrame(device, leftPaddlePressed);
+        processRideFrame(device, leftPaddlePressed);
+
+        EXPECT_EQ(events.leftPaddlePressed, 1);
+        EXPECT_EQ(events.gearMinus, 3);
+    }
+
+    settings.remove(QZSettings::gears_volume_debouncing);
 }
