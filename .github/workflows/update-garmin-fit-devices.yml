@@ -1,0 +1,31 @@
+name: Update Garmin FIT devices
+
+on:
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update Garmin FIT product selector
+        run: python3 scripts/update_garmin_fit_devices.py --summary /tmp/garmin-pr.md
+      - name: Test updater
+        run: python3 -m unittest tests/test_update_garmin_fit_devices.py
+      - name: Create or update pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: master
+          branch: automation/update-garmin-fit-devices
+          delete-branch: true
+          commit-message: Update Garmin FIT device list
+          title: Update Garmin FIT device list
+          body-path: /tmp/garmin-pr.md
+          add-paths: src/settings.qml
