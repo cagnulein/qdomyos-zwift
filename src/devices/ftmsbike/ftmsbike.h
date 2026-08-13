@@ -164,11 +164,22 @@ class ftmsbike : public bike {
     // stateChanged() is connected to every service, so it fires once per service
     // even after the last one is discovered, and the whole subscription pass used
     // to run again on each firing and rewrite every CCCD. The bookkeeping has to
-    // be per service rather than per pass: serviceScanDone() discovers the details
-    // of each service as it creates it, so the early firings see a list holding
-    // only the services built so far and every one of them legitimately needs its
-    // own pass. Reset in serviceScanDone(), which is where the objects are rebuilt.
+    // be per service rather than per pass. It also makes the watchdog's forced
+    // pass idempotent: anything already subscribed is skipped, so forcing it costs
+    // nothing when discovery was merely slow rather than stuck.
+    // Reset in serviceScanDone(), which is where the objects are rebuilt.
     QSet<QLowEnergyService *> subscribedServices;
+
+    // serviceScanDone() no longer discovers details as it creates each service, so
+    // the gate in stateChanged() now genuinely waits for every service. That is
+    // correct, but it removes the accidental guarantee of forward progress the
+    // partial-list behaviour used to provide: one service whose discovery never
+    // resolves would otherwise hold every other service's subscription hostage,
+    // and a dropped discovery request is plausible on Windows given the stale
+    // GATT cache already seen there. This fires if that happens, and forces the
+    // pass. A firing watchdog is a bug report, not routine operation.
+    QTimer serviceDiscoveryWatchdog;
+    static constexpr int SERVICE_DISCOVERY_WATCHDOG_MS = 10000;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -285,6 +296,10 @@ class ftmsbike : public bike {
     void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
+    // The work stateChanged() does once every service has resolved. Split out so
+    // the discovery watchdog can force it when one never does.
+    void subscribeToServices();
+    void serviceDiscoveryTimeout();
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);

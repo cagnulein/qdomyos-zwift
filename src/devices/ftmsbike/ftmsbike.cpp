@@ -65,6 +65,11 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
         completeCurrentWrite();
     });
 
+    // Connected once here rather than in serviceScanDone(), which runs again on
+    // every reconnection and would stack a duplicate connection each time.
+    serviceDiscoveryWatchdog.setSingleShot(true);
+    connect(&serviceDiscoveryWatchdog, &QTimer::timeout, this, &ftmsbike::serviceDiscoveryTimeout);
+
     wheelCircumference::GearTable g;
     g.printTable();
 }
@@ -1828,7 +1833,6 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 }
 
 void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
-    QSettings settings;
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -1848,6 +1852,36 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
         qDebug() << QStringLiteral("ignoring this state");
         return;
     }
+
+    // Discovery resolved on its own, so the watchdog has nothing left to rescue.
+    serviceDiscoveryWatchdog.stop();
+
+    subscribeToServices();
+}
+
+void ftmsbike::serviceDiscoveryTimeout() {
+    qWarning() << QStringLiteral("service discovery watchdog fired after")
+               << SERVICE_DISCOVERY_WATCHDOG_MS
+               << QStringLiteral("ms - a service never finished discovering. Forcing the subscription pass.");
+    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        if (!s) {
+            qWarning() << QStringLiteral("  (null service object)");
+            continue;
+        }
+        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+            qWarning() << QStringLiteral("  still unresolved:") << s->serviceUuid() << s->state();
+        } else {
+            qDebug() << QStringLiteral("  resolved:") << s->serviceUuid() << s->state();
+        }
+    }
+
+    // Safe to force: the pass skips anything already in subscribedServices, and
+    // skips any service that has not reached ServiceDiscovered.
+    subscribeToServices();
+}
+
+void ftmsbike::subscribeToServices() {
+    QSettings settings;
 
     qDebug() << QStringLiteral("all services discovered!");
 
@@ -2212,6 +2246,20 @@ void ftmsbike::serviceScanDone(void) {
     auto services_list = m_control->services();
     QBluetoothUuid ftmsService((quint16)0x1826);
     bool JK_fitness_577 = bluetoothDevice.name().toUpper().startsWith("DHZ-");
+
+    // Two passes, and the split is the whole point. discoverDetails() resolves
+    // synchronously on Qt's Win32 backend, so creating and discovering in one loop
+    // drove stateChanged() to completion before the loop reached the next UUID -
+    // the slot ran against a list holding only the services built so far, and its
+    // "have all services been discovered?" gate was trivially true of a list of
+    // one. A real log showed twelve "all services discovered!" lines, the list
+    // growing by exactly one service each time. On Android the call is
+    // asynchronous and the list is always complete, which is why the same code was
+    // sound there and why nothing in the pipeline caught it.
+    QList<QLowEnergyService *> fresh;
+
+    // Pass 1: create and register every service object. No discovery yet, so
+    // stateChanged() cannot fire against a half-built list.
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         if ((JK_fitness_577 && s == ftmsService) || !JK_fitness_577) {
             QLowEnergyService *service = m_control->createServiceObject(s);
@@ -2221,8 +2269,8 @@ void ftmsbike::serviceScanDone(void) {
             }
 
             gattCommunicationChannelService.append(service);
+            fresh.append(service);
             connect(service, &QLowEnergyService::stateChanged, this, &ftmsbike::stateChanged);
-            service->discoverDetails();
 
             // watt bikes has the 6 as default gear value
             if(s == QBluetoothUuid(QStringLiteral("b4cc1223-bc02-4cae-adb9-1217ad2860d1")) && SS2K == false) {
@@ -2231,6 +2279,21 @@ void ftmsbike::serviceScanDone(void) {
                 setGears(6);
             }
         }
+    }
+
+    // Armed before pass 2, not after, because on Win32 discoverDetails() resolves
+    // synchronously: the last one drives stateChanged() to the point where it
+    // stops this timer, and all of that happens inside the pass 2 loop below.
+    // Starting it afterwards would restart a watchdog whose work was already done
+    // and fire a warning on every successful Windows connection.
+    if (!fresh.isEmpty()) {
+        serviceDiscoveryWatchdog.start(SERVICE_DISCOVERY_WATCHDOG_MS);
+    }
+
+    // Pass 2: the list is complete now, so the gate in stateChanged() means what
+    // its name says on every platform.
+    for (QLowEnergyService *service : qAsConst(fresh)) {
+        service->discoverDetails();
     }
 }
 
