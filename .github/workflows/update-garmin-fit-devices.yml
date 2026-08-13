@@ -20,14 +20,14 @@ jobs:
         run: |
           echo "Repository revision: $(git rev-parse HEAD)"
           python3 -c 'import sys; sys.path.insert(0, "scripts"); import update_garmin_fit_devices as u; print("Garmin updater version:", u.UPDATER_VERSION)'
+      - name: Test updater
+        run: python3 -m unittest tests/test_update_garmin_fit_devices.py
       - name: Update Garmin FIT product selector
         id: updater
         run: >-
           python3 scripts/update_garmin_fit_devices.py
           --summary /tmp/garmin-pr.md
           --github-output "$GITHUB_OUTPUT"
-      - name: Test updater
-        run: python3 -m unittest tests/test_update_garmin_fit_devices.py
       - name: Check for Garmin device changes
         id: changes
         run: |

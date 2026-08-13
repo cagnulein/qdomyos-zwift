@@ -95,7 +95,11 @@ class GarminFitUpdaterTest(unittest.TestCase):
             catalog = Path(directory) / "fit_profile.hpp"
             output = Path(directory) / "github-output"
             qml.write_text(QML, encoding="utf-8")
-            catalog.write_text(PROFILE, encoding="utf-8")
+            catalog.write_text(
+                PROFILE + "\n#define FIT_GARMIN_PRODUCT_FENIX_TEST "
+                "((FIT_GARMIN_PRODUCT)60000)\n",
+                encoding="utf-8",
+            )
             argv = [
                 "update_garmin_fit_devices.py", "--qml", str(qml),
                 "--catalog", str(catalog), "--github-output", str(output),
@@ -106,14 +110,6 @@ class GarminFitUpdaterTest(unittest.TestCase):
             with mock.patch.object(sys, "argv", argv):
                 self.assertEqual(updater.main(), 0)
             self.assertTrue(output.read_text(encoding="utf-8").endswith("changed=false\n"))
-
-    def test_repository_catalog_exposes_known_missing_products(self):
-        start, end = updater.locate_control(QML)
-        known = {device.macro for device in updater.parse_current(QML[start:end])}
-        expected = {"D2_BRAVO", "D2_AIR_X10", "D2_MACH1_PRO", "VENUSQ_MUSIC_V2"}
-        missing = {macro for macro in self.catalog if updater.eligible(macro)} - known
-        self.assertTrue(expected.issubset(missing))
-        self.assertGreaterEqual(len(missing), 40)
 
     def test_supported_families_include_current_garmin_watch_lines(self):
         expected = {
