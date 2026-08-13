@@ -12,8 +12,21 @@ src/.qmake.stash
 /Makefile
 /.qmake.stash
 src/Makefile.qdomyos-zwift*
-tst/Makefile
+tst/Makefile*
 tst/.qmake.stash
+
+# The rest of what a root-level build leaves behind: the static library the tests
+# link against, qmltyperegistrar's output, and the whole of tst/ - object files,
+# moc output, the test binary and the FIT/sqlite files the suite writes.
+src/libqdomyos-zwift.a
+src/qdomyos-zwift.qmltypes
+src/qdomyos-zwift_metatypes.json
+src/qdomyos-zwift_qmltyperegistrations.cpp
+tst/*.o
+tst/moc_*
+tst/qdomyos-zwift-tests
+tst/test-artifacts/
+tst/test-results/
 
 src/*.o
 
