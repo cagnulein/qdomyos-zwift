@@ -33,12 +33,24 @@ class GarminFitUpdaterTest(unittest.TestCase):
         self.assertEqual(again, updated)
         self.assertEqual(second, [])
 
-    def test_multiple_are_deterministic_by_product_number(self):
+    def test_multiple_are_deterministic_and_alphabetical(self):
         catalog = dict(self.catalog, VENU_FUTURE=5002, EDGE_FUTURE=5001)
         updated, added, _ = updater.update_qml(QML, catalog)
         self.assertIn("EDGE_FUTURE", [d.macro for d in added])
         self.assertIn("VENU_FUTURE", [d.macro for d in added])
         self.assertLess(updated.index("Edge Future"), updated.index("Venu Future"))
+        start, end = updater.locate_control(updated)
+        displays = [device.display for device in updater.parse_current(updated[start:end])]
+        self.assertEqual(displays, sorted(displays, key=str.casefold))
+
+    def test_forerunner_display_name_is_expanded_before_sorting(self):
+        self.assertEqual(updater.display_name("FR970"), "Forerunner 970")
+        self.assertEqual(updater.display_name("FR970_LTE"), "Forerunner 970 Lte")
+        updated, added, _ = updater.update_qml(QML, dict(self.catalog, FR970=60001))
+        self.assertIn("Forerunner 970", [device.display for device in added])
+        self.assertNotIn('"Fr970"', updated)
+        self.assertLess(updated.index('"Forerunner 965"'), updated.index('"Forerunner 970"'))
+        self.assertLess(updated.index('"Forerunner 970"'), updated.index('"Tacx"'))
 
     def test_upstream_disappearance_preserves_existing(self):
         start, end = updater.locate_control(QML)

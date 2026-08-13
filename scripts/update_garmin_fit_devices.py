@@ -145,6 +145,14 @@ def parse_current(control: str) -> list[Device]:
 def display_name(macro: str) -> str:
     if macro in DISPLAY_OVERRIDES:
         return DISPLAY_OVERRIDES[macro]
+    # FIT uses FR as the product macro prefix, while the user-facing family name
+    # is Forerunner. Expand it before the completed list is alphabetically sorted.
+    forerunner = re.fullmatch(r"FR(\d+)(?:_(.+))?", macro)
+    if forerunner:
+        suffix = forerunner.group(2)
+        return "Forerunner " + forerunner.group(1) + (
+            " " + " ".join(part.capitalize() for part in suffix.split("_")) if suffix else ""
+        )
     parts = macro.split("_")
     return " ".join(part.capitalize() if not part.isdigit() else part for part in parts)
 
@@ -172,10 +180,12 @@ def update_qml(qml: str, catalog: dict[str, int]) -> tuple[str, list[Device], li
     special = [d for d in current if d.macro in ("Tacx", "Zwift")]
     known = {d.macro for d in current}
     added = [Device(m, p, display_name(m)) for m, p in catalog.items() if m not in known and eligible(m)]
-    added.sort(key=lambda d: (d.product, d.macro))
     if not added:
         return qml, [], current
-    devices = real + added + special
+    # Display-name substitutions (including FR -> Forerunner) are already
+    # applied to new entries above. Sort afterwards so the visible QML model and
+    # both index mappings always remain in the same alphabetical order.
+    devices = sorted(real + added + special, key=lambda d: (d.display.casefold(), d.macro))
     indent = re.search(r"(?m)^(\s*)model:", control).group(1)
     item_indent = indent + "    "
     model_body = "\n".join(f'{item_indent}"{d.display}"{"," if i < len(devices)-1 else ""}' for i, d in enumerate(devices))
