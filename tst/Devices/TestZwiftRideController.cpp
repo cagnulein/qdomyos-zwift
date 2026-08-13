@@ -367,7 +367,7 @@ TEST(ZwiftRideControllerTest, May12ReplayMatchesLegendOrderWithoutAliases) {
     EXPECT_EQ(events.gearMinus, 2);
 }
 
-TEST(ZwiftRideControllerTest, May14ReplayRestoresPaddleGearsAndAvoidsPlayAliases) {
+TEST(ZwiftRideControllerTest, May14ReplayWithDebouncingFiltersHeldPaddleFrames) {
     QSettings settings;
     settings.setValue(QZSettings::gears_volume_debouncing, true);
 
@@ -430,8 +430,39 @@ TEST(ZwiftRideControllerTest, May14ReplayRestoresPaddleGearsAndAvoidsPlayAliases
     EXPECT_EQ(events.leftPaddleReleased, 1);
     EXPECT_EQ(events.rightPaddlePressed, 1);
     EXPECT_EQ(events.rightPaddleReleased, 1);
-    EXPECT_EQ(events.gearMinus, 3);
-    EXPECT_EQ(events.gearPlus, 3);
+    EXPECT_EQ(events.gearMinus, 2);
+    EXPECT_EQ(events.gearPlus, 2);
+
+    settings.remove(QZSettings::gears_volume_debouncing);
+}
+
+TEST(ZwiftRideControllerTest, May14ReplayWithoutDebouncingRepeatsHeldPaddleFrames) {
+    QSettings settings;
+    settings.setValue(QZSettings::gears_volume_debouncing, false);
+
+    ZwiftPlayDevice device;
+    ButtonEvents events;
+    connectButtonEvents(device, events);
+
+    processRideFrame(device, kIdle);
+    pressAndRelease(device, 0xfffffeff); // LS1
+    pressAndRelease(device, 0xfffffdff); // LS2
+    pressAndRelease(device, 0xffffefff); // RS1
+    pressAndRelease(device, 0xffffdfff); // RS2
+
+    processRideFrame(device, "2308ffffffff0f1a05080010c7011a04080110001a04080210001a0408031000");
+    processRideFrame(device, "2308ffffffff0f1a05080010c7011a04080110001a04080210001a0408031000");
+    processRideFrame(device, kIdle);
+    processRideFrame(device, "2308ffffffff0f1a04080010001a05080110c8011a04080210001a0408031000");
+    processRideFrame(device, "2308ffffffff0f1a04080010001a05080110c8011a04080210001a0408031000");
+    processRideFrame(device, kIdle);
+
+    EXPECT_EQ(events.leftPaddlePressed, 1);
+    EXPECT_EQ(events.leftPaddleReleased, 1);
+    EXPECT_EQ(events.rightPaddlePressed, 1);
+    EXPECT_EQ(events.rightPaddleReleased, 1);
+    EXPECT_EQ(events.gearMinus, 4);
+    EXPECT_EQ(events.gearPlus, 4);
 
     settings.remove(QZSettings::gears_volume_debouncing);
 }
