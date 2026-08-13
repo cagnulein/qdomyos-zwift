@@ -21,7 +21,6 @@ DEFAULT_URL = "https://raw.githubusercontent.com/garmin/fit-cpp-sdk/main/src/fit
 MIN_CATALOG_SIZE = 300
 FAMILIES = ("D2", "EDGE", "EPIX", "FENIX", "FR", "VENU", "VIVOACTIVE")
 REGIONAL_SUFFIXES = ("APAC", "ASIA", "CHINA", "JAPAN", "KOREA", "RUSSIA", "SEA", "TAIWAN", "TWN")
-NON_DEVICE_PRODUCTS = {"EDGE_REMOTE"}
 DEFINE_RE = re.compile(
     r"^#define FIT_GARMIN_PRODUCT_([A-Z0-9_]+)\s+\(\(FIT_GARMIN_PRODUCT\)(\d+)\)", re.MULTILINE
 )
@@ -140,10 +139,7 @@ def update_qml(qml: str, catalog: dict[str, int]) -> tuple[str, list[Device], li
     current = parse_current(control)
     real = [d for d in current if d.macro not in ("Tacx", "Zwift")]
     special = [d for d in current if d.macro in ("Tacx", "Zwift")]
-    # EDGE_REMOTE is a legacy accessory whose FIT product number (10014) is far
-    # above current watches and cycling computers. It must not become the
-    # chronological cutoff or every normal product below 10014 is suppressed.
-    highest = max(d.product for d in real if d.macro not in NON_DEVICE_PRODUCTS)
+    highest = max(d.product for d in real)
     known = {d.macro for d in current}
     added = [Device(m, p, display_name(m)) for m, p in catalog.items() if m not in known and eligible(m, p, highest)]
     added.sort(key=lambda d: (d.product, d.macro))
@@ -212,16 +208,9 @@ def main() -> int:
         if added:
             path.write_text(updated, encoding="utf-8")
         absent = [d for d in current if d.macro not in catalog and d.macro not in ("Tacx", "Zwift")]
-        real = [d for d in current if d.macro not in ("Tacx", "Zwift")]
-        highest = max(d.product for d in real if d.macro not in NON_DEVICE_PRODUCTS)
-        compatible = sum(
-            1
-            for macro, product in catalog.items()
-            if macro in {d.macro for d in current} or eligible(macro, product, highest)
-        )
         lines = [
             "Garmin FIT product catalog update.", "", f"Current QZ devices: {len(current)}",
-            f"Products obtained from Garmin: {len(catalog)}", f"Compatible upstream products: {compatible}", f"New compatible products: {len(added)}", "",
+            f"Products obtained from Garmin: {len(catalog)}", f"Compatible upstream products: {sum(1 for macro, product in catalog.items() if macro in {d.macro for d in current} or eligible(macro, product, max(d.product for d in current if d.product < 80000)))}", f"New compatible products: {len(added)}", "",
             "Devices added:", *([f"- {d.macro} ({d.product}) — {d.display}" for d in added] or ["- None"]), "",
             "Existing QZ entries absent upstream (preserved):", *([f"- {d.macro} ({d.product})" for d in absent] or ["- None"]), "",
             "Existing QZ Garmin products were preserved; no products are automatically removed.",

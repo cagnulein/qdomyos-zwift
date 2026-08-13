@@ -12,27 +12,13 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-    env:
-      PYTHONDONTWRITEBYTECODE: "1"
     steps:
       - uses: actions/checkout@v4
       - name: Update Garmin FIT product selector
         run: python3 scripts/update_garmin_fit_devices.py --summary /tmp/garmin-pr.md
       - name: Test updater
         run: python3 -m unittest tests/test_update_garmin_fit_devices.py
-      - name: Check for Garmin device changes
-        id: changes
-        run: |
-          if git diff --quiet -- src/settings.qml; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "Garmin FIT device list is already current."
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            git diff --check -- src/settings.qml
-            git diff --stat -- src/settings.qml
-          fi
       - name: Create or update pull request
-        if: steps.changes.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

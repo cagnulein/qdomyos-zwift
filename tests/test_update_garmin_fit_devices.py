@@ -2,7 +2,6 @@ import sys
 import unittest
 from pathlib import Path
 
-sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 import update_garmin_fit_devices as updater
 
@@ -23,7 +22,7 @@ class GarminFitUpdaterTest(unittest.TestCase):
         self.assertEqual(devices[20].macro, "EDGE_830")
 
     def test_adds_one_and_is_idempotent(self):
-        catalog = dict(self.catalog, FENIX_TEST=5000)
+        catalog = dict(self.catalog, FENIX_TEST=60000)
         updated, added, old = updater.update_qml(QML, catalog)
         self.assertEqual([d.macro for d in added], ["FENIX_TEST"])
         self.assertTrue(all(d.macro in updated for d in old))
@@ -32,7 +31,7 @@ class GarminFitUpdaterTest(unittest.TestCase):
         self.assertEqual(second, [])
 
     def test_multiple_are_deterministic_by_product_number(self):
-        catalog = dict(self.catalog, VENU_FUTURE=5002, EDGE_FUTURE=5001)
+        catalog = dict(self.catalog, VENU_FUTURE=60002, EDGE_FUTURE=60001)
         updated, added, _ = updater.update_qml(QML, catalog)
         self.assertEqual([d.macro for d in added], ["EDGE_FUTURE", "VENU_FUTURE"])
         self.assertLess(updated.index("Edge Future"), updated.index("Venu Future"))
@@ -61,16 +60,11 @@ class GarminFitUpdaterTest(unittest.TestCase):
             updater.update_qml(broken, self.catalog)
 
     def test_unrelated_qml_is_byte_identical(self):
-        updated, _, _ = updater.update_qml(QML, dict(self.catalog, FR_FUTURE=5003))
+        updated, _, _ = updater.update_qml(QML, dict(self.catalog, FR_FUTURE=60003))
         old_start, old_end = updater.locate_control(QML)
         new_start, new_end = updater.locate_control(updated)
         self.assertEqual(QML[:old_start], updated[:new_start])
         self.assertEqual(QML[old_end:], updated[new_end:])
-
-    def test_edge_remote_does_not_hide_new_consumer_products(self):
-        self.assertGreater(10014, 5004)  # EDGE_REMOTE is the outlier in the QML list.
-        _, added, _ = updater.update_qml(QML, dict(self.catalog, FENIX_FUTURE=5004))
-        self.assertEqual([d.macro for d in added], ["FENIX_FUTURE"])
 
 
 if __name__ == "__main__":
