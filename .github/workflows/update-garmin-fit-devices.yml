@@ -1,0 +1,54 @@
+name: Update Garmin FIT devices
+
+on:
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Report updater revision
+        run: |
+          echo "Repository revision: $(git rev-parse HEAD)"
+          python3 -c 'import sys; sys.path.insert(0, "scripts"); import update_garmin_fit_devices as u; print("Garmin updater version:", u.UPDATER_VERSION)'
+      - name: Update Garmin FIT product selector
+        id: updater
+        run: >-
+          python3 scripts/update_garmin_fit_devices.py
+          --summary /tmp/garmin-pr.md
+          --github-output "$GITHUB_OUTPUT"
+      - name: Test updater
+        run: python3 -m unittest tests/test_update_garmin_fit_devices.py
+      - name: Check for Garmin device changes
+        id: changes
+        run: |
+          if [[ "${{ steps.updater.outputs.changed }}" == "false" ]] && git diff --quiet -- src/settings.qml; then
+            echo "Garmin FIT device list is already current."
+          elif [[ "${{ steps.updater.outputs.changed }}" == "true" ]] && ! git diff --quiet -- src/settings.qml; then
+            git diff --check -- src/settings.qml
+            git diff --stat -- src/settings.qml
+          else
+            echo "Updater result and src/settings.qml diff disagree." >&2
+            exit 1
+          fi
+      - name: Create or update pull request
+        if: steps.updater.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: master
+          branch: automation/update-garmin-fit-devices
+          delete-branch: true
+          commit-message: Update Garmin FIT device list
+          title: Update Garmin FIT device list
+          body-path: /tmp/garmin-pr.md
+          add-paths: src/settings.qml
