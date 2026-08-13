@@ -25,6 +25,7 @@
 
 #include <QDateTime>
 #include <QObject>
+#include <QSet>
 #include <QString>
 
 #include "wheelcircumference.h"
@@ -161,10 +162,13 @@ class ftmsbike : public bike {
     bool initDone = false;
     bool initRequest = false;
     // stateChanged() is connected to every service, so it fires once per service
-    // even after the last one is discovered. Without this the whole subscription
-    // pass runs again on each firing and rewrites every CCCD. Reset in
-    // serviceScanDone(), which is where the service objects are rebuilt.
-    bool servicesSubscribed = false;
+    // even after the last one is discovered, and the whole subscription pass used
+    // to run again on each firing and rewrite every CCCD. The bookkeeping has to
+    // be per service rather than per pass: serviceScanDone() discovers the details
+    // of each service as it creates it, so the early firings see a list holding
+    // only the services built so far and every one of them legitimately needs its
+    // own pass. Reset in serviceScanDone(), which is where the objects are rebuilt.
+    QSet<QLowEnergyService *> subscribedServices;
 
     bool noWriteResistance = false;
     bool noHeartService = false;

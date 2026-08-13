@@ -1851,25 +1851,27 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     qDebug() << QStringLiteral("all services discovered!");
 
-    // Every service is connected to this slot, so once the last one reaches
-    // ServiceDiscovered the remaining firings all get here and used to repeat the
-    // whole subscription pass. On this bike that wrote the control point's CCCD
-    // four times per session. A fresh connection tolerates the repeats; a
-    // reconnection does not - the device rejects them, indications are never
-    // enabled, the control point never acknowledges REQUEST_CONTROL, and the bike
-    // reports nothing but battery. Subscribe once per set of service objects.
-    if (servicesSubscribed) {
-        qDebug() << QStringLiteral("services already subscribed, skipping the subscription pass");
-        return;
-    }
-    servicesSubscribed = true;
-
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (!s) {
             qDebug() << QStringLiteral("skipping null service object during subscription setup");
             continue;
         }
+        // Every service is connected to this slot, so it fires once per service and
+        // this pass used to run in full each time, rewriting CCCDs that were already
+        // written - on this bike, the control point's four times per session. A fresh
+        // connection tolerates the repeats; a reconnection does not, the device
+        // rejects them, indications are never enabled, the control point never
+        // acknowledges REQUEST_CONTROL and the bike reports nothing but battery.
+        // Skipping the pass wholesale is wrong though: serviceScanDone() discovers
+        // each service's details as it creates it, so the early firings arrive with
+        // only part of the list built and the rest still have subscribing to do.
+        // Remember the services themselves instead.
+        if (subscribedServices.contains(s)) {
+            qDebug() << s->serviceUuid() << QStringLiteral("already subscribed, skipping it");
+            continue;
+        }
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
+            subscribedServices.insert(s);
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &ftmsbike::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &ftmsbike::characteristicWritten);
@@ -2204,8 +2206,9 @@ void ftmsbike::serviceScanDone(void) {
 
     initRequest = false;
     // A new set of service objects is about to be built, so the previous pass's
-    // subscriptions no longer refer to anything live.
-    servicesSubscribed = false;
+    // subscriptions no longer refer to anything live. Cleared here rather than on
+    // disconnect so the pointers can never outlive the objects they stand for.
+    subscribedServices.clear();
     auto services_list = m_control->services();
     QBluetoothUuid ftmsService((quint16)0x1826);
     bool JK_fitness_577 = bluetoothDevice.name().toUpper().startsWith("DHZ-");
