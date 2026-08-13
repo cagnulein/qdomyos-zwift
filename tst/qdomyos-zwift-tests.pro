@@ -34,6 +34,7 @@ SOURCES += \
         Devices/TestKeepBikeParser.cpp \
         Devices/TestResistanceSlewLimiter.cpp \
         Devices/TestFtmsControlPointHandshake.cpp \
+        Devices/TestServiceSubscriptionPlan.cpp \
         Erg/TestErgTableSelection.cpp \
         Erg/TestErgAutoMode.cpp \
         main.cpp
@@ -69,6 +70,7 @@ HEADERS += \
     Devices/TestKeepBikeParser.h \
     Devices/TestResistanceSlewLimiter.h \
     Devices/TestFtmsControlPointHandshake.h \
+    Devices/TestServiceSubscriptionPlan.h \
     Devices/TestOctaneTreadmillZR8.h \
     Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \

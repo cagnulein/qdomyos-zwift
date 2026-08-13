@@ -1832,6 +1832,35 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     }
 }
 
+std::vector<ServiceView> ftmsbike::serviceViews() const {
+    std::vector<ServiceView> views;
+    views.reserve(gattCommunicationChannelService.size());
+    for (const QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        if (!s) {
+            continue;
+        }
+        ServiceView v;
+        v.id = serviceId(s);
+        switch (s->state()) {
+        case QLowEnergyService::InvalidService:
+            v.state = ServiceDiscoveryState::Invalid;
+            break;
+        case QLowEnergyService::ServiceDiscovered:
+            v.state = ServiceDiscoveryState::Discovered;
+            break;
+        case QLowEnergyService::DiscoveryRequired:
+            v.state = ServiceDiscoveryState::Required;
+            break;
+        default:
+            // Discovering, and whatever else a future Qt adds: not settled either way.
+            v.state = ServiceDiscoveryState::Discovering;
+            break;
+        }
+        views.push_back(v);
+    }
+    return views;
+}
+
 void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -1842,10 +1871,11 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
             continue;
         }
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
-            qDebug() << QStringLiteral("not all services discovered");
-            return;
-        }
+    }
+
+    if (!subscriptionPlan.allResolved(serviceViews())) {
+        qDebug() << QStringLiteral("not all services discovered");
+        return;
     }
 
     if (state != QLowEnergyService::ServiceState::ServiceDiscovered) {
@@ -1875,8 +1905,8 @@ void ftmsbike::serviceDiscoveryTimeout() {
         }
     }
 
-    // Safe to force: the pass skips anything already in subscribedServices, and
-    // skips any service that has not reached ServiceDiscovered.
+    // Safe to force: the plan yields only services that are discovered and not yet
+    // subscribed, so a forced pass is idempotent and skips whatever is still stuck.
     subscribeToServices();
 }
 
@@ -1885,125 +1915,124 @@ void ftmsbike::subscribeToServices() {
 
     qDebug() << QStringLiteral("all services discovered!");
 
+    // Which services actually need a pass, decided once, up front. This slot is
+    // connected to every service, so it fires once per service even after the last
+    // one has resolved, and the pass used to run in full on each firing - rewriting
+    // CCCDs that had already been written, the control point's four times per
+    // session on one bike. A fresh connection tolerates the repeats; a reconnection
+    // does not: the device rejects them, indications are never enabled, the control
+    // point never acknowledges REQUEST_CONTROL, and the bike reports nothing but
+    // battery. See servicesubscriptionplan.h for why this is not a single flag.
+    const std::vector<uint64_t> pending = subscriptionPlan.pending(serviceViews());
+
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (!s) {
             qDebug() << QStringLiteral("skipping null service object during subscription setup");
             continue;
         }
-        // Every service is connected to this slot, so it fires once per service and
-        // this pass used to run in full each time, rewriting CCCDs that were already
-        // written - on this bike, the control point's four times per session. A fresh
-        // connection tolerates the repeats; a reconnection does not, the device
-        // rejects them, indications are never enabled, the control point never
-        // acknowledges REQUEST_CONTROL and the bike reports nothing but battery.
-        // Skipping the pass wholesale is wrong though: serviceScanDone() discovers
-        // each service's details as it creates it, so the early firings arrive with
-        // only part of the list built and the rest still have subscribing to do.
-        // Remember the services themselves instead.
-        if (subscribedServices.contains(s)) {
-            qDebug() << s->serviceUuid() << QStringLiteral("already subscribed, skipping it");
+        const uint64_t id = serviceId(s);
+        if (std::find(pending.begin(), pending.end(), id) == pending.end()) {
+            qDebug() << s->serviceUuid() << QStringLiteral("already subscribed or not discovered, skipping it");
             continue;
         }
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
-            subscribedServices.insert(s);
-            // establish hook into notifications
-            connect(s, &QLowEnergyService::characteristicChanged, this, &ftmsbike::characteristicChanged);
-            connect(s, &QLowEnergyService::characteristicWritten, this, &ftmsbike::characteristicWritten);
-            connect(s, &QLowEnergyService::characteristicRead, this, &ftmsbike::characteristicRead);
-            connect(
-                s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
-                this, &ftmsbike::errorService);
-            connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsbike::descriptorWritten);
-            connect(s, &QLowEnergyService::descriptorRead, this, &ftmsbike::descriptorRead);
+        subscriptionPlan.markSubscribed(id);
+        // establish hook into notifications
+        connect(s, &QLowEnergyService::characteristicChanged, this, &ftmsbike::characteristicChanged);
+        connect(s, &QLowEnergyService::characteristicWritten, this, &ftmsbike::characteristicWritten);
+        connect(s, &QLowEnergyService::characteristicRead, this, &ftmsbike::characteristicRead);
+        connect(
+            s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+            this, &ftmsbike::errorService);
+        connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsbike::descriptorWritten);
+        connect(s, &QLowEnergyService::descriptorRead, this, &ftmsbike::descriptorRead);
 
-            qDebug() << s->serviceUuid() << QStringLiteral("connected!");
+        qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
-            if (ICSE) {
-                QBluetoothUuid ftmsService((quint16)0x1826);
-                QBluetoothUuid CSCService((quint16)0x1816);
-                if (s->serviceUuid() != ftmsService && s->serviceUuid() != CSCService) {
-                    qDebug() << QStringLiteral("ICSE bike wants to be subscribed only to FTMS and CSC services in order "
-                                               "to send metrics")
-                             << s->serviceUuid();
-                    continue;
-                }
+        if (ICSE) {
+            QBluetoothUuid ftmsService((quint16)0x1826);
+            QBluetoothUuid CSCService((quint16)0x1816);
+            if (s->serviceUuid() != ftmsService && s->serviceUuid() != CSCService) {
+                qDebug() << QStringLiteral("ICSE bike wants to be subscribed only to FTMS and CSC services in order "
+                                           "to send metrics")
+                         << s->serviceUuid();
+                continue;
             }
-            
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700) {
-                QBluetoothUuid ftmsService((quint16)0x1826);
-                if (s->serviceUuid() != ftmsService) {
-                    qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
-                                               "to send metrics")
-                             << s->serviceUuid();
-                    continue;
-                }
+        }
+        
+        if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700) {
+            QBluetoothUuid ftmsService((quint16)0x1826);
+            if (s->serviceUuid() != ftmsService) {
+                qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
+                                           "to send metrics")
+                         << s->serviceUuid();
+                continue;
+            }
+        }
+
+        auto characteristics_list = s->characteristics();
+        for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
+            auto descriptors_list = c.descriptors();
+            for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
+                qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
             }
 
-            auto characteristics_list = s->characteristics();
-            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
-                auto descriptors_list = c.descriptors();
-                for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
-                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+            if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
+                QByteArray descriptor;
+                descriptor.append((char)0x01);
+                descriptor.append((char)0x00);
+                if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                    s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                } else {
+                    qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                             << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                             << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                             << QStringLiteral(" is not valid");
                 }
 
-                if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
-                    QByteArray descriptor;
-                    descriptor.append((char)0x01);
-                    descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-                    } else {
-                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
-                                 << QStringLiteral(" is not valid");
-                    }
-
-                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
-                } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) ==
-                           QLowEnergyCharacteristic::Indicate) {
-                    QByteArray descriptor;
-                    descriptor.append((char)0x02);
-                    descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-                    } else {
-                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
-                                 << QStringLiteral(" is not valid");
-                    }
-
-                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
-                } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
-                    // s->readCharacteristic(c);
-                    // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
+                qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
+            } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) ==
+                       QLowEnergyCharacteristic::Indicate) {
+                QByteArray descriptor;
+                descriptor.append((char)0x02);
+                descriptor.append((char)0x00);
+                if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                    s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                } else {
+                    qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                             << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                             << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                             << QStringLiteral(" is not valid");
                 }
 
-                QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
-                if ((c.properties() & QLowEnergyCharacteristic::Write || c.properties() & QLowEnergyCharacteristic::WriteNoResponse) && c.uuid() == _gattWriteCharControlPointId) {
-                    qDebug() << QStringLiteral("FTMS service and Control Point found");
-                    gattWriteCharControlPointId = c;
-                    gattFTMSService = s;
-                }
+                qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
+            } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
+                // s->readCharacteristic(c);
+                // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
+            }
 
-                QBluetoothUuid _zwiftPlayWriteCharControlPointId(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1"));
-                if (c.uuid() == _zwiftPlayWriteCharControlPointId) {
-                    qDebug() << QStringLiteral("Zwift Play service and Control Point found");
-                    zwiftPlayWriteChar = c;
-                    zwiftPlayService = s;
-                }
+            QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
+            if ((c.properties() & QLowEnergyCharacteristic::Write || c.properties() & QLowEnergyCharacteristic::WriteNoResponse) && c.uuid() == _gattWriteCharControlPointId) {
+                qDebug() << QStringLiteral("FTMS service and Control Point found");
+                gattWriteCharControlPointId = c;
+                gattFTMSService = s;
+            }
 
-                QBluetoothUuid _mokFitnessWriteCharId((quint16)0xFFF2);
-                if (MOK_FITNESS &&
-                    (c.properties() & QLowEnergyCharacteristic::Write ||
-                     c.properties() & QLowEnergyCharacteristic::WriteNoResponse) &&
-                    c.uuid() == _mokFitnessWriteCharId) {
-                    qDebug() << QStringLiteral("MOK Fitness resistance control characteristic found");
-                    gattWriteCharMokFitnessId = c;
-                    gattMokFitnessService = s;
-                }
+            QBluetoothUuid _zwiftPlayWriteCharControlPointId(QStringLiteral("00000003-19ca-4651-86e5-fa29dcdd09d1"));
+            if (c.uuid() == _zwiftPlayWriteCharControlPointId) {
+                qDebug() << QStringLiteral("Zwift Play service and Control Point found");
+                zwiftPlayWriteChar = c;
+                zwiftPlayService = s;
+            }
+
+            QBluetoothUuid _mokFitnessWriteCharId((quint16)0xFFF2);
+            if (MOK_FITNESS &&
+                (c.properties() & QLowEnergyCharacteristic::Write ||
+                 c.properties() & QLowEnergyCharacteristic::WriteNoResponse) &&
+                c.uuid() == _mokFitnessWriteCharId) {
+                qDebug() << QStringLiteral("MOK Fitness resistance control characteristic found");
+                gattWriteCharMokFitnessId = c;
+                gattMokFitnessService = s;
             }
         }
     }
@@ -2242,7 +2271,7 @@ void ftmsbike::serviceScanDone(void) {
     // A new set of service objects is about to be built, so the previous pass's
     // subscriptions no longer refer to anything live. Cleared here rather than on
     // disconnect so the pointers can never outlive the objects they stand for.
-    subscribedServices.clear();
+    subscriptionPlan.reset();
     auto services_list = m_control->services();
     QBluetoothUuid ftmsService((quint16)0x1826);
     bool JK_fitness_577 = bluetoothDevice.name().toUpper().startsWith("DHZ-");

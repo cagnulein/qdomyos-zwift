@@ -28,10 +28,13 @@
 #include <QSet>
 #include <QString>
 
+#include <vector>
+
 #include "wheelcircumference.h"
 #include "devices/bike.h"
 #include "devices/ftmsbike/ftmscontrolpointhandshake.h"
 #include "devices/ftmsbike/resistanceslewlimiter.h"
+#include "devices/ftmsbike/servicesubscriptionplan.h"
 #include "inclinationresistancetable.h"
 
 #ifdef Q_OS_IOS
@@ -161,14 +164,17 @@ class ftmsbike : public bike {
 
     bool initDone = false;
     bool initRequest = false;
-    // stateChanged() is connected to every service, so it fires once per service
-    // even after the last one is discovered, and the whole subscription pass used
-    // to run again on each firing and rewrite every CCCD. The bookkeeping has to
-    // be per service rather than per pass. It also makes the watchdog's forced
-    // pass idempotent: anything already subscribed is skipped, so forcing it costs
-    // nothing when discovery was merely slow rather than stuck.
-    // Reset in serviceScanDone(), which is where the objects are rebuilt.
-    QSet<QLowEnergyService *> subscribedServices;
+    // Which services still need subscribing, and whether it is time to subscribe
+    // any of them. The decision lives in a header with no Qt in it because it has
+    // been got wrong twice in opposite directions and neither error was reachable
+    // from a test - see servicesubscriptionplan.h and its suite. Reset in
+    // serviceScanDone(), which is where the service objects are rebuilt.
+    ServiceSubscriptionPlan subscriptionPlan;
+
+    /** The current service objects, as the plan sees them. */
+    std::vector<ServiceView> serviceViews() const;
+    /** The plan's ids are the service pointers; they are opaque to it. */
+    static uint64_t serviceId(const QLowEnergyService *s) { return reinterpret_cast<uint64_t>(s); }
 
     // serviceScanDone() no longer discovers details as it creates each service, so
     // the gate in stateChanged() now genuinely waits for every service. That is
