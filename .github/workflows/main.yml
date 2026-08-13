@@ -8,15 +8,27 @@ env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
 # Controls when the action will run. Triggers the workflow on push, pull request,
-# scheduled nightly, or manual workflow dispatch events.
+# or manual workflow dispatch events.
+#
+# The nightly `schedule:` trigger is inherited from upstream and dropped on this
+# fork: it burns runner minutes on release plumbing this fork does not publish.
+# The jobs gated on `github.event_name == 'schedule'` (window-msvc2022-build, the
+# two peloton-bike builds, upload_to_release) are therefore dormant, and are left
+# gated that way so restoring the cron restores them.
+#
+# Note on duplicate runs: `push` is already restricted to master, so a push to a
+# feature branch with an open PR produces one run, not two. A manual
+# workflow_dispatch on a branch that also has a PR open is still two runs - that
+# is the dispatch, not the push, and the fix is not to dispatch by hand.
 on:
   workflow_dispatch:
   push:
     branches: [ master,  github-workflow-playground ]
   pull_request:
-  schedule:
-    - cron: "0 0 * * *"
 
+# Leave this as is - but note that a superseded run reports `cancelled`, not
+# failed. Any tooling polling a run ID must treat `cancelled` as "find the newer
+# run" rather than reporting CI failure.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -282,6 +294,24 @@ jobs:
           path: windows-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
+      # The exe alone, for dropping into an existing C:\QZ\... install. The full
+      # no-python zip is ~62 MB and has failed mid-transfer; this is the stripped
+      # exe only, and downloads in seconds.
+      #
+      # CAVEAT: this is only a drop-in replacement while the Qt DLL set is
+      # unchanged. Any commit touching the `QT +=` line in src/qdomyos-zwift.pri,
+      # the Qt version, or the toolchain needs the full windows-binary-no-python
+      # artifact instead. The check is the build header QZ logs on launch: if the
+      # Qt version there does not match the DLLs in the install, take the full one.
+      - name: Archive windows exe only
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe-only
+          path: src/debug/output/qdomyos-zwift.exe
+          compression-level: 9
+          retention-days: 7
+        if:  ${{ ! matrix.config.python }}
+
       # - name: Exit if not on master branch
       #   if: github.ref == 'refs/heads/master'
       #   run: exit 1
@@ -402,27 +432,18 @@ jobs:
 #          #depot2Path: StandaloneLinux64
 #          releaseBranch: prerelease
 
-  # This workflow contains a single job called "build"
+  # Re-enabled as a tests-only job: this is the only job in the workflow that runs
+  # the gtest suite at all, and 753ff0e5 disabled it when the fork was cut down to
+  # Android + Windows. Every test written since has been run by hand in a build VM.
+  # It deliberately does not publish a Linux binary - the fork does not ship one -
+  # and it is not in any `needs:` chain, so it runs in parallel with the Windows
+  # build rather than adding its minutes to that critical path.
   linux-x86-build:
-    if: false # fork: disabled - only android-build and window-* build here
     # The type of runner that the job will run on
     runs-on: ubuntu-24.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: release
-        uses: actions/create-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        id: create_release
-        with:
-          draft: false
-          prerelease: false
-          release_name: ${{ steps.version.outputs.version }}
-          tag_name: ${{ github.ref }}
-          body_path: CHANGELOG.md
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
 #      - name: Cache Qt Linux Desktop
 #        id: cache-qt-linux-desktop
 #        uses: actions/cache@v1
@@ -472,7 +493,11 @@ jobs:
           host: 'linux'
           modules: 'qtnetworkauth qtcharts'
           cache: 'true'
-          cache-key-prefix: 'install-qt-action-linux'                    
+          cache-key-prefix: 'install-qt-action-linux'
+          # Same pin as window-build, and for the same reason - see a29d74f5. The
+          # action's default aqtinstall 3.1.21 cannot extract the 5.15.2 archives
+          # against py7zr 1.x. Do not float this.
+          aqtversion: '==3.3.0'
 
       - name: Cache qthttpserver build
         id: cache-qthttpserver-linux
@@ -503,12 +528,6 @@ jobs:
       - name: Compile Linux Desktop
         run: qmake; make -j8
 
-      - name: Archive linux-desktop binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-desktop-binary
-          path: src/qdomyos-zwift         
-
       - name: Test
         run: cd tst; GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests; cd ..
 
@@ -521,7 +540,7 @@ jobs:
 
       - name: Upload test FIT files and database
         uses: actions/upload-artifact@v4
-        if: always()
+        if: failure()
         with:
           name: test_fit_files_and_db
           path: |
@@ -1134,6 +1153,11 @@ jobs:
 
   window-msvc2019-build:
     runs-on: windows-2022
+    # fork: disabled. 753ff0e5 cut this fork down to Android + Windows but missed
+    # the msvc2019 jobs, which carry no `if:` at all and so ran two Windows
+    # runners on every push and every PR. window-build (mingw) is the Windows
+    # build this fork ships.
+    if: false
     strategy:
       matrix:
         config:
@@ -1365,6 +1389,9 @@ jobs:
 
   window-msvc2019-aiserver-build:
     runs-on: windows-2022
+    # fork: disabled, same as window-msvc2019-build - unguarded, and the AI server
+    # is not something this fork builds.
+    if: false
     steps:
       - uses: actions/checkout@v4
       - name: Checkout submodule repo
@@ -1963,7 +1990,10 @@ jobs:
 
   window-msvc2022-pr-build:
     runs-on: windows-2022
-    if: github.event_name == 'pull_request'
+    # fork: disabled. Its first step checks out `ref: qt6`, and this fork has no
+    # qt6 branch, so every PR failed here and reported a red X that had nothing to
+    # do with the PR. One false "CI failed" report already came out of it.
+    if: false
     strategy:
       fail-fast: false
       matrix:

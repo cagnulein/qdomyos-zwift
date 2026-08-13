@@ -27,9 +27,16 @@
 #include <QQmlApplicationEngine>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QSysInfo>
 #include <QList>
 #ifdef CHARTJS
 #include <QtWebView/QtWebView>
+#endif
+
+// qdomyos-zwift.pri stamps the real one in. This keeps any build path that does
+// not go through it compiling rather than failing on an undefined symbol.
+#ifndef QZ_GIT_SHA
+#define QZ_GIT_SHA "unknown"
 #endif
 
 #include "mqttpublisher.h"
@@ -708,6 +715,12 @@ int main(int argc, char *argv[]) {
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
+    // Which commit is this, really? Anything logged before the handler is installed
+    // goes nowhere, so this has to sit here. The Qt runtime version earns its place
+    // next to it because the exe-only CI artifact drops into an existing install: if
+    // these DLLs ever drift from the build, the log is the only way to see it.
+    qDebug() << QStringLiteral("QZ build") << QStringLiteral(QZ_GIT_SHA) << QStringLiteral("Qt")
+             << qVersion() << QStringLiteral("on") << QSysInfo::prettyProductName();
     foreach (QString s, settings.allKeys()) {
         if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token") && !s.contains("garmin_device_serial") && !s.contains("garmin_email")) {
 

@@ -69,6 +69,19 @@ INCLUDEPATH += qmdnsengine/src/include
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 
+# Stamp the commit into the binary so a running build can identify itself in its
+# own log. Answering "am I running the new binary?" by grepping ASCII out of the
+# .exe cost more than one debugging round. -C $$PWD because shadow builds run
+# qmake from outside the work tree, and CI checks out detached HEAD, which
+# rev-parse resolves correctly anyway.
+win32 {
+    QZ_GIT_SHA = $$system(git -C \"$$PWD\" rev-parse --short HEAD 2>NUL)
+} else {
+    QZ_GIT_SHA = $$system(git -C \"$$PWD\" rev-parse --short HEAD 2>/dev/null)
+}
+isEmpty(QZ_GIT_SHA): QZ_GIT_SHA = unknown
+DEFINES += QZ_GIT_SHA=\\\"$$QZ_GIT_SHA\\\"
+
 
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
