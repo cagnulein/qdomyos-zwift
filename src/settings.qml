@@ -8327,6 +8327,97 @@ import AndroidStatusBar 1.0
                             "Vivoactive 4 Small",
                             "Vivoactive 5",
                             "Vivoactive 6",
+                            "Approach G10",
+                            "Swim",
+                            "Vivo Active",
+                            "Approach S6",
+                            "D2 Bravo",
+                            "Approach S20",
+                            "Approach X40",
+                            "Vivo Active Hr",
+                            "Vivo Move",
+                            "D2 Bravo Titanium",
+                            "Approach S60",
+                            "Vivo Move Hr",
+                            "Approach Z80",
+                            "D2Charlie",
+                            "Descent",
+                            "Approach X10",
+                            "Approach S10",
+                            "Approach G80",
+                            "Instinct Esports",
+                            "Marq Driver",
+                            "Marq Aviator",
+                            "Marq Captain",
+                            "Marq Commander",
+                            "Marq Expedition",
+                            "Marq Athlete",
+                            "Descent Mk2",
+                            "Vivo Move3 Premium",
+                            "Approach S40",
+                            "Vivo Move3",
+                            "Swim2",
+                            "Instinct Solar",
+                            "Legacy Rey",
+                            "Legacy Darth Vader",
+                            "Legacy Captain Marvel",
+                            "Legacy First Avenger",
+                            "Descent Mk2s",
+                            "Venu Sq Music V2",
+                            "Lily",
+                            "Marq Adventurer",
+                            "Enduro",
+                            "Marq Golfer",
+                            "Approach S12",
+                            "Instinct 2",
+                            "Instinct 2s",
+                            "Approach S42",
+                            "Vivo Move Sport",
+                            "Vivomove Trend",
+                            "Descent G1",
+                            "Marq Gen2",
+                            "Marq Gen2 Aviator",
+                            "D2 Air X10",
+                            "Tactix7",
+                            "Instinct Crossover",
+                            "Descent Mk3",
+                            "Descent Mk3i",
+                            "Approach S70",
+                            "Enduro2",
+                            "Lily2",
+                            "Instinct 2x",
+                            "Marq Gen2 Commander",
+                            "Lily Athlete",
+                            "D2 Mach1 Pro",
+                            "Fr970",
+                            "Fr570 Large",
+                            "Fr570 Small",
+                            "Enduro3",
+                            "Instincte 40mm",
+                            "Instincte 45mm",
+                            "Instinct3 Solar 45mm",
+                            "Instinct3 Amoled 45mm",
+                            "Instinct3 Amoled 50mm",
+                            "Descent G2",
+                            "Fenix7 Pro Solar No Wifi",
+                            "Venu X1",
+                            "Fenix8 Pro",
+                            "Edge 550",
+                            "Edge 850",
+                            "Approachs44",
+                            "Edge Mtb",
+                            "Approachs50",
+                            "Instinct Crossover Amoled",
+                            "Instinct3 Solar 50mm",
+                            "Tactix8 Amoled",
+                            "Tactix8 Solar",
+                            "Fr170 Music",
+                            "Fr170",
+                            "Approach J1",
+                            "D2 Mach2",
+                            "Fr70 2026",
+                            "D2 Air X15",
+                            "D2 Mach2 Pro",
                             "Tacx",
                             "Zwift"
                         ]
@@ -8455,8 +8546,99 @@ import AndroidStatusBar 1.0
                             if (settings.fit_file_garmin_device_training_effect_device === 3224) return 121;  // VIVOACTIVE4_SMALL
                             if (settings.fit_file_garmin_device_training_effect_device === 4426) return 122;  // VIVOACTIVE5
                             if (settings.fit_file_garmin_device_training_effect_device === 4625) return 123;  // VIVOACTIVE6
-                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 124;  // Tacx
-                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 125;  // Zwift
+                            if (settings.fit_file_garmin_device_training_effect_device === 1405) return 124;  // APPROACH_G10
+                            if (settings.fit_file_garmin_device_training_effect_device === 1499) return 125;  // SWIM
+                            if (settings.fit_file_garmin_device_training_effect_device === 1907) return 126;  // VIVO_ACTIVE
+                            if (settings.fit_file_garmin_device_training_effect_device === 1936) return 127;  // APPROACH_S6
+                            if (settings.fit_file_garmin_device_training_effect_device === 2262) return 128;  // D2_BRAVO
+                            if (settings.fit_file_garmin_device_training_effect_device === 2266) return 129;  // APPROACH_S20
+                            if (settings.fit_file_garmin_device_training_effect_device === 2292) return 130;  // APPROACH_X40
+                            if (settings.fit_file_garmin_device_training_effect_device === 2337) return 131;  // VIVO_ACTIVE_HR
+                            if (settings.fit_file_garmin_device_training_effect_device === 2368) return 132;  // VIVO_MOVE
+                            if (settings.fit_file_garmin_device_training_effect_device === 2547) return 133;  // D2_BRAVO_TITANIUM
+                            if (settings.fit_file_garmin_device_training_effect_device === 2656) return 134;  // APPROACH_S60
+                            if (settings.fit_file_garmin_device_training_effect_device === 2772) return 135;  // VIVO_MOVE_HR
+                            if (settings.fit_file_garmin_device_training_effect_device === 2806) return 136;  // APPROACH_Z80
+                            if (settings.fit_file_garmin_device_training_effect_device === 2819) return 137;  // D2CHARLIE
+                            if (settings.fit_file_garmin_device_training_effect_device === 2859) return 138;  // DESCENT
+                            if (settings.fit_file_garmin_device_training_effect_device === 2962) return 139;  // APPROACH_X10
+                            if (settings.fit_file_garmin_device_training_effect_device === 3049) return 140;  // APPROACH_S10
+                            if (settings.fit_file_garmin_device_training_effect_device === 3085) return 141;  // APPROACH_G80
+                            if (settings.fit_file_garmin_device_training_effect_device === 3126) return 142;  // INSTINCT_ESPORTS
+                            if (settings.fit_file_garmin_device_training_effect_device === 3246) return 143;  // MARQ_DRIVER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3247) return 144;  // MARQ_AVIATOR
+                            if (settings.fit_file_garmin_device_training_effect_device === 3248) return 145;  // MARQ_CAPTAIN
+                            if (settings.fit_file_garmin_device_training_effect_device === 3249) return 146;  // MARQ_COMMANDER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3250) return 147;  // MARQ_EXPEDITION
+                            if (settings.fit_file_garmin_device_training_effect_device === 3251) return 148;  // MARQ_ATHLETE
+                            if (settings.fit_file_garmin_device_training_effect_device === 3258) return 149;  // DESCENT_MK2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3308) return 150;  // VIVO_MOVE3_PREMIUM
+                            if (settings.fit_file_garmin_device_training_effect_device === 3314) return 151;  // APPROACH_S40
+                            if (settings.fit_file_garmin_device_training_effect_device === 3378) return 152;  // VIVO_MOVE3
+                            if (settings.fit_file_garmin_device_training_effect_device === 3405) return 153;  // SWIM2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3466) return 154;  // INSTINCT_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 3498) return 155;  // LEGACY_REY
+                            if (settings.fit_file_garmin_device_training_effect_device === 3499) return 156;  // LEGACY_DARTH_VADER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3500) return 157;  // LEGACY_CAPTAIN_MARVEL
+                            if (settings.fit_file_garmin_device_training_effect_device === 3501) return 158;  // LEGACY_FIRST_AVENGER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3542) return 159;  // DESCENT_MK2S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3599) return 160;  // VENUSQ_MUSIC_V2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3615) return 161;  // LILY
+                            if (settings.fit_file_garmin_device_training_effect_device === 3624) return 162;  // MARQ_ADVENTURER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3638) return 163;  // ENDURO
+                            if (settings.fit_file_garmin_device_training_effect_device === 3739) return 164;  // MARQ_GOLFER
+                            if (settings.fit_file_garmin_device_training_effect_device === 3823) return 165;  // APPROACH_S12
+                            if (settings.fit_file_garmin_device_training_effect_device === 3888) return 166;  // INSTINCT_2
+                            if (settings.fit_file_garmin_device_training_effect_device === 3889) return 167;  // INSTINCT_2S
+                            if (settings.fit_file_garmin_device_training_effect_device === 3934) return 168;  // APPROACH_S42
+                            if (settings.fit_file_garmin_device_training_effect_device === 3982) return 169;  // VIVO_MOVE_SPORT
+                            if (settings.fit_file_garmin_device_training_effect_device === 3983) return 170;  // VIVOMOVE_TREND
+                            if (settings.fit_file_garmin_device_training_effect_device === 4005) return 171;  // DESCENT_G1
+                            if (settings.fit_file_garmin_device_training_effect_device === 4105) return 172;  // MARQ_GEN2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4124) return 173;  // MARQ_GEN2_AVIATOR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4125) return 174;  // D2_AIR_X10
+                            if (settings.fit_file_garmin_device_training_effect_device === 4135) return 175;  // TACTIX7
+                            if (settings.fit_file_garmin_device_training_effect_device === 4155) return 176;  // INSTINCT_CROSSOVER
+                            if (settings.fit_file_garmin_device_training_effect_device === 4222) return 177;  // DESCENT_MK3
+                            if (settings.fit_file_garmin_device_training_effect_device === 4223) return 178;  // DESCENT_MK3I
+                            if (settings.fit_file_garmin_device_training_effect_device === 4233) return 179;  // APPROACH_S70
+                            if (settings.fit_file_garmin_device_training_effect_device === 4341) return 180;  // ENDURO2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4380) return 181;  // LILY2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4394) return 182;  // INSTINCT_2X
+                            if (settings.fit_file_garmin_device_training_effect_device === 4472) return 183;  // MARQ_GEN2_COMMANDER
+                            if (settings.fit_file_garmin_device_training_effect_device === 4477) return 184;  // LILY_ATHLETE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4556) return 185;  // D2_MACH1_PRO
+                            if (settings.fit_file_garmin_device_training_effect_device === 4565) return 186;  // FR970
+                            if (settings.fit_file_garmin_device_training_effect_device === 4570) return 187;  // FR570_LARGE
+                            if (settings.fit_file_garmin_device_training_effect_device === 4574) return 188;  // FR570_SMALL
+                            if (settings.fit_file_garmin_device_training_effect_device === 4575) return 189;  // ENDURO3
+                            if (settings.fit_file_garmin_device_training_effect_device === 4583) return 190;  // INSTINCTE_40MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4584) return 191;  // INSTINCTE_45MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4585) return 192;  // INSTINCT3_SOLAR_45MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4586) return 193;  // INSTINCT3_AMOLED_45MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4587) return 194;  // INSTINCT3_AMOLED_50MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4588) return 195;  // DESCENT_G2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4595) return 196;  // FENIX7_PRO_SOLAR_NO_WIFI
+                            if (settings.fit_file_garmin_device_training_effect_device === 4603) return 197;  // VENU_X1
+                            if (settings.fit_file_garmin_device_training_effect_device === 4631) return 198;  // FENIX8_PRO
+                            if (settings.fit_file_garmin_device_training_effect_device === 4633) return 199;  // EDGE_550
+                            if (settings.fit_file_garmin_device_training_effect_device === 4634) return 200;  // EDGE_850
+                            if (settings.fit_file_garmin_device_training_effect_device === 4647) return 201;  // APPROACHS44
+                            if (settings.fit_file_garmin_device_training_effect_device === 4655) return 202;  // EDGE_MTB
+                            if (settings.fit_file_garmin_device_training_effect_device === 4656) return 203;  // APPROACHS50
+                            if (settings.fit_file_garmin_device_training_effect_device === 4678) return 204;  // INSTINCT_CROSSOVER_AMOLED
+                            if (settings.fit_file_garmin_device_training_effect_device === 4759) return 205;  // INSTINCT3_SOLAR_50MM
+                            if (settings.fit_file_garmin_device_training_effect_device === 4775) return 206;  // TACTIX8_AMOLED
+                            if (settings.fit_file_garmin_device_training_effect_device === 4776) return 207;  // TACTIX8_SOLAR
+                            if (settings.fit_file_garmin_device_training_effect_device === 4814) return 208;  // FR170_MUSIC
+                            if (settings.fit_file_garmin_device_training_effect_device === 4815) return 209;  // FR170
+                            if (settings.fit_file_garmin_device_training_effect_device === 4825) return 210;  // APPROACH_J1
+                            if (settings.fit_file_garmin_device_training_effect_device === 4879) return 211;  // D2_MACH2
+                            if (settings.fit_file_garmin_device_training_effect_device === 4916) return 212;  // FR70_2026
+                            if (settings.fit_file_garmin_device_training_effect_device === 4944) return 213;  // D2_AIR_X15
+                            if (settings.fit_file_garmin_device_training_effect_device === 5056) return 214;  // D2_MACH2_PRO
+                            if (settings.fit_file_garmin_device_training_effect_device === 88888) return 215;  // Tacx
+                            if (settings.fit_file_garmin_device_training_effect_device === 99999) return 216;  // Zwift
                             return 20;  // Default to Edge 830
                         }
                         onCurrentIndexChanged: {
@@ -8585,8 +8767,99 @@ import AndroidStatusBar 1.0
                                 case 121: settings.fit_file_garmin_device_training_effect_device = 3224; break;  // VIVOACTIVE4_SMALL
                                 case 122: settings.fit_file_garmin_device_training_effect_device = 4426; break;  // VIVOACTIVE5
                                 case 123: settings.fit_file_garmin_device_training_effect_device = 4625; break;  // VIVOACTIVE6
-                                case 124: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
-                                case 125: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
+                                case 124: settings.fit_file_garmin_device_training_effect_device = 1405; break;  // APPROACH_G10
+                                case 125: settings.fit_file_garmin_device_training_effect_device = 1499; break;  // SWIM
+                                case 126: settings.fit_file_garmin_device_training_effect_device = 1907; break;  // VIVO_ACTIVE
+                                case 127: settings.fit_file_garmin_device_training_effect_device = 1936; break;  // APPROACH_S6
+                                case 128: settings.fit_file_garmin_device_training_effect_device = 2262; break;  // D2_BRAVO
+                                case 129: settings.fit_file_garmin_device_training_effect_device = 2266; break;  // APPROACH_S20
+                                case 130: settings.fit_file_garmin_device_training_effect_device = 2292; break;  // APPROACH_X40
+                                case 131: settings.fit_file_garmin_device_training_effect_device = 2337; break;  // VIVO_ACTIVE_HR
+                                case 132: settings.fit_file_garmin_device_training_effect_device = 2368; break;  // VIVO_MOVE
+                                case 133: settings.fit_file_garmin_device_training_effect_device = 2547; break;  // D2_BRAVO_TITANIUM
+                                case 134: settings.fit_file_garmin_device_training_effect_device = 2656; break;  // APPROACH_S60
+                                case 135: settings.fit_file_garmin_device_training_effect_device = 2772; break;  // VIVO_MOVE_HR
+                                case 136: settings.fit_file_garmin_device_training_effect_device = 2806; break;  // APPROACH_Z80
+                                case 137: settings.fit_file_garmin_device_training_effect_device = 2819; break;  // D2CHARLIE
+                                case 138: settings.fit_file_garmin_device_training_effect_device = 2859; break;  // DESCENT
+                                case 139: settings.fit_file_garmin_device_training_effect_device = 2962; break;  // APPROACH_X10
+                                case 140: settings.fit_file_garmin_device_training_effect_device = 3049; break;  // APPROACH_S10
+                                case 141: settings.fit_file_garmin_device_training_effect_device = 3085; break;  // APPROACH_G80
+                                case 142: settings.fit_file_garmin_device_training_effect_device = 3126; break;  // INSTINCT_ESPORTS
+                                case 143: settings.fit_file_garmin_device_training_effect_device = 3246; break;  // MARQ_DRIVER
+                                case 144: settings.fit_file_garmin_device_training_effect_device = 3247; break;  // MARQ_AVIATOR
+                                case 145: settings.fit_file_garmin_device_training_effect_device = 3248; break;  // MARQ_CAPTAIN
+                                case 146: settings.fit_file_garmin_device_training_effect_device = 3249; break;  // MARQ_COMMANDER
+                                case 147: settings.fit_file_garmin_device_training_effect_device = 3250; break;  // MARQ_EXPEDITION
+                                case 148: settings.fit_file_garmin_device_training_effect_device = 3251; break;  // MARQ_ATHLETE
+                                case 149: settings.fit_file_garmin_device_training_effect_device = 3258; break;  // DESCENT_MK2
+                                case 150: settings.fit_file_garmin_device_training_effect_device = 3308; break;  // VIVO_MOVE3_PREMIUM
+                                case 151: settings.fit_file_garmin_device_training_effect_device = 3314; break;  // APPROACH_S40
+                                case 152: settings.fit_file_garmin_device_training_effect_device = 3378; break;  // VIVO_MOVE3
+                                case 153: settings.fit_file_garmin_device_training_effect_device = 3405; break;  // SWIM2
+                                case 154: settings.fit_file_garmin_device_training_effect_device = 3466; break;  // INSTINCT_SOLAR
+                                case 155: settings.fit_file_garmin_device_training_effect_device = 3498; break;  // LEGACY_REY
+                                case 156: settings.fit_file_garmin_device_training_effect_device = 3499; break;  // LEGACY_DARTH_VADER
+                                case 157: settings.fit_file_garmin_device_training_effect_device = 3500; break;  // LEGACY_CAPTAIN_MARVEL
+                                case 158: settings.fit_file_garmin_device_training_effect_device = 3501; break;  // LEGACY_FIRST_AVENGER
+                                case 159: settings.fit_file_garmin_device_training_effect_device = 3542; break;  // DESCENT_MK2S
+                                case 160: settings.fit_file_garmin_device_training_effect_device = 3599; break;  // VENUSQ_MUSIC_V2
+                                case 161: settings.fit_file_garmin_device_training_effect_device = 3615; break;  // LILY
+                                case 162: settings.fit_file_garmin_device_training_effect_device = 3624; break;  // MARQ_ADVENTURER
+                                case 163: settings.fit_file_garmin_device_training_effect_device = 3638; break;  // ENDURO
+                                case 164: settings.fit_file_garmin_device_training_effect_device = 3739; break;  // MARQ_GOLFER
+                                case 165: settings.fit_file_garmin_device_training_effect_device = 3823; break;  // APPROACH_S12
+                                case 166: settings.fit_file_garmin_device_training_effect_device = 3888; break;  // INSTINCT_2
+                                case 167: settings.fit_file_garmin_device_training_effect_device = 3889; break;  // INSTINCT_2S
+                                case 168: settings.fit_file_garmin_device_training_effect_device = 3934; break;  // APPROACH_S42
+                                case 169: settings.fit_file_garmin_device_training_effect_device = 3982; break;  // VIVO_MOVE_SPORT
+                                case 170: settings.fit_file_garmin_device_training_effect_device = 3983; break;  // VIVOMOVE_TREND
+                                case 171: settings.fit_file_garmin_device_training_effect_device = 4005; break;  // DESCENT_G1
+                                case 172: settings.fit_file_garmin_device_training_effect_device = 4105; break;  // MARQ_GEN2
+                                case 173: settings.fit_file_garmin_device_training_effect_device = 4124; break;  // MARQ_GEN2_AVIATOR
+                                case 174: settings.fit_file_garmin_device_training_effect_device = 4125; break;  // D2_AIR_X10
+                                case 175: settings.fit_file_garmin_device_training_effect_device = 4135; break;  // TACTIX7
+                                case 176: settings.fit_file_garmin_device_training_effect_device = 4155; break;  // INSTINCT_CROSSOVER
+                                case 177: settings.fit_file_garmin_device_training_effect_device = 4222; break;  // DESCENT_MK3
+                                case 178: settings.fit_file_garmin_device_training_effect_device = 4223; break;  // DESCENT_MK3I
+                                case 179: settings.fit_file_garmin_device_training_effect_device = 4233; break;  // APPROACH_S70
+                                case 180: settings.fit_file_garmin_device_training_effect_device = 4341; break;  // ENDURO2
+                                case 181: settings.fit_file_garmin_device_training_effect_device = 4380; break;  // LILY2
+                                case 182: settings.fit_file_garmin_device_training_effect_device = 4394; break;  // INSTINCT_2X
+                                case 183: settings.fit_file_garmin_device_training_effect_device = 4472; break;  // MARQ_GEN2_COMMANDER
+                                case 184: settings.fit_file_garmin_device_training_effect_device = 4477; break;  // LILY_ATHLETE
+                                case 185: settings.fit_file_garmin_device_training_effect_device = 4556; break;  // D2_MACH1_PRO
+                                case 186: settings.fit_file_garmin_device_training_effect_device = 4565; break;  // FR970
+                                case 187: settings.fit_file_garmin_device_training_effect_device = 4570; break;  // FR570_LARGE
+                                case 188: settings.fit_file_garmin_device_training_effect_device = 4574; break;  // FR570_SMALL
+                                case 189: settings.fit_file_garmin_device_training_effect_device = 4575; break;  // ENDURO3
+                                case 190: settings.fit_file_garmin_device_training_effect_device = 4583; break;  // INSTINCTE_40MM
+                                case 191: settings.fit_file_garmin_device_training_effect_device = 4584; break;  // INSTINCTE_45MM
+                                case 192: settings.fit_file_garmin_device_training_effect_device = 4585; break;  // INSTINCT3_SOLAR_45MM
+                                case 193: settings.fit_file_garmin_device_training_effect_device = 4586; break;  // INSTINCT3_AMOLED_45MM
+                                case 194: settings.fit_file_garmin_device_training_effect_device = 4587; break;  // INSTINCT3_AMOLED_50MM
+                                case 195: settings.fit_file_garmin_device_training_effect_device = 4588; break;  // DESCENT_G2
+                                case 196: settings.fit_file_garmin_device_training_effect_device = 4595; break;  // FENIX7_PRO_SOLAR_NO_WIFI
+                                case 197: settings.fit_file_garmin_device_training_effect_device = 4603; break;  // VENU_X1
+                                case 198: settings.fit_file_garmin_device_training_effect_device = 4631; break;  // FENIX8_PRO
+                                case 199: settings.fit_file_garmin_device_training_effect_device = 4633; break;  // EDGE_550
+                                case 200: settings.fit_file_garmin_device_training_effect_device = 4634; break;  // EDGE_850
+                                case 201: settings.fit_file_garmin_device_training_effect_device = 4647; break;  // APPROACHS44
+                                case 202: settings.fit_file_garmin_device_training_effect_device = 4655; break;  // EDGE_MTB
+                                case 203: settings.fit_file_garmin_device_training_effect_device = 4656; break;  // APPROACHS50
+                                case 204: settings.fit_file_garmin_device_training_effect_device = 4678; break;  // INSTINCT_CROSSOVER_AMOLED
+                                case 205: settings.fit_file_garmin_device_training_effect_device = 4759; break;  // INSTINCT3_SOLAR_50MM
+                                case 206: settings.fit_file_garmin_device_training_effect_device = 4775; break;  // TACTIX8_AMOLED
+                                case 207: settings.fit_file_garmin_device_training_effect_device = 4776; break;  // TACTIX8_SOLAR
+                                case 208: settings.fit_file_garmin_device_training_effect_device = 4814; break;  // FR170_MUSIC
+                                case 209: settings.fit_file_garmin_device_training_effect_device = 4815; break;  // FR170
+                                case 210: settings.fit_file_garmin_device_training_effect_device = 4825; break;  // APPROACH_J1
+                                case 211: settings.fit_file_garmin_device_training_effect_device = 4879; break;  // D2_MACH2
+                                case 212: settings.fit_file_garmin_device_training_effect_device = 4916; break;  // FR70_2026
+                                case 213: settings.fit_file_garmin_device_training_effect_device = 4944; break;  // D2_AIR_X15
+                                case 214: settings.fit_file_garmin_device_training_effect_device = 5056; break;  // D2_MACH2_PRO
+                                case 215: settings.fit_file_garmin_device_training_effect_device = 88888; break;  // Tacx
+                                case 216: settings.fit_file_garmin_device_training_effect_device = 99999; break;  // Zwift
                             }
                         }
                         Layout.fillWidth: true
