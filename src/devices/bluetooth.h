@@ -64,6 +64,7 @@
 #include "devices/faketreadmill/faketreadmill.h"
 #include "devices/fitmetria_fanfit/fitmetria_fanfit.h"
 #include "devices/fitplusbike/fitplusbike.h"
+#include "devices/fitshowrower/fitshowrower.h"
 
 #include "devices/fitshowtreadmill/fitshowtreadmill.h"
 #include "devices/flywheelbike/flywheelbike.h"
@@ -282,6 +283,7 @@ class bluetooth : public QObject, public SignalHandler {
     schwinn170bike *schwinn170Bike = nullptr;
     chronobike *chronoBike = nullptr;
     fitplusbike *fitPlusBike = nullptr;
+    fitshowrower *fitShowRower = nullptr;
     echelonrower *echelonRower = nullptr;
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;

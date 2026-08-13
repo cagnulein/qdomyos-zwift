@@ -2476,6 +2476,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 sportsTechElliptical->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsTechElliptical);
+            } else if (fitshowrower::isTopiomDeviceName(b.name()) &&
+                       !fitShowRower && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                fitShowRower = new fitshowrower(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(fitShowRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(fitShowRower, &fitshowrower::debug, this, &bluetooth::debug);
+                fitShowRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(fitShowRower);
             } else if (b.name().toUpper().startsWith(QStringLiteral("EW-ST-")) && !sportsTechRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -4279,6 +4290,10 @@ void bluetooth::restart() {
         delete sportsTechRower;
         sportsTechRower = nullptr;
     }
+    if (fitShowRower) {
+        delete fitShowRower;
+        fitShowRower = nullptr;
+    }
     if (sportsPlusBike) {
 
         delete sportsPlusBike;
@@ -4652,6 +4667,8 @@ bluetoothdevice *bluetooth::device() {
         return sportsTechElliptical;
     } else if (sportsTechRower) {
         return sportsTechRower;
+    } else if (fitShowRower) {
+        return fitShowRower;
     } else if (sportsPlusBike) {
         return sportsPlusBike;
     } else if (sportsPlusRower) {

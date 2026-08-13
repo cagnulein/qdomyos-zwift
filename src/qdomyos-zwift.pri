@@ -91,6 +91,7 @@ SOURCES += \
     $$PWD/devices/deeruntreadmill/deerruntreadmill.cpp \
     $$PWD/devices/elitesquarecontroller/elitesquarecontroller.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
+    $$PWD/devices/fitshowrower/fitshowrower.cpp \
     $$PWD/devices/jumprope.cpp \
     $$PWD/devices/kineticinroadbike/SmartControl.cpp \
     $$PWD/devices/kineticinroadbike/kineticinroadbike.cpp \
@@ -566,6 +567,7 @@ devices/fakebike/fakebike.h \
 filedownloader.h \
 devices/fitmetria_fanfit/fitmetria_fanfit.h \
 devices/fitplusbike/fitplusbike.h \
+devices/fitshowrower/fitshowrower.h \
 devices/ftmsrower/ftmsrower.h \
 homefitnessbuddy.h \
 devices/horizongr7bike/horizongr7bike.h \
