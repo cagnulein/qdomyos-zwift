@@ -187,6 +187,23 @@ class ftmsbike : public bike {
     QTimer serviceDiscoveryWatchdog;
     static constexpr int SERVICE_DISCOVERY_WATCHDOG_MS = 10000;
 
+    // Reconnection used to be attempted the instant the controller went
+    // unconnected, which with the bike off - or held by another central - is a
+    // tight loop against the radio that fills the log with nothing.
+    static constexpr int RECONNECT_INITIAL_MS = 1000;
+    static constexpr int RECONNECT_MAX_MS = 30000;
+    // Qt cannot tell "another central owns it" from "out of range" - the OS does
+    // not report why an attempt failed - so this is a guess offered after enough
+    // failures that it is worth guessing. Undiagnosable but common beats silent.
+    static constexpr int MULTI_CENTRAL_WARN_AFTER = 5;
+    QTimer reconnectTimer;
+    int reconnectDelayMs = RECONNECT_INITIAL_MS;
+    int consecutiveConnectFailures = 0;
+    bool multiCentralToastShown = false;
+
+    /** Tear down the service objects and everything pointing into them. */
+    void discardServiceObjects();
+
     bool noWriteResistance = false;
     bool noHeartService = false;
 

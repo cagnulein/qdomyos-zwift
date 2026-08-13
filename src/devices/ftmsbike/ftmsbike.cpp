@@ -70,6 +70,15 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     serviceDiscoveryWatchdog.setSingleShot(true);
     connect(&serviceDiscoveryWatchdog, &QTimer::timeout, this, &ftmsbike::serviceDiscoveryTimeout);
 
+    reconnectTimer.setSingleShot(true);
+    connect(&reconnectTimer, &QTimer::timeout, this, [this]() {
+        if (!m_control) {
+            return;
+        }
+        qDebug() << QStringLiteral("reconnect attempt") << consecutiveConnectFailures;
+        m_control->connectToDevice();
+    });
+
     wheelCircumference::GearTable g;
     g.printTable();
 }
@@ -2256,6 +2265,51 @@ void ftmsbike::characteristicRead(const QLowEnergyCharacteristic &characteristic
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
 }
 
+void ftmsbike::discardServiceObjects() {
+    // QLowEnergyController::createServiceObject() returns an object this class owns
+    // when no parent is passed, and gattCommunicationChannelService was only ever
+    // appended to - so every reconnection leaked a full set of service objects and
+    // the list grew without bound across a long session with a flaky bike.
+    //
+    // Freeing them is only safe once nothing points into them any more, and more
+    // things did than the list itself. The write queue is the dangerous one:
+    // processWriteQueue() dereferences request.service to check its state, so a
+    // write queued against a service that has just been freed is a use-after-free
+    // rather than a wasted allocation. The three cached service pointers are all
+    // null-checked by their callers before use, which is what makes nulling them
+    // the correct move rather than a new crash.
+    gattFTMSService = nullptr;
+    zwiftPlayService = nullptr;
+    gattMokFitnessService = nullptr;
+
+    // The characteristics are values, but they reference their service's internals.
+    gattWriteCharControlPointId = QLowEnergyCharacteristic();
+    zwiftPlayWriteChar = QLowEnergyCharacteristic();
+    gattWriteCharMokFitnessId = QLowEnergyCharacteristic();
+
+    writeQueue.clear();
+    if (writeTimeoutTimer) {
+        writeTimeoutTimer->stop();
+    }
+    isWriting = false;
+    currentWriteWaitingForResponse = false;
+    currentWriteService = nullptr;
+
+    // deleteLater(), not delete: this runs from a signal handler and one of these
+    // objects may well be the sender, or otherwise live on the stack above us.
+    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        if (s) {
+            s->deleteLater();
+        }
+    }
+    gattCommunicationChannelService.clear();
+
+    // Cleared together with the list, and it has to be: the allocator hands the
+    // same address back for a new service object, and a recycled pointer left in
+    // the plan would read as already subscribed and be skipped forever.
+    subscriptionPlan.reset();
+}
+
 void ftmsbike::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
@@ -2268,10 +2322,10 @@ void ftmsbike::serviceScanDone(void) {
 #endif
 
     initRequest = false;
-    // A new set of service objects is about to be built, so the previous pass's
-    // subscriptions no longer refer to anything live. Cleared here rather than on
-    // disconnect so the pointers can never outlive the objects they stand for.
-    subscriptionPlan.reset();
+    // A new set of service objects is about to be built, so nothing that points at
+    // the previous set may survive into it. Done here rather than on disconnect so
+    // no pointer can outlive the object it stands for.
+    discardServiceObjects();
     auto services_list = m_control->services();
     QBluetoothUuid ftmsService((quint16)0x1826);
     bool JK_fitness_577 = bluetoothDevice.name().toUpper().startsWith("DHZ-");
@@ -2563,6 +2617,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
             emit debug(QStringLiteral("Controller connected. Search services..."));
+            // The backoff has done its job; the next disconnection starts over at
+            // one second rather than wherever the last run of failures ended up.
+            reconnectTimer.stop();
+            reconnectDelayMs = RECONNECT_INITIAL_MS;
+            consecutiveConnectFailures = 0;
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
@@ -2611,10 +2670,31 @@ void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState stat
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
+        // These belong to the disconnection, not to the retry, so they stay here
+        // and do not move into the timer.
         initDone = false;
         initHandshake.reset();
         gearInclinationSent = false;
-        m_control->connectToDevice();
+
+        consecutiveConnectFailures++;
+
+        // Most FTMS bike consoles accept exactly one central connection. A second
+        // QZ instance holding the bike is indistinguishable, at the Qt API level,
+        // from the bike being out of range or switched off - so say so as a
+        // possibility, once per session rather than once per attempt.
+        if (consecutiveConnectFailures >= MULTI_CENTRAL_WARN_AFTER && !multiCentralToastShown) {
+            multiCentralToastShown = true;
+            if (homeform::singleton()) {
+                homeform::singleton()->setToastRequested(
+                    QStringLiteral("Cannot connect to the bike. Another device may be connected to it - check other "
+                                   "QZ instances."));
+            }
+        }
+
+        qDebug() << QStringLiteral("reconnecting in") << reconnectDelayMs << QStringLiteral("ms, consecutive failures")
+                 << consecutiveConnectFailures;
+        reconnectTimer.start(reconnectDelayMs);
+        reconnectDelayMs = qMin(reconnectDelayMs * 2, RECONNECT_MAX_MS);
     }
 }
 
