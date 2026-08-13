@@ -35,7 +35,7 @@ class fitshowrower : public rower {
     resistance_t maxResistance() override { return 0; }
     static Packet parsePacket(const QByteArray &frame);
     static bool validFrame(const QByteArray &frame);
-    static bool isTopiomDeviceName(const QString &name);
+    static bool isFitshowRowerDeviceName(const QString &name);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

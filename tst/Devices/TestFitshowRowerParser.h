@@ -57,8 +57,11 @@ TEST(FitshowRowerParser, RejectsBadChecksumAndTruncatedFrames) {
       fitshowrower::parsePacket(QByteArray::fromHex("02420261")).valid);
 }
 
-TEST(FitshowRowerDetection, OnlyClaimsTheKnownTopiomName) {
-  EXPECT_TRUE(fitshowrower::isTopiomDeviceName(QStringLiteral("FS-442900")));
-  EXPECT_TRUE(fitshowrower::isTopiomDeviceName(QStringLiteral("fs-442900")));
-  EXPECT_FALSE(fitshowrower::isTopiomDeviceName(QStringLiteral("FS-123456")));
+TEST(FitshowRowerDetection, ClaimsFitshowNamesWhenSelected) {
+  EXPECT_TRUE(
+      fitshowrower::isFitshowRowerDeviceName(QStringLiteral("FS-442900")));
+  EXPECT_TRUE(
+      fitshowrower::isFitshowRowerDeviceName(QStringLiteral("fs-123456")));
+  EXPECT_FALSE(
+      fitshowrower::isFitshowRowerDeviceName(QStringLiteral("MRK-123456")));
 }

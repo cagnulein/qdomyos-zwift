@@ -28,8 +28,8 @@ fitshowrower::fitshowrower(bool noWriteResistance, bool noHeartService)
                          << QByteArray::fromHex("0244014503") << QByteArray::fromHex("0244024603");
 }
 
-bool fitshowrower::isTopiomDeviceName(const QString &name) {
-    return name.compare(QStringLiteral("FS-442900"), Qt::CaseInsensitive) == 0;
+bool fitshowrower::isFitshowRowerDeviceName(const QString &name) {
+    return name.startsWith(QStringLiteral("FS-"), Qt::CaseInsensitive);
 }
 
 bool fitshowrower::validFrame(const QByteArray &frame) {

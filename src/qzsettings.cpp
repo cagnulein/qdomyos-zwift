@@ -758,6 +758,7 @@ const QString QZSettings::default_csafe_elliptical_port = QStringLiteral("");
 const QString QZSettings::waterrower_usb = QStringLiteral("waterrower_usb");
 const QString QZSettings::ftms_rower = QStringLiteral("ftms_rower");
 const QString QZSettings::default_ftms_rower = QStringLiteral("Disabled");
+const QString QZSettings::fitshow_rower = QStringLiteral("fitshow_rower");
 const QString QZSettings::ftms_elliptical = QStringLiteral("ftms_elliptical");
 const QString QZSettings::default_ftms_elliptical = QStringLiteral("Disabled");
 const QString QZSettings::zwift_workout_ocr = QStringLiteral("zwift_workout_ocr");
@@ -1280,7 +1281,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1002;
+const uint32_t allSettingsCount = 1003;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2307,6 +2308,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwiftplay_gear_lb, QZSettings::default_zwiftplay_gear_lb},
     {QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb},
     {QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport},
+    {QZSettings::fitshow_rower, QZSettings::default_fitshow_rower},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
