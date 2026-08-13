@@ -2,7 +2,7 @@
 """Add new FIT Garmin products to the device selector in src/settings.qml.
 
 The catalog is Garmin's generated ``fit_profile.hpp`` from the official FIT SDK.
-Products missing from QZ in device families already represented by QZ are
+Only newly assigned products in device families already represented by QZ are
 eligible. Existing entries are never removed, including products that disappear
 upstream. Regional variants are intentionally ignored unless already maintained
 by QZ; they identify the same hardware and would make the selector unwieldy.
@@ -20,15 +20,7 @@ from pathlib import Path
 DEFAULT_URL = "https://raw.githubusercontent.com/garmin/fit-cpp-sdk/main/src/fit_profile.hpp"
 MIN_CATALOG_SIZE = 300
 FAMILIES = ("D2", "EDGE", "EPIX", "FENIX", "FR", "VENU", "VIVOACTIVE")
-EXCLUDED_VARIANT_TOKENS = {
-    "APAC", "ASIA", "CHINA", "CHN", "HEBREW", "JAPAN", "JPN", "KOREA", "KOR",
-    "RUSSIA", "SEA", "TAIWAN", "THAI", "TWN", "BONTRAGER", "DAIMLER",
-}
-EXCLUDED_PRODUCTS = {"EDGE_REMOTE", "FR225_SINGLE_BYTE_PRODUCT_ID"}
-DISPLAY_OVERRIDES = {
-    "D2CHARLIE": "D2Charlie",
-    "VENUSQ_MUSIC_V2": "Venu Sq Music V2",
-}
+REGIONAL_SUFFIXES = ("APAC", "ASIA", "CHINA", "JAPAN", "KOREA", "RUSSIA", "SEA", "TAIWAN", "TWN")
 DEFINE_RE = re.compile(
     r"^#define FIT_GARMIN_PRODUCT_([A-Z0-9_]+)\s+\(\(FIT_GARMIN_PRODUCT\)(\d+)\)", re.MULTILINE
 )
@@ -133,25 +125,12 @@ def parse_current(control: str) -> list[Device]:
 
 
 def display_name(macro: str) -> str:
-    if macro in DISPLAY_OVERRIDES:
-        return DISPLAY_OVERRIDES[macro]
     parts = macro.split("_")
     return " ".join(part.capitalize() if not part.isdigit() else part for part in parts)
 
 
-def eligible(macro: str) -> bool:
-    """Return products matching QZ's existing watch/computer scope.
-
-    FIT product numbers are identifiers, not chronology: older missing products
-    and new products may have values below existing accessories. Compatibility
-    therefore comes from the established families and structured variant tokens.
-    """
-    tokens = set(macro.split("_"))
-    return (
-        macro.startswith(FAMILIES)
-        and macro not in EXCLUDED_PRODUCTS
-        and tokens.isdisjoint(EXCLUDED_VARIANT_TOKENS)
-    )
+def eligible(macro: str, product: int, highest_existing: int) -> bool:
+    return product > highest_existing and macro.startswith(FAMILIES) and not macro.endswith(REGIONAL_SUFFIXES)
 
 
 def update_qml(qml: str, catalog: dict[str, int]) -> tuple[str, list[Device], list[Device]]:
@@ -160,8 +139,9 @@ def update_qml(qml: str, catalog: dict[str, int]) -> tuple[str, list[Device], li
     current = parse_current(control)
     real = [d for d in current if d.macro not in ("Tacx", "Zwift")]
     special = [d for d in current if d.macro in ("Tacx", "Zwift")]
+    highest = max(d.product for d in real)
     known = {d.macro for d in current}
-    added = [Device(m, p, display_name(m)) for m, p in catalog.items() if m not in known and eligible(m)]
+    added = [Device(m, p, display_name(m)) for m, p in catalog.items() if m not in known and eligible(m, p, highest)]
     added.sort(key=lambda d: (d.product, d.macro))
     if not added:
         return qml, [], current
@@ -172,24 +152,22 @@ def update_qml(qml: str, catalog: dict[str, int]) -> tuple[str, list[Device], li
     control, count = re.subn(r"(?ms)^(\s*model:\s*\[)\n.*?^(\s*\])", lambda m: m.group(1)+"\n"+model_body+"\n"+m.group(2), control, count=1)
     if count != 1:
         raise UpdateError("failed to replace Garmin model")
-    index_indent = re.search(r"(?m)^(\s*)if \(settings\.fit_file_garmin_device_training_effect_device", control).group(1)
     current_lines = "\n".join(
-        f"{index_indent}if (settings.fit_file_garmin_device_training_effect_device === {d.product}) return {i};  // {d.macro}"
+        f"{item_indent}if (settings.fit_file_garmin_device_training_effect_device === {d.product}) return {i};  // {d.macro}"
         for i, d in enumerate(devices)
     )
     control, count = re.subn(
-        r"(?ms)(\s*currentIndex:\s*\{\n).*?(^[ \t]*return \d+;[ \t]*// Default to Edge 830)",
+        r"(?ms)(\s*currentIndex:\s*\{\n).*?(\s*return \d+;\s*// Default to Edge 830)",
         lambda m: m.group(1)+current_lines+"\n"+m.group(2), control, count=1,
     )
     if count != 1:
         raise UpdateError("failed to replace Garmin currentIndex mapping")
-    case_indent = re.search(r"(?m)^(\s*)case \d+: settings\.fit_file_garmin_device_training_effect_device", control).group(1)
     case_lines = "\n".join(
-        f"{case_indent}case {i}: settings.fit_file_garmin_device_training_effect_device = {d.product}; break;  // {d.macro}"
+        f"{item_indent}case {i}: settings.fit_file_garmin_device_training_effect_device = {d.product}; break;  // {d.macro}"
         for i, d in enumerate(devices)
     )
     control, count = re.subn(
-        r"(?ms)(\s*onCurrentIndexChanged:\s*\{\n\s*switch\(currentIndex\)\s*\{\n).*?(^[ \t]*\}\n[ \t]*\})",
+        r"(?ms)(\s*onCurrentIndexChanged:\s*\{\n\s*switch\(currentIndex\)\s*\{\n).*?(\s*\}\n\s*\})",
         lambda m: m.group(1)+case_lines+"\n"+m.group(2), control, count=1,
     )
     if count != 1:
@@ -221,7 +199,6 @@ def main() -> int:
     parser.add_argument("--catalog", default=DEFAULT_URL, help="fit_profile.hpp path or HTTPS URL")
     parser.add_argument("--qml", default="src/settings.qml")
     parser.add_argument("--summary", help="write a Markdown run/PR summary")
-    parser.add_argument("--github-output", help="write changed=true/false for GitHub Actions")
     args = parser.parse_args()
     try:
         catalog = parse_catalog(load_catalog(args.catalog))
@@ -231,15 +208,9 @@ def main() -> int:
         if added:
             path.write_text(updated, encoding="utf-8")
         absent = [d for d in current if d.macro not in catalog and d.macro not in ("Tacx", "Zwift")]
-        real = [d for d in current if d.macro not in ("Tacx", "Zwift")]
-        compatible = sum(
-            1
-            for macro, product in catalog.items()
-            if macro in {d.macro for d in current} or eligible(macro)
-        )
         lines = [
             "Garmin FIT product catalog update.", "", f"Current QZ devices: {len(current)}",
-            f"Products obtained from Garmin: {len(catalog)}", f"Compatible upstream products: {compatible}", f"New compatible products: {len(added)}", "",
+            f"Products obtained from Garmin: {len(catalog)}", f"Compatible upstream products: {sum(1 for macro, product in catalog.items() if macro in {d.macro for d in current} or eligible(macro, product, max(d.product for d in current if d.product < 80000)))}", f"New compatible products: {len(added)}", "",
             "Devices added:", *([f"- {d.macro} ({d.product}) — {d.display}" for d in added] or ["- None"]), "",
             "Existing QZ entries absent upstream (preserved):", *([f"- {d.macro} ({d.product})" for d in absent] or ["- None"]), "",
             "Existing QZ Garmin products were preserved; no products are automatically removed.",
@@ -249,9 +220,6 @@ def main() -> int:
         summary = "\n".join(lines) + "\n"
         if args.summary:
             Path(args.summary).write_text(summary, encoding="utf-8")
-        if args.github_output:
-            with Path(args.github_output).open("a", encoding="utf-8") as output:
-                output.write(f"changed={'true' if added else 'false'}\n")
         print(summary, end="")
         return 0
     except (OSError, UnicodeError, UpdateError) as error:
