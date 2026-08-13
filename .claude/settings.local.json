@@ -4,9 +4,10 @@
       "Bash(grep:*)",
       "Bash(tshark:*)",
       "Bash(find:*)",
-      "Bash(python3:*)",     
+      "Bash(python3:*)",
       "Bash(git log:*)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "Bash(/c/Android/sdk/platform-tools/adb.exe pull *)"
     ]
   }
 }
