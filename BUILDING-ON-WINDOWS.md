@@ -58,8 +58,25 @@ are lost.
 | Artifact | Toolchain | Built from |
 |---|---|---|
 | `windows-binary-no-python` | mingw, **Qt 5.15.2** | the branch you dispatch |
-| `windows-msvc2019-binary-no-python` | MSVC 2019, Qt 5.15.2 | the branch you dispatch |
+| `windows-exe-only` | mingw, **Qt 5.15.2** | the branch you dispatch - the stripped `.exe` alone |
 | `windows-msvc2022-binary-no-python` | MSVC 2022, **Qt 6.8.2** | upstream nightly only, and from `refs/pull/1508/head` - a PR branch, not master |
+
+**Use `windows-exe-only` for iterating.** The full zip is ~62 MB and has failed
+mid-transfer; the exe on its own is a few MB compressed and downloads in seconds.
+Drop it straight into an existing `C:\QZ\...` install, over the old `.exe`.
+
+It is only a drop-in replacement while the Qt DLL set is unchanged. Any commit
+touching the `QT +=` line in `src/qdomyos-zwift.pri`, the Qt version, or the
+toolchain needs the full `windows-binary-no-python` instead. QZ logs its build on
+every launch, which is how you check:
+
+```
+QZ build 6eb7428 Qt 5.15.2 on Windows 11 ...
+```
+
+If that Qt version does not match the DLLs in the install, take the full artifact.
+The commit on the same line answers "am I actually running the new binary?" - which
+used to be answered by grepping ASCII out of the `.exe`.
 
 Prefer **mingw** when comparing against upstream. The upstream nightly publishes a
 `windows-binary-no-python.zip` built from master with that same toolchain, so
@@ -85,17 +102,37 @@ gated off with a literal `if: false` carrying the marker comment
 grep "fork: disabled" .github/workflows/main.yml
 ```
 
-Left running: `window-build`, `window-msvc2019-build`,
-`window-msvc2019-aiserver-build`, `android-build`.
+Left running: `window-build`, `android-build`, and `linux-x86-build`.
 
-Disabled here: `linux-x86-build`, `ios-build`, the three `raspberry-pi-*` jobs,
-`android-emulator-test`, and the vendor APK flavours `nordictrack-build` and
-`fitpro-build`. Re-enabling one is a single word - change its `if: false` back.
+`linux-x86-build` is back on as a **tests-only** job. It is the only job in the
+workflow that runs the gtest suite, and while it was off every test written had to
+be run by hand in a build VM. It publishes no Linux binary and gates nothing, so it
+runs beside the Windows build rather than adding its minutes to that critical path.
 
-`window-msvc2022-build`, `window-msvc2022-pr-build`, `peloton-bike-build`,
-`peloton-bike-plus-build` and `upload_to_release` are left untouched: their own
-`schedule` / `pull_request` gates already make them unreachable from a manual
-dispatch.
+Disabled here: `ios-build`, the three `raspberry-pi-*` jobs, `android-emulator-test`,
+the vendor APK flavours `nordictrack-build` and `fitpro-build`, and:
+
+- `window-msvc2019-build` and `window-msvc2019-aiserver-build`, which carried no
+  gate at all and so started three Windows runners on every push and every PR for
+  builds this fork does not ship.
+- `window-msvc2022-pr-build`, whose first step checks out `ref: qt6`. This fork has
+  no `qt6` branch, so it failed on that step on every PR and reported a red X that
+  had nothing to do with the PR.
+
+Re-enabling one is a single word - change its `if: false` back.
+
+The nightly `schedule:` trigger is gone. `window-msvc2022-build`,
+`peloton-bike-build`, `peloton-bike-plus-build` and `upload_to_release` are all
+gated on `github.event_name == 'schedule'` and so are now dormant; they are left
+gated that way so restoring the cron restores them.
+
+A push to a feature branch does not double up with its PR run - `on: push` is
+already restricted to `master`. A manual `workflow_dispatch` on a branch that also
+has a PR open *is* two runs; that is the dispatch, not the push.
+
+A superseded run reports `cancelled`, not `failed`, because of
+`concurrency: cancel-in-progress`. Anything polling a run ID must treat `cancelled`
+as "find the newer run".
 
 Gating rather than deleting keeps the diff against upstream to one line per job, so
 a merge conflicts on a line instead of on a missing block.
@@ -156,11 +193,33 @@ arrives:
   with that setting on, the real bike is never reached. Turn it off before
   concluding anything about a Windows connection failure.
 
+- **Windows owns the GATT cache, and nothing invalidates it.** The
+  `ATT_ATTRIBUTE_NOT_FOUND` warnings in the log are Windows serving attribute
+  handles out of the bond record for characteristics the bike no longer exposes.
+  Android's stack invalidates on a Service Changed indication and re-reads;
+  `QLowEnergyControllerPrivateWin32` - which is the backend these builds use - does
+  not handle Service Changed at all, so a stale cache stays stale.
+
+  The handles seen going stale so far (`2a05`, `fff1`, `fff2`, `d18d2c10-...`) are
+  not characteristics QZ uses, so this is currently cosmetic. It does mean the bond
+  carries a stale database, though, and **if `2ad2` or `2ad9` ever land in that set
+  the only remedy is to remove the device in Windows Settings and pair it again.**
+  Reach for that before rebuilding anything.
+
 An earlier version of this file blamed `ftmsbike::stateChanged()` for refusing to
 subscribe until every service reaches `ServiceDiscovered`. That was wrong: a
 Windows debug log from this bike shows `all services discovered!` firing normally.
 The gate exists, but it was not what broke here, and the speculative patch written
 against it was reverted before it shipped.
+
+What *did* break, later and separately, was the interaction between that gate and
+how services get built. `discoverDetails()` resolves synchronously on the Win32
+backend, so creating and discovering each service in one loop drove the gate to
+completion against a list holding only the services built so far. The log tell is
+**more than one `all services discovered!` line per connection** - twelve of them,
+in the case that cost two evenings. One line per connection is correct; several
+means the list was still being built. `serviceScanDone()` now creates every service
+object before discovering any of them, so the gate sees the whole list.
 
 Enable the debug log from QZ's settings; it is written to QZ's writable app
 directory as `debug-<timestamp>.log`.
