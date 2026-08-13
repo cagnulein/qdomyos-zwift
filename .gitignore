@@ -5,6 +5,16 @@ src/qdomyos-zwift.pro.user
 src/Makefile
 src/.qmake.stash
 
+# Building from the repository root - which is what the linux-x86-build job does,
+# and what BUILDING-ON-WINDOWS.md describes for a local build - runs qmake on the
+# subdirs project and generates these as well. Anchored to the root so the tracked
+# src/ios/adb/libzipfile/Makefile.{am,in} are untouched.
+/Makefile
+/.qmake.stash
+src/Makefile.qdomyos-zwift*
+tst/Makefile
+tst/.qmake.stash
+
 src/*.o
 
 src/moc_*
