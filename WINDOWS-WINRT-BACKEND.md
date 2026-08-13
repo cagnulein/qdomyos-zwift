@@ -86,23 +86,27 @@ rebuilt into the shipped DLLs.
 
 Mapped against the four root causes in `WINDOWS-BLE-HARDENING.md` Part I:
 
+> **Phase 0 ran. Three of these four rows are refuted.** The table below is left as written so the
+> reasoning stays legible; the Confidence column now carries the result. Full evidence, with file and
+> line references, is in **`WINDOWS-WINRT-PHASE0.md`**.
+
 | Root cause | WinRT effect | Confidence |
 |---|---|---|
-| Synchronous service-detail discovery | Async — removes the asymmetry that caused the `8f198c55` bug class outright | [unverified] |
-| No Service Changed handling → stale GATT cache | WinRT stack observes Service Changed and re-reads | [unverified] |
-| No connection-parameter control | `requestConnectionUpdate()` is supported, so the Android-only block in `serviceScanDone()` could apply on Windows too | [unverified] |
-| No `autoConnect` equivalent | WinRT's association model gets closer, but the manual reconnect loop stays | [unverified] |
+| Synchronous service-detail discovery | Async — removes the asymmetry that caused the `8f198c55` bug class outright | **[verified]** — true, though the path is a hybrid: included-service enumeration still blocks |
+| No Service Changed handling → stale GATT cache | WinRT stack observes Service Changed and re-reads | **[refuted]** — no Service Changed handling in any backend, and every *enumeration* call uses the `Cached` overload |
+| No connection-parameter control | `requestConnectionUpdate()` is supported, so the Android-only block in `serviceScanDone()` could apply on Windows too | **[refuted]** — `Q_UNIMPLEMENTED()` in all three backends |
+| No `autoConnect` equivalent | WinRT's association model gets closer, but the manual reconnect loop stays | **[refuted]** — no `GattSession` / `MaintainConnection` in Qt 5.15 at all |
 
-Every row is **unverified**. They come from general knowledge of the two Qt backends, not from
-anything measured here, and the whole case for this work rests on them. **Confirming these four rows
-is step 0**, and the cheapest confirmation is reading the two patched sources already in the tree —
-`qlowenergycontroller_winrt_new.cpp` is right there and answers the discovery-asynchrony and
-Service-Changed questions without building anything.
+The whole case for this work rested on these rows. One survives, and it is the one row that is a
+means rather than an end — the §1 two-pass split and the discovery watchdog already defend that
+failure mode from the QZ side, and both stay necessary while any mingw build ships.
 
 The strategic argument is stronger than any individual row: **Qt 6 removed the Win32 Bluetooth
-backend entirely and uses WinRT exclusively on Windows** [unverified]. If true, the Win32 backend is
+backend entirely and uses WinRT exclusively on Windows** — **[verified]**: `qtconnectivity/6.8`
+has no `qlowenergycontroller_win.cpp` and no `native-win32-bluetooth` feature. The Win32 backend is
 a dead end and this migration is a question of when, not whether. `window-msvc2022-build` already
-targets Qt 6.8.2, so the fork has a foot in that door already. [verified]
+targets Qt 6.8.2, so the fork has a foot in that door already. [verified] But this now points at
+**Route C**, not Route A: under Qt 6, WinRT is not chosen, it is the only option.
 
 ---
 
@@ -149,13 +153,14 @@ decision, not any Qt path.
 | Effort | **Low** | Unknown, possibly zero, possibly impossible | High |
 | Risk | Medium | Low if it works | High |
 
-**Route B is the highest-value question to answer first**, and the cheapest. If Qt's `winrt_bt`
-feature can be enabled for a mingw build, the whole toolchain switch — vcpkg, the CRT change, the
-install-layout break — evaporates, and this becomes a Qt rebuild rather than a migration. Empirically
-the stock mingw package ships Win32 [verified], but *why* was not established: it may be a Qt
-configure condition requiring MSVC, or merely what the official package happens to be built with.
-**Timebox this to an hour** — read `qtconnectivity/src/bluetooth/configure.json` for the `winrt_bt`
-condition. If it requires `config.msvc`, Route B is dead and the answer is A.
+**Route B was the highest-value question to answer first**, and the cheapest. **Phase 0 answered it:
+Route B is dead**, but not for the reason guessed here. The configure condition is
+`config.win32 && !features.native-win32-bluetooth && tests.winrt_bt` — no `config.msvc`, and since
+`native-win32-bluetooth` is `autoDetect: false`, WinRT is the *default* on any win32 build whose
+compile test passes. What kills mingw is `qbluetoothutils_win.cpp`, the desktop shim the `winrt_bt`
+branch pulls in: it redefines a member of the `Q_CORE_EXPORT`ed `QEventDispatcherWinRT` and silences
+the resulting MSVC C4273, which GCC rejects outright. Enabling it for mingw means a third
+qtconnectivity patch, more invasive than the two QZ already carries. See `WINDOWS-WINRT-PHASE0.md`.
 
 **Route A is the recommendation** if B is dead: it reuses a CI job that already works, and the
 patched WinRT DLL is already committed.
@@ -169,12 +174,17 @@ regression cannot be attributed to either. Its one merit is that it is where thi
 
 Each phase ends somewhere it is safe to stop.
 
-**Phase 0 — Answer the questions, build nothing. (~half a day)**
+**Phase 0 — Answer the questions, build nothing. (~half a day) — DONE. Gate not passed.**
 Read `qlowenergycontroller_winrt_new.cpp` and confirm the four Part II rows against actual code:
 is detail discovery async, is Service Changed handled, is `requestConnectionUpdate` implemented?
 Check the `winrt_bt` configure condition for Route B. Confirm whether Qt 6 dropped the Win32 backend.
 **If the Part II rows do not hold, stop here** — the entire justification is those four rows, and
 nothing has been spent.
+
+> **Result: three of the four rows are refuted; stop here.** Full findings in
+> **`WINDOWS-WINRT-PHASE0.md`**. Phases 1–3 below are not started, and on this evidence should not
+> be — the recommendation is to fold WinRT into a Qt 6 move (Route C) rather than pay the Route A
+> toolchain switch to buy one row out of four. `window-msvc2019-build` stays disabled.
 
 **Phase 1 — Get a WinRT binary in hand.**
 Re-enable `window-msvc2019-build` (revert the `if: false` from §3c) and add the `windows-exe-only`
@@ -215,8 +225,8 @@ fork keeps a WinRT build available for the next time the question comes up.
 
 ## Definition of done
 
-- [ ] Part II's four rows confirmed or refuted against real Qt source
-- [ ] Route B answered: can mingw enable `winrt_bt`?
+- [x] Part II's four rows confirmed or refuted against real Qt source — 1 confirmed, 3 refuted
+- [x] Route B answered: can mingw enable `winrt_bt`? — not without a third qtconnectivity patch
 - [ ] A WinRT artifact exists that a person can download and run
 - [ ] The §1 verification list passes on it, on a cold launch and a relaunch
 - [ ] `ATT_ATTRIBUTE_NOT_FOUND` gone, or explained
@@ -228,15 +238,23 @@ fork keeps a WinRT build available for the next time the question comes up.
 
 ## Open questions
 
-- **Where did the patched DLLs come from?** Both are committed binaries with no build script and no
-  recorded provenance. Reproducing them means building qtconnectivity from source with the patched
-  files — no documented procedure exists. Anyone changing Qt versions inherits this problem, and it
-  is arguably worth fixing before the migration rather than during it.
-- **Is `qlowenergycontroller_winrt.cpp` or `..._winrt_new.cpp` the one in use?** Qt 5.15 has both, one
-  selected by configuration. The msvc2019 DLL contains a WinRT backend, but which was not determined.
+- **Where did the patched DLLs come from?** ~~No recorded provenance.~~ **Partly answered by Phase
+  0:** `binary/msvc2019/Qt5Bluetooth.prl` records `QMAKE_PRL_BUILD_DIR =
+  C:/qt-everywhere-src-5.15.2/qtconnectivity/src/bluetooth` and a `win32 msvc ... shared release`
+  config — so the MSVC pair was built from a full `qt-everywhere-src-5.15.2` tree. Still not a
+  reproducible procedure, and the mingw DLL ships no `.prl` and remains undocumented. Anyone changing
+  Qt versions inherits this, and it is arguably worth fixing before a migration rather than during.
+- **Is `qlowenergycontroller_winrt.cpp` or `..._winrt_new.cpp` the one in use?** **Answered:
+  `_new`.** Both compile into the DLL (257 `...PrivateWinRT` strings, 135 of them `WinRTNew`);
+  selection is at *runtime*, not build time — `supportsNewLEApi()` picks `_new` whenever
+  `UniversalApiContract` ≥ 4 is present, i.e. on every supported Windows 10/11. Note also that the
+  `/* QZ rviola` patch is in **both** WinRT backends (`_winrt.cpp:363` and `_winrt_new.cpp:1670`),
+  not only `_new` as Part I states.
 - **Does the §1 two-pass split stay necessary under WinRT?** If discovery is genuinely async there,
   the split is a no-op on that path — but it stays correct, and it stays necessary for as long as any
   mingw build ships. Do not revert it as part of this work.
-- **Does the Win32 descriptor patch have a WinRT equivalent need?** The stale-cache tolerance it buys
-  may be unnecessary if Service Changed handling makes caches self-correcting. Worth knowing, because
-  it is one fewer patch to carry.
+- **Does the Win32 descriptor patch have a WinRT equivalent need?** **Answered, but not the hoped
+  answer.** There is no equivalent error path in WinRT's discovery to patch out — the descriptor read
+  happens on the worker thread and failures surface as `handleServiceHandlerError` — but the
+  stale-cache *tolerance* it buys is still needed, because caches are not self-correcting on either
+  backend. Service Changed is unhandled and enumeration is served from the Windows cache on both.
