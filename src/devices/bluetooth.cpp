@@ -236,6 +236,13 @@ void bluetooth::finished() {
         return;
     }
 
+    const QString manualDevice =
+        settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString();
+    if (!onlyDiscover && !gymModeEnabled() &&
+        manualDevice.compare(QZSettings::default_filter_device, Qt::CaseInsensitive) != 0) {
+        emit manualDeviceNotFound(manualDevice);
+    }
+
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QString ftmsAccessoryName =
