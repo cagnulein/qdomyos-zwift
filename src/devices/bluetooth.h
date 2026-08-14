@@ -387,6 +387,7 @@ class bluetooth : public QObject, public SignalHandler {
   signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
+    void manualDeviceNotFound(QString name);
     void searchingStop();
     void ftmsAccessoryConnected(smartspin2k *d);
 
