@@ -864,10 +864,7 @@ void nordictrackifitadbtreadmill::update() {
 
                         // Only call Start() if QZ is not already running (to avoid toggling pause)
                         if (qzPausedOrStopped) {
-                            requestStartOrigin = ORIGIN_GRPC;
-                            requestStopOrigin = ORIGIN_GRPC;
-                            requestPauseOrigin = ORIGIN_GRPC;
-                            homeform::singleton()->Start();
+                            homeform::singleton()->StartFromDevice();
                         } else {
                             emit debug("QZ already running, not calling Start() again");
                         }
@@ -878,17 +875,14 @@ void nordictrackifitadbtreadmill::update() {
                          (currentWorkoutState == 1 && (previousState == 3 || previousState == 4 || previousState == 5))) {
                     emit debug("Workout completed in iFit app - showing workout complete screen");
                     if (homeform::singleton()) {
-                        requestStopOrigin = ORIGIN_GRPC;
-                        homeform::singleton()->StopRequested();
+                        homeform::singleton()->StopFromDevice();
                     }
                 }
                 // If workout paused (RUNNING -> PAUSED)
                 else if (currentWorkoutState == 4 && previousState == 3) {
                     emit debug("Workout paused in iFit app - auto-pausing QZ recording");
                     if (homeform::singleton()) {
-                        requestStopOrigin = ORIGIN_GRPC;
-                        requestPauseOrigin = ORIGIN_GRPC;
-                        homeform::singleton()->Start();
+                        homeform::singleton()->PauseFromDevice();
                     }
                 }
 
@@ -1306,14 +1300,12 @@ void nordictrackifitadbtreadmill::startGrpcWorkoutStateMonitoring() {
         } else if (initialState == 4) { // PAUSED
             emit debug("iFit workout paused - auto-pausing QZ recording");
             if (homeform::singleton()) {
-                requestPauseOrigin = ORIGIN_GRPC;
-                homeform::singleton()->Start(); // This will pause since QZ is already running
+                homeform::singleton()->PauseFromDevice();
             }
         } else if (initialState == 1 || initialState == 5) { // IDLE or RESULTS
             emit debug("iFit workout stopped/idle - auto-stopping QZ recording");
             if (homeform::singleton()) {
-                requestStopOrigin = ORIGIN_GRPC;
-                homeform::singleton()->Stop();
+                homeform::singleton()->StopFromDevice();
             }
         }
 

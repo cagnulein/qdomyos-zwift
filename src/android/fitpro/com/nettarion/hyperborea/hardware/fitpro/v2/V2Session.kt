@@ -202,7 +202,8 @@ class V2Session(
                 V2FeatureId.GOAL_WATTS,
                 command.watts.toFloat(),
             )
-            is DeviceCommand.PauseWorkout -> {
+            is DeviceCommand.PauseWorkout,
+            is DeviceCommand.StopWorkout -> {
                 accumulator.pause()
                 V2Message.Outgoing.WriteFeature(V2FeatureId.WORKOUT_STATE, V2WorkoutMode.PAUSED.raw)
             }

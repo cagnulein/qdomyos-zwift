@@ -5851,6 +5851,7 @@ void homeform::Start_inner(bool send_event_to_device) {
 
         paused = false;
         stopped = false;
+        m_deviceStopDispatched = false;
     }
 
     if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
@@ -5880,7 +5881,7 @@ void homeform::PauseFromDevice() {
 
 void homeform::StopFromDevice() {
     qDebug() << QStringLiteral("Physical stop button pressed on device - stopping app");
-    Stop();
+    Stop_inner(false);  // State synchronization only: the device has already stopped itself.
 }
 
 void homeform::StartRequested() {
@@ -5902,7 +5903,9 @@ void homeform::StopFromTrainProgram(bool paused) {
     Stop();
 }
 
-void homeform::Stop() {
+void homeform::Stop() { Stop_inner(true); }
+
+void homeform::Stop_inner(bool send_event_to_device) {
     QSettings settings;
 
     m_startRequested = false;
@@ -5916,10 +5919,21 @@ void homeform::Stop() {
 #endif
 #endif
 
-    qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
+    qDebug() << QStringLiteral("Stop_inner: origin=")
+             << (send_event_to_device ? QStringLiteral("LOCAL") : QStringLiteral("FITPRO"))
+             << QStringLiteral("paused=") << paused << QStringLiteral("qzStopped=") << stopped
+             << QStringLiteral("deviceStopDispatched=") << m_deviceStopDispatched;
 
     if (stopped) {
-        qDebug() << QStringLiteral("Stop pressed - already pressed, ignoring...");
+        if (send_event_to_device && !m_deviceStopDispatched && bluetoothManager->device()) {
+            qDebug() << QStringLiteral("Stop_inner: QZ already stopped but physical Stop was not dispatched; propagating now");
+            m_deviceStopDispatched = true;
+            bluetoothManager->device()->stop(false);
+        } else {
+            qDebug() << QStringLiteral("Stop_inner: QZ state already stopped; device propagation")
+                     << (send_event_to_device ? QStringLiteral("already dispatched by the local action")
+                                              : QStringLiteral("suppressed for hardware origin"));
+        }
         return;
     }
 
@@ -5947,8 +5961,12 @@ void homeform::Stop() {
         }
     }
 
-    if (bluetoothManager->device()) {
+    if (bluetoothManager->device() && send_event_to_device && !m_deviceStopDispatched) {
+        qDebug() << QStringLiteral("Stop_inner: propagating local Stop to connected device");
+        m_deviceStopDispatched = true;
         bluetoothManager->device()->stop(false);
+    } else if (bluetoothManager->device()) {
+        qDebug() << QStringLiteral("Stop_inner: suppressing outbound device Stop for hardware-originated state");
     }
 
     paused = false;

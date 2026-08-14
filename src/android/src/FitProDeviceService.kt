@@ -258,7 +258,7 @@ object FitProDeviceService {
     @JvmStatic fun startWorkout() { send(DeviceCommand.ResumeWorkout) }
     @JvmStatic fun resumeWorkout() { send(DeviceCommand.ResumeWorkout) }
     @JvmStatic fun pauseWorkout() { send(DeviceCommand.PauseWorkout) }
-    @JvmStatic fun stopWorkout() { send(DeviceCommand.PauseWorkout) }
+    @JvmStatic fun stopWorkout() { send(DeviceCommand.StopWorkout) }
 
     @JvmStatic fun startWorkoutStateMonitoring() { /* handled by the exerciseData collector */ }
     @JvmStatic fun stopWorkoutStateMonitoring() { /* no-op */ }
