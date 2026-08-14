@@ -1120,6 +1120,8 @@ const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applew
 const QString QZSettings::horizon_treadmill_omega_z = QStringLiteral("horizon_treadmill_omega_z");
 const QString QZSettings::nordictrack_elliptical_s700 = QStringLiteral("nordictrack_elliptical_s700");
 
+const QString QZSettings::care_bike_enable_support = QStringLiteral("care_bike_enable_support");
+
 // Zwift Play/Ride per-button gear mapping
 const QString QZSettings::zwiftplay_gear_ls1 = QStringLiteral("zwiftplay_gear_ls1");
 const QString QZSettings::zwiftplay_gear_ls2 = QStringLiteral("zwiftplay_gear_ls2");
@@ -1280,7 +1282,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1002;
+const uint32_t allSettingsCount = 1003;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2307,6 +2309,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwiftplay_gear_lb, QZSettings::default_zwiftplay_gear_lb},
     {QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb},
     {QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport},
+    {QZSettings::care_bike_enable_support, QZSettings::default_care_bike_enable_support},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
