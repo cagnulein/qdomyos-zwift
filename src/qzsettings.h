@@ -2441,7 +2441,10 @@ class QZSettings {
     static const QString default_peloton_code;
     
     static const QString proform_carbon_tl_PFTL59720;
-    static constexpr bool default_proform_carbon_tl_PFTL59720 = false;    
+    static constexpr bool default_proform_carbon_tl_PFTL59720 = false;
+
+    static const QString proform_carbon_tl_PFTL59720_hci;
+    static constexpr bool default_proform_carbon_tl_PFTL59720_hci = false;
 
     static const QString proform_treadmill_sport_70;
     static constexpr bool default_proform_treadmill_sport_70 = false;
