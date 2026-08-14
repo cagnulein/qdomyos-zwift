@@ -151,12 +151,22 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
     if(!srcAddress.isNull()) {
         const auto interfaces = QNetworkInterface::allInterfaces();
         for (const QNetworkInterface &networkInterface : interfaces) {
+            // Same gate as bestLocalIPv4(). A disconnected adapter keeps its APIPA
+            // entry, and Wi-Fi Direct/VPN adapters are down but still enumerated;
+            // answering an mDNS query with one of those addresses hands the client
+            // an address it can never reach, which reads as "connecting" forever.
+            const auto flags = networkInterface.flags();
+            if (!flags.testFlag(QNetworkInterface::IsUp) || !flags.testFlag(QNetworkInterface::IsRunning) ||
+                flags.testFlag(QNetworkInterface::IsLoopBack)) {
+                continue;
+            }
             const auto entries = networkInterface.addressEntries();
             for (const QNetworkAddressEntry &entry : entries) {
                 if (srcAddress.isInSubnet(entry.ip(), entry.prefixLength())) {
                     for (const QNetworkAddressEntry &newEntry : entries) {
                         QHostAddress address = newEntry.ip();
-                        if ((address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback())) {
+                        if (address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback() &&
+                            !address.isLinkLocal()) {
                             qDebug() << "getIP" << address;
                             return address;
                         }
