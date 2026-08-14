@@ -21,6 +21,8 @@ src/build/*
 src/debug-*
 
 src/secret.h
+src/secrets.h
+secrets.h
 
 *.swo
 *.swp
@@ -48,9 +50,15 @@ google_test/*
 *build-*
 !build-qdomyos-zwift-Qt_*_for_iOS-Debug # Needed for Apple Watch
 src/inner_templates/googlemaps/cesium-key.js
+src/inner_templates/googlemaps/cesium.js
+cesium.js
 *.autosave
 .vscode/settings.json
 /tst/Devices/.vs
 src/inner_templates/googlemaps/cesium-key.js
 src/qdomyos-zwift.pro.user.49de507
 /.vs
+src/android/.gradle/
+src/android/local.properties
+src/translations/*.qm
+/tools/__pycache__

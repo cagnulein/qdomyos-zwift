@@ -23,7 +23,7 @@ class lockscreen {
     void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories,
                                unsigned long long currentSteps, unsigned char deviceType, double currentDistance,
                                double totalKcal, bool useMiles, unsigned char heartRate,
-                               const char *compactLeadingMetric, int compactLeadingValue,
+                               int liveActivityHeartRate, const char *compactLeadingMetric, int compactLeadingValue,
                                const char *compactTrailingMetric, int compactTrailingValue);
     bool appleWatchAppInstalled();
 
@@ -60,6 +60,7 @@ class lockscreen {
     uint64_t virtualtreadmill_lastChangeCurrentSlope();
     double virtualtreadmill_getPowerRequested();
     double virtualtreadmill_getRequestedSpeed();
+    uint64_t virtualtreadmill_lastChangeRequestedSpeed();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
                                      unsigned short currentInclination, unsigned long long currentDistance, double elevationGain,
