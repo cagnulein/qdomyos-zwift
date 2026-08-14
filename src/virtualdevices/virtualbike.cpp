@@ -1915,7 +1915,7 @@ void virtualbike::reconnect() {
                                                   "(Landroid/content/Context;)V",
                                                   QtAndroid::androidContext().object());
     }
-#else
+#endif
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
 #ifdef Q_OS_ANDROID
