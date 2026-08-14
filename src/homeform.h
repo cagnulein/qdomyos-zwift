@@ -1124,6 +1124,7 @@ public:
     bool getDevice();
     bool getLap();
     void Start_inner(bool send_event_to_device);
+    void Stop_inner(bool send_event_to_device);
     QTextToSpeech *ensureSpeech();
 
     QTextToSpeech *m_speech = nullptr;
