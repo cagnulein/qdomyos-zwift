@@ -61,6 +61,10 @@ class V1Session(
     private var pollJob: Job? = null
     private var pendingWriteFields: Map<V1DataField, Float> = emptyMap()
     private val pendingWriteMutex = Mutex()
+    /** Serializes complete HID request/response transactions with multi-step safety commands. */
+    private val ioMutex = Mutex()
+    /** Preserves command ordering; in particular Resume cannot interleave with Stop. */
+    private val commandMutex = Mutex()
     @Volatile private var pendingCalibration: CompletableDeferred<Unit>? = null
     private var lastLogTimeMs = 0L
     private var consecutivePollErrors = 0
@@ -125,9 +129,8 @@ class V1Session(
             transport.clearBuffer()
             handshake()
 
-            // Console init (done while still in IDLE), then bring the workout up the way the
-            // console firmware expects (device-type-dependent — treadmills stop at WARM_UP and
-            // wait for the physical Start key, see transitionToActive).
+            // Console init is done while still in IDLE. Belt motion must only become possible after
+            // an explicit ResumeWorkout command; non-treadmills retain their activation sequence.
             prepareConsole()
             accumulator.start()
             transitionToActive()
@@ -195,10 +198,11 @@ class V1Session(
      */
     private suspend fun gracefulEndForDisconnect() {
         val isBelt = detectedDeviceType.isBeltBased
-        if (isBelt) haltBeltConfirmed()
+        if (isBelt) haltBeltConfirmed("disconnect")
 
         // Clean end (write-only): tell the MCU the run is over so it does its end-of-workout
         // housekeeping. GRADE=0 on belt machines so an incline trainer doesn't park raised.
+        logger.i(TAG, "Disconnect cleanup: writing WORKOUT_MODE=IDLE${if (isBelt) ", GRADE=0" else ""}")
         writeMessage(V1Message.Outgoing.ReadWriteData(
             writeFields = buildMap {
                 put(V1DataField.WORKOUT_MODE, WorkoutMode.IDLE.raw)
@@ -224,7 +228,8 @@ class V1Session(
      * MCU acknowledges speed 0 (or we run out of attempts). Belt machines only — callers gate on
      * [DeviceType.isBeltBased].
      */
-    private suspend fun haltBeltConfirmed() {
+    private suspend fun haltBeltConfirmed(reason: String): Boolean {
+        logger.i(TAG, "Belt halt requested ($reason): writing KPH=0 and WORKOUT_MODE=PAUSE")
         repeat(BELT_HALT_CONFIRM_ATTEMPTS) { attempt ->
             val response = sendReadWrite(
                 writeFields = if (attempt == 0) mapOf(
@@ -234,13 +239,40 @@ class V1Session(
                 readFields = setOf(V1DataField.KPH),
             )
             val commandedKph = response?.fields?.get(V1DataField.KPH)
+            logger.d(TAG, "Belt halt KPH readback ($reason, attempt ${attempt + 1}): $commandedKph")
             if (commandedKph != null && commandedKph <= BELT_STOPPED_KPH) {
-                logger.i(TAG, "Belt halt confirmed (KPH=$commandedKph) before disconnect")
-                return
+                logger.i(TAG, "Belt stopped confirmed ($reason, KPH=$commandedKph)")
+                return true
             }
             delay(STATE_CONFIRM_POLL_MS)
         }
-        logger.w(TAG, "Belt halt not confirmed after $BELT_HALT_CONFIRM_ATTEMPTS attempts — sent KPH=0 + PAUSE, proceeding")
+        logger.w(TAG, "Belt halt timed out ($reason) after $BELT_HALT_CONFIRM_ATTEMPTS attempts — KPH=0 + PAUSE was sent")
+        return false
+    }
+
+    /** Ends a belt workout without ending the USB session or its polling loop. */
+    private suspend fun stopWorkoutSafely() {
+        logger.i(TAG, "StopWorkout requested: beginning connected treadmill stop sequence")
+
+        // Stop supersedes any target changes which have not reached the MCU yet. Holding
+        // commandMutex prevents a later Resume from being queued until this sequence completes.
+        pendingWriteMutex.withLock {
+            if (pendingWriteFields.isNotEmpty()) {
+                logger.i(TAG, "StopWorkout: discarding ${pendingWriteFields.size} queued write(s) before belt halt")
+            }
+            pendingWriteFields = emptyMap()
+        }
+        lastSentSpeed = 0f
+
+        haltBeltConfirmed("StopWorkout")
+
+        logger.i(TAG, "StopWorkout: writing WORKOUT_MODE=IDLE")
+        val finalMode = writeAndConfirmWorkoutMode(WorkoutMode.IDLE) { it == WorkoutMode.IDLE }
+        if (finalMode == WorkoutMode.IDLE) {
+            logger.i(TAG, "StopWorkout complete: final WORKOUT_MODE=IDLE; USB session remains connected")
+        } else {
+            logger.w(TAG, "StopWorkout complete without IDLE readback confirmation; USB session remains connected")
+        }
     }
 
     override suspend fun identify(): DeviceIdentity? {
@@ -273,6 +305,12 @@ class V1Session(
     }
 
     override suspend fun writeFeature(command: DeviceCommand) {
+        commandMutex.withLock {
+            writeFeatureSerialized(command)
+        }
+    }
+
+    private suspend fun writeFeatureSerialized(command: DeviceCommand) {
         if (command is DeviceCommand.CalibrateIncline) {
             if (_sessionState.value !is SessionState.Streaming) {
                 throw IllegalStateException("Not connected")
@@ -284,6 +322,12 @@ class V1Session(
         }
 
         if (_sessionState.value !is SessionState.Streaming) return
+
+        logger.i(TAG, "Command requested: ${command::class.simpleName}")
+        if (command is DeviceCommand.StopWorkout && detectedDeviceType.isBeltBased) {
+            ioMutex.withLock { stopWorkoutSafely() }
+            return
+        }
 
         val fields = commandToFields(command)
 
@@ -331,6 +375,9 @@ class V1Session(
                 put(V1DataField.WORKOUT_MODE, WorkoutMode.RUNNING.raw)
             }
         }
+        // V1 belt machines handle this as a confirmed sequence in writeFeatureSerialized. For
+        // non-belt V1 equipment, retain the historical stop-as-pause behavior.
+        is DeviceCommand.StopWorkout -> mapOf(V1DataField.WORKOUT_MODE to WorkoutMode.PAUSE.raw)
         is DeviceCommand.CalibrateIncline -> emptyMap()
         is DeviceCommand.SetFanSpeed -> mapOf(V1DataField.FAN_STATE to command.level.toFloat())
         is DeviceCommand.SetVolume -> mapOf(V1DataField.VOLUME to command.level.toFloat())
@@ -362,7 +409,8 @@ class V1Session(
         logger.i(
             TAG,
             "Device info: sw=$softwareVersion, hw=$hardwareVersion, serial=$serialNumber, " +
-                "equipmentDeviceId=$equipmentDeviceId, supportedBitFields=${supportedBitFields.size}",
+                "equipmentDeviceId=$equipmentDeviceId, supportedBitFields=${supportedBitFields.size} " +
+                "${supportedBitFields.sorted()}",
         )
         pollFields = computePollFields(supportedBitFields)
         detectedDeviceType = DeviceDatabase.deviceTypeFromEquipmentId(equipmentDeviceId)
@@ -526,9 +574,11 @@ class V1Session(
             V1DataField.IDLE_MODE_LOCKOUT.fieldIndex in supportedBitFields
 
         if (supportsRequireStart) {
+            logger.i(TAG, "Console init: writing REQUIRE_START_REQUESTED=ENABLED")
             writeConsoleField(V1DataField.REQUIRE_START_REQUESTED, FIELD_ENABLED)
         }
         if (!isTreadmill && supportsIdleLockout) {
+            logger.i(TAG, "Console init: writing IDLE_MODE_LOCKOUT=ENABLED")
             writeConsoleField(V1DataField.IDLE_MODE_LOCKOUT, FIELD_ENABLED)
         }
     }
@@ -573,15 +623,9 @@ class V1Session(
      * Brings the console up to the workout-active state the way the firmware expects. Two paths,
      * because treadmills and aerobic machines have fundamentally different start safety:
      *
-     * - **Treadmill / incline trainer**: arm the console in WARM_UP and stop. Writing
-     *   `WORKOUT_MODE=RUNNING` from the app does *not* move the belt — the MCU gates belt motion
-     *   on a rising edge of the read-only `START_REQUESTED` telemetry (set when the user presses
-     *   the physical Start key). Writing RUNNING anyway would just time out the confirmation poll
-     *   and surface as a (semantically wrong) "console didn't confirm the workout started"
-     *   degraded warning. Instead, the orchestrator parks in
-     *   [com.nettarion.hyperborea.core.orchestration.OrchestratorState.AwaitingConsoleStart] and
-     *   the running [pollOnce] loop picks up `WORKOUT_MODE=RUNNING` once the MCU completes the
-     *   transition.
+     * - **Treadmill / incline trainer**: remain in IDLE. Real V1 treadmill firmware starts its belt
+     *   when WARM_UP is written, so connection alone must never make that transition. ResumeWorkout
+     *   is the sole software action that writes RUNNING.
      * - **Bike / elliptical / rower**: drive the state machine ourselves —
      *   `IDLE → WARM_UP(10) → RUNNING(2)` with confirmation polling. `IDLE_MODE_LOCKOUT` must be
      *   disabled immediately before writing RUNNING (the firmware refuses the RUNNING transition
@@ -592,11 +636,14 @@ class V1Session(
      */
     private suspend fun transitionToActive() {
         if (detectedDeviceType == DeviceType.TREADMILL) {
-            if (supportsIdleLockout()) {
-                writeConsoleField(V1DataField.IDLE_MODE_LOCKOUT, FIELD_DISABLED)
-            }
-            val mode = writeAndConfirmWorkoutMode(WorkoutMode.WARM_UP) { it != WorkoutMode.IDLE }
-            logger.i(TAG, "Console state: IDLE → ${mode ?: WorkoutMode.UNKNOWN} (awaiting physical Start key)")
+            val currentMode = accumulator.snapshot().workoutMode
+                ?.let { WorkoutMode.fromRaw(it.toFloat()) }
+                ?: WorkoutMode.UNKNOWN
+            logger.i(
+                TAG,
+                "V1 startup: detectedDeviceType=$detectedDeviceType, current WORKOUT_MODE=$currentMode; " +
+                    "skipping transitionToActive and leaving the treadmill stopped in IDLE",
+            )
             _degradedReason.value = null
             return
         }
@@ -613,6 +660,7 @@ class V1Session(
     }
 
     private suspend fun writeAndConfirmWorkoutMode(target: WorkoutMode, accept: (WorkoutMode) -> Boolean): WorkoutMode? {
+        logger.i(TAG, "Writing WORKOUT_MODE=$target")
         repeat((STATE_CONFIRM_TIMEOUT_MS / STATE_CONFIRM_POLL_MS).toInt()) { attempt ->
             // Assert the target on the first attempt; subsequent attempts just poll the read-back.
             val response = sendReadWrite(
@@ -640,10 +688,24 @@ class V1Session(
         writeFields: Map<V1DataField, Float> = emptyMap(),
         readFields: Set<V1DataField> = emptySet(),
     ): V1Message.Incoming.DataResponse? {
+        logSafetyWrites(writeFields)
         writeMessage(V1Message.Outgoing.ReadWriteData(writeFields = writeFields, readFields = readFields))
         delay(READ_DELAY_MS)
         val raw = readPacketOrNull() ?: return null
         return V1Codec.decodeSingleDataResponse(raw, readFields.ifEmpty { V1DataField.periodicReadFields })
+    }
+
+    private fun logSafetyWrites(writeFields: Map<V1DataField, Float>) {
+        writeFields[V1DataField.WORKOUT_MODE]?.let {
+            logger.i(TAG, "Explicit WORKOUT_MODE write: ${WorkoutMode.fromRaw(it)} ($it)")
+        }
+        writeFields[V1DataField.KPH]?.let { logger.i(TAG, "Explicit KPH write: $it") }
+        writeFields[V1DataField.IDLE_MODE_LOCKOUT]?.let {
+            logger.i(TAG, "Explicit IDLE_MODE_LOCKOUT write: $it")
+        }
+        writeFields[V1DataField.REQUIRE_START_REQUESTED]?.let {
+            logger.i(TAG, "Explicit REQUIRE_START_REQUESTED write: $it")
+        }
     }
 
     private suspend fun writeMessage(message: V1Message.Outgoing) {
@@ -688,12 +750,17 @@ class V1Session(
         }
     }
 
-    private suspend fun pollOnce() {
+    private suspend fun pollOnce() = ioMutex.withLock {
+        pollOnceLocked()
+    }
+
+    private suspend fun pollOnceLocked() {
         val writeFields: Map<V1DataField, Float>
         pendingWriteMutex.withLock {
             writeFields = pendingWriteFields
             pendingWriteFields = emptyMap()
         }
+        logSafetyWrites(writeFields)
 
         // ReadWriteData targets DEVICE_MAIN (0x02) — FITNESS_BIKE (0x07) returns DEV_NOT_SUPPORTED.
         // pollFields is periodicReadFields ∩ supportedBitFields so the response payload size matches
@@ -755,7 +822,9 @@ class V1Session(
                 logger.w(
                     TAG,
                     "DataResponse payload size doesn't match the requested ${pollFields.size}-field shape " +
-                        "(decoded ${decoded.fields.size} field(s)) — later field offsets may be unreliable.",
+                        "(requested=[${pollFields.sortedBy { it.fieldIndex }.joinToString { it.name }}], " +
+                        "decoded ${decoded.fields.size}=[${decoded.fields.keys.joinToString { it.name }}], " +
+                        "supportedBitFields=${supportedBitFields.sorted()}) — later field offsets may be unreliable.",
                 )
             } else if (!decoded.isTruncated && lastTruncatedSeen) {
                 logger.i(TAG, "DataResponse payload size now matches the requested field shape again.")
