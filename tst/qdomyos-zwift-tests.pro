@@ -32,6 +32,7 @@ SOURCES += \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
         Devices/TestKeepBikeParser.cpp \
+        Devices/TestFitshowRowerParser.cpp \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
         main.cpp
@@ -65,6 +66,7 @@ HEADERS += \
     Devices/TestSchwinn411510EParser.h \
     Devices/TestApexBikeParser.h \
     Devices/TestKeepBikeParser.h \
+    Devices/TestFitshowRowerParser.h \
     Devices/TestNordictrackEllipticalS700Parser.h \
     Devices/TestXcxBikeParser.h \
     Devices/TestOctaneTreadmillZR8.h \

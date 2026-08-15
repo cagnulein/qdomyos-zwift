@@ -2085,6 +2085,9 @@ class QZSettings {
     static const QString ftms_rower;
     static const QString default_ftms_rower;
 
+    static const QString fitshow_rower;
+    static constexpr bool default_fitshow_rower = false;
+
     static const QString ftms_elliptical;
     static const QString default_ftms_elliptical;
 

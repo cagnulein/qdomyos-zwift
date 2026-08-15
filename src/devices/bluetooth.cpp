@@ -580,6 +580,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool snode_bike = settings.value(QZSettings::snode_bike, QZSettings::default_snode_bike).toBool();
     bool fitplus_bike = settings.value(QZSettings::fitplus_bike, QZSettings::default_fitplus_bike).toBool() ||
                         settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+    bool fitshow_rower = settings.value(QZSettings::fitshow_rower, QZSettings::default_fitshow_rower).toBool();
     bool csc_as_bike =
         settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
     bool csc_as_treadmill =
@@ -1269,7 +1270,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                          QRegularExpression(QStringLiteral("TRUE ELLIPTICAL \\d{3,}$")).match(b.name().toUpper()).hasMatch()) ||  // TRUE ELLIPTICAL followed by digits
                         (b.name().toUpper().startsWith(QStringLiteral("E35")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("E25")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
-                        (b.name().startsWith(QStringLiteral("FS-")) &&
+                        (b.name().startsWith(QStringLiteral("FS-")) && !fitshow_rower &&
                          (iconsole_elliptical || settings.value(QZSettings::gymstick_gx6_0_elliptical,
                                                                QZSettings::default_gymstick_gx6_0_elliptical).toBool())) ||
                         !b.name().compare(ftms_elliptical, Qt::CaseInsensitive)) && !ypooElliptical && !horizonTreadmill && ftms_bike.contains(QZSettings::default_ftms_bike) && filter) {
@@ -1903,7 +1904,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 npeCableBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(npeCableBike);
-            } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
+            } else if (((b.name().startsWith("FS-") && hammerRacerS && !fitshow_rower) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) && toorx_ftms ) ||
                         (b.name().toUpper().startsWith("DI") && b.name().length() == 2) || // Elite smart trainer #1682
                         (b.name().toUpper().startsWith("DHZ-")) ||                         // JK fitness 577
@@ -2015,7 +2016,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("BESP-")) ||  // FITFIU BESP 250 indoor bike
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith("SPORT01-") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // Labgrey Magnetic Exercise Bike https://www.amazon.co.uk/dp/B0CXMF1NPY?_encoding=UTF8&psc=1&ref=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&ref_=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&social_share=cm_sw_r_cp_ud_dp_PE420HA7RD7WJBZPN075&skipTwisterOG=1
-                        (b.name().toUpper().startsWith("FS-YK-")) ||
+                        (b.name().toUpper().startsWith("FS-YK-") && !fitshow_rower) ||
 						(b.name().toUpper().startsWith("T600E_")) ||
                         (b.name().toUpper().startsWith("SPEEDBIKE S2")) || // Maxxus Speedbike S2
 						(b.name().toUpper().startsWith("B56-")) || // Titan Life B56 bike
@@ -2483,6 +2484,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 sportsTechElliptical->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsTechElliptical);
+            } else if (fitshow_rower && fitshowrower::isFitshowRowerDeviceName(b.name()) && !fitShowRower && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                fitShowRower = new fitshowrower(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(fitShowRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(fitShowRower, &fitshowrower::debug, this, &bluetooth::debug);
+                fitShowRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(fitShowRower);
             } else if (b.name().toUpper().startsWith(QStringLiteral("EW-ST-")) && !sportsTechRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2929,7 +2940,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(pafersBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 pafersBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(pafersBike);
-            } else if (((b.name().startsWith(QStringLiteral("FS-")) && snode_bike) ||
+            } else if (((b.name().startsWith(QStringLiteral("FS-")) && snode_bike && !fitshow_rower) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TF-")) && !b.name().toUpper().startsWith(QStringLiteral("TF-T")) &&
                          !horizon_treadmill_force_ftms)) && // TF-769DF2
                        !snodeBike &&
@@ -2943,7 +2954,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(snodeBike, &snodebike::debug, this, &bluetooth::debug);
                 snodeBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(snodeBike);
-            } else if (((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) ||
+            } else if (((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike && !fitshow_rower) ||
                         b.name().startsWith(QStringLiteral("X100-")) ||
                         (b.name().toUpper().startsWith("H9110 OSAKA")) ||
                         b.name().startsWith(QStringLiteral("MRK-"))) &&
@@ -2974,7 +2985,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(focusTreadmill);
-            } else if (((b.name().startsWith(QStringLiteral("FS-")) && !horizonTreadmill && !snode_bike && !fitplus_bike && !ftmsBike && !iconsole_elliptical) ||
+            } else if (((b.name().startsWith(QStringLiteral("FS-")) && !fitshow_rower && !horizonTreadmill && !snode_bike && !fitplus_bike && !ftmsBike && !iconsole_elliptical) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TR510-T"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
@@ -4286,6 +4297,10 @@ void bluetooth::restart() {
         delete sportsTechRower;
         sportsTechRower = nullptr;
     }
+    if (fitShowRower) {
+        delete fitShowRower;
+        fitShowRower = nullptr;
+    }
     if (sportsPlusBike) {
 
         delete sportsPlusBike;
@@ -4659,6 +4674,8 @@ bluetoothdevice *bluetooth::device() {
         return sportsTechElliptical;
     } else if (sportsTechRower) {
         return sportsTechRower;
+    } else if (fitShowRower) {
+        return fitShowRower;
     } else if (sportsPlusBike) {
         return sportsPlusBike;
     } else if (sportsPlusRower) {
