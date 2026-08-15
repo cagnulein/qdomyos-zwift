@@ -1251,10 +1251,10 @@ import AndroidStatusBar 1.0
             property bool proform_595i_proshox2: false
 
             // from version 2.16.55
-            property bool proform_treadmill_8_7: false
+            property bool proform_treadmill_8_7: false            
 
             // from version 2.16.56
-            property bool proform_bike_325_csx: false
+            property bool proform_bike_325_csx: false            
 
             // from version 2.16.58
             property string strava_upload_mode: "Always"
@@ -1602,7 +1602,7 @@ import AndroidStatusBar 1.0
             property string ios_live_activity_compact_trailing_metric: "Watt"
             property bool nordictrack_treadmill_commercial_le: false
 
-            property bool umay_s100_treadmill: false
+            property bool umay_s100_treadmill: false            
             property bool gym_mode: false
             property bool tile_grade_adjusted_pace_enabled: false
             property int tile_grade_adjusted_pace_order: 79
@@ -1738,6 +1738,8 @@ import AndroidStatusBar 1.0
             property bool waterrower_usb: false
             property string freebeat_serialport: ""
             property bool nordictrack_elliptical_s700: false
+            
+            property bool virtual_device_tacx: false
         }
 
 
@@ -15808,6 +15810,33 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    SwitchDelegate {
+                                        text: qsTr("Virtual Tacx")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_tacx
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: { settings.virtual_device_tacx = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("Enables a virtual bluetooth bridge to the Tacx App.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: 9
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
