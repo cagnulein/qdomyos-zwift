@@ -1903,23 +1903,15 @@ void virtualbike::reconnect() {
         serviceHR = leController->addService(serviceDataHR);
 #endif
 
+    QLowEnergyAdvertisingParameters pars;
+    pars.setInterval(100, 100);
 #ifdef Q_OS_ANDROID
     if (virtual_device_tacx) {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                   "startAdvertisingTacxNeo2T",
                                                   "(Landroid/content/Context;)V",
                                                   QtAndroid::androidContext().object());
-    } else {
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
-                                                  "startAdvertisingBike",
-                                                  "(Landroid/content/Context;)V",
-                                                  QtAndroid::androidContext().object());
-    }
-#endif
-    QLowEnergyAdvertisingParameters pars;
-    pars.setInterval(100, 100);
-#ifdef Q_OS_ANDROID
-    if (echelon) {
+    } else if (echelon) {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
                                                   "startAdvertisingEchelon",
                                                   "(Landroid/content/Context;Ljava/lang/String;)V",
