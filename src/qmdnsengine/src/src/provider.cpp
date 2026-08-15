@@ -266,10 +266,22 @@ void Provider::update(const Service &service) {
     QByteArray serviceName = service.name();
     serviceName = serviceName.replace('.', '-');
 
+    // A name parsed off the wire always ends in a dot - parseName() appends one
+    // after every label - and onMessageReceived() matches queries against these
+    // record names by exact compare. A type given without the trailing dot
+    // therefore matches nothing, and the service answers no queries at all: it
+    // is only ever discovered by whoever happens to be listening when publish()
+    // announces. Nothing downstream can tell the difference, because writeName()
+    // chops the trailing dot before encoding.
+    QByteArray serviceType = service.type();
+    if (!serviceType.endsWith('.')) {
+        serviceType.append('.');
+    }
+
     // Update the proposed records
-    QByteArray fqName = serviceName + "." + service.type();
-    d->browsePtrProposed.setTarget(service.type());
-    d->ptrProposed.setName(service.type());
+    QByteArray fqName = serviceName + "." + serviceType;
+    d->browsePtrProposed.setTarget(serviceType);
+    d->ptrProposed.setName(serviceType);
     d->ptrProposed.setTarget(fqName);
     d->srvProposed.setName(fqName);
     d->srvProposed.setPort(service.port());

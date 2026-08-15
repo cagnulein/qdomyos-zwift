@@ -62,7 +62,11 @@ void DirconProcessor::initAdvertising() {
         mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, serverName.toUtf8() + QByteArrayLiteral("H"), this);
         mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
         QMdnsEngine::Service mdnsService;
-        mdnsService.setType(rouvy_compatibility ? "_wahoo-fitness-tnp._tcp.local" : "_wahoo-fitness-tnp._tcp.local.");
+        // Both spellings encode to the same bytes - writeName() chops the trailing
+        // dot - so the Rouvy branch never changed what went out on the wire. What it
+        // did do was leave the record names unable to match any query, which is why
+        // Rouvy could only find QZ if it was already running when QZ announced.
+        mdnsService.setType("_wahoo-fitness-tnp._tcp.local.");
         mdnsService.setName(serverName.toUtf8());
         mdnsService.addAttribute(QByteArrayLiteral("mac-address"), mac.toUtf8());
         mdnsService.addAttribute(QByteArrayLiteral("serial-number"), serialN.toUtf8());
