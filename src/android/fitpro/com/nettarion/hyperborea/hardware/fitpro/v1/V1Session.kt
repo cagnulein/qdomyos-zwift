@@ -250,9 +250,15 @@ class V1Session(
         return false
     }
 
-    /** Ends a belt workout without ending the USB session or its polling loop. */
+    /**
+     * Stops QZ's workout while leaving a V1 belt console in PAUSE.
+     *
+     * This matches the console's working Pause control exactly. Some V1 treadmill controllers
+     * ignore the combined KPH=0 + PAUSE write and reject a subsequent IDLE transition, whereas a
+     * PAUSE-only write reliably stops the belt.
+     */
     private suspend fun stopWorkoutSafely() {
-        logger.i(TAG, "StopWorkout requested: beginning connected treadmill stop sequence")
+        logger.i(TAG, "StopWorkout requested: writing PAUSE-only belt stop")
 
         // Stop supersedes any target changes which have not reached the MCU yet. Holding
         // commandMutex prevents a later Resume from being queued until this sequence completes.
@@ -263,16 +269,10 @@ class V1Session(
             pendingWriteFields = emptyMap()
         }
         lastSentSpeed = 0f
-
-        haltBeltConfirmed("StopWorkout")
-
-        logger.i(TAG, "StopWorkout: writing WORKOUT_MODE=IDLE")
-        val finalMode = writeAndConfirmWorkoutMode(WorkoutMode.IDLE) { it == WorkoutMode.IDLE }
-        if (finalMode == WorkoutMode.IDLE) {
-            logger.i(TAG, "StopWorkout complete: final WORKOUT_MODE=IDLE; USB session remains connected")
-        } else {
-            logger.w(TAG, "StopWorkout complete without IDLE readback confirmation; USB session remains connected")
-        }
+        sendReadWrite(
+            writeFields = mapOf(V1DataField.WORKOUT_MODE to WorkoutMode.PAUSE.raw),
+            readFields = pollFields,
+        )
     }
 
     override suspend fun identify(): DeviceIdentity? {
