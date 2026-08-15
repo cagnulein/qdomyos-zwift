@@ -862,14 +862,11 @@ void nordictrackifitadbtreadmill::update() {
                             emit homeform::singleton()->closeCompleteScreenRequested();
                         }
 
-                        // Synchronize only when QZ is not already running. StartFromDevice updates
-                        // recording/UI state without forwarding a command back to FitPro.
-                        if (qzPausedOrStopped) {
-                            emit debug("Synchronizing QZ running state from FitPro event without an outbound start command");
-                            homeform::singleton()->StartFromDevice();
-                        } else {
-                            emit debug("QZ already running, not calling Start() again");
-                        }
+                        // StartFromDevice is idempotent and synchronizes QZ's own stopped/paused
+                        // state without echoing a command to FitPro. The device's isPaused() flag
+                        // does not reflect QZ's stopped state, so it cannot be used to gate this.
+                        emit debug("Synchronizing QZ running state from FitPro event without an outbound start command");
+                        homeform::singleton()->StartFromDevice();
                     }
                 }
                 // If workout stopped/completed (any state -> RESULTS or PAUSED/RUNNING/RESULTS -> IDLE)
