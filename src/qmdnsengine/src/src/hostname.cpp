@@ -93,6 +93,21 @@ void HostnamePrivate::assertHostname() {
     QByteArray localHostname = desiredHostname.isEmpty() ? QHostInfo::localHostName().toUtf8() : desiredHostname;
     localHostname = localHostname.replace('.', '-');
 
+    // A host name is not a service instance name: RFC 1123 allows letters, digits
+    // and hyphens, and nothing else. QZ derives this from the device name, so it
+    // arrived here as "Wahoo KICKR 0000H" and went out as a SRV target with spaces
+    // in it. Bonjour tolerates that by escaping them as \032, which is why it
+    // resolves from dns-sd and still fails in a client that hands the name to an
+    // ordinary resolver - MyWhoosh discovered the service and then never opened the
+    // connection. Anything outside the permitted set becomes a hyphen.
+    for (int i = 0; i < localHostname.size(); ++i) {
+        const char c = localHostname.at(i);
+        const bool ok = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-';
+        if (!ok) {
+            localHostname[i] = '-';
+        }
+    }
+
     // If the suffix > 1, then append a "-2", "-3", etc. to the hostname to
     // aid in finding one that is unique and not in use
     hostname =

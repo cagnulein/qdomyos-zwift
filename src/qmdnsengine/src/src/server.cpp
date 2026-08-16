@@ -105,9 +105,15 @@ void ServerPrivate::writeToAllInterfaces(QUdpSocket &socket, const QByteArray &p
     const auto interfaces = QNetworkInterface::allInterfaces();
     for (const QNetworkInterface &networkInterface : interfaces) {
         const auto flags = networkInterface.flags();
+        // Loopback is deliberately included. onTimeout() joins the multicast group
+        // on every interface that can carry it, loopback among them, so a client on
+        // this same machine is heard - but skipping loopback here meant it could
+        // never be answered. A training app querying over ::1 (MyWhoosh does) saw
+        // QZ reply on fe80:: instead, which is not where it asked, so it waited for
+        // an answer that was never coming. Rouvy was unaffected only because it
+        // browses over the real network interface.
         if (!flags.testFlag(QNetworkInterface::IsUp) ||
             !flags.testFlag(QNetworkInterface::IsRunning) ||
-            flags.testFlag(QNetworkInterface::IsLoopBack) ||
             !flags.testFlag(QNetworkInterface::CanMulticast)) {
             continue;
         }
