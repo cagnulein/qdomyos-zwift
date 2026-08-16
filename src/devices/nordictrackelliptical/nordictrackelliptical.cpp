@@ -31,6 +31,7 @@ nordictrackelliptical::nordictrackelliptical(bool noWriteResistance, bool noHear
     QSettings settings;
     nordictrack_elliptical_c7_5 = settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5).toBool();
     nordictrack_se7i = settings.value(QZSettings::nordictrack_se7i, QZSettings::default_nordictrack_se7i).toBool();
+    nordictrack_elliptical_s700 = settings.value(QZSettings::nordictrack_elliptical_s700, QZSettings::default_nordictrack_elliptical_s700).toBool();
 
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackelliptical::update);
@@ -279,7 +280,7 @@ void nordictrackelliptical::forceIncline(double requestIncline) {
             writeCharacteristic((uint8_t *)inc200, sizeof(inc200), QStringLiteral("inc200"), false, true);
             break;
         }
-    } else if (nordictrack_se7i) {
+    } else if (nordictrack_se7i || nordictrack_elliptical_s700) {
         // SE7i uses ff 0d packet with byte[10]=0x02 for incline
         // Incline encoding: value = incline% * 100
         uint16_t incValue = (uint16_t)(requestIncline * 100);
@@ -411,7 +412,7 @@ void nordictrackelliptical::forceResistance(resistance_t requestResistance) {
             writeCharacteristic((uint8_t *)res22, sizeof(res22), QStringLiteral("resistance22"), false, true);
             break;
         }
-    } else if (nordictrack_se7i) {
+    } else if (nordictrack_se7i || nordictrack_elliptical_s700) {
         // SE7i uses ff 0d packet with byte[10]=0x04 for resistance
         // Resistance encoding: value = resistance * 454 - 1
         uint16_t resValue = (requestResistance * 454) - 1;
@@ -610,7 +611,7 @@ void nordictrackelliptical::forceResistance(resistance_t requestResistance) {
 }
 
 void nordictrackelliptical::se7i_send_next_frame() {
-    if (!nordictrack_se7i) {
+    if (!nordictrack_se7i && !nordictrack_elliptical_s700) {
         return;
     }
 
@@ -709,7 +710,10 @@ void nordictrackelliptical::update() {
             settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt)
                 .toBool();
 
-        update_metrics(false, watts());
+        {
+            bool use_machine_watts = (nordictrack_se7i || nordictrack_elliptical_s700) && m_watts > 0;
+            update_metrics(use_machine_watts, use_machine_watts ? (double)m_watts : watts());
+        }
 
         if (nordictrack_elliptical_c7_5) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
@@ -762,7 +766,7 @@ void nordictrackelliptical::update() {
             if (counterPoll > 4) {
                 counterPoll = 0;
             }
-        } else if (nordictrack_se7i) {
+        } else if (nordictrack_se7i || nordictrack_elliptical_s700) {
             // NordicTrack Elliptical SE7i - 6 packet sendPoll cycle
             uint8_t se7i_noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
             uint8_t se7i_noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00,
@@ -893,6 +897,43 @@ void nordictrackelliptical::changeInclinationRequested(double grade, double perc
 
 void nordictrackelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+}
+
+bool nordictrackelliptical::isS700SpeedPacket(const QByteArray &packet) {
+    // Byte[2] is a free-running counter/cadence, not part of the marker.
+    // Before SE7i init the machine sends byte[4]=0x5a; after init completes (remote-control mode)
+    // it switches to byte[4]=0x46. Both carry the same speed/cadence layout.
+    return packet.length() == 20 && (uint8_t)packet.at(0) == 0x01 && (uint8_t)packet.at(1) == 0x12 &&
+           (uint8_t)packet.at(3) == 0x00 &&
+           ((uint8_t)packet.at(4) == 0x5a || (uint8_t)packet.at(4) == 0x46);
+}
+
+double nordictrackelliptical::s700SpeedFromPacket(const QByteArray &packet) {
+    return (double)(((uint16_t)((uint8_t)packet.at(13)) << 8) + (uint16_t)((uint8_t)packet.at(12))) / 100.0;
+}
+
+uint8_t nordictrackelliptical::s700CadenceFromPacket(const QByteArray &packet) {
+    return (uint8_t)packet.at(2);
+}
+
+bool nordictrackelliptical::isSe7iResistanceInclinationPacket(const QByteArray &packet) {
+    return packet.length() == 20 && (uint8_t)packet.at(0) == 0x00 && (uint8_t)packet.at(1) == 0x12 &&
+           (uint8_t)packet.at(2) == 0x01 && (uint8_t)packet.at(3) == 0x04 && (uint8_t)packet.at(4) == 0x02 &&
+           ((uint8_t)packet.at(5) == 0x30 || (uint8_t)packet.at(5) == 0x31);
+}
+
+double nordictrackelliptical::se7iInclinationFromPacket(const QByteArray &packet) {
+    uint16_t incValue = ((uint16_t)((uint8_t)packet.at(10))) + ((uint16_t)((uint8_t)packet.at(11)) << 8);
+    return ((double)incValue) / 100.0;
+}
+
+double nordictrackelliptical::se7iResistanceFromPacket(const QByteArray &packet) {
+    uint16_t resValue = ((uint16_t)((uint8_t)packet.at(12))) + ((uint16_t)((uint8_t)packet.at(13)) << 8);
+    return ((double)(resValue + 1)) / 454.0;
+}
+
+uint16_t nordictrackelliptical::se7iWattsFromPacket(const QByteArray &packet) {
+    return ((uint16_t)((uint8_t)packet.at(14))) + ((uint16_t)((uint8_t)packet.at(15)) << 8);
 }
 
 double nordictrackelliptical::GetInclinationFromPacket(QByteArray packet) {
@@ -1101,7 +1142,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     // SE7i frame-based protocol: check for 0xFF marker indicating end of response frame
-    if (nordictrack_se7i && se7i_waiting_for_response && newValue.length() > 0) {
+    if ((nordictrack_se7i || nordictrack_elliptical_s700) && se7i_waiting_for_response && newValue.length() > 0) {
         if ((uint8_t)newValue.at(0) == 0xFF) {
             emit debug(QStringLiteral("SE7i: Received 0xFF marker - end of response frame detected"));
             se7i_waiting_for_response = false;
@@ -1139,6 +1180,29 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         return;
     }
 
+    // NordicTrack Elliptical Spacesaver S700 Speed/Cadence parsing (Type 0x01 packets, header
+    // 01 12 xx 00 5a ..., where byte[2] carries the stride cadence in RPM). This unit uses the
+    // same SE7i wire protocol for init/incline/resistance, but its live telemetry packet is shifted
+    // by 2 bytes compared to the SE7i marker above: the 0x5a marker sits at byte[4] instead of
+    // byte[4]==0x46, so the SE7i check above never matches it.
+    if (nordictrack_elliptical_s700 && initDone == true && isS700SpeedPacket(newValue)) {
+        Speed = s700SpeedFromPacket(newValue);
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        lastSpeedChanged = QDateTime::currentDateTime();
+
+        uint8_t c = s700CadenceFromPacket(newValue);
+        if (c > 0)
+            Cadence = (c * cadence_gain) + cadence_offset;
+        else
+            Cadence = 0;
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
+        return;
+    }
+
     if (!proform_hybrid_trainer_xt && !nordictrack_elliptical_c7_5 && newValue.length() == 20 &&
         newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C) {
         uint8_t c = newValue.at(2);
@@ -1154,7 +1218,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         return;
     }
 
-    if (!nordictrack_elliptical_c7_5 && !nordictrack_se7i && newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
+    if (!nordictrack_elliptical_c7_5 && !nordictrack_se7i && !nordictrack_elliptical_s700 && newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
         initDone == true) {
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -1166,7 +1230,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
             emit debug(QStringLiteral("Current Heart from machinery: ") + QString::number(heart));
         }
 
-    } else if (!nordictrack_se7i && QDateTime::currentDateTime().secsTo(lastSpeedChanged) > 3) {
+    } else if (!nordictrack_se7i && !nordictrack_elliptical_s700 && QDateTime::currentDateTime().secsTo(lastSpeedChanged) > 3) {
         Speed = 0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
@@ -1203,7 +1267,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     }
 
     // Skip the strict packet validation for SE7i (it has different packet structures)
-    if (!nordictrack_se7i &&
+    if (!nordictrack_se7i && !nordictrack_elliptical_s700 &&
         (newValue.length() != 20 || (newValue.at(0) != 0x00 && newValue.at(0) != 0x01) || newValue.at(1) != 0x12 ||
         newValue.at(2) != 0x01 || newValue.at(3) != 0x04 || newValue.at(4) != 0x02 ||
         (newValue.at(5) != 0x2e && newValue.at(5) != 0x30 && newValue.at(5) != 0x31) ||
@@ -1229,20 +1293,19 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         }
     }
 
-    if (nordictrack_se7i && newValue.length() == 20 && newValue.at(0) == 0x00 &&
-        newValue.at(1) == 0x12 && newValue.at(2) == 0x01 && newValue.at(3) == 0x04 && newValue.at(4) == 0x02 &&
-        (newValue.at(5) == 0x30 || newValue.at(5) == 0x31)) {
-        // SE7i Resistance and Inclination parsing (Type 0x00 packets)
-        // Inclination from bytes 10-11 (little endian, divided by 100)
-        uint16_t incValue = ((uint16_t)((uint8_t)newValue.at(10))) + ((uint16_t)((uint8_t)newValue.at(11)) << 8);
-        Inclination = ((double)incValue) / 100.0;
+    if ((nordictrack_se7i || nordictrack_elliptical_s700) && isSe7iResistanceInclinationPacket(newValue)) {
+        // SE7i/S700 Resistance, Inclination and Wattage parsing (Type 0x00 packets)
+        Inclination = se7iInclinationFromPacket(newValue);
         emit debug(QStringLiteral("Current Inclination from packet: ") + QString::number(Inclination.value()));
 
-        // Resistance from bytes 12-13 (little endian): resistance = (value + 1) / 454
-        uint16_t resValue = ((uint16_t)((uint8_t)newValue.at(12))) + ((uint16_t)((uint8_t)newValue.at(13)) << 8);
-        Resistance = ((double)(resValue + 1)) / 454.0;
+        Resistance = se7iResistanceFromPacket(newValue);
         emit debug(QStringLiteral("Current Resistance from packet: ") + QString::number(Resistance.value()));
-    } else if (!nordictrack_elliptical_c7_5 && !nordictrack_se7i) {
+
+        m_watts = se7iWattsFromPacket(newValue);
+        emit debug(QStringLiteral("Current Watt from packet: ") + QString::number(m_watts));
+        if (m_watts > 0)
+            m_watt.setValue(m_watts);
+    } else if (!nordictrack_elliptical_c7_5 && !nordictrack_se7i && !nordictrack_elliptical_s700) {
         Resistance = GetResistanceFromPacket(newValue);
     } else if (nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x00 &&
                newValue.at(1) == 0x12 && newValue.at(2) == 0x01 && newValue.at(3) == 0x04 && newValue.at(4) == 0x02 &&
@@ -1256,11 +1319,14 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         p = 100;
     m_pelotonResistance = p;
 
-    if (watts())
-        KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  // kg * 3.5) / 200 ) / 60
+    {
+        double w = ((nordictrack_se7i || nordictrack_elliptical_s700) && m_watts > 0) ? (double)m_watts : (double)watts();
+        if (w > 0)
+            KCal += ((((0.048 * w + 1.19) * weight * 3.5) / 200.0) /
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                    QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                      // kg * 3.5) / 200 ) / 60
+    }
     // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
@@ -1285,7 +1351,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
     // debug("Current Distance: " + QString::number(distance));
-    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+    emit debug(QStringLiteral("Current Watt: ") + QString::number(
+        (nordictrack_se7i || nordictrack_elliptical_s700) && m_watts > 0 ? (double)m_watt.value() : watts()));
     emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
@@ -1396,7 +1463,7 @@ void nordictrackelliptical::btinit() {
         QThread::msleep(400);
         writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
         QThread::msleep(400);
-        if (nordictrack_se7i) {
+        if (nordictrack_se7i || nordictrack_elliptical_s700) {
             max_resistance = 22;
             max_inclination = 20;
 

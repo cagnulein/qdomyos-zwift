@@ -339,6 +339,7 @@ devices/treadmill.cpp \
 devices/truetreadmill/truetreadmill.cpp \
 devices/trxappgateusbbike/trxappgateusbbike.cpp \
 devices/ultrasportbike/ultrasportbike.cpp \
+devices/xcxbike/xcxbike.cpp \
 virtualdevices/virtualrower.cpp \
 devices/wahookickrsnapbike/wahookickrsnapbike.cpp \
 devices/yesoulbike/yesoulbike.cpp \
@@ -793,6 +794,7 @@ fit-sdk/fit_zones_target_mesg.hpp \
 fit-sdk/fit_zones_target_mesg_listener.hpp \
 devices/flywheelbike/flywheelbike.h \
 devices/ftmsbike/ftmsbike.h \
+devices/ftmsbike/horizon5r_defaults.h \
 devices/ftmsbike/speedracex_defaults.h \
 devices/heartratebelt/heartratebelt.h \
 homeform.h \
@@ -874,6 +876,7 @@ devices/truetreadmill/truetreadmill.h \
 devices/trxappgateusbbike/trxappgateusbbike.h \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 devices/ultrasportbike/ultrasportbike.h \
+devices/xcxbike/xcxbike.h \
 virtualdevices/virtualbike.h \
 virtualdevices/virtualrower.h \
 virtualdevices/virtualtreadmill.h \

@@ -387,6 +387,11 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
         ->configureSettingsWith( QZSettings::fitplus_bike);
 
+    // VirtuFit Etappe 2.0i
+    RegisterNewDeviceTestData(DeviceIndex::FitPlusVirtufitEtappeX100)
+        ->expectDevice<fitplusbike>()
+        ->acceptDeviceName("X100-", DeviceNameComparison::StartsWith);
+
 
     // FitPlus MRK
     RegisterNewDeviceTestData(DeviceIndex::FitPlusBike_MRK_NoSettings)
@@ -657,6 +662,12 @@ void DeviceTestDataIndex::Initialize() {
                             DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding(ftmsBikeConfigureExclusions)
         ->configureSettingsWith(QBluetoothUuid((quint16)0x1826));
+
+    // FTMS Bike Horizon 5.0R
+    RegisterNewDeviceTestData(DeviceIndex::FTMSBikeHorizon5R)
+        ->expectDevice<ftmsbike>()
+        ->acceptDeviceName("JFBK5.0R", DeviceNameComparison::IgnoreCase)
+        ->excluding(ftmsBikeConfigureExclusions);
 
     // FTMS Rower
     RegisterNewDeviceTestData(DeviceIndex::FTMSRower)
@@ -1447,6 +1458,11 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::UltrasportBike)
         ->expectDevice<ultrasportbike>()
         ->acceptDeviceName("X-BIKE", DeviceNameComparison::StartsWithIgnoreCase);
+
+    // XCX Bike (proprietary FFF6 telemetry; explicitly not generic FTMS)
+    RegisterNewDeviceTestData(DeviceIndex::XcxBike)
+        ->expectDevice<xcxbike>()
+        ->acceptDeviceName("XCX-001048", DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Wahoo KICKR CORE

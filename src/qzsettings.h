@@ -2340,6 +2340,9 @@ class QZSettings {
     static const QString proform_treadmill_8_7;
     static constexpr bool default_proform_treadmill_8_7 = false;
 
+    static const QString virtual_device_tacx;
+    static constexpr bool default_virtual_device_tacx = false;
+    
     static const QString proform_bike_325_csx;
     static constexpr bool default_proform_bike_325_csx = false;
 
@@ -3287,6 +3290,14 @@ class QZSettings {
     static const QString horizon_treadmill_omega_z;
     static constexpr bool default_horizon_treadmill_omega_z = false;
 
+    /**
+     * @brief NordicTrack Elliptical Spacesaver S700: uses its own BLE telemetry/control quirks
+     * (speed packet marker and resistance byte mapping differ from the other NordicTrack elliptical
+     * profiles), so it is gated behind its own setting to avoid affecting other models.
+     */
+    static const QString nordictrack_elliptical_s700;
+    static constexpr bool default_nordictrack_elliptical_s700 = false;
+    
     /**
      * @brief Per-button gear mapping for Zwift Play/Ride controllers.
      * Values follow MyWhoosh::Action: 0 = Disabled, 1 = Gear Up, 2 = Gear Down.

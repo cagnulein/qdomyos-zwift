@@ -73,6 +73,7 @@ public:
     DEFINE_DEVICE(FTMSBike, "FTMS Bike");
     DEFINE_DEVICE(FTMSBike2, "FTMS Bike 2");
     DEFINE_DEVICE(FTMSBike3, "FTMS Bike 3");
+    DEFINE_DEVICE(FTMSBikeHorizon5R, "FTMS Bike Horizon 5.0R");
     DEFINE_DEVICE(FTMSKICKRCORE, "FTMS KICKR CORE");
     DEFINE_DEVICE(FTMSRower, "FTMS Rower");
     DEFINE_DEVICE(FakeBike, "Fake Bike");
@@ -81,6 +82,7 @@ public:
     DEFINE_DEVICE(FakeTreadmill, "Fake Treadmill");
     DEFINE_DEVICE(FitPlusBike_MRK_NoSettings, "FitPlus Bike (MRK, no settings)");
     DEFINE_DEVICE(FitPlusF5, "FitPlus F5");
+    DEFINE_DEVICE(FitPlusVirtufitEtappeX100, "FitPlus VirtuFit Etappe 2.0i (X100)");
     DEFINE_DEVICE(FitShowBF, "FitShow BF");
     DEFINE_DEVICE(FitShowFS, "FitShow FS");
     DEFINE_DEVICE(FitShowTR510T, "FitShow TR510-T");
@@ -160,6 +162,7 @@ public:
     DEFINE_DEVICE(TrueTreadmill2, "True Treadmill 2");
     DEFINE_DEVICE(TrxAppGateUSBElliptical, "TrxAppGateUSB Elliptical");
     DEFINE_DEVICE(UltrasportBike, "Ultrasport Bike");
+    DEFINE_DEVICE(XcxBike, "XCX Bike");
     DEFINE_DEVICE(WahooKickrSnapBike_KICKRCORE, "Wahoo KICKR CORE");
     DEFINE_DEVICE(WahooKickrSarisTrainer, "Wahoo Kickr Saris Trainer");
     DEFINE_DEVICE(WahooKickrSnapBike, "Wahoo Kickr Snap Bike");
@@ -179,5 +182,3 @@ public:
 
 
 };
-
-

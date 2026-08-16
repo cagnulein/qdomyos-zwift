@@ -58,6 +58,9 @@ class trainrow {
     double minSpeed = -1;
     int8_t maxResistance = -1;
     int32_t power = -1;
+    bool rampIsFtpFraction = false;
+    double rampPowerFromOriginal = -1.0;
+    double rampPowerToOriginal = -1.0;
     int32_t mets = -1;
     bool waitForLap = false;
     QTime rampDuration = QTime(0, 0, 0, 0); // QZ split the ramp in 1 second segments. This field will tell you how long

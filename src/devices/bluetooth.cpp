@@ -236,6 +236,13 @@ void bluetooth::finished() {
         return;
     }
 
+    const QString manualDevice =
+        settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString();
+    if (!onlyDiscover && !gymModeEnabled() &&
+        manualDevice.compare(QZSettings::default_filter_device, Qt::CaseInsensitive) != 0) {
+        emit manualDeviceNotFound(manualDevice);
+    }
+
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QString ftmsAccessoryName =
@@ -1706,6 +1713,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) ||                     // Kingsmith WalkingPad Z1
                         (b.name().toUpper().startsWith(QStringLiteral("KS-AP-"))) ||                        // Kingsmith WalkingPad R3 Hybrid+
                         (b.name().toUpper().startsWith(QStringLiteral("KS-NG-"))) ||                        // Kingsmith X218 / Walking Pad
+                        (b.name().toUpper().startsWith(QStringLiteral("KS-ESP-"))) ||                       // KingSmith treadmill
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("TT8")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ST90")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1851,6 +1859,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(tacxneo2Bike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 tacxneo2Bike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(tacxneo2Bike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("XCX-")) && !xcxBike && filter) {
+                // XCX exposes FTMS, CSC and Cycling Power services, but its working telemetry is
+                // proprietary FFF6. This name-specific branch must remain before generic FTMS.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                xcxBike = new xcxbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(xcxBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                xcxBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(xcxBike);
             } else if (((b.name().toUpper().startsWith("INDOORCYCLE")) ||
                         ((b.name().toUpper().startsWith("MAGNUS ")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) &&
                        !cycleopsphantomBike && filter) {
@@ -1982,7 +2000,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("ROBX")) ||
                         (b.name().toUpper().startsWith("ORLAUF_ARES")) ||
                         (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
-                        (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("SMARTBIKE-")) ||
                         (b.name().toUpper().startsWith("D500V2")) ||
                         (b.name().toUpper().startsWith("FBIKE-HEAVY-PRO")) ||
@@ -2826,7 +2843,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                           (upperDeviceName.startsWith(QStringLiteral("FAL-SPORTS")) && toorx_bike) ||
                           upperDeviceName.startsWith(QStringLiteral("DKN MOTION"))) &&
                          (toorx_bike))) &&
-                       !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && (filter || isRI009R) && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) && !csc_as_bike) {
+                       !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && !isConfiguredFtmsRowerDevice && (filter || isRI009R) && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) && !csc_as_bike) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 trxappgateusbBike =
@@ -2928,6 +2945,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 snodeBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(snodeBike);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) ||
+                        b.name().startsWith(QStringLiteral("X100-")) ||
                         (b.name().toUpper().startsWith("H9110 OSAKA")) ||
                         b.name().startsWith(QStringLiteral("MRK-"))) &&
                        !fitPlusBike && !ftmsBike && !ftmsRower && !snodeBike && !horizonTreadmill && !trxappgateusbRower && filter) {
@@ -4091,6 +4109,11 @@ void bluetooth::restart() {
         delete ultraSportBike;
         ultraSportBike = nullptr;
     }
+    if (xcxBike) {
+
+        delete xcxBike;
+        xcxBike = nullptr;
+    }
     if (mepanelBike) {
 
         delete mepanelBike;
@@ -4541,6 +4564,8 @@ bluetoothdevice *bluetooth::device() {
         return bkoolBike;
     } else if (ultraSportBike) {
         return ultraSportBike;
+    } else if (xcxBike) {
+        return xcxBike;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
     } else if (lifefitnessTreadmill) {
