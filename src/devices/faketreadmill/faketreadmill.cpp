@@ -61,6 +61,8 @@ void faketreadmill::update() {
 
     Distance += ((Speed.value() / (double)3600.0) /
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(now))));
+    KCal += calculateKCalChange(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                lastRefreshCharacteristicChanged.msecsTo(now));
     lastRefreshCharacteristicChanged = now;
 
     // ******************************************* virtual treadmill init *************************************
