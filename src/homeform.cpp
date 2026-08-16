@@ -5869,18 +5869,29 @@ void homeform::Start_inner(bool send_event_to_device) {
 }
 
 void homeform::StartFromDevice() {
-    qDebug() << QStringLiteral("Physical start button pressed on device");
-    Start_inner(false);  // false = don't send command back to device (it already started)
+    if (!paused && !stopped) {
+        qDebug() << QStringLiteral("Hardware-originated start ignored: QZ is already running");
+        return;
+    }
+    qDebug() << QStringLiteral("Synchronizing QZ start/resume from hardware; suppressing outbound device command");
+    Start_inner(false);
 }
 
 void homeform::PauseFromDevice() {
-    qDebug() << QStringLiteral("Physical pause button pressed on device");
-    Start_inner(false);  // false = don't send command back to device
+    if (paused || stopped) {
+        qDebug() << QStringLiteral("Hardware-originated pause ignored: QZ is already paused or stopped");
+        return;
+    }
+    qDebug() << QStringLiteral("Synchronizing QZ pause from hardware; suppressing outbound device command");
+    Start_inner(false);
 }
 
 void homeform::StopFromDevice() {
-    qDebug() << QStringLiteral("Physical stop button pressed on device - stopping app");
-    Stop();
+    qDebug() << QStringLiteral("Synchronizing QZ stop from hardware; suppressing outbound device command");
+    Stop_inner(false);
+    // Preserve the existing QML completion-screen flow. When its queued Stop() runs, QZ is already
+    // stopped, so Stop_inner(true) returns before it can echo a command to the device.
+    StopRequested();
 }
 
 void homeform::StartRequested() {
@@ -5902,14 +5913,16 @@ void homeform::StopFromTrainProgram(bool paused) {
     Stop();
 }
 
-void homeform::Stop() {
+void homeform::Stop() { Stop_inner(true); }
+
+void homeform::Stop_inner(bool send_event_to_device) {
     QSettings settings;
 
     m_startRequested = false;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    if(h && !h->appleWatchAppInstalled())
+    if (send_event_to_device && h && !h->appleWatchAppInstalled())
         h->stopWorkout();
     // End iOS Live Activity when workout stops
     ios_liveactivity::endLiveActivity();
@@ -5947,7 +5960,7 @@ void homeform::Stop() {
         }
     }
 
-    if (bluetoothManager->device()) {
+    if (bluetoothManager->device() && send_event_to_device) {
         bluetoothManager->device()->stop(false);
     }
 

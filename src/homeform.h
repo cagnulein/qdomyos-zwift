@@ -1124,6 +1124,7 @@ public:
     bool getDevice();
     bool getLap();
     void Start_inner(bool send_event_to_device);
+    void Stop_inner(bool send_event_to_device);
     QTextToSpeech *ensureSpeech();
 
     QTextToSpeech *m_speech = nullptr;
@@ -1177,6 +1178,11 @@ public:
     void Start();
     void Stop();
     void StopRequested();
+    // Device-originated controls are public slots because device implementations invoke them
+    // directly while suppressing command echo back to the physical console.
+    void StartFromDevice();
+    void PauseFromDevice();
+    void StopFromDevice();
 
   private slots:
     void StopFromTrainProgram(bool paused);
@@ -1254,10 +1260,6 @@ public:
     void garmin_upload_file_prepare();
     void garmin_download_todays_workout();
     void handleRestoreDefaultWheelDiameter();
-    void StartFromDevice();  // Called when physical start button pressed on hardware
-    void PauseFromDevice();  // Called when physical pause button pressed on hardware
-    void StopFromDevice();   // Called when physical stop button pressed on hardware
-
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     void licenseReply(QNetworkReply *reply);
     void licenseTimeout();
