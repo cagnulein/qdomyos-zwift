@@ -3534,8 +3534,33 @@ void bluetooth::connectedAndDiscovered() {
                 cycplusBC2Controller = new cycplusbc2controller(this->device());
 
                 connect(cycplusBC2Controller, &cycplusbc2controller::debug, this, &bluetooth::debug);
-                connect(cycplusBC2Controller, &cycplusbc2controller::plus, (bike*)this->device(), &bike::gearUp);
-                connect(cycplusBC2Controller, &cycplusbc2controller::minus, (bike*)this->device(), &bike::gearDown);
+                const auto handleCycplusBC2Shift = [this](bool increase) {
+                    auto *bikeDevice = dynamic_cast<bike *>(this->device());
+                    if (!bikeDevice) {
+                        return;
+                    }
+
+                    if (dynamic_cast<cscbike *>(bikeDevice) && cscbike::useCustomResistancePowerTable()) {
+                        if (homeform::singleton()) {
+                            if (increase) {
+                                homeform::singleton()->Plus(QStringLiteral("resistance"));
+                            } else {
+                                homeform::singleton()->Minus(QStringLiteral("resistance"));
+                            }
+                        }
+                        return;
+                    }
+
+                    if (increase) {
+                        bikeDevice->gearUp();
+                    } else {
+                        bikeDevice->gearDown();
+                    }
+                };
+                connect(cycplusBC2Controller, &cycplusbc2controller::plus, this,
+                        [handleCycplusBC2Shift]() { handleCycplusBC2Shift(true); });
+                connect(cycplusBC2Controller, &cycplusbc2controller::minus, this,
+                        [handleCycplusBC2Shift]() { handleCycplusBC2Shift(false); });
                 cycplusBC2Controller->deviceDiscovered(b);
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested("CYCPLUS BC2 Connected!");
