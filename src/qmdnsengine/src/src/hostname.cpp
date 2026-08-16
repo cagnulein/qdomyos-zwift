@@ -40,6 +40,26 @@
 
 using namespace QMdnsEngine;
 
+namespace {
+
+// True if the address is one this machine actually holds. Used to recognise our
+// own A/AAAA records coming back at us so they are not mistaken for a competing
+// claim on the hostname.
+bool isOwnAddress(const QHostAddress &address) {
+    if (address.isNull()) {
+        return false;
+    }
+    const auto addresses = QNetworkInterface::allAddresses();
+    for (const QHostAddress &local : addresses) {
+        if (local == address) {
+            return true;
+        }
+    }
+    return false;
+}
+
+} // namespace
+
 HostnamePrivate::HostnamePrivate(Hostname *hostname, AbstractServer *server)
     : HostnamePrivate(hostname, QByteArray(), server) {}
 
@@ -128,8 +148,19 @@ void HostnamePrivate::onMessageReceived(const Message &message) {
         const auto records = message.records();
         for (const Record &record : records) {
             if ((record.type() == A || record.type() == AAAA) && record.name() == hostname) {
+                // RFC 6762 8.2: our own address is not a competing claim. The
+                // provider keeps re-announcing its A record for several seconds
+                // after publishing, and with rouvy_compatibility the hostname
+                // re-probes every 5 seconds, so those two windows overlap
+                // permanently. Without this check the host renames itself
+                // against its own announcement on every rebroadcast, and each
+                // rename drags the service name along with it.
+                if (isOwnAddress(record.address())) {
+                    continue;
+                }
                 ++hostnameSuffix;
                 assertHostname();
+                return;
             }
         }
     } else {

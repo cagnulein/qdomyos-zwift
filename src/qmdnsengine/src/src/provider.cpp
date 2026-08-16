@@ -99,6 +99,15 @@ void ProviderPrivate::confirm() {
     if (prober) {
         delete prober;
     }
+
+    // Probe from the name update() asked for. srvProposed holds the name the
+    // last prober confirmed, which may already carry a "-2"; feeding that back
+    // in makes Prober treat it as the base name and compound the suffix into
+    // "-2-2-2..." rather than counting 2, 3, 4.
+    if (!desiredFqName.isEmpty()) {
+        srvProposed.setName(desiredFqName);
+    }
+
     prober = new Prober(server, srvProposed, this);
     qDebug() << "ProviderPrivate::confirm()";
     connect(prober, &Prober::nameConfirmed, [this](const QByteArray &name) {
@@ -280,6 +289,7 @@ void Provider::update(const Service &service) {
 
     // Update the proposed records
     QByteArray fqName = serviceName + "." + serviceType;
+    d->desiredFqName = fqName;
     d->browsePtrProposed.setTarget(serviceType);
     d->ptrProposed.setName(serviceType);
     d->ptrProposed.setTarget(fqName);

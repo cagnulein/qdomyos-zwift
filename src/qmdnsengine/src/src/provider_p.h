@@ -74,6 +74,10 @@ class ProviderPrivate : public QObject {
     Record txtRecord;
     Record ARecord;
 
+    // The name update() last asked for, before any "-2" the prober appended.
+    // Re-probing has to start from this, not from whatever was confirmed last.
+    QByteArray desiredFqName;
+
     Record browsePtrProposed;
     Record ptrProposed;
     Record srvProposed;
