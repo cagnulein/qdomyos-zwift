@@ -1233,6 +1233,8 @@ public:
     void sortTilesTimeout();
     void gearUp();
     void gearDown();
+    void externalControllerGearUp();
+    void externalControllerGearDown();
     void speedPlus();
     void speedMinus();
     void inclinationPlus();

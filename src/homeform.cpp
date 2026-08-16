@@ -2094,6 +2094,26 @@ void homeform::gearDown() {
     }
 }
 
+void homeform::externalControllerGearUp() {
+    const bool useManualResistance = dynamic_cast<cscbike *>(bluetoothManager->device()) &&
+                                      cscbike::useCustomResistancePowerTable();
+    if (useManualResistance || autoResistance()) {
+        Plus(useManualResistance ? QStringLiteral("resistance") : QStringLiteral("gears"));
+        automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
+        automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
+    }
+}
+
+void homeform::externalControllerGearDown() {
+    const bool useManualResistance = dynamic_cast<cscbike *>(bluetoothManager->device()) &&
+                                      cscbike::useCustomResistancePowerTable();
+    if (useManualResistance || autoResistance()) {
+        Minus(useManualResistance ? QStringLiteral("resistance") : QStringLiteral("gears"));
+        automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
+        automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
+    }
+}
+
 void homeform::speedPlus() {
     Plus(QStringLiteral("speed"));
 }
@@ -2112,8 +2132,8 @@ void homeform::inclinationMinus() {
 
 void homeform::ftmsAccessoryConnected(smartspin2k *d) {
     connect(this, &homeform::autoResistanceChanged, d, &smartspin2k::autoResistanceChanged);
-    connect(d, &smartspin2k::gearUp, this, &homeform::gearUp);
-    connect(d, &smartspin2k::gearDown, this, &homeform::gearDown);
+    connect(d, &smartspin2k::gearUp, this, &homeform::externalControllerGearUp);
+    connect(d, &smartspin2k::gearDown, this, &homeform::externalControllerGearDown);
 }
 
 void homeform::sortTiles() {
