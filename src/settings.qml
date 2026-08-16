@@ -1740,6 +1740,7 @@ import AndroidStatusBar 1.0
             property bool nordictrack_elliptical_s700: false
             
             property bool virtual_device_tacx: false
+            property bool renpho_bike_knob_gears: false
         }
 
 
@@ -4794,6 +4795,19 @@ import AndroidStatusBar 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.renpho_bike_double_resistance = checked
+                            }
+                            IndicatorOnlySwitch {
+                                text: qsTr("Physical resistance knob controls QZ gears")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.renpho_bike_knob_gears
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.renpho_bike_knob_gears = checked
                             }
                         }
                     }

@@ -367,6 +367,7 @@
 		876E51002B701C1E0080FAAF /* zwiftclickremote.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E50FB2B701C1E0080FAAF /* zwiftclickremote.cpp */; };
 		876ED21525C3E8DE0065F3DC /* ftmsbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21025C3E8DD0065F3DC /* ftmsbike.cpp */; };
 		876ED21625C3E8DE0065F3DC /* schwinnic4bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21425C3E8DE0065F3DC /* schwinnic4bike.cpp */; };
+		7699B9BE90C2928032D047B3 /* kettlerc12bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 3558A90E62897A3F7A543871 /* kettlerc12bike.cpp */; };
 		876ED21925C3E9000065F3DC /* moc_ftmsbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21725C3E9000065F3DC /* moc_ftmsbike.cpp */; };
 		876ED21A25C3E9010065F3DC /* moc_material.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21825C3E9000065F3DC /* moc_material.cpp */; };
 		876EE3CDDF69DA139329ADD8 /* qquicklayoutsplugin in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 307B2F8E9A717B514EA118E0 /* qquicklayoutsplugin */; };
@@ -592,6 +593,7 @@
 		87DF68B825E2673B00FCDA46 /* eslinkertreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DF68B625E2673600FCDA46 /* eslinkertreadmill.cpp */; };
 		87DF68BD25E2675100FCDA46 /* moc_eslinkertreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DF68BA25E2675100FCDA46 /* moc_eslinkertreadmill.cpp */; };
 		87DF68BF25E2675100FCDA46 /* moc_schwinnic4bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DF68BC25E2675100FCDA46 /* moc_schwinnic4bike.cpp */; };
+		7AFB751CB4678058EA26472E /* moc_kettlerc12bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 006CEE39F7A98DDCC1D88651 /* moc_kettlerc12bike.cpp */; };
 		87E0761D277A081A00FDA0F9 /* technogymmyruntreadmillrfcomm.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E0761B277A081900FDA0F9 /* technogymmyruntreadmillrfcomm.cpp */; };
 		87E0761F277A082300FDA0F9 /* moc_technogymmyruntreadmillrfcomm.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E0761E277A082300FDA0F9 /* moc_technogymmyruntreadmillrfcomm.cpp */; };
 		87E1CA7D2B8DF04900E3C414 /* moc_trxappgateusbelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E1CA7C2B8DF04900E3C414 /* moc_trxappgateusbelliptical.cpp */; };
@@ -1401,6 +1403,8 @@
 		876ED21225C3E8DD0065F3DC /* material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = material.h; path = ../src/material.h; sourceTree = "<group>"; };
 		876ED21325C3E8DE0065F3DC /* schwinnic4bike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = schwinnic4bike.h; path = ../src/devices/schwinnic4bike/schwinnic4bike.h; sourceTree = "<group>"; };
 		876ED21425C3E8DE0065F3DC /* schwinnic4bike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = schwinnic4bike.cpp; path = ../src/devices/schwinnic4bike/schwinnic4bike.cpp; sourceTree = "<group>"; };
+		62131FE0D24D0B93E8E1E73D /* kettlerc12bike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kettlerc12bike.h; path = ../src/devices/kettlerc12bike/kettlerc12bike.h; sourceTree = "<group>"; };
+		3558A90E62897A3F7A543871 /* kettlerc12bike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kettlerc12bike.cpp; path = ../src/devices/kettlerc12bike/kettlerc12bike.cpp; sourceTree = "<group>"; };
 		876ED21725C3E9000065F3DC /* moc_ftmsbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_ftmsbike.cpp; sourceTree = "<group>"; };
 		876ED21825C3E9000065F3DC /* moc_material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_material.cpp; sourceTree = "<group>"; };
 		876F45FB279350CB003CDA5A /* concept2skierg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = concept2skierg.cpp; path = ../src/devices/concept2skierg/concept2skierg.cpp; sourceTree = "<group>"; };
@@ -1735,6 +1739,7 @@
 		87DF68B725E2673600FCDA46 /* eslinkertreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = eslinkertreadmill.h; path = ../src/devices/eslinkertreadmill/eslinkertreadmill.h; sourceTree = "<group>"; };
 		87DF68BA25E2675100FCDA46 /* moc_eslinkertreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_eslinkertreadmill.cpp; sourceTree = "<group>"; };
 		87DF68BC25E2675100FCDA46 /* moc_schwinnic4bike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_schwinnic4bike.cpp; sourceTree = "<group>"; };
+		006CEE39F7A98DDCC1D88651 /* moc_kettlerc12bike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_kettlerc12bike.cpp; sourceTree = "<group>"; };
 		87E0761B277A081900FDA0F9 /* technogymmyruntreadmillrfcomm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = technogymmyruntreadmillrfcomm.cpp; path = ../src/devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.cpp; sourceTree = "<group>"; };
 		87E0761C277A081900FDA0F9 /* technogymmyruntreadmillrfcomm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = technogymmyruntreadmillrfcomm.h; path = ../src/devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.h; sourceTree = "<group>"; };
 		87E0761E277A082300FDA0F9 /* moc_technogymmyruntreadmillrfcomm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_technogymmyruntreadmillrfcomm.cpp; sourceTree = "<group>"; };
@@ -2359,6 +2364,7 @@
 				8772A0E725E43AE70080718C /* moc_trxappgateusbbike.cpp */,
 				87DF68BA25E2675100FCDA46 /* moc_eslinkertreadmill.cpp */,
 				87DF68BC25E2675100FCDA46 /* moc_schwinnic4bike.cpp */,
+				006CEE39F7A98DDCC1D88651 /* moc_kettlerc12bike.cpp */,
 				8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */,
 				876ED21725C3E9000065F3DC /* moc_ftmsbike.cpp */,
 				876ED21825C3E9000065F3DC /* moc_material.cpp */,
@@ -2902,6 +2908,8 @@
 				876ED21225C3E8DD0065F3DC /* material.h */,
 				876ED21425C3E8DE0065F3DC /* schwinnic4bike.cpp */,
 				876ED21325C3E8DE0065F3DC /* schwinnic4bike.h */,
+				3558A90E62897A3F7A543871 /* kettlerc12bike.cpp */,
+				62131FE0D24D0B93E8E1E73D /* kettlerc12bike.h */,
 				87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */,
 				87EFB56D25BD703C0039DD5A /* proformtreadmill.h */,
 				87586A4025B8340E00A243C4 /* proformbike.cpp */,
@@ -3976,6 +3984,7 @@
 				87C7074227E4CF5300E79C46 /* moc_keepbike.cpp in Compile Sources */,
 				BBBE7689F5792CB3FD1997EC /* fit_factory.cpp in Compile Sources */,
 				876ED21625C3E8DE0065F3DC /* schwinnic4bike.cpp in Compile Sources */,
+				7699B9BE90C2928032D047B3 /* kettlerc12bike.cpp in Compile Sources */,
 				879E5AAA289C05A500FEA38A /* moc_proformwifitreadmill.cpp in Compile Sources */,
 				87D269A325F535340076AA48 /* moc_skandikawiribike.cpp in Compile Sources */,
 				87F4FB5C29D550E00061BB4A /* moc_schwinn170bike.cpp in Compile Sources */,
@@ -4094,6 +4103,7 @@
 				E40895A73216AC52D35083D9 /* signalhandler.cpp in Compile Sources */,
 				873CD22427EF8E18000131BC /* inappproductqmltype.cpp in Compile Sources */,
 				87DF68BF25E2675100FCDA46 /* moc_schwinnic4bike.cpp in Compile Sources */,
+				7AFB751CB4678058EA26472E /* moc_kettlerc12bike.cpp in Compile Sources */,
 				8710707329C4A5E70094D0F3 /* GarminConnect.swift in Compile Sources */,
 				BE1D17BBF32F04829E1B3767 /* toorxtreadmill.cpp in Compile Sources */,
 				879A38C8281BD83300F78B2A /* characteristicnotifier2ad9.cpp in Compile Sources */,
