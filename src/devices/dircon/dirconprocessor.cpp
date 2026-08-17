@@ -59,7 +59,13 @@ void DirconProcessor::initAdvertising() {
     if (!mdnsServer) {
         qDebug() << "Dircon Adv init for" << serverName;
         mdnsServer = new QMdnsEngine::Server(this);
-        mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, serverName.toUtf8() + QByteArrayLiteral("H"), this);
+        // MyWhoosh keys its pending-service map on the instance name with spaces
+        // hyphenated - WahooProgram.ServiceFound() does serviceName.Replace(" ", "-")
+        // + ".local." - then looks that key up with the SRV target hostname and drops
+        // the device silently when it misses. The old trailing "H" and the unhyphenated
+        // spaces both broke that match, so MyWhoosh never resolved us and never opened
+        // TCP to 36866. Hostname appends ".local." itself, and Rouvy ignores the target.
+        mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, serverName.toUtf8().replace(' ', '-'), this);
         mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
         QMdnsEngine::Service mdnsService;
         // Both spellings encode to the same bytes - writeName() chops the trailing
