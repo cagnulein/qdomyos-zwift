@@ -106,6 +106,7 @@ SOURCES += \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.cpp \
     $$PWD/devices/cycplusbc2controller/cycplusbc2controller.cpp \
     $$PWD/devices/sramAXSController/sramAXSController.cpp \
+    $$PWD/devices/sramAXSController/sramAXSCrypto.cpp \
     $$PWD/devices/thinkridercontroller/thinkridercontroller.cpp \
     $$PWD/devices/stairclimber.cpp \
     $$PWD/devices/echelonstairclimber/echelonstairclimber.cpp \
@@ -399,6 +400,7 @@ HEADERS += \
     $$PWD/devices/sportstechelliptical/sportstechelliptical.h \
     $$PWD/devices/cycplusbc2controller/cycplusbc2controller.h \
     $$PWD/devices/sramAXSController/sramAXSController.h \
+    $$PWD/devices/sramAXSController/sramAXSCrypto.h \
     $$PWD/devices/thinkridercontroller/thinkridercontroller.h \
     $$PWD/devices/stairclimber.h \
     $$PWD/devices/technogymbike/technogymbike.h \
