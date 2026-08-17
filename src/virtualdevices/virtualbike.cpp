@@ -1,6 +1,7 @@
 #include "virtualdevices/virtualbike.h"
 #include "devices/bike.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
+#include "devices/ftmsbike/ftmsbike.h"
 #include <QThread>
 #include <QDataStream>
 #include <QMetaEnum>
@@ -1958,6 +1959,16 @@ void virtualbike::bikeProvider() {
             uint8_t ftms_message[255];
             int ret = h->virtualbike_getLastFTMSMessage(ftms_message);
             if (ret > 0) {
+                QSettings settings;
+                if (ftms_message[0] == FTMS_SET_TARGET_POWER) {
+                    settings.setValue(QZSettings::zwift_erg, true);
+                    erg_mode = true;
+                } else if (ftms_message[0] == FTMS_SET_TARGET_INCLINATION ||
+                           ftms_message[0] == FTMS_SET_TARGET_RESISTANCE_LEVEL ||
+                           ftms_message[0] == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+                    settings.setValue(QZSettings::zwift_erg, false);
+                    erg_mode = false;
+                }
                 lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
                 qDebug() << "FTMS rcv << " << QByteArray::fromRawData((char *)ftms_message, ret).toHex(' ');
                 emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
