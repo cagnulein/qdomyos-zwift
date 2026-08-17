@@ -370,6 +370,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool thinkriderDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device);
     bool gymModeEnabled() const;
+    void handleControllerGearChange(bool increase, bool allowMyWhooshOverride);
 
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;
@@ -437,6 +438,10 @@ class bluetooth : public QObject, public SignalHandler {
     void speedChanged(double);
     void inclinationChanged(double, double);
     void connectedAndDiscovered();
+    void controllerGearDown();
+    void controllerGearUp();
+    void controllerGearDownWithMyWhoosh();
+    void controllerGearUpWithMyWhoosh();
     void gearDown();
     void gearUp();
     void gearFailedDown();
