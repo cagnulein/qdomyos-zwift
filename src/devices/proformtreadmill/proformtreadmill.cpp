@@ -2294,7 +2294,7 @@ void proformtreadmill::update() {
                     break;
                 }
             }
-
+/*
             if (counterPoll == 24) {
                 writeCharacteristic(periodicQuery1, sizeof(periodicQuery1), QStringLiteral("NTL15010 periodic query 1/2"));
             } else if (counterPoll == 25) {
@@ -2303,7 +2303,7 @@ void proformtreadmill::update() {
                 writeCharacteristic(workoutQuery1, sizeof(workoutQuery1), QStringLiteral("NTL15010 workout query 1/2"));
             } else if (counterPoll == 27) {
                 writeCharacteristic(workoutQuery2, sizeof(workoutQuery2), QStringLiteral("NTL15010 workout query 2/2"), false, true);
-            }
+            }*/
 
             counterPoll++;
             if (counterPoll > 27) {
