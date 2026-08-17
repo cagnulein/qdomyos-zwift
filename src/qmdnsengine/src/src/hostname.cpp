@@ -61,10 +61,14 @@ bool isOwnAddress(const QHostAddress &address) {
 } // namespace
 
 HostnamePrivate::HostnamePrivate(Hostname *hostname, AbstractServer *server)
-    : HostnamePrivate(hostname, QByteArray(), server) {}
+    : HostnamePrivate(hostname, QByteArray(), HostnameAddressFamily::IPv4AndIPv6, server) {}
 
 HostnamePrivate::HostnamePrivate(Hostname *hostname, const QByteArray &desired, AbstractServer *server)
-    : QObject(hostname), server(server), desiredHostname(desired), q(hostname) {
+    : HostnamePrivate(hostname, desired, HostnameAddressFamily::IPv4AndIPv6, server) {}
+
+HostnamePrivate::HostnamePrivate(Hostname *hostname, const QByteArray &desired, HostnameAddressFamily family,
+                                 AbstractServer *server)
+    : QObject(hostname), server(server), desiredHostname(desired), addressFamily(family), q(hostname) {
     connect(server, &AbstractServer::messageReceived, this, &HostnamePrivate::onMessageReceived);
     connect(&registrationTimer, &QTimer::timeout, this, &HostnamePrivate::onRegistrationTimeout);
     connect(&rebroadcastTimer, &QTimer::timeout, this, &HostnamePrivate::onRebroadcastTimeout);
@@ -113,16 +117,19 @@ void HostnamePrivate::assertHostname() {
     hostname =
         (hostnameSuffix == 1 ? localHostname : localHostname + "-" + QByteArray::number(hostnameSuffix)) + ".local.";
 
-    // Compose a query for A and AAAA records matching the hostname
+    // Compose a query for A (and, unless restricted to IPv4, AAAA) records
+    // matching the hostname
     Query ipv4Query;
     ipv4Query.setName(hostname);
     ipv4Query.setType(A);
-    Query ipv6Query;
-    ipv6Query.setName(hostname);
-    ipv6Query.setType(AAAA);
     Message message;
     message.addQuery(ipv4Query);
-    message.addQuery(ipv6Query);
+    if (addressFamily != HostnameAddressFamily::IPv4Only) {
+        Query ipv6Query;
+        ipv6Query.setName(hostname);
+        ipv6Query.setType(AAAA);
+        message.addQuery(ipv6Query);
+    }
 
     server->sendMessageToAll(message);
 
@@ -162,7 +169,11 @@ void HostnamePrivate::onMessageReceived(const Message &message) {
         }
         const auto records = message.records();
         for (const Record &record : records) {
-            if ((record.type() == A || record.type() == AAAA) && record.name() == hostname) {
+            // An AAAA record is not a competing claim on a hostname we only
+            // ever publish an A record for, so ignore it rather than renaming.
+            const bool competingType =
+                record.type() == A || (record.type() == AAAA && addressFamily != HostnameAddressFamily::IPv4Only);
+            if (competingType && record.name() == hostname) {
                 // RFC 6762 8.2: our own address is not a competing claim. The
                 // provider keeps re-announcing its A record for several seconds
                 // after publishing, and with rouvy_compatibility the hostname
@@ -186,7 +197,12 @@ void HostnamePrivate::onMessageReceived(const Message &message) {
         reply.reply(message);
         const auto queries = message.queries();
         for (const Query &query : queries) {
-            if ((query.type() == A || query.type() == AAAA) && query.name() == hostname) {
+            // Leaving an AAAA query unanswered is the point: a client that gets
+            // no IPv6 address falls back to the A record, which is the address
+            // the DIRCON server is actually listening on.
+            const bool answerable =
+                query.type() == A || (query.type() == AAAA && addressFamily != HostnameAddressFamily::IPv4Only);
+            if (answerable && query.name() == hostname) {
                 Record record;
                 if (generateRecord(message.address(), query.type(), record)) {
                     reply.addRecord(record);
@@ -221,6 +237,9 @@ Hostname::Hostname(AbstractServer *server, QObject *parent) : QObject(parent), d
 
 Hostname::Hostname(AbstractServer *server, const QByteArray &desired, QObject *parent)
     : QObject(parent), d(new HostnamePrivate(this, desired, server)) {}
+
+Hostname::Hostname(AbstractServer *server, const QByteArray &desired, HostnameAddressFamily family, QObject *parent)
+    : QObject(parent), d(new HostnamePrivate(this, desired, family, server)) {}
 
 bool Hostname::isRegistered() const { return d->hostnameRegistered; }
 

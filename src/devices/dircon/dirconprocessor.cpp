@@ -65,7 +65,11 @@ void DirconProcessor::initAdvertising() {
         // the device silently when it misses. The old trailing "H" and the unhyphenated
         // spaces both broke that match, so MyWhoosh never resolved us and never opened
         // TCP to 36866. Hostname appends ".local." itself, and Rouvy ignores the target.
-        mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, serverName.toUtf8().replace(' ', '-'), this);
+        // IPv4Only because initServer() binds AnyIPv4: publishing an AAAA would
+        // advertise a link-local address nothing is listening on, and a client
+        // that picks it stalls in SYN_SENT rather than falling back.
+        mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, serverName.toUtf8().replace(' ', '-'),
+                                                 QMdnsEngine::HostnameAddressFamily::IPv4Only, this);
         mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
         QMdnsEngine::Service mdnsService;
         // Both spellings encode to the same bytes - writeName() chops the trailing
