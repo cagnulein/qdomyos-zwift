@@ -32,6 +32,7 @@ jobs:
       - name: Commit fixup
         shell: bash
         run: |
+          # This workflow is intentionally temporary and is removed after the fixup lands.
           if git diff --quiet -- src/settings.qml; then
             echo 'No fixup needed.'
             exit 0
