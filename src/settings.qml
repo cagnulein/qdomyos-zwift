@@ -1010,6 +1010,39 @@ import AndroidStatusBar 1.0
             property double treadmill_inclination_override_145: 14.5
             property double treadmill_inclination_override_150: 15.0
 
+            // Optional outbound device commands; row/index defaults preserve legacy profiles.
+            property double treadmill_inclination_override_device_command_0: 0.0
+            property double treadmill_inclination_override_device_command_05: 0.5
+            property double treadmill_inclination_override_device_command_10: 1.0
+            property double treadmill_inclination_override_device_command_15: 1.5
+            property double treadmill_inclination_override_device_command_20: 2.0
+            property double treadmill_inclination_override_device_command_25: 2.5
+            property double treadmill_inclination_override_device_command_30: 3.0
+            property double treadmill_inclination_override_device_command_35: 3.5
+            property double treadmill_inclination_override_device_command_40: 4.0
+            property double treadmill_inclination_override_device_command_45: 4.5
+            property double treadmill_inclination_override_device_command_50: 5.0
+            property double treadmill_inclination_override_device_command_55: 5.5
+            property double treadmill_inclination_override_device_command_60: 6.0
+            property double treadmill_inclination_override_device_command_65: 6.5
+            property double treadmill_inclination_override_device_command_70: 7.0
+            property double treadmill_inclination_override_device_command_75: 7.5
+            property double treadmill_inclination_override_device_command_80: 8.0
+            property double treadmill_inclination_override_device_command_85: 8.5
+            property double treadmill_inclination_override_device_command_90: 9.0
+            property double treadmill_inclination_override_device_command_95: 9.5
+            property double treadmill_inclination_override_device_command_100: 10.0
+            property double treadmill_inclination_override_device_command_105: 10.5
+            property double treadmill_inclination_override_device_command_110: 11.0
+            property double treadmill_inclination_override_device_command_115: 11.5
+            property double treadmill_inclination_override_device_command_120: 12.0
+            property double treadmill_inclination_override_device_command_125: 12.5
+            property double treadmill_inclination_override_device_command_130: 13.0
+            property double treadmill_inclination_override_device_command_135: 13.5
+            property double treadmill_inclination_override_device_command_140: 14.0
+            property double treadmill_inclination_override_device_command_145: 14.5
+            property double treadmill_inclination_override_device_command_150: 15.0
+
             // from version 2.12.61
             property bool sole_elliptical_e55: false
             property bool horizon_treadmill_force_ftms: false

@@ -44,6 +44,7 @@ class treadmill : public bluetoothdevice {
     virtual bool autoPauseWhenSpeedIsZero();
     virtual bool autoStartWhenSpeedIsGreaterThenZero();
     static double treadmillInclinationOverride(double Inclination);
+    static double treadmillInclinationDeviceCommand(double rawIndex);
     static double treadmillInclinationOverrideReverse(double Inclination);
     bool cadenceFromAppleWatch();
     double calculateCadenceFromSpeed(double speed);
