@@ -20,9 +20,9 @@ SETTINGS_FILES = [
 ]
 CATALOG_PATH = "src/settings-catalog.json"
 PROPERTY_RE = re.compile(r"^\s*property\s+([A-Za-z_][\w<>.]*)\s+([A-Za-z_][\w]*)\s*:\s*(.*?)\s*$")
+SETTINGS_BLOCK_RE = re.compile(r"^\s*Settings\s*\{")
 SETTINGS_REF_RE = re.compile(r"\bsettings\.([A-Za-z_][\w]*)\b")
 SETTING_WRITE_RE = re.compile(r"\bsettings\.([A-Za-z_][\w]*)\s*=")
-COMMENTED_PROPERTY_RE = re.compile(r"^\s*//\s*property\b")
 
 
 @dataclass(frozen=True)
@@ -41,42 +41,125 @@ def normalize_expression(expr: str) -> str:
     return re.sub(r"\s+", " ", expr.strip())
 
 
-def strip_inline_comment(text: str) -> str:
+def strip_comments(text: str) -> str:
+    """Remove QML comments while preserving newlines and quoted comment markers."""
+    result: List[str] = []
     in_single = False
     in_double = False
+    in_block_comment = False
     escaped = False
     i = 0
-    while i < len(text) - 1:
+    while i < len(text):
         ch = text[i]
+        nxt = text[i + 1] if i + 1 < len(text) else ""
+
+        if in_block_comment:
+            if ch == "*" and nxt == "/":
+                in_block_comment = False
+                result.extend("  ")
+                i += 2
+                continue
+            result.append("\n" if ch == "\n" else " ")
+            i += 1
+            continue
+
         if escaped:
+            result.append(ch)
             escaped = False
             i += 1
             continue
+
         if ch == "\\" and (in_single or in_double):
+            result.append(ch)
             escaped = True
             i += 1
             continue
+
         if ch == "'" and not in_double:
             in_single = not in_single
-        elif ch == '"' and not in_single:
+            result.append(ch)
+            i += 1
+            continue
+
+        if ch == '"' and not in_single:
             in_double = not in_double
-        elif ch == "/" and text[i + 1] == "/" and not in_single and not in_double:
-            return text[:i].rstrip()
+            result.append(ch)
+            i += 1
+            continue
+
+        if not in_single and not in_double:
+            if ch == "/" and nxt == "*":
+                in_block_comment = True
+                result.extend("  ")
+                i += 2
+                continue
+            if ch == "/" and nxt == "/":
+                while i < len(text) and text[i] != "\n":
+                    result.append(" ")
+                    i += 1
+                continue
+
+        result.append(ch)
         i += 1
-    return text.rstrip()
+
+    return "".join(result)
+
+
+def brace_delta(line: str) -> int:
+    """Count structural braces, ignoring braces inside strings."""
+    delta = 0
+    in_single = False
+    in_double = False
+    escaped = False
+    for ch in line:
+        if escaped:
+            escaped = False
+            continue
+        if ch == "\\" and (in_single or in_double):
+            escaped = True
+            continue
+        if ch == "'" and not in_double:
+            in_single = not in_single
+            continue
+        if ch == '"' and not in_single:
+            in_double = not in_double
+            continue
+        if in_single or in_double:
+            continue
+        if ch == "{":
+            delta += 1
+        elif ch == "}":
+            delta -= 1
+    return delta
 
 
 def parse_declarations(text: str, source: str) -> List[SettingDecl]:
+    """Return only properties declared inside Qt.labs.settings Settings blocks."""
     declarations: List[SettingDecl] = []
-    for line_no, raw_line in enumerate(text.splitlines(), 1):
-        if COMMENTED_PROPERTY_RE.match(raw_line):
+    cleaned = strip_comments(text)
+    in_settings = False
+    depth = 0
+
+    for line_no, line in enumerate(cleaned.splitlines(), 1):
+        if not in_settings:
+            if not SETTINGS_BLOCK_RE.match(line):
+                continue
+            in_settings = True
+            depth = brace_delta(line)
+            if depth <= 0:
+                in_settings = False
             continue
-        line = strip_inline_comment(raw_line)
+
         match = PROPERTY_RE.match(line)
-        if not match:
-            continue
-        qml_type, key, default_expr = match.groups()
-        declarations.append(SettingDecl(source, line_no, qml_type, key, default_expr))
+        if match:
+            qml_type, key, default_expr = match.groups()
+            declarations.append(SettingDecl(source, line_no, qml_type, key, default_expr))
+
+        depth += brace_delta(line)
+        if depth <= 0:
+            in_settings = False
+            depth = 0
+
     return declarations
 
 
@@ -152,9 +235,14 @@ def catalog_errors(root: Path, declarations: Sequence[SettingDecl]) -> List[str]
     catalog_keys = [entry.get("key") for entry in entries]
     catalog_key_set = set(catalog_keys)
 
-    duplicates = sorted({key for key in catalog_keys if key and catalog_keys.count(key) > 1})
+    seen = set()
+    duplicates = set()
+    for key in catalog_keys:
+        if key in seen and key:
+            duplicates.add(key)
+        seen.add(key)
     if duplicates:
-        errors.append("catalog has duplicate keys: " + ", ".join(duplicates))
+        errors.append("catalog has duplicate keys: " + ", ".join(sorted(duplicates)))
 
     missing = sorted(declared_keys - catalog_key_set)
     stale = sorted(catalog_key_set - declared_keys)
