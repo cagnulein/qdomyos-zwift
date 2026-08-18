@@ -246,6 +246,30 @@ import AndroidStatusBar 1.0
             settingsSearchPending = false
         }
 
+
+        // SETTINGS_BEHAVIOR_CONTROLLER_V1
+        QtObject {
+            id: settingsBehavior
+
+            function restartRequired(entry) {
+                return entry.restartRequired === undefined ? true : !!entry.restartRequired
+            }
+
+            function afterGenericWrite(entry) {
+                if (restartRequired(entry))
+                    window.settings_restart_to_apply = true
+                toast.show("Setting saved!")
+            }
+
+            function setSettingValue(entry, value) {
+                settingsBehavior.setSettingValue(entry, value)
+            }
+
+            function setVirtualSelection(entry, index) {
+                settingsBehavior.setVirtualSelection(entry, index)
+            }
+        }
+
         function settingValue(entry) {
             var value = settings[entry.key]
             return value === undefined ? entry.defaultValue : value
