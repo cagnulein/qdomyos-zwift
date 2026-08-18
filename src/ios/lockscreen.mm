@@ -214,21 +214,19 @@ bool lockscreen::saveHistoricalWorkoutToHealthKit(unsigned short sport, double s
         HKQuantityType *energyType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierActiveEnergyBurned];
         if (calories > 0 && energyType) {
             HKQuantity *energy = [HKQuantity quantityWithUnit:[HKUnit kilocalorieUnit] doubleValue:calories];
-            [samples addObject:[HKCumulativeQuantitySeriesSample cumulativeQuantitySampleWithType:energyType
-                                                                                         quantity:energy
-                                                                                        startDate:startDate
-                                                                                          endDate:endDate
-                                                                                         metadata:nil]];
+            [samples addObject:[HKQuantitySample quantitySampleWithType:energyType
+                                                               quantity:energy
+                                                              startDate:startDate
+                                                                endDate:endDate]];
         }
 
         HKQuantityType *distanceType = HistoricalHealthKitDistanceType(sport);
         if (distanceMeters > 0 && distanceType) {
             HKQuantity *distance = [HKQuantity quantityWithUnit:[HKUnit meterUnit] doubleValue:distanceMeters];
-            [samples addObject:[HKCumulativeQuantitySeriesSample cumulativeQuantitySampleWithType:distanceType
-                                                                                         quantity:distance
-                                                                                        startDate:startDate
-                                                                                          endDate:endDate
-                                                                                         metadata:nil]];
+            [samples addObject:[HKQuantitySample quantitySampleWithType:distanceType
+                                                               quantity:distance
+                                                              startDate:startDate
+                                                                endDate:endDate]];
         }
 
         void (^finishWorkout)(void) = ^{
