@@ -1,0 +1,50 @@
+name: Settings audit
+
+on:
+  pull_request:
+    paths:
+      - 'src/settings*.qml'
+      - 'src/settings-catalog.json'
+      - 'scripts/settings_audit.py'
+      - 'tests/test_settings_audit.py'
+      - '.github/workflows/settings-audit.yml'
+      - 'docs/settings-refactor-status.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test audit parser
+        run: python3 -m unittest tests/test_settings_audit.py
+      - name: Resolve ABI base
+        id: base
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "sha=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            git fetch origin master
+            echo "sha=origin/master" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Audit persistent settings ABI and catalog
+        run: >-
+          python3 scripts/settings_audit.py
+          --base "${{ steps.base.outputs.sha }}"
+          --report settings-audit.json
+      - name: Upload audit inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: settings-audit
+          path: settings-audit.json
