@@ -14,7 +14,29 @@ DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_servi
     foreach (DirconProcessorService *my_service, my_services) { my_service->setParent(this); }
 }
 
-DirconProcessor::~DirconProcessor() {}
+DirconProcessor::~DirconProcessor() {
+    // The three mDNS objects are all children of this processor, and QObject destroys
+    // children in the order they were added - which initAdvertising() makes server,
+    // hostname, provider. That is exactly backwards: ~ProviderPrivate() sends the goodbye
+    // through `server->sendMessageToAll()`, so it reaches through a QObject that was freed
+    // two destructors ago.
+    //
+    // It cost nothing for a long time because the ordinary quit path never gets there. The
+    // provider only says goodbye once its name has been confirmed by a probe - a second or
+    // two after the endpoint comes up - and on quit `aboutToQuit` fires sayGoodbye() first,
+    // which sets saidGoodbye and makes the destructor's call return early. What is left is
+    // every mid-session teardown: releaseShared(), which DirconManager::shared() calls when
+    // a treadmill replaces a bike. That path crashed, and the goodbye it exists to send was
+    // being written into freed memory rather than onto the wire.
+    //
+    // So take them down in dependency order instead of leaving it to child order.
+    delete mdnsProvider;
+    mdnsProvider = nullptr;
+    delete mdnsHostname;
+    mdnsHostname = nullptr;
+    delete mdnsServer;
+    mdnsServer = nullptr;
+}
 
 QString DirconProcessor::convertUUIDFromUINT16ToString (quint16 uuid) {
     if(uuid == ZWIFT_PLAY_CHAR1_ENUM_VALUE)
