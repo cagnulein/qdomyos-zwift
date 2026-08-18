@@ -42,3 +42,5 @@ jobs:
           git add src/settings.qml src/settings-catalog.json
           git commit -m 'Preserve legacy settings behavior in modern UI'
           git push origin HEAD:agent/settings-refactor-phase1-safety
+
+# Trigger marker: phase4-v1
