@@ -3306,6 +3306,7 @@ class QZSettings {
      */
     static const QString ios_heart_companion;
     static constexpr bool default_ios_heart_companion = false;
+    /*
      * @brief NordicTrack Elliptical Spacesaver S700: uses its own BLE telemetry/control quirks
      * (speed packet marker and resistance byte mapping differ from the other NordicTrack elliptical
      * profiles), so it is gated behind its own setting to avoid affecting other models.
