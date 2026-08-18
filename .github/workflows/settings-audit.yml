@@ -10,6 +10,7 @@ on:
       - 'scripts/settings_layout.py'
       - 'scripts/apply_settings_ios_style_v3.py'
       - 'scripts/apply_settings_hierarchy_parser_v3.py'
+      - 'scripts/apply_settings_root_pages_v3.py'
       - 'tests/test_settings_audit.py'
       - 'tests/test_settings_behavior_migration.py'
       - 'tests/test_modern_settings_preview.py'
@@ -42,18 +43,19 @@ jobs:
           python3 scripts/settings_hierarchy.py --write
           python3 scripts/settings_layout.py --write
           python3 scripts/apply_settings_ios_style_v3.py
+          python3 scripts/apply_settings_root_pages_v3.py
           python3 scripts/settings_hierarchy.py --write
           python3 scripts/settings_layout.py --write
       - name: Commit iOS-style settings migration
         if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
         shell: bash
         run: |
-          if git diff --quiet -- src/settings.qml src/settings-catalog.json scripts/settings_hierarchy.py; then
+          if git diff --quiet -- src/settings.qml src/settings-catalog.json scripts/settings_hierarchy.py scripts/settings_layout.py; then
             echo 'iOS-style settings migration already applied.'
           else
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add src/settings.qml src/settings-catalog.json scripts/settings_hierarchy.py
+            git add src/settings.qml src/settings-catalog.json scripts/settings_hierarchy.py scripts/settings_layout.py
             git commit -m 'Polish modern settings navigation and grouped UI'
             git push origin HEAD:${{ github.event.pull_request.head.ref }}
           fi
