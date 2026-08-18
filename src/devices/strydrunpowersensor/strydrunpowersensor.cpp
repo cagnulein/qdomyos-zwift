@@ -297,7 +297,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
             // steps of 0.5 only to send to the Inclination override function
             if(!areInclinationSettingsDefault()) {
                 inc = qRound(inc * 2.0) / 2.0;
-                Inclination = treadmillInclinationOverride(inc);
+                Inclination = treadmillInclinationOverrideForRawFeedback(inc);
             } else {
                 Inclination = inc;
             }

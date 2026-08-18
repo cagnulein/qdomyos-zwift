@@ -711,6 +711,37 @@ const QString QZSettings::treadmill_inclination_override_135 = QStringLiteral("t
 const QString QZSettings::treadmill_inclination_override_140 = QStringLiteral("treadmill_inclination_override_140");
 const QString QZSettings::treadmill_inclination_override_145 = QStringLiteral("treadmill_inclination_override_145");
 const QString QZSettings::treadmill_inclination_override_150 = QStringLiteral("treadmill_inclination_override_150");
+const QString QZSettings::treadmill_inclination_override_device_command_0 = QStringLiteral("treadmill_inclination_override_device_command_0");
+const QString QZSettings::treadmill_inclination_override_device_command_05 = QStringLiteral("treadmill_inclination_override_device_command_05");
+const QString QZSettings::treadmill_inclination_override_device_command_10 = QStringLiteral("treadmill_inclination_override_device_command_10");
+const QString QZSettings::treadmill_inclination_override_device_command_15 = QStringLiteral("treadmill_inclination_override_device_command_15");
+const QString QZSettings::treadmill_inclination_override_device_command_20 = QStringLiteral("treadmill_inclination_override_device_command_20");
+const QString QZSettings::treadmill_inclination_override_device_command_25 = QStringLiteral("treadmill_inclination_override_device_command_25");
+const QString QZSettings::treadmill_inclination_override_device_command_30 = QStringLiteral("treadmill_inclination_override_device_command_30");
+const QString QZSettings::treadmill_inclination_override_device_command_35 = QStringLiteral("treadmill_inclination_override_device_command_35");
+const QString QZSettings::treadmill_inclination_override_device_command_40 = QStringLiteral("treadmill_inclination_override_device_command_40");
+const QString QZSettings::treadmill_inclination_override_device_command_45 = QStringLiteral("treadmill_inclination_override_device_command_45");
+const QString QZSettings::treadmill_inclination_override_device_command_50 = QStringLiteral("treadmill_inclination_override_device_command_50");
+const QString QZSettings::treadmill_inclination_override_device_command_55 = QStringLiteral("treadmill_inclination_override_device_command_55");
+const QString QZSettings::treadmill_inclination_override_device_command_60 = QStringLiteral("treadmill_inclination_override_device_command_60");
+const QString QZSettings::treadmill_inclination_override_device_command_65 = QStringLiteral("treadmill_inclination_override_device_command_65");
+const QString QZSettings::treadmill_inclination_override_device_command_70 = QStringLiteral("treadmill_inclination_override_device_command_70");
+const QString QZSettings::treadmill_inclination_override_device_command_75 = QStringLiteral("treadmill_inclination_override_device_command_75");
+const QString QZSettings::treadmill_inclination_override_device_command_80 = QStringLiteral("treadmill_inclination_override_device_command_80");
+const QString QZSettings::treadmill_inclination_override_device_command_85 = QStringLiteral("treadmill_inclination_override_device_command_85");
+const QString QZSettings::treadmill_inclination_override_device_command_90 = QStringLiteral("treadmill_inclination_override_device_command_90");
+const QString QZSettings::treadmill_inclination_override_device_command_95 = QStringLiteral("treadmill_inclination_override_device_command_95");
+const QString QZSettings::treadmill_inclination_override_device_command_100 = QStringLiteral("treadmill_inclination_override_device_command_100");
+const QString QZSettings::treadmill_inclination_override_device_command_105 = QStringLiteral("treadmill_inclination_override_device_command_105");
+const QString QZSettings::treadmill_inclination_override_device_command_110 = QStringLiteral("treadmill_inclination_override_device_command_110");
+const QString QZSettings::treadmill_inclination_override_device_command_115 = QStringLiteral("treadmill_inclination_override_device_command_115");
+const QString QZSettings::treadmill_inclination_override_device_command_120 = QStringLiteral("treadmill_inclination_override_device_command_120");
+const QString QZSettings::treadmill_inclination_override_device_command_125 = QStringLiteral("treadmill_inclination_override_device_command_125");
+const QString QZSettings::treadmill_inclination_override_device_command_130 = QStringLiteral("treadmill_inclination_override_device_command_130");
+const QString QZSettings::treadmill_inclination_override_device_command_135 = QStringLiteral("treadmill_inclination_override_device_command_135");
+const QString QZSettings::treadmill_inclination_override_device_command_140 = QStringLiteral("treadmill_inclination_override_device_command_140");
+const QString QZSettings::treadmill_inclination_override_device_command_145 = QStringLiteral("treadmill_inclination_override_device_command_145");
+const QString QZSettings::treadmill_inclination_override_device_command_150 = QStringLiteral("treadmill_inclination_override_device_command_150");
 const QString QZSettings::sole_elliptical_e55 = QStringLiteral("sole_elliptical_e55");
 const QString QZSettings::horizon_treadmill_force_ftms = QStringLiteral("horizon_treadmill_force_ftms");
 const QString QZSettings::horizon_treadmill_7_0_at_24 = QStringLiteral("horizon_treadmill_7_0_at_24");
@@ -1283,7 +1314,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1004;
+const uint32_t allSettingsCount = 1035;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1869,6 +1900,37 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_inclination_override_140, QZSettings::default_treadmill_inclination_override_140},
     {QZSettings::treadmill_inclination_override_145, QZSettings::default_treadmill_inclination_override_145},
     {QZSettings::treadmill_inclination_override_150, QZSettings::default_treadmill_inclination_override_150},
+    {QZSettings::treadmill_inclination_override_device_command_0, QZSettings::default_treadmill_inclination_override_device_command_0},
+    {QZSettings::treadmill_inclination_override_device_command_05, QZSettings::default_treadmill_inclination_override_device_command_05},
+    {QZSettings::treadmill_inclination_override_device_command_10, QZSettings::default_treadmill_inclination_override_device_command_10},
+    {QZSettings::treadmill_inclination_override_device_command_15, QZSettings::default_treadmill_inclination_override_device_command_15},
+    {QZSettings::treadmill_inclination_override_device_command_20, QZSettings::default_treadmill_inclination_override_device_command_20},
+    {QZSettings::treadmill_inclination_override_device_command_25, QZSettings::default_treadmill_inclination_override_device_command_25},
+    {QZSettings::treadmill_inclination_override_device_command_30, QZSettings::default_treadmill_inclination_override_device_command_30},
+    {QZSettings::treadmill_inclination_override_device_command_35, QZSettings::default_treadmill_inclination_override_device_command_35},
+    {QZSettings::treadmill_inclination_override_device_command_40, QZSettings::default_treadmill_inclination_override_device_command_40},
+    {QZSettings::treadmill_inclination_override_device_command_45, QZSettings::default_treadmill_inclination_override_device_command_45},
+    {QZSettings::treadmill_inclination_override_device_command_50, QZSettings::default_treadmill_inclination_override_device_command_50},
+    {QZSettings::treadmill_inclination_override_device_command_55, QZSettings::default_treadmill_inclination_override_device_command_55},
+    {QZSettings::treadmill_inclination_override_device_command_60, QZSettings::default_treadmill_inclination_override_device_command_60},
+    {QZSettings::treadmill_inclination_override_device_command_65, QZSettings::default_treadmill_inclination_override_device_command_65},
+    {QZSettings::treadmill_inclination_override_device_command_70, QZSettings::default_treadmill_inclination_override_device_command_70},
+    {QZSettings::treadmill_inclination_override_device_command_75, QZSettings::default_treadmill_inclination_override_device_command_75},
+    {QZSettings::treadmill_inclination_override_device_command_80, QZSettings::default_treadmill_inclination_override_device_command_80},
+    {QZSettings::treadmill_inclination_override_device_command_85, QZSettings::default_treadmill_inclination_override_device_command_85},
+    {QZSettings::treadmill_inclination_override_device_command_90, QZSettings::default_treadmill_inclination_override_device_command_90},
+    {QZSettings::treadmill_inclination_override_device_command_95, QZSettings::default_treadmill_inclination_override_device_command_95},
+    {QZSettings::treadmill_inclination_override_device_command_100, QZSettings::default_treadmill_inclination_override_device_command_100},
+    {QZSettings::treadmill_inclination_override_device_command_105, QZSettings::default_treadmill_inclination_override_device_command_105},
+    {QZSettings::treadmill_inclination_override_device_command_110, QZSettings::default_treadmill_inclination_override_device_command_110},
+    {QZSettings::treadmill_inclination_override_device_command_115, QZSettings::default_treadmill_inclination_override_device_command_115},
+    {QZSettings::treadmill_inclination_override_device_command_120, QZSettings::default_treadmill_inclination_override_device_command_120},
+    {QZSettings::treadmill_inclination_override_device_command_125, QZSettings::default_treadmill_inclination_override_device_command_125},
+    {QZSettings::treadmill_inclination_override_device_command_130, QZSettings::default_treadmill_inclination_override_device_command_130},
+    {QZSettings::treadmill_inclination_override_device_command_135, QZSettings::default_treadmill_inclination_override_device_command_135},
+    {QZSettings::treadmill_inclination_override_device_command_140, QZSettings::default_treadmill_inclination_override_device_command_140},
+    {QZSettings::treadmill_inclination_override_device_command_145, QZSettings::default_treadmill_inclination_override_device_command_145},
+    {QZSettings::treadmill_inclination_override_device_command_150, QZSettings::default_treadmill_inclination_override_device_command_150},
     {QZSettings::sole_elliptical_e55, QZSettings::default_sole_elliptical_e55},
     {QZSettings::horizon_treadmill_force_ftms, QZSettings::default_horizon_treadmill_force_ftms},
     {QZSettings::horizon_treadmill_7_0_at_24, QZSettings::default_horizon_treadmill_7_0_at_24},

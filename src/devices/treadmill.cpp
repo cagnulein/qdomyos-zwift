@@ -331,24 +331,204 @@ void treadmill::verticalOscillationSensor(double verticalOscillation) {
     VerticalOscillationMM.setValue(verticalOscillation);
 }
 
+double treadmill::treadmillInclinationDeviceCommand(double rawIndex) {
+    QSettings settings;
+    const int index = rawIndex * 10;
+    switch (index) {
+    case 0:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_0,
+                              QZSettings::default_treadmill_inclination_override_device_command_0).toDouble();
+    case 5:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_05,
+                              QZSettings::default_treadmill_inclination_override_device_command_05).toDouble();
+    case 10:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_10,
+                              QZSettings::default_treadmill_inclination_override_device_command_10).toDouble();
+    case 15:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_15,
+                              QZSettings::default_treadmill_inclination_override_device_command_15).toDouble();
+    case 20:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_20,
+                              QZSettings::default_treadmill_inclination_override_device_command_20).toDouble();
+    case 25:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_25,
+                              QZSettings::default_treadmill_inclination_override_device_command_25).toDouble();
+    case 30:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_30,
+                              QZSettings::default_treadmill_inclination_override_device_command_30).toDouble();
+    case 35:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_35,
+                              QZSettings::default_treadmill_inclination_override_device_command_35).toDouble();
+    case 40:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_40,
+                              QZSettings::default_treadmill_inclination_override_device_command_40).toDouble();
+    case 45:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_45,
+                              QZSettings::default_treadmill_inclination_override_device_command_45).toDouble();
+    case 50:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_50,
+                              QZSettings::default_treadmill_inclination_override_device_command_50).toDouble();
+    case 55:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_55,
+                              QZSettings::default_treadmill_inclination_override_device_command_55).toDouble();
+    case 60:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_60,
+                              QZSettings::default_treadmill_inclination_override_device_command_60).toDouble();
+    case 65:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_65,
+                              QZSettings::default_treadmill_inclination_override_device_command_65).toDouble();
+    case 70:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_70,
+                              QZSettings::default_treadmill_inclination_override_device_command_70).toDouble();
+    case 75:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_75,
+                              QZSettings::default_treadmill_inclination_override_device_command_75).toDouble();
+    case 80:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_80,
+                              QZSettings::default_treadmill_inclination_override_device_command_80).toDouble();
+    case 85:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_85,
+                              QZSettings::default_treadmill_inclination_override_device_command_85).toDouble();
+    case 90:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_90,
+                              QZSettings::default_treadmill_inclination_override_device_command_90).toDouble();
+    case 95:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_95,
+                              QZSettings::default_treadmill_inclination_override_device_command_95).toDouble();
+    case 100:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_100,
+                              QZSettings::default_treadmill_inclination_override_device_command_100).toDouble();
+    case 105:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_105,
+                              QZSettings::default_treadmill_inclination_override_device_command_105).toDouble();
+    case 110:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_110,
+                              QZSettings::default_treadmill_inclination_override_device_command_110).toDouble();
+    case 115:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_115,
+                              QZSettings::default_treadmill_inclination_override_device_command_115).toDouble();
+    case 120:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_120,
+                              QZSettings::default_treadmill_inclination_override_device_command_120).toDouble();
+    case 125:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_125,
+                              QZSettings::default_treadmill_inclination_override_device_command_125).toDouble();
+    case 130:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_130,
+                              QZSettings::default_treadmill_inclination_override_device_command_130).toDouble();
+    case 135:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_135,
+                              QZSettings::default_treadmill_inclination_override_device_command_135).toDouble();
+    case 140:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_140,
+                              QZSettings::default_treadmill_inclination_override_device_command_140).toDouble();
+    case 145:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_145,
+                              QZSettings::default_treadmill_inclination_override_device_command_145).toDouble();
+    case 150:
+        return settings.value(QZSettings::treadmill_inclination_override_device_command_150,
+                              QZSettings::default_treadmill_inclination_override_device_command_150).toDouble();
+    default:
+        return rawIndex;
+    }
+}
+
+double treadmill::treadmillInclinationLogicalForDeviceCommand(double deviceCommand) {
+    // Device Commands on an existing 0.5 row have an exact physical/logical association.
+    // For commands outside that grid, use the nearest bounded row rather than interpolating
+    // a logical inclination that the configured table does not define.
+    const double closestRawRow = qBound(0.0, qRound(deviceCommand * 2.0) / 2.0, 15.0);
+    return treadmillInclinationOverride(closestRawRow);
+}
+
 double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
+    QSettings settings;
+    const auto deviceCommandCustomized = [&settings](double rawIndex) {
+        const int index = qRound(rawIndex * 10.0);
+        const QString suffix = index == 0 ? QStringLiteral("0")
+                                          : (index == 5 ? QStringLiteral("05") : QString::number(index));
+        const QString key = QStringLiteral("treadmill_inclination_override_device_command_") + suffix;
+        return settings.contains(key) &&
+               !qFuzzyCompare(settings.value(key, rawIndex).toDouble() + 1.0, rawIndex + 1.0);
+    };
+    const auto rememberMappedCommand = [this, &deviceCommandCustomized](double rawIndex) {
+        if (!deviceCommandCustomized(rawIndex)) {
+            m_mappedInclinationValid = false;
+            return;
+        }
+
+        const double deviceCommand = treadmillInclinationDeviceCommand(rawIndex);
+        m_mappedInclinationValid = true;
+        m_mappedInclinationAwaitingFeedback = true;
+        m_mappedInclinationDeviceCommand = deviceCommand;
+        m_mappedInclinationLogicalValue = treadmillInclinationLogicalForDeviceCommand(deviceCommand);
+        m_mappedInclinationRawBeforeCommand = rawInclination.value();
+        m_mappedInclinationFeedback = m_mappedInclinationRawBeforeCommand;
+        m_mappedInclinationUnchangedSamples = 0;
+    };
+
     for (int i = 0; i <= 15 * 2; i++) {
-        if (treadmillInclinationOverride(((double)(i)) / 2.0) <= Inclination &&
-            treadmillInclinationOverride(((double)(i + 1)) / 2.0) > Inclination) {
+        const double rawIndex = ((double)i) / 2.0;
+        const double nextRawIndex = ((double)(i + 1)) / 2.0;
+        if (treadmillInclinationOverride(rawIndex) <= Inclination &&
+            treadmillInclinationOverride(nextRawIndex) > Inclination) {
             qDebug() << QStringLiteral("treadmillInclinationOverrideReverse")
-                     << treadmillInclinationOverride(((double)(i)) / 2.0)
-                     << treadmillInclinationOverride(((double)(i + 1)) / 2.0) << Inclination << i;
-            return ((double)i) / 2.0;
+                     << treadmillInclinationOverride(rawIndex)
+                     << treadmillInclinationOverride(nextRawIndex) << Inclination << i;
+            rememberMappedCommand(rawIndex);
+            return treadmillInclinationDeviceCommand(rawIndex);
         }
     }
 
-    // if the inclination is negative, since the table consider only positive values, I return the actual value
-    if(Inclination < 0)
+    // Negative inclinations are outside the table and retain their actual value.
+    if (Inclination < 0) {
+        m_mappedInclinationValid = false;
         return Inclination;
-    else if (Inclination < treadmillInclinationOverride(0))
+    }
+    if (Inclination < treadmillInclinationOverride(0)) {
+        if (deviceCommandCustomized(0)) {
+            rememberMappedCommand(0);
+            return treadmillInclinationDeviceCommand(0);
+        }
+        m_mappedInclinationValid = false;
         return treadmillInclinationOverride(0);
-    else
-        return treadmillInclinationOverride(15);
+    }
+    if (deviceCommandCustomized(15)) {
+        rememberMappedCommand(15);
+        return treadmillInclinationDeviceCommand(15);
+    }
+    m_mappedInclinationValid = false;
+    return treadmillInclinationOverride(15);
+}
+
+double treadmill::treadmillInclinationOverrideForRawFeedback(double rawInclinationValue) {
+    rawInclination = rawInclinationValue;
+    const double legacyLogicalValue = treadmillInclinationOverride(rawInclinationValue);
+    if (!m_mappedInclinationValid)
+        return legacyLogicalValue;
+
+    if (m_mappedInclinationAwaitingFeedback) {
+        const bool unchanged = qFuzzyCompare(rawInclinationValue + 1.0,
+                                             m_mappedInclinationRawBeforeCommand + 1.0);
+        m_mappedInclinationFeedback = rawInclinationValue;
+        if (unchanged) {
+            // Lossy feedback may not change even though the physical command did. Two unchanged
+            // samples provide a bounded settling period without blocking metric updates.
+            if (++m_mappedInclinationUnchangedSamples >= 2)
+                m_mappedInclinationAwaitingFeedback = false;
+        } else {
+            // The first changed sample after a command is the best raw signature available for
+            // that commanded state; raw feedback cannot identify the physical level precisely.
+            m_mappedInclinationAwaitingFeedback = false;
+        }
+        return m_mappedInclinationLogicalValue;
+    }
+
+    if (qFuzzyCompare(rawInclinationValue + 1.0, m_mappedInclinationFeedback + 1.0))
+        return m_mappedInclinationLogicalValue;
+
+    m_mappedInclinationValid = false;
+    return legacyLogicalValue;
 }
 
 bool treadmill::areInclinationSettingsDefault() {
@@ -400,7 +580,38 @@ bool treadmill::areInclinationSettingsDefault() {
         {QZSettings::treadmill_inclination_override_135, QZSettings::default_treadmill_inclination_override_135},
         {QZSettings::treadmill_inclination_override_140, QZSettings::default_treadmill_inclination_override_140},
         {QZSettings::treadmill_inclination_override_145, QZSettings::default_treadmill_inclination_override_145},
-        {QZSettings::treadmill_inclination_override_150, QZSettings::default_treadmill_inclination_override_150}
+        {QZSettings::treadmill_inclination_override_150, QZSettings::default_treadmill_inclination_override_150},
+        {QZSettings::treadmill_inclination_override_device_command_0, QZSettings::default_treadmill_inclination_override_device_command_0},
+        {QZSettings::treadmill_inclination_override_device_command_05, QZSettings::default_treadmill_inclination_override_device_command_05},
+        {QZSettings::treadmill_inclination_override_device_command_10, QZSettings::default_treadmill_inclination_override_device_command_10},
+        {QZSettings::treadmill_inclination_override_device_command_15, QZSettings::default_treadmill_inclination_override_device_command_15},
+        {QZSettings::treadmill_inclination_override_device_command_20, QZSettings::default_treadmill_inclination_override_device_command_20},
+        {QZSettings::treadmill_inclination_override_device_command_25, QZSettings::default_treadmill_inclination_override_device_command_25},
+        {QZSettings::treadmill_inclination_override_device_command_30, QZSettings::default_treadmill_inclination_override_device_command_30},
+        {QZSettings::treadmill_inclination_override_device_command_35, QZSettings::default_treadmill_inclination_override_device_command_35},
+        {QZSettings::treadmill_inclination_override_device_command_40, QZSettings::default_treadmill_inclination_override_device_command_40},
+        {QZSettings::treadmill_inclination_override_device_command_45, QZSettings::default_treadmill_inclination_override_device_command_45},
+        {QZSettings::treadmill_inclination_override_device_command_50, QZSettings::default_treadmill_inclination_override_device_command_50},
+        {QZSettings::treadmill_inclination_override_device_command_55, QZSettings::default_treadmill_inclination_override_device_command_55},
+        {QZSettings::treadmill_inclination_override_device_command_60, QZSettings::default_treadmill_inclination_override_device_command_60},
+        {QZSettings::treadmill_inclination_override_device_command_65, QZSettings::default_treadmill_inclination_override_device_command_65},
+        {QZSettings::treadmill_inclination_override_device_command_70, QZSettings::default_treadmill_inclination_override_device_command_70},
+        {QZSettings::treadmill_inclination_override_device_command_75, QZSettings::default_treadmill_inclination_override_device_command_75},
+        {QZSettings::treadmill_inclination_override_device_command_80, QZSettings::default_treadmill_inclination_override_device_command_80},
+        {QZSettings::treadmill_inclination_override_device_command_85, QZSettings::default_treadmill_inclination_override_device_command_85},
+        {QZSettings::treadmill_inclination_override_device_command_90, QZSettings::default_treadmill_inclination_override_device_command_90},
+        {QZSettings::treadmill_inclination_override_device_command_95, QZSettings::default_treadmill_inclination_override_device_command_95},
+        {QZSettings::treadmill_inclination_override_device_command_100, QZSettings::default_treadmill_inclination_override_device_command_100},
+        {QZSettings::treadmill_inclination_override_device_command_105, QZSettings::default_treadmill_inclination_override_device_command_105},
+        {QZSettings::treadmill_inclination_override_device_command_110, QZSettings::default_treadmill_inclination_override_device_command_110},
+        {QZSettings::treadmill_inclination_override_device_command_115, QZSettings::default_treadmill_inclination_override_device_command_115},
+        {QZSettings::treadmill_inclination_override_device_command_120, QZSettings::default_treadmill_inclination_override_device_command_120},
+        {QZSettings::treadmill_inclination_override_device_command_125, QZSettings::default_treadmill_inclination_override_device_command_125},
+        {QZSettings::treadmill_inclination_override_device_command_130, QZSettings::default_treadmill_inclination_override_device_command_130},
+        {QZSettings::treadmill_inclination_override_device_command_135, QZSettings::default_treadmill_inclination_override_device_command_135},
+        {QZSettings::treadmill_inclination_override_device_command_140, QZSettings::default_treadmill_inclination_override_device_command_140},
+        {QZSettings::treadmill_inclination_override_device_command_145, QZSettings::default_treadmill_inclination_override_device_command_145},
+        {QZSettings::treadmill_inclination_override_device_command_150, QZSettings::default_treadmill_inclination_override_device_command_150}
     };
     
     // Check each setting against its default value
@@ -829,6 +1040,20 @@ void treadmill::parseInclination(double inclination) {
         qDebug() << "Inclination from the treadmill is discarded since we are using the one from the power sensor " << inclination;
     }
     rawInclination = inclination;
+}
+
+void treadmill::parseInclinationOverride(double rawInclinationValue) {
+    QSettings settings;
+    const bool stryd_inclination_instead_treadmill =
+        settings.value(QZSettings::stryd_inclination_instead_treadmill,
+                       QZSettings::default_stryd_inclination_instead_treadmill).toBool();
+    const double logicalInclination = treadmillInclinationOverrideForRawFeedback(rawInclinationValue);
+    if (!stryd_inclination_instead_treadmill) {
+        Inclination = logicalInclination;
+    } else {
+        qDebug() << "Inclination from the treadmill is discarded since we are using the one from the power sensor "
+                 << logicalInclination;
+    }
 }
 
 void treadmill::parseSpeed(double speed) {

@@ -1600,7 +1600,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
+        parseInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0);
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(weight))
@@ -1626,7 +1626,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                        1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        parseInclination(treadmillInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0));
+        parseInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0);
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(weight))
@@ -1943,13 +1943,13 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 // Domyos TS100 has a fixed 15° inclination
                 Inclination = 15;
             } else if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill && !T01)
-                parseInclination(treadmillInclinationOverride((double)(
+                parseInclinationOverride((double)(
                                   (int16_t)(
                                       ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
                                       (uint8_t)newValue.at(index)
                                       )
                                   ) /
-                                                              10.0));
+                                     10.0);
             else if(ICONCEPT_FTMS_treadmill || T01) {
                 uint8_t val1 = (uint8_t)newValue.at(index);
                 uint8_t val2 = (uint8_t)newValue.at(index + 1);
