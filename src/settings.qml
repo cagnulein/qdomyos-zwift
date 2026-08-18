@@ -262,11 +262,31 @@ import AndroidStatusBar 1.0
             }
 
             function setSettingValue(entry, value) {
-                settingsBehavior.setSettingValue(entry, value)
+                if (entry.type === "boolean") {
+                    settings[entry.key] = !!value
+                } else if (entry.type === "integer") {
+                    settings[entry.key] = parseInt(value)
+                } else if (entry.type === "number") {
+                    settings[entry.key] = parseFloat(value)
+                } else {
+                    settings[entry.key] = value
+                }
+                afterGenericWrite(entry)
             }
 
             function setVirtualSelection(entry, index) {
-                settingsBehavior.setVirtualSelection(entry, index)
+                if (!entry.options)
+                    return
+
+                for (var i = 0; i < entry.options.length; i++) {
+                    if (entry.options[i].sets)
+                        settings[entry.options[i].sets] = false
+                }
+
+                if (entry.options[index] && entry.options[index].sets)
+                    settings[entry.options[index].sets] = true
+
+                afterGenericWrite(entry)
             }
         }
 
@@ -276,18 +296,7 @@ import AndroidStatusBar 1.0
         }
 
         function setSettingValue(entry, value) {
-            if (entry.type === "boolean") {
-                settings[entry.key] = !!value
-            } else if (entry.type === "integer") {
-                settings[entry.key] = parseInt(value)
-            } else if (entry.type === "number") {
-                settings[entry.key] = parseFloat(value)
-            } else {
-                settings[entry.key] = value
-            }
-
-            window.settings_restart_to_apply = true
-            toast.show("Setting saved!")
+            settingsBehavior.setSettingValue(entry, value)
         }
 
         function optionValues(entry) {
@@ -335,19 +344,7 @@ import AndroidStatusBar 1.0
         }
 
         function setVirtualSelection(entry, index) {
-            if (!entry.options)
-                return
-
-            for (var i = 0; i < entry.options.length; i++) {
-                if (entry.options[i].sets)
-                    settings[entry.options[i].sets] = false
-            }
-
-            if (entry.options[index] && entry.options[index].sets)
-                settings[entry.options[index].sets] = true
-
-            window.settings_restart_to_apply = true
-            toast.show("Setting saved!")
+            settingsBehavior.setVirtualSelection(entry, index)
         }
 
         // always add a property at the end of the file to avoid corruption of the settings when loading old versions
