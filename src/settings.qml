@@ -53,8 +53,20 @@ import AndroidStatusBar 1.0
             var nodes = hierarchy.nodes || []
             for (var i = 0; i < nodes.length; i++) {
                 if (nodes[i].parent === null || nodes[i].parent === undefined || nodes[i].parent === "")
-                    categories.push({key: nodes[i].key, name: nodes[i].name})
+                    categories.push({key: nodes[i].key, name: nodes[i].name, legacySourceLine: nodes[i].sourceLine, catalogKind: "category"})
             }
+            var layout = settingsCatalog.legacyLayout || ({rootPages: []})
+            var rootPages = layout.rootPages || []
+            for (var p = 0; p < rootPages.length; p++) {
+                categories.push({
+                    key: rootPages[p].key,
+                    name: rootPages[p].name,
+                    target: rootPages[p].target,
+                    legacySourceLine: rootPages[p].sourceLine,
+                    catalogKind: "page"
+                })
+            }
+            categories.sort(function(a, b) { return a.legacySourceLine - b.legacySourceLine })
             modernSettingsCategories = categories
             rebuildModernSettingsItems("")
         }
@@ -2402,7 +2414,12 @@ import AndroidStatusBar 1.0
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: settingsPane.openModernSettingsCategory(modelData.key)
+                            onClicked: {
+                                if (modelData.catalogKind === "page")
+                                    settingsPane.openModernCatalogPage(modelData)
+                                else
+                                    settingsPane.openModernSettingsCategory(modelData.key)
+                            }
                         }
                     }
                 }

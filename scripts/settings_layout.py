@@ -217,6 +217,7 @@ def derive(root: Path, catalog: dict):
     page_parent_node = {}
     page_order = {}
     page_parent_target = {}
+    root_pages = []
 
     page_entries = catalog.get("pages") or []
     for entry in page_entries:
@@ -239,6 +240,13 @@ def derive(root: Path, catalog: dict):
             parent_id = best.get("parentAccordionId")
             if parent_id in node_keys:
                 page_parent_node[entry["key"]] = parent_id
+            else:
+                root_pages.append({
+                    "key": entry["key"],
+                    "name": entry.get("name") or best.get("title"),
+                    "target": entry.get("target"),
+                    "sourceLine": best["line"],
+                })
         else:
             page_parent_target[entry["key"]] = best_source
 
@@ -255,6 +263,7 @@ def derive(root: Path, catalog: dict):
         "pageNodeByKey": dict(sorted(page_parent_node.items())),
         "pageOrderByKey": dict(sorted(page_order.items())),
         "pageParentTargetByKey": dict(sorted(page_parent_target.items())),
+        "rootPages": sorted(root_pages, key=lambda item: item["sourceLine"]),
     }
 
 
