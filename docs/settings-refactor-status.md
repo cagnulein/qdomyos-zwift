@@ -22,7 +22,7 @@ The Phase 1 CI permits exactly this pre-existing gap when comparing a pull reque
 
 ## Phase 1: safety infrastructure
 
-Status: **in progress**
+Status: **complete**
 
 Goal: make accidental persistence or catalog regressions fail quickly before any visual refactor starts.
 
@@ -35,7 +35,7 @@ Goal: make accidental persistence or catalog regressions fail quickly before any
 - [x] Produce a machine-readable settings audit artifact, including catalog gaps, references, direct writes, and simple `visible`/`enabled` references from the legacy QML.
 - [x] Add unit tests for the audit parser and ABI comparison.
 - [x] Add a lightweight GitHub Actions workflow dedicated to settings auditing.
-- [ ] Phase 1 CI green on the pull request.
+- [x] Phase 1 CI green on the pull request.
 
 ## Phase 2: catalog completion and shared settings behavior layer
 
