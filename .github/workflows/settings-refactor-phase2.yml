@@ -1,6 +1,12 @@
 name: Settings refactor phase 2 migration
 
 on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'scripts/phase2_catalog_migration.py'
+      - '.github/workflows/settings-refactor-phase2.yml'
   push:
     branches:
       - agent/settings-refactor-phase1-safety
@@ -14,11 +20,12 @@ permissions:
 
 jobs:
   migrate-catalog:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: agent/settings-refactor-phase1-safety
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
           fetch-depth: 1
       - uses: actions/setup-python@v5
         with:
@@ -40,4 +47,4 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add src/settings-catalog.json
           git commit -m 'Complete settings catalog coverage for phase 2'
-          git push origin HEAD:agent/settings-refactor-phase1-safety
+          git push origin HEAD:${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
