@@ -2269,7 +2269,7 @@ void proformtreadmill::update() {
                         if (requestInclination < -3)
                             requestInclination = -3;
                         if (requestInclination != currentInclination().value() && requestInclination >= -3 &&
-                            requestInclination <= 15) {
+                            requestInclination <= 40) {
                             emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                             forceIncline(requestInclination);
                         }
