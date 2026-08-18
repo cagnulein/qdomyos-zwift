@@ -6,16 +6,15 @@ on:
       - 'src/settings*.qml'
       - 'src/settings-catalog.json'
       - 'scripts/settings_audit.py'
-      - 'scripts/phase2_catalog_migration.py'
-      - 'scripts/phase2_behavior_migration.py'
       - 'tests/test_settings_audit.py'
       - 'tests/test_settings_behavior_migration.py'
+      - 'tests/test_modern_settings_preview.py'
       - '.github/workflows/settings-audit.yml'
       - 'docs/settings-refactor-status.md'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   audit:
@@ -25,32 +24,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
           fetch-depth: 1
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Complete Phase 2 catalog migration
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
-        run: python3 scripts/phase2_catalog_migration.py
-      - name: Install shared settings behavior controller
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
-        run: python3 scripts/phase2_behavior_migration.py
-      - name: Commit Phase 2 migrations
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
-        shell: bash
-        run: |
-          if git diff --quiet -- src/settings-catalog.json src/settings.qml; then
-            echo 'Phase 2 migrations are already applied.'
-          else
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add src/settings-catalog.json src/settings.qml
-            git commit -m 'Apply settings refactor phase 2 migrations'
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
-          fi
       - name: Test settings refactor infrastructure
-        run: python3 -m unittest tests/test_settings_audit.py tests/test_settings_behavior_migration.py
+        run: >-
+          python3 -m unittest
+          tests/test_settings_audit.py
+          tests/test_settings_behavior_migration.py
+          tests/test_modern_settings_preview.py
       - name: Resolve and fetch ABI base
         id: base
         shell: bash
