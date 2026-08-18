@@ -55,7 +55,14 @@ public class BikeTransmitterController {
     private static final byte DATA_PAGE_GENERAL_FE = 0x10;
     private static final byte DATA_PAGE_BIKE_DATA = 0x19;
     private static final byte DATA_PAGE_TRAINER_DATA = 0x1A;
+    private static final byte DATA_PAGE_ROWER_DATA = 0x16;
     private static final byte DATA_PAGE_GENERAL_SETTINGS = 0x11;
+    private static final int EQUIPMENT_TYPE_ROWER = 0x16;
+    private static final int EQUIPMENT_TYPE_TRAINER = 0x19;
+    private static final int FE_STATE_READY = 0x02;
+    private static final int FE_STATE_IN_USE = 0x03;
+    private static final int PAGE16_CAP_DISTANCE_ENABLED = 0x04;
+    private static final int PAGE22_CAP_STROKE_COUNT_ENABLED = 0x01;
     
     private static Random randGen = new Random();
     
@@ -64,6 +71,8 @@ public class BikeTransmitterController {
     int currentPower = 0;             // Current power in watts
     double currentSpeedKph = 0.0;     // Current speed in km/h
     long totalDistance = 0;           // Total distance in meters
+    int equipmentType = EQUIPMENT_TYPE_TRAINER; // ANT+ FE equipment type
+    int strokeCount = 0;              // Accumulated rower stroke count
     int currentHeartRate = 0;         // Heart rate in BPM
     double elapsedTimeSeconds = 0.0;  // Elapsed time in seconds
     int currentResistance = 0;        // Current resistance level (0-100)
@@ -210,6 +219,14 @@ public class BikeTransmitterController {
         this.totalDistance = Math.max(0, distance);
     }
 
+    public void setEquipmentType(int equipmentType) {
+        this.equipmentType = Math.max(0, Math.min(255, equipmentType));
+    }
+
+    public void setStrokeCount(int strokeCount) {
+        this.strokeCount = Math.max(0, strokeCount);
+    }
+
     public void setHeartRate(int heartRate) {
         this.currentHeartRate = Math.max(0, Math.min(255, heartRate));
     }
@@ -255,9 +272,9 @@ public class BikeTransmitterController {
         }
         
         return String.format("Transmission: ACTIVE - Cadence: %drpm, Power: %dW, " +
-                           "Speed: %.1fkm/h, Resistance: %d, Inclination: %.1f%%",
+                           "Speed: %.1fkm/h, Resistance: %d, Inclination: %.1f%%, Equipment: 0x%02X",
                            currentCadence, currentPower, currentSpeedKph,
-                           currentResistance, currentInclination);
+                           currentResistance, currentInclination, equipmentType);
     }
 
     /**
@@ -311,20 +328,13 @@ public class BikeTransmitterController {
                        cnt += 1;
 
                         // Cycle through different data pages like PowerChannelController
-                        if (cnt % 5 == 0) {
-                            // General FE Data Page (0x10)
+                       if (cnt % 5 == 0) {
                             debugString = buildGeneralFEDataPage(payload);
-                        } else if (cnt % 5 == 1) {
-                            // Bike Data Page (0x19)
-                            debugString = buildBikeDataPage(payload);
-                        } else if (cnt % 5 == 2) {
-                            // Trainer Data Page (0x1A)
-                            debugString = buildBikeDataPage(payload);
+                        } else if (cnt % 5 == 1 || cnt % 5 == 2) {
+                            debugString = buildEquipmentSpecificDataPage(payload);
                         } else if (cnt % 5 == 3) {
-                            // General Settings Page (0x11)
                             debugString = buildGeneralSettingsPage(payload);
                         } else {
-                            // Default General FE Data Page (0x10)
                             debugString = buildGeneralFEDataPage(payload);
                         }
 
@@ -367,21 +377,15 @@ public class BikeTransmitterController {
                             cnt += 1;
                             String debugString = "";
 
-                            // Cycle through different data pages like PowerChannelController
                             if (cnt % 16 == 1) {
-                                // General FE Data Page (0x10)
                                 debugString = buildGeneralFEDataPage(payload);
                             } else if (cnt % 16 == 5) {
-                                // Bike Data Page (0x19)
-                                debugString = buildBikeDataPage(payload);
+                                debugString = buildEquipmentSpecificDataPage(payload);
                             } else if (cnt % 16 == 9) {
-                                // Trainer Data Page (0x1A)
-                                debugString = buildBikeDataPage(payload);                                
+                                debugString = buildEquipmentSpecificDataPage(payload);
                             } else if (cnt % 16 == 13) {
-                                // General Settings Page (0x11)
                                 debugString = buildGeneralSettingsPage(payload);
                             } else {
-                                // Default General FE Data Page (0x10)
                                 debugString = buildGeneralFEDataPage(payload);
                             }
 
@@ -439,7 +443,7 @@ public class BikeTransmitterController {
             payload[0] = 0x10; // Data Page Number = 0x10 (Page 16)
             
             // Byte 1: Equipment Type Bit Field (Refer to Table 8-8)
-            payload[1] = 0x19; // Equipment type: Bike (stationary bike = 0x19)
+            payload[1] = (byte) equipmentType;
             
             // Byte 2: Elapsed Time (0.25 seconds resolution, rollover at 64s)
             int elapsedTime025s = (int) (elapsedTimeSeconds * 4) & 0xFF;
@@ -458,13 +462,13 @@ public class BikeTransmitterController {
             // Byte 6: Heart Rate (0xFF = invalid)
             payload[6] = (byte) (currentHeartRate == 0 ? 0xFF : currentHeartRate);
             
-            // Byte 7: Capabilities Bit Field (4 bits 0:3) + FE State Bit Field (4 bits 4:7)
-            payload[7] = 0x00; // Set to 0x00 for now (refer to Tables 8-9 and 8-10)
+            // Byte 7: Page 16 capabilities (bits 0:3) + FE State (bits 4:7)
+            payload[7] = (byte) (PAGE16_CAP_DISTANCE_ENABLED | feStateNibble());
             
             // Create debug string
             return String.format(Locale.US, 
                 "General FE Data Page (0x10): " +
-                "Page=0x%02X, Equipment=0x%02X(Bike), " +
+                "Page=0x%02X, Equipment=0x%02X, " +
                 "ElapsedTime=0x%02X(%.1fs), Distance=0x%02X(%dm), " +
                 "Speed=0x%02X%02X(%.1fkm/h), HeartRate=0x%02X(%s), " +
                 "Capabilities=0x%02X",
@@ -482,6 +486,13 @@ public class BikeTransmitterController {
          * @param payload byte array to populate
          * @return debug string with hex and parsed values
          */
+        private String buildEquipmentSpecificDataPage(byte[] payload) {
+            if (equipmentType == EQUIPMENT_TYPE_ROWER) {
+                return buildRowerDataPage(payload);
+            }
+            return buildBikeDataPage(payload);
+        }
+
         private String buildBikeDataPage(byte[] payload) {
             payload[0] = 0x19; // Data Page Number = 0x19 (Page 25)
             
@@ -511,7 +522,7 @@ public class BikeTransmitterController {
             }
             
             // Byte 7: Flags Bit Field (bits 0-3) + FE State Bit Field (bits 4-7)
-            payload[7] = 0x00; // Set to 0x00 for now
+            payload[7] = (byte) feStateNibble();
             
             // Create debug string
             String cadenceStr = currentCadence == 0 ? "Invalid" : currentCadence + "rpm";
@@ -526,6 +537,41 @@ public class BikeTransmitterController {
                 payload[2] & 0xFF, cadenceStr,
                 payload[4] & 0xFF, payload[3] & 0xFF, cumulativeWatt,
                 (payload[6] & 0x0F), payload[5] & 0xFF, powerStr,
+                payload[7] & 0xFF);
+        }
+
+        /**
+         * Build Specific Rower Data Page (0x16) - Page 22.
+         */
+        private String buildRowerDataPage(byte[] payload) {
+            payload[0] = DATA_PAGE_ROWER_DATA;
+            payload[1] = (byte) 0xFF;
+            payload[2] = (byte) 0xFF;
+            payload[3] = (byte) (strokeCount & 0xFF);
+            payload[4] = (byte) (currentCadence == 0 ? 0xFF : currentCadence);
+
+            int rowerPower = currentPower;
+            if (rowerPower > 65534) {
+                payload[5] = (byte) 0xFF;
+                payload[6] = (byte) 0xFF;
+            } else {
+                payload[5] = (byte) (rowerPower & 0xFF);
+                payload[6] = (byte) ((rowerPower >> 8) & 0xFF);
+            }
+
+            payload[7] = (byte) (PAGE22_CAP_STROKE_COUNT_ENABLED | feStateNibble());
+
+            String cadenceStr = currentCadence == 0 ? "Invalid" : currentCadence + "spm";
+            String powerStr = rowerPower > 65534 ? "Invalid" : rowerPower + "W";
+
+            return String.format(Locale.US,
+                "Rower Data Page (0x16): " +
+                "Page=0x%02X, StrokeCount=0x%02X(%d), " +
+                "Cadence=0x%02X(%s), Power=0x%02X%02X(%s), Capabilities=0x%02X",
+                payload[0] & 0xFF,
+                payload[3] & 0xFF, strokeCount,
+                payload[4] & 0xFF, cadenceStr,
+                payload[6] & 0xFF, payload[5] & 0xFF, powerStr,
                 payload[7] & 0xFF);
         }
         
@@ -562,7 +608,7 @@ public class BikeTransmitterController {
             payload[6] = (byte) (resistanceLevel05 & 0xFF);
             
             // Byte 7: Capabilities Bit Field (bits 0-3) + FE State Bit Field (bits 4-7)
-            payload[7] = 0x00; // Set to 0x00 for now
+            payload[7] = (byte) feStateNibble();
             
             // Create debug string
             return String.format(Locale.US,
@@ -575,6 +621,13 @@ public class BikeTransmitterController {
                 payload[5] & 0xFF, payload[4] & 0xFF, currentInclination,
                 payload[6] & 0xFF, currentResistance,
                 payload[7] & 0xFF);
+        }
+
+        private int feStateNibble() {
+            int state = (elapsedTimeSeconds > 0.0 || currentSpeedKph > 0.0 || currentPower > 0 || currentCadence > 0)
+                    ? FE_STATE_IN_USE
+                    : FE_STATE_READY;
+            return (state & 0x0F) << 4;
         }
         
         /**

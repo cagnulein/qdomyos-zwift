@@ -605,10 +605,10 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsrower::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &ftmsrower::descriptorRead);
 
-            if (I_ROWER || SF_RW || ROWER || MRK_R06 || DOMYOS) {
+            if (I_ROWER || SF_RW || ROWER || MRK_R06 || DOMYOS || TC_ROWER) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
-                    qDebug() << QStringLiteral("I-ROWER/SF-RW/ROWER/MRK-R06/DOMYOS wants to be subscribed only to FTMS service in order to send metrics")
+                    qDebug() << QStringLiteral("I-ROWER/SF-RW/ROWER/MRK-R06/DOMYOS/TC rowers want to be subscribed only to FTMS service in order to send metrics")
                              << s->serviceUuid();
                     continue;
                 }
@@ -801,8 +801,8 @@ void ftmsrower::serviceScanDone(void) {
     }
 
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        // For DOMYOS, discover only FTMS service (0x1826)
-        if (DOMYOS) {
+        // For DOMYOS and TC rowers, discover only FTMS service (0x1826)
+        if (DOMYOS || TC_ROWER) {
             QBluetoothUuid ftmsService((quint16)0x1826);
             if (s != ftmsService) {
                 continue;
@@ -880,6 +880,16 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("DOMYOS-ROW-"))) {
             DOMYOS = true;
             qDebug() << "DOMYOS found!";
+        } else if (deviceName.size() > 2 && deviceName.startsWith(QStringLiteral("TC"))) {
+            TC_ROWER = true;
+            for (int i = 2; i < deviceName.size(); ++i) {
+                if (!deviceName.at(i).isDigit()) {
+                    TC_ROWER = false;
+                    break;
+                }
+            }
+            if (TC_ROWER)
+                qDebug() << "TC rower found! discovering only FTMS service";
         } else if (deviceName.size() >= 7 && deviceName.startsWith(QStringLiteral("WDK")) &&
                    deviceName.at(3).isDigit() && deviceName.at(4).isDigit() &&
                    deviceName.at(5).isDigit() && deviceName.at(6).isDigit()) {

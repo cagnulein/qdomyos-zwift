@@ -987,7 +987,7 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if (!FS_TREADMILL || !areInclinationSettingsDefault()) {
+            if (!adidas_treadmill && (!FS_TREADMILL || !areInclinationSettingsDefault())) {
                 requestInclination = treadmillInclinationOverrideReverse(requestInclination);
             }
 
@@ -1279,10 +1279,10 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         if(BOWFLEX_T9) {
             requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
         }
-        if(TM4800 || TM6500 || T3G_ELITE || WT_TREADMILL || THERUN_T15 || MERACH_TREADMILL) {
+        if(TM4800 || TM6500 || T3G_ELITE || WT_TREADMILL || THERUN_T15 || MERACH_TREADMILL || JFTM_T202) {
             bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
-            if(miles) {
-                requestSpeed *= miles_conversion;   // these treadmills want the speed in miles when miles_unit is enabled
+            if(miles || JFTM_T202) {
+                requestSpeed *= miles_conversion;   // JFTM T202 expects FTMS target speed in miles
             }
         }
         uint16_t speed_int = round(requestSpeed * 100);
@@ -2656,6 +2656,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         QSettings settings;
         bluetoothDevice = device;
+        JFTM_T202 = device.name().toUpper().startsWith(QStringLiteral("JFTM T202"));
 
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
             mobvoi_tmp_treadmill = true;
@@ -2689,6 +2690,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             sole_tt8_treadmill = true;
             minInclination = -6.0;
             qDebug() << QStringLiteral("SOLE TT8 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("ADIDAS"))) {
+            adidas_treadmill = true;
+            minInclination = -6.0;
+            maxInclination = 40.0;
+            qDebug() << QStringLiteral("ADIDAS TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("S77"))) {
             sole_s77_treadmill = true;
             qDebug() << QStringLiteral("SOLE S77 TREADMILL workaround ON!");

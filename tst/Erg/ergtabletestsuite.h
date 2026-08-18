@@ -21,6 +21,7 @@ public:
      * @brief Test the overall functionality of an ergtable object
      */
     void test_dynamicErgTable();
+    void test_resistanceCadenceBanding();
 
 };
 
@@ -28,4 +29,7 @@ TEST_F(ErgTableTestSuite, TestDynamicErgTable) {
     this->test_dynamicErgTable();
 }
 
+TEST_F(ErgTableTestSuite, TestResistanceCadenceBanding) {
+    this->test_resistanceCadenceBanding();
+}
 

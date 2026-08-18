@@ -328,6 +328,18 @@ class HealthConnectHelperTest {
     }
 
     @Test
+    fun `buildRecords omits HeartRateVariabilityRmssdRecord when hrv is below health connect minimum`() {
+        val samples = JSONArray().apply {
+            put(makeSample(1_000L, hrv = 0.9067155184426361))
+            put(makeSample(2_000L, hrv = 1.0))
+        }
+        val records = HealthConnectHelper.buildRecords(samples, "t", BIKE, null)
+        val hrvRecords = records.filterIsInstance<HeartRateVariabilityRmssdRecord>()
+        assertEquals(1, hrvRecords.size)
+        assertEquals(1.0, hrvRecords[0].heartRateVariabilityMillis, 0.001)
+    }
+
+    @Test
     fun `buildRecords omits HeartRateVariabilityRmssdRecord when hrv is 0`() {
         val samples = JSONArray().apply { put(makeSample(1_000L)) }
         val records = HealthConnectHelper.buildRecords(samples, "t", BIKE, null)

@@ -7,11 +7,16 @@ CharacteristicWriteProcessor::CharacteristicWriteProcessor(double bikeResistance
                                                            bluetoothdevice *bike, QObject *parent)
     : QObject(parent), bikeResistanceOffset(bikeResistanceOffset), bikeResistanceGain(bikeResistanceGain), Bike(bike) {}
 
-void CharacteristicWriteProcessor::changePower(uint16_t power) { Bike->changePower(power); }
+void CharacteristicWriteProcessor::changePower(uint16_t power) {
+    QSettings settings;
+    settings.setValue(QZSettings::zwift_erg, true);
+    Bike->changePower(power);
+}
 
 void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr, uint8_t cw) {
     BLUETOOTH_TYPE dt = Bike->deviceType();
     QSettings settings;
+    settings.setValue(QZSettings::zwift_erg, false);
     bool force_resistance =
         settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
             .toBool();
