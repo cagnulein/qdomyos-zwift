@@ -26,13 +26,39 @@ class SettingsAuditParserTests(unittest.TestCase):
             ],
         )
 
-    def test_commented_properties_are_ignored(self):
+    def test_only_properties_inside_settings_blocks_are_persistent(self):
         text = '''
-        // property bool removed: false
-        property bool kept: true
+        ScrollView {
+            property var settingsCatalog: ({})
+            property bool initialized: false
+            Settings {
+                id: settings
+                property bool kept: true
+                // property bool removed: false
+            }
+            component Row : Item {
+                property string entry: ""
+            }
+        }
         '''
         got = settings_audit.parse_declarations(text, "x.qml")
         self.assertEqual([item.key for item in got], ["kept"])
+
+    def test_multiple_settings_blocks_and_block_comments(self):
+        text = '''
+        /* Settings {
+            property bool fake: false
+        } */
+        Settings {
+            property bool first: false
+        }
+        Item { property bool localOnly: true }
+        Settings {
+            property int second: 2
+        }
+        '''
+        got = settings_audit.parse_declarations(text, "x.qml")
+        self.assertEqual([item.key for item in got], ["first", "second"])
 
     def test_append_only_change_is_allowed(self):
         base = {path: [] for path in settings_audit.SETTINGS_FILES}
