@@ -25,7 +25,11 @@ class ModernSettingsPreviewTests(unittest.TestCase):
         self.assertIn("modernSettingsCategories", self.text)
         self.assertIn("id: modernSettingsSearch", self.text)
         self.assertIn("settingsPane.parentDisplayName(entry)", self.text)
+        self.assertIn("function modernSettingsParentName()", self.text)
         self.assertIn("stackView.push(entry.target)", self.text)
+
+    def test_preview_avoids_private_material_dialog_color(self):
+        self.assertNotIn("Material.dialogColor", self.text)
 
     def test_legacy_renderer_remains_present(self):
         self.assertIn("id: settingsContent", self.text)
