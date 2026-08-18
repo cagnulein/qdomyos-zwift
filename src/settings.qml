@@ -75,6 +75,16 @@ import AndroidStatusBar 1.0
             modernSettingsItems = items
         }
 
+        function modernSettingsParentName() {
+            if (modernSettingsParent.length === 0)
+                return qsTr("Settings")
+            for (var i = 0; i < modernSettingsCategories.length; i++) {
+                if (modernSettingsCategories[i].key === modernSettingsParent)
+                    return modernSettingsCategories[i].name
+            }
+            return qsTr("Settings")
+        }
+
         function openModernSettingsPreview() {
             loadSettingsCatalog()
             modernSettingsParent = ""
@@ -1946,10 +1956,7 @@ import AndroidStatusBar 1.0
 
                         Label {
                             Layout.fillWidth: true
-                            text: modernSettingsParent.length > 0 ?
-                                      settingsPane.modernSettingsCategories.filter(function(item) { return item.key === modernSettingsParent })
-                                          .map(function(item) { return item.name })[0] || qsTr("Settings") :
-                                      qsTr("Settings")
+                            text: settingsPane.modernSettingsParentName()
                             font.bold: true
                             font.pixelSize: Qt.application.font.pixelSize + 5
                             horizontalAlignment: Text.AlignHCenter
@@ -1995,7 +2002,7 @@ import AndroidStatusBar 1.0
                         width: modernCategoryList.width - modernCategoryList.leftMargin - modernCategoryList.rightMargin
                         height: 56
                         radius: 12
-                        color: Material.dialogColor
+                        color: Material.backgroundColor
 
                         RowLayout {
                             anchors.fill: parent
@@ -2041,7 +2048,7 @@ import AndroidStatusBar 1.0
                         width: modernItemList.width - modernItemList.leftMargin - modernItemList.rightMargin
                         implicitHeight: modernSettingContent.implicitHeight + 24
                         radius: 12
-                        color: Material.dialogColor
+                        color: Material.backgroundColor
 
                         ColumnLayout {
                             id: modernSettingContent
