@@ -1,0 +1,43 @@
+name: Settings refactor phase 2 migration
+
+on:
+  push:
+    branches:
+      - agent/settings-refactor-phase1-safety
+    paths:
+      - 'scripts/phase2_catalog_migration.py'
+      - '.github/workflows/settings-refactor-phase2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/settings-refactor-phase1-safety
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Complete catalog coverage
+        run: python3 scripts/phase2_catalog_migration.py
+      - name: Validate migrated catalog
+        run: |
+          python3 -m unittest tests/test_settings_audit.py
+          python3 scripts/settings_audit.py --report settings-audit.json
+      - name: Commit catalog migration
+        shell: bash
+        run: |
+          if git diff --quiet -- src/settings-catalog.json; then
+            echo 'Catalog is already migrated.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/settings-catalog.json
+          git commit -m 'Complete settings catalog coverage for phase 2'
+          git push origin HEAD:agent/settings-refactor-phase1-safety
