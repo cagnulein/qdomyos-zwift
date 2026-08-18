@@ -540,7 +540,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     incline /= 2;
 
                 rawInclination = incline;
-                Inclination = treadmillInclinationOverride(incline);
+                Inclination = treadmillInclinationOverrideForRawFeedback(incline);
                 if (Inclination.value() != incline) {
                     emit inclinationChanged(0, incline);
                 }
