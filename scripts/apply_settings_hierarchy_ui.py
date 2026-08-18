@@ -4,6 +4,10 @@ from pathlib import Path
 P = Path("src/settings.qml")
 text = P.read_text(encoding="utf-8")
 
+if "// MODERN_SETTINGS_LEGACY_HIERARCHY_V2" in text:
+    print("Settings hierarchy navigation UI already applied")
+    raise SystemExit(0)
+
 
 def replace_function(source, name, replacement):
     needle = "function " + name + "("
@@ -154,11 +158,9 @@ text = replace_function(text, "modernSettingsBack", '''function modernSettingsBa
             modernSettingsDrawer.close()
         }''')
 
-# Root icons only. This exact expression belongs to the modern root category delegate.
 text = text.replace('text: modelData.name\n                                font.pixelSize: Qt.application.font.pixelSize + 1',
                     'text: settingsPane.legacyRootIcon(modelData.name) + "  " + modelData.name\n                                font.pixelSize: Qt.application.font.pixelSize + 1', 1)
 
-# Category pseudo-pages navigate inside the hierarchy; real pages keep their old behavior.
 old1 = '''onClicked: {
                                         modernSettingsDrawer.close()
                                         stackView.push(entry.target)
