@@ -337,16 +337,196 @@ import AndroidStatusBar 1.0
                 toast.show("Setting saved!")
             }
 
-            function setSettingValue(entry, value) {
-                if (entry.type === "boolean") {
-                    settings[entry.key] = !!value
-                } else if (entry.type === "integer") {
-                    settings[entry.key] = parseInt(value)
-                } else if (entry.type === "number") {
-                    settings[entry.key] = parseFloat(value)
-                } else {
-                    settings[entry.key] = value
+
+            // SETTINGS_BEHAVIOR_PARITY_V2
+            function rawValue(entry) {
+                var value = settings[entry.key]
+                return value === undefined ? entry.defaultValue : value
+            }
+
+            function twoDigits(value) {
+                var rounded = Math.round(value)
+                return rounded < 10 ? "0" + rounded : "" + rounded
+            }
+
+            function durationText(seconds) {
+                var total = Math.max(0, Math.round(seconds))
+                var hours = Math.floor(total / 3600)
+                var minutes = Math.floor((total % 3600) / 60)
+                var secs = total % 60
+                return twoDigits(hours) + ":" + twoDigits(minutes) + ":" + twoDigits(secs)
+            }
+
+            function paceDistance(key) {
+                if (key === "pacef_1mile") return 1.60934
+                if (key === "pacef_5km") return 5
+                if (key === "pacef_10km") return 10
+                if (key === "pacef_halfmarathon") return 21
+                if (key === "pacef_marathon") return 42
+                return 0
+            }
+
+            function displayValue(entry) {
+                var value = rawValue(entry)
+                var key = entry.key
+
+                if ((key === "weight" || key === "bike_weight") && settings.miles_unit && !settings.weight_kg_unit)
+                    return value * 2.20462
+
+                if (key === "height" && settings.miles_unit) {
+                    var feet = Math.floor(value / 30.48)
+                    var inches = Math.round((value % 30.48) / 2.54)
+                    return feet + "'" + inches + '"'
                 }
+
+                if ((key === "autolap_distance" || key === "treadmill_speed_min" ||
+                     key === "treadmill_speed_max" || key === "treadmill_step_speed" ||
+                     key === "peloton_treadmill_running_min_speed" || key === "peloton_treadmill_walking_min_speed") && settings.miles_unit)
+                    return value * 0.621371
+
+                var distance = paceDistance(key)
+                if (distance > 0)
+                    return durationText(value * distance)
+
+                return value
+            }
+
+            function setExclusive(keys, selectedKey, checked) {
+                for (var i = 0; i < keys.length; i++)
+                    settings[keys[i]] = keys[i] === selectedKey ? !!checked : false
+            }
+
+            function parseDuration(value) {
+                var parts = ("" + value).split(":")
+                if (parts.length !== 3)
+                    return -1
+                var h = parseInt(parts[0])
+                var m = parseInt(parts[1])
+                var s = parseInt(parts[2])
+                if (isNaN(h) || isNaN(m) || isNaN(s) || m < 0 || m > 59 || s < 0 || s > 59)
+                    return -1
+                return h * 3600 + m * 60 + s
+            }
+
+            function setSettingValue(entry, value) {
+                var key = entry.key
+
+                if (key === "weight" || key === "bike_weight") {
+                    var weightValue = parseFloat(value)
+                    if (settings.miles_unit && !settings.weight_kg_unit)
+                        weightValue = weightValue / 2.20462
+                    settings[key] = weightValue
+                    afterGenericWrite(entry)
+                    return
+                }
+
+                if (key === "height") {
+                    if (settings.miles_unit) {
+                        var match = ("" + value).match(/(\d+)[\s''\u2018\u2019]*(\d+)/)
+                        if (!match) {
+                            toast.show(qsTr("Invalid format! Use feet'inches (e.g., 6'2\")"))
+                            return
+                        }
+                        settings.height = parseInt(match[1]) * 30.48 + parseInt(match[2]) * 2.54
+                    } else {
+                        settings.height = parseFloat(value)
+                    }
+                    afterGenericWrite(entry)
+                    return
+                }
+
+                if (key === "autolap_distance" || key === "treadmill_speed_min" || key === "treadmill_speed_max" || key === "treadmill_step_speed") {
+                    var metricValue = parseFloat(value)
+                    if (settings.miles_unit)
+                        metricValue = metricValue * 1.60934
+                    settings[key] = metricValue
+                    afterGenericWrite(entry)
+                    return
+                }
+
+                if (key === "peloton_treadmill_running_min_speed" || key === "peloton_treadmill_walking_min_speed") {
+                    var pelotonSpeed = parseFloat(value)
+                    if (settings.miles_unit)
+                        pelotonSpeed = pelotonSpeed / 0.621371
+                    settings[key] = pelotonSpeed
+                    afterGenericWrite(entry)
+                    return
+                }
+
+                var distance = paceDistance(key)
+                if (distance > 0) {
+                    var seconds = parseDuration(value)
+                    if (seconds < 0) {
+                        toast.show(qsTr("Invalid time format! Use hh:mm:ss"))
+                        return
+                    }
+                    settings[key] = seconds / distance
+                    afterGenericWrite(entry)
+                    return
+                }
+
+                if (key === "domyos_bike_500_profile_v1" || key === "domyos_bike_500_profile_v2") {
+                    setExclusive(["domyos_bike_500_profile_v1", "domyos_bike_500_profile_v2"], key, value)
+                    afterGenericWrite(entry)
+                    return
+                }
+
+                if (key === "kingsmith_encrypt_v2" || key === "kingsmith_encrypt_v3" || key === "kingsmith_encrypt_v4" ||
+                    key === "kingsmith_encrypt_v5" || key === "kingsmith_encrypt_g1_walking_pad") {
+                    setExclusive(["kingsmith_encrypt_v2", "kingsmith_encrypt_v3", "kingsmith_encrypt_v4", "kingsmith_encrypt_v5", "kingsmith_encrypt_g1_walking_pad"], key, value)
+                    afterGenericWrite(entry)
+                    return
+                }
+
+                if (key === "peloton_auto_start_with_intro" || key === "peloton_auto_start_without_intro") {
+                    settings[key] = !!value
+                    if (value)
+                        settings[key === "peloton_auto_start_with_intro" ? "peloton_auto_start_without_intro" : "peloton_auto_start_with_intro"] = false
+                    afterGenericWrite(entry)
+                    return
+                }
+
+                if (key === "zwift_ocr" || key === "zwift_ocr_climb_portal" || key === "zwift_workout_ocr") {
+                    setExclusive(["zwift_ocr", "zwift_ocr_climb_portal", "zwift_workout_ocr"], key, value)
+                    settings.android_notification = true
+                    afterGenericWrite(entry)
+                    return
+                }
+
+                if (key === "zwift_play_emulator") {
+                    if (!!value && !settings.zwift_play_emulator) {
+                        if (settings.zwift_play || settings.zwift_click)
+                            zwiftPlaySettingsDialog.visible = true
+                        settings.watt_bike_emulator = false
+                    }
+                    settings.zwift_play_emulator = !!value
+                    afterGenericWrite(entry)
+                    return
+                }
+
+                if (key === "watt_bike_emulator") {
+                    settings.watt_bike_emulator = !!value
+                    if (value)
+                        settings.zwift_play_emulator = false
+                    afterGenericWrite(entry)
+                    return
+                }
+
+                if (entry.type === "boolean") {
+                    settings[key] = !!value
+                } else if (entry.type === "integer") {
+                    settings[key] = parseInt(value)
+                } else if (entry.type === "number") {
+                    settings[key] = parseFloat(value)
+                } else {
+                    settings[key] = value
+                }
+
+                if (key === "watt_offset" || key === "watt_gain" || key === "power_sensor_name") {
+                    settings.treadmillDataPoints = ""
+                    settings.ergDataPoints = ""
+                }
+
                 afterGenericWrite(entry)
             }
 
@@ -369,6 +549,10 @@ import AndroidStatusBar 1.0
         function settingValue(entry) {
             var value = settings[entry.key]
             return value === undefined ? entry.defaultValue : value
+        }
+
+        function displaySettingValue(entry) {
+            return settingsBehavior.displayValue(entry)
         }
 
         function setSettingValue(entry, value) {
@@ -1877,6 +2061,7 @@ import AndroidStatusBar 1.0
 
         Component.onCompleted: {
             window.settings_restart_to_apply = false;
+            Qt.callLater(function() { settingsPane.openModernSettingsPreview() })
         }
 
         property var appLanguageOptions: [
@@ -2113,7 +2298,7 @@ import AndroidStatusBar 1.0
                                 TextField {
                                     id: modernValueField
                                     Layout.fillWidth: true
-                                    text: visible ? settingsPane.settingValue(entry) : ""
+                                    text: visible ? settingsPane.displaySettingValue(entry) : ""
                                     horizontalAlignment: Text.AlignRight
                                     inputMethodHints: entry.type === "string" ? Qt.ImhNoPredictiveText : Qt.ImhFormattedNumbersOnly
                                     onAccepted: settingsPane.setSettingValue(entry, text)
@@ -2318,7 +2503,7 @@ import AndroidStatusBar 1.0
                                     id: searchSettingTextField
                                     Layout.fillWidth: true
                                     Layout.minimumWidth: 0
-                                    text: visible ? settingsPane.settingValue(entry) : ""
+                                    text: visible ? settingsPane.displaySettingValue(entry) : ""
                                     horizontalAlignment: Text.AlignRight
                                     inputMethodHints: entry.type === "string" ? Qt.ImhNoPredictiveText : Qt.ImhFormattedNumbersOnly
                                     onAccepted: settingsPane.setSettingValue(entry, text)
