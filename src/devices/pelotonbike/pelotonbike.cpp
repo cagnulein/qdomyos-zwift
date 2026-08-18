@@ -54,6 +54,17 @@ pelotonbike::pelotonbike(bool noWriteResistance, bool noHeartService) {
         }
     }
     // ********************************************************************************************************
+
+    // Keep the Peloton startup ordering consistent with the delayed NordicTrack path.
+    // bluetooth/homeform signal wiring is not ready while bluetooth is still being constructed,
+    // so do not emit connectedAndDiscovered from the first 200 ms metric update.
+    QTimer::singleShot(5000, this, [this]() {
+        if (!initDone) {
+            initDone = true;
+            qDebug() << "Peloton startup delay elapsed, emitting connectedAndDiscovered";
+            emit connectedAndDiscovered();
+        }
+    });
 }
 
 bool pelotonbike::inclinationAvailableByHardware() { return true; }
@@ -117,11 +128,6 @@ void pelotonbike::update() {
 #endif
     
     update_metrics(false, 0);
-
-    if(!initDone) {
-        initDone = true;
-        emit connectedAndDiscovered();
-    }
 
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
