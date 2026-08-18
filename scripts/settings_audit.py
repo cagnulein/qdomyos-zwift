@@ -52,7 +52,6 @@ def strip_comments(text: str) -> str:
     while i < len(text):
         ch = text[i]
         nxt = text[i + 1] if i + 1 < len(text) else ""
-
         if in_block_comment:
             if ch == "*" and nxt == "/":
                 in_block_comment = False
@@ -62,31 +61,26 @@ def strip_comments(text: str) -> str:
             result.append("\n" if ch == "\n" else " ")
             i += 1
             continue
-
         if escaped:
             result.append(ch)
             escaped = False
             i += 1
             continue
-
         if ch == "\\" and (in_single or in_double):
             result.append(ch)
             escaped = True
             i += 1
             continue
-
         if ch == "'" and not in_double:
             in_single = not in_single
             result.append(ch)
             i += 1
             continue
-
         if ch == '"' and not in_single:
             in_double = not in_double
             result.append(ch)
             i += 1
             continue
-
         if not in_single and not in_double:
             if ch == "/" and nxt == "*":
                 in_block_comment = True
@@ -98,10 +92,8 @@ def strip_comments(text: str) -> str:
                     result.append(" ")
                     i += 1
                 continue
-
         result.append(ch)
         i += 1
-
     return "".join(result)
 
 
@@ -139,7 +131,6 @@ def parse_declarations(text: str, source: str) -> List[SettingDecl]:
     cleaned = strip_comments(text)
     in_settings = False
     depth = 0
-
     for line_no, line in enumerate(cleaned.splitlines(), 1):
         if not in_settings:
             if not SETTINGS_BLOCK_RE.match(line):
@@ -149,17 +140,14 @@ def parse_declarations(text: str, source: str) -> List[SettingDecl]:
             if depth <= 0:
                 in_settings = False
             continue
-
         match = PROPERTY_RE.match(line)
         if match:
             qml_type, key, default_expr = match.groups()
             declarations.append(SettingDecl(source, line_no, qml_type, key, default_expr))
-
         depth += brace_delta(line)
         if depth <= 0:
             in_settings = False
             depth = 0
-
     return declarations
 
 
@@ -170,24 +158,17 @@ def read_worktree(root: Path, rel_path: str) -> str:
 def read_git_blob(root: Path, revision: str, rel_path: str) -> Optional[str]:
     proc = subprocess.run(
         ["git", "show", f"{revision}:{rel_path}"],
-        cwd=str(root),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        cwd=str(root), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         universal_newlines=True,
     )
-    if proc.returncode != 0:
-        return None
-    return proc.stdout
+    return proc.stdout if proc.returncode == 0 else None
 
 
 def declarations_from(root: Path, revision: Optional[str] = None) -> Dict[str, List[SettingDecl]]:
     result: Dict[str, List[SettingDecl]] = {}
     for rel_path in SETTINGS_FILES:
         text = read_git_blob(root, revision, rel_path) if revision else read_worktree(root, rel_path)
-        if text is None:
-            result[rel_path] = []
-        else:
-            result[rel_path] = parse_declarations(text, rel_path)
+        result[rel_path] = [] if text is None else parse_declarations(text, rel_path)
     return result
 
 
@@ -221,16 +202,26 @@ def compare_abi(base: Dict[str, List[SettingDecl]], head: Dict[str, List[Setting
     return errors
 
 
-def load_catalog(root: Path) -> dict:
+def load_catalog(root: Path, revision: Optional[str] = None) -> dict:
+    if revision:
+        text = read_git_blob(root, revision, CATALOG_PATH)
+        if text is None:
+            raise RuntimeError(f"Unable to read {CATALOG_PATH} at {revision}")
+        return json.loads(text)
     with (root / CATALOG_PATH).open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
 
-def catalog_errors(root: Path, declarations: Sequence[SettingDecl]) -> List[str]:
+def catalog_errors(
+    root: Path,
+    declarations: Sequence[SettingDecl],
+    base_declarations: Optional[Sequence[SettingDecl]] = None,
+    base_revision: Optional[str] = None,
+) -> Tuple[List[str], List[str]]:
     catalog = load_catalog(root)
     entries = catalog.get("settings", [])
     errors: List[str] = []
-
+    warnings: List[str] = []
     declared_keys = {decl.key for decl in declarations}
     catalog_keys = [entry.get("key") for entry in entries]
     catalog_key_set = set(catalog_keys)
@@ -244,12 +235,38 @@ def catalog_errors(root: Path, declarations: Sequence[SettingDecl]) -> List[str]
     if duplicates:
         errors.append("catalog has duplicate keys: " + ", ".join(sorted(duplicates)))
 
-    missing = sorted(declared_keys - catalog_key_set)
-    stale = sorted(catalog_key_set - declared_keys)
-    if missing:
-        errors.append("persistent settings missing from catalog: " + ", ".join(missing))
-    if stale:
-        errors.append("catalog keys without a persistent declaration: " + ", ".join(stale))
+    head_missing = declared_keys - catalog_key_set
+    head_stale = catalog_key_set - declared_keys
+    if base_declarations is not None and base_revision:
+        base_catalog = load_catalog(root, base_revision)
+        base_catalog_keys = {entry.get("key") for entry in base_catalog.get("settings", [])}
+        base_declared_keys = {decl.key for decl in base_declarations}
+        base_missing = base_declared_keys - base_catalog_keys
+        base_stale = base_catalog_keys - base_declared_keys
+
+        new_missing = sorted(head_missing - base_missing)
+        new_stale = sorted(head_stale - base_stale)
+        removed_catalog_keys = sorted(base_catalog_keys - catalog_key_set)
+        if new_missing:
+            errors.append("new persistent settings missing from catalog: " + ", ".join(new_missing))
+        if new_stale:
+            errors.append("new catalog keys without a persistent declaration: " + ", ".join(new_stale))
+        if removed_catalog_keys:
+            errors.append("catalog entries removed relative to base: " + ", ".join(removed_catalog_keys))
+        if head_missing:
+            warnings.append(
+                f"catalog baseline debt: {len(head_missing)} persistent key(s) are not cataloged: "
+                + ", ".join(sorted(head_missing))
+            )
+        if head_stale:
+            warnings.append(
+                f"catalog baseline has {len(head_stale)} stale key(s): " + ", ".join(sorted(head_stale))
+            )
+    else:
+        if head_missing:
+            errors.append("persistent settings missing from catalog: " + ", ".join(sorted(head_missing)))
+        if head_stale:
+            errors.append("catalog keys without a persistent declaration: " + ", ".join(sorted(head_stale)))
 
     expected_count = catalog.get("settingCount")
     if expected_count != len(catalog_key_set):
@@ -269,16 +286,12 @@ def catalog_errors(root: Path, declarations: Sequence[SettingDecl]) -> List[str]
             errors.append(
                 f"catalog qmlType mismatch for {key}: catalog={catalog_type!r}, declarations={sorted(qml_types[key])!r}"
             )
-
-    return errors
+    return errors, warnings
 
 
 def behavior_inventory(root: Path, declarations: Sequence[SettingDecl]) -> dict:
     known = {decl.key for decl in declarations}
-    inventory = {
-        key: {"references": [], "writes": [], "visibilityOrEnabled": []}
-        for key in sorted(known)
-    }
+    inventory = {key: {"references": [], "writes": [], "visibilityOrEnabled": []} for key in sorted(known)}
     for rel_path in SETTINGS_FILES:
         text = read_worktree(root, rel_path)
         for line_no, line in enumerate(text.splitlines(), 1):
@@ -291,24 +304,23 @@ def behavior_inventory(root: Path, declarations: Sequence[SettingDecl]) -> dict:
                 if key in writes:
                     inventory[key]["writes"].append({"source": rel_path, "line": line_no, "code": line.strip()})
                 if re.search(r"\b(visible|enabled)\s*:", line):
-                    inventory[key]["visibilityOrEnabled"].append(
-                        {"source": rel_path, "line": line_no, "code": line.strip()}
-                    )
+                    inventory[key]["visibilityOrEnabled"].append({"source": rel_path, "line": line_no, "code": line.strip()})
     return inventory
 
 
 def build_report(root: Path, declarations: Sequence[SettingDecl]) -> dict:
     duplicates = duplicate_keys(declarations)
+    catalog = load_catalog(root)
+    catalog_keys = {entry.get("key") for entry in catalog.get("settings", [])}
+    declared_keys = {decl.key for decl in declarations}
     return {
         "persistentDeclarationCount": len(declarations),
-        "uniquePersistentSettingCount": len({decl.key for decl in declarations}),
-        "files": {
-            path: len(parse_declarations(read_worktree(root, path), path))
-            for path in SETTINGS_FILES
-        },
-        "duplicates": {
-            key: [asdict(item) for item in items] for key, items in sorted(duplicates.items())
-        },
+        "uniquePersistentSettingCount": len(declared_keys),
+        "catalogSettingCount": len(catalog_keys),
+        "catalogMissingPersistentKeys": sorted(declared_keys - catalog_keys),
+        "catalogStaleKeys": sorted(catalog_keys - declared_keys),
+        "files": {path: len(parse_declarations(read_worktree(root, path), path)) for path in SETTINGS_FILES},
+        "duplicates": {key: [asdict(item) for item in items] for key, items in sorted(duplicates.items())},
         "behavior": behavior_inventory(root, declarations),
     }
 
@@ -324,13 +336,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     root = Path(args.root).resolve()
     head_by_file = declarations_from(root)
     head = flatten(head_by_file)
+    base_by_file = declarations_from(root, args.base) if args.base else None
+    base = flatten(base_by_file) if base_by_file is not None else None
     errors: List[str] = []
+    warnings: List[str] = []
 
     if not args.skip_catalog:
-        errors.extend(catalog_errors(root, head))
-
-    if args.base:
-        base_by_file = declarations_from(root, args.base)
+        catalog_errs, catalog_warnings = catalog_errors(root, head, base, args.base)
+        errors.extend(catalog_errs)
+        warnings.extend(catalog_warnings)
+    if base_by_file is not None:
         errors.extend(compare_abi(base_by_file, head_by_file))
 
     if args.report:
@@ -344,6 +359,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     print(f"Persistent declarations: {len(head)} ({unique_count} unique keys)")
     if args.base:
         print(f"ABI base revision: {args.base}")
+    for warning in warnings:
+        print("WARNING: " + warning)
     if errors:
         for error in errors:
             print("ERROR: " + error, file=sys.stderr)
