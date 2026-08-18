@@ -41,7 +41,11 @@ import AndroidStatusBar 1.0
         property var modernSettingsCategories: []
         property var modernSettingsItems: []
         property string modernSettingsParent: ""
+        property string modernSettingsExternalTarget: ""
+        property string modernSettingsExternalTitle: ""
+        property string modernSettingsExternalParent: ""
         // MODERN_SETTINGS_LEGACY_HIERARCHY_V2
+        // MODERN_SETTINGS_IOS_GROUPED_V3
 
         function rebuildModernSettingsCategories() {
             var categories = []
@@ -64,6 +68,33 @@ import AndroidStatusBar 1.0
                     if (searchableText(searchableSettings[s]).indexOf(normalized) >= 0)
                         items.push(searchableSettings[s])
                 }
+                items.sort(function(a, b) { return modernItemOrder(a) - modernItemOrder(b) })
+                modernSettingsItems = items
+                return
+            }
+
+            if (modernSettingsExternalTarget.length > 0) {
+                var layout = settingsCatalog.legacyLayout || ({})
+                var sourceMap = layout.sourceFileByKey || ({})
+                var persistent = settingsCatalog.settings || []
+                for (var p = 0; p < persistent.length; p++) {
+                    var pe = persistent[p]
+                    if (!pe.visible || pe.control === "virtualOption")
+                        continue
+                    if (sourceMap[pe.key] !== modernSettingsExternalTarget)
+                        continue
+                    pe.catalogKind = "setting"
+                    items.push(pe)
+                }
+                var pages = settingsCatalog.pages || []
+                var pageParents = layout.pageParentTargetByKey || ({})
+                for (var ep = 0; ep < pages.length; ep++) {
+                    if (!pages[ep].visible || pageParents[pages[ep].key] !== modernSettingsExternalTarget)
+                        continue
+                    pages[ep].catalogKind = "page"
+                    items.push(pages[ep])
+                }
+                items.sort(function(a, b) { return modernItemOrder(a) - modernItemOrder(b) })
                 modernSettingsItems = items
                 return
             }
@@ -82,7 +113,8 @@ import AndroidStatusBar 1.0
                         name: nodes[n].name,
                         description: null,
                         catalogKind: "page",
-                        target: "__category__:" + nodes[n].key
+                        target: "__category__:" + nodes[n].key,
+                        legacySourceLine: nodes[n].sourceLine
                     })
                 }
             }
@@ -92,6 +124,7 @@ import AndroidStatusBar 1.0
                 if (settingsPane.modernEntryNodeKey(entry) === modernSettingsParent)
                     items.push(entry)
             }
+            items.sort(function(a, b) { return modernItemOrder(a) - modernItemOrder(b) })
             modernSettingsItems = items
         }
 
@@ -107,12 +140,89 @@ import AndroidStatusBar 1.0
 
         function modernEntryNodeKey(entry) {
             var hierarchy = settingsCatalog.legacyHierarchy || ({})
+            var layout = settingsCatalog.legacyLayout || ({})
             var mapping = hierarchy.settingNodeByKey || ({})
             if (entry.catalogKind === "virtual")
                 mapping = hierarchy.virtualNodeByKey || ({})
-            else if (entry.catalogKind === "page")
+            else if (entry.catalogKind === "page") {
+                var layoutPages = layout.pageNodeByKey || ({})
+                if (layoutPages[entry.key])
+                    return layoutPages[entry.key]
                 mapping = hierarchy.pageNodeByKey || ({})
+            }
             return mapping[entry.key] || ""
+        }
+
+        function modernItemOrder(entry) {
+            if (entry.legacySourceLine !== undefined)
+                return entry.legacySourceLine
+            var layout = settingsCatalog.legacyLayout || ({})
+            if (entry.catalogKind === "page") {
+                var pageOrder = layout.pageOrderByKey || ({})
+                return pageOrder[entry.key] === undefined ? 999999 : pageOrder[entry.key]
+            }
+            var map = modernSettingsExternalTarget.length > 0 ? (layout.externalEntryOrderByKey || ({})) : (layout.itemOrderByKey || ({}))
+            return map[entry.key] === undefined ? 999999 : map[entry.key]
+        }
+
+        function modernCardColor() {
+            return Material.theme === Material.Dark ? "#2c2c2e" : "#ffffff"
+        }
+
+        function modernPageColor() {
+            return Material.theme === Material.Dark ? "#1c1c1e" : "#f2f2f7"
+        }
+
+        function legacyRootIconColor(name) {
+            var lower = (name || "").toLowerCase()
+            if (lower.indexOf("general") >= 0) return "#8e8e93"
+            if (lower.indexOf("heart") >= 0) return "#ff3b30"
+            if (lower.indexOf("bike") >= 0) return "#34c759"
+            if (lower.indexOf("treadmill") >= 0 || lower.indexOf("running") >= 0) return "#ff9500"
+            if (lower.indexOf("ant+") >= 0 || lower.indexOf("bluetooth") >= 0) return "#007aff"
+            if (lower.indexOf("peloton") >= 0) return "#ff2d55"
+            if (lower.indexOf("zwift") >= 0) return "#ff9500"
+            if (lower.indexOf("garmin") >= 0) return "#00a7e1"
+            if (lower.indexOf("training") >= 0) return "#5856d6"
+            if (lower.indexOf("advanced") >= 0 || lower.indexOf("experimental") >= 0) return "#8e8e93"
+            return "#636366"
+        }
+
+        function openModernCatalogPage(entry) {
+            if (!entry || !entry.target)
+                return
+            if (entry.target.indexOf("__category__:") === 0) {
+                openModernSettingsCategory(entry.target.substring("__category__:".length))
+                return
+            }
+            var layout = settingsCatalog.legacyLayout || ({})
+            var sourceMap = layout.sourceFileByKey || ({})
+            var hasEntries = false
+            for (var key in sourceMap) {
+                if (sourceMap[key] === entry.target) {
+                    hasEntries = true
+                    break
+                }
+            }
+            var pageParents = layout.pageParentTargetByKey || ({})
+            if (!hasEntries) {
+                for (var pageKey in pageParents) {
+                    if (pageParents[pageKey] === entry.target) {
+                        hasEntries = true
+                        break
+                    }
+                }
+            }
+            if (hasEntries) {
+                modernSettingsExternalParent = modernSettingsParent
+                modernSettingsExternalTarget = entry.target
+                modernSettingsExternalTitle = entry.name || qsTr("Settings")
+                modernSettingsSearch.text = ""
+                rebuildModernSettingsItems("")
+            } else {
+                modernSettingsDrawer.close()
+                stackView.push(entry.target)
+            }
         }
 
         function legacyRootIcon(name) {
@@ -121,13 +231,19 @@ import AndroidStatusBar 1.0
             if (lower.indexOf("heart") >= 0) return "♥"
             if (lower.indexOf("bike") >= 0) return "🚲"
             if (lower.indexOf("treadmill") >= 0 || lower.indexOf("running") >= 0) return "🏃"
-            if (lower.indexOf("bluetooth") >= 0 || lower.indexOf("ant+") >= 0) return "⌁"
-            if (lower.indexOf("peloton") >= 0 || lower.indexOf("zwift") >= 0) return "↔"
+            if (lower.indexOf("ant+") >= 0) return "⌁"
+            if (lower.indexOf("peloton") >= 0) return "P"
+            if (lower.indexOf("zwift") >= 0) return "Z"
+            if (lower.indexOf("garmin") >= 0) return "G"
+            if (lower.indexOf("training") >= 0) return "▶"
             if (lower.indexOf("advanced") >= 0) return "⚙"
-            return "●"
+            if (lower.indexOf("experimental") >= 0) return "⚗"
+            return "•"
         }
 
         function modernSettingsParentName() {
+            if (modernSettingsExternalTarget.length > 0)
+                return modernSettingsExternalTitle
             if (modernSettingsParent.length === 0)
                 return qsTr("Settings")
             var node = modernHierarchyNode(modernSettingsParent)
@@ -137,6 +253,9 @@ import AndroidStatusBar 1.0
         function openModernSettingsPreview() {
             loadSettingsCatalog()
             modernSettingsParent = ""
+            modernSettingsExternalTarget = ""
+            modernSettingsExternalTitle = ""
+            modernSettingsExternalParent = ""
             modernSettingsSearch.text = ""
             rebuildModernSettingsCategories()
             modernSettingsDrawer.open()
@@ -151,6 +270,14 @@ import AndroidStatusBar 1.0
         function modernSettingsBack() {
             if (modernSettingsSearch.text.length > 0) {
                 modernSettingsSearch.text = ""
+                rebuildModernSettingsItems("")
+                return
+            }
+            if (modernSettingsExternalTarget.length > 0) {
+                modernSettingsExternalTarget = ""
+                modernSettingsExternalTitle = ""
+                modernSettingsParent = modernSettingsExternalParent
+                modernSettingsExternalParent = ""
                 rebuildModernSettingsItems("")
                 return
             }
@@ -2160,6 +2287,7 @@ import AndroidStatusBar 1.0
 
         Drawer {
             id: modernSettingsDrawer
+            background: Rectangle { color: settingsPane.modernPageColor() }
             edge: Qt.RightEdge
             width: Math.min(settingsPane.width, 680)
             height: settingsPane.height
@@ -2195,8 +2323,8 @@ import AndroidStatusBar 1.0
                             Layout.fillWidth: true
                             text: settingsPane.modernSettingsParentName()
                             font.bold: true
-                            font.pixelSize: Qt.application.font.pixelSize + 5
-                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: Qt.application.font.pixelSize + (modernSettingsParent.length === 0 && modernSettingsExternalTarget.length === 0 ? 11 : 5)
+                            horizontalAlignment: modernSettingsParent.length === 0 && modernSettingsExternalTarget.length === 0 ? Text.AlignLeft : Text.AlignHCenter
                             elide: Text.ElideRight
                         }
 
@@ -2228,27 +2356,40 @@ import AndroidStatusBar 1.0
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
-                    spacing: 8
-                    leftMargin: 12
-                    rightMargin: 12
-                    topMargin: 12
+                    spacing: 2
+                    leftMargin: 20
+                    rightMargin: 20
+                    topMargin: 18
                     bottomMargin: 24
                     model: modernSettingsCategories
 
                     delegate: Rectangle {
                         width: modernCategoryList.width - modernCategoryList.leftMargin - modernCategoryList.rightMargin
-                        height: 56
-                        radius: 12
-                        color: Material.backgroundColor
+                        height: 58
+                        radius: 10
+                        color: settingsPane.modernCardColor()
 
                         RowLayout {
                             anchors.fill: parent
                             anchors.leftMargin: 16
                             anchors.rightMargin: 12
 
+                            Rectangle {
+                                Layout.preferredWidth: 34
+                                Layout.preferredHeight: 34
+                                radius: 8
+                                color: settingsPane.legacyRootIconColor(modelData.name)
+                                Label {
+                                    anchors.centerIn: parent
+                                    text: settingsPane.legacyRootIcon(modelData.name)
+                                    color: "white"
+                                    font.bold: true
+                                    font.pixelSize: Qt.application.font.pixelSize + 2
+                                }
+                            }
                             Label {
                                 Layout.fillWidth: true
-                                text: settingsPane.legacyRootIcon(modelData.name) + "  " + modelData.name
+                                text: modelData.name
                                 font.pixelSize: Qt.application.font.pixelSize + 1
                                 elide: Text.ElideRight
                             }
@@ -2272,7 +2413,7 @@ import AndroidStatusBar 1.0
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
-                    spacing: 8
+                    spacing: 2
                     leftMargin: 12
                     rightMargin: 12
                     topMargin: 12
@@ -2284,8 +2425,8 @@ import AndroidStatusBar 1.0
                         property var entry: modelData
                         width: modernItemList.width - modernItemList.leftMargin - modernItemList.rightMargin
                         implicitHeight: modernSettingContent.implicitHeight + 24
-                        radius: 12
-                        color: Material.backgroundColor
+                        radius: 10
+                        color: settingsPane.modernCardColor()
 
                         ColumnLayout {
                             id: modernSettingContent
@@ -2327,14 +2468,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     visible: entry.catalogKind === "page"
                                     text: entry.target && entry.target.indexOf("__category__:") === 0 ? "›" : qsTr("Open")
-                                    onClicked: {
-                                        if (entry.target && entry.target.indexOf("__category__:") === 0) {
-                                            settingsPane.openModernSettingsCategory(entry.target.substring("__category__:".length))
-                                        } else {
-                                            modernSettingsDrawer.close()
-                                            stackView.push(entry.target)
-                                        }
-                                    }
+                                    onClicked: settingsPane.openModernCatalogPage(entry)
                                 }
                             }
 
@@ -2528,7 +2662,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     visible: entry.catalogKind === "page"
                                     text: entry.target && entry.target.indexOf("__category__:") === 0 ? "›" : qsTr("Open")
-                                    onClicked: { if (entry.target && entry.target.indexOf("__category__:") === 0) settingsPane.openModernSettingsCategory(entry.target.substring("__category__:".length)); else stackView.push(entry.target) }
+                                    onClicked: settingsPane.openModernCatalogPage(entry)
                                 }
                             }
 

@@ -12,7 +12,7 @@ from pathlib import Path
 
 QML_PATH = Path("src/settings.qml")
 CATALOG_PATH = Path("src/settings-catalog.json")
-ACC_RE = re.compile(r"^\s*AccordionElement\s*\{")
+ACC_RE = re.compile(r"^\s*(?:AccordionElement|StaticAccordionElement|AccordionCheckElement)\s*\{")
 ID_RE = re.compile(r"^\s*id\s*:\s*([A-Za-z_][A-Za-z0-9_]*)")
 TITLE_RE = re.compile(r'^\s*title\s*:\s*qsTr\("((?:\\.|[^"\\])*)"\)')
 SETTING_REF_RE = re.compile(r"\bsettings\.([A-Za-z_][A-Za-z0-9_]*)\b")
