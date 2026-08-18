@@ -1,4 +1,4 @@
-name: Settings refactor phase 2 migration
+name: Settings refactor migration
 
 on:
   push:
@@ -7,7 +7,9 @@ on:
     paths:
       - 'scripts/phase2_catalog_migration.py'
       - 'scripts/phase2_behavior_migration.py'
+      - 'scripts/phase3_modern_ui_migration.py'
       - 'tests/test_settings_behavior_migration.py'
+      - 'tests/test_modern_settings_preview.py'
       - '.github/workflows/settings-refactor-phase2.yml'
   workflow_dispatch:
 
@@ -25,23 +27,24 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Apply Phase 2 migrations
+      - name: Apply settings refactor migrations
         run: |
           python3 scripts/phase2_catalog_migration.py
           python3 scripts/phase2_behavior_migration.py
-      - name: Validate Phase 2 result
+          python3 scripts/phase3_modern_ui_migration.py
+      - name: Validate migrated result
         run: |
-          python3 -m unittest tests/test_settings_audit.py tests/test_settings_behavior_migration.py
+          python3 -m unittest tests/test_settings_audit.py tests/test_settings_behavior_migration.py tests/test_modern_settings_preview.py
           python3 scripts/settings_audit.py --report settings-audit.json
-      - name: Commit Phase 2 migrations
+      - name: Commit migrations
         shell: bash
         run: |
           if git diff --quiet -- src/settings-catalog.json src/settings.qml; then
-            echo 'Phase 2 migrations are already applied.'
+            echo 'Settings refactor migrations are already applied.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add src/settings-catalog.json src/settings.qml
-          git commit -m 'Apply settings refactor phase 2 migrations'
+          git commit -m 'Apply settings refactor UI migrations'
           git push origin HEAD:agent/settings-refactor-phase1-safety
