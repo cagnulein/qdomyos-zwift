@@ -45,6 +45,7 @@ class treadmill : public bluetoothdevice {
     virtual bool autoStartWhenSpeedIsGreaterThenZero();
     static double treadmillInclinationOverride(double Inclination);
     static double treadmillInclinationDeviceCommand(double rawIndex);
+    static double treadmillInclinationLogicalForDeviceCommand(double deviceCommand);
     double treadmillInclinationOverrideReverse(double Inclination);
     bool cadenceFromAppleWatch();
     double calculateCadenceFromSpeed(double speed);
@@ -103,10 +104,11 @@ class treadmill : public bluetoothdevice {
     // by QZ until feedback demonstrates that the treadmill moved independently.
     bool m_mappedInclinationValid = false;
     bool m_mappedInclinationAwaitingFeedback = false;
-    double m_mappedInclinationRawRow = 0.0;
+    double m_mappedInclinationDeviceCommand = 0.0;
     double m_mappedInclinationLogicalValue = 0.0;
     double m_mappedInclinationRawBeforeCommand = 0.0;
     double m_mappedInclinationFeedback = 0.0;
+    uint8_t m_mappedInclinationUnchangedSamples = 0;
 
     void parseSpeed(double speed);
     void parseInclination(double speed);

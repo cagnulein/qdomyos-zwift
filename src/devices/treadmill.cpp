@@ -433,6 +433,14 @@ double treadmill::treadmillInclinationDeviceCommand(double rawIndex) {
     }
 }
 
+double treadmill::treadmillInclinationLogicalForDeviceCommand(double deviceCommand) {
+    // Device Commands on an existing 0.5 row have an exact physical/logical association.
+    // For commands outside that grid, use the nearest bounded row rather than interpolating
+    // a logical inclination that the configured table does not define.
+    const double closestRawRow = qBound(0.0, qRound(deviceCommand * 2.0) / 2.0, 15.0);
+    return treadmillInclinationOverride(closestRawRow);
+}
+
 double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
     QSettings settings;
     const auto deviceCommandCustomized = [&settings](double rawIndex) {
@@ -449,11 +457,14 @@ double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
             return;
         }
 
+        const double deviceCommand = treadmillInclinationDeviceCommand(rawIndex);
         m_mappedInclinationValid = true;
         m_mappedInclinationAwaitingFeedback = true;
-        m_mappedInclinationRawRow = rawIndex;
-        m_mappedInclinationLogicalValue = treadmillInclinationOverride(rawIndex);
+        m_mappedInclinationDeviceCommand = deviceCommand;
+        m_mappedInclinationLogicalValue = treadmillInclinationLogicalForDeviceCommand(deviceCommand);
         m_mappedInclinationRawBeforeCommand = rawInclination.value();
+        m_mappedInclinationFeedback = m_mappedInclinationRawBeforeCommand;
+        m_mappedInclinationUnchangedSamples = 0;
     };
 
     for (int i = 0; i <= 15 * 2; i++) {
@@ -497,19 +508,19 @@ double treadmill::treadmillInclinationOverrideForRawFeedback(double rawInclinati
         return legacyLogicalValue;
 
     if (m_mappedInclinationAwaitingFeedback) {
-        const double expectedDirection = m_mappedInclinationRawRow - m_mappedInclinationRawBeforeCommand;
-        const double feedbackMovement = rawInclinationValue - m_mappedInclinationRawBeforeCommand;
         const bool unchanged = qFuzzyCompare(rawInclinationValue + 1.0,
                                              m_mappedInclinationRawBeforeCommand + 1.0);
-        const bool movedTowardSelectedRow = expectedDirection * feedbackMovement > 0.0 &&
-                                            std::abs(feedbackMovement) <= std::abs(expectedDirection);
-        if (!unchanged && !movedTowardSelectedRow) {
-            m_mappedInclinationValid = false;
-            return legacyLogicalValue;
-        }
-
         m_mappedInclinationFeedback = rawInclinationValue;
-        m_mappedInclinationAwaitingFeedback = false;
+        if (unchanged) {
+            // Lossy feedback may not change even though the physical command did. Two unchanged
+            // samples provide a bounded settling period without blocking metric updates.
+            if (++m_mappedInclinationUnchangedSamples >= 2)
+                m_mappedInclinationAwaitingFeedback = false;
+        } else {
+            // The first changed sample after a command is the best raw signature available for
+            // that commanded state; raw feedback cannot identify the physical level precisely.
+            m_mappedInclinationAwaitingFeedback = false;
+        }
         return m_mappedInclinationLogicalValue;
     }
 
