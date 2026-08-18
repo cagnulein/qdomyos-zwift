@@ -41,22 +41,16 @@ import AndroidStatusBar 1.0
         property var modernSettingsCategories: []
         property var modernSettingsItems: []
         property string modernSettingsParent: ""
+        // MODERN_SETTINGS_LEGACY_HIERARCHY_V2
 
         function rebuildModernSettingsCategories() {
             var categories = []
-            var seen = ({})
-            for (var i = 0; i < searchableSettings.length; i++) {
-                var entry = searchableSettings[i]
-                var key = entry.parent || "__general__"
-                if (seen[key])
-                    continue
-                seen[key] = true
-                categories.push({
-                    key: key,
-                    name: entry.parent ? parentDisplayName(entry) : qsTr("General")
-                })
+            var hierarchy = settingsCatalog.legacyHierarchy || ({nodes: []})
+            var nodes = hierarchy.nodes || []
+            for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].parent === null || nodes[i].parent === undefined || nodes[i].parent === "")
+                    categories.push({key: nodes[i].key, name: nodes[i].name})
             }
-            categories.sort(function(a, b) { return a.name.localeCompare(b.name) })
             modernSettingsCategories = categories
             rebuildModernSettingsItems("")
         }
@@ -64,25 +58,80 @@ import AndroidStatusBar 1.0
         function rebuildModernSettingsItems(query) {
             var normalized = (query || "").trim().toLowerCase()
             var items = []
+
+            if (normalized.length > 0) {
+                for (var s = 0; s < searchableSettings.length; s++) {
+                    if (searchableText(searchableSettings[s]).indexOf(normalized) >= 0)
+                        items.push(searchableSettings[s])
+                }
+                modernSettingsItems = items
+                return
+            }
+
+            if (modernSettingsParent.length === 0) {
+                modernSettingsItems = []
+                return
+            }
+
+            var hierarchy = settingsCatalog.legacyHierarchy || ({nodes: []})
+            var nodes = hierarchy.nodes || []
+            for (var n = 0; n < nodes.length; n++) {
+                if (nodes[n].parent === modernSettingsParent) {
+                    items.push({
+                        key: "__category__" + nodes[n].key,
+                        name: nodes[n].name,
+                        description: null,
+                        catalogKind: "page",
+                        target: "__category__:" + nodes[n].key
+                    })
+                }
+            }
+
             for (var i = 0; i < searchableSettings.length; i++) {
                 var entry = searchableSettings[i]
-                var parentKey = entry.parent || "__general__"
-                var parentMatches = modernSettingsParent.length === 0 || parentKey === modernSettingsParent
-                var searchMatches = normalized.length === 0 || searchableText(entry).indexOf(normalized) >= 0
-                if ((normalized.length > 0 || parentMatches) && searchMatches)
+                if (settingsPane.modernEntryNodeKey(entry) === modernSettingsParent)
                     items.push(entry)
             }
             modernSettingsItems = items
         }
 
+        function modernHierarchyNode(nodeKey) {
+            var hierarchy = settingsCatalog.legacyHierarchy || ({nodes: []})
+            var nodes = hierarchy.nodes || []
+            for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].key === nodeKey)
+                    return nodes[i]
+            }
+            return null
+        }
+
+        function modernEntryNodeKey(entry) {
+            var hierarchy = settingsCatalog.legacyHierarchy || ({})
+            var mapping = hierarchy.settingNodeByKey || ({})
+            if (entry.catalogKind === "virtual")
+                mapping = hierarchy.virtualNodeByKey || ({})
+            else if (entry.catalogKind === "page")
+                mapping = hierarchy.pageNodeByKey || ({})
+            return mapping[entry.key] || ""
+        }
+
+        function legacyRootIcon(name) {
+            var lower = (name || "").toLowerCase()
+            if (lower.indexOf("general") >= 0) return "⚙"
+            if (lower.indexOf("heart") >= 0) return "♥"
+            if (lower.indexOf("bike") >= 0) return "🚲"
+            if (lower.indexOf("treadmill") >= 0 || lower.indexOf("running") >= 0) return "🏃"
+            if (lower.indexOf("bluetooth") >= 0 || lower.indexOf("ant+") >= 0) return "⌁"
+            if (lower.indexOf("peloton") >= 0 || lower.indexOf("zwift") >= 0) return "↔"
+            if (lower.indexOf("advanced") >= 0) return "⚙"
+            return "●"
+        }
+
         function modernSettingsParentName() {
             if (modernSettingsParent.length === 0)
                 return qsTr("Settings")
-            for (var i = 0; i < modernSettingsCategories.length; i++) {
-                if (modernSettingsCategories[i].key === modernSettingsParent)
-                    return modernSettingsCategories[i].name
-            }
-            return qsTr("Settings")
+            var node = modernHierarchyNode(modernSettingsParent)
+            return node ? node.name : qsTr("Settings")
         }
 
         function openModernSettingsPreview() {
@@ -103,12 +152,15 @@ import AndroidStatusBar 1.0
             if (modernSettingsSearch.text.length > 0) {
                 modernSettingsSearch.text = ""
                 rebuildModernSettingsItems("")
-            } else if (modernSettingsParent.length > 0) {
-                modernSettingsParent = ""
-                rebuildModernSettingsItems("")
-            } else {
-                modernSettingsDrawer.close()
+                return
             }
+            if (modernSettingsParent.length > 0) {
+                var node = modernHierarchyNode(modernSettingsParent)
+                modernSettingsParent = node && node.parent ? node.parent : ""
+                rebuildModernSettingsItems("")
+                return
+            }
+            modernSettingsDrawer.close()
         }
 
         function showSettingsSearch() {
@@ -2196,7 +2248,7 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 Layout.fillWidth: true
-                                text: modelData.name
+                                text: settingsPane.legacyRootIcon(modelData.name) + "  " + modelData.name
                                 font.pixelSize: Qt.application.font.pixelSize + 1
                                 elide: Text.ElideRight
                             }
@@ -2274,10 +2326,14 @@ import AndroidStatusBar 1.0
 
                                 Button {
                                     visible: entry.catalogKind === "page"
-                                    text: qsTr("Open")
+                                    text: entry.target && entry.target.indexOf("__category__:") === 0 ? "›" : qsTr("Open")
                                     onClicked: {
-                                        modernSettingsDrawer.close()
-                                        stackView.push(entry.target)
+                                        if (entry.target && entry.target.indexOf("__category__:") === 0) {
+                                            settingsPane.openModernSettingsCategory(entry.target.substring("__category__:".length))
+                                        } else {
+                                            modernSettingsDrawer.close()
+                                            stackView.push(entry.target)
+                                        }
                                     }
                                 }
                             }
@@ -2471,8 +2527,8 @@ import AndroidStatusBar 1.0
 
                                 Button {
                                     visible: entry.catalogKind === "page"
-                                    text: qsTr("Open")
-                                    onClicked: stackView.push(entry.target)
+                                    text: entry.target && entry.target.indexOf("__category__:") === 0 ? "›" : qsTr("Open")
+                                    onClicked: { if (entry.target && entry.target.indexOf("__category__:") === 0) settingsPane.openModernSettingsCategory(entry.target.substring("__category__:".length)); else stackView.push(entry.target) }
                                 }
                             }
 
