@@ -15159,504 +15159,504 @@
         "name": "General Options",
         "parent": null,
         "depth": 0,
-        "sourceLine": 2598
+        "sourceLine": 2654
       },
       {
         "key": "heartRateOptionsAccordion",
         "name": "Heart Rate Options",
         "parent": null,
         "depth": 0,
-        "sourceLine": 3148
+        "sourceLine": 3204
       },
       {
         "key": "heartRateZoneAccordion",
         "name": "Heart Rate Zone Options",
         "parent": "heartRateOptionsAccordion",
         "depth": 1,
-        "sourceLine": 3343
+        "sourceLine": 3399
       },
       {
         "key": "heartRatemaxOverrideAccordion",
         "name": "Heart Rate Max Override",
         "parent": "heartRateZoneAccordion",
         "depth": 2,
-        "sourceLine": 3477
+        "sourceLine": 3533
       },
       {
         "key": "powerFromHeartRateAccordion",
         "name": "Power from Heart Rate Options",
         "parent": "heartRateZoneAccordion",
         "depth": 2,
-        "sourceLine": 3578
+        "sourceLine": 3634
       },
       {
         "key": "bikeOptionsAccordion",
         "name": "Bike Options",
         "parent": null,
         "depth": 0,
-        "sourceLine": 3704
+        "sourceLine": 3760
       },
       {
         "key": "openBikeControlAccordion",
         "name": "OpenBikeControl",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 3980
+        "sourceLine": 4036
       },
       {
         "key": "automaticVirtualShiftingAccordion",
         "name": "Automatic Virtual Shifting",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 4587
+        "sourceLine": 4643
       },
       {
         "key": "schwinnBikeAccordion",
         "name": "Schwinn Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5024
+        "sourceLine": 5080
       },
       {
         "key": "horizonBikeAccordion",
         "name": "Horizon Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5111
+        "sourceLine": 5167
       },
       {
         "key": "echelonBikeOptionsAccordion",
         "name": "Echelon Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5143
+        "sourceLine": 5199
       },
       {
         "key": "inspireBikeAccordion",
         "name": "Inspire Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5244
+        "sourceLine": 5300
       },
       {
         "key": "renphoBikeAccordion",
         "name": "Renpho Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5283
+        "sourceLine": 5339
       },
       {
         "key": "hammerBikeAccordion",
         "name": "Hammer Racer Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5334
+        "sourceLine": 5390
       },
       {
         "key": "cardioFitBikeAccordion",
         "name": "CardioFIT Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5376
+        "sourceLine": 5432
       },
       {
         "key": "yesoulBikeAccordion",
         "name": "Yesoul Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5397
+        "sourceLine": 5453
       },
       {
         "key": "skandikaBikeAccordion",
         "name": "Skandika Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5440
+        "sourceLine": 5496
       },
       {
         "key": "fitplusBikeAccordion",
         "name": "Fitplus Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5476
+        "sourceLine": 5532
       },
       {
         "key": "lifespanBikeAccordion",
         "name": "LifeSpan Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5543
+        "sourceLine": 5599
       },
       {
         "key": "flywheelBikeAccordion",
         "name": "Flywheel Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5567
+        "sourceLine": 5623
       },
       {
         "key": "domyosBikeAccordion",
         "name": "Domyos Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5629
+        "sourceLine": 5685
       },
       {
         "key": "proformBikeAccordion",
         "name": "Proform/Norditrack Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 5762
+        "sourceLine": 5818
       },
       {
         "key": "computrainerBikeAccordion",
         "name": "Computrainer Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 6050
+        "sourceLine": 6106
       },
       {
         "key": "kettlerUsbBikeAccordion",
         "name": "Kettler USB Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 6083
+        "sourceLine": 6139
       },
       {
         "key": "freebeatBikeAccordion",
         "name": "Freebeat Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 6147
+        "sourceLine": 6203
       },
       {
         "key": "m3iBikeAccordion",
         "name": "M3i Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 6182
+        "sourceLine": 6238
       },
       {
         "key": "soleBikeAccordion",
         "name": "Sole Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 6275
+        "sourceLine": 6331
       },
       {
         "key": "technogymBikeAccordion",
         "name": "Technogym Bike Options",
         "parent": "bikeOptionsAccordion",
         "depth": 1,
-        "sourceLine": 6299
+        "sourceLine": 6355
       },
       {
         "key": "uiAntOptionsAccordion",
         "name": "Ant+ Options (only for some Android)",
         "parent": null,
         "depth": 0,
-        "sourceLine": 6408
+        "sourceLine": 6464
       },
       {
         "key": "uiGeneralOptionsAccordion",
         "name": "General UI Options",
         "parent": null,
         "depth": 0,
-        "sourceLine": 6639
+        "sourceLine": 6695
       },
       {
         "key": "themesOptionsAccordion",
         "name": "UI Themes",
         "parent": "uiGeneralOptionsAccordion",
         "depth": 1,
-        "sourceLine": 6954
+        "sourceLine": 7010
       },
       {
         "key": "pelotonAccordion",
         "name": "Peloton Options",
         "parent": null,
         "depth": 0,
-        "sourceLine": 7150
+        "sourceLine": 7206
       },
       {
         "key": "zwiftUsernameTextField",
         "name": "Zwift Options",
         "parent": null,
         "depth": 0,
-        "sourceLine": 7982
+        "sourceLine": 8038
       },
       {
         "key": "garminOptionsAccordion",
         "name": "Garmin Options",
         "parent": null,
         "depth": 0,
-        "sourceLine": 8342
+        "sourceLine": 8398
       },
       {
         "key": "trainingProgramOptionsAccordion",
         "name": "Training Program Options",
         "parent": null,
         "depth": 0,
-        "sourceLine": 9439
+        "sourceLine": 9495
       },
       {
         "key": "treadmillAccordion",
         "name": "Treadmill Options",
         "parent": null,
         "depth": 0,
-        "sourceLine": 10365
+        "sourceLine": 10421
       },
       {
         "key": "proformTreadmillAccordion",
         "name": "Proform/Nordictrack Options",
         "parent": "treadmillAccordion",
         "depth": 1,
-        "sourceLine": 10861
+        "sourceLine": 10917
       },
       {
         "key": "pafersTreadmillAccordion",
         "name": "Pafers Options",
         "parent": "treadmillAccordion",
         "depth": 1,
-        "sourceLine": 11233
+        "sourceLine": 11289
       },
       {
         "key": "kingsmithTreadmillAccordion",
         "name": "KingSmith Options",
         "parent": "treadmillAccordion",
         "depth": 1,
-        "sourceLine": 11318
+        "sourceLine": 11374
       },
       {
         "key": "runnerTTreadmillAccordion",
         "name": "RunnerT Options",
         "parent": "treadmillAccordion",
         "depth": 1,
-        "sourceLine": 11428
+        "sourceLine": 11484
       },
       {
         "key": "domyosTreadmillAccordion",
         "name": "Domyos Treadmill Options",
         "parent": "treadmillAccordion",
         "depth": 1,
-        "sourceLine": 11479
+        "sourceLine": 11535
       },
       {
         "key": "soleTreadmillAccordion",
         "name": "Sole Treadmill Options",
         "parent": "treadmillAccordion",
         "depth": 1,
-        "sourceLine": 11717
+        "sourceLine": 11773
       },
       {
         "key": "technogymTreadmillAccordion",
         "name": "Technogym Options",
         "parent": "treadmillAccordion",
         "depth": 1,
-        "sourceLine": 11811
+        "sourceLine": 11867
       },
       {
         "key": "fitshowAccordion",
         "name": "Fitshow Treadmill Options",
         "parent": "treadmillAccordion",
         "depth": 1,
-        "sourceLine": 11836
+        "sourceLine": 11892
       },
       {
         "key": "eslinkerTreadmillAccordion",
         "name": "ESLinker Treadmill Options",
         "parent": "treadmillAccordion",
         "depth": 1,
-        "sourceLine": 11925
+        "sourceLine": 11981
       },
       {
         "key": "horizonTreadmillAccordion",
         "name": "Horizon Treadmill Options",
         "parent": "treadmillAccordion",
         "depth": 1,
-        "sourceLine": 11976
+        "sourceLine": 12032
       },
       {
         "key": "bowflexTreadmillAccordion",
         "name": "Bowflex Treadmill Options",
         "parent": "treadmillAccordion",
         "depth": 1,
-        "sourceLine": 12212
+        "sourceLine": 12268
       },
       {
         "key": "toorxTreadmillAccordion",
         "name": "Toorx/iConsole Options",
         "parent": null,
         "depth": 0,
-        "sourceLine": 12239
+        "sourceLine": 12295
       },
       {
         "key": "ftmsRowerTextField",
         "name": "Rower Options",
         "parent": null,
         "depth": 0,
-        "sourceLine": 12594
+        "sourceLine": 12650
       },
       {
         "key": "csaferowerSerialPortTextField",
         "name": "PM3, PM4 Options",
         "parent": "ftmsRowerTextField",
         "depth": 1,
-        "sourceLine": 12601
+        "sourceLine": 12657
       },
       {
         "key": "proformRowerIPTextField",
         "name": "Proform/Nordictrack Rower Options",
         "parent": "ftmsRowerTextField",
         "depth": 1,
-        "sourceLine": 12692
+        "sourceLine": 12748
       },
       {
         "key": "ellipticalAccordion",
         "name": "Elliptical Options",
         "parent": null,
         "depth": 0,
-        "sourceLine": 12756
+        "sourceLine": 12812
       },
       {
         "key": "domyosEllipticalAccordion",
         "name": "Domyos Elliptical Options",
         "parent": "ellipticalAccordion",
         "depth": 1,
-        "sourceLine": 12765
+        "sourceLine": 12821
       },
       {
         "key": "proformEllipticalAccordion",
         "name": "Proform/Nordictrack Elliptical Options",
         "parent": "ellipticalAccordion",
         "depth": 1,
-        "sourceLine": 12900
+        "sourceLine": 12956
       },
       {
         "key": "soleEllipticalAccordion",
         "name": "Sole Elliptical Options",
         "parent": "ellipticalAccordion",
         "depth": 1,
-        "sourceLine": 13012
+        "sourceLine": 13068
       },
       {
         "key": "advancedSettingsAccordion",
         "name": "Advanced Settings",
         "parent": null,
         "depth": 0,
-        "sourceLine": 13074
+        "sourceLine": 13130
       },
       {
         "key": "accesoriesAccordion",
         "name": "Accessories",
         "parent": null,
         "depth": 0,
-        "sourceLine": 14030
+        "sourceLine": 14086
       },
       {
         "key": "cadenceSensorOptionsAccordion",
         "name": "Cadence Sensor Options",
         "parent": "accesoriesAccordion",
         "depth": 1,
-        "sourceLine": 14039
+        "sourceLine": 14095
       },
       {
         "key": "powerSensorOptionsAccordion",
         "name": "Power Sensor Options",
         "parent": "accesoriesAccordion",
         "depth": 1,
-        "sourceLine": 14361
+        "sourceLine": 14417
       },
       {
         "key": "eliteAccesoriesAccordion",
         "name": "Eliteâ¢ Products",
         "parent": "accesoriesAccordion",
         "depth": 1,
-        "sourceLine": 14694
+        "sourceLine": 14750
       },
       {
         "key": "eliteRizerOptionsAccordion",
         "name": "Elite Rizer Options",
         "parent": "eliteAccesoriesAccordion",
         "depth": 2,
-        "sourceLine": 14702
+        "sourceLine": 14758
       },
       {
         "key": "eliteSterzoSmartOptionsAccordion",
         "name": "Elite Sterzo Smart Options",
         "parent": "eliteAccesoriesAccordion",
         "depth": 2,
-        "sourceLine": 14770
+        "sourceLine": 14826
       },
       {
         "key": "ftmsAccessoryOptionsAccordion",
         "name": "SmartSpin2k Options",
         "parent": "accesoriesAccordion",
         "depth": 1,
-        "sourceLine": 14817
+        "sourceLine": 14873
       },
       {
         "key": "ftmsAccessoryAdvancedOptionsAccordion",
         "name": "Advanced SmartSpin2k Calibration",
         "parent": "ftmsAccessoryOptionsAccordion",
         "depth": 2,
-        "sourceLine": 14948
+        "sourceLine": 15004
       },
       {
         "key": "fitmetriaFanFitOptionsAccordion",
         "name": "Fitmetria Fitfanâ¢ Options",
         "parent": "accesoriesAccordion",
         "depth": 1,
-        "sourceLine": 15149
+        "sourceLine": 15205
       },
       {
         "key": "headWindModeTextField",
         "name": "Wahoo Kickr HeadWind Options",
         "parent": "accesoriesAccordion",
         "depth": 1,
-        "sourceLine": 15250
+        "sourceLine": 15306
       },
       {
         "key": "eliteAriaModeTextField",
         "name": "Elite Aria Options",
         "parent": "accesoriesAccordion",
         "depth": 1,
-        "sourceLine": 15343
+        "sourceLine": 15399
       },
       {
         "key": "zwiftDevPollTimeTextField",
         "name": "Zwift Devices Options",
         "parent": "accesoriesAccordion",
         "depth": 1,
-        "sourceLine": 15548
+        "sourceLine": 15604
       },
       {
         "key": "mapsAccordion",
         "name": "Maps ðºï¸",
         "parent": null,
         "depth": 0,
-        "sourceLine": 15883
+        "sourceLine": 15939
       },
       {
         "key": "mqttAccordion",
         "name": "MQTT Settings",
         "parent": null,
         "depth": 0,
-        "sourceLine": 16482
+        "sourceLine": 16538
       },
       {
         "key": "oscAccordion",
         "name": "OSC Settings",
         "parent": null,
         "depth": 0,
-        "sourceLine": 16673
+        "sourceLine": 16729
       },
       {
         "key": "templateSettingsAccordion",
         "name": "Template Settings",
         "parent": null,
         "depth": 0,
-        "sourceLine": 16786
+        "sourceLine": 16842
       }
     ],
     "settingNodeByKey": {
