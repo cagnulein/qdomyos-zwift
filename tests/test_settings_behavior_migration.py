@@ -35,7 +35,8 @@ class SettingsBehaviorMigrationTests(unittest.TestCase):
         bodies = function_bodies(self.text, "setSettingValue")
         self.assertGreaterEqual(len(bodies), 2)
         controller_body = bodies[0]
-        self.assertIn("settings[entry.key]", controller_body)
+        self.assertIn("var key = entry.key", controller_body)
+        self.assertIn("settings[key]", controller_body)
         self.assertIn("afterGenericWrite(entry)", controller_body)
         self.assertNotIn("settingsBehavior.setSettingValue", controller_body)
 
@@ -45,6 +46,7 @@ class SettingsBehaviorMigrationTests(unittest.TestCase):
         self.assertIn("settingsBehavior.setSettingValue(entry, value)", outer_body)
         self.assertNotIn("window.settings_restart_to_apply", outer_body)
         self.assertNotIn("settings[entry.key]", outer_body)
+        self.assertNotIn("settings[key]", outer_body)
 
     def test_virtual_controller_and_wrapper_are_not_recursive(self):
         bodies = function_bodies(self.text, "setVirtualSelection")
