@@ -6,16 +6,19 @@ on:
       - 'src/settings*.qml'
       - 'src/settings-catalog.json'
       - 'scripts/settings_audit.py'
+      - 'scripts/settings_hierarchy.py'
+      - 'scripts/apply_settings_hierarchy_ui.py'
       - 'tests/test_settings_audit.py'
       - 'tests/test_settings_behavior_migration.py'
       - 'tests/test_modern_settings_preview.py'
       - 'tests/test_settings_behavior_parity.py'
+      - 'tests/test_settings_hierarchy.py'
       - '.github/workflows/settings-audit.yml'
       - 'docs/settings-refactor-status.md'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   audit:
@@ -25,10 +28,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
           fetch-depth: 1
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Apply legacy-derived hierarchy migration
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
+        run: |
+          python3 scripts/settings_hierarchy.py --write
+          python3 scripts/apply_settings_hierarchy_ui.py
+      - name: Commit hierarchy migration
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
+        shell: bash
+        run: |
+          if git diff --quiet -- src/settings.qml src/settings-catalog.json; then
+            echo 'Hierarchy migration already applied.'
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add src/settings.qml src/settings-catalog.json
+            git commit -m 'Derive modern settings layout from legacy hierarchy'
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          fi
+      - name: Fetch latest master
+        run: git fetch --no-tags --depth=1 origin master:refs/remotes/origin/master
       - name: Test settings refactor infrastructure
         run: >-
           python3 -m unittest
@@ -36,6 +60,9 @@ jobs:
           tests/test_settings_behavior_migration.py
           tests/test_modern_settings_preview.py
           tests/test_settings_behavior_parity.py
+          tests/test_settings_hierarchy.py
+      - name: Validate generated hierarchy and latest-master coverage
+        run: python3 scripts/settings_hierarchy.py --master origin/master
       - name: Resolve and fetch ABI base
         id: base
         shell: bash
