@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Complete settings-catalog.json coverage for the Phase 2 settings refactor.
 
-This is intentionally a one-shot, deterministic migration. It refuses to run if the
-set of currently uncataloged persistent keys differs from the baseline discovered
-in Phase 1, so it cannot silently paper over future catalog regressions.
+The migration is deterministic and only accepts either the exact Phase 1 gap or an
+already-completed catalog. Any different gap is treated as a regression.
 """
 from __future__ import annotations
 
@@ -92,6 +91,13 @@ def main() -> int:
 
     existing = {entry["key"] for entry in catalog.get("settings", [])}
     missing = set(unique) - existing
+    if not missing:
+        catalog_count = len(existing)
+        if catalog_count != len(unique) or catalog.get("settingCount") != catalog_count:
+            raise SystemExit(f"Catalog claims full coverage but counts disagree: {catalog_count}/{len(unique)}")
+        print(f"Catalog already complete at {catalog_count}/{len(unique)} persistent keys")
+        return 0
+
     if missing != EXPECTED_MISSING:
         raise SystemExit(
             "Refusing Phase 2 migration because the uncataloged baseline changed.\n"
