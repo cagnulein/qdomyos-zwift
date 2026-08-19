@@ -124,7 +124,7 @@ def parse_hierarchy(text: str):
             if node["name"] is None:
                 m = TITLE_RE.match(line)
                 if m:
-                    node["name"] = json.loads('"' + m.group(1) + '"')
+                    node["name"] = json.loads('"' + m.group(1) + '"').strip()
 
             current_node = stack[-1]["index"]
             for key in SETTING_REF_RE.findall(line):
