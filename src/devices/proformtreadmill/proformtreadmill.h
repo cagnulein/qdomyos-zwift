@@ -37,7 +37,6 @@ class proformtreadmill : public treadmill {
   public:
     proformtreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
-    bool changeFanSpeed(uint8_t speed) override;
     double minStepSpeed() override { return 0.1; }
 
   private:
