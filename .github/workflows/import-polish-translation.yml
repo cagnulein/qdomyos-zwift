@@ -1,0 +1,55 @@
+name: Import Polish translation
+
+on:
+  push:
+    branches:
+      - agent/update-polish-translation
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/update-polish-translation
+          fetch-depth: 0
+
+      - name: Reconstruct and validate translation
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .translation-import/plchunk*.b64 | base64 --decode | gzip --decompress > src/translations/qdomyos-zwift_pl.ts
+          echo "7fa51748ae0a152a64c5928e0a07e70378d85a206ae12a37f52e3d0b336c03e2  src/translations/qdomyos-zwift_pl.ts" | sha256sum --check
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          path = 'src/translations/qdomyos-zwift_pl.ts'
+          root = ET.parse(path).getroot()
+          assert root.attrib.get('language') == 'pl_PL', root.attrib.get('language')
+          messages = root.findall('.//message')
+          translations = root.findall('.//translation')
+          assert len(messages) == 1539, len(messages)
+          assert len(translations) == 1539, len(translations)
+          assert all((t.text or '').strip() for t in translations)
+          assert not any(t.get('type') == 'unfinished' for t in translations)
+          print('Polish translation validated:', len(messages), 'messages')
+          PY
+
+      - name: Remove temporary import files
+        shell: bash
+        run: |
+          rm -rf .translation-import
+          rm -f .github/workflows/import-polish-translation.yml
+
+      - name: Commit final translation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "i18n: update Polish translation"
+          git push origin HEAD:agent/update-polish-translation
