@@ -35,6 +35,7 @@ import AndroidStatusBar 1.0
         property bool settingsSearchVisible: false
         property bool settingsSearchActive: false
         property bool settingsSearchPending: false
+        property bool legacySettingsUiEnabled: false
 
 
         // MODERN_SETTINGS_PREVIEW_V1
@@ -46,6 +47,7 @@ import AndroidStatusBar 1.0
         property string modernSettingsExternalParent: ""
         // MODERN_SETTINGS_LEGACY_HIERARCHY_V2
         // MODERN_SETTINGS_IOS_GROUPED_V3
+        // MODERN_SETTINGS_ROOT_TEXT_ONLY_V4
 
         function rebuildModernSettingsCategories() {
             var categories = []
@@ -185,20 +187,7 @@ import AndroidStatusBar 1.0
             return Material.theme === Material.Dark ? "#1c1c1e" : "#f2f2f7"
         }
 
-        function legacyRootIconColor(name) {
-            var lower = (name || "").toLowerCase()
-            if (lower.indexOf("general") >= 0) return "#8e8e93"
-            if (lower.indexOf("heart") >= 0) return "#ff3b30"
-            if (lower.indexOf("bike") >= 0) return "#34c759"
-            if (lower.indexOf("treadmill") >= 0 || lower.indexOf("running") >= 0) return "#ff9500"
-            if (lower.indexOf("ant+") >= 0 || lower.indexOf("bluetooth") >= 0) return "#007aff"
-            if (lower.indexOf("peloton") >= 0) return "#ff2d55"
-            if (lower.indexOf("zwift") >= 0) return "#ff9500"
-            if (lower.indexOf("garmin") >= 0) return "#00a7e1"
-            if (lower.indexOf("training") >= 0) return "#5856d6"
-            if (lower.indexOf("advanced") >= 0 || lower.indexOf("experimental") >= 0) return "#8e8e93"
-            return "#636366"
-        }
+        
 
         function openModernCatalogPage(entry) {
             if (!entry || !entry.target)
@@ -237,21 +226,7 @@ import AndroidStatusBar 1.0
             }
         }
 
-        function legacyRootIcon(name) {
-            var lower = (name || "").toLowerCase()
-            if (lower.indexOf("general") >= 0) return "⚙"
-            if (lower.indexOf("heart") >= 0) return "♥"
-            if (lower.indexOf("bike") >= 0) return "🚲"
-            if (lower.indexOf("treadmill") >= 0 || lower.indexOf("running") >= 0) return "🏃"
-            if (lower.indexOf("ant+") >= 0) return "⌁"
-            if (lower.indexOf("peloton") >= 0) return "P"
-            if (lower.indexOf("zwift") >= 0) return "Z"
-            if (lower.indexOf("garmin") >= 0) return "G"
-            if (lower.indexOf("training") >= 0) return "▶"
-            if (lower.indexOf("advanced") >= 0) return "⚙"
-            if (lower.indexOf("experimental") >= 0) return "⚗"
-            return "•"
-        }
+        
 
         function modernSettingsParentName() {
             if (modernSettingsExternalTarget.length > 0)
@@ -2383,32 +2358,22 @@ import AndroidStatusBar 1.0
 
                         RowLayout {
                             anchors.fill: parent
-                            anchors.leftMargin: 16
-                            anchors.rightMargin: 12
+                            anchors.leftMargin: 18
+                            anchors.rightMargin: 14
+                            spacing: 8
 
-                            Rectangle {
-                                Layout.preferredWidth: 34
-                                Layout.preferredHeight: 34
-                                radius: 8
-                                color: settingsPane.legacyRootIconColor(modelData.name)
-                                Label {
-                                    anchors.centerIn: parent
-                                    text: settingsPane.legacyRootIcon(modelData.name)
-                                    color: "white"
-                                    font.bold: true
-                                    font.pixelSize: Qt.application.font.pixelSize + 2
-                                }
-                            }
                             Label {
                                 Layout.fillWidth: true
                                 text: modelData.name
                                 font.pixelSize: Qt.application.font.pixelSize + 1
+                                verticalAlignment: Text.AlignVCenter
                                 elide: Text.ElideRight
                             }
                             Label {
                                 text: "›"
                                 color: Material.color(Material.Grey)
                                 font.pixelSize: Qt.application.font.pixelSize + 8
+                                verticalAlignment: Text.AlignVCenter
                             }
                         }
 
@@ -2798,7 +2763,8 @@ import AndroidStatusBar 1.0
 
             ColumnLayout {
                 id: settingsContent
-                visible: !settingsSearchActive
+                // Legacy settings UX retained as compiled fallback during validation, hidden by default.
+                visible: legacySettingsUiEnabled && !settingsSearchActive
                 spacing: 0
                 Layout.fillWidth: true
 
