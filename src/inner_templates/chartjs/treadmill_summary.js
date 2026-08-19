@@ -1,5 +1,6 @@
 (function () {
     const originalProcessArr = window.process_arr;
+    let treadmillThumbnailTimer = null;
 
     if (typeof originalProcessArr !== 'function') {
         console.error('treadmill_summary.js: process_arr is not available');
@@ -116,8 +117,126 @@
         $('.summary_resistance_avg').text(Math.round(heartAverage) + ' bpm');
     }
 
+    function hideFollowingBreaks(element) {
+        let next = element.next();
+        while (next.length && next.is('br')) {
+            next.hide();
+            next = next.next();
+        }
+    }
+
+    function hideChartSection(canvasSelector) {
+        const canvas = $(canvasSelector);
+        if (!canvas.length) {
+            return;
+        }
+
+        const container = canvas.parent();
+        container.hide();
+        hideFollowingBreaks(container);
+    }
+
+    function configureTreadmillCharts() {
+        const powerContainer = $('#canvas').parent();
+        const wattsStats = $('.watts_avg').parent();
+
+        powerContainer.hide();
+        wattsStats.hide();
+        hideFollowingBreaks(wattsStats);
+
+        hideChartSection('#canvasResistance');
+        hideChartSection('#canvasPelotonResistance');
+        hideChartSection('#canvasCadence');
+        hideChartSection('#canvasPowerDistribution');
+
+        const speedContainer = $('#canvasSpeedInclination').parent();
+        if (speedContainer.length) {
+            let previous = speedContainer.prev();
+            while (previous.length && previous.is('br')) {
+                previous.hide();
+                previous = previous.prev();
+            }
+
+            // Put speed/inclination directly in the treadmill badge so it becomes
+            // the primary visible chart and is included in the main thumbnail.
+            speedContainer.show().appendTo('#watt_badge');
+        }
+
+        // Heart rate stays visible immediately after the treadmill badge.
+        $('#canvasHeart').parent().show();
+        $('.heart_avg').parent().show();
+    }
+
+    function saveChartImage(name, image) {
+        if (!image) {
+            return;
+        }
+
+        const element = new MainWSQueueElement({
+            msg: 'savechart',
+            content: {
+                name: name,
+                image: image
+            }
+        }, function(msg) {
+            if (msg.msg === 'R_savechart') {
+                return msg.content;
+            }
+            return null;
+        }, 15000, 3);
+
+        element.enqueue().catch(function(err) {
+            console.error('treadmill_summary.js: error saving ' + name + ': ' + err);
+        });
+    }
+
+    function saveTreadmillThumbnails() {
+        const speedCanvas = document.getElementById('canvasSpeedInclination');
+        if (speedCanvas && typeof speedCanvas.toDataURL === 'function') {
+            try {
+                // Preserve the legacy main thumbnail filename so consumers do not
+                // need to know whether the workout came from a bike or treadmill.
+                saveChartImage('power', speedCanvas.toDataURL('image/png'));
+            } catch (err) {
+                console.error('treadmill_summary.js: unable to export speed/inclination chart: ' + err);
+            }
+        }
+
+        const badge = document.getElementById('watt_badge');
+        if (badge && typeof html2canvas === 'function') {
+            html2canvas(badge).then(function(canvas) {
+                saveChartImage('power_badge', canvas.toDataURL('image/png'));
+            }).catch(function(err) {
+                console.error('treadmill_summary.js: unable to export treadmill badge: ' + err);
+            });
+        }
+    }
+
+    function adaptTreadmillPresentation(arr) {
+        if (!Array.isArray(arr) || arr.length === 0) {
+            return;
+        }
+
+        const last = arr[arr.length - 1];
+        if (Number(last.deviceType) !== 1) {
+            return;
+        }
+
+        updateTreadmillSummary(arr);
+        configureTreadmillCharts();
+
+        // The original Chart.js animations save bike-oriented thumbnails when
+        // they complete. Overwrite those after the animations have finished so
+        // treadmill workouts keep the existing filenames but contain the
+        // treadmill summary and speed/inclination chart instead.
+        if (treadmillThumbnailTimer !== null) {
+            clearTimeout(treadmillThumbnailTimer);
+        }
+        treadmillThumbnailTimer = setTimeout(saveTreadmillThumbnails, 1800);
+    }
+
     window.process_arr = function (arr) {
         originalProcessArr(arr);
-        updateTreadmillSummary(arr);
+        adaptTreadmillPresentation(arr);
     };
 })();
