@@ -27,6 +27,57 @@
         return minutes + ':' + String(seconds).padStart(2, '0') + ' /' + unit;
     }
 
+    function isTreadmillWorkout(arr) {
+        return Array.isArray(arr) && arr.length > 0 && Number(arr[arr.length - 1].deviceType) === 1;
+    }
+
+    function prepareTreadmillChartSamples(arr) {
+        if (!isTreadmillWorkout(arr)) {
+            return arr;
+        }
+
+        let lastDerivedSpeed = 0;
+
+        return arr.map(function(sample, index) {
+            const chartSample = Object.assign({}, sample);
+            const currentElapsed = elapsedSeconds(sample);
+
+            // The existing charts use a Chart.js time scale, which expects epoch-like
+            // values in milliseconds. The original post-workout code feeds elapsed
+            // seconds directly, so a 60 second run is rendered as only 60 ms (00:00).
+            // Keep this treadmill-only so the established bike charts remain untouched.
+            chartSample.elapsed_h = 0;
+            chartSample.elapsed_m = 0;
+            chartSample.elapsed_s = currentElapsed * 1000;
+
+            const reportedSpeed = finiteNumber(sample.speed, 0);
+            if (reportedSpeed > 0) {
+                lastDerivedSpeed = reportedSpeed;
+                chartSample.speed = reportedSpeed;
+                return chartSample;
+            }
+
+            // Some treadmill sessions expose a valid cumulative distance while the
+            // chart payload has speed=0. Derive speed from consecutive distance/time
+            // samples so the Speed + Inclination graph matches the workout summary.
+            if (index > 0) {
+                const previous = arr[index - 1];
+                const deltaSeconds = currentElapsed - elapsedSeconds(previous);
+                const deltaDistanceKm = finiteNumber(sample.distance, 0) - finiteNumber(previous.distance, 0);
+
+                if (deltaSeconds > 0 && deltaDistanceKm > 0) {
+                    const derivedSpeed = deltaDistanceKm * 3600 / deltaSeconds;
+                    if (Number.isFinite(derivedSpeed) && derivedSpeed >= 0 && derivedSpeed < 100) {
+                        lastDerivedSpeed = derivedSpeed;
+                    }
+                }
+            }
+
+            chartSample.speed = lastDerivedSpeed;
+            return chartSample;
+        });
+    }
+
     function setSummaryLabel(valueSelector, column, text) {
         const valueCell = $(valueSelector);
         const labelCell = valueCell.closest('tr').prev('tr').find('td').eq(column);
@@ -34,15 +85,11 @@
     }
 
     function updateTreadmillSummary(arr) {
-        if (!Array.isArray(arr) || arr.length === 0) {
+        if (!isTreadmillWorkout(arr)) {
             return;
         }
 
         const last = arr[arr.length - 1];
-        if (Number(last.deviceType) !== 1) {
-            return;
-        }
-
         const distanceKm = Math.max(0, finiteNumber(last.distance, 0));
         const unitFactor = Number.isFinite(Number(window.miles)) ? Number(window.miles) : 1;
         const displayDistance = distanceKm * unitFactor;
@@ -213,12 +260,7 @@
     }
 
     function adaptTreadmillPresentation(arr) {
-        if (!Array.isArray(arr) || arr.length === 0) {
-            return;
-        }
-
-        const last = arr[arr.length - 1];
-        if (Number(last.deviceType) !== 1) {
+        if (!isTreadmillWorkout(arr)) {
             return;
         }
 
@@ -236,7 +278,8 @@
     }
 
     window.process_arr = function (arr) {
-        originalProcessArr(arr);
+        const chartSamples = prepareTreadmillChartSamples(arr);
+        originalProcessArr(chartSamples);
         adaptTreadmillPresentation(arr);
     };
 })();
