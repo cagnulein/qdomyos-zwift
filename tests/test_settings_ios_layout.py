@@ -33,6 +33,23 @@ class SettingsIosLayoutTests(unittest.TestCase):
         self.assertIn("StaticAccordionElement", text)
         self.assertIn("AccordionCheckElement", text)
 
+    def test_experimental_is_root_and_its_children_are_not(self):
+        catalog = json.loads((ROOT / "src/settings-catalog.json").read_text(encoding="utf-8"))
+        nodes = {node["key"]: node for node in catalog["legacyHierarchy"]["nodes"]}
+        self.assertIn("experimentalFeatureAccordion", nodes)
+        self.assertIsNone(nodes["experimentalFeatureAccordion"]["parent"])
+        for child in ("mqttAccordion", "oscAccordion", "templateSettingsAccordion"):
+            self.assertIn(child, nodes)
+            self.assertEqual("experimentalFeatureAccordion", nodes[child]["parent"])
+
+    def test_root_is_text_only_and_legacy_ui_is_hidden(self):
+        text = (ROOT / "src/settings.qml").read_text(encoding="utf-8")
+        self.assertIn("MODERN_SETTINGS_ROOT_TEXT_ONLY_V4", text)
+        self.assertNotIn("function legacyRootIcon(", text)
+        self.assertNotIn("function legacyRootIconColor(", text)
+        self.assertIn("property bool legacySettingsUiEnabled: false", text)
+        self.assertIn("visible: legacySettingsUiEnabled && !settingsSearchActive", text)
+
 
 if __name__ == "__main__":
     unittest.main()
