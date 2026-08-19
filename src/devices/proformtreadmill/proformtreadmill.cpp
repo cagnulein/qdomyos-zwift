@@ -53,30 +53,6 @@ void proformtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
     loop.exec();
 }
 
-bool proformtreadmill::changeFanSpeed(uint8_t speed) {
-    if (!nordictrack_incline_trainer_x7i_ntl15010_0) {
-        return bluetoothdevice::changeFanSpeed(speed);
-    }
-
-    if (speed > 4) {
-        speed = 4;
-    }
-
-    FanSpeed = speed;
-    emit fanSpeedChanged(speed);
-
-    uint8_t noOpData[] = {0xfe, 0x02, 0x0d, 0x02};
-    uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x05, 0x09, 0x02, 0x02,
-                       0x00, 0x10, speed, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    for (uint8_t i = 6; i <= 12; i++) {
-        write[14] += write[i];
-    }
-
-    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("NTL15010 fan command"));
-    writeCharacteristic(write, sizeof(write), QStringLiteral("NTL15010 fan command"), false, true);
-    return true;
-}
-
 void proformtreadmill::forceIncline(double incline) {
     if (proform_treadmill_1800i || proform_2000_treadmill) {
         uint8_t i = abs(incline * 10);
