@@ -127,9 +127,12 @@ QML.write_text(qml, encoding="utf-8")
 
 hier = HIER.read_text(encoding="utf-8")
 old_decode = '                    node["name"] = bytes(m.group(1), "utf-8").decode("unicode_escape")'
-new_decode = '                    node["name"] = json.loads(\'"\' + m.group(1) + \'"\')'
+json_decode = '                    node["name"] = json.loads(\'"\' + m.group(1) + \'"\')'
+new_decode = '                    node["name"] = json.loads(\'"\' + m.group(1) + \'"\').strip()'
 if old_decode in hier:
     hier = hier.replace(old_decode, new_decode, 1)
+elif json_decode in hier:
+    hier = hier.replace(json_decode, new_decode, 1)
 elif new_decode not in hier:
     raise RuntimeError("hierarchy title decoder marker not found")
 HIER.write_text(hier, encoding="utf-8")
