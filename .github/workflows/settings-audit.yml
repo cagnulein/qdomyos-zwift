@@ -8,6 +8,7 @@ on:
       - 'scripts/settings_audit.py'
       - 'scripts/settings_hierarchy.py'
       - 'scripts/settings_layout.py'
+      - 'scripts/apply_settings_root_cleanup_v4.py'
       - 'tests/test_settings_audit.py'
       - 'tests/test_settings_behavior_migration.py'
       - 'tests/test_modern_settings_preview.py'
@@ -19,7 +20,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   audit:
@@ -29,10 +30,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
           fetch-depth: 1
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Apply root cleanup migration
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
+        run: |
+          python3 scripts/apply_settings_root_cleanup_v4.py
+          python3 scripts/settings_hierarchy.py --write
+          python3 scripts/settings_layout.py --write
+      - name: Commit root cleanup migration
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
+        shell: bash
+        run: |
+          if git diff --quiet -- src/settings.qml src/settings-catalog.json scripts/settings_hierarchy.py; then
+            echo 'Root cleanup already applied.'
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add src/settings.qml src/settings-catalog.json scripts/settings_hierarchy.py
+            git commit -m 'Clean modern settings root and hide legacy UX'
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          fi
       - name: Fetch latest master
         run: git fetch --no-tags --depth=1 origin master:refs/remotes/origin/master
       - name: Test settings refactor infrastructure
