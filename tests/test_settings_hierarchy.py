@@ -33,11 +33,11 @@ class SettingsHierarchyTests(unittest.TestCase):
             self.assertFalse(by_key[key]["visible"])
             self.assertEqual(by_key[key]["control"], "internal")
 
-    def test_modern_qml_uses_generated_hierarchy_and_root_unicode_icons(self):
+    def test_modern_qml_uses_generated_hierarchy(self):
         self.assertIn("// MODERN_SETTINGS_LEGACY_HIERARCHY_V2", QML)
         self.assertIn("settingsCatalog.legacyHierarchy", QML)
         self.assertIn("function modernEntryNodeKey(entry)", QML)
-        self.assertIn("function legacyRootIcon(name)", QML)
+        self.assertNotIn("function legacyRootIcon(name)", QML)
         self.assertIn('"__category__:"', QML)
 
 
