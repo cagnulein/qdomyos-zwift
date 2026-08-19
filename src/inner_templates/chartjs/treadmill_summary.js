@@ -31,51 +31,71 @@
         return Array.isArray(arr) && arr.length > 0 && Number(arr[arr.length - 1].deviceType) === 1;
     }
 
-    function prepareTreadmillChartSamples(arr) {
-        if (!isTreadmillWorkout(arr)) {
-            return arr;
-        }
+    function deriveTreadmillSpeedPoints(arr) {
+        let lastSpeed = 0;
+        const points = [];
 
-        let lastDerivedSpeed = 0;
-
-        return arr.map(function(sample, index) {
-            const chartSample = Object.assign({}, sample);
-            const currentElapsed = elapsedSeconds(sample);
-
-            // The existing charts use a Chart.js time scale, which expects epoch-like
-            // values in milliseconds. The original post-workout code feeds elapsed
-            // seconds directly, so a 60 second run is rendered as only 60 ms (00:00).
-            // Keep this treadmill-only so the established bike charts remain untouched.
-            chartSample.elapsed_h = 0;
-            chartSample.elapsed_m = 0;
-            chartSample.elapsed_s = currentElapsed * 1000;
-
+        for (let i = 0; i < arr.length; i++) {
+            const sample = arr[i];
+            const time = elapsedSeconds(sample);
             const reportedSpeed = finiteNumber(sample.speed, 0);
-            if (reportedSpeed > 0) {
-                lastDerivedSpeed = reportedSpeed;
-                chartSample.speed = reportedSpeed;
-                return chartSample;
-            }
 
-            // Some treadmill sessions expose a valid cumulative distance while the
-            // chart payload has speed=0. Derive speed from consecutive distance/time
-            // samples so the Speed + Inclination graph matches the workout summary.
-            if (index > 0) {
-                const previous = arr[index - 1];
-                const deltaSeconds = currentElapsed - elapsedSeconds(previous);
+            if (reportedSpeed > 0) {
+                lastSpeed = reportedSpeed;
+            } else if (i > 0) {
+                const previous = arr[i - 1];
+                const deltaSeconds = time - elapsedSeconds(previous);
                 const deltaDistanceKm = finiteNumber(sample.distance, 0) - finiteNumber(previous.distance, 0);
 
                 if (deltaSeconds > 0 && deltaDistanceKm > 0) {
                     const derivedSpeed = deltaDistanceKm * 3600 / deltaSeconds;
                     if (Number.isFinite(derivedSpeed) && derivedSpeed >= 0 && derivedSpeed < 100) {
-                        lastDerivedSpeed = derivedSpeed;
+                        lastSpeed = derivedSpeed;
                     }
                 }
             }
 
-            chartSample.speed = lastDerivedSpeed;
-            return chartSample;
+            points.push({
+                x: time,
+                y: lastSpeed * window.miles
+            });
+        }
+
+        return points;
+    }
+
+    function updateTreadmillSpeedInclinationChart(arr) {
+        if (!isTreadmillWorkout(arr) || typeof Chart === 'undefined' || typeof Chart.getChart !== 'function') {
+            return;
+        }
+
+        const canvas = document.getElementById('canvasSpeedInclination');
+        if (!canvas) {
+            return;
+        }
+
+        const chart = Chart.getChart(canvas);
+        if (!chart || !chart.data || !chart.data.datasets || chart.data.datasets.length < 2) {
+            return;
+        }
+
+        const speedPoints = deriveTreadmillSpeedPoints(arr);
+        const inclinationPoints = arr.map(function(sample) {
+            return {
+                x: elapsedSeconds(sample),
+                y: finiteNumber(sample.inclination, 0)
+            };
         });
+
+        chart.data.datasets[0].data = speedPoints;
+        chart.data.datasets[1].data = inclinationPoints;
+
+        const lastElapsed = elapsedSeconds(arr[arr.length - 1]);
+        if (chart.options && chart.options.scales && chart.options.scales.x) {
+            chart.options.scales.x.max = lastElapsed;
+        }
+
+        chart.update('none');
     }
 
     function setSummaryLabel(valueSelector, column, text) {
@@ -204,12 +224,9 @@
                 previous = previous.prev();
             }
 
-            // Put speed/inclination directly in the treadmill badge so it becomes
-            // the primary visible chart and is included in the main thumbnail.
             speedContainer.show().appendTo('#watt_badge');
         }
 
-        // Heart rate stays visible immediately after the treadmill badge.
         $('#canvasHeart').parent().show();
         $('.heart_avg').parent().show();
     }
@@ -241,8 +258,6 @@
         const speedCanvas = document.getElementById('canvasSpeedInclination');
         if (speedCanvas && typeof speedCanvas.toDataURL === 'function') {
             try {
-                // Preserve the legacy main thumbnail filename so consumers do not
-                // need to know whether the workout came from a bike or treadmill.
                 saveChartImage('power', speedCanvas.toDataURL('image/png'));
             } catch (err) {
                 console.error('treadmill_summary.js: unable to export speed/inclination chart: ' + err);
@@ -266,11 +281,8 @@
 
         updateTreadmillSummary(arr);
         configureTreadmillCharts();
+        updateTreadmillSpeedInclinationChart(arr);
 
-        // The original Chart.js animations save bike-oriented thumbnails when
-        // they complete. Overwrite those after the animations have finished so
-        // treadmill workouts keep the existing filenames but contain the
-        // treadmill summary and speed/inclination chart instead.
         if (treadmillThumbnailTimer !== null) {
             clearTimeout(treadmillThumbnailTimer);
         }
@@ -278,8 +290,9 @@
     }
 
     window.process_arr = function (arr) {
-        const chartSamples = prepareTreadmillChartSamples(arr);
-        originalProcessArr(chartSamples);
+        // The stock chart already uses elapsed seconds on a linear x-axis. Keep the
+        // original session data untouched, then patch only the treadmill chart data.
+        originalProcessArr(arr);
         adaptTreadmillPresentation(arr);
     };
 })();
