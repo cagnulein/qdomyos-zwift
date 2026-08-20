@@ -61,6 +61,14 @@ ScrollView {
             color: Material.accent
         }
 
+        Label {
+            text: qsTr("Example: 6|12 means that a 6% grade targets resistance level 12. Decimal values are allowed.")
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            color: Material.accent
+        }
+
         TextArea {
             id: inclinationResistanceTable
             Layout.fillWidth: true
