@@ -60,9 +60,12 @@
       $('.workoutStartDate').text(last.workoutStartDate || '');
       $('.summary_calories').text(Math.floor(last.calories || 0) + ' kcal');
       $('.summary_distance').text(Number(last.distance || 0).toFixed(1) + ' km');
+      $('.heart_avg').text('Avg ' + Math.round(Number(last.heart_avg || 0)) + ' bpm · Max ' + Math.round(Number(last.heart_max || 0)) + ' bpm');
 
-      const speed = arr.map(s => ({ x: Number(s.elapsed_s || 0) + Number(s.elapsed_m || 0) * 60 + Number(s.elapsed_h || 0) * 3600, y: Number(s.speed || 0) }));
-      const incline = arr.map(s => ({ x: Number(s.elapsed_s || 0) + Number(s.elapsed_m || 0) * 60 + Number(s.elapsed_h || 0) * 3600, y: Number(s.inclination || 0) }));
+      const elapsed = s => Number(s.elapsed_s || 0) + Number(s.elapsed_m || 0) * 60 + Number(s.elapsed_h || 0) * 3600;
+      const speed = arr.map(s => ({ x: elapsed(s), y: Number(s.speed || 0) }));
+      const incline = arr.map(s => ({ x: elapsed(s), y: Number(s.inclination || 0) }));
+      const heart = arr.map(s => ({ x: elapsed(s), y: Number(s.heart || 0) }));
       const maxElapsed = speed.length ? speed[speed.length - 1].x : 0;
 
       new Chart(document.getElementById('canvasSpeedInclination').getContext('2d'), {
@@ -81,6 +84,25 @@
             x: { type: 'linear', min: 0, max: maxElapsed, ticks: { callback: value => String(value) } },
             y: { type: 'linear', position: 'left', beginAtZero: true, title: { display: true, text: 'Speed (km/h)' } },
             y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Inclination (%)' } }
+          },
+          plugins: { legend: { display: true } }
+        }
+      });
+
+      new Chart(document.getElementById('canvasHeart').getContext('2d'), {
+        type: 'line',
+        data: {
+          datasets: [
+            { label: 'Heart Rate', data: heart, borderColor: 'rgb(255,99,132)', pointRadius: 0, borderWidth: 2, fill: false }
+          ]
+        },
+        options: {
+          responsive: true,
+          animation: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { type: 'linear', min: 0, max: maxElapsed, ticks: { callback: value => String(value) } },
+            y: { type: 'linear', beginAtZero: false, suggestedMin: 120, suggestedMax: 160, title: { display: true, text: 'Heart Rate (bpm)' } }
           },
           plugins: { legend: { display: true } }
         }
