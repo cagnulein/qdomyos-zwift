@@ -31,11 +31,11 @@
     </table>
     <hr width="50%" style="color:white">
     <div id="power-placeholder" class="chart-box"><canvas id="canvas"></canvas></div>
-    <div class="watts_avg"></div>
+    <div><div class="watts_avg"></div></div>
   </div>
   <br><br>
   <div class="chart-box"><canvas id="canvasHeart"></canvas></div>
-  <div class="heart_avg"></div>
+  <div><div class="heart_avg"></div></div>
   <br><br>
   <div class="chart-box"><canvas id="canvasResistance"></canvas></div>
   <br><br>
@@ -54,8 +54,6 @@
     window.ensureHeartZones = function() {};
     window.MainWSQueueElement = class { enqueue() { return Promise.resolve(true); } };
 
-    // Minimal baseline renderer with the same real Chart.js canvas and dataset shape
-    // used by QZ. treadmill_summary.js wraps this exactly as it wraps dochart.js.
     window.process_arr = function(arr) {
       const last = arr[arr.length - 1];
       $('.workoutName').text(last.workoutName || '');
