@@ -1,7 +1,62 @@
 #include "devices/bike.h"
 #include "devices/elliptical.h"
 #include "characteristicwriteprocessor.h"
+#include <QMap>
 #include <QSettings>
+#include <QStringList>
+
+namespace {
+const QString kCustomInclinationResistanceTableEnabled =
+    QStringLiteral("custom_inclination_resistance_table_enabled");
+const QString kCustomInclinationResistanceTable = QStringLiteral("custom_inclination_resistance_table");
+
+bool customResistanceFromInclination(QSettings &settings, double inclination, double &resistance) {
+    if (!settings.value(kCustomInclinationResistanceTableEnabled, false).toBool()) {
+        return false;
+    }
+
+    QString table = settings.value(kCustomInclinationResistanceTable, QString()).toString();
+    table.replace(QLatin1Char(';'), QLatin1Char('\n'));
+
+    QMap<double, double> points;
+    const QStringList rows = table.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+    for (const QString &row : rows) {
+        const QStringList fields = row.split(QLatin1Char('|'));
+        if (fields.size() < 2) {
+            continue;
+        }
+
+        bool inclinationOk = false;
+        bool resistanceOk = false;
+        const double pointInclination = fields.at(0).trimmed().toDouble(&inclinationOk);
+        const double pointResistance = fields.at(1).trimmed().toDouble(&resistanceOk);
+        if (inclinationOk && resistanceOk) {
+            points.insert(pointInclination, pointResistance);
+        }
+    }
+
+    if (points.isEmpty()) {
+        qDebug() << "custom inclination/resistance table enabled but no valid points were found";
+        return false;
+    }
+
+    auto upper = points.lowerBound(inclination);
+    if (upper == points.constBegin()) {
+        resistance = upper.value();
+    } else if (upper == points.constEnd()) {
+        resistance = std::prev(upper).value();
+    } else if (qFuzzyCompare(upper.key() + 1.0, inclination + 1.0)) {
+        resistance = upper.value();
+    } else {
+        const auto lower = std::prev(upper);
+        const double ratio = (inclination - lower.key()) / (upper.key() - lower.key());
+        resistance = lower.value() + ratio * (upper.value() - lower.value());
+    }
+
+    qDebug() << "custom inclination/resistance table" << inclination << "->" << resistance;
+    return true;
+}
+}
 
 CharacteristicWriteProcessor::CharacteristicWriteProcessor(double bikeResistanceGain, int8_t bikeResistanceOffset,
                                                            bluetoothdevice *bike, QObject *parent)
@@ -51,15 +106,15 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
     }
 
     /*
-    Surface	Road Crr	MTB Crr	Gravel Crr (Namebrand)	Zwift Gravel Crr
-    Pavement	.004	.01	.008	.008
-        Sand	.004	.01	.008	.008
-        Brick	.0055	.01	.008	.008
-        Wood	.0065	.01	.008	.008
-        Cobbles	.0065	.01	.008	.008
-        Ice/Snow	.0075	.014	.018	.018
-        Dirt	.025	.014	.016	.018
-        Grass	 	.042
+    Surface\tRoad Crr\tMTB Crr\tGravel Crr (Namebrand)\tZwift Gravel Crr
+    Pavement\t.004\t.01\t.008\t.008
+        Sand\t.004\t.01\t.008\t.008
+        Brick\t.0055\t.01\t.008\t.008
+        Wood\t.0065\t.01\t.008\t.008
+        Cobbles\t.0065\t.01\t.008\t.008
+        Ice/Snow\t.0075\t.014\t.018\t.018
+        Dirt\t.025\t.014\t.016\t.018
+        Grass\t \t.042
     */
     const double fCRR = crr / 10000.0;
     const double CRR_offset = ((crr - 40) * 0.05) * CRRGain;
@@ -68,6 +123,10 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
     const double CW_offset = ((crr - 40) * 0.05) * CWGain;
 
     qDebug() << "changeSlope CRR = " << fCRR << CRR_offset << "CW = " << fCW;
+
+    double customResistance = 0.0;
+    const bool customResistanceAvailable =
+        customResistanceFromInclination(settings, iresistance / 100.0, customResistance);
 
     if (dt == BIKE) {
 
@@ -83,9 +142,13 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
         emit changeInclination(grade, percentage);
 
         if (force_resistance && !erg_mode) {
-            // same on the training program
-            Bike->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset + 1 +
-                                   CRR_offset + CW_offset); // resistance start from 1
+            if (customResistanceAvailable) {
+                Bike->changeResistance((resistance_t)qRound(customResistance + CRR_offset + CW_offset));
+            } else {
+                // same on the training program
+                Bike->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset + 1 +
+                                       CRR_offset + CW_offset); // resistance start from 1
+            }
         }
     } else if (dt == TREADMILL) {
         emit changeInclination(grade, percentage);
@@ -96,10 +159,15 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
 
         if (!inclinationAvailableByHardware) {
             if (force_resistance && !erg_mode) {
-                // same on the training program
-                ((elliptical *)Bike)
-                    ->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset +
-                                       1 + CRR_offset + CW_offset); // resistance start from 1
+                if (customResistanceAvailable) {
+                    ((elliptical *)Bike)
+                        ->changeResistance((resistance_t)qRound(customResistance + CRR_offset + CW_offset));
+                } else {
+                    // same on the training program
+                    ((elliptical *)Bike)
+                        ->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset +
+                                           1 + CRR_offset + CW_offset); // resistance start from 1
+                }
             }
         }
     }
