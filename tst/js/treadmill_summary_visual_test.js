@@ -58,31 +58,12 @@ const fixture = [
   });
   page.on('pageerror', err => pageErrors.push(String(err)));
 
-  // Keep the real chart.htm, Chart.js, jQuery, dochart.js and treadmill_summary.js.
-  // Only replace the native QZ websocket bridge so the browser test is deterministic.
-  await page.route('**/main_ws_manager.js', async route => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/javascript',
-      body: `
-        class MainWSQueueElement {
-          constructor(request, parser) { this.request = request; this.parser = parser; }
-          enqueue() { return new Promise(() => {}); }
-        }
-        window.MainWSQueueElement = MainWSQueueElement;
-      `
-    });
-  });
-
-  const url = process.env.QZ_CHART_URL || 'http://127.0.0.1:8765/chartjs/chart.htm';
+  const url = process.env.QZ_CHART_URL || 'http://127.0.0.1:8765/tst/js/treadmill_summary_visual_fixture.htm';
   await page.goto(url, { waitUntil: 'load' });
 
-  // Drive the production rendering path explicitly instead of depending on the
-  // native websocket startup sequence, which does not exist in Chromium CI.
   await page.evaluate(samples => {
     ensurePowerZones();
     ensureHeartZones();
-    $('#loading').hide();
     window.process_arr(samples);
   }, fixture);
 
@@ -151,7 +132,7 @@ const fixture = [
   console.log(JSON.stringify(report, null, 2));
   await browser.close();
   if (!report.passed) process.exit(1);
-})().catch(async err => {
+})().catch(err => {
   console.error(err && err.stack ? err.stack : err);
   process.exit(1);
 });
