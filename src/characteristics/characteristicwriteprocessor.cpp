@@ -107,15 +107,15 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
     }
 
     /*
-    Surface\tRoad Crr\tMTB Crr\tGravel Crr (Namebrand)\tZwift Gravel Crr
-    Pavement\t.004\t.01\t.008\t.008
-        Sand\t.004\t.01\t.008\t.008
-        Brick\t.0055\t.01\t.008\t.008
-        Wood\t.0065\t.01\t.008\t.008
-        Cobbles\t.0065\t.01\t.008\t.008
-        Ice/Snow\t.0075\t.014\t.018\t.018
-        Dirt\t.025\t.014\t.016\t.018
-        Grass\t \t.042
+    Surface	Road Crr	MTB Crr	Gravel Crr (Namebrand)	Zwift Gravel Crr
+    Pavement	.004	.01	.008	.008
+        Sand	.004	.01	.008	.008
+        Brick	.0055	.01	.008	.008
+        Wood	.0065	.01	.008	.008
+        Cobbles	.0065	.01	.008	.008
+        Ice/Snow	.0075	.014	.018	.018
+        Dirt	.025	.014	.016	.018
+        Grass	 	.042
     */
     const double fCRR = crr / 10000.0;
     const double CRR_offset = ((crr - 40) * 0.05) * CRRGain;
