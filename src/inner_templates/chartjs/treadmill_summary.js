@@ -27,6 +27,18 @@
         return minutes + ':' + String(seconds).padStart(2, '0') + ' /' + unit;
     }
 
+    function formatElapsedTick(value) {
+        const totalSeconds = Math.max(0, Math.round(finiteNumber(value, 0)));
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        if (hours > 0) {
+            return hours + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+        }
+        return String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+    }
+
     function isTreadmillWorkout(arr) {
         return Array.isArray(arr) && arr.length > 0 && Number(arr[arr.length - 1].deviceType) === 1;
     }
@@ -34,6 +46,7 @@
     function deriveTreadmillSpeedPoints(arr) {
         let lastSpeed = 0;
         const points = [];
+        const unitFactor = Number.isFinite(Number(window.miles)) ? Number(window.miles) : 1;
 
         for (let i = 0; i < arr.length; i++) {
             const sample = arr[i];
@@ -57,45 +70,92 @@
 
             points.push({
                 x: time,
-                y: lastSpeed * window.miles
+                y: lastSpeed * unitFactor
             });
         }
 
         return points;
     }
 
+    function buildTreadmillChartData(arr) {
+        return {
+            speedPoints: deriveTreadmillSpeedPoints(arr),
+            inclinationPoints: arr.map(function(sample) {
+                return {
+                    x: elapsedSeconds(sample),
+                    y: finiteNumber(sample.inclination, 0)
+                };
+            }),
+            lastElapsed: arr.length ? elapsedSeconds(arr[arr.length - 1]) : 0
+        };
+    }
+
     function updateTreadmillSpeedInclinationChart(arr) {
-        if (!isTreadmillWorkout(arr) || typeof Chart === 'undefined' || typeof Chart.getChart !== 'function') {
-            return;
+        const diagnostics = {
+            treadmill: isTreadmillWorkout(arr),
+            canvasFound: false,
+            chartFound: false,
+            durationSeconds: arr && arr.length ? elapsedSeconds(arr[arr.length - 1]) : 0,
+            speedPoints: [],
+            inclinationPoints: [],
+            xMax: null,
+            tick10: null,
+            tick20: null,
+            valid: false
+        };
+
+        if (!diagnostics.treadmill || typeof Chart === 'undefined' || typeof Chart.getChart !== 'function') {
+            window.qzTreadmillSummaryDiagnostics = diagnostics;
+            return diagnostics;
         }
 
         const canvas = document.getElementById('canvasSpeedInclination');
+        diagnostics.canvasFound = Boolean(canvas);
         if (!canvas) {
-            return;
+            window.qzTreadmillSummaryDiagnostics = diagnostics;
+            return diagnostics;
         }
 
         const chart = Chart.getChart(canvas);
+        diagnostics.chartFound = Boolean(chart);
         if (!chart || !chart.data || !chart.data.datasets || chart.data.datasets.length < 2) {
-            return;
+            window.qzTreadmillSummaryDiagnostics = diagnostics;
+            return diagnostics;
         }
 
-        const speedPoints = deriveTreadmillSpeedPoints(arr);
-        const inclinationPoints = arr.map(function(sample) {
-            return {
-                x: elapsedSeconds(sample),
-                y: finiteNumber(sample.inclination, 0)
-            };
-        });
+        const chartData = buildTreadmillChartData(arr);
+        chart.data.datasets[0].data = chartData.speedPoints;
+        chart.data.datasets[1].data = chartData.inclinationPoints;
 
-        chart.data.datasets[0].data = speedPoints;
-        chart.data.datasets[1].data = inclinationPoints;
-
-        const lastElapsed = elapsedSeconds(arr[arr.length - 1]);
         if (chart.options && chart.options.scales && chart.options.scales.x) {
-            chart.options.scales.x.max = lastElapsed;
+            chart.options.scales.x.max = chartData.lastElapsed;
+            chart.options.scales.x.ticks = chart.options.scales.x.ticks || {};
+            chart.options.scales.x.ticks.callback = formatElapsedTick;
         }
 
+        // The canvas is moved to its final treadmill location before Chart.js is
+        // created. resize() here is only a final guard for WebView layout changes.
+        if (typeof chart.resize === 'function') {
+            chart.resize();
+        }
         chart.update('none');
+
+        diagnostics.speedPoints = chartData.speedPoints;
+        diagnostics.inclinationPoints = chartData.inclinationPoints;
+        diagnostics.xMax = chart.options && chart.options.scales && chart.options.scales.x ? chart.options.scales.x.max : null;
+        diagnostics.tick10 = formatElapsedTick(10);
+        diagnostics.tick20 = formatElapsedTick(20);
+        diagnostics.valid = diagnostics.durationSeconds === diagnostics.xMax &&
+            diagnostics.speedPoints.some(function(point) { return finiteNumber(point.y, 0) > 0; }) &&
+            diagnostics.inclinationPoints.some(function(point) { return finiteNumber(point.y, 0) !== 0; });
+
+        window.qzTreadmillSummaryDiagnostics = diagnostics;
+        if (diagnostics.valid) {
+            console.info('treadmill_summary.js diagnostics: ' + JSON.stringify(diagnostics));
+        } else {
+            console.error('treadmill_summary.js invalid chart diagnostics: ' + JSON.stringify(diagnostics));
+        }
+        return diagnostics;
     }
 
     function setSummaryLabel(valueSelector, column, text) {
@@ -224,6 +284,9 @@
                 previous = previous.prev();
             }
 
+            // Do this BEFORE originalProcessArr() creates the responsive Chart.js
+            // instance. Moving a live responsive canvas between parents can reset its
+            // render state in Qt WebView/WebKit.
             speedContainer.show().appendTo('#watt_badge');
         }
 
@@ -280,7 +343,6 @@
         }
 
         updateTreadmillSummary(arr);
-        configureTreadmillCharts();
         updateTreadmillSpeedInclinationChart(arr);
 
         if (treadmillThumbnailTimer !== null) {
@@ -290,9 +352,18 @@
     }
 
     window.process_arr = function (arr) {
-        // The stock chart already uses elapsed seconds on a linear x-axis. Keep the
-        // original session data untouched, then patch only the treadmill chart data.
+        const treadmill = isTreadmillWorkout(arr);
+
+        // Establish the final DOM location before Chart.js measures/creates canvases.
+        if (treadmill) {
+            configureTreadmillCharts();
+        }
+
+        // Keep the original session samples untouched, preserving bike behaviour.
         originalProcessArr(arr);
-        adaptTreadmillPresentation(arr);
+
+        if (treadmill) {
+            adaptTreadmillPresentation(arr);
+        }
     };
 })();
