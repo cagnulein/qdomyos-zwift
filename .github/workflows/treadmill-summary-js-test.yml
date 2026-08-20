@@ -1,0 +1,34 @@
+name: Treadmill summary JS test
+
+on:
+  push:
+    branches:
+      - treadmill-post-workout-summary
+    paths:
+      - 'src/inner_templates/chartjs/dochart.js'
+      - 'src/inner_templates/chartjs/treadmill_summary.js'
+      - 'tst/js/treadmill_summary_test.js'
+      - '.github/workflows/treadmill-summary-js-test.yml'
+  pull_request:
+    paths:
+      - 'src/inner_templates/chartjs/dochart.js'
+      - 'src/inner_templates/chartjs/treadmill_summary.js'
+      - 'tst/js/treadmill_summary_test.js'
+      - '.github/workflows/treadmill-summary-js-test.yml'
+  workflow_dispatch:
+
+jobs:
+  treadmill-summary-js:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run deterministic treadmill post-workout test
+        run: node tst/js/treadmill_summary_test.js
+      - name: Upload treadmill summary test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: treadmill-summary-js-report
+          path: tst/js/artifacts/
+          if-no-files-found: error
