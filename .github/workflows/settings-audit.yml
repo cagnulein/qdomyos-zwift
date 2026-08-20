@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Fix duplicate Drawer background
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'fix/settings-drawer-background'
         shell: bash
         run: |
           python3 - <<'PY'
@@ -69,7 +69,7 @@ jobs:
               raise SystemExit('Expected Drawer block not found')
           PY
       - name: Commit Drawer fix
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'fix/settings-drawer-background'
         shell: bash
         run: |
           if git diff --quiet -- src/settings.qml; then
