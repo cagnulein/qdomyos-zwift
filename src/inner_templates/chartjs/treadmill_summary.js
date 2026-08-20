@@ -90,6 +90,16 @@
         };
     }
 
+    function getRawXScaleOptions(chart) {
+        if (chart && chart.config && chart.config.options && chart.config.options.scales && chart.config.options.scales.x) {
+            return chart.config.options.scales.x;
+        }
+        if (chart && chart.options && chart.options.scales && chart.options.scales.x) {
+            return chart.options.scales.x;
+        }
+        return null;
+    }
+
     function updateTreadmillSpeedInclinationChart(arr) {
         const diagnostics = {
             treadmill: isTreadmillWorkout(arr),
@@ -127,10 +137,17 @@
         chart.data.datasets[0].data = chartData.speedPoints;
         chart.data.datasets[1].data = chartData.inclinationPoints;
 
-        if (chart.options && chart.options.scales && chart.options.scales.x) {
-            chart.options.scales.x.max = chartData.lastElapsed;
-            chart.options.scales.x.ticks = chart.options.scales.x.ticks || {};
-            chart.options.scales.x.ticks.callback = formatElapsedTick;
+        // Chart.js 3 exposes chart.options through a resolver Proxy. Reassigning a
+        // nested resolver (for example ticks = chart.options.scales.x.ticks) can
+        // recursively call the Proxy setter in modern Chromium/WebKit. Mutate the
+        // raw config object instead; Chart.update() will resolve it afterwards.
+        const xScaleOptions = getRawXScaleOptions(chart);
+        if (xScaleOptions) {
+            xScaleOptions.max = chartData.lastElapsed;
+            if (!xScaleOptions.ticks) {
+                xScaleOptions.ticks = {};
+            }
+            xScaleOptions.ticks.callback = formatElapsedTick;
         }
 
         // The canvas is moved to its final treadmill location before Chart.js is
@@ -142,7 +159,7 @@
 
         diagnostics.speedPoints = chartData.speedPoints;
         diagnostics.inclinationPoints = chartData.inclinationPoints;
-        diagnostics.xMax = chart.options && chart.options.scales && chart.options.scales.x ? chart.options.scales.x.max : null;
+        diagnostics.xMax = xScaleOptions ? xScaleOptions.max : null;
         diagnostics.tick10 = formatElapsedTick(10);
         diagnostics.tick20 = formatElapsedTick(20);
         diagnostics.valid = diagnostics.durationSeconds === diagnostics.xMax &&
