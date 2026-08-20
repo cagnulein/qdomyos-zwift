@@ -312,7 +312,13 @@ ScrollView {
             checked: settings.value("custom_inclination_resistance_table_enabled", false)
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.fillWidth: true
-            onClicked: settings.setValue("custom_inclination_resistance_table_enabled", checked)
+            onClicked: {
+                if (checked && !settings.value("custom_inclination_resistance_table", "")) {
+                    settings.setValue("custom_inclination_resistance_table", defaultInclinationResistanceTable)
+                    inclinationResistanceTable.text = defaultInclinationResistanceTable
+                }
+                settings.setValue("custom_inclination_resistance_table_enabled", checked)
+            }
         }
 
         Label {
