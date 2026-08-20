@@ -44,18 +44,6 @@ const fixture = [
   }
 ];
 
-const settings = {
-  ftp: 200,
-  miles_unit: false,
-  age: 40,
-  heart_rate_zone1: 70,
-  heart_rate_zone2: 80,
-  heart_rate_zone3: 90,
-  heart_rate_zone4: 100,
-  heart_max_override_enable: false,
-  heart_max_override_value: 195
-};
-
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({
@@ -70,45 +58,33 @@ const settings = {
   });
   page.on('pageerror', err => pageErrors.push(String(err)));
 
+  // Keep the real chart.htm, Chart.js, jQuery, dochart.js and treadmill_summary.js.
+  // Only replace the native QZ websocket bridge so the browser test is deterministic.
   await page.route('**/main_ws_manager.js', async route => {
-    const stub = `
-      class MainWSQueueElement {
-        constructor(request, parser) {
-          this.request = request || {};
-          this.parser = parser;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/javascript',
+      body: `
+        class MainWSQueueElement {
+          constructor(request, parser) { this.request = request; this.parser = parser; }
+          enqueue() { return new Promise(() => {}); }
         }
-        enqueue() {
-          let response;
-          switch (this.request.msg) {
-            case 'getsettings':
-              response = { msg: 'R_getsettings', content: ${JSON.stringify(settings)} };
-              break;
-            case 'getsessionarray':
-              response = { msg: 'R_getsessionarray', content: ${JSON.stringify(fixture)} };
-              break;
-            case 'getpelotonimage':
-              response = { msg: 'R_getpelotonimage', content: '' };
-              break;
-            case 'savechart':
-              response = { msg: 'R_savechart', content: true };
-              break;
-            default:
-              response = { msg: 'R_' + (this.request.msg || ''), content: null };
-          }
-          try {
-            return Promise.resolve(this.parser ? this.parser(response) : response.content);
-          } catch (e) {
-            return Promise.reject(e);
-          }
-        }
-      }
-      window.MainWSQueueElement = MainWSQueueElement;
-    `;
-    await route.fulfill({ status: 200, contentType: 'application/javascript', body: stub });
+        window.MainWSQueueElement = MainWSQueueElement;
+      `
+    });
   });
 
   const url = process.env.QZ_CHART_URL || 'http://127.0.0.1:8765/chartjs/chart.htm';
   await page.goto(url, { waitUntil: 'load' });
+
+  // Drive the production rendering path explicitly instead of depending on the
+  // native websocket startup sequence, which does not exist in Chromium CI.
+  await page.evaluate(samples => {
+    ensurePowerZones();
+    ensureHeartZones();
+    $('#loading').hide();
+    window.process_arr(samples);
+  }, fixture);
 
   await page.waitForFunction(() => {
     const canvas = document.getElementById('canvasSpeedInclination');
@@ -122,7 +98,7 @@ const settings = {
     const canvas = document.getElementById('canvasSpeedInclination');
     const chart = Chart.getChart(canvas);
     const rect = canvas.getBoundingClientRect();
-    const parent = canvas.parentElement && canvas.parentElement.parentElement;
+    const grandParent = canvas.parentElement && canvas.parentElement.parentElement;
     return {
       diagnostics: window.qzTreadmillSummaryDiagnostics,
       canvas: {
@@ -139,7 +115,7 @@ const settings = {
           points: ds.data.map(p => ({ x: p.x, y: p.y }))
         }))
       },
-      speedContainerInsideBadge: Boolean(parent && parent.id === 'watt_badge'),
+      speedContainerInsideBadge: Boolean(grandParent && grandParent.id === 'watt_badge'),
       summaryText: document.getElementById('watt_badge').innerText
     };
   });
@@ -175,7 +151,7 @@ const settings = {
   console.log(JSON.stringify(report, null, 2));
   await browser.close();
   if (!report.passed) process.exit(1);
-})().catch(err => {
+})().catch(async err => {
   console.error(err && err.stack ? err.stack : err);
   process.exit(1);
 });
