@@ -68,30 +68,49 @@ const fixture = [
   }, fixture);
 
   await page.waitForFunction(() => {
-    const canvas = document.getElementById('canvasSpeedInclination');
-    const chart = canvas && window.Chart && Chart.getChart(canvas);
-    return Boolean(chart && window.qzTreadmillSummaryDiagnostics && window.qzTreadmillSummaryDiagnostics.valid);
+    const speedCanvas = document.getElementById('canvasSpeedInclination');
+    const heartCanvas = document.getElementById('canvasHeart');
+    const speedChart = speedCanvas && window.Chart && Chart.getChart(speedCanvas);
+    const heartChart = heartCanvas && window.Chart && Chart.getChart(heartCanvas);
+    return Boolean(speedChart && heartChart && window.qzTreadmillSummaryDiagnostics && window.qzTreadmillSummaryDiagnostics.valid);
   }, null, { timeout: 10000 });
 
   await page.waitForTimeout(300);
 
   const inspection = await page.evaluate(() => {
-    const canvas = document.getElementById('canvasSpeedInclination');
-    const chart = Chart.getChart(canvas);
-    const rect = canvas.getBoundingClientRect();
-    const grandParent = canvas.parentElement && canvas.parentElement.parentElement;
+    const speedCanvas = document.getElementById('canvasSpeedInclination');
+    const heartCanvas = document.getElementById('canvasHeart');
+    const speedChart = Chart.getChart(speedCanvas);
+    const heartChart = Chart.getChart(heartCanvas);
+    const speedRect = speedCanvas.getBoundingClientRect();
+    const heartRect = heartCanvas.getBoundingClientRect();
+    const grandParent = speedCanvas.parentElement && speedCanvas.parentElement.parentElement;
     return {
       diagnostics: window.qzTreadmillSummaryDiagnostics,
       canvas: {
-        width: rect.width,
-        height: rect.height,
-        display: getComputedStyle(canvas).display,
-        visible: rect.width > 0 && rect.height > 0
+        width: speedRect.width,
+        height: speedRect.height,
+        display: getComputedStyle(speedCanvas).display,
+        visible: speedRect.width > 0 && speedRect.height > 0
       },
       chart: {
-        width: chart.width,
-        height: chart.height,
-        datasets: chart.data.datasets.map(ds => ({
+        width: speedChart.width,
+        height: speedChart.height,
+        datasets: speedChart.data.datasets.map(ds => ({
+          label: ds.label,
+          points: ds.data.map(p => ({ x: p.x, y: p.y }))
+        }))
+      },
+      heartCanvas: {
+        width: heartRect.width,
+        height: heartRect.height,
+        display: getComputedStyle(heartCanvas).display,
+        visible: heartRect.width > 0 && heartRect.height > 0
+      },
+      heartChart: {
+        width: heartChart.width,
+        height: heartChart.height,
+        datasets: heartChart.data.datasets.map(ds => ({
           label: ds.label,
           points: ds.data.map(p => ({ x: p.x, y: p.y }))
         }))
@@ -101,6 +120,7 @@ const fixture = [
     };
   });
 
+  const heartPoints = inspection.heartChart.datasets[0].points;
   const checks = {
     diagnosticsValid: inspection.diagnostics && inspection.diagnostics.valid === true,
     durationIs20Seconds: inspection.diagnostics && inspection.diagnostics.durationSeconds === 20,
@@ -109,12 +129,18 @@ const fixture = [
     twoDatasets: inspection.chart.datasets.length >= 2,
     speedHasVisibleValues: inspection.chart.datasets[0].points.every(p => Number.isFinite(p.y) && p.y > 0),
     inclinationMatchesFixture: JSON.stringify(inspection.chart.datasets[1].points.map(p => p.y)) === JSON.stringify([2, 4, 6]),
+    heartCanvasVisible: inspection.heartCanvas.visible,
+    heartChartHasSize: inspection.heartChart.width > 0 && inspection.heartChart.height > 0,
+    heartDatasetPresent: inspection.heartChart.datasets.length === 1 && inspection.heartChart.datasets[0].label === 'Heart Rate',
+    heartMatchesFixture: JSON.stringify(heartPoints.map(p => p.y)) === JSON.stringify([138, 141, 144]),
+    heartElapsedMatchesFixture: JSON.stringify(heartPoints.map(p => p.x)) === JSON.stringify([0, 10, 20]),
     movedInsideBadge: inspection.speedContainerInsideBadge,
     summaryAdaptedForTreadmill: inspection.summaryText.includes('Avg Pace') && inspection.summaryText.includes('Avg Incline') && inspection.summaryText.includes('Elevation Gain') && inspection.summaryText.includes('Avg Heart Rate'),
     noPageErrors: pageErrors.length === 0
   };
 
   await page.locator('#watt_badge').screenshot({ path: path.join(artifactDir, 'treadmill-summary-badge.png') });
+  await page.locator('#canvasHeart').screenshot({ path: path.join(artifactDir, 'treadmill-heart-rate-chart.png') });
   await page.screenshot({ path: path.join(artifactDir, 'treadmill-summary-full-page.png'), fullPage: true });
 
   const report = {
