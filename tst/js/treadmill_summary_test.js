@@ -93,10 +93,24 @@ global.MainWSQueueElement = class {
     enqueue() { return Promise.resolve(null); }
 };
 
+function sample(overrides) {
+    return Object.assign({
+        elapsed_h: 0, elapsed_m: 0, elapsed_s: 0,
+        deviceType: 1,
+        workoutName: 'Test Run', workoutStartDate: '2026-08-20', instructorName: '',
+        watts: 0, watts_avg: 0, watts_max: 0, req_power: 0, jouls: 0,
+        heart: 140, heart_avg: 140, heart_max: 145,
+        cadence: 0, cadence_avg: 0, req_cadence: 0,
+        resistance: 0, resistance_avg: 0, req_resistance: 0,
+        peloton_resistance: 0, peloton_resistance_avg: 0, peloton_req_resistance: 0,
+        speed: 0, inclination: 0, distance: 0, calories: 0
+    }, overrides);
+}
+
 const fixture = [
-    { elapsed_h: 0, elapsed_m: 0, elapsed_s: 0,  deviceType: 1, speed: 10, inclination: 2, distance: 0,        heart_avg: 140, calories: 0 },
-    { elapsed_h: 0, elapsed_m: 0, elapsed_s: 10, deviceType: 1, speed: 0,  inclination: 4, distance: 0.027778, heart_avg: 141, calories: 2 },
-    { elapsed_h: 0, elapsed_m: 0, elapsed_s: 20, deviceType: 1, speed: 12, inclination: 6, distance: 0.061111, heart_avg: 142, calories: 4 }
+    sample({ elapsed_s: 0,  speed: 10, inclination: 2, distance: 0,        heart_avg: 140, calories: 0 }),
+    sample({ elapsed_s: 10, speed: 0,  inclination: 4, distance: 0.027778, heart_avg: 141, calories: 2 }),
+    sample({ elapsed_s: 20, speed: 12, inclination: 6, distance: 0.061111, heart_avg: 142, calories: 4 })
 ];
 const fixtureBefore = JSON.stringify(fixture);
 
