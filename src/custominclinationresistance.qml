@@ -15,11 +15,12 @@ ScrollView {
 
     Settings {
         id: settings
+        property bool custom_inclination_resistance_table_enabled: false
+        property string custom_inclination_resistance_table: defaultInclinationResistanceTable
     }
 
     Component.onCompleted: {
-        inclinationResistanceTable.text = settings.value("custom_inclination_resistance_table",
-                                                         defaultInclinationResistanceTable)
+        inclinationResistanceTable.text = settings.custom_inclination_resistance_table
     }
 
     ColumnLayout {
@@ -41,16 +42,10 @@ ScrollView {
             rightPadding: 0
             leftPadding: 0
             clip: false
-            checked: settings.value("custom_inclination_resistance_table_enabled", false)
+            checked: settings.custom_inclination_resistance_table_enabled
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.fillWidth: true
-            onClicked: {
-                if (checked && !settings.value("custom_inclination_resistance_table", "")) {
-                    settings.setValue("custom_inclination_resistance_table", defaultInclinationResistanceTable)
-                    inclinationResistanceTable.text = defaultInclinationResistanceTable
-                }
-                settings.setValue("custom_inclination_resistance_table_enabled", checked)
-            }
+            onClicked: settings.custom_inclination_resistance_table_enabled = checked
         }
 
         Label {
@@ -92,7 +87,7 @@ ScrollView {
             Button {
                 text: qsTr("Save Table")
                 Layout.fillWidth: true
-                onClicked: settings.setValue("custom_inclination_resistance_table", inclinationResistanceTable.text)
+                onClicked: settings.custom_inclination_resistance_table = inclinationResistanceTable.text
             }
 
             Button {
@@ -100,7 +95,7 @@ ScrollView {
                 Layout.fillWidth: true
                 onClicked: {
                     inclinationResistanceTable.text = defaultInclinationResistanceTable
-                    settings.setValue("custom_inclination_resistance_table", defaultInclinationResistanceTable)
+                    settings.custom_inclination_resistance_table = defaultInclinationResistanceTable
                 }
             }
         }
