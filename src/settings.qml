@@ -2281,10 +2281,6 @@ import AndroidStatusBar 1.0
             modal: true
             interactive: true
 
-            background: Rectangle {
-                color: Material.backgroundColor
-            }
-
             ColumnLayout {
                 anchors.fill: parent
                 spacing: 0
