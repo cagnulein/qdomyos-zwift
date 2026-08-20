@@ -108,14 +108,6 @@ ScrollView {
         anchors.margins: 10
         spacing: 10
 
-        NewPageElement {
-            title: qsTr("Custom Inclination to Resistance Table")
-            indicatRectColor: Material.color(Material.Grey)
-            textColor: Material.color(Material.Yellow)
-            color: Material.backgroundColor
-            accordionContent: "custominclinationresistance.qml"
-        }
-
         IndicatorOnlySwitch {
             text: qsTr("Enable Custom Gear Table")
             spacing: 0
