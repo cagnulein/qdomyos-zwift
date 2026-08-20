@@ -23,6 +23,7 @@ class JQueryMock {
     }
     text() { return this; }
     attr() { return this; }
+    on() { return this; }
     parent() { return new JQueryMock(`${this.selector}:parent`); }
     hide() { return this; }
     show() { return this; }
@@ -91,11 +92,6 @@ global.MainWSQueueElement = class {
     enqueue() { return Promise.resolve(null); }
 };
 
-const doChartSource = fs.readFileSync(path.join(chartDir, 'dochart.js'), 'utf8');
-const treadmillSource = fs.readFileSync(path.join(chartDir, 'treadmill_summary.js'), 'utf8');
-vm.runInThisContext(doChartSource, { filename: 'dochart.js' });
-vm.runInThisContext(treadmillSource, { filename: 'treadmill_summary.js' });
-
 const fixture = [
     { elapsed_h: 0, elapsed_m: 0, elapsed_s: 0,  deviceType: 1, speed: 10, inclination: 2, distance: 0,        heart_avg: 140, calories: 0 },
     { elapsed_h: 0, elapsed_m: 0, elapsed_s: 10, deviceType: 1, speed: 0,  inclination: 4, distance: 0.027778, heart_avg: 141, calories: 2 },
@@ -105,6 +101,11 @@ const fixtureBefore = JSON.stringify(fixture);
 
 let fatalError = null;
 try {
+    const doChartSource = fs.readFileSync(path.join(chartDir, 'dochart.js'), 'utf8');
+    const treadmillSource = fs.readFileSync(path.join(chartDir, 'treadmill_summary.js'), 'utf8');
+    vm.runInThisContext(doChartSource, { filename: 'dochart.js' });
+    vm.runInThisContext(treadmillSource, { filename: 'treadmill_summary.js' });
+
     window.process_arr(fixture);
     const chart = FakeChart.getChart(canvasFor('canvasSpeedInclination'));
     check('Speed/Inclination chart exists', Boolean(chart));
