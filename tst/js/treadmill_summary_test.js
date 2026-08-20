@@ -24,6 +24,7 @@ class JQueryMock {
     text() { return this; }
     attr() { return this; }
     on() { return this; }
+    ready() { return this; }
     parent() { return new JQueryMock(`${this.selector}:parent`); }
     hide() { return this; }
     show() { return this; }
