@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QZ treadmill summary visual test</title>
+  <script src="/src/inner_templates/chartjs/jquery-3.6.0.min.js"></script>
+  <script src="/src/inner_templates/chartjs/chartjs.3.4.1.min.js"></script>
+  <script src="/src/inner_templates/chartjs/html2canvas.min.js"></script>
+  <style>
+    body { margin: 8px; background:#1d2330; }
+    canvas { -moz-user-select:none; -webkit-user-select:none; -ms-user-select:none; }
+    .chart-box { background:white; border:0 solid #aaa; border-radius:10px; overflow:hidden; }
+    .label { color:grey; font-size:12px; font-weight:500; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+    .value { color:white; font-size:16px; font-weight:500; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+    .title { color:white; font-size:18px; font-weight:700; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  </style>
+</head>
+<body>
+  <div id="watt_badge" style="background-color:#1d2330">
+    <div class="workoutName title" style="text-align:right"></div>
+    <div class="workoutStartDate label" style="text-align:right"></div>
+    <hr width="50%" style="color:white">
+    <table width="100%">
+      <tr align="center" class="label"><td data-i18n="chart.avgOutput">Avg Output</td><td data-i18n="chart.totalOutput">Total Output</td></tr>
+      <tr align="center"><td class="summary_watts_avg value">0 W</td><td class="summary_jouls value">0 kJ</td></tr>
+      <tr align="center" class="label"><td data-i18n="chart.calories">Calories</td><td data-i18n="workoutEditor.distance">Distance</td></tr>
+      <tr align="center"><td class="summary_calories value">0 kcal</td><td class="summary_distance value">0 km</td></tr>
+      <tr align="center" class="label"><td data-i18n="chart.avgCadence">AVG Cadence</td><td data-i18n="chart.avgResistance">AVG Resistance</td></tr>
+      <tr align="center"><td class="summary_cadence_avg value">0 rpm</td><td class="summary_resistance_avg value">0 lvl</td></tr>
+    </table>
+    <hr width="50%" style="color:white">
+    <div id="power-placeholder" class="chart-box"><canvas id="canvas"></canvas></div>
+    <div class="watts_avg"></div>
+  </div>
+  <br><br>
+  <div class="chart-box"><canvas id="canvasHeart"></canvas></div>
+  <div class="heart_avg"></div>
+  <br><br>
+  <div class="chart-box"><canvas id="canvasResistance"></canvas></div>
+  <br><br>
+  <div class="chart-box"><canvas id="canvasPelotonResistance"></canvas></div>
+  <br><br>
+  <div class="chart-box"><canvas id="canvasCadence"></canvas></div>
+  <br><br>
+  <div class="chart-box"><canvas id="canvasPowerDistribution"></canvas></div>
+  <br><br>
+  <div id="speed-chart-container" class="chart-box"><canvas id="canvasSpeedInclination"></canvas></div>
+
+  <script>
+    window.miles = 1;
+    window.t = function(_key, fallback) { return fallback; };
+    window.ensurePowerZones = function() {};
+    window.ensureHeartZones = function() {};
+    window.MainWSQueueElement = class { enqueue() { return Promise.resolve(true); } };
+
+    // Minimal baseline renderer with the same real Chart.js canvas and dataset shape
+    // used by QZ. treadmill_summary.js wraps this exactly as it wraps dochart.js.
+    window.process_arr = function(arr) {
+      const last = arr[arr.length - 1];
+      $('.workoutName').text(last.workoutName || '');
+      $('.workoutStartDate').text(last.workoutStartDate || '');
+      $('.summary_calories').text(Math.floor(last.calories || 0) + ' kcal');
+      $('.summary_distance').text(Number(last.distance || 0).toFixed(1) + ' km');
+
+      const speed = arr.map(s => ({ x: Number(s.elapsed_s || 0) + Number(s.elapsed_m || 0) * 60 + Number(s.elapsed_h || 0) * 3600, y: Number(s.speed || 0) }));
+      const incline = arr.map(s => ({ x: Number(s.elapsed_s || 0) + Number(s.elapsed_m || 0) * 60 + Number(s.elapsed_h || 0) * 3600, y: Number(s.inclination || 0) }));
+      const maxElapsed = speed.length ? speed[speed.length - 1].x : 0;
+
+      new Chart(document.getElementById('canvasSpeedInclination').getContext('2d'), {
+        type: 'line',
+        data: {
+          datasets: [
+            { label: 'Speed', data: speed, borderColor: 'rgb(54,162,235)', pointRadius: 0, borderWidth: 2, fill: false, yAxisID: 'y' },
+            { label: 'Inclination', data: incline, borderColor: 'rgb(255,159,64)', pointRadius: 0, borderWidth: 2, fill: false, yAxisID: 'y1' }
+          ]
+        },
+        options: {
+          responsive: true,
+          animation: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { type: 'linear', min: 0, max: maxElapsed, ticks: { callback: value => String(value) } },
+            y: { type: 'linear', position: 'left', beginAtZero: true, title: { display: true, text: 'Speed (km/h)' } },
+            y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Inclination (%)' } }
+          },
+          plugins: { legend: { display: true } }
+        }
+      });
+    };
+  </script>
+  <script src="/src/inner_templates/chartjs/treadmill_summary.js"></script>
+</body>
+</html>
