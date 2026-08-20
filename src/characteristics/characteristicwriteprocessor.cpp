@@ -4,6 +4,7 @@
 #include <QMap>
 #include <QSettings>
 #include <QStringList>
+#include <iterator>
 
 namespace {
 const QString kCustomInclinationResistanceTableEnabled =
