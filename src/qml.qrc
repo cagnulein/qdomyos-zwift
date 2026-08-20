@@ -68,7 +68,7 @@
         <file>zwo/Tabata with sweet spot.zwo</file>
         <file>zwo/Tempo and endurance.zwo</file>
         <file>zwo/VO2max with recovery.zwo</file>
-        <file>zwo/VO2max with sweet spot.zwo</file>
+        <file>zwo/VO2max with sweet spot and threshold.zwo</file>
         <file>inner_templates/googlemaps/chart.js</file>
         <file>inner_templates/googlemaps/chartjs.3.4.1.min.js</file>
         <file>inner_templates/googlemaps/chartjs-adapter-moment.js</file>
@@ -130,6 +130,7 @@
         <file>Wizard.qml</file>
         <file>gears.qml</file>
         <file>customgears.qml</file>
+        <file>custominclinationresistance.qml</file>
         <file>IndicatorOnlySwitch.qml</file>
         <file>StaticAccordionElement.qml</file>
         <file>inner_templates/chartjs/dotreadmillchartlive.js</file>
