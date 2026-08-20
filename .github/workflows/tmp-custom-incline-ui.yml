@@ -1,0 +1,55 @@
+name: Temporary custom incline UI patch
+
+on:
+  push:
+    branches:
+      - feature/custom-incline-resistance-table
+
+permissions:
+  contents: write
+
+jobs:
+  patch-settings:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/custom-incline-resistance-table
+      - name: Add dedicated Bike Options page
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('src/settings.qml')
+          text = path.read_text()
+          needle = '''                    NewPageElement {
+                        title: qsTr("Custom Gear Table")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: "customgears.qml"
+                    }
+'''
+          addition = needle + '''
+                    NewPageElement {
+                        title: qsTr("Custom Inclination to Resistance Table")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: "custominclinationresistance.qml"
+                    }
+'''
+          if text.count(needle) != 1:
+              raise SystemExit(f'Expected exactly one Custom Gear Table block, found {text.count(needle)}')
+          path.write_text(text.replace(needle, addition, 1))
+
+          workflow = Path('.github/workflows/tmp-custom-incline-ui.yml')
+          workflow.unlink()
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- src/settings.qml .github/workflows/tmp-custom-incline-ui.yml
+          git commit -m "Add dedicated inclination resistance settings page entry"
+          git push origin HEAD:feature/custom-incline-resistance-table
