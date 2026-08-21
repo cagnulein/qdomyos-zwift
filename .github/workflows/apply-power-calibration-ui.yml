@@ -72,3 +72,5 @@ jobs:
           git diff --cached --check
           git commit -m "Add power calibration page under Bike Options"
           git push origin HEAD:feature/power-calibration-table
+
+# trigger integration
