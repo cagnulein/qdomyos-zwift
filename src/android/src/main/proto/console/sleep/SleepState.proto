@@ -1,0 +1,25 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.sleep";
+option java_outer_classname = "SleepStateProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+import "util/IFitError.proto";
+
+enum SleepState {
+  SLEEP_STATE_UNKNOWN = 0;
+  SLEEP_STATE_AWAKE = 1;
+  SLEEP_STATE_INITIATE_SLEEP = 2;
+  SLEEP_STATE_SLEEPING = 3;
+}
+
+message SleepStateMessage {
+  SleepState state = 1;
+}
+
+message SleepStateResult {
+  oneof errorOrSleepState {
+    IFitError error = 1;
+    SleepState sleepState = 2;
+  }
+}

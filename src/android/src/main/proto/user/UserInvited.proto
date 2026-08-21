@@ -1,0 +1,21 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "UserInvitedProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "google/protobuf/timestamp.proto";
+import "util/IFitError.proto";
+
+message UserInvited {
+  string nonUserEmail = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message UserInvitedResult {
+  oneof errorOrUserInvited {
+    IFitError error = 1;
+    UserInvited user = 2;
+  }
+}

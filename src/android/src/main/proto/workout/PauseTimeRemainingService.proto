@@ -1,0 +1,31 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "PauseTimeRemainingServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message PauseTimeRemainingMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  int32 lastPauseTimeRemainingSeconds = 3;
+}
+
+message PauseTimeRemainingMetricList {
+  repeated PauseTimeRemainingMetric metrics = 1;
+}
+
+service PauseTimeRemainingService {
+  // check whether PauseTimeRemaining is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Pause Time Remaining relative to the current workout
+  rpc GetPauseTimeRemaining(Empty) returns (PauseTimeRemainingMetric) {}
+
+  // subscribe to PauseTimeRemaining updates relative to the current workout
+  rpc PauseTimeRemainingSubscription(Empty) returns (stream PauseTimeRemainingMetric) {}
+
+  // gets a list of all of the PauseTimeRemaining changes for the given workout ID
+  rpc GetPauseTimeRemainingHistory(WorkoutID) returns (PauseTimeRemainingMetricList) {}
+}

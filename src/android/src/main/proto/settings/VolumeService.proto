@@ -1,0 +1,21 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.settings";
+option java_outer_classname = "VolumeServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message VolumeMessage {
+  double percentage = 1;
+}
+
+service VolumeService {
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+  rpc CanWrite(Empty) returns (AvailabilityResponse) {}
+  rpc GetVolume(Empty) returns (VolumeMessage) {}
+  rpc IncreaseVolume(Empty) returns (Empty) {}
+  rpc DecreaseVolume(Empty) returns (Empty) {}
+  rpc VolumeChanged(Empty) returns (stream VolumeMessage) {}
+  rpc SetVolume(VolumeMessage) returns (Empty) {}
+}

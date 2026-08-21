@@ -1,0 +1,19 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "WeightProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "util/IFitError.proto";
+
+message Weight {
+  double kilograms = 1;
+}
+
+message WeightResult {
+  oneof errorOrWeight {
+    IFitError error = 1;
+    Weight weight = 2;
+  }
+}

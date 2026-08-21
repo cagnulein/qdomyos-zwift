@@ -1,0 +1,26 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "featuregates/FeatureGateFacet.proto";
+import "featuregates/GatedFeature.proto";
+import "club/ClubSettingsService.proto";
+import "console/ConsoleType.proto";
+import "user/UserTier.proto";
+option java_package = "com.ifit.glassos.featuregates";
+option java_outer_classname = "FeatureGateResultProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message FeatureGateResult {
+  GatedFeature gatedFeature = 1;
+  bool enabled = 2;
+  bool incomplete = 3;
+  FacetMessage featureGateFacet = 4;
+  oneof value {
+    bool booleanValue = 5;
+    club.UserRole userRole = 6;
+    string stringValue = 7;
+    int32 intValue = 8;
+    ConsoleType consoleType = 9;
+    UserTier userTier = 10;
+  }
+}
