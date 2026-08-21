@@ -1,0 +1,95 @@
+name: Apply power calibration settings wiring
+
+on:
+  push:
+    branches:
+      - feature/power-calibration-table
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/power-calibration-table
+          fetch-depth: 0
+
+      - name: Patch settings UI and catalog
+        shell: python
+        run: |
+          from pathlib import Path
+          import json
+
+          settings_path = Path('src/settings.qml')
+          text = settings_path.read_text()
+
+          page_anchor = '''                    NewPageElement {
+                        title: qsTr("Custom Gear Table")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: "customgears.qml"
+                    }
+'''
+          page = '''
+                    NewPageElement {
+                        title: qsTr("Power Calibration Table")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: "powercalibration.qml"
+                    }
+'''
+          if 'accordionContent: "powercalibration.qml"' not in text:
+              if page_anchor not in text:
+                  raise SystemExit('Custom Gear Table page anchor not found')
+              text = text.replace(page_anchor, page_anchor + page, 1)
+
+          enabled_prop = '            property bool power_calibration_table_enabled: false\n'
+          table_prop = '            property string power_calibration_table: "0|0\\n100|100\\n200|200\\n300|300\\n400|400\\n500|500\\n600|600"\n'
+
+          # The Settings object starts after the compatibility comment and ends before
+          # the first UI Timer. Append new properties immediately before that closing brace
+          # so every pre-existing property keeps its position.
+          settings_start = text.index('// always add a property at the end of the file to avoid corruption of the settings when loading old versions')
+          timer_marker = '\n        Timer {'
+          settings_end = text.index(timer_marker, settings_start)
+          settings_block = text[settings_start:settings_end]
+
+          settings_block = settings_block.replace(enabled_prop, '').replace(table_prop, '')
+          close = settings_block.rfind('        }')
+          if close < 0:
+              raise SystemExit('Settings closing brace not found')
+          settings_block = settings_block[:close] + enabled_prop + table_prop + settings_block[close:]
+          text = text[:settings_start] + settings_block + text[settings_end:]
+          settings_path.write_text(text)
+
+          catalog_path = Path('src/settings-catalog.json')
+          catalog = json.loads(catalog_path.read_text())
+          pages = catalog.setdefault('pages', [])
+          pages[:] = [p for p in pages if p.get('key') != 'page_power_calibration_table']
+          insert_at = next((i + 1 for i, p in enumerate(pages) if p.get('key') == 'page_custom_gear_table'), len(pages))
+          pages.insert(insert_at, {
+              'key': 'page_power_calibration_table',
+              'name': 'Power Calibration Table',
+              'description': None,
+              'parent': 'Bike Options',
+              'type': 'page',
+              'control': 'page',
+              'target': 'powercalibration.qml',
+              'visible': True
+          })
+          catalog_path.write_text(json.dumps(catalog, indent=2) + '\n')
+
+      - name: Remove temporary workflow and commit
+        run: |
+          rm .github/workflows/apply-power-calibration-settings.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- src/settings.qml src/settings-catalog.json .github/workflows/apply-power-calibration-settings.yml
+          git commit -m "Wire power calibration page into Bike Options"
+          git push origin HEAD:feature/power-calibration-table
