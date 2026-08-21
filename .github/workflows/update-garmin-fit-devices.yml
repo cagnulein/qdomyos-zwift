@@ -27,27 +27,36 @@ jobs:
           path = Path('src/settings.qml')
           text = path.read_text()
 
-          custom = '''                    NewPageElement {
-                        title: qsTr("Custom Gear Table")
-                        indicatRectColor: Material.color(Material.Grey)
-                        textColor: Material.color(Material.Yellow)
-                        color: Material.backgroundColor
-                        accordionContent: "customgears.qml"
-                    }'''
-          power = '''
-
-                    NewPageElement {
-                        title: qsTr("Power Calibration Table")
-                        indicatRectColor: Material.color(Material.Grey)
-                        textColor: Material.color(Material.Yellow)
-                        color: Material.backgroundColor
-                        accordionContent: "powercalibration.qml"
-                    }'''
-
           if 'accordionContent: "powercalibration.qml"' not in text:
-              if custom not in text:
-                  raise SystemExit('Custom Gear Table block not found')
-              text = text.replace(custom, custom + power, 1)
+              lines = text.splitlines(keepends=True)
+              content_index = next((i for i, line in enumerate(lines) if 'accordionContent: "customgears.qml"' in line), None)
+              if content_index is None:
+                  raise SystemExit('Custom Gear Table accordionContent not found')
+
+              start = content_index
+              while start >= 0 and 'NewPageElement {' not in lines[start]:
+                  start -= 1
+              if start < 0:
+                  raise SystemExit('Custom Gear Table NewPageElement start not found')
+
+              indent = lines[start][:len(lines[start]) - len(lines[start].lstrip())]
+              end = content_index + 1
+              while end < len(lines) and lines[end].strip() != '}':
+                  end += 1
+              if end >= len(lines):
+                  raise SystemExit('Custom Gear Table NewPageElement end not found')
+
+              power = (
+                  '\n' + indent + 'NewPageElement {\n'
+                  + indent + '    title: qsTr("Power Calibration Table")\n'
+                  + indent + '    indicatRectColor: Material.color(Material.Grey)\n'
+                  + indent + '    textColor: Material.color(Material.Yellow)\n'
+                  + indent + '    color: Material.backgroundColor\n'
+                  + indent + '    accordionContent: "powercalibration.qml"\n'
+                  + indent + '}\n'
+              )
+              lines.insert(end + 1, power)
+              text = ''.join(lines)
 
           anchor = '            property bool nordictrack_incline_trainer_x7i_ntl15010_0: false\n'
           props = ('            property bool power_calibration_table_enabled: false\n'
