@@ -4,13 +4,74 @@ on:
   schedule:
     - cron: "0 5 * * 1"
   workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
+  finish-power-calibration:
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 4968
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/power-calibration-table
+          fetch-depth: 0
+      - name: Patch power calibration settings wiring
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('src/settings.qml')
+          text = path.read_text()
+
+          custom = '''                    NewPageElement {
+                        title: qsTr("Custom Gear Table")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: "customgears.qml"
+                    }'''
+          power = '''
+
+                    NewPageElement {
+                        title: qsTr("Power Calibration Table")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: "powercalibration.qml"
+                    }'''
+
+          if 'accordionContent: "powercalibration.qml"' not in text:
+              if custom not in text:
+                  raise SystemExit('Custom Gear Table block not found')
+              text = text.replace(custom, custom + power, 1)
+
+          anchor = '            property bool nordictrack_incline_trainer_x7i_ntl15010_0: false\n'
+          props = ('            property bool power_calibration_table_enabled: false\n'
+                   '            property string power_calibration_table: "0|0\\n100|100\\n200|200\\n300|300\\n400|400\\n500|500\\n600|600"\n')
+          if 'property bool power_calibration_table_enabled:' not in text:
+              if anchor not in text:
+                  raise SystemExit('End-of-settings anchor not found')
+              text = text.replace(anchor, anchor + props, 1)
+
+          path.write_text(text)
+      - name: Restore workflow and commit
+        shell: bash
+        run: |
+          git fetch origin master
+          git checkout origin/master -- .github/workflows/update-garmin-fit-devices.yml
+          git diff --check -- src/settings.qml .github/workflows/update-garmin-fit-devices.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- src/settings.qml .github/workflows/update-garmin-fit-devices.yml
+          git commit -m "Wire power calibration into bike settings"
+          git push origin HEAD:feature/power-calibration-table
+
   update:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     env:
       PYTHONDONTWRITEBYTECODE: "1"
