@@ -1741,6 +1741,8 @@ import AndroidStatusBar 1.0
             property bool virtual_device_tacx: false
             property bool renpho_bike_knob_gears: false
             property bool nordictrack_incline_trainer_x7i_ntl15010_0: false
+            property bool power_calibration_table_enabled: false
+            property string power_calibration_table: "0|0\n100|100\n200|200\n300|300\n400|400\n500|500\n600|600"
         }
 
 
@@ -4027,6 +4029,14 @@ import AndroidStatusBar 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: "customgears.qml"
+                    }
+
+                    NewPageElement {
+                        title: qsTr("Power Calibration Table")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: "powercalibration.qml"
                     }
 
                     RowLayout {
