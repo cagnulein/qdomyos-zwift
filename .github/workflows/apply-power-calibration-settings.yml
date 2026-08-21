@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - feature/power-calibration-table
+  pull_request:
+    types: [reopened, synchronize]
+    branches:
+      - master
 
 permissions:
   contents: write
@@ -52,14 +56,10 @@ jobs:
           enabled_prop = '            property bool power_calibration_table_enabled: false\n'
           table_prop = '            property string power_calibration_table: "0|0\\n100|100\\n200|200\\n300|300\\n400|400\\n500|500\\n600|600"\n'
 
-          # The Settings object starts after the compatibility comment and ends before
-          # the first UI Timer. Append new properties immediately before that closing brace
-          # so every pre-existing property keeps its position.
           settings_start = text.index('// always add a property at the end of the file to avoid corruption of the settings when loading old versions')
           timer_marker = '\n        Timer {'
           settings_end = text.index(timer_marker, settings_start)
           settings_block = text[settings_start:settings_end]
-
           settings_block = settings_block.replace(enabled_prop, '').replace(table_prop, '')
           close = settings_block.rfind('        }')
           if close < 0:
