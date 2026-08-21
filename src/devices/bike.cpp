@@ -117,11 +117,40 @@ void bike::changePower(int32_t power) {
     qDebug() << QStringLiteral("changePower: original power with offset applied: ") + QString::number(power) + QStringLiteral(" (offset: ") + QString::number(bike_power_offset) + QStringLiteral(")");
 
     requestPower = power; // used by some bikes that have ERG mode builtin
-    
-    if(power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0 && fabs(requestPower - m_watt.average5s()) < qMax(erg_filter_upper, erg_filter_lower)) {
-        qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s() << "req" << requestPower;
-        // the concept here is to trying to add or decrease the delta from the power sensor
-        requestPower += (requestPower - m_watt.average5s());
+
+    // When a native-ERG trainer is paired with an external power meter, use the
+    // external meter as feedback instead of disabling compensation for large errors.
+    // The ERG filters now limit the maximum correction in each direction, while a
+    // short settling period after a target change prevents the 5-s average from
+    // feeding stale power from the previous interval into the new target.
+    if (power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0) {
+        const qint64 targetAgeMs = RequestedPower.valueChanged().msecsTo(QDateTime::currentDateTime());
+        const bool settling = targetAgeMs >= 0 && targetAgeMs < 3000;
+        const double externalPower = m_watt.average5s();
+
+        if (!settling && externalPower > 0) {
+            const double error = requestPower - externalPower;
+            const double maxCorrectionUp = qMax(0.0, erg_filter_upper);
+            const double maxCorrectionDown = qMax(0.0, erg_filter_lower);
+            const double correction = qBound(-maxCorrectionDown, error * 0.5, maxCorrectionUp);
+            const double compensatedPower = qMax(0.0, requestPower + correction);
+
+            qDebug() << "external ERG feedback"
+                     << "target" << requestPower
+                     << "raw" << m_rawWatt.average5s()
+                     << "external" << externalPower
+                     << "error" << error
+                     << "correction" << correction
+                     << "final" << compensatedPower;
+
+            requestPower = compensatedPower;
+        } else {
+            qDebug() << "external ERG feedback settling"
+                     << "target" << requestPower
+                     << "raw" << m_rawWatt.average5s()
+                     << "external" << externalPower
+                     << "targetAgeMs" << targetAgeMs;
+        }
     }
         
     bool force_resistance =
@@ -417,7 +446,6 @@ int bike::metricValueForSetting(const QString &setting) {
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
         return qRound(currentHeart().value());
     } else if (!setting.compare(QStringLiteral("Speed"))) {
-
         return qRound(currentSpeed().value());
     } else if (!setting.compare(QStringLiteral("Inclination"))) {
 
