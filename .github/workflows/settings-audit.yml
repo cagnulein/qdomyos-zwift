@@ -1,6 +1,9 @@
 name: Settings audit
 
 on:
+  push:
+    branches:
+      - 'fix/settings-drawer-background'
   pull_request:
     paths:
       - 'src/settings*.qml'
@@ -35,7 +38,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Fix duplicate Drawer background
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
+        if: github.ref_name == 'fix/settings-drawer-background'
         shell: bash
         run: |
           python3 - <<'PY'
@@ -69,7 +72,7 @@ jobs:
               raise SystemExit('Expected Drawer block not found')
           PY
       - name: Commit Drawer fix
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
+        if: github.ref_name == 'fix/settings-drawer-background'
         shell: bash
         run: |
           if git diff --quiet -- src/settings.qml; then
@@ -79,7 +82,7 @@ jobs:
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add src/settings.qml
             git commit -m 'Fix duplicate modern settings Drawer background'
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+            git push origin HEAD:fix/settings-drawer-background
           fi
       - name: Fetch latest master
         run: git fetch --no-tags --depth=1 origin master:refs/remotes/origin/master
