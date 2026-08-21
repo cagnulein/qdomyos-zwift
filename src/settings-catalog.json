@@ -9328,12 +9328,12 @@
     {
       "key": "sram_axs_controller",
       "name": "Sram Axs Controller",
-      "description": null,
+      "description": "Pair with a SRAM AXS drivetrain and use rear-derailleur gear changes as QZ virtual gearing commands.",
       "parent": "General",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
-      "visible": false,
+      "visible": true,
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null

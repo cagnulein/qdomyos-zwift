@@ -429,7 +429,7 @@ bool bluetooth::zwiftDeviceAvaiable() {
 bool bluetooth::sramDeviceAvaiable() {
 
     Q_FOREACH (QBluetoothDeviceInfo b, devices) {
-        if (b.name().toUpper().startsWith("SRAM ")) {
+        if (sramaxscontroller::isCompatibleDevice(b)) {
            return true;
         }
     }
@@ -3361,7 +3361,7 @@ void bluetooth::connectedAndDiscovered() {
 
     if(settings.value(QZSettings::sram_axs_controller, QZSettings::default_sram_axs_controller).toBool()) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-            if (((b.name().toUpper().startsWith("SRAM "))) && !sramAXSController && this->device() &&
+            if (sramaxscontroller::isCompatibleDevice(b) && !sramAXSController && this->device() &&
                     this->device()->deviceType() == BIKE) {
 
                 sramAXSController = new sramaxscontroller();

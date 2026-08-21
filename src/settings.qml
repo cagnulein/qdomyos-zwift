@@ -14918,7 +14918,6 @@ import AndroidStatusBar 1.0
                         }
                     }
 
-/*
                 AccordionElement {
                         title: qsTr("SRAM Devices Options")
                         indicatRectColor: Material.color(Material.Grey)
@@ -14942,7 +14941,7 @@ import AndroidStatusBar 1.0
                             }
 
                             Label {
-                                text: qsTr("Use it to change the gears on QZ!")
+                                text: qsTr("Use authenticated SRAM AXS rear-derailleur gear changes as QZ virtual gear commands.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
@@ -14954,7 +14953,7 @@ import AndroidStatusBar 1.0
                                 color: Material.color(Material.Lime)
                             }
                         }
-                    }*/
+                    }
 
                 AccordionElement {
                         title: qsTr("Thinkrider Options")
