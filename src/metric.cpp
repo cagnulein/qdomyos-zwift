@@ -2,6 +2,93 @@
 #include "qdebugfixup.h"
 #include "qzsettings.h"
 #include <QSettings>
+#include <algorithm>
+
+namespace {
+struct PowerCalibrationPoint {
+    double measured = 0;
+    double reference = 0;
+};
+
+QList<PowerCalibrationPoint> powerCalibrationPoints(const QString &table) {
+    QList<PowerCalibrationPoint> points;
+    const QStringList lines = table.split('\n', Qt::SkipEmptyParts);
+
+    for (const QString &line : lines) {
+        const QStringList values = line.split('|');
+        if (values.size() < 2)
+            continue;
+
+        bool measuredOk = false;
+        bool referenceOk = false;
+        const double measured = values.at(0).trimmed().toDouble(&measuredOk);
+        const double reference = values.at(1).trimmed().toDouble(&referenceOk);
+        if (measuredOk && referenceOk && measured >= 0 && reference >= 0)
+            points.append({measured, reference});
+    }
+
+    std::sort(points.begin(), points.end(), [](const PowerCalibrationPoint &a, const PowerCalibrationPoint &b) {
+        return a.measured < b.measured;
+    });
+
+    if (points.size() < 2)
+        return {};
+
+    // Requiring both axes to be strictly increasing makes the mapping deterministic
+    // and also allows valueRaw() to apply the exact inverse interpolation.
+    for (int i = 1; i < points.size(); ++i) {
+        if (points.at(i).measured <= points.at(i - 1).measured ||
+            points.at(i).reference <= points.at(i - 1).reference) {
+            return {};
+        }
+    }
+
+    return points;
+}
+
+bool applyPowerCalibration(const QSettings &settings, double input, double &output, bool inverse) {
+    if (!settings.value(QStringLiteral("power_calibration_table_enabled"), false).toBool())
+        return false;
+
+    const QList<PowerCalibrationPoint> points =
+        powerCalibrationPoints(settings.value(QStringLiteral("power_calibration_table"),
+                                               QStringLiteral("0|0\n1000|1000"))
+                                   .toString());
+    if (points.size() < 2)
+        return false;
+
+    auto x = [inverse](const PowerCalibrationPoint &point) {
+        return inverse ? point.reference : point.measured;
+    };
+    auto y = [inverse](const PowerCalibrationPoint &point) {
+        return inverse ? point.measured : point.reference;
+    };
+
+    int lowerIndex = 0;
+    if (input <= x(points.first())) {
+        lowerIndex = 0;
+    } else if (input >= x(points.last())) {
+        lowerIndex = points.size() - 2;
+    } else {
+        for (int i = 0; i < points.size() - 1; ++i) {
+            if (input >= x(points.at(i)) && input <= x(points.at(i + 1))) {
+                lowerIndex = i;
+                break;
+            }
+        }
+    }
+
+    const PowerCalibrationPoint &p1 = points.at(lowerIndex);
+    const PowerCalibrationPoint &p2 = points.at(lowerIndex + 1);
+    const double x1 = x(p1);
+    const double x2 = x(p2);
+    const double y1 = y(p1);
+    const double y2 = y(p2);
+
+    output = y1 + (input - x1) * (y2 - y1) / (x2 - x1);
+    return true;
+}
+} // namespace
 
 #ifdef TEST
 static uint32_t random_value_uint32 = 0;
@@ -21,20 +108,30 @@ void metric::setValue(double v, bool applyGainAndOffset) {
     if (applyGainAndOffset) {
         if (m_type == METRIC_WATT) {
             if (v > 0) {
-                double maxGain = (m_bluetooth_type == ROWING) ? 5.00 : 2.00;
-                if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= maxGain) {
-                    if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() != 1.0) {
+                double calibratedValue = v;
+                if (applyPowerCalibration(settings, v, calibratedValue, false)) {
+                    if (calibratedValue != v) {
                         qDebug() << QStringLiteral("watt value was ") << v
-                                 << QStringLiteral("but it will be transformed to")
-                                 << v * settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+                                 << QStringLiteral("but the power calibration table transformed it to")
+                                 << calibratedValue;
                     }
-                    v *= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
-                }
-                if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
-                    qDebug()
-                        << QStringLiteral("watt value was ") << v << QStringLiteral("but it will be transformed to")
-                        << v + settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
-                    v += settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                    v = calibratedValue;
+                } else {
+                    double maxGain = (m_bluetooth_type == ROWING) ? 5.00 : 2.00;
+                    if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= maxGain) {
+                        if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() != 1.0) {
+                            qDebug() << QStringLiteral("watt value was ") << v
+                                     << QStringLiteral("but it will be transformed to")
+                                     << v * settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+                        }
+                        v *= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+                    }
+                    if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
+                        qDebug()
+                            << QStringLiteral("watt value was ") << v << QStringLiteral("but it will be transformed to")
+                            << v + settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                        v += settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                    }
                 }
             }
         } else if (m_type == METRIC_SPEED) {
@@ -127,12 +224,17 @@ double metric::valueRaw() {
 
     if (m_type == METRIC_WATT) {
         if (v > 0) {
-            double maxGain = (m_bluetooth_type == ROWING) ? 5.00 : 2.00;
-            if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= maxGain) {
-                v /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
-            }
-            if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
-                v -= settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+            double rawValue = v;
+            if (applyPowerCalibration(settings, v, rawValue, true)) {
+                v = rawValue;
+            } else {
+                double maxGain = (m_bluetooth_type == ROWING) ? 5.00 : 2.00;
+                if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= maxGain) {
+                    v /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+                }
+                if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
+                    v -= settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                }
             }
         }
     } else if (m_type == METRIC_SPEED) {
@@ -272,7 +374,6 @@ double metric::average20s() {
 void metric::operator=(double v) { setValue(v); }
 
 void metric::operator+=(double v) { setValue(m_value + v); }
-
 double metric::min() { return m_min; }
 
 double metric::max() { return m_max; }
