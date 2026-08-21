@@ -1602,6 +1602,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             // When QZ is backed by a real Echelon Connect Sport, the virtual bike must not synthesize
             // any handshake reply. We forward the exact app payload to the bike and let the bike's own
             // notifications be mirrored back to the client.
+            qDebug() << QStringLiteral("Virtual Echelon RX from client: %1")
+                            .arg(QString::fromLatin1(newValue.toHex(' ')));
             realEchelon->proxyVirtualBikeCommand(newValue);
             return;
         }
@@ -1716,6 +1718,11 @@ void virtualbike::relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QBy
         return;
     }
 
+    const QString channel = sourceUuid == QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66"))
+                                ? QStringLiteral("F3")
+                                : QStringLiteral("F4");
+    qDebug() << QStringLiteral("Virtual Echelon TX to client %1: %2")
+                    .arg(channel, QString::fromLatin1(value.toHex(' ')));
     writeCharacteristic(service, targetCharacteristic, value);
 }
 
