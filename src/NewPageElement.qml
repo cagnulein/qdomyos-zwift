@@ -11,6 +11,7 @@ ColumnLayout {
     property alias textFontSize: accordionText.font.pixelSize
     property alias indicatRectColor: indicatRect.color
     property string accordionContent: ""
+    property bool showPowerCalibrationCompanion: accordionContent === "customgears.qml"
     spacing: 0
 
     Layout.fillWidth: true;
@@ -57,6 +58,51 @@ ColumnLayout {
             onClicked: {
                 stackView.push(accordionContent)
             }
+        }
+    }
+
+    Rectangle {
+        id: powerCalibrationHeader
+        visible: rootElement.showPowerCalibrationCompanion
+        color: accordionHeader.color
+        Layout.alignment: Qt.AlignTop
+        Layout.fillWidth: true
+        height: visible ? 48 : 0
+
+        Accessible.role: Accessible.Button
+        Accessible.name: qsTr("Power Calibration Table")
+        Accessible.description: qsTr("Open Power Calibration Table")
+        Accessible.onPressAction: stackView.push("powercalibration.qml")
+
+        Rectangle {
+            x: 16; y: 20
+            width: 8; height: 8
+            radius: 8
+            color: indicatRect.color
+        }
+
+        Text {
+            x: 34; y: 13
+            color: accordionText.color
+            text: qsTr("Power Calibration Table")
+            font.family: accordionText.font.family
+            font.pixelSize: accordionText.font.pixelSize
+        }
+
+        Text {
+            y: 13
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            width: 30; height: 30
+            text: ">"
+            font.pixelSize: 24
+            color: accordionText.color
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: stackView.push("powercalibration.qml")
         }
     }
 }
