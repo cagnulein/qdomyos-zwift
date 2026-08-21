@@ -427,6 +427,10 @@
         {
           "label": "ProForm 105 CST",
           "sets": "proform_treadmill_105_cst"
+        },
+        {
+          "label": "Nordictrack Incline Trainer X7i NTL15010.0",
+          "sets": "nordictrack_incline_trainer_x7i_ntl15010_0"
         }
       ]
     }
@@ -13759,6 +13763,20 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null
+    },
+    {
+      "key": "nordictrack_incline_trainer_x7i_ntl15010_0",
+      "name": "Nordictrack Incline Trainer X7i Ntl15010.0",
+      "description": null,
+      "parent": "Proform/Nordictrack Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "virtualOption",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "virtualParent": "nordictrack_treadmill_model"
     }
   ]
 }
