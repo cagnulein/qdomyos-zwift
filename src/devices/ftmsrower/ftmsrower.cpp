@@ -453,9 +453,9 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
                 m_watt = watt;
         }        
-    } else if(!PM5) {
+    } else if(!PM5 && Flags.instantPace) {
         qDebug() << "rower doesn't send wattage, let's calculate it...";
-        if(Speed.value() > 0)
+        if(instantPace > 0 && instantPace != 65535)
             m_watt = rower::calculateWattsFromPace(instantPace);
         else
             m_watt = 0;
@@ -747,7 +747,6 @@ void ftmsrower::descriptorWritten(const QLowEnergyDescriptor &descriptor, const 
 void ftmsrower::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     qDebug() << QStringLiteral("descriptorRead ") << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
 }
-
 void ftmsrower::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
 
     Q_UNUSED(characteristic);
