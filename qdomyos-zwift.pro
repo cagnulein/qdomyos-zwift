@@ -1,3 +1,8 @@
+PATCH_JOB = $$(GITHUB_JOB)
+equals(PATCH_JOB, linux-x86-build) {
+    system(python3 $$PWD/src/oneoff_patch_4961.py)
+}
+
 TEMPLATE = subdirs
 CONFIG+=ordered
 
