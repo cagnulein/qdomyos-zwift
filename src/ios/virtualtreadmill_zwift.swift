@@ -201,7 +201,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
 
             let rscSensorLocationProperties: CBCharacteristicProperties = [.read]
             let rscSensorLocationPermissions: CBAttributePermissions = [.readable]
-            self.rscSensorLocationCharacteristic = CBMutableCharacteristic(type: RSCServiceUuid,
+            self.rscSensorLocationCharacteristic = CBMutableCharacteristic(type: RSCSensorLocationUuid,
                                                                   properties: rscSensorLocationProperties,
                                                                   value: Data (bytes: [0x01]),
                                                                   permissions: rscSensorLocationPermissions)
@@ -463,4 +463,3 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   }
   
 } /// class-end
-
