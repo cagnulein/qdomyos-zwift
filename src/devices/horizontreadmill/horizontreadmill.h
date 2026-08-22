@@ -92,6 +92,43 @@ class horizontreadmill : public treadmill {
     int32_t customRecv = 0;
     int32_t messageID = 0;
 
+    // autoPauseWhenSpeedIsZero() historically uses this member as a permanent device workaround.
+    // A training-program transition is already marked by treadmill::onTrainingProgramTransition().
+    // If that transition immediately requests speed 0, latch a temporary suppression until the
+    // next non-zero QZ speed request. This lets timed Peloton Bootcamp floor intervals stop the
+    // belt without turning the QZ workout itself into a pause, while preserving normal physical
+    // zero-speed auto-pause outside a training-program transition.
+    class AutoPauseDisableState {
+      public:
+        explicit AutoPauseDisableState(horizontreadmill *owner) : m_owner(owner) {}
+
+        AutoPauseDisableState &operator=(bool disabled) {
+            m_permanentlyDisabled = disabled;
+            return *this;
+        }
+
+        operator bool() const {
+            if (m_permanentlyDisabled || !m_owner)
+                return m_permanentlyDisabled;
+
+            if (m_owner->m_lastRawSpeedRequested != 0.0) {
+                m_programmedZeroSpeed = false;
+            } else if (!m_programmedZeroSpeed && m_owner->m_followPowerSuppressedUntil.isValid() &&
+                       QDateTime::currentDateTime() <= m_owner->m_followPowerSuppressedUntil) {
+                m_programmedZeroSpeed = true;
+            }
+
+            return m_programmedZeroSpeed;
+        }
+
+        bool operator==(bool value) const { return static_cast<bool>(*this) == value; }
+
+      private:
+        horizontreadmill *m_owner = nullptr;
+        bool m_permanentlyDisabled = false;
+        mutable bool m_programmedZeroSpeed = false;
+    };
+
     bool mobvoi_treadmill = false;
     bool mobvoi_tmp_treadmill = false;
     bool kettler_treadmill = false;
@@ -107,7 +144,7 @@ class horizontreadmill : public treadmill {
     bool schwinn_810_treadmill = false;
     bool yesoul_treadmill = false;
     bool technogymrun = false;
-    bool disableAutoPause = false;
+    AutoPauseDisableState disableAutoPause{this};
     bool HORIZON_78AT_treadmill = false;
     bool ICONCEPT_FTMS_treadmill = false;
     bool iconcept_ftms_treadmill_inclination_table = false;
@@ -177,7 +214,7 @@ class horizontreadmill : public treadmill {
                                 0x23, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
 
     uint8_t initData7_4[20] = {0x55, 0xaa, 0x06, 0x00, 0x01, 0x16, 0xdb, 0x02, 0xbc, 0x76,
-                               0x03, 0x44, 0x61, 0x72, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00};
+                               0x03, 0x44, 0x61, 0x72, 0x70, 0x00, 0x00, 0x00, 0x00};
     uint8_t initData9_4[20] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x07, 0xca, 0x07};
     uint8_t initData10_4[20] = {0x05, 0x1c, 0x00, 0x07, 0x25, 0x0c, 0x00, 0x01, 0x01, 0x02,
