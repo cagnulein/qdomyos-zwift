@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+  pull_request:
+    types: [ready_for_review]
 
 permissions:
   contents: write
