@@ -43,12 +43,60 @@
 
 #define PELOTON_CLIENT_ID_S STRINGIFY(PELOTON_SECRET_KEY)
 
+// Peloton treadmill Bootcamp floor/free-mode segments are emitted by the API as
+// timed rows without speed, inclination or other treadmill targets. Keep those
+// rows in the program, but make the physical intent explicit: when automatic
+// treadmill speed control is enabled, a targetless timed treadmill row means
+// stop the belt while the training-program clock keeps advancing.
+class PelotonTrainRows : public QList<trainrow> {
+  public:
+    explicit PelotonTrainRows(bluetooth **bluetoothManager) : m_bluetoothManager(bluetoothManager) {}
+
+    using QList<trainrow>::append;
+
+    void append(const trainrow &input) {
+        trainrow row = input;
+        if (isTreadmill() && isTargetlessTimedRow(row)) {
+            QSettings settings;
+            row.speed = 0.0;
+            row.lower_speed = 0.0;
+            row.average_speed = 0.0;
+            row.upper_speed = 0.0;
+            row.forcespeed = settings.value(QZSettings::treadmill_force_speed,
+                                            QZSettings::default_treadmill_force_speed).toBool();
+            qDebug() << row.duration << "Peloton treadmill targetless interval - target speed 0";
+        }
+        QList<trainrow>::append(row);
+    }
+
+  private:
+    bool isTreadmill() const {
+        return m_bluetoothManager && *m_bluetoothManager && (*m_bluetoothManager)->device() &&
+               (*m_bluetoothManager)->device()->deviceType() == TREADMILL;
+    }
+
+    static bool isTargetlessTimedRow(const trainrow &row) {
+        return row.duration != QTime(0, 0, 0, 0) && row.distance < 0.0 &&
+               row.speed < 0.0 && row.lower_speed < 0.0 && row.average_speed < 0.0 && row.upper_speed < 0.0 &&
+               row.inclination == -200 && row.lower_inclination == -200 && row.average_inclination == -200 &&
+               row.upper_inclination == -200 && row.power < 0 && row.resistance < 0 && row.cadence < 0 &&
+               row.pace_intensity < 0;
+    }
+
+    bluetooth **m_bluetoothManager = nullptr;
+};
+
 class peloton : public QObject {
 
     Q_OBJECT
+  private:
+    // Declared before trainrows so the list can safely keep a pointer to this
+    // member and observe the device assigned by the constructor body.
+    bluetooth *bluetoothManager = nullptr;
+
   public:
     explicit peloton(bluetooth *bl, QObject *parent = nullptr);
-    QList<trainrow> trainrows;
+    PelotonTrainRows trainrows{&bluetoothManager};
 
     enum _PELOTON_API { peloton_api = 0, powerzonepack_api = 1, homefitnessbuddy_api = 2, no_metrics = 3 };
 
@@ -106,7 +154,6 @@ class peloton : public QObject {
 
     QTimer *timer;
 
-    bluetooth *bluetoothManager = nullptr;
     powerzonepack *PZP = nullptr;
     homefitnessbuddy *HFB = nullptr;
 
