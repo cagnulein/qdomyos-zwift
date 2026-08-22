@@ -669,10 +669,31 @@ void trainprogram::scheduler() {
         }
     }
 
+    bool programmedTreadmillStop = false;
+    bool resumingAfterProgrammedStop = false;
+    if (bluetoothManager && bluetoothManager->device() &&
+        bluetoothManager->device()->deviceType() == TREADMILL && currentStep < rows.length()) {
+        const trainrow &row = rows.at(currentStep);
+        programmedTreadmillStop = row.forcespeed && row.speed == 0.0;
+        if (currentStep > 0) {
+            const trainrow &previousRow = rows.at(currentStep - 1);
+            resumingAfterProgrammedStop = previousRow.forcespeed && previousRow.speed == 0.0 &&
+                                         row.forcespeed && row.speed > 0.0 &&
+                                         currentRowElapsedSeconds() <= 10;
+        }
+
+        if ((programmedTreadmillStop || resumingAfterProgrammedStop) &&
+            bluetoothManager->device()->isPaused()) {
+            qDebug() << QStringLiteral("trainprogram keeping clock active during programmed treadmill stop/resume");
+            bluetoothManager->device()->setPaused(false);
+        }
+    }
+
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
-         !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
-        bluetoothManager->device()->isPaused()) {
+         !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool() &&
+         !programmedTreadmillStop && !resumingAfterProgrammedStop) ||
+        (bluetoothManager->device()->isPaused() && !programmedTreadmillStop && !resumingAfterProgrammedStop)) {
         
         if(bluetoothManager->device() && (bluetoothManager->device()->deviceType() == TREADMILL || bluetoothManager->device()->deviceType() == ELLIPTICAL) &&
            settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token &&
@@ -933,7 +954,7 @@ void trainprogram::scheduler() {
         lastOdometer = odometerFromTheDevice;
         emit intervalTransitionApplied();
         if (bluetoothManager->device()->deviceType() == TREADMILL) {
-            if (rows.at(0).forcespeed && rows.at(0).speed) {
+            if (rows.at(0).forcespeed && rows.at(0).speed >= 0.0) {
                 qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);
                 emit changeSpeed(rows.at(0).speed);
             }
@@ -1454,7 +1475,15 @@ void trainprogram::applyCurrentStepSettings() {
     emit intervalTransitionApplied();
 
     if (bluetoothManager->device()->deviceType() == TREADMILL) {
-        if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
+        const bool resumingAfterProgrammedStop =
+            currentStep > 0 && rows.at(currentStep - 1).forcespeed && rows.at(currentStep - 1).speed == 0.0 &&
+            rows.at(currentStep).forcespeed && rows.at(currentStep).speed > 0.0;
+        if (resumingAfterProgrammedStop) {
+            qDebug() << QStringLiteral("trainprogram restarting treadmill after programmed zero-speed interval");
+            emit start();
+        }
+
+        if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed >= 0.0) {
             qDebug() << QStringLiteral("trainprogram change speed ") +
                             QString::number(rows.at(currentStep).speed);
             double speed;
