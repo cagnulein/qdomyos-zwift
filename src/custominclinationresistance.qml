@@ -167,6 +167,7 @@ ScrollView {
         }
         pointListModel.setProperty(index, role, updated)
         savePoints()
+        return formatNumber(updated)
     }
 
     function addPoint() {
@@ -303,7 +304,10 @@ ScrollView {
                                 text: "-"
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
-                                onClicked: adjustPoint(index, "inclination", -0.5)
+                                onClicked: {
+                                    inclinationField.text = adjustPoint(index, "inclination", -0.5)
+                                    Qt.callLater(sortPointsAndSave)
+                                }
                             }
 
                             TextField {
@@ -333,7 +337,10 @@ ScrollView {
                                 text: "+"
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
-                                onClicked: adjustPoint(index, "inclination", 0.5)
+                                onClicked: {
+                                    inclinationField.text = adjustPoint(index, "inclination", 0.5)
+                                    Qt.callLater(sortPointsAndSave)
+                                }
                             }
                         }
                     }
@@ -355,7 +362,7 @@ ScrollView {
                                 text: "-"
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
-                                onClicked: adjustPoint(index, "resistance", -0.5)
+                                onClicked: resistanceField.text = adjustPoint(index, "resistance", -0.5)
                             }
 
                             TextField {
@@ -384,7 +391,7 @@ ScrollView {
                                 text: "+"
                                 Layout.preferredWidth: 34
                                 Layout.fillHeight: true
-                                onClicked: adjustPoint(index, "resistance", 0.5)
+                                onClicked: resistanceField.text = adjustPoint(index, "resistance", 0.5)
                             }
                         }
                     }
