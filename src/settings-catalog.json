@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 968,
+  "settingCount": 971,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -12,6 +12,16 @@
       "type": "page",
       "control": "page",
       "target": "customgears.qml",
+      "visible": true
+    },
+    {
+      "key": "page_custom_inclination_resistance_table",
+      "name": "Custom Inclination to Resistance Table",
+      "description": "Configure how virtual-app inclination maps to bike resistance.",
+      "parent": "Bike Options",
+      "type": "page",
+      "control": "page",
+      "target": "custominclinationresistance.qml",
       "visible": true
     },
     {
@@ -13777,6 +13787,28 @@
       "defaultExpression": "false",
       "options": null,
       "virtualParent": "nordictrack_treadmill_model"
+    },
+    {
+      "key": "custom_inclination_resistance_table_enabled",
+      "name": "Enable Custom Inclination to Resistance Table",
+      "description": "Use a custom mapping when QZ converts virtual-app inclination into resistance.",
+      "parent": "Bike Options",
+      "type": "boolean",
+      "control": "switch",
+      "defaultValue": false,
+      "options": null,
+      "visible": true
+    },
+    {
+      "key": "custom_inclination_resistance_table",
+      "name": "Custom Inclination to Resistance Table",
+      "description": "One inclination|resistance pair per line. QZ interpolates between points and clamps outside the configured range.",
+      "parent": "custom_inclination_resistance_table_enabled",
+      "type": "string",
+      "control": "text",
+      "defaultValue": "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16",
+      "options": null,
+      "visible": true
     }
   ]
 }
