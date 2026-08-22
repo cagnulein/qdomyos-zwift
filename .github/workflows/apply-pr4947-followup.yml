@@ -18,7 +18,7 @@ jobs:
           ref: codex/add-backward-compatible-inclination-mapping-extension-3shg4d
           fetch-depth: 0
 
-      - name: Apply Bootcamp and iOS virtual treadmill changes
+      - name: Apply remaining treadmill fixes
         shell: bash
         run: |
           python3 - <<'PY'
@@ -32,14 +32,23 @@ jobs:
                   raise RuntimeError(f"{path}: expected exactly one match, found {count}")
               p.write_text(text.replace(old, new, 1))
 
-          # Peloton treadmill Bootcamp floor segments are explicit timed stop rows.
+          # Peloton Tread Bootcamp floor/free-mode intervals must remain timed rows and explicitly request speed 0.
           replace_once(
               "src/peloton.cpp",
-              '''                // Skip if no metrics or invalid offsets
+              '''                bool floorSegment = false;
+
+                if(segment_type.startsWith("floor")) { // bootcamp
+                    floorSegment = true;
+                }
+                
+                // Skip if no metrics or invalid offsets
                 if ((metrics.isEmpty() || offsets.isEmpty()) && !floorSegment)
                     continue;
 ''',
-              '''                // Floor segments deliberately have no metrics, but still need valid timing offsets.
+              '''                const bool floorSegment = segment_type.contains("floor", Qt::CaseInsensitive) ||
+                                          segment_type.contains("free_mode", Qt::CaseInsensitive);
+
+                // Floor segments deliberately have no metrics, but still need valid timing offsets.
                 if (offsets.isEmpty() || (metrics.isEmpty() && !floorSegment))
                     continue;
 ''')
@@ -50,8 +59,6 @@ jobs:
                 if (difficulty.toUpper() == "LOWER") {
 ''',
               '''                // A Peloton Tread Bootcamp floor segment is a timed physical stop, not a workout pause.
-                // Keep the row in the training program so its duration continues to advance, and explicitly
-                // request 0 speed when automatic treadmill speed control is enabled.
                 if (floorSegment) {
                     row.forcespeed = treadmill_force_speed;
                     row.speed = 0.0;
@@ -68,35 +75,33 @@ jobs:
                 if (difficulty.toUpper() == "LOWER") {
 ''')
 
-          # Allow a forced treadmill speed of exactly 0. Previously the truthiness test silently skipped it.
+          # During programmed zero-speed rows, bypass only the speed==0 moving gate.
+          # A real/manual paused state must still pause the training program.
           replace_once(
               "src/trainprogram.cpp",
-              '''        if (bluetoothManager->device()->deviceType() == TREADMILL) {
-            if (rows.at(0).forcespeed && rows.at(0).speed) {
-''',
-              '''        if (bluetoothManager->device()->deviceType() == TREADMILL) {
-            if (rows.at(0).forcespeed && rows.at(0).speed >= 0.0) {
-''')
-
-          replace_once(
-              "src/trainprogram.cpp",
-              '''    if (bluetoothManager->device()->deviceType() == TREADMILL) {
-        if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
-''',
-              '''    if (bluetoothManager->device()->deviceType() == TREADMILL) {
-        const bool resumingAfterProgrammedStop =
-            currentStep > 0 && rows.at(currentStep - 1).forcespeed && rows.at(currentStep - 1).speed == 0.0 &&
-            rows.at(currentStep).forcespeed && rows.at(currentStep).speed > 0.0;
-        if (resumingAfterProgrammedStop) {
-            qDebug() << QStringLiteral("trainprogram restarting treadmill after programmed zero-speed interval");
-            emit start();
+              '''        if ((programmedTreadmillStop || resumingAfterProgrammedStop) &&
+            bluetoothManager->device()->isPaused()) {
+            qDebug() << QStringLiteral("trainprogram keeping clock active during programmed treadmill stop/resume");
+            bluetoothManager->device()->setPaused(false);
         }
+    }
 
-        if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed >= 0.0) {
+    if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
+        (bluetoothManager->device()->currentSpeed().value() <= 0 &&
+         !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool() &&
+         !programmedTreadmillStop && !resumingAfterProgrammedStop) ||
+        (bluetoothManager->device()->isPaused() && !programmedTreadmillStop && !resumingAfterProgrammedStop)) {
+''',
+              '''    }
+
+    if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
+        (bluetoothManager->device()->currentSpeed().value() <= 0 &&
+         !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool() &&
+         !programmedTreadmillStop && !resumingAfterProgrammedStop) ||
+        bluetoothManager->device()->isPaused()) {
 ''')
 
-          # Do not let a program-commanded zero-speed interval pause the QZ/Peloton clock.
-          # Also cover the short treadmill startup/countdown immediately after such an interval.
+          # Do not turn a program-commanded Bootcamp stop into a UI/workout pause.
           replace_once(
               "src/homeform.cpp",
               '''            // originally born for #470. When the treadmill reaches the 0 speed it enters in the pause mode
@@ -106,8 +111,7 @@ jobs:
 ''',
               '''            // originally born for #470. When the treadmill reaches the 0 speed it enters in the pause mode
             // so this logic should care about sync the treadmill state to the UI state.
-            // A training-program row that explicitly forces speed 0 is different: it is a timed stop
-            // (for example a Peloton Tread Bootcamp floor segment), so the workout clock must keep running.
+            // A training-program row that explicitly forces speed 0 is a timed physical stop, not a workout pause.
             bool trainingProgramIntentionalStop = false;
             bool trainingProgramResumingAfterStop = false;
             if (trainProgram && trainProgram->isStarted() && !trainProgram->rows.isEmpty()) {
@@ -130,196 +134,22 @@ jobs:
                 !trainingProgramIntentionalStop && !trainingProgramResumingAfterStop) {
 ''')
 
-          # iOS Peloton workaround experiment: advertise FTMS without RSC in normal mode.
-          # Keep RSC intact for Garmin Bluetooth compatibility mode, where it is the intended service.
-          swift = Path("src/ios/virtualtreadmill_zwift.swift")
-          text = swift.read_text()
-
-          old_rsc = '''        self.rscService = CBMutableService(type: RSCServiceUuid, primary: true)
-        
-        let rscFeatureProperties: CBCharacteristicProperties = [.read]
-        let rscFeaturePermissions: CBAttributePermissions = [.readable]
-        self.rscFeatureCharacteristic = CBMutableCharacteristic(type: RSCFeatureUuid,
-                                                              properties: rscFeatureProperties,
-                                                              value: Data (bytes: [0x02, 0x00]),
-                                                              permissions: rscFeaturePermissions)
-
-        let rscSensorLocationProperties: CBCharacteristicProperties = [.read]
-        let rscSensorLocationPermissions: CBAttributePermissions = [.readable]
-        self.rscSensorLocationCharacteristic = CBMutableCharacteristic(type: RSCSensorLocationUuid,
-                                                              properties: rscSensorLocationProperties,
-                                                              value: Data (bytes: [0x01]),
-                                                              permissions: rscSensorLocationPermissions)
-
-        let rscMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
-        let rscMeasurementPermissions: CBAttributePermissions = [.readable]
-        self.rscMeasurementCharacteristic = CBMutableCharacteristic(type: RSCMeasurementUuid,
-                                                              properties: rscMeasurementProperties,
-                                                              value: nil,
-                                                              permissions: rscMeasurementPermissions)
-
-        let rscControlPointProperties: CBCharacteristicProperties = [.indicate, .write]
-        let rscControlPointPermissions: CBAttributePermissions = [.writeable]
-        self.rscControlPointCharacteristic = CBMutableCharacteristic(type: RSCControlPointUuid,
-                                                              properties: rscControlPointProperties,
-                                                              value: nil,
-                                                              permissions: rscControlPointPermissions)
-        
-        rscService.characteristics = [rscFeatureCharacteristic, rscSensorLocationCharacteristic,
-                                      rscMeasurementCharacteristic, rscControlPointCharacteristic ]
-        self.peripheralManager.add(rscService)
-'''
-          new_rsc = '''        if(garmin_bluetooth_compatibility) {
-            self.rscService = CBMutableService(type: RSCServiceUuid, primary: true)
-            
-            let rscFeatureProperties: CBCharacteristicProperties = [.read]
-            let rscFeaturePermissions: CBAttributePermissions = [.readable]
-            self.rscFeatureCharacteristic = CBMutableCharacteristic(type: RSCFeatureUuid,
-                                                                  properties: rscFeatureProperties,
-                                                                  value: Data (bytes: [0x02, 0x00]),
-                                                                  permissions: rscFeaturePermissions)
-
-            let rscSensorLocationProperties: CBCharacteristicProperties = [.read]
-            let rscSensorLocationPermissions: CBAttributePermissions = [.readable]
-            self.rscSensorLocationCharacteristic = CBMutableCharacteristic(type: RSCSensorLocationUuid,
-                                                                  properties: rscSensorLocationProperties,
-                                                                  value: Data (bytes: [0x01]),
-                                                                  permissions: rscSensorLocationPermissions)
-
-            let rscMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
-            let rscMeasurementPermissions: CBAttributePermissions = [.readable]
-            self.rscMeasurementCharacteristic = CBMutableCharacteristic(type: RSCMeasurementUuid,
-                                                                  properties: rscMeasurementProperties,
-                                                                  value: nil,
-                                                                  permissions: rscMeasurementPermissions)
-
-            let rscControlPointProperties: CBCharacteristicProperties = [.indicate, .write]
-            let rscControlPointPermissions: CBAttributePermissions = [.writeable]
-            self.rscControlPointCharacteristic = CBMutableCharacteristic(type: RSCControlPointUuid,
-                                                                  properties: rscControlPointProperties,
-                                                                  value: nil,
-                                                                  permissions: rscControlPointPermissions)
-            
-            rscService.characteristics = [rscFeatureCharacteristic, rscSensorLocationCharacteristic,
-                                          rscMeasurementCharacteristic, rscControlPointCharacteristic ]
-            self.peripheralManager.add(rscService)
-        } else {
-            SwiftDebug.qtDebug("virtualtreadmill_zwift: RSC disabled for normal FTMS treadmill mode")
-        }
-'''
-          if text.count(old_rsc) != 1:
-              raise RuntimeError(f"virtualtreadmill_zwift.swift: RSC service block matches {text.count(old_rsc)}")
-          text = text.replace(old_rsc, new_rsc, 1)
-
-          old_adv = '''          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                                CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid]] as [String : Any]
-'''
-          new_adv = '''          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                                CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid]] as [String : Any]
-'''
-          if text.count(old_adv) != 1:
-              raise RuntimeError(f"virtualtreadmill_zwift.swift: advertisement block matches {text.count(old_adv)}")
-          text = text.replace(old_adv, new_adv, 1)
-
-          old_sub = '''  func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
-    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully subscribed")
-     self.connected = true
-'''
-          new_sub = '''  func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
-    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully subscribed UUID \\(characteristic.uuid.uuidString)")
-     self.connected = true
-'''
-          if text.count(old_sub) != 1:
-              raise RuntimeError(f"virtualtreadmill_zwift.swift: subscribe block matches {text.count(old_sub)}")
-          text = text.replace(old_sub, new_sub, 1)
-
-          old_unsub = '''     self.connected = false
-    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully unsubscribed")
-'''
-          new_unsub = '''     self.connected = false
-    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully unsubscribed UUID \\(characteristic.uuid.uuidString)")
-'''
-          if text.count(old_unsub) != 1:
-              raise RuntimeError(f"virtualtreadmill_zwift.swift: unsubscribe block matches {text.count(old_unsub)}")
-          text = text.replace(old_unsub, new_unsub, 1)
-
-          old_updates = '''      if(self.serviceToggle == 0 && !garmin_bluetooth_compatibility)
-    {
-        let ok = self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
-        if(ok) {
-            self.serviceToggle = 1;
-        }
-    }
-    else if(self.serviceToggle == 1 && !garmin_bluetooth_compatibility)
-    {
-        let ok = self.peripheralManager.updateValue(treadmillData, for: self.treadmilldataCharacteristic, onSubscribedCentrals: nil)
-        if(ok) {
-            self.serviceToggle = 2;
-        }
-    }
-      else if(self.serviceToggle == 2 || garmin_bluetooth_compatibility)
-    {
-        let ok = self.peripheralManager.updateValue(rscMeasurementData, for: self.rscMeasurementCharacteristic, onSubscribedCentrals: nil)
-        if(ok) {
-            self.serviceToggle = 3;
-        }
-    }
-    else
-    {
-        let ok = self.peripheralManager.updateValue(indoorBikeData, for: self.indoorbikeCharacteristic, onSubscribedCentrals: nil)
-        if(ok) {
-            self.serviceToggle = 0;
-        }
-    }
-'''
-          new_updates = '''      if(garmin_bluetooth_compatibility)
-    {
-        let ok = self.peripheralManager.updateValue(rscMeasurementData, for: self.rscMeasurementCharacteristic, onSubscribedCentrals: nil)
-        if(ok) {
-            self.serviceToggle = 0;
-        }
-    }
-    else if(self.serviceToggle == 0)
-    {
-        let ok = self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
-        if(ok) {
-            self.serviceToggle = 1;
-        }
-    }
-    else if(self.serviceToggle == 1)
-    {
-        let ok = self.peripheralManager.updateValue(treadmillData, for: self.treadmilldataCharacteristic, onSubscribedCentrals: nil)
-        if(ok) {
-            self.serviceToggle = 2;
-        }
-    }
-    else
-    {
-        let ok = self.peripheralManager.updateValue(indoorBikeData, for: self.indoorbikeCharacteristic, onSubscribedCentrals: nil)
-        if(ok) {
-            self.serviceToggle = 0;
-        }
-    }
-'''
-          if text.count(old_updates) != 1:
-              raise RuntimeError(f"virtualtreadmill_zwift.swift: updateSubscribers block matches {text.count(old_updates)}")
-          text = text.replace(old_updates, new_updates, 1)
-          swift.write_text(text)
+          # Fix the Garmin RSC Sensor Location characteristic UUID typo from the previous follow-up.
+          replace_once(
+              "src/ios/virtualtreadmill_zwift.swift",
+              '''            self.rscSensorLocationCharacteristic = CBMutableCharacteristic(type: RSCServiceUuid,
+''',
+              '''            self.rscSensorLocationCharacteristic = CBMutableCharacteristic(type: RSCSensorLocationUuid,
+''')
           PY
 
-      - name: Validate diff
+      - name: Validate and commit
+        shell: bash
         run: |
           git diff --check
-          git diff -- src/peloton.cpp src/trainprogram.cpp src/homeform.cpp src/ios/virtualtreadmill_zwift.swift
-
-      - name: Commit changes
-        run: |
-          if git diff --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
+          rm -f .github/workflows/apply-pr4947-followup.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/peloton.cpp src/trainprogram.cpp src/homeform.cpp src/ios/virtualtreadmill_zwift.swift
-          git commit -m "Handle Peloton Bootcamp floor stops and simplify iOS treadmill BLE"
+          git add -A
+          git commit -m "Handle Peloton Tread Bootcamp floor stops"
           git push origin HEAD:codex/add-backward-compatible-inclination-mapping-extension-3shg4d
