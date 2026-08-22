@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
 import json
-import os
 import shutil
 import subprocess
 import tempfile
@@ -109,8 +108,12 @@ try:
     catalog_path.write_text(json.dumps(data, indent=2, ensure_ascii=True) + "\n")
 
     # Remove the one-shot mechanism from the final tree.
-    pro = WORKTREE / "src/qdomyos-zwift.pro"
-    pro.write_text('include(qdomyos-zwift.pri)\n\nQMAKE_IOS_DEPLOYMENT_TARGET = 12.0\nQMAKE_DEVELOPMENT_TEAM = 6335M7T29D\nQMAKE_CODE_SIGN_IDENTITY = "iPhone Developer"\nQMAKE_CODE_SIGN_STYLE = Automatic')
+    src_pro = WORKTREE / "src/qdomyos-zwift.pro"
+    src_pro.write_text('include(qdomyos-zwift.pri)\n\nQMAKE_IOS_DEPLOYMENT_TARGET = 12.0\nQMAKE_DEVELOPMENT_TEAM = 6335M7T29D\nQMAKE_CODE_SIGN_IDENTITY = "iPhone Developer"\nQMAKE_CODE_SIGN_STYLE = Automatic')
+
+    root_pro = WORKTREE / "qdomyos-zwift.pro"
+    root_pro.write_text('TEMPLATE = subdirs\nCONFIG+=ordered\n\n!ios: !android: {\nSUBDIRS = \\\n    src/qdomyos-zwift-lib.pro \\\n    src/qdomyos-zwift.pro \\\n    tst/qdomyos-zwift-tests.pro\n    \ntst.depends = src/qdomyos-zwift-lib.pro\n}\n\nandroid:  {\n    SUBDIRS = \\\n        src/qdomyos-zwift.pro\n}\n\nios: {\n    SUBDIRS = \\\n        src/qdomyos-zwift-lib.pro \\\n        src/qdomyos-zwift.pro\n    \n    # Team signing configuration\n    QMAKE_IOS_DEPLOYMENT_TARGET = 12.0\n    QMAKE_DEVELOPMENT_TEAM = 6335M7T29D\n    QMAKE_CODE_SIGN_IDENTITY = "iPhone Developer"\n    QMAKE_CODE_SIGN_STYLE = Automatic\n    \n    # Output directory configuration\n    DESTDIR = $$PWD/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug\n}\n\n \n')
+
     helper = WORKTREE / "src/oneoff_patch_4961.py"
     if helper.exists():
         helper.unlink()
