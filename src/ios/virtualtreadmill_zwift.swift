@@ -189,39 +189,43 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
             self.peripheralManager.add(FitnessMachineService)
         }
         
-        self.rscService = CBMutableService(type: RSCServiceUuid, primary: true)
-        
-        let rscFeatureProperties: CBCharacteristicProperties = [.read]
-        let rscFeaturePermissions: CBAttributePermissions = [.readable]
-        self.rscFeatureCharacteristic = CBMutableCharacteristic(type: RSCFeatureUuid,
-                                                              properties: rscFeatureProperties,
-                                                              value: Data (bytes: [0x02, 0x00]),
-                                                              permissions: rscFeaturePermissions)
+        if(garmin_bluetooth_compatibility) {
+            self.rscService = CBMutableService(type: RSCServiceUuid, primary: true)
+            
+            let rscFeatureProperties: CBCharacteristicProperties = [.read]
+            let rscFeaturePermissions: CBAttributePermissions = [.readable]
+            self.rscFeatureCharacteristic = CBMutableCharacteristic(type: RSCFeatureUuid,
+                                                                  properties: rscFeatureProperties,
+                                                                  value: Data (bytes: [0x02, 0x00]),
+                                                                  permissions: rscFeaturePermissions)
 
-        let rscSensorLocationProperties: CBCharacteristicProperties = [.read]
-        let rscSensorLocationPermissions: CBAttributePermissions = [.readable]
-        self.rscSensorLocationCharacteristic = CBMutableCharacteristic(type: RSCSensorLocationUuid,
-                                                              properties: rscSensorLocationProperties,
-                                                              value: Data (bytes: [0x01]),
-                                                              permissions: rscSensorLocationPermissions)
+            let rscSensorLocationProperties: CBCharacteristicProperties = [.read]
+            let rscSensorLocationPermissions: CBAttributePermissions = [.readable]
+            self.rscSensorLocationCharacteristic = CBMutableCharacteristic(type: RSCServiceUuid,
+                                                                  properties: rscSensorLocationProperties,
+                                                                  value: Data (bytes: [0x01]),
+                                                                  permissions: rscSensorLocationPermissions)
 
-        let rscMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
-        let rscMeasurementPermissions: CBAttributePermissions = [.readable]
-        self.rscMeasurementCharacteristic = CBMutableCharacteristic(type: RSCMeasurementUuid,
-                                                              properties: rscMeasurementProperties,
-                                                              value: nil,
-                                                              permissions: rscMeasurementPermissions)
+            let rscMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
+            let rscMeasurementPermissions: CBAttributePermissions = [.readable]
+            self.rscMeasurementCharacteristic = CBMutableCharacteristic(type: RSCMeasurementUuid,
+                                                                  properties: rscMeasurementProperties,
+                                                                  value: nil,
+                                                                  permissions: rscMeasurementPermissions)
 
-        let rscControlPointProperties: CBCharacteristicProperties = [.indicate, .write]
-        let rscControlPointPermissions: CBAttributePermissions = [.writeable]
-        self.rscControlPointCharacteristic = CBMutableCharacteristic(type: RSCControlPointUuid,
-                                                              properties: rscControlPointProperties,
-                                                              value: nil,
-                                                              permissions: rscControlPointPermissions)
-        
-        rscService.characteristics = [rscFeatureCharacteristic, rscSensorLocationCharacteristic,
-                                      rscMeasurementCharacteristic, rscControlPointCharacteristic ]
-        self.peripheralManager.add(rscService)
+            let rscControlPointProperties: CBCharacteristicProperties = [.indicate, .write]
+            let rscControlPointPermissions: CBAttributePermissions = [.writeable]
+            self.rscControlPointCharacteristic = CBMutableCharacteristic(type: RSCControlPointUuid,
+                                                                  properties: rscControlPointProperties,
+                                                                  value: nil,
+                                                                  permissions: rscControlPointPermissions)
+            
+            rscService.characteristics = [rscFeatureCharacteristic, rscSensorLocationCharacteristic,
+                                          rscMeasurementCharacteristic, rscControlPointCharacteristic ]
+            self.peripheralManager.add(rscService)
+        } else {
+            SwiftDebug.qtDebug("virtualtreadmill_zwift: RSC disabled for normal FTMS treadmill mode")
+        }
 
     default:
       SwiftDebug.qtDebug("virtualtreadmill_zwift: Peripheral manager is down")
@@ -236,7 +240,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     
       if(!garmin_bluetooth_compatibility) {
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                                CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid]] as [String : Any]
+                                CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
       } else {
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
@@ -318,7 +322,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   }
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
-    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully subscribed")
+    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully subscribed UUID \(characteristic.uuid.uuidString)")
      self.connected = true
     updateSubscribers();
     self.startSendingDataToSubscribers()
@@ -327,7 +331,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
     //self.notificationTimer.invalidate()
      self.connected = false
-    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully unsubscribed")
+    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully unsubscribed UUID \(characteristic.uuid.uuidString)")
   }
 
   func startSendingDataToSubscribers() {
@@ -428,25 +432,25 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     let treadmillData = self.calculateTreadmillData()
     let rscMeasurementData = self.calculateRSCMeasurement()
     
-      if(self.serviceToggle == 0 && !garmin_bluetooth_compatibility)
+      if(garmin_bluetooth_compatibility)
+    {
+        let ok = self.peripheralManager.updateValue(rscMeasurementData, for: self.rscMeasurementCharacteristic, onSubscribedCentrals: nil)
+        if(ok) {
+            self.serviceToggle = 0;
+        }
+    }
+    else if(self.serviceToggle == 0)
     {
         let ok = self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
             self.serviceToggle = 1;
         }
     }
-    else if(self.serviceToggle == 1 && !garmin_bluetooth_compatibility)
+    else if(self.serviceToggle == 1)
     {
         let ok = self.peripheralManager.updateValue(treadmillData, for: self.treadmilldataCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
             self.serviceToggle = 2;
-        }
-    }
-      else if(self.serviceToggle == 2 || garmin_bluetooth_compatibility)
-    {
-        let ok = self.peripheralManager.updateValue(rscMeasurementData, for: self.rscMeasurementCharacteristic, onSubscribedCentrals: nil)
-        if(ok) {
-            self.serviceToggle = 3;
         }
     }
     else
