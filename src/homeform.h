@@ -225,9 +225,7 @@ class homeform : public QObject {
 
     QString getPelotonAuthUrl() { if(!pelotonHandler) return ""; return pelotonHandler->pelotonAuthUrl; }
     bool pelotonWebVisible() { if(!pelotonHandler) return false; return pelotonHandler->pelotonAuthWebVisible; }
-    bool isPelotonBootcampWorkout() const {
-        return trainProgram && trainProgram->isStarted() && pelotonHandler && pelotonHandler->isBootcampWorkout();
-    }
+    peloton *getPelotonHandler() const { return pelotonHandler; }
     Q_PROPERTY(QString getPelotonAuthUrl READ getPelotonAuthUrl NOTIFY pelotonAuthUrlChanged)
     Q_PROPERTY(bool pelotonWebVisible READ pelotonWebVisible NOTIFY pelotonWebVisibleChanged)
 

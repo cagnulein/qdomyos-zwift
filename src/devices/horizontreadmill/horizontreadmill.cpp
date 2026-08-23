@@ -2886,7 +2886,8 @@ bool horizontreadmill::autoPauseWhenSpeedIsZero() {
     if(disableAutoPause == true)
         return false;
 
-    if (homeform::singleton() && homeform::singleton()->isPelotonBootcampWorkout()) {
+    if (homeform::singleton() && homeform::singleton()->getPelotonHandler() &&
+        homeform::singleton()->getPelotonHandler()->isBootcampWorkout()) {
         qDebug() << "autoPauseWhenSpeedIsZero disabled for active Peloton Bootcamp";
         return false;
     }
