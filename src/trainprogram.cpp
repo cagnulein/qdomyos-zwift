@@ -641,7 +641,12 @@ void trainprogram::pelotonOCRcomputeTime(QString t) {
 }
 
 bool trainprogram::isPelotonBootcampFloorRow(const trainrow &row) const {
-    return pelotonBootcamp && row.duration != QTime(0, 0, 0, 0) && row.distance < 0.0 &&
+    homeform *home = homeform::singleton();
+    peloton *pelotonHandler = home ? home->getPelotonHandler() : nullptr;
+    if (!pelotonHandler || !pelotonHandler->isBootcampWorkout())
+        return false;
+
+    return row.duration != QTime(0, 0, 0, 0) && row.distance < 0.0 &&
            row.speed < 0.0 && row.lower_speed < 0.0 && row.average_speed < 0.0 && row.upper_speed < 0.0 &&
            row.inclination == -200 && row.lower_inclination == -200 && row.average_inclination == -200 &&
            row.upper_inclination == -200 && row.power < 0 && row.resistance < 0 && row.cadence < 0 &&

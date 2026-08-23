@@ -1547,7 +1547,6 @@ void homeform::peloton_start_workout() {
             trainProgram = nullptr;
         }
         trainProgram = new trainprogram(pelotonHandler->trainrows, bluetoothManager);
-        trainProgram->setPelotonBootcamp(pelotonHandler->isBootcampWorkout());
         if (!stravaPelotonActivityName.isEmpty() && !stravaPelotonInstructorName.isEmpty()) {
             QString path = getWritableAppDir() + "training/" + workoutNameBasedOnBluetoothDevice() + "/" +
                            stravaPelotonInstructorName + "/";

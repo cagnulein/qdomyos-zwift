@@ -155,8 +155,6 @@ class trainprogram : public QObject {
     bool enabled = true;
     bool videoAvailable = false;
     void setVideoAvailable(bool v) {videoAvailable = v;}
-    void setPelotonBootcamp(bool value) { pelotonBootcamp = value; }
-    bool isPelotonBootcamp() const { return pelotonBootcamp; }
 
     void restart();
     bool isStarted() { return started; }
@@ -206,7 +204,6 @@ private slots:
     double calculateDistanceForRow(int32_t row);
     bluetooth *bluetoothManager;
     bool started = false;
-    bool pelotonBootcamp = false;
     int32_t ticks = 0;
     uint16_t currentStep = 0;
     int32_t offset = 0;
