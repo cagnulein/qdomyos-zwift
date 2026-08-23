@@ -1,0 +1,193 @@
+name: Refactor PR 4947 Bootcamp handling
+
+on:
+  push:
+    branches:
+      - codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+
+permissions:
+  contents: write
+
+jobs:
+  refactor:
+    if: github.event.head_commit.message == 'Refactor PR 4947 Bootcamp handling'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+          fetch-depth: 0
+
+      - name: Apply Bootcamp refactor
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          def read(path):
+              return Path(path).read_text()
+
+          def write(path, text):
+              Path(path).write_text(text)
+
+          def replace_once(text, old, new, label):
+              count = text.count(old)
+              if count != 1:
+                  raise RuntimeError(f'{label}: expected exactly one match, found {count}')
+              return text.replace(old, new, 1)
+
+          # peloton.h: restore a normal QList and expose only workout-level Bootcamp state.
+          path = 'src/peloton.h'
+          text = read(path)
+          text, n = re.subn(
+              r'// Peloton treadmill Bootcamp floor/free-mode segments are emitted by the API as.*?\nclass peloton : public QObject \{',
+              'class peloton : public QObject {',
+              text,
+              count=1,
+              flags=re.S,
+          )
+          if n != 1:
+              raise RuntimeError(f'peloton.h: failed to remove PelotonTrainRows, matches={n}')
+
+          old = '''    Q_OBJECT\n  private:\n    // Declared before trainrows so the list can safely keep a pointer to this\n    // member and observe the device assigned by the constructor body.\n    bluetooth *bluetoothManager = nullptr;\n\n  public:\n    explicit peloton(bluetooth *bl, QObject *parent = nullptr);\n    PelotonTrainRows trainrows{&bluetoothManager};\n'''
+          new = '''    Q_OBJECT\n\n  public:\n    explicit peloton(bluetooth *bl, QObject *parent = nullptr);\n    QList<trainrow> trainrows;\n'''
+          text = replace_once(text, old, new, 'peloton.h class header')
+          text = replace_once(
+              text,
+              '    _PELOTON_API currentApi() { return current_api; }\n',
+              '    _PELOTON_API currentApi() { return current_api; }\n    bool isBootcampWorkout() const { return bootcampWorkout; }\n',
+              'peloton.h getter',
+          )
+          text = replace_once(
+              text,
+              '  private:\n    _PELOTON_API current_api = peloton_api;\n',
+              '  private:\n    _PELOTON_API current_api = peloton_api;\n    bluetooth *bluetoothManager = nullptr;\n    bool bootcampWorkout = false;\n',
+              'peloton.h private members',
+          )
+          write(path, text)
+
+          # peloton.cpp: derive the single Bootcamp flag from Peloton workout metadata.
+          path = 'src/peloton.cpp'
+          text = read(path)
+          text = replace_once(
+              text,
+              '    current_workout_type = ride[QStringLiteral("fitness_discipline")].toString();\n',
+              '    current_workout_type = ride[QStringLiteral("fitness_discipline")].toString();\n    bootcampWorkout = current_workout_type.contains(QStringLiteral("bootcamp"), Qt::CaseInsensitive);\n    qDebug() << "Peloton Bootcamp workout" << bootcampWorkout << current_workout_type;\n',
+              'peloton.cpp bootcamp assignment',
+          )
+          write(path, text)
+
+          # homeform.h: one runtime bridge for devices that need to know whether the active program is a Peloton Bootcamp.
+          path = 'src/homeform.h'
+          text = read(path)
+          text = replace_once(
+              text,
+              '    bool pelotonWebVisible() { if(!pelotonHandler) return false; return pelotonHandler->pelotonAuthWebVisible; }\n',
+              '    bool pelotonWebVisible() { if(!pelotonHandler) return false; return pelotonHandler->pelotonAuthWebVisible; }\n    bool isPelotonBootcampWorkout() const {\n        return trainProgram && trainProgram->isStarted() && pelotonHandler && pelotonHandler->isBootcampWorkout();\n    }\n',
+              'homeform.h bootcamp helper',
+          )
+          write(path, text)
+
+          # homeform.cpp: tag only the trainprogram instance, without changing its rows.
+          path = 'src/homeform.cpp'
+          text = read(path)
+          text = replace_once(
+              text,
+              '        trainProgram = new trainprogram(pelotonHandler->trainrows, bluetoothManager);\n',
+              '        trainProgram = new trainprogram(pelotonHandler->trainrows, bluetoothManager);\n        trainProgram->setPelotonBootcamp(pelotonHandler->isBootcampWorkout());\n',
+              'homeform.cpp trainprogram bootcamp setter',
+          )
+          write(path, text)
+
+          # trainprogram.h: keep Bootcamp as program-level context, not row metadata.
+          path = 'src/trainprogram.h'
+          text = read(path)
+          text = replace_once(
+              text,
+              '    void setVideoAvailable(bool v) {videoAvailable = v;}\n',
+              '    void setVideoAvailable(bool v) {videoAvailable = v;}\n    void setPelotonBootcamp(bool value) { pelotonBootcamp = value; }\n    bool isPelotonBootcamp() const { return pelotonBootcamp; }\n',
+              'trainprogram.h public bootcamp state',
+          )
+          text = replace_once(
+              text,
+              '    bool currentHeartRateEndConditionSatisfied() const;\n',
+              '    bool currentHeartRateEndConditionSatisfied() const;\n    bool isPelotonBootcampFloorRow(const trainrow &row) const;\n',
+              'trainprogram.h helper declaration',
+          )
+          text = replace_once(
+              text,
+              '    bool started = false;\n',
+              '    bool started = false;\n    bool pelotonBootcamp = false;\n',
+              'trainprogram.h private bootcamp state',
+          )
+          write(path, text)
+
+          # trainprogram.cpp: infer floor intervals at runtime from an otherwise untouched Peloton row.
+          path = 'src/trainprogram.cpp'
+          text = read(path)
+          marker = 'void trainprogram::scheduler() {\n'
+          helper = '''bool trainprogram::isPelotonBootcampFloorRow(const trainrow &row) const {\n    return pelotonBootcamp && row.duration != QTime(0, 0, 0, 0) && row.distance < 0.0 &&\n           row.speed < 0.0 && row.lower_speed < 0.0 && row.average_speed < 0.0 && row.upper_speed < 0.0 &&\n           row.inclination == -200 && row.lower_inclination == -200 && row.average_inclination == -200 &&\n           row.upper_inclination == -200 && row.power < 0 && row.resistance < 0 && row.cadence < 0 &&\n           row.pace_intensity < 0;\n}\n\n'''
+          text = replace_once(text, marker, helper + marker, 'trainprogram.cpp floor helper')
+
+          pattern = re.compile(
+              r'    bool programmedTreadmillStop = false;\n.*?\n    if \(rows\.count\(\) == 0 \|\| started == false',
+              re.S,
+          )
+          replacement = '''    bool pelotonBootcampFloor = false;\n    bool resumingAfterPelotonBootcampFloor = false;\n    if (bluetoothManager && bluetoothManager->device() &&\n        bluetoothManager->device()->deviceType() == TREADMILL && currentStep < rows.length()) {\n        pelotonBootcampFloor = isPelotonBootcampFloorRow(rows.at(currentStep));\n        if (currentStep > 0) {\n            resumingAfterPelotonBootcampFloor = isPelotonBootcampFloorRow(rows.at(currentStep - 1)) &&\n                                                !pelotonBootcampFloor && currentRowElapsedSeconds() <= 10;\n        }\n    }\n\n    if (rows.count() == 0 || started == false'''
+          text, n = pattern.subn(replacement, text, count=1)
+          if n != 1:
+              raise RuntimeError(f'trainprogram.cpp scheduler state block matches={n}')
+          text = text.replace('!programmedTreadmillStop && !resumingAfterProgrammedStop',
+                              '!pelotonBootcampFloor && !resumingAfterPelotonBootcampFloor')
+
+          old = '''        if (bluetoothManager->device()->deviceType() == TREADMILL) {\n            if (rows.at(0).forcespeed && rows.at(0).speed >= 0.0) {\n                qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);\n                emit changeSpeed(rows.at(0).speed);\n            }\n'''
+          new = '''        if (bluetoothManager->device()->deviceType() == TREADMILL) {\n            if (isPelotonBootcampFloorRow(rows.at(0))) {\n                if (settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool()) {\n                    qDebug() << QStringLiteral("trainprogram Peloton Bootcamp floor - speed 0");\n                    emit changeSpeed(0.0);\n                }\n            } else if (rows.at(0).forcespeed && rows.at(0).speed > 0.0) {\n                qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);\n                emit changeSpeed(rows.at(0).speed);\n            }\n'''
+          text = replace_once(text, old, new, 'trainprogram.cpp first row')
+
+          old = '''    if (bluetoothManager->device()->deviceType() == TREADMILL) {\n        const bool resumingAfterProgrammedStop =\n            currentStep > 0 && rows.at(currentStep - 1).forcespeed && rows.at(currentStep - 1).speed == 0.0 &&\n            rows.at(currentStep).forcespeed && rows.at(currentStep).speed > 0.0;\n        if (resumingAfterProgrammedStop) {\n            qDebug() << QStringLiteral("trainprogram restarting treadmill after programmed zero-speed interval");\n            emit start();\n        }\n\n        if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed >= 0.0) {\n            qDebug() << QStringLiteral("trainprogram change speed ") +\n                            QString::number(rows.at(currentStep).speed);\n            double speed;\n            if (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude)) {\n                speed = avgSpeedFromGpxStep(currentStep, 60);\n            } else {\n                speed = rows.at(currentStep).speed;\n            }\n            emit changeSpeed(speed);\n        }\n'''
+          new = '''    if (bluetoothManager->device()->deviceType() == TREADMILL) {\n        const bool pelotonBootcampFloor = isPelotonBootcampFloorRow(rows.at(currentStep));\n        const bool previousPelotonBootcampFloor =\n            currentStep > 0 && isPelotonBootcampFloorRow(rows.at(currentStep - 1));\n\n        if (previousPelotonBootcampFloor && !pelotonBootcampFloor) {\n            qDebug() << QStringLiteral("trainprogram restarting treadmill after Peloton Bootcamp floor interval");\n            emit start();\n        }\n\n        if (pelotonBootcampFloor) {\n            if (settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool()) {\n                qDebug() << QStringLiteral("trainprogram Peloton Bootcamp floor - speed 0");\n                emit changeSpeed(0.0);\n            }\n        } else if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed > 0.0) {\n            qDebug() << QStringLiteral("trainprogram change speed ") +\n                            QString::number(rows.at(currentStep).speed);\n            double speed;\n            if (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude)) {\n                speed = avgSpeedFromGpxStep(currentStep, 60);\n            } else {\n                speed = rows.at(currentStep).speed;\n            }\n            emit changeSpeed(speed);\n        }\n'''
+          text = replace_once(text, old, new, 'trainprogram.cpp applyCurrentStepSettings')
+          write(path, text)
+
+          # horizontreadmill.h: remove the stateful auto-pause workaround and restore the original bool.
+          path = 'src/devices/horizontreadmill/horizontreadmill.h'
+          text = read(path)
+          text, n = re.subn(
+              r'\n    // autoPauseWhenSpeedIsZero\(\) historically uses this member as a permanent device workaround\..*?\n    bool mobvoi_treadmill = false;',
+              '\n    bool mobvoi_treadmill = false;',
+              text,
+              count=1,
+              flags=re.S,
+          )
+          if n != 1:
+              raise RuntimeError(f'horizontreadmill.h AutoPauseDisableState removal matches={n}')
+          text = replace_once(
+              text,
+              '    AutoPauseDisableState disableAutoPause{this};\n',
+              '    bool disableAutoPause = false;\n',
+              'horizontreadmill.h disableAutoPause bool',
+          )
+          write(path, text)
+
+          # horizontreadmill.cpp: runtime Bootcamp query, no duplicated device state.
+          path = 'src/devices/horizontreadmill/horizontreadmill.cpp'
+          text = read(path)
+          text = replace_once(
+              text,
+              '''bool horizontreadmill::autoPauseWhenSpeedIsZero() {\n    if(disableAutoPause == true)\n        return false;\n''',
+              '''bool horizontreadmill::autoPauseWhenSpeedIsZero() {\n    if(disableAutoPause == true)\n        return false;\n\n    if (homeform::singleton() && homeform::singleton()->isPelotonBootcampWorkout()) {\n        qDebug() << "autoPauseWhenSpeedIsZero disabled for active Peloton Bootcamp";\n        return false;\n    }\n''',
+              'horizontreadmill.cpp runtime Bootcamp auto-pause',
+          )
+          write(path, text)
+
+          # Remove this temporary workflow in the same refactor commit.
+          Path('.github/workflows/refactor-pr4947-bootcamp.yml').unlink()
+
+      - name: Commit refactor
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "Refactor Peloton Bootcamp handling"
+          git push origin HEAD:codex/add-backward-compatible-inclination-mapping-extension-3shg4d
