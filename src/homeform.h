@@ -225,7 +225,6 @@ class homeform : public QObject {
 
     QString getPelotonAuthUrl() { if(!pelotonHandler) return ""; return pelotonHandler->pelotonAuthUrl; }
     bool pelotonWebVisible() { if(!pelotonHandler) return false; return pelotonHandler->pelotonAuthWebVisible; }
-    peloton *getPelotonHandler() const { return pelotonHandler; }
     Q_PROPERTY(QString getPelotonAuthUrl READ getPelotonAuthUrl NOTIFY pelotonAuthUrlChanged)
     Q_PROPERTY(bool pelotonWebVisible READ pelotonWebVisible NOTIFY pelotonWebVisibleChanged)
 
@@ -236,6 +235,7 @@ class homeform : public QObject {
 
   public:
     static homeform *singleton() { return m_singleton; }
+    peloton *getPelotonHandler() const { return pelotonHandler; }
     bluetooth *bluetoothManager;
     QQmlApplicationEngine *getEngine() { return engine; }
 
