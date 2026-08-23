@@ -640,6 +640,14 @@ void trainprogram::pelotonOCRcomputeTime(QString t) {
     }
 }
 
+bool trainprogram::isPelotonBootcampFloorRow(const trainrow &row) const {
+    return pelotonBootcamp && row.duration != QTime(0, 0, 0, 0) && row.distance < 0.0 &&
+           row.speed < 0.0 && row.lower_speed < 0.0 && row.average_speed < 0.0 && row.upper_speed < 0.0 &&
+           row.inclination == -200 && row.lower_inclination == -200 && row.average_inclination == -200 &&
+           row.upper_inclination == -200 && row.power < 0 && row.resistance < 0 && row.cadence < 0 &&
+           row.pace_intensity < 0;
+}
+
 void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
@@ -669,31 +677,22 @@ void trainprogram::scheduler() {
         }
     }
 
-    bool programmedTreadmillStop = false;
-    bool resumingAfterProgrammedStop = false;
+    bool pelotonBootcampFloor = false;
+    bool resumingAfterPelotonBootcampFloor = false;
     if (bluetoothManager && bluetoothManager->device() &&
         bluetoothManager->device()->deviceType() == TREADMILL && currentStep < rows.length()) {
-        const trainrow &row = rows.at(currentStep);
-        programmedTreadmillStop = row.forcespeed && row.speed == 0.0;
+        pelotonBootcampFloor = isPelotonBootcampFloorRow(rows.at(currentStep));
         if (currentStep > 0) {
-            const trainrow &previousRow = rows.at(currentStep - 1);
-            resumingAfterProgrammedStop = previousRow.forcespeed && previousRow.speed == 0.0 &&
-                                         row.forcespeed && row.speed > 0.0 &&
-                                         currentRowElapsedSeconds() <= 10;
-        }
-
-        if ((programmedTreadmillStop || resumingAfterProgrammedStop) &&
-            bluetoothManager->device()->isPaused()) {
-            qDebug() << QStringLiteral("trainprogram keeping clock active during programmed treadmill stop/resume");
-            bluetoothManager->device()->setPaused(false);
+            resumingAfterPelotonBootcampFloor = isPelotonBootcampFloorRow(rows.at(currentStep - 1)) &&
+                                                !pelotonBootcampFloor && currentRowElapsedSeconds() <= 10;
         }
     }
 
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool() &&
-         !programmedTreadmillStop && !resumingAfterProgrammedStop) ||
-        (bluetoothManager->device()->isPaused() && !programmedTreadmillStop && !resumingAfterProgrammedStop)) {
+         !pelotonBootcampFloor && !resumingAfterPelotonBootcampFloor) ||
+        (bluetoothManager->device()->isPaused() && !pelotonBootcampFloor && !resumingAfterPelotonBootcampFloor)) {
         
         if(bluetoothManager->device() && (bluetoothManager->device()->deviceType() == TREADMILL || bluetoothManager->device()->deviceType() == ELLIPTICAL) &&
            settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token &&
@@ -954,7 +953,12 @@ void trainprogram::scheduler() {
         lastOdometer = odometerFromTheDevice;
         emit intervalTransitionApplied();
         if (bluetoothManager->device()->deviceType() == TREADMILL) {
-            if (rows.at(0).forcespeed && rows.at(0).speed >= 0.0) {
+            if (isPelotonBootcampFloorRow(rows.at(0))) {
+                if (settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool()) {
+                    qDebug() << QStringLiteral("trainprogram Peloton Bootcamp floor - speed 0");
+                    emit changeSpeed(0.0);
+                }
+            } else if (rows.at(0).forcespeed && rows.at(0).speed > 0.0) {
                 qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);
                 emit changeSpeed(rows.at(0).speed);
             }
@@ -1475,15 +1479,21 @@ void trainprogram::applyCurrentStepSettings() {
     emit intervalTransitionApplied();
 
     if (bluetoothManager->device()->deviceType() == TREADMILL) {
-        const bool resumingAfterProgrammedStop =
-            currentStep > 0 && rows.at(currentStep - 1).forcespeed && rows.at(currentStep - 1).speed == 0.0 &&
-            rows.at(currentStep).forcespeed && rows.at(currentStep).speed > 0.0;
-        if (resumingAfterProgrammedStop) {
-            qDebug() << QStringLiteral("trainprogram restarting treadmill after programmed zero-speed interval");
+        const bool pelotonBootcampFloor = isPelotonBootcampFloorRow(rows.at(currentStep));
+        const bool previousPelotonBootcampFloor =
+            currentStep > 0 && isPelotonBootcampFloorRow(rows.at(currentStep - 1));
+
+        if (previousPelotonBootcampFloor && !pelotonBootcampFloor) {
+            qDebug() << QStringLiteral("trainprogram restarting treadmill after Peloton Bootcamp floor interval");
             emit start();
         }
 
-        if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed >= 0.0) {
+        if (pelotonBootcampFloor) {
+            if (settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool()) {
+                qDebug() << QStringLiteral("trainprogram Peloton Bootcamp floor - speed 0");
+                emit changeSpeed(0.0);
+            }
+        } else if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed > 0.0) {
             qDebug() << QStringLiteral("trainprogram change speed ") +
                             QString::number(rows.at(currentStep).speed);
             double speed;

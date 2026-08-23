@@ -1110,6 +1110,8 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     current_instructor_id = ride[QStringLiteral("instructor_id")].toString();
     current_ride_id = ride[QStringLiteral("id")].toString();
     current_workout_type = ride[QStringLiteral("fitness_discipline")].toString();
+    bootcampWorkout = current_workout_type.contains(QStringLiteral("bootcamp"), Qt::CaseInsensitive);
+    qDebug() << "Peloton Bootcamp workout" << bootcampWorkout << current_workout_type;
     current_pedaling_duration = ride[QStringLiteral("duration")].toInt();
     current_image_url = ride[QStringLiteral("image_url")].toString();
 

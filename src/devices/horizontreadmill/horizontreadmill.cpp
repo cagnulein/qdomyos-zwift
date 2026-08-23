@@ -2886,6 +2886,11 @@ bool horizontreadmill::autoPauseWhenSpeedIsZero() {
     if(disableAutoPause == true)
         return false;
 
+    if (homeform::singleton() && homeform::singleton()->isPelotonBootcampWorkout()) {
+        qDebug() << "autoPauseWhenSpeedIsZero disabled for active Peloton Bootcamp";
+        return false;
+    }
+
     // Merach sometimes emits a single transient FTMS speed=0 frame while the treadmill is still running.
     // Without a small debounce QZ treats that glitch as a real pause and starts blinking the start button.
     if (MERACH_TREADMILL && lastNonZeroSpeedTimestamp != 0 &&
