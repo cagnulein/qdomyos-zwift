@@ -1,0 +1,47 @@
+name: Refine PR 4947 Peloton handler access
+
+on:
+  push:
+    branches:
+      - codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+      - name: Patch direct Peloton handler access
+        shell: python
+        run: |
+          from pathlib import Path
+
+          branch = 'codex/add-backward-compatible-inclination-mapping-extension-3shg4d'
+
+          p = Path('src/homeform.h')
+          s = p.read_text()
+          old = '''    bool isPelotonBootcampWorkout() const {\n        return trainProgram && trainProgram->isStarted() && pelotonHandler && pelotonHandler->isBootcampWorkout();\n    }\n'''
+          new = '''    peloton *getPelotonHandler() const { return pelotonHandler; }\n'''
+          if old not in s:
+              raise SystemExit('homeform proxy block not found')
+          p.write_text(s.replace(old, new))
+
+          p = Path('src/devices/horizontreadmill/horizontreadmill.cpp')
+          s = p.read_text()
+          old = '''    if (homeform::singleton() && homeform::singleton()->isPelotonBootcampWorkout()) {\n        qDebug() << "autoPauseWhenSpeedIsZero disabled for active Peloton Bootcamp";\n        return false;\n    }\n'''
+          new = '''    if (homeform::singleton() && homeform::singleton()->getPelotonHandler() &&\n        homeform::singleton()->getPelotonHandler()->isBootcampWorkout()) {\n        qDebug() << "autoPauseWhenSpeedIsZero disabled for active Peloton Bootcamp";\n        return false;\n    }\n'''
+          if old not in s:
+              raise SystemExit('horizon proxy use not found')
+          p.write_text(s.replace(old, new))
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/homeform.h src/devices/horizontreadmill/horizontreadmill.cpp
+          git commit -m "Use Peloton handler directly for Bootcamp state"
+          git push origin HEAD:codex/add-backward-compatible-inclination-mapping-extension-3shg4d
