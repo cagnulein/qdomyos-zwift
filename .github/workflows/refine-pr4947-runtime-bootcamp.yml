@@ -1,0 +1,50 @@
+name: Refine PR 4947 runtime Bootcamp state
+
+on:
+  push:
+    branches:
+      - codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+      - name: Remove copied Bootcamp state from trainprogram
+        shell: python
+        run: |
+          from pathlib import Path
+
+          p = Path('src/trainprogram.h')
+          s = p.read_text()
+          s = s.replace('    void setPelotonBootcamp(bool value) { pelotonBootcamp = value; }\n    bool isPelotonBootcamp() const { return pelotonBootcamp; }\n', '')
+          s = s.replace('    bool pelotonBootcamp = false;\n', '')
+          p.write_text(s)
+
+          p = Path('src/homeform.cpp')
+          s = p.read_text()
+          old = '        trainProgram->setPelotonBootcamp(pelotonHandler->isBootcampWorkout());\n'
+          if old not in s:
+              raise SystemExit('setPelotonBootcamp call not found in homeform.cpp')
+          p.write_text(s.replace(old, ''))
+
+          p = Path('src/trainprogram.cpp')
+          s = p.read_text()
+          old = '''bool trainprogram::isPelotonBootcampFloorRow(const trainrow &row) const {\n    return pelotonBootcamp && row.duration != QTime(0, 0, 0, 0) && row.distance < 0.0 &&\n           row.speed < 0.0 && row.lower_speed < 0.0 && row.average_speed < 0.0 && row.upper_speed < 0.0 &&\n           row.inclination == -200 && row.lower_inclination == -200 && row.average_inclination == -200 &&\n           row.upper_inclination == -200 && row.power < 0 && row.resistance < 0 && row.cadence < 0 &&\n           row.pace_intensity < 0;\n}\n'''
+          new = '''bool trainprogram::isPelotonBootcampFloorRow(const trainrow &row) const {\n    homeform *home = homeform::singleton();\n    peloton *pelotonHandler = home ? home->getPelotonHandler() : nullptr;\n    if (!pelotonHandler || !pelotonHandler->isBootcampWorkout())\n        return false;\n\n    return row.duration != QTime(0, 0, 0, 0) && row.distance < 0.0 &&\n           row.speed < 0.0 && row.lower_speed < 0.0 && row.average_speed < 0.0 && row.upper_speed < 0.0 &&\n           row.inclination == -200 && row.lower_inclination == -200 && row.average_inclination == -200 &&\n           row.upper_inclination == -200 && row.power < 0 && row.resistance < 0 && row.cadence < 0 &&\n           row.pace_intensity < 0;\n}\n'''
+          if old not in s:
+              raise SystemExit('isPelotonBootcampFloorRow block not found in trainprogram.cpp')
+          p.write_text(s.replace(old, new))
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/trainprogram.h src/trainprogram.cpp src/homeform.cpp
+          git commit -m "Read Peloton Bootcamp state at runtime"
+          git push origin HEAD:codex/add-backward-compatible-inclination-mapping-extension-3shg4d
