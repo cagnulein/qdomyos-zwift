@@ -1,5 +1,6 @@
 name: Sync settings refactor with master
 
+# Temporary one-shot workflow. Touch 1
 on:
   push:
     branches:
@@ -66,7 +67,7 @@ jobs:
           def keyed(section, doc):
               return {e.get('key'): e for e in doc.get(section, []) if e.get('key')}
 
-          def merge_options(cur, old, new):
+          def merge_options(cur, new):
               if not isinstance(new, list):
                   return copy.deepcopy(new)
               if not isinstance(cur, list):
@@ -83,6 +84,7 @@ jobs:
                       seen.add(ident(v))
               return result
 
+          sentinel = object()
           for section in ('pages','virtualSettings','settings'):
               cur_list = current.setdefault(section, [])
               cur_map = keyed(section, current)
@@ -102,12 +104,12 @@ jobs:
                       continue
                   centry = cur_map[key]
                   for field, mvalue in mentry.items():
-                      ovalue = old.get(field, object())
+                      ovalue = old.get(field, sentinel)
                       if mvalue == ovalue:
                           continue
                       if field == 'options' and isinstance(mvalue, list):
-                          centry[field] = merge_options(centry.get(field), old.get(field), mvalue)
-                      elif centry.get(field, object()) == ovalue:
+                          centry[field] = merge_options(centry.get(field), mvalue)
+                      elif centry.get(field, sentinel) == ovalue:
                           centry[field] = copy.deepcopy(mvalue)
 
           current['settingCount'] = len(current.get('settings', []))
