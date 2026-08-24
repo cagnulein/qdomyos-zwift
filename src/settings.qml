@@ -2185,9 +2185,11 @@ import AndroidStatusBar 1.0
             property bool waterrower_usb: false
             property string freebeat_serialport: ""
             property bool nordictrack_elliptical_s700: false
-            
             property bool virtual_device_tacx: false
             property bool renpho_bike_knob_gears: false
+            property bool nordictrack_incline_trainer_x7i_ntl15010_0: false
+            property bool custom_inclination_resistance_table_enabled: false
+            property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
         }
 
 
@@ -4715,6 +4717,14 @@ import AndroidStatusBar 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: "customgears.qml"
+                    }
+
+                    NewPageElement {
+                        title: qsTr("Custom Inclination to Resistance Table")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: "custominclinationresistance.qml"
                     }
 
                     RowLayout {
@@ -11109,6 +11119,7 @@ import AndroidStatusBar 1.0
                                     "ProForm Carbon TLX v84.314 PFTL90924C.7",
                                     "ProForm CST 505 PFTL59420.0",
                                     "ProForm 105 CST",
+                                    "Nordictrack Incline Trainer X7i NTL15010.0",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -11187,7 +11198,8 @@ import AndroidStatusBar 1.0
                                                     settings.proform_carbon_tl_PFTL59723_6 ? 59 :
                                                     settings.proform_carbon_tlx_v84_314_treadmill ? 60 :
                                                     settings.proform_treadmill_cst_505_pftl59420_0 ? 61 :
-                                                    settings.proform_treadmill_105_cst ? 62 : 0;
+                                                    settings.proform_treadmill_105_cst ? 62 :
+                                                    settings.nordictrack_incline_trainer_x7i_ntl15010_0 ? 63 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -11264,6 +11276,7 @@ import AndroidStatusBar 1.0
                                     settings.proform_carbon_tlx_v84_314_treadmill = false;
                                     settings.proform_treadmill_cst_505_pftl59420_0 = false;
                                     settings.proform_treadmill_105_cst = false;
+                                    settings.nordictrack_incline_trainer_x7i_ntl15010_0 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -11329,6 +11342,7 @@ import AndroidStatusBar 1.0
                                         case 60: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
                                         case 61: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
                                         case 62: settings.proform_treadmill_105_cst = true; break;
+                                        case 63: settings.nordictrack_incline_trainer_x7i_ntl15010_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
