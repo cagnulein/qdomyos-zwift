@@ -9,7 +9,6 @@ on:
       - 'scripts/settings_parity.py'
       - 'scripts/settings_visual_report.py'
       - 'scripts/phase6_qml_visual_parity.py'
-      - '.github/workflows/main.yml'
       - '.github/workflows/settings-parity.yml'
   workflow_dispatch:
 
@@ -31,9 +30,10 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/phase6_qml_visual_parity.py
+          git restore .github/workflows/main.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/main.qml src/settings.qml .github/workflows/main.yml
+          git add src/main.qml src/settings.qml
           if ! git diff --cached --quiet; then
             git commit -m 'Add real QML settings visual parity harness'
             git push origin HEAD:agent/settings-refactor-phase1-safety
