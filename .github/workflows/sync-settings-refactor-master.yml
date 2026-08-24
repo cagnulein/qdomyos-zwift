@@ -1,18 +1,17 @@
 name: Sync settings refactor with master
 
-# Temporary one-shot workflow. Touch 1
 on:
-  push:
+  pull_request:
     branches:
       - agent/settings-refactor-phase1-safety
-    paths:
-      - .github/workflows/sync-settings-refactor-master.yml
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
 
 jobs:
   sync:
+    if: github.head_ref == 'agent/settings-sync-runner'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
