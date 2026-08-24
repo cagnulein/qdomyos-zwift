@@ -6,33 +6,17 @@ on:
       - 'src/settings*.qml'
       - 'src/settings-catalog.json'
       - 'scripts/settings_parity.py'
-      - 'scripts/settings_parity_migration.py'
       - '.github/workflows/settings-parity.yml'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   parity:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: agent/settings-refactor-phase1-safety
-          fetch-depth: 0
-      - name: Apply one-shot parity migration
-        run: |
-          set -euo pipefail
-          python3 scripts/settings_parity_migration.py
-          python3 scripts/settings_layout.py --write
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/settings.qml src/settings-catalog.json scripts/settings_parity.py
-          if ! git diff --cached --quiet; then
-            git commit -m 'Fix language selector and refine settings parity'
-            git push origin HEAD:agent/settings-refactor-phase1-safety
-          fi
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -41,8 +25,11 @@ jobs:
       - name: Build semantic parity report
         run: python scripts/settings_parity.py --out settings-parity-report
       - name: Upload settings parity report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: settings-parity-report
           path: settings-parity-report/
           retention-days: 14
+      - name: Enforce high-confidence control parity
+        run: python scripts/settings_parity.py --out settings-parity-report --fail-on-mismatch
