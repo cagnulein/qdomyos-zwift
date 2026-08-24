@@ -55,15 +55,30 @@ pelotonbike::pelotonbike(bool noWriteResistance, bool noHeartService) {
     }
     // ********************************************************************************************************
 
-    // Keep the Peloton startup ordering consistent with the delayed NordicTrack path.
-    // bluetooth/homeform signal wiring is not ready while bluetooth is still being constructed,
-    // so do not emit connectedAndDiscovered from the first 200 ms metric update.
+    // Peloton V1 is instantiated while bluetooth is still being constructed, before homeform has connected
+    // to bluetooth::deviceConnected and bluetooth::bluetoothDeviceConnected. Replay those startup events once
+    // homeform is ready, preserving the normal device startup path used by the rest of QZ.
     QTimer::singleShot(5000, this, [this]() {
-        if (!initDone) {
-            initDone = true;
-            qDebug() << "Peloton startup delay elapsed, emitting connectedAndDiscovered";
-            emit connectedAndDiscovered();
+        if (initDone)
+            return;
+
+        initDone = true;
+
+        if (homeform::singleton()) {
+            qDebug() << "Peloton startup delay elapsed, replaying homeform device startup";
+            const bool deviceConnectedInvoked = QMetaObject::invokeMethod(
+                homeform::singleton(), "deviceConnected", Qt::DirectConnection,
+                Q_ARG(QBluetoothDeviceInfo, QBluetoothDeviceInfo()));
+            const bool bluetoothDeviceConnectedInvoked = QMetaObject::invokeMethod(
+                homeform::singleton(), "bluetoothDeviceConnected", Qt::DirectConnection,
+                Q_ARG(bluetoothdevice *, this));
+            qDebug() << "Peloton homeform startup replay"
+                     << deviceConnectedInvoked << bluetoothDeviceConnectedInvoked;
+        } else {
+            qWarning() << "Peloton startup delay elapsed before homeform was available";
         }
+
+        emit connectedAndDiscovered();
     });
 }
 
