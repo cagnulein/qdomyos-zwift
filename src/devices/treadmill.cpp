@@ -1,4 +1,5 @@
 #include "treadmill.h"
+#include "homeform.h"
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
 #endif
@@ -23,6 +24,12 @@ static double gradeAdjustedEquivalentSpeed(double speedKmh, double gradePercent)
     return speedKmh * (slopeCost / flatCost);
 }
 
+static bool activePelotonBootcampWorkout() {
+    homeform *home = homeform::singleton();
+    peloton *pelotonHandler = home ? home->getPelotonHandler() : nullptr;
+    return pelotonHandler && pelotonHandler->isBootcampWorkout();
+}
+
 treadmill::treadmill() {}
 
 void treadmill::changeSpeed(double speed) {
@@ -37,6 +44,23 @@ void treadmill::changeSpeed(double speed) {
     double treadmill_speed_min = settings.value(QZSettings::treadmill_speed_min, QZSettings::default_treadmill_speed_min).toDouble();
     bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
     m_lastRawSpeedRequested = speed;
+
+    // A target speed of zero in a Peloton Bootcamp floor interval is an intentional
+    // physical stop. Some FTMS treadmills (including the P30) ACK Set Target Speed=0
+    // but keep the belt moving, so use the real device stop command instead. Calling
+    // the device stop directly only queues the hardware command; it does not stop the
+    // trainprogram clock.
+    if (qFuzzyIsNull(speed) && activePelotonBootcampWorkout() && canStartStop()) {
+        RequestedSpeed = 0;
+        if (autoResistanceEnable) {
+            requestSpeed = -1;
+            m_fsPendingStartSpeed = -1.0;
+            qDebug() << "Peloton Bootcamp floor: requesting physical treadmill stop";
+            stop(false);
+        }
+        return;
+    }
+
     speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
     speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();
 
@@ -63,8 +87,40 @@ void treadmill::changeSpeed(double speed) {
     }
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
-    if (autoResistanceEnable)
-        requestSpeed = (speed * m_difficult) + m_difficult_offset;
+    if (autoResistanceEnable) {
+        const bool fsTreadmill = bluetoothDevice.name().toUpper().startsWith(QStringLiteral("FS-"));
+        const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+
+        if (fsTreadmill && lastStart > 0 && nowMs <= (lastStart + 15000)) {
+            if (m_fsStartupRetryWindowStarted != lastStart) {
+                m_fsStartupRetryWindowStarted = lastStart;
+                m_fsStartupTargetSpeed = -1.0;
+                m_fsStartupTargetReached = false;
+                m_fsStartupRetryDone = false;
+                qDebug() << "FS treadmill: startup speed retry window armed";
+            }
+
+            if (speed > 1.1 && !m_fsStartupRetryDone &&
+                (m_fsStartupTargetSpeed < 0.0 || std::abs(m_fsStartupTargetSpeed - RequestedSpeed.value()) > 0.01)) {
+                m_fsStartupTargetSpeed = RequestedSpeed.value();
+                m_fsStartupTargetReached = false;
+                qDebug() << "FS treadmill: armed startup speed target" << m_fsStartupTargetSpeed;
+            }
+        }
+
+        // When a Bootcamp floor resumes, trainprogram queues start() and the new speed
+        // in the same transition. Horizon normally processes requestSpeed before
+        // requestStart, so defer the FS/P30 speed until the following update and let
+        // the real FTMS Start/Resume command go first.
+        if (fsTreadmill && requestStart != -1 && RequestedSpeed.value() > 1.1) {
+            m_fsPendingStartSpeed = RequestedSpeed.value();
+            requestSpeed = -1;
+            qDebug() << "FS treadmill: deferring speed target until start command has been sent"
+                     << m_fsPendingStartSpeed;
+        } else {
+            requestSpeed = RequestedSpeed.value();
+        }
+    }
 }
 void treadmill::changeInclination(double grade, double inclination) {    
     QSettings settings;
@@ -133,6 +189,54 @@ void treadmill::update_metrics(bool watt_calc, const double watts, const bool fr
     QSettings settings;
     bool power_as_treadmill =
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+
+    const bool fsTreadmill = bluetoothDevice.name().toUpper().startsWith(QStringLiteral("FS-"));
+    if (fsTreadmill) {
+        const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+
+        // A stop belonging to the current start cycle cancels any outstanding retry.
+        if (m_fsStartupRetryWindowStarted > 0 && lastStop >= lastStart && lastStop >= m_fsStartupRetryWindowStarted) {
+            m_fsStartupRetryWindowStarted = 0;
+            m_fsStartupTargetSpeed = -1.0;
+            m_fsPendingStartSpeed = -1.0;
+            m_fsStartupTargetReached = false;
+            m_fsStartupRetryDone = false;
+        }
+
+        // Let an FTMS Start/Resume queued in the previous update be sent before its
+        // speed target. Once requestStart is consumed by the device driver, release
+        // the pending target on this update.
+        if (m_fsPendingStartSpeed > 1.1 && requestStart == -1) {
+            requestSpeed = m_fsPendingStartSpeed;
+            qDebug() << "FS treadmill: applying deferred post-start speed target" << m_fsPendingStartSpeed;
+            m_fsPendingStartSpeed = -1.0;
+        }
+
+        if (m_fsStartupRetryWindowStarted > 0) {
+            if (nowMs > (m_fsStartupRetryWindowStarted + 15000)) {
+                qDebug() << "FS treadmill: startup speed retry window expired";
+                m_fsStartupRetryWindowStarted = 0;
+                m_fsStartupTargetSpeed = -1.0;
+                m_fsStartupTargetReached = false;
+                m_fsStartupRetryDone = false;
+            } else if (m_fsStartupTargetSpeed > 1.1 && !m_fsStartupRetryDone) {
+                const double currentSpeedValue = currentSpeed().value();
+                const double targetTolerance = qMax(0.2, minStepSpeed());
+
+                if (!m_fsStartupTargetReached && currentSpeedValue > 1.1 &&
+                    std::abs(currentSpeedValue - m_fsStartupTargetSpeed) <= targetTolerance) {
+                    m_fsStartupTargetReached = true;
+                    qDebug() << "FS treadmill: startup target reached" << currentSpeedValue
+                             << m_fsStartupTargetSpeed;
+                } else if (m_fsStartupTargetReached && currentSpeedValue >= 0.9 && currentSpeedValue <= 1.1) {
+                    requestSpeed = m_fsStartupTargetSpeed;
+                    m_fsStartupRetryDone = true;
+                    qDebug() << "FS treadmill: detected 1 km/h startup fallback, reapplying target"
+                             << m_fsStartupTargetSpeed;
+                }
+            }
+        }
+    }
 
     simulateInclinationWithSpeed();
     if(!from_accessory)
