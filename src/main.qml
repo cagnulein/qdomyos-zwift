@@ -133,6 +133,19 @@ ApplicationWindow {
     property bool settings_restart_to_apply: false
     property bool gymModePopupDismissed: false
 
+    // SETTINGS_QML_VISUAL_PARITY_V1
+    property bool settingsVisualTestMode: Qt.application.arguments.indexOf("--settings-visual-test") >= 0
+    Timer {
+        id: settingsVisualTestOpenTimer
+        interval: 1200
+        repeat: false
+        running: window.settingsVisualTestMode
+        onTriggered: {
+            console.log("SETTINGS_VISUAL: opening settings.qml")
+            stackView.push("settings.qml")
+        }
+    }
+
     Settings {
         id: settings
         property string profile_name: "default"        
