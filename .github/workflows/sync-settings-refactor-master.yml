@@ -12,7 +12,7 @@ permissions:
 jobs:
   sync:
     if: github.head_ref == 'agent/settings-sync-runner'
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
         with:
