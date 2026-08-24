@@ -3835,6 +3835,8 @@ void bluetooth::selectGymModeDevice(const QString &deviceName) {
 
     gymModeSessionDevice = normalizedDeviceName;
     onlyDiscover = false;
+    forceHeartBeltOffForTimeout = false;
+    discoveryFinishedHandled = false;
     restart();
 }
 

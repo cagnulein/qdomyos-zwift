@@ -1748,6 +1748,8 @@ import AndroidStatusBar 1.0
             property bool virtual_device_tacx: false
             property bool renpho_bike_knob_gears: false
             property bool nordictrack_incline_trainer_x7i_ntl15010_0: false
+            property bool custom_inclination_resistance_table_enabled: false
+            property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
         }
 
 
@@ -4063,6 +4065,14 @@ import AndroidStatusBar 1.0
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
                         accordionContent: "customgears.qml"
+                    }
+
+                    NewPageElement {
+                        title: qsTr("Custom Inclination to Resistance Table")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: "custominclinationresistance.qml"
                     }
 
                     RowLayout {
