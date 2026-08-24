@@ -100,6 +100,15 @@ class treadmill : public bluetoothdevice {
     double m_followPowerLastSpeedWhenTargetSet = -1;
     QDateTime m_followPowerSuppressedUntil;
 
+    // FS/P30 startup quirk: after accepting and reaching the first requested speed, the
+    // treadmill can overwrite it with its internal 1 km/h startup speed. Keep only
+    // transient device-local state so the requested target can be restored once.
+    qint64 m_fsStartupRetryWindowStarted = 0;
+    double m_fsStartupTargetSpeed = -1.0;
+    double m_fsPendingStartSpeed = -1.0;
+    bool m_fsStartupTargetReached = false;
+    bool m_fsStartupRetryDone = false;
+
     // A customized outbound command can have lossy raw feedback. Keep the logical value selected
     // by QZ until feedback demonstrates that the treadmill moved independently.
     bool m_mappedInclinationValid = false;
