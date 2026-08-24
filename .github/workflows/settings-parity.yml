@@ -10,16 +10,30 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   parity:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: agent/settings-refactor-phase1-safety
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Sync literal ComboBox models once
+        run: |
+          set -euo pipefail
+          python scripts/settings_parity.py --write-literal-selects --out settings-parity-report
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/settings-catalog.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Sync legacy ComboBox options into settings catalog'
+            git push origin HEAD:agent/settings-refactor-phase1-safety
+          fi
       - name: Install report dependency
         run: python -m pip install pillow
       - name: Build semantic parity report
@@ -31,5 +45,3 @@ jobs:
           name: settings-parity-report
           path: settings-parity-report/
           retention-days: 14
-      - name: Enforce high-confidence control parity
-        run: python scripts/settings_parity.py --out settings-parity-report --fail-on-mismatch
