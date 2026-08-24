@@ -127,6 +127,7 @@ void ftmsrower::update() {
                     emit debug(QStringLiteral("MRK-R26 manual resistance set to ") + QString::number(Resistance.value()));
                 } else {
                     emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+
                     forceResistance(requestResistance);
                 }
             }
@@ -162,31 +163,40 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
     if (charUuid == QStringLiteral("{ce060031-43e5-11e4-916c-0800200c9a66}")) {
         // Parse characteristic CE060031 - Based on go-row implementation
         if (newValue.length() >= 10) {
+            // Extract RowState from byte 9 - this indicates if user is actively rowing
             pm5RowState = (uint8_t)newValue.at(9);
-            pm5RowStateReceived = true;
+            pm5RowStateReceived = true; // Mark that we've received RowState at least once
+
             emit debug(QStringLiteral("PM5 CE060031 RAW: ") + newValue.toHex(' ') +
                       QStringLiteral(" RowState: ") + QString::number(pm5RowState));
         }
     }
     else if (charUuid == QStringLiteral("{ce060032-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060032 - Based on go-row implementation
         if (newValue.length() >= 7) {
+            // Extract cadence (SPM) from byte 5
             uint8_t spm = (uint8_t)newValue.at(5);
             if (spm > 0) {
+                // Only check RowState if we've received it at least once
                 if (!pm5RowStateReceived || pm5RowState != 0) {
                     Cadence = spm;
                     lastStroke = now;
                 }
             }
+            // Zero cadence if RowState indicates not rowing (and we've received RowState)
             if (pm5RowStateReceived && pm5RowState == 0) {
                 Cadence = 0;
             }
 
+            // Extract speed from bytes 3-4 (little endian) in 0.001m/s
             uint16_t speedRaw = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
             if (speedRaw > 0) {
+                // Only check RowState if we've received it at least once
                 if (!pm5RowStateReceived || pm5RowState != 0) {
-                    Speed = (speedRaw * 0.001) * 3.6;
+                    Speed = (speedRaw * 0.001) * 3.6; // Convert m/s to km/h
                 }
             }
+            // Zero speed if RowState indicates not rowing (and we've received RowState)
             if (pm5RowStateReceived && pm5RowState == 0) {
                 Speed = 0;
             }
@@ -198,26 +208,33 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
         }
     }
     else if (charUuid == QStringLiteral("{ce060033-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060033 - Additional data
         if (newValue.length() >= 20) {
             emit debug(QStringLiteral("PM5 CE060033 RAW: ") + newValue.toHex(' '));
         }
     }
     else if (charUuid == QStringLiteral("{ce060036-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060036 - Power and stroke count (based on go-row implementation)
         if (newValue.length() >= 9) {
+            // Extract stroke count from bytes 7-8 (little endian)
             uint16_t strokeCount = ((uint8_t)newValue.at(8) << 8) | (uint8_t)newValue.at(7);
             if (strokeCount != StrokesCount.value()) {
+                // Only check RowState if we've received it at least once
                 if (!pm5RowStateReceived || pm5RowState != 0) {
                     StrokesCount = strokeCount;
                     lastStroke = now;
                 }
             }
 
+            // Extract power from bytes 3-4 (little endian)
             uint16_t power = ((uint8_t)newValue.at(4) << 8) | (uint8_t)newValue.at(3);
             if (power > 0) {
+                // Only check RowState if we've received it at least once
                 if (!pm5RowStateReceived || pm5RowState != 0) {
                     m_watt = power;
                 }
             }
+            // Zero power if RowState indicates not rowing (and we've received RowState)
             if (pm5RowStateReceived && pm5RowState == 0) {
                 m_watt = 0;
             }
@@ -229,9 +246,12 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
         }
     }
     else if (charUuid == QStringLiteral("{ce060035-43e5-11e4-916c-0800200c9a66}")) {
+        // Parse characteristic CE060035 - Stroke data including drive length (stroke length)
         if (newValue.length() >= 7) {
+            // Extract drive length (stroke length) from byte 6 - 0.01 meters LSB, max 2.55m
             uint8_t driveLengthRaw = (uint8_t)newValue.at(6);
             if (driveLengthRaw > 0) {
+                // Convert from 0.01m units to meters
                 double strokeLengthMeters = driveLengthRaw * 0.01;
                 StrokesLength = strokeLengthMeters;
             }
@@ -242,6 +262,7 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
         }
     }
     
+    // Update calories based on power if available
     if (m_watt.value() > 0) {
         KCal += ((((0.048 * ((double)m_watt.value()) + 1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
@@ -249,6 +270,7 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(now))));
     }
     
+    // Update crank revolutions for virtual device compatibility
     if (Cadence.value() > 0) {
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
@@ -256,12 +278,15 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
     
     lastRefreshCharacteristicChanged = now;
 
+    // Apply RowState logic after all characteristics processing (fallback safety check)
+    // Only apply if we've received RowState at least once to avoid zeroing values at startup
     if (PM5 && pm5RowStateReceived && pm5RowState == 0) {
         m_watt = 0;
         Cadence = 0;
         Speed = 0;
     }
     
+    // Update metrics for virtual device
     update_metrics(false, m_watt.value());
     
     emit debug(QStringLiteral("PM5 Metrics - Cadence: ") + QString::number(Cadence.value()) +
@@ -274,6 +299,8 @@ void ftmsrower::parseConcept2Data(const QLowEnergyCharacteristic &characteristic
 
 void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
+
+    // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     bool disable_hr_frommachinery =
@@ -283,11 +310,13 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     qDebug() << QStringLiteral(" << ") << characteristic.uuid() << " " << newValue.toHex(' ');
 
+    // Handle Concept2 PM5 characteristics as fallback when FTMS is not available
     if (PM5 && (characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060031-43e5-11e4-916c-0800200c9a66")) ||
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060032-43e5-11e4-916c-0800200c9a66")) ||
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060033-43e5-11e4-916c-0800200c9a66")) ||
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060035-43e5-11e4-916c-0800200c9a66")) ||
                 characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060036-43e5-11e4-916c-0800200c9a66")))) {
+        
         parseConcept2Data(characteristic, newValue);
         return;
     }
@@ -297,6 +326,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if(PM5 && pm5RowStateReceived && pm5RowState == 0) {
+        // If using PM5 and RowState indicates not rowing, ignore data to avoid bogus values
         qDebug() << "PM5 RowState indicates not rowing, ignoring FTMS data.";
         Cadence = 0;
         m_watt = 0;
@@ -309,6 +339,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     union flags {
         struct {
+
             uint16_t moreData : 1;
             uint16_t avgStroke : 1;
             uint16_t totDistance : 1;
@@ -324,6 +355,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             uint16_t remainingTime : 1;
             uint16_t spare : 3;
         };
+
         uint16_t word_flags;
     };
 
@@ -336,6 +368,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     index += 2;
 
     if (!Flags.moreData) {
+
         if (lastStroke.secsTo(now) > 3) {
             qDebug() << "Resetting cadence!";
             Cadence = 0;
@@ -352,12 +385,21 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             lastStroke = now;
         }
         lastStrokesCount = StrokesCount.value();
+
         index += 3;
 
+        /*
+         * the concept 2 sends the pace in 2 frames, so this condition will create a bogus speed
+        if (!Flags.instantPace) {
+            // eredited by echelon rower, probably we need to change this
+            Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        }*/
         emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
     }
 
     if (Flags.avgStroke) {
+
         double avgStroke;
         avgStroke = ((double)(uint16_t)((uint8_t)newValue.at(index))) / cadence_divider;
         index += 1;
@@ -366,9 +408,11 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     if (Flags.totDistance) {
         if (ICONSOLE_PLUS || FITSHOW || MRK_R11S) {
+            // For ICONSOLE+/FITSHOW/MRK_R11S, always calculate distance from speed instead of using characteristic data
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         } else {
+            // For other devices, use the distance from characteristic data
             Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)newValue.at(index)))) /
@@ -391,17 +435,19 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
+        // Always handle invalid pace values to prevent division by zero
         if(instantPace == 0 || instantPace == 65535) {
             Speed = 0;
         } else {
             if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
-                Speed = (60.0 / instantPace) * 30.0;
+                Speed = (60.0 / instantPace) * 30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
         }
 
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
     if (Flags.avgPace) {
+
         double avgPace;
         avgPace =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
@@ -445,6 +491,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
     if (Flags.avgPower) {
+
         double avgPower;
         avgPower =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
@@ -472,7 +519,11 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         const double builtinKCal =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
+
+        // energy per hour
         index += 2;
+
+        // energy per minute
         index += 1;
 
         if (!ignoreBuiltinKCal) {
@@ -486,7 +537,9 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             ((((0.048 * ((double)watts()) + 1.19) *
                settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
-             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(now))));
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
 
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -499,6 +552,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         if (Flags.heartRate && !disable_hr_frommachinery) {
             if (index < newValue.length()) {
                 Heart = ((double)(((uint8_t)newValue.at(index))));
+                // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else
                 emit debug(QStringLiteral("Error on parsing heart"));
@@ -507,7 +561,23 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         }
     }
 
+    if (Flags.metabolic) {
+
+        // todo
+    }
+
+    if (Flags.elapsedTime) {
+
+        // todo
+    }
+
+    if (Flags.remainingTime) {
+
+        // todo
+    }
+
     if (Cadence.value() > 0) {
+
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
@@ -520,6 +590,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
     }
@@ -543,6 +614,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
         if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
+
             return;
         }
     }
@@ -552,6 +624,8 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
+
+            // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &ftmsrower::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &ftmsrower::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &ftmsrower::characteristicRead);
@@ -581,13 +655,20 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
+
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
                     if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
                         notificationSubscribed++;
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    } else {
+                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << QStringLiteral(" is not valid");
                     }
+
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) ==
                            QLowEnergyCharacteristic::Indicate) {
@@ -597,13 +678,23 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
                     if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
                         notificationSubscribed++;
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    } else {
+                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << QStringLiteral(" is not valid");
                     }
+
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
+                } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
+                    // s->readCharacteristic(c);
+                    // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }
 
                 QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
+
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
                 }
@@ -611,6 +702,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
+    // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -633,31 +725,38 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
         bool ios_peloton_workaround =
             settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
+
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
             h->virtualbike_ios();
         } else
+
 #endif
 #endif
         {
             if (virtual_device_enabled) {
                 if (virtual_device_force_treadmill) {
                     emit debug(QStringLiteral("creating virtual treadmill interface..."));
+
                     auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &ftmsrower::debug);
                     this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else if (!virtual_device_rower) {
                     emit debug(QStringLiteral("creating virtual bike interface..."));
+
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                    // connect(virtualBike,&virtualbike::debug ,this,&ftmsrower::debug);
                     this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
                     auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
                     this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
                 }
             }
         }
         firstStateChanged = 1;
+        // ********************************************************************************************************
     }
 }
 
@@ -703,6 +802,7 @@ void ftmsrower::serviceScanDone(void) {
     bool hasFTMSService = false;
     bool hasConcept2Services = false;
     
+    // Check if FTMS service (0x1826) is available
     QBluetoothUuid ftmsService((quint16)0x1826);
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         if (s == ftmsService) {
@@ -711,6 +811,7 @@ void ftmsrower::serviceScanDone(void) {
         }
     }
     
+    // If no FTMS service, check for Concept2 PM5 services
     if (!hasFTMSService && PM5) {
         QBluetoothUuid concept2InfoService(QStringLiteral("ce060010-43e5-11e4-916c-0800200c9a66"));
         QBluetoothUuid concept2ControlService(QStringLiteral("ce060020-43e5-11e4-916c-0800200c9a66"));
@@ -729,6 +830,7 @@ void ftmsrower::serviceScanDone(void) {
     }
 
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        // For DOMYOS and TC rowers, discover only FTMS service (0x1826)
         if (DOMYOS || TC_ROWER) {
             QBluetoothUuid ftmsService((quint16)0x1826);
             if (s != ftmsService) {
@@ -768,7 +870,7 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             filterWattNull = true;
             WHIPR = true;
             qDebug() << "WHIPR found! filtering null wattage";
-        } else if (device.name().toUpper().startsWith(QStringLiteral("KS-WLT"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("KS-WLT"))) { // KS-WLT-W1
             KINGSMITH = true;
             qDebug() << "KINGSMITH found! cadence multiplier 1x";
         } else if (device.name().toUpper().startsWith(QStringLiteral("S4 COMMS"))) {
@@ -855,6 +957,7 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             emit disconnected();
         });
 
+        // Connect
         m_control->connectToDevice();
         return;
     }
@@ -862,6 +965,7 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
 bool ftmsrower::connected() {
     if (!m_control) {
+
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
