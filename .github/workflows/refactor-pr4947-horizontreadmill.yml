@@ -2,7 +2,7 @@ name: Refactor PR 4947 P30 handling into requestSpeed path
 
 on:
   pull_request:
-    types: [synchronize]
+    types: [edited]
 
 permissions:
   contents: write
