@@ -3,6 +3,10 @@ GOOGLETEST_DIR = $$PWD/googletest
 include(../defaults.pri)
 include(gtest_dependency.pri)
 
+qtHaveModule(httpserver) {
+    QT += httpserver
+}
+
 TEMPLATE = app
 
 CONFIG += console c++11
