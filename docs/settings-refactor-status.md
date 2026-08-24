@@ -16,9 +16,9 @@ This document tracks the staged refactor of the QZ settings UI. Persistent QML s
 
 ## Current baseline
 
-The Phase 1 audit found **998 unique persistent setting keys** across the settings QML files. Phase 2 completed the catalog from the previous 968/998 baseline to **998/998**.
+The original Phase 1 audit found **998 unique persistent setting keys** across the settings QML files. The feature branch has since been synchronized with newer `master` additions and currently covers **1001/1001** persistent keys.
 
-The 30 former gaps were classified before being added. User-facing examples include ANT+ Garmin, OpenBikeControl/MyWhoosh Link controls, Peloton Bike OCR, Wattbike emulator, and Zwift Play button/gear mappings. Storage-only values such as Garmin token-expiry state and Bluetooth service-changed state are cataloged with `visible: false`.
+The original 30 catalog gaps were classified before being added. User-facing examples include ANT+ Garmin, OpenBikeControl/MyWhoosh Link controls, Peloton Bike OCR, Wattbike emulator, and Zwift Play button/gear mappings. Storage-only values such as Garmin token-expiry state and Bluetooth service-changed state are cataloged with `visible: false`.
 
 The catalog, persistent ABI, generated hierarchy, and latest-master setting coverage are continuously checked by the read-only `Settings audit` workflow.
 
@@ -38,8 +38,8 @@ Status: **complete**
 
 Status: **complete**
 
-- [x] Classify and add all 30 previously uncataloged persistent keys.
-- [x] Reach 998/998 catalog coverage.
+- [x] Classify and add all originally uncataloged persistent keys.
+- [x] Reach complete catalog coverage and keep it synchronized with current master.
 - [x] Add a shared `settingsBehavior` controller for catalog/search/new-UI mutations.
 - [x] Route generic persistent writes through the shared controller.
 - [x] Route virtual multi-setting selections through the shared controller.
@@ -61,7 +61,7 @@ Status: **complete, modern renderer is now the default**
 Status: **repository parity complete; runtime smoke testing pending**
 
 - [x] Persistent ABI compatibility remains unchanged.
-- [x] Catalog coverage remains 998/998.
+- [x] Catalog coverage remains complete against the synchronized master baseline.
 - [x] Add explicit `restartRequired` metadata to every persistent catalog setting and every virtual setting.
 - [x] Derive restart policy from the legacy handlers instead of assuming every generic edit needs a restart.
 - [x] Preserve metric/imperial display and storage conversions for weight, bike weight, height, autolap distance, treadmill speeds, and Peloton treadmill speed thresholds.
@@ -71,6 +71,7 @@ Status: **repository parity complete; runtime smoke testing pending**
 - [x] Preserve Zwift OCR mutual exclusion and Android notification side effect.
 - [x] Preserve Zwift Play / Wattbike emulator conflict handling, including the existing confirmation dialog behavior.
 - [x] Preserve calibration cache invalidation for watt offset, watt gain, and power sensor changes.
+- [x] Preserve legacy literal selector models in the catalog where they can be extracted safely; `app_language` now remains a selector instead of becoming a free-form text field.
 - [x] Add permanent tests for the above behavior layer and explicit restart metadata.
 
 ## Phase 5: legacy-derived information architecture and drift protection
@@ -91,10 +92,17 @@ Status: **implemented; runtime validation pending**
 - [x] Fetch current `master` during Settings audit and fail if master has added persistent settings missing from the PR/catalog/layout.
 - [x] Hide the legacy settings UX by default while keeping its controls compiled as a fallback during validation.
 - [x] Keep hierarchy/layout generators and checks permanent and the workflow read-only.
+- [x] Add a read-only semantic parity report with HTML/JSON/CSV output and per-category PNG contact sheets; high-confidence control mismatches fail CI.
+- [x] Preserve modern-settings navigation history and the previous scroll offset when entering nested categories.
+- [x] Restore the exact previous `contentY` when backing out of nested categories instead of jumping to the top.
+- [x] Preserve and restore the modern-settings state when opening dedicated QML pages through `stackView.push(...)`; returning from pages such as Custom Gears reopens the modern drawer at the previous category/search/scroll position.
+- [x] Keep Search Back local to the search results before consuming category-navigation history.
 - [ ] Full multiplatform build green on the final cleaned-up head.
 - [ ] Manual smoke test of root categories/subcategory navigation on iOS.
 - [ ] Manual smoke test on at least one non-iOS platform.
+- [ ] Reduce remaining semantic-parity cases that are still intentionally unclassified.
+- [ ] Add real rendered QML screenshot coverage where it can run reliably in CI.
 
 ### Current stop condition
 
-The modern renderer is the default, mirrors the legacy category/page hierarchy, and the old settings experience is no longer shown by default. The remaining blocker for physically deleting the legacy renderer is runtime visual/interaction validation on iOS and at least one non-iOS platform, plus any additional dynamic visibility/enabled behavior discovered during those smoke tests.
+The modern renderer is the default, mirrors the legacy category/page hierarchy, restores navigation and scroll state, and the old settings experience is no longer shown by default. The remaining blocker for physically deleting the legacy renderer is runtime visual/interaction validation on iOS and at least one non-iOS platform, plus any additional dynamic visibility/enabled behavior discovered during those smoke tests. Semantic parity remains the deterministic CI gate while real rendered screenshot coverage is added incrementally.
