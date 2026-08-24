@@ -1,0 +1,217 @@
+name: Fix PR 4947 P30 Bootcamp and startup
+
+on:
+  push:
+    branches:
+      - codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+
+      - name: Apply P30 Bootcamp stop and startup retry fixes
+        shell: python
+        run: |
+          from pathlib import Path
+
+          def replace_once(path, old, new, label):
+              p = Path(path)
+              s = p.read_text()
+              count = s.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected exactly one match in {path}, found {count}')
+              p.write_text(s.replace(old, new, 1))
+
+          # Bootcamp floor is a real physical stop. Do not emit trainprogram::stop,
+          # because homeform also consumes that signal as a workout stop. Call the
+          # device directly so the training-program clock remains active.
+          replace_once(
+              'src/trainprogram.cpp',
+              '''            if (isPelotonBootcampFloorRow(rows.at(0))) {
+                if (settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool()) {
+                    qDebug() << QStringLiteral("trainprogram Peloton Bootcamp floor - speed 0");
+                    emit changeSpeed(0.0);
+                }
+''',
+              '''            if (isPelotonBootcampFloorRow(rows.at(0))) {
+                if (settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool()) {
+                    qDebug() << QStringLiteral("trainprogram Peloton Bootcamp floor - physical treadmill stop");
+                    bluetoothManager->device()->stop(false);
+                }
+''',
+              'initial Bootcamp floor stop')
+
+          replace_once(
+              'src/trainprogram.cpp',
+              '''        if (pelotonBootcampFloor) {
+            if (settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool()) {
+                qDebug() << QStringLiteral("trainprogram Peloton Bootcamp floor - speed 0");
+                emit changeSpeed(0.0);
+            }
+''',
+              '''        if (pelotonBootcampFloor) {
+            if (settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool()) {
+                qDebug() << QStringLiteral("trainprogram Peloton Bootcamp floor - physical treadmill stop");
+                bluetoothManager->device()->stop(false);
+            }
+''',
+              'Bootcamp floor stop')
+
+          # Keep small, device-local state for the FS/P30 startup quirk. The retry is
+          # armed by an actual FTMS start and only fires after the requested speed has
+          # first been reached and the treadmill then falls back to 1 km/h.
+          replace_once(
+              'src/devices/horizontreadmill/horizontreadmill.h',
+              '''    qint64 lastNonZeroSpeedTimestamp = 0;
+    bool horizonPaused = false;
+''',
+              '''    qint64 lastNonZeroSpeedTimestamp = 0;
+    qint64 fsStartupRetryWindowStarted = 0;
+    double fsStartupTargetSpeed = -1.0;
+    bool fsStartupTargetReached = false;
+    bool fsStartupRetryDone = false;
+    bool horizonPaused = false;
+''',
+              'FS startup state')
+
+          replace_once(
+              'src/devices/horizontreadmill/horizontreadmill.cpp',
+              '''        if (requestSpeed != -1) {
+            bool minSpeed =
+                fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
+            bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
+            qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
+                     << float_one_point_round(currentSpeed().value());
+            if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
+                forceSpeedNeed) {
+                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                forceSpeed(float_one_point_round(requestSpeed));
+            }
+            requestSpeed = -1;
+        }
+''',
+              '''        if (requestSpeed != -1) {
+            // On FS/P30, when start and speed are queued together, send FTMS Start first.
+            // Keeping requestSpeed pending makes the speed command run on the next update.
+            if (FS_TREADMILL && requestStart != -1) {
+                qDebug() << "FS treadmill: deferring speed target until start command has been sent" << requestSpeed;
+            } else {
+                const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+                if (FS_TREADMILL && fsStartupRetryWindowStarted > 0 &&
+                    nowMs <= (fsStartupRetryWindowStarted + 15000) && requestSpeed > 1.1 && !fsStartupRetryDone &&
+                    fabs(fsStartupTargetSpeed - requestSpeed) > 0.01) {
+                    fsStartupTargetSpeed = requestSpeed;
+                    fsStartupTargetReached = false;
+                    qDebug() << "FS treadmill: armed startup speed target" << fsStartupTargetSpeed;
+                }
+
+                bool minSpeed =
+                    fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
+                bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
+                qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
+                         << float_one_point_round(currentSpeed().value());
+                if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
+                    forceSpeedNeed) {
+                    emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                    forceSpeed(float_one_point_round(requestSpeed));
+                }
+                requestSpeed = -1;
+            }
+        }
+''',
+              'requestSpeed handling')
+
+          replace_once(
+              'src/devices/horizontreadmill/horizontreadmill.cpp',
+              '''            horizonPaused = false;
+            lastStart = QDateTime::currentMSecsSinceEpoch();
+        }
+        if (requestStop != -1) {
+''',
+              '''            horizonPaused = false;
+            lastStart = QDateTime::currentMSecsSinceEpoch();
+
+            if (FS_TREADMILL) {
+                fsStartupRetryWindowStarted = lastStart;
+                fsStartupTargetSpeed = -1.0;
+                fsStartupTargetReached = false;
+                fsStartupRetryDone = false;
+                qDebug() << "FS treadmill: startup speed retry window armed";
+            }
+        }
+
+        // The P30 can accept the first target, reach it, and then overwrite it with
+        // its own 1 km/h startup speed. Detect that device-reported sequence instead
+        // of using a fixed delay, then re-apply the target once.
+        if (FS_TREADMILL && fsStartupRetryWindowStarted > 0) {
+            const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+            if (nowMs > (fsStartupRetryWindowStarted + 15000)) {
+                qDebug() << "FS treadmill: startup speed retry window expired";
+                fsStartupRetryWindowStarted = 0;
+                fsStartupTargetSpeed = -1.0;
+                fsStartupTargetReached = false;
+                fsStartupRetryDone = false;
+            } else if (fsStartupTargetSpeed > 1.1 && !fsStartupRetryDone) {
+                const double current = currentSpeed().value();
+                const double targetTolerance = qMax(0.2, minStepSpeed());
+
+                if (!fsStartupTargetReached && current > 1.1 &&
+                    fabs(current - fsStartupTargetSpeed) <= targetTolerance) {
+                    fsStartupTargetReached = true;
+                    qDebug() << "FS treadmill: startup target reached" << current << fsStartupTargetSpeed;
+                } else if (fsStartupTargetReached && current >= 0.9 && current <= 1.1) {
+                    requestSpeed = fsStartupTargetSpeed;
+                    fsStartupRetryDone = true;
+                    qDebug() << "FS treadmill: detected 1 km/h startup fallback, reapplying target"
+                             << fsStartupTargetSpeed;
+                }
+            }
+        }
+
+        if (requestStop != -1) {
+''',
+              'start/retry handling')
+
+          replace_once(
+              'src/devices/horizontreadmill/horizontreadmill.cpp',
+              '''        if (requestStop != -1) {
+            emit debug(QStringLiteral("stopping..."));
+
+            if (gattCustomService) {
+''',
+              '''        if (requestStop != -1) {
+            emit debug(QStringLiteral("stopping..."));
+
+            if (FS_TREADMILL) {
+                fsStartupRetryWindowStarted = 0;
+                fsStartupTargetSpeed = -1.0;
+                fsStartupTargetReached = false;
+                fsStartupRetryDone = false;
+            }
+
+            if (gattCustomService) {
+''',
+              'stop cancels startup retry')
+
+      - name: Validate patch
+        run: |
+          git diff --check
+          grep -q 'Peloton Bootcamp floor - physical treadmill stop' src/trainprogram.cpp
+          grep -q 'detected 1 km/h startup fallback' src/devices/horizontreadmill/horizontreadmill.cpp
+          grep -q 'fsStartupTargetSpeed' src/devices/horizontreadmill/horizontreadmill.h
+
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/trainprogram.cpp src/devices/horizontreadmill/horizontreadmill.cpp src/devices/horizontreadmill/horizontreadmill.h
+          git commit -m "Fix P30 Bootcamp stop and startup speed fallback"
+          git push origin HEAD:codex/add-backward-compatible-inclination-mapping-extension-3shg4d
