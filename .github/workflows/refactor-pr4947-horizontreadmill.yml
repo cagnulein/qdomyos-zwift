@@ -1,0 +1,106 @@
+name: Refactor PR 4947 P30 logic into horizontreadmill
+
+on:
+  push:
+    branches:
+      - codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+
+      - name: Move P30-specific logic out of treadmill base class
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          treadmill_cpp = Path('src/devices/treadmill.cpp')
+          s = treadmill_cpp.read_text()
+          s = s.replace('#include "homeform.h"\n', '', 1)
+
+          s, n = re.subn(
+              r'\nstatic bool activePelotonBootcampWorkout\(\) \{.*?\n\}\n\n',
+              '\n', s, count=1, flags=re.S)
+          assert n == 1, 'activePelotonBootcampWorkout helper not found'
+
+          s, n = re.subn(
+              r'\n    // A target speed of zero in a Peloton Bootcamp floor interval is an intentional\n.*?\n        return;\n    \}\n',
+              '\n', s, count=1, flags=re.S)
+          assert n == 1, 'Bootcamp zero-speed block not found in treadmill.cpp'
+
+          s, n = re.subn(
+              r'    if \(autoResistanceEnable\) \{\n        const bool fsTreadmill = bluetoothDevice\.name\(\)\.toUpper\(\)\.startsWith\(QStringLiteral\("FS-"\)\);.*?\n    \}\n\}\nvoid treadmill::changeInclination',
+              '    if (autoResistanceEnable)\n        requestSpeed = (speed * m_difficult) + m_difficult_offset;\n}\nvoid treadmill::changeInclination',
+              s, count=1, flags=re.S)
+          assert n == 1, 'FS changeSpeed block not found in treadmill.cpp'
+
+          s, n = re.subn(
+              r'\n    const bool fsTreadmill = bluetoothDevice\.name\(\)\.toUpper\(\)\.startsWith\(QStringLiteral\("FS-"\)\);.*?\n    simulateInclinationWithSpeed\(\);',
+              '\n    simulateInclinationWithSpeed();', s, count=1, flags=re.S)
+          assert n == 1, 'FS update_metrics block not found in treadmill.cpp'
+          treadmill_cpp.write_text(s)
+
+          treadmill_h = Path('src/devices/treadmill.h')
+          s = treadmill_h.read_text()
+          s, n = re.subn(
+              r'\n    // FS/P30 startup quirk:.*?\n    bool m_fsStartupRetryDone = false;\n',
+              '\n', s, count=1, flags=re.S)
+          assert n == 1, 'FS fields not found in treadmill.h'
+          treadmill_h.write_text(s)
+
+          horizon_h = Path('src/devices/horizontreadmill/horizontreadmill.h')
+          s = horizon_h.read_text()
+          needle = '    bool autoStartWhenSpeedIsGreaterThenZero() override;\n\n  private:'
+          replacement = '''    bool autoStartWhenSpeedIsGreaterThenZero() override;\n\n  public slots:\n    void changeSpeed(double speed) override;\n\n  private:'''
+          assert needle in s, 'horizontreadmill public/private insertion point not found'
+          s = s.replace(needle, replacement, 1)
+
+          needle = '    qint64 lastNonZeroSpeedTimestamp = 0;\n    bool horizonPaused = false;'
+          replacement = '''    qint64 lastNonZeroSpeedTimestamp = 0;\n\n    // FS/P30 startup quirk. This belongs to the concrete Horizon/FTMS driver, not\n    // to the generic treadmill base class. It is transient state for one real start.\n    qint64 m_fsStartupRetryWindowStarted = 0;\n    double m_fsStartupTargetSpeed = -1.0;\n    double m_fsPendingStartSpeed = -1.0;\n    bool m_fsStartupTargetReached = false;\n    bool m_fsStartupRetryDone = false;\n\n    bool horizonPaused = false;'''
+          assert needle in s, 'horizontreadmill state insertion point not found'
+          s = s.replace(needle, replacement, 1)
+          horizon_h.write_text(s)
+
+          horizon_cpp = Path('src/devices/horizontreadmill/horizontreadmill.cpp')
+          s = horizon_cpp.read_text()
+          needle = '''horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) {\n\n    testProfileCRC();\n\n    m_watt.setType(metric::METRIC_WATT, deviceType());\n    Speed.setType(metric::METRIC_SPEED);\n    refresh = new QTimer(this);\n    this->noWriteResistance = noWriteResistance;\n    this->noHeartService = noHeartService;\n    initDone = false;\n    connect(refresh, &QTimer::timeout, this, &horizontreadmill::update);\n    refresh->start(200ms);\n}\n'''
+          addition = needle + '''\nvoid horizontreadmill::changeSpeed(double speed) {\n    homeform *home = homeform::singleton();\n    peloton *pelotonHandler = home ? home->getPelotonHandler() : nullptr;\n    const bool pelotonBootcamp = pelotonHandler && pelotonHandler->isBootcampWorkout();\n\n    // The P30 is handled by this concrete class as FS_TREADMILL. During a Peloton\n    // Bootcamp floor, Set Target Speed = 0 is ACKed but does not stop its belt, so\n    // translate only this device-specific case into a real Stop command.\n    if (FS_TREADMILL && qFuzzyIsNull(speed) && pelotonBootcamp && canStartStop()) {\n        m_lastRawSpeedRequested = speed;\n        RequestedSpeed = 0;\n        if (autoResistanceEnable) {\n            requestSpeed = -1;\n            m_fsStartupRetryWindowStarted = 0;\n            m_fsStartupTargetSpeed = -1.0;\n            m_fsPendingStartSpeed = -1.0;\n            m_fsStartupTargetReached = false;\n            m_fsStartupRetryDone = false;\n            qDebug() << "FS treadmill Peloton Bootcamp floor: requesting physical treadmill stop";\n            stop(false);\n        }\n        return;\n    }\n\n    treadmill::changeSpeed(speed);\n\n    if (!FS_TREADMILL || !autoResistanceEnable || RequestedSpeed.value() <= 1.1)\n        return;\n\n    // A Bootcamp floor resume can queue Start/Resume and the next speed in the same\n    // trainprogram transition. Keep the target here until horizontreadmill::update()\n    // has actually sent Start/Resume.\n    if (requestStart != -1) {\n        m_fsPendingStartSpeed = RequestedSpeed.value();\n        requestSpeed = -1;\n        qDebug() << "FS treadmill: deferring speed target until start command has been sent"\n                 << m_fsPendingStartSpeed;\n        return;\n    }\n\n    // A normal startup target may arrive shortly after the real Start command. Arm\n    // the one-shot recovery against the concrete driver's start window.\n    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();\n    if (m_fsStartupRetryWindowStarted > 0 &&\n        nowMs <= (m_fsStartupRetryWindowStarted + 15000) && !m_fsStartupRetryDone) {\n        if (m_fsStartupTargetSpeed < 0.0 ||\n            qAbs(m_fsStartupTargetSpeed - RequestedSpeed.value()) > 0.01) {\n            m_fsStartupTargetSpeed = RequestedSpeed.value();\n            m_fsStartupTargetReached = false;\n            qDebug() << "FS treadmill: armed startup speed target" << m_fsStartupTargetSpeed;\n        }\n    }\n}\n'''
+          assert needle in s, 'horizontreadmill constructor block not found'
+          s = s.replace(needle, addition, 1)
+
+          needle = '''        QSettings settings;\n        bool horizon_treadmill_omega_z ='''
+          recovery = '''        QSettings settings;\n\n        if (FS_TREADMILL) {\n            const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();\n\n            // Any explicit stop cancels a startup recovery. This also prevents a\n            // manual stop during the 15-second window from being undone by a retry.\n            if (requestStop != -1) {\n                m_fsStartupRetryWindowStarted = 0;\n                m_fsStartupTargetSpeed = -1.0;\n                m_fsPendingStartSpeed = -1.0;\n                m_fsStartupTargetReached = false;\n                m_fsStartupRetryDone = false;\n            }\n\n            // Start/Resume is processed later in this update than speed requests.\n            // Therefore release a deferred speed only on the following update, after\n            // requestStart has been consumed by the driver.\n            if (m_fsPendingStartSpeed > 1.1 && requestStart == -1) {\n                requestSpeed = m_fsPendingStartSpeed;\n                if (m_fsStartupRetryWindowStarted > 0 &&\n                    nowMs <= (m_fsStartupRetryWindowStarted + 15000)) {\n                    m_fsStartupTargetSpeed = m_fsPendingStartSpeed;\n                    m_fsStartupTargetReached = false;\n                    m_fsStartupRetryDone = false;\n                }\n                qDebug() << "FS treadmill: applying deferred post-start speed target"\n                         << m_fsPendingStartSpeed;\n                m_fsPendingStartSpeed = -1.0;\n            }\n\n            if (m_fsStartupRetryWindowStarted > 0) {\n                if (nowMs > (m_fsStartupRetryWindowStarted + 15000)) {\n                    qDebug() << "FS treadmill: startup speed retry window expired";\n                    m_fsStartupRetryWindowStarted = 0;\n                    m_fsStartupTargetSpeed = -1.0;\n                    m_fsPendingStartSpeed = -1.0;\n                    m_fsStartupTargetReached = false;\n                    m_fsStartupRetryDone = false;\n                } else if (m_fsStartupTargetSpeed > 1.1 && !m_fsStartupRetryDone) {\n                    const double currentSpeedValue = currentSpeed().value();\n                    const double targetTolerance = qMax(0.2, minStepSpeed());\n\n                    if (!m_fsStartupTargetReached && currentSpeedValue > 1.1 &&\n                        qAbs(currentSpeedValue - m_fsStartupTargetSpeed) <= targetTolerance) {\n                        m_fsStartupTargetReached = true;\n                        qDebug() << "FS treadmill: startup target reached" << currentSpeedValue\n                                 << m_fsStartupTargetSpeed;\n                    } else if (m_fsStartupTargetReached && currentSpeedValue >= 0.9 &&\n                               currentSpeedValue <= 1.1) {\n                        requestSpeed = m_fsStartupTargetSpeed;\n                        m_fsStartupRetryDone = true;\n                        qDebug() << "FS treadmill: detected 1 km/h startup fallback, reapplying target"\n                                 << m_fsStartupTargetSpeed;\n                    }\n                }\n            }\n        }\n\n        bool horizon_treadmill_omega_z ='''
+          assert needle in s, 'horizontreadmill update insertion point not found'
+          s = s.replace(needle, recovery, 1)
+
+          needle = '''            horizonPaused = false;\n            lastStart = QDateTime::currentMSecsSinceEpoch();\n        }\n        if (requestStop != -1) {'''
+          replacement = '''            horizonPaused = false;\n            lastStart = QDateTime::currentMSecsSinceEpoch();\n            if (FS_TREADMILL) {\n                m_fsStartupRetryWindowStarted = lastStart;\n                m_fsStartupTargetSpeed = -1.0;\n                m_fsStartupTargetReached = false;\n                m_fsStartupRetryDone = false;\n                qDebug() << "FS treadmill: startup speed retry window armed";\n            }\n        }\n        if (requestStop != -1) {'''
+          assert needle in s, 'horizontreadmill start timestamp insertion point not found'
+          s = s.replace(needle, replacement, 1)
+          horizon_cpp.write_text(s)
+
+      - name: Verify patch scope
+        run: |
+          git diff --check
+          ! grep -q 'm_fsStartup' src/devices/treadmill.cpp
+          ! grep -q 'm_fsStartup' src/devices/treadmill.h
+          ! grep -q 'activePelotonBootcampWorkout' src/devices/treadmill.cpp
+          grep -q 'void horizontreadmill::changeSpeed' src/devices/horizontreadmill/horizontreadmill.cpp
+          grep -q 'FS treadmill Peloton Bootcamp floor' src/devices/horizontreadmill/horizontreadmill.cpp
+
+      - name: Commit refactor
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/devices/treadmill.cpp src/devices/treadmill.h src/devices/horizontreadmill/horizontreadmill.cpp src/devices/horizontreadmill/horizontreadmill.h
+          git commit -m "Move P30 Bootcamp and startup handling to horizontreadmill"
+          git push
