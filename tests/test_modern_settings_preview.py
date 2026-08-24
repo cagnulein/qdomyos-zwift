@@ -28,6 +28,29 @@ class ModernSettingsPreviewTests(unittest.TestCase):
         self.assertIn("function modernSettingsParentName()", self.text)
         self.assertIn("stackView.push(entry.target)", self.text)
 
+    def test_navigation_history_preserves_scroll_position(self):
+        self.assertEqual(self.text.count("// MODERN_SETTINGS_NAVIGATION_STATE_V5"), 1)
+        self.assertIn("property var modernSettingsHistory: []", self.text)
+        self.assertIn("scrollY: modernCurrentScrollY()", self.text)
+        self.assertIn("modernCategoryList.contentY = state.scrollY", self.text)
+        self.assertIn("modernItemList.contentY = state.scrollY", self.text)
+        self.assertIn("modernPushNavigationState()", self.text)
+        self.assertIn("modernApplyNavigationState(state)", self.text)
+
+    def test_external_pages_resume_modern_settings(self):
+        self.assertIn("property bool modernSettingsAwaitingExternalReturn: false", self.text)
+        self.assertIn("StackView.onActivated", self.text)
+        self.assertIn("settingsPane.resumeModernSettingsAfterExternalPage()", self.text)
+        self.assertIn("modernSettingsExternalReturnState = modernCaptureNavigationState()", self.text)
+        self.assertIn("modernSettingsAwaitingExternalReturn = true", self.text)
+        self.assertIn("modernSettingsDrawer.open()", self.text)
+
+    def test_search_back_is_handled_before_navigation_history(self):
+        start = self.text.index("        function modernSettingsBack() {")
+        end = self.text.index("        function showSettingsSearch()", start)
+        body = self.text[start:end]
+        self.assertLess(body.index("modernSettingsSearch.text.length > 0"), body.index("modernSettingsHistory.length > 0"))
+
     def test_preview_avoids_private_material_dialog_color(self):
         self.assertNotIn("Material.dialogColor", self.text)
 
