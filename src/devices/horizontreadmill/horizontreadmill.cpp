@@ -37,6 +37,60 @@ horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) 
     refresh->start(200ms);
 }
 
+void horizontreadmill::changeSpeed(double speed) {
+    homeform *home = homeform::singleton();
+    peloton *pelotonHandler = home ? home->getPelotonHandler() : nullptr;
+    const bool pelotonBootcamp = pelotonHandler && pelotonHandler->isBootcampWorkout();
+
+    // The P30 is handled by this concrete class as FS_TREADMILL. During a Peloton
+    // Bootcamp floor, Set Target Speed = 0 is ACKed but does not stop its belt, so
+    // translate only this device-specific case into a real Stop command.
+    if (FS_TREADMILL && qFuzzyIsNull(speed) && pelotonBootcamp && canStartStop()) {
+        m_lastRawSpeedRequested = speed;
+        RequestedSpeed = 0;
+        if (autoResistanceEnable) {
+            requestSpeed = -1;
+            m_fsStartupRetryWindowStarted = 0;
+            m_fsStartupTargetSpeed = -1.0;
+            m_fsPendingStartSpeed = -1.0;
+            m_fsStartupTargetReached = false;
+            m_fsStartupRetryDone = false;
+            qDebug() << "FS treadmill Peloton Bootcamp floor: requesting physical treadmill stop";
+            stop(false);
+        }
+        return;
+    }
+
+    treadmill::changeSpeed(speed);
+
+    if (!FS_TREADMILL || !autoResistanceEnable || RequestedSpeed.value() <= 1.1)
+        return;
+
+    // A Bootcamp floor resume can queue Start/Resume and the next speed in the same
+    // trainprogram transition. Keep the target here until horizontreadmill::update()
+    // has actually sent Start/Resume.
+    if (requestStart != -1) {
+        m_fsPendingStartSpeed = RequestedSpeed.value();
+        requestSpeed = -1;
+        qDebug() << "FS treadmill: deferring speed target until start command has been sent"
+                 << m_fsPendingStartSpeed;
+        return;
+    }
+
+    // A normal startup target may arrive shortly after the real Start command. Arm
+    // the one-shot recovery against the concrete driver's start window.
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    if (m_fsStartupRetryWindowStarted > 0 &&
+        nowMs <= (m_fsStartupRetryWindowStarted + 15000) && !m_fsStartupRetryDone) {
+        if (m_fsStartupTargetSpeed < 0.0 ||
+            qAbs(m_fsStartupTargetSpeed - RequestedSpeed.value()) > 0.01) {
+            m_fsStartupTargetSpeed = RequestedSpeed.value();
+            m_fsStartupTargetReached = false;
+            qDebug() << "FS treadmill: armed startup speed target" << m_fsStartupTargetSpeed;
+        }
+    }
+}
+
 void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
                                            uint8_t *data, uint8_t data_len, QString info, bool disable_log,
                                            bool wait_for_response) {
@@ -929,6 +983,64 @@ void horizontreadmill::update() {
                /*initDone*/) {
 
         QSettings settings;
+
+        if (FS_TREADMILL) {
+            const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+
+            // Any explicit stop cancels a startup recovery. This also prevents a
+            // manual stop during the 15-second window from being undone by a retry.
+            if (requestStop != -1) {
+                m_fsStartupRetryWindowStarted = 0;
+                m_fsStartupTargetSpeed = -1.0;
+                m_fsPendingStartSpeed = -1.0;
+                m_fsStartupTargetReached = false;
+                m_fsStartupRetryDone = false;
+            }
+
+            // Start/Resume is processed later in this update than speed requests.
+            // Therefore release a deferred speed only on the following update, after
+            // requestStart has been consumed by the driver.
+            if (m_fsPendingStartSpeed > 1.1 && requestStart == -1) {
+                requestSpeed = m_fsPendingStartSpeed;
+                if (m_fsStartupRetryWindowStarted > 0 &&
+                    nowMs <= (m_fsStartupRetryWindowStarted + 15000)) {
+                    m_fsStartupTargetSpeed = m_fsPendingStartSpeed;
+                    m_fsStartupTargetReached = false;
+                    m_fsStartupRetryDone = false;
+                }
+                qDebug() << "FS treadmill: applying deferred post-start speed target"
+                         << m_fsPendingStartSpeed;
+                m_fsPendingStartSpeed = -1.0;
+            }
+
+            if (m_fsStartupRetryWindowStarted > 0) {
+                if (nowMs > (m_fsStartupRetryWindowStarted + 15000)) {
+                    qDebug() << "FS treadmill: startup speed retry window expired";
+                    m_fsStartupRetryWindowStarted = 0;
+                    m_fsStartupTargetSpeed = -1.0;
+                    m_fsPendingStartSpeed = -1.0;
+                    m_fsStartupTargetReached = false;
+                    m_fsStartupRetryDone = false;
+                } else if (m_fsStartupTargetSpeed > 1.1 && !m_fsStartupRetryDone) {
+                    const double currentSpeedValue = currentSpeed().value();
+                    const double targetTolerance = qMax(0.2, minStepSpeed());
+
+                    if (!m_fsStartupTargetReached && currentSpeedValue > 1.1 &&
+                        qAbs(currentSpeedValue - m_fsStartupTargetSpeed) <= targetTolerance) {
+                        m_fsStartupTargetReached = true;
+                        qDebug() << "FS treadmill: startup target reached" << currentSpeedValue
+                                 << m_fsStartupTargetSpeed;
+                    } else if (m_fsStartupTargetReached && currentSpeedValue >= 0.9 &&
+                               currentSpeedValue <= 1.1) {
+                        requestSpeed = m_fsStartupTargetSpeed;
+                        m_fsStartupRetryDone = true;
+                        qDebug() << "FS treadmill: detected 1 km/h startup fallback, reapplying target"
+                                 << m_fsStartupTargetSpeed;
+                    }
+                }
+            }
+        }
+
         bool horizon_treadmill_omega_z =
             settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
         bool horizon_treadmill_7_8 =
@@ -1096,6 +1208,13 @@ void horizontreadmill::update() {
             }
             horizonPaused = false;
             lastStart = QDateTime::currentMSecsSinceEpoch();
+            if (FS_TREADMILL) {
+                m_fsStartupRetryWindowStarted = lastStart;
+                m_fsStartupTargetSpeed = -1.0;
+                m_fsStartupTargetReached = false;
+                m_fsStartupRetryDone = false;
+                qDebug() << "FS treadmill: startup speed retry window armed";
+            }
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));

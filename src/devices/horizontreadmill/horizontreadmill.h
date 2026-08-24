@@ -47,6 +47,9 @@ class horizontreadmill : public treadmill {
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
 
+  public slots:
+    void changeSpeed(double speed) override;
+
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
                              uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
@@ -77,6 +80,15 @@ class horizontreadmill : public treadmill {
     double lastSpeed = 0.0;
     double lastInclination = 0;
     qint64 lastNonZeroSpeedTimestamp = 0;
+
+    // FS/P30 startup quirk. This belongs to the concrete Horizon/FTMS driver, not
+    // to the generic treadmill base class. It is transient state for one real start.
+    qint64 m_fsStartupRetryWindowStarted = 0;
+    double m_fsStartupTargetSpeed = -1.0;
+    double m_fsPendingStartSpeed = -1.0;
+    bool m_fsStartupTargetReached = false;
+    bool m_fsStartupRetryDone = false;
+
     bool horizonPaused = false;
     double lastHorizonForceSpeed = 0;
     double minInclination = 0.0;
