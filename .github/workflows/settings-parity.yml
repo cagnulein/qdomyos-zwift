@@ -36,6 +36,8 @@ jobs:
           git add src/main.qml src/settings.qml
           if ! git diff --cached --quiet; then
             git commit -m 'Add real QML settings visual parity harness'
+            git fetch origin agent/settings-refactor-phase1-safety
+            git rebase origin/agent/settings-refactor-phase1-safety
             git push origin HEAD:agent/settings-refactor-phase1-safety
           fi
       - name: Install report dependency
