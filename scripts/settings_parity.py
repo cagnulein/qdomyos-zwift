@@ -28,6 +28,7 @@ CONTROL_TYPES = {
     "ComboBox": "select",
     "Switch": "switch",
     "CheckBox": "switch",
+    "AccordionCheckElement": "switch",
     "TextField": "text",
     "TextInput": "text",
     "SpinBox": "number",
@@ -102,7 +103,12 @@ def build_report() -> dict:
             key = entry.get("key")
             lv = preferred_legacy(legacy.get(key, set()))
             mv = modern_control(entry)
-            status = "unknown" if lv is None else ("ok" if lv == mv or (lv == "slider" and mv == "number") else "mismatch")
+                        compatible = (
+                lv == mv
+                or ({lv, mv} <= {"text", "number"})
+                or (lv == "slider" and mv in ("number", "text"))
+            ) if lv is not None else False
+            status = "unknown" if lv is None else ("ok" if compatible else "mismatch")
             row = {
                 "key": key,
                 "name": entry.get("name", key),

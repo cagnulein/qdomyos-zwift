@@ -741,6 +741,13 @@ import AndroidStatusBar 1.0
             return []
         }
 
+        function optionLabels(entry) {
+            var values = optionValues(entry)
+            if (entry.options && entry.options.labels && entry.options.labels.length === values.length)
+                return entry.options.labels
+            return values
+        }
+
         function optionIndex(entry) {
             var values = optionValues(entry)
             var value = settingValue(entry)
@@ -2483,10 +2490,10 @@ import AndroidStatusBar 1.0
                                 id: modernOptionCombo
                                 visible: entry.catalogKind === "setting" && settingsPane.optionValues(entry).length > 0
                                 Layout.fillWidth: true
-                                model: visible ? settingsPane.optionValues(entry) : []
+                                model: visible ? settingsPane.optionLabels(entry) : []
                                 currentIndex: visible ? settingsPane.optionIndex(entry) : 0
                                 onActivated: {
-                                    var selectedValue = currentValue
+                                    var selectedValue = settingsPane.optionValues(entry)[currentIndex]
                                     if (entry.options && entry.options.expression && entry.options.expression.indexOf("bluetoothDevices") >= 0)
                                         selectedValue = settingsPane.stripRssi(selectedValue)
                                     settingsPane.setSettingValue(entry, selectedValue)
@@ -2693,7 +2700,7 @@ import AndroidStatusBar 1.0
                                 Layout.minimumWidth: 0
                                 Layout.preferredHeight: visible ? implicitHeight : 0
                                 Layout.maximumHeight: visible ? implicitHeight : 0
-                                model: visible ? settingsPane.optionValues(entry) : []
+                                model: visible ? settingsPane.optionLabels(entry) : []
                                 currentIndex: visible ? settingsPane.optionIndex(entry) : 0
                                 contentItem: Label {
                                     leftPadding: 12
@@ -2716,7 +2723,7 @@ import AndroidStatusBar 1.0
                                     }
                                 }
                                 onActivated: {
-                                    var selectedValue = currentValue
+                                    var selectedValue = settingsPane.optionValues(entry)[currentIndex]
                                     if (entry.options && entry.options.expression && entry.options.expression.indexOf("bluetoothDevices") >= 0)
                                         selectedValue = settingsPane.stripRssi(selectedValue)
                                     settingsPane.setSettingValue(entry, selectedValue)
