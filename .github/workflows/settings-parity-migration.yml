@@ -1,5 +1,6 @@
 name: Settings parity migration
 
+# one-shot trigger
 on:
   push:
     branches:
