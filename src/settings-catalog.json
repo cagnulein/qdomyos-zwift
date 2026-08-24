@@ -11358,8 +11358,11 @@
       "defaultValue": 0,
       "defaultExpression": "0",
       "options": {
-        "source": "inline",
         "values": [
+          0,
+          1
+        ],
+        "labels": [
           "Classic",
           "Horizontal"
         ]
@@ -11901,8 +11904,12 @@
       "defaultValue": 0,
       "defaultExpression": "0",
       "options": {
-        "source": "inline",
         "values": [
+          0,
+          1,
+          2
+        ],
+        "labels": [
           "Cruise",
           "Climb",
           "Sprint"
@@ -12256,8 +12263,12 @@
       "defaultValue": 0,
       "defaultExpression": "0",
       "options": {
-        "source": "inline",
         "values": [
+          0,
+          1,
+          2
+        ],
+        "labels": [
           "Both Charts",
           "Heart Rate Only",
           "Power Only"
@@ -14899,11 +14910,50 @@
       "parent": "OpenBikeControl",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 2,
       "defaultExpression": "2",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down",
+          "Steer Left",
+          "Steer Right",
+          "U-Turn",
+          "Camera Angle",
+          "Emote",
+          "Tuck",
+          "Nav Up",
+          "Nav Down",
+          "Nav Left",
+          "Nav Right",
+          "Select/Confirm",
+          "Back/Cancel",
+          "Menu",
+          "Home"
+        ]
+      },
       "restartRequired": true
     },
     {
@@ -14913,11 +14963,50 @@
       "parent": "OpenBikeControl",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 0,
       "defaultExpression": "0",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down",
+          "Steer Left",
+          "Steer Right",
+          "U-Turn",
+          "Camera Angle",
+          "Emote",
+          "Tuck",
+          "Nav Up",
+          "Nav Down",
+          "Nav Left",
+          "Nav Right",
+          "Select/Confirm",
+          "Back/Cancel",
+          "Menu",
+          "Home"
+        ]
+      },
       "restartRequired": true
     },
     {
@@ -14927,11 +15016,50 @@
       "parent": "OpenBikeControl",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 0,
       "defaultExpression": "0",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down",
+          "Steer Left",
+          "Steer Right",
+          "U-Turn",
+          "Camera Angle",
+          "Emote",
+          "Tuck",
+          "Nav Up",
+          "Nav Down",
+          "Nav Left",
+          "Nav Right",
+          "Select/Confirm",
+          "Back/Cancel",
+          "Menu",
+          "Home"
+        ]
+      },
       "restartRequired": true
     },
     {
@@ -14941,11 +15069,50 @@
       "parent": "OpenBikeControl",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 0,
       "defaultExpression": "0",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down",
+          "Steer Left",
+          "Steer Right",
+          "U-Turn",
+          "Camera Angle",
+          "Emote",
+          "Tuck",
+          "Nav Up",
+          "Nav Down",
+          "Nav Left",
+          "Nav Right",
+          "Select/Confirm",
+          "Back/Cancel",
+          "Menu",
+          "Home"
+        ]
+      },
       "restartRequired": true
     },
     {
@@ -14955,11 +15122,50 @@
       "parent": "OpenBikeControl",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 5,
       "defaultExpression": "5",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down",
+          "Steer Left",
+          "Steer Right",
+          "U-Turn",
+          "Camera Angle",
+          "Emote",
+          "Tuck",
+          "Nav Up",
+          "Nav Down",
+          "Nav Left",
+          "Nav Right",
+          "Select/Confirm",
+          "Back/Cancel",
+          "Menu",
+          "Home"
+        ]
+      },
       "restartRequired": true
     },
     {
@@ -14969,11 +15175,50 @@
       "parent": "OpenBikeControl",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 1,
       "defaultExpression": "1",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down",
+          "Steer Left",
+          "Steer Right",
+          "U-Turn",
+          "Camera Angle",
+          "Emote",
+          "Tuck",
+          "Nav Up",
+          "Nav Down",
+          "Nav Left",
+          "Nav Right",
+          "Select/Confirm",
+          "Back/Cancel",
+          "Menu",
+          "Home"
+        ]
+      },
       "restartRequired": true
     },
     {
@@ -14997,11 +15242,50 @@
       "parent": "OpenBikeControl",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 0,
       "defaultExpression": "0",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down",
+          "Steer Left",
+          "Steer Right",
+          "U-Turn",
+          "Camera Angle",
+          "Emote",
+          "Tuck",
+          "Nav Up",
+          "Nav Down",
+          "Nav Left",
+          "Nav Right",
+          "Select/Confirm",
+          "Back/Cancel",
+          "Menu",
+          "Home"
+        ]
+      },
       "restartRequired": true
     },
     {
@@ -15011,11 +15295,50 @@
       "parent": "OpenBikeControl",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 7,
       "defaultExpression": "7",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down",
+          "Steer Left",
+          "Steer Right",
+          "U-Turn",
+          "Camera Angle",
+          "Emote",
+          "Tuck",
+          "Nav Up",
+          "Nav Down",
+          "Nav Left",
+          "Nav Right",
+          "Select/Confirm",
+          "Back/Cancel",
+          "Menu",
+          "Home"
+        ]
+      },
       "restartRequired": true
     },
     {
@@ -15025,11 +15348,50 @@
       "parent": "OpenBikeControl",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 0,
       "defaultExpression": "0",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down",
+          "Steer Left",
+          "Steer Right",
+          "U-Turn",
+          "Camera Angle",
+          "Emote",
+          "Tuck",
+          "Nav Up",
+          "Nav Down",
+          "Nav Left",
+          "Nav Right",
+          "Select/Confirm",
+          "Back/Cancel",
+          "Menu",
+          "Home"
+        ]
+      },
       "restartRequired": true
     },
     {
@@ -15039,11 +15401,50 @@
       "parent": "OpenBikeControl",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 0,
       "defaultExpression": "0",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down",
+          "Steer Left",
+          "Steer Right",
+          "U-Turn",
+          "Camera Angle",
+          "Emote",
+          "Tuck",
+          "Nav Up",
+          "Nav Down",
+          "Nav Left",
+          "Nav Right",
+          "Select/Confirm",
+          "Back/Cancel",
+          "Menu",
+          "Home"
+        ]
+      },
       "restartRequired": true
     },
     {
@@ -15053,11 +15454,50 @@
       "parent": "OpenBikeControl",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 6,
       "defaultExpression": "6",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down",
+          "Steer Left",
+          "Steer Right",
+          "U-Turn",
+          "Camera Angle",
+          "Emote",
+          "Tuck",
+          "Nav Up",
+          "Nav Down",
+          "Nav Left",
+          "Nav Right",
+          "Select/Confirm",
+          "Back/Cancel",
+          "Menu",
+          "Home"
+        ]
+      },
       "restartRequired": true
     },
     {
@@ -15067,11 +15507,50 @@
       "parent": "OpenBikeControl",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 0,
       "defaultExpression": "0",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down",
+          "Steer Left",
+          "Steer Right",
+          "U-Turn",
+          "Camera Angle",
+          "Emote",
+          "Tuck",
+          "Nav Up",
+          "Nav Down",
+          "Nav Left",
+          "Nav Right",
+          "Select/Confirm",
+          "Back/Cancel",
+          "Menu",
+          "Home"
+        ]
+      },
       "restartRequired": true
     },
     {
@@ -15123,11 +15602,22 @@
       "parent": "Zwift Play Options",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 0,
       "defaultExpression": "0",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down"
+        ]
+      },
       "restartRequired": false
     },
     {
@@ -15137,11 +15627,22 @@
       "parent": "Zwift Play Options",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 2,
       "defaultExpression": "2",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down"
+        ]
+      },
       "restartRequired": false
     },
     {
@@ -15151,11 +15652,22 @@
       "parent": "Zwift Play Options",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 2,
       "defaultExpression": "2",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down"
+        ]
+      },
       "restartRequired": false
     },
     {
@@ -15165,11 +15677,22 @@
       "parent": "Zwift Play Options",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 2,
       "defaultExpression": "2",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down"
+        ]
+      },
       "restartRequired": false
     },
     {
@@ -15179,11 +15702,22 @@
       "parent": "Zwift Play Options",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 1,
       "defaultExpression": "1",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down"
+        ]
+      },
       "restartRequired": false
     },
     {
@@ -15193,11 +15727,22 @@
       "parent": "Zwift Play Options",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 0,
       "defaultExpression": "0",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down"
+        ]
+      },
       "restartRequired": false
     },
     {
@@ -15207,11 +15752,22 @@
       "parent": "Zwift Play Options",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 1,
       "defaultExpression": "1",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down"
+        ]
+      },
       "restartRequired": false
     },
     {
@@ -15221,11 +15777,22 @@
       "parent": "Zwift Play Options",
       "type": "integer",
       "qmlType": "int",
-      "control": "text",
+      "control": "select",
       "visible": true,
       "defaultValue": 1,
       "defaultExpression": "1",
-      "options": null,
+      "options": {
+        "values": [
+          0,
+          1,
+          2
+        ],
+        "labels": [
+          "Disabled",
+          "Gear Up",
+          "Gear Down"
+        ]
+      },
       "restartRequired": false
     },
     {
