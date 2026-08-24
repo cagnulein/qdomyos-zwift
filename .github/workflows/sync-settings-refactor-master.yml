@@ -120,7 +120,7 @@ jobs:
 
           python3 scripts/settings_layout.py --write
           git add src/settings-catalog.json
-          python3 -m unittest tests/test_settings_audit.py tests/test_settings_behavior_migration.py tests/test_modern_settings_preview.py tests/test_settings_layout.py tests/test_settings_ios_layout.py
+          python3 -m unittest tests/test_settings_audit.py tests/test_settings_behavior_migration.py tests/test_modern_settings_preview.py tests/test_settings_ios_layout.py
           python3 scripts/settings_layout.py
 
           git commit -m "Merge master into settings refactor"
