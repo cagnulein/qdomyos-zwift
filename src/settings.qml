@@ -344,17 +344,17 @@ import AndroidStatusBar 1.0
         }
 
         function modernSettingsBack() {
+            if (modernSettingsSearch.text.length > 0) {
+                modernSettingsSearch.text = ""
+                rebuildModernSettingsItems("")
+                modernResetCurrentScroll()
+                return
+            }
             if (modernSettingsHistory.length > 0) {
                 var history = modernSettingsHistory.slice(0)
                 var state = history.pop()
                 modernSettingsHistory = history
                 modernApplyNavigationState(state)
-                return
-            }
-            if (modernSettingsSearch.text.length > 0) {
-                modernSettingsSearch.text = ""
-                rebuildModernSettingsItems("")
-                modernResetCurrentScroll()
                 return
             }
             modernSettingsDrawer.close()
