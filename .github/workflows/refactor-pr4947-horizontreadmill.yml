@@ -1,0 +1,121 @@
+name: Refactor PR 4947 P30 handling into requestSpeed path
+
+on:
+  push:
+    branches:
+      - codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+
+      - name: Keep treadmill changeSpeed pure
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          header = Path('src/devices/horizontreadmill/horizontreadmill.h')
+          h = header.read_text()
+          h, n = re.subn(r'\n  public slots:\n    void changeSpeed\(double speed\) override;\n', '\n', h, count=1)
+          assert n == 1, 'changeSpeed override declaration not found'
+          header.write_text(h)
+
+          cpp = Path('src/devices/horizontreadmill/horizontreadmill.cpp')
+          s = cpp.read_text()
+          s, n = re.subn(
+              r'\nvoid horizontreadmill::changeSpeed\(double speed\) \{.*?\n\}\n\n(?=void horizontreadmill::writeCharacteristic)',
+              '\n', s, count=1, flags=re.S)
+          assert n == 1, 'changeSpeed override implementation not found'
+
+          start = s.index("        // this treadmill can't go below 1")
+          end = s.index('        if (requestInclination != -100) {', start)
+          replacement = '''        // this treadmill can't go below 1
+        if(mobvoi_tmp_treadmill && requestSpeed < 1)
+            requestSpeed = -1;
+
+        if (requestSpeed != -1) {
+            // Keep treadmill::changeSpeed() generic. The FS/P30-specific translation
+            // happens only here, at the point where horizontreadmill is about to turn
+            // a requested target into a physical device command.
+            if (FS_TREADMILL && qFuzzyIsNull(requestSpeed)) {
+                homeform *home = homeform::singleton();
+                peloton *pelotonHandler = home ? home->getPelotonHandler() : nullptr;
+                const bool pelotonBootcamp = pelotonHandler && pelotonHandler->isBootcampWorkout();
+
+                if (pelotonBootcamp && canStartStop()) {
+                    qDebug() << "FS treadmill Peloton Bootcamp floor: translating speed 0 to physical Stop";
+                    requestSpeed = -1;
+                    m_fsStartupRetryWindowStarted = 0;
+                    m_fsStartupTargetSpeed = -1.0;
+                    m_fsPendingStartSpeed = -1.0;
+                    m_fsStartupTargetReached = false;
+                    m_fsStartupRetryDone = false;
+                    stop(false);
+                }
+            }
+
+            // trainprogram can queue Start/Resume and the next running target in the
+            // same floor -> running transition. Since the driver processes speed before
+            // start below, hold that speed for the next update so Start/Resume goes first.
+            if (requestSpeed != -1 && FS_TREADMILL && requestStart != -1 && requestSpeed > 1.1) {
+                m_fsPendingStartSpeed = requestSpeed;
+                requestSpeed = -1;
+                qDebug() << "FS treadmill: deferring speed target until start command has been sent"
+                         << m_fsPendingStartSpeed;
+            }
+
+            if (requestSpeed != -1) {
+                if (FS_TREADMILL && requestSpeed > 1.1 && m_fsStartupRetryWindowStarted > 0 &&
+                    QDateTime::currentMSecsSinceEpoch() <= (m_fsStartupRetryWindowStarted + 15000) &&
+                    !m_fsStartupRetryDone) {
+                    if (m_fsStartupTargetSpeed < 0.0 || qAbs(m_fsStartupTargetSpeed - requestSpeed) > 0.01) {
+                        m_fsStartupTargetSpeed = requestSpeed;
+                        m_fsStartupTargetReached = false;
+                        qDebug() << "FS treadmill: armed startup speed target" << m_fsStartupTargetSpeed;
+                    }
+                }
+
+                bool minSpeed =
+                    fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
+                bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
+                qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
+                         << float_one_point_round(currentSpeed().value());
+                if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed &&
+                    requestSpeed >= 0 && requestSpeed <= 22 && forceSpeedNeed) {
+                    emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                    forceSpeed(float_one_point_round(requestSpeed));
+                }
+                requestSpeed = -1;
+            }
+        }
+'''
+          s = s[:start] + replacement + s[end:]
+          cpp.write_text(s)
+
+      - name: Verify scope
+        run: |
+          git diff --check
+          ! grep -q 'void horizontreadmill::changeSpeed' src/devices/horizontreadmill/horizontreadmill.cpp
+          ! grep -q 'changeSpeed(double speed) override' src/devices/horizontreadmill/horizontreadmill.h
+          grep -q 'translating speed 0 to physical Stop' src/devices/horizontreadmill/horizontreadmill.cpp
+          grep -q 'm_fsPendingStartSpeed = requestSpeed' src/devices/horizontreadmill/horizontreadmill.cpp
+          ! grep -q 'Peloton Bootcamp' src/devices/treadmill.cpp
+          ! grep -q 'm_fsStartup' src/devices/treadmill.cpp
+          ! grep -q 'm_fsStartup' src/devices/treadmill.h
+
+      - name: Commit refactor
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/devices/horizontreadmill/horizontreadmill.cpp src/devices/horizontreadmill/horizontreadmill.h
+          git commit -m "Handle P30 requests in horizontreadmill update path"
+          git push
