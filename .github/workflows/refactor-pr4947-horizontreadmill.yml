@@ -1,9 +1,8 @@
 name: Refactor PR 4947 P30 handling into requestSpeed path
 
 on:
-  push:
-    branches:
-      - codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+  pull_request:
+    types: [synchronize]
 
 permissions:
   contents: write
