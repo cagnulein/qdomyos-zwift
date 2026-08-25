@@ -377,6 +377,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         } else {
             Cadence = ((uint8_t)newValue.at(index)) / cadence_divider;
         }
+        emit debug(QStringLiteral("Current Stroke Rate: ") + QString::number(Cadence.value()));
 
         StrokesCount =
             (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
