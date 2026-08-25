@@ -78,7 +78,7 @@ jobs:
           rm -rf settings-qml-visual-report
           mkdir -p settings-qml-visual-report/raw
           set +e
-          timeout 210s ./src/qdomyos-zwift \
+          sudo -E timeout 210s ./src/qdomyos-zwift \
             --settings-visual-test \
             --settings-visual-output="${{ github.workspace }}/settings-qml-visual-report/raw" \
             > settings-qml-visual-report/runtime.log 2>&1
