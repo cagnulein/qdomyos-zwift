@@ -1,5 +1,6 @@
 name: Settings QML visual parity
 
+# Keep this workflow directly triggerable by maintainer commits while validating runtime parity.
 on:
   pull_request:
     paths:
