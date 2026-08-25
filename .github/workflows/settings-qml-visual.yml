@@ -86,9 +86,14 @@ jobs:
           set -e
           echo "visual harness exit status: $app_status"
           grep 'SETTINGS_VISUAL:' settings-qml-visual-report/runtime.log || true
-          count=$(find settings-qml-visual-report/raw -name '*.png' | wc -l)
-          echo "runtime screenshot count: $count"
-          test "$count" -gt 1
+          modern_count=$(find settings-qml-visual-report/raw -name 'modern-*.png' | wc -l)
+          legacy_count=$(find settings-qml-visual-report/raw -name 'legacy-*.png' | wc -l)
+          echo "runtime modern screenshot count: $modern_count"
+          echo "runtime legacy screenshot count: $legacy_count"
+          test "$app_status" -eq 0
+          grep -q 'SETTINGS_VISUAL: complete' settings-qml-visual-report/runtime.log
+          test "$modern_count" -gt 0
+          test "$legacy_count" -gt 0
           python3 scripts/settings_visual_report.py \
             --raw settings-qml-visual-report/raw \
             --out settings-qml-visual-report
