@@ -11,12 +11,27 @@ ColumnLayout {
     property alias textFontSize: accordionText.font.pixelSize
     property alias indicatRectColor: indicatRect.color
     default property alias accordionContent: contentLoader.sourceComponent
+    property bool settingsVisualTestMode: Qt.application.arguments.indexOf("--settings-visual-test") >= 0
 
     // Signal emitted when content becomes visible
     signal contentBecameVisible()
 
     spacing: 0
     Layout.fillWidth: true
+
+    function openVisualTestDescendants(item) {
+        if (!settingsVisualTestMode || !item || item.children === undefined)
+            return
+        var children = item.children
+        for (var i = 0; i < children.length; ++i) {
+            var child = children[i]
+            if (!child)
+                continue
+            if (child.isOpen !== undefined && child.title !== undefined)
+                child.isOpen = true
+            openVisualTestDescendants(child)
+        }
+    }
 
     Rectangle {
         id: accordionHeader
@@ -81,6 +96,8 @@ ColumnLayout {
                 item.Layout.fillWidth = true
                 visible = true
                 rootElement.contentBecameVisible()
+                if (rootElement.settingsVisualTestMode)
+                    Qt.callLater(function() { rootElement.openVisualTestDescendants(item) })
             }
         }
 
