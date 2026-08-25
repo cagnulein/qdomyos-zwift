@@ -94,7 +94,9 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
         return false;
     }
     
-    if(zwiftPlayService && gears_zwift_ratio) {
+    const bool isPowerTarget = data_len > 0 && data[0] == FTMS_SET_TARGET_POWER;
+
+    if(zwiftPlayService && gears_zwift_ratio && !isPowerTarget) {
         qDebug() << QStringLiteral("zwiftPlayService is present!");
         return false;
     }
