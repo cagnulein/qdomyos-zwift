@@ -2317,9 +2317,16 @@ import AndroidStatusBar 1.0
             return (parseInt(pieces[0]) * 3600) + (parseInt(pieces[1]) * 60) + parseInt(pieces[2])
         }
 
-        // SETTINGS_QML_VISUAL_HARNESS_V1
+        // SETTINGS_QML_VISUAL_HARNESS_V2
         property bool visualTestMode: Qt.application.arguments.indexOf("--settings-visual-test") >= 0
         property string visualOutputDir: "settings-qml-visual-report/raw"
+        property bool visualHarnessFailed: false
+        property int visualCaptureCount: 0
+        property int visualCapturePageLimit: 160
+        property int visualCaptureTotalLimit: 2400
+        property int visualModernPageCount: 0
+        property var visualVisitedModernPages: ({})
+        property int visualCatalogWaitAttempts: 0
 
         function visualResolveOutputDir() {
             var args = Qt.application.arguments
@@ -2338,21 +2345,61 @@ import AndroidStatusBar 1.0
             return s.length > 0 ? s : "section"
         }
 
+        function visualFail(message) {
+            if (visualHarnessFailed)
+                return
+            visualHarnessFailed = true
+            console.log("SETTINGS_VISUAL: FATAL", message)
+            Qt.callLater(function() { Qt.quit() })
+        }
+
         function visualCapture(filename, callback) {
+            if (visualHarnessFailed)
+                return
+            if (visualCaptureCount >= visualCaptureTotalLimit) {
+                visualFail("total screenshot limit exceeded (" + visualCaptureTotalLimit + ") before " + filename)
+                return
+            }
+            visualCaptureCount += 1
             Qt.callLater(function() {
+                if (visualHarnessFailed)
+                    return
                 window.contentItem.grabToImage(function(result) {
                     var path = visualOutputDir + "/" + filename
                     var ok = result.saveToFile(path)
                     console.log("SETTINGS_VISUAL:", ok ? "saved" : "FAILED", path)
-                    Qt.callLater(callback)
+                    if (!ok) {
+                        visualFail("failed to save " + path)
+                        return
+                    }
+                    if (callback)
+                        Qt.callLater(callback)
                 })
             })
         }
 
-        function visualPositions(contentHeight, viewportHeight) {
+        function visualPositions(contentHeight, viewportHeight, key) {
+            var viewport = Number(viewportHeight)
+            var content = Number(contentHeight)
+            if (!isFinite(viewport) || viewport <= 0) {
+                visualFail("invalid viewport for " + key + ": height=" + viewportHeight + " contentHeight=" + contentHeight)
+                return []
+            }
+            if (!isFinite(content) || content < 0) {
+                visualFail("invalid content height for " + key + ": height=" + viewportHeight + " contentHeight=" + contentHeight)
+                return []
+            }
+
+            content = Math.max(content, viewport)
             var positions = [0]
-            var maxY = Math.max(0, contentHeight - viewportHeight)
-            var step = Math.max(1, Math.floor(viewportHeight * 0.80))
+            var maxY = Math.max(0, content - viewport)
+            var step = Math.max(1, Math.floor(viewport * 0.80))
+            var estimatedCaptures = maxY > 0 ? Math.ceil(maxY / step) + 1 : 1
+            if (estimatedCaptures > visualCapturePageLimit) {
+                visualFail("page screenshot limit exceeded for " + key + ": viewport=" + viewport + " contentHeight=" + content + " estimated=" + estimatedCaptures)
+                return []
+            }
+
             var y = step
             while (y < maxY) {
                 positions.push(y)
@@ -2364,14 +2411,37 @@ import AndroidStatusBar 1.0
         }
 
         function visualCaptureList(prefix, key, list, callback) {
-            var positions = visualPositions(list.contentHeight, list.height)
+            if (visualHarnessFailed)
+                return
+            if (!list) {
+                visualFail("missing capture list for " + prefix + "/" + key)
+                return
+            }
+            if (!list.visible) {
+                visualFail("hidden capture list for " + prefix + "/" + key)
+                return
+            }
+            if (list.forceLayout)
+                list.forceLayout()
+
+            var positions = visualPositions(list.contentHeight, list.height, prefix + "/" + key)
+            if (visualHarnessFailed)
+                return
+
             function captureAt(index) {
+                if (visualHarnessFailed)
+                    return
                 if (index >= positions.length) {
-                    callback()
+                    if (callback)
+                        callback()
                     return
                 }
                 list.contentY = positions[index]
-                visualCapture(prefix + "-" + visualSlug(key) + "-" + index + ".png", function() { captureAt(index + 1) })
+                if (list.forceLayout)
+                    list.forceLayout()
+                Qt.callLater(function() {
+                    visualCapture(prefix + "-" + visualSlug(key) + "-" + index + ".png", function() { captureAt(index + 1) })
+                })
             }
             captureAt(0)
         }
@@ -2400,30 +2470,142 @@ import AndroidStatusBar 1.0
             if (category.catalogKind === "category") {
                 modernSettingsParent = category.key
                 rebuildModernSettingsItems("")
+                modernItemList.positionViewAtBeginning()
                 return true
             }
             if (category.catalogKind === "page" && visualPageHasCatalogEntries(category.target)) {
                 modernSettingsExternalTarget = category.target
                 modernSettingsExternalTitle = category.name || qsTr("Settings")
                 rebuildModernSettingsItems("")
+                modernItemList.positionViewAtBeginning()
                 return true
             }
             return false
         }
 
+        function visualModernPageKey() {
+            if (modernSettingsExternalTarget.length > 0)
+                return "external:" + modernSettingsExternalTarget
+            if (modernSettingsParent.length > 0)
+                return "category:" + modernSettingsParent
+            return ""
+        }
+
+        function visualOpenModernEntry(entry) {
+            if (!entry || !entry.target)
+                return false
+
+            modernSettingsSearch.text = ""
+            if (entry.target.indexOf("__category__:") === 0) {
+                modernSettingsParent = entry.target.substring("__category__:".length)
+                modernSettingsExternalTarget = ""
+                modernSettingsExternalTitle = ""
+                modernSettingsExternalParent = ""
+                rebuildModernSettingsItems("")
+                modernItemList.positionViewAtBeginning()
+                return true
+            }
+
+            if (!visualPageHasCatalogEntries(entry.target))
+                return false
+
+            modernSettingsExternalParent = modernSettingsParent
+            modernSettingsExternalTarget = entry.target
+            modernSettingsExternalTitle = entry.name || qsTr("Settings")
+            rebuildModernSettingsItems("")
+            modernItemList.positionViewAtBeginning()
+            return true
+        }
+
+        function visualCaptureModernChildren(items, index, path, callback) {
+            if (visualHarnessFailed)
+                return
+            if (index >= items.length) {
+                if (callback)
+                    callback()
+                return
+            }
+
+            var entry = items[index]
+            if (!entry || entry.catalogKind !== "page" || !entry.target) {
+                visualCaptureModernChildren(items, index + 1, path, callback)
+                return
+            }
+
+            var categoryTarget = entry.target.indexOf("__category__:") === 0
+            if (!categoryTarget && !visualPageHasCatalogEntries(entry.target)) {
+                console.log("SETTINGS_VISUAL: modern terminal page has no catalog settings", path, entry.name || entry.target)
+                visualCaptureModernChildren(items, index + 1, path, callback)
+                return
+            }
+
+            var parentState = modernCaptureNavigationState()
+            if (!visualOpenModernEntry(entry)) {
+                visualFail("unable to open modern child " + (entry.name || entry.target) + " from " + path)
+                return
+            }
+
+            var childName = entry._translatedName || entry.name || entry.key || entry.target
+            var childPath = path + " / " + childName
+            Qt.callLater(function() {
+                visualCaptureModernPage(childPath, function() {
+                    modernApplyNavigationState(parentState)
+                    Qt.callLater(function() {
+                        visualCaptureModernChildren(items, index + 1, path, callback)
+                    })
+                })
+            })
+        }
+
+        function visualCaptureModernPage(path, callback) {
+            if (visualHarnessFailed)
+                return
+
+            var pageKey = visualModernPageKey()
+            if (pageKey.length === 0) {
+                visualFail("modern traversal reached a page without navigation key: " + path)
+                return
+            }
+
+            if (visualVisitedModernPages[pageKey]) {
+                console.log("SETTINGS_VISUAL: modern page already visited", pageKey, path)
+                if (callback)
+                    callback()
+                return
+            }
+            visualVisitedModernPages[pageKey] = true
+            visualModernPageCount += 1
+
+            if (modernItemList.forceLayout)
+                modernItemList.forceLayout()
+            var items = modernSettingsItems.slice(0)
+            console.log("SETTINGS_VISUAL: modern page", path, pageKey, "items", items.length)
+            visualCaptureList("modern", visualModernPageCount + "-" + path, modernItemList, function() {
+                visualCaptureModernChildren(items, 0, path, callback)
+            })
+        }
+
         function visualCaptureModernCategories(index) {
+            if (visualHarnessFailed)
+                return
             if (index >= modernSettingsCategories.length) {
+                console.log("SETTINGS_VISUAL: modern traversal complete pages", visualModernPageCount, "captures", visualCaptureCount)
                 visualStartLegacy()
                 return
             }
+
             var category = modernSettingsCategories[index]
             if (!visualOpenModernRoot(category)) {
-                console.log("SETTINGS_VISUAL: skipping external-only modern page", category.name)
+                console.log("SETTINGS_VISUAL: modern root page has no catalog settings", category.name)
                 visualCaptureModernCategories(index + 1)
                 return
             }
-            visualCaptureList("modern", category.name, modernItemList, function() {
-                visualCaptureModernCategories(index + 1)
+
+            var pagePath = category.name || category.key || category.target || ("root-" + index)
+            Qt.callLater(function() {
+                visualCaptureModernPage(pagePath, function() {
+                    visualCaptureModernCategories(index + 1)
+                })
             })
         }
 
@@ -2444,29 +2626,45 @@ import AndroidStatusBar 1.0
         }
 
         function visualCaptureLegacyRoot(index, roots) {
+            if (visualHarnessFailed)
+                return
             if (index >= roots.length) {
-                console.log("SETTINGS_VISUAL: complete")
+                console.log("SETTINGS_VISUAL: capture complete")
                 Qt.quit()
                 return
             }
+
             visualCloseLegacyRoots(roots)
             var item = roots[index]
             item.isOpen = true
             Qt.callLater(function() {
-                var viewport = Math.max(1, settingsPane.height)
+                var viewport = Number(settingsPane.height)
+                if (!isFinite(viewport) || viewport <= 0) {
+                    visualFail("invalid legacy viewport for " + item.title + ": height=" + settingsPane.height)
+                    return
+                }
                 var start = Math.max(0, item.y)
                 var end = Math.max(start, item.y + item.height - viewport)
-                var positions = []
+                var span = Math.max(0, end - start)
                 var step = Math.max(1, Math.floor(viewport * 0.80))
-                var y = start
-                positions.push(start)
-                while (y + step < end) {
-                    y += step
+                var estimatedCaptures = span > 0 ? Math.ceil(span / step) + 1 : 1
+                if (estimatedCaptures > visualCapturePageLimit) {
+                    visualFail("legacy page screenshot limit exceeded for " + item.title + ": estimated=" + estimatedCaptures)
+                    return
+                }
+
+                var positions = [start]
+                var y = start + step
+                while (y < end) {
                     positions.push(y)
+                    y += step
                 }
                 if (end > start && positions[positions.length - 1] !== end)
                     positions.push(end)
+
                 function captureAt(segment) {
+                    if (visualHarnessFailed)
+                        return
                     if (segment >= positions.length) {
                         visualCaptureLegacyRoot(index + 1, roots)
                         return
@@ -2480,6 +2678,8 @@ import AndroidStatusBar 1.0
         }
 
         function visualStartLegacy() {
+            if (visualHarnessFailed)
+                return
             modernSettingsDrawer.close()
             legacySettingsUiEnabled = true
             if (settingsPane.contentItem)
@@ -2488,6 +2688,10 @@ import AndroidStatusBar 1.0
                 visualCapture("legacy-root-0.png", function() {
                     var roots = visualLegacyRoots()
                     console.log("SETTINGS_VISUAL: legacy root accordions", roots.length)
+                    if (roots.length === 0) {
+                        visualFail("no legacy root accordions found")
+                        return
+                    }
                     visualCaptureLegacyRoot(0, roots)
                 })
             })
@@ -2495,8 +2699,32 @@ import AndroidStatusBar 1.0
 
         function visualStart() {
             visualOutputDir = visualResolveOutputDir()
+            if (settingsCatalogError.length > 0) {
+                visualFail("settings catalog error: " + settingsCatalogError)
+                return
+            }
+            if (!settingsCatalogLoaded) {
+                if (visualCatalogWaitAttempts >= 20) {
+                    visualFail("settings catalog did not load after " + visualCatalogWaitAttempts + " attempts")
+                    return
+                }
+                visualCatalogWaitAttempts += 1
+                console.log("SETTINGS_VISUAL: waiting for settings catalog", visualCatalogWaitAttempts)
+                loadSettingsCatalog()
+                visualStartTimer.restart()
+                return
+            }
+
+            visualHarnessFailed = false
+            visualCaptureCount = 0
+            visualModernPageCount = 0
+            visualVisitedModernPages = ({})
             console.log("SETTINGS_VISUAL: output", visualOutputDir)
             openModernSettingsPreview()
+            if (modernSettingsCategories.length === 0) {
+                visualFail("modern settings root has no categories")
+                return
+            }
             Qt.callLater(function() {
                 visualCaptureList("modern", "root", modernCategoryList, function() {
                     visualCaptureModernCategories(0)
@@ -2585,7 +2813,7 @@ import AndroidStatusBar 1.0
                         spacing: 8
 
                         ToolButton {
-                            text: modernSettingsParent.length > 0 || modernSettingsSearch.text.length > 0 ? "‹" : "×"
+                            text: modernSettingsParent.length > 0 || modernSettingsSearch.text.length > 0 || modernSettingsExternalTarget.length > 0 ? "‹" : "×"
                             font.pixelSize: Qt.application.font.pixelSize + 8
                             onClicked: settingsPane.modernSettingsBack()
                         }
@@ -2623,7 +2851,7 @@ import AndroidStatusBar 1.0
 
                 ListView {
                     id: modernCategoryList
-                    visible: modernSettingsParent.length === 0 && modernSettingsSearch.text.length === 0
+                    visible: modernSettingsParent.length === 0 && modernSettingsSearch.text.length === 0 && modernSettingsExternalTarget.length === 0
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
@@ -2675,7 +2903,7 @@ import AndroidStatusBar 1.0
 
                 ListView {
                     id: modernItemList
-                    visible: modernSettingsParent.length > 0 || modernSettingsSearch.text.length > 0
+                    visible: modernSettingsParent.length > 0 || modernSettingsSearch.text.length > 0 || modernSettingsExternalTarget.length > 0
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
