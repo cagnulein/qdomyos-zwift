@@ -14,6 +14,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: settings-qml-visual-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   DISPLAY: ':99'
 
@@ -78,15 +82,31 @@ jobs:
           set -euo pipefail
           rm -rf settings-qml-visual-report
           mkdir -p settings-qml-visual-report/raw
+          : > settings-qml-visual-report/runtime.log
+
+          # Stream harness progress into the Actions log while preserving the full log artifact.
+          tail -n +1 -F settings-qml-visual-report/runtime.log &
+          tail_pid=$!
+          cleanup_tail() {
+            kill "$tail_pid" 2>/dev/null || true
+          }
+          trap cleanup_tail EXIT
+
           set +e
-          sudo -E timeout 210s ./src/qdomyos-zwift \
+          sudo -E timeout --signal=TERM --kill-after=10s 210s ./src/qdomyos-zwift \
             --settings-visual-test \
             --settings-visual-output="${{ github.workspace }}/settings-qml-visual-report/raw" \
-            > settings-qml-visual-report/runtime.log 2>&1
+            >> settings-qml-visual-report/runtime.log 2>&1
           app_status=$?
           set -e
+
+          cleanup_tail
+          trap - EXIT
+
           echo "visual harness exit status: $app_status"
           grep 'SETTINGS_VISUAL:' settings-qml-visual-report/runtime.log || true
+          echo "runtime files produced:"
+          find settings-qml-visual-report/raw -maxdepth 1 -type f -printf '%f\n' | sort || true
           modern_count=$(find settings-qml-visual-report/raw -name 'modern-*.png' | wc -l)
           legacy_count=$(find settings-qml-visual-report/raw -name 'legacy-*.png' | wc -l)
           echo "runtime modern screenshot count: $modern_count"
