@@ -5,6 +5,7 @@ on:
     paths:
       - 'src/settings*.qml'
       - 'src/main.qml'
+      - 'src/AccordionElement.qml'
       - 'src/settings-catalog.json'
       - 'scripts/settings_visual_report.py'
       - '.github/workflows/settings-qml-visual.yml'
