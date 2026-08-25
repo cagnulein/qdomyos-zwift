@@ -94,7 +94,9 @@ jobs:
           trap cleanup_tail EXIT
 
           set +e
-          sudo -E timeout --signal=TERM --kill-after=10s 210s ./src/qdomyos-zwift \
+          # Full recursive traversal is intentionally bounded, but can legitimately produce
+          # hundreds of screenshots before the legacy pass begins.
+          sudo -E timeout --signal=TERM --kill-after=10s 900s ./src/qdomyos-zwift \
             --settings-visual-test \
             --settings-visual-output="${{ github.workspace }}/settings-qml-visual-report/raw" \
             >> settings-qml-visual-report/runtime.log 2>&1
@@ -113,7 +115,8 @@ jobs:
           echo "runtime modern screenshot count: $modern_count"
           echo "runtime legacy screenshot count: $legacy_count"
           test "$app_status" -eq 0
-          grep -q 'SETTINGS_VISUAL: complete' settings-qml-visual-report/runtime.log
+          grep -q 'SETTINGS_VISUAL: modern traversal complete' settings-qml-visual-report/runtime.log
+          grep -q 'SETTINGS_VISUAL: capture complete' settings-qml-visual-report/runtime.log
           test "$modern_count" -gt 0
           test "$legacy_count" -gt 0
           python3 scripts/settings_visual_report.py \
