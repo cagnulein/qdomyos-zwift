@@ -17,6 +17,13 @@ uint16_t stairclimber::watts(double weight) {
     return m_watt.value();
 }
 
+double stairclimber::calculateKCalChange(double weight, double elapsedMs) {
+    if (elapsedMs <= 0) return 0;
+    double w = (double)watts(weight);
+    if (w == 0) return 0;
+    return ((0.048 * w + 1.19) * weight * 3.5) / 200.0 / (60000.0 / elapsedMs);
+}
+
 void stairclimber::clearStats() {
 
     moving.clear(true);
