@@ -1985,7 +1985,7 @@ void ftmsbike::characteristicWritten(const QLowEnergyCharacteristic &characteris
 }
 
 void ftmsbike::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
-    qDebug() << QStringLiteral("characteristicRead ") << characteristic.name() << newValue.toHex(' ');
+    qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
 }
 
 void ftmsbike::serviceScanDone(void) {
@@ -2026,7 +2026,7 @@ void ftmsbike::serviceScanDone(void) {
 }
 
 void ftmsbike::errorService(QLowEnergyService::ServiceError err) {
-    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
+    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     emit debug(QStringLiteral("ftmsbike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
