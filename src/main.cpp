@@ -24,6 +24,9 @@
 #include <QEvent>
 #include <QOperatingSystemVersion>
 #include <QQmlApplicationEngine>
+#include <QQmlEngine>
+#include <QQuickItem>
+#include <QQuickWindow>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QList>
@@ -262,7 +265,7 @@ int __cdecl CustomRTCErrorHandler(int errorType, const wchar_t* filename, int li
     wchar_t errorMessage[512];
     va_list args;
     
-    // Format the error message using varargs
+    // Format the formatted error message using varargs
     va_start(args, format);
     vswprintf(errorMessage, sizeof(errorMessage)/sizeof(wchar_t), format, args);
     va_end(args);
@@ -635,6 +638,18 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "SETTINGS_VISUAL: main.qml load failed\n");
             fflush(stderr);
             return -2;
+        }
+
+        // QQuickWindow::contentItem is C++-created, so on Qt 5 it has no QQmlContext by default.
+        // settings.qml deliberately grabs the full window content for each visual-parity frame;
+        // attach the engine context here so QQuickItem::grabToImage can run in this minimal path.
+        if (QQuickWindow *quickWindow = qobject_cast<QQuickWindow *>(engine.rootObjects().constFirst())) {
+            QQuickItem *contentItem = quickWindow->contentItem();
+            if (contentItem && !QQmlEngine::contextForObject(contentItem)) {
+                QQmlEngine::setContextForObject(contentItem, engine.rootContext());
+                fprintf(stderr, "SETTINGS_VISUAL: attached QML context to window contentItem\n");
+                fflush(stderr);
+            }
         }
 
         fprintf(stderr, "SETTINGS_VISUAL: main.qml loaded; entering event loop\n");
