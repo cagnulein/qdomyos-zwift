@@ -367,6 +367,8 @@ ScrollView {
         property string shortcut_start_stop: ""            
         property bool tile_watt_color_enabled: true
         property bool tile_pace_color_enabled: true
+        property bool tile_peloton_resistance_offset_enabled: false
+        property int  tile_peloton_resistance_offset_order: 55
     }
 
 
@@ -1653,6 +1655,51 @@ ScrollView {
 
         Label {
             text: qsTr("Displays target resistance converted to the Peloton bike scale of 1 to 100. For example, during a Peloton class, you want the resistance displayed in this tile to match the Peloton Resistance Tile.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: pelotonResistanceOffsetEnabledAccordion
+            title: qsTr("Peloton Resistance Offset")
+            linkedBoolSetting: "tile_peloton_resistance_offset_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelpeloton_resistance_offsetOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: peloton_resistance_offsetOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_peloton_resistance_offset_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = peloton_resistance_offsetOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okpeloton_resistance_offsetOrderButton
+                    text: qsTr("OK")
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_peloton_resistance_offset_order = peloton_resistance_offsetOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Bike only. Nudges the resistance target picked from the active Peloton class's range (e.g. 35-45) up or down by 1 (Peloton 0-100 scale) each tap, for the rest of the ride. Resets to 0 when a new class starts.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2

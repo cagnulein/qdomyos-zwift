@@ -570,6 +570,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     target_peloton_resistance =
         new DataObject(tr("T.Peloton R(%)"), QStringLiteral("icons/icons/resistance.png"),
                        QStringLiteral("0"), false, QStringLiteral("target_peloton_resistance"), 48, labelFontSize);
+    peloton_resistance_offset =
+        new DataObject(tr("Peloton R. Offset"), QStringLiteral("icons/icons/resistance.png"),
+                       QStringLiteral("0"), true, QStringLiteral("peloton_resistance_offset"), 48, labelFontSize);
     target_cadence = new DataObject(tr("T.Cadence(rpm)"), QStringLiteral("icons/icons/cadence.png"),
                                     QStringLiteral("0"), false, QStringLiteral("target_cadence"), 48, labelFontSize);
     target_power = new DataObject(tr("T.Power(W)"), QStringLiteral("icons/icons/watt.png"),
@@ -3082,6 +3085,14 @@ void homeform::sortTiles() {
                 dataList.append(target_resistance);
             }
 
+            if (settings.value(QZSettings::tile_peloton_resistance_offset_enabled,
+                                QZSettings::default_tile_peloton_resistance_offset_enabled).toBool() &&
+                settings.value(QZSettings::tile_peloton_resistance_offset_order,
+                                QZSettings::default_tile_peloton_resistance_offset_order).toInt() == i) {
+                peloton_resistance_offset->setGridId(i);
+                dataList.append(peloton_resistance_offset);
+            }
+
             if (settings.value(QZSettings::tile_target_peloton_resistance_enabled, false).toBool() &&
                 settings.value(QZSettings::tile_target_peloton_resistance_order, 21).toInt() == i) {
                 target_peloton_resistance->setGridId(i);
@@ -5347,6 +5358,12 @@ void homeform::Plus(const QString &name) {
                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             }
         }
+    } else if (name.contains(QStringLiteral("peloton_resistance_offset"))) {
+        if (trainProgram && trainProgram->adjustResistanceOffsetForTrainingProgram(resistanceOffsetJog)) {
+            if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
+                ((bike *)bluetoothManager->device())->changeResistance(trainProgram->currentRow().resistance);
+            }
+        }
     } else if (name.contains(QStringLiteral("target_resistance"))) {
         if (bluetoothManager->device()) {
 
@@ -5650,6 +5667,12 @@ void homeform::Minus(const QString &name) {
                 ((rower *)bluetoothManager->device())
                     ->setGears(((rower *)bluetoothManager->device())->gears() -
                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+            }
+        }
+    } else if (name.contains(QStringLiteral("peloton_resistance_offset"))) {
+        if (trainProgram && trainProgram->adjustResistanceOffsetForTrainingProgram(-resistanceOffsetJog)) {
+            if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == BIKE) {
+                ((bike *)bluetoothManager->device())->changeResistance(trainProgram->currentRow().resistance);
             }
         }
     } else if (name.contains(QStringLiteral("target_resistance"))) {
@@ -6907,6 +6930,8 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
             this->target_peloton_resistance->setValue(QString::number(
                 ((bike *)bluetoothManager->device())->lastRequestedPelotonResistance().value(), 'f', 0));
+            this->peloton_resistance_offset->setValue(
+                trainProgram ? QString::number(trainProgram->resistanceOffsetForTrainingProgram()) : QStringLiteral("0"));
             this->target_cadence->setValue(
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
             this->target_power->setValue(

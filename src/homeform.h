@@ -895,6 +895,7 @@ public:
     DataObject *peloton_resistance;
     DataObject *target_resistance;
     DataObject *target_peloton_resistance;
+    DataObject *peloton_resistance_offset;
     DataObject *target_cadence;
     DataObject *target_power;
     DataObject *target_zone;
@@ -1112,6 +1113,7 @@ public:
 
     int16_t fanOverride = 0;
     const float powerJog = 5.0;
+    const int32_t resistanceOffsetJog = 1;
 
     void update();
     void ten_hz();

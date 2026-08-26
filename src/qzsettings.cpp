@@ -190,6 +190,9 @@ const QString QZSettings::tile_target_resistance_order = QStringLiteral("tile_ta
 const QString QZSettings::tile_target_peloton_resistance_enabled =
     QStringLiteral("tile_target_peloton_resistance_enabled");
 const QString QZSettings::tile_target_peloton_resistance_order = QStringLiteral("tile_target_peloton_resistance_order");
+const QString QZSettings::tile_peloton_resistance_offset_enabled =
+    QStringLiteral("tile_peloton_resistance_offset_enabled");
+const QString QZSettings::tile_peloton_resistance_offset_order = QStringLiteral("tile_peloton_resistance_offset_order");
 const QString QZSettings::tile_target_cadence_enabled = QStringLiteral("tile_target_cadence_enabled");
 const QString QZSettings::tile_target_cadence_order = QStringLiteral("tile_target_cadence_order");
 const QString QZSettings::tile_target_power_enabled = QStringLiteral("tile_target_power_enabled");
@@ -1285,7 +1288,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1005;
+const uint32_t allSettingsCount = 1007;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1427,6 +1430,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_target_resistance_order, QZSettings::default_tile_target_resistance_order},
     {QZSettings::tile_target_peloton_resistance_enabled, QZSettings::default_tile_target_peloton_resistance_enabled},
     {QZSettings::tile_target_peloton_resistance_order, QZSettings::default_tile_target_peloton_resistance_order},
+    {QZSettings::tile_peloton_resistance_offset_enabled, QZSettings::default_tile_peloton_resistance_offset_enabled},
+    {QZSettings::tile_peloton_resistance_offset_order, QZSettings::default_tile_peloton_resistance_offset_order},
     {QZSettings::tile_target_cadence_enabled, QZSettings::default_tile_target_cadence_enabled},
     {QZSettings::tile_target_cadence_order, QZSettings::default_tile_target_cadence_order},
     {QZSettings::tile_target_power_enabled, QZSettings::default_tile_target_power_enabled},

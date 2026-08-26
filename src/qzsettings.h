@@ -550,6 +550,12 @@ class QZSettings {
     static const QString tile_target_peloton_resistance_order;
     static constexpr int default_tile_target_peloton_resistance_order = 21;
 
+    static const QString tile_peloton_resistance_offset_enabled;
+    static constexpr bool default_tile_peloton_resistance_offset_enabled = false;
+
+    static const QString tile_peloton_resistance_offset_order;
+    static constexpr int default_tile_peloton_resistance_offset_order = 55;
+
     static const QString tile_target_cadence_enabled;
     static constexpr bool default_tile_target_cadence_enabled = false;
 
