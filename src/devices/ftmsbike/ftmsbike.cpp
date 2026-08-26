@@ -2097,7 +2097,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(bluetoothDevice.name().toUpper().startsWith("DIRETO XR")) {
             qDebug() << QStringLiteral("DIRETO XR found");
             DIRETO_XR = true;
-        } else if(bluetoothDevice.name().toUpper().startsWith("JFBK5.0") || bluetoothDevice.name().toUpper().startsWith("JFBK7.0")) {
+        } else if(bluetoothDevice.name().toUpper().startsWith("JFBK5.0IC") ||
+                  bluetoothDevice.name().toUpper().startsWith("JFBK5.0R") ||
+                  bluetoothDevice.name().toUpper().startsWith("JFBK7.0")) {
             qDebug() << QStringLiteral("JFBK5.0 found");
             resistance_lvl_mode = true;
             ergModeSupported = false;
