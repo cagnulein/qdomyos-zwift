@@ -1985,7 +1985,7 @@ void ftmsbike::characteristicWritten(const QLowEnergyCharacteristic &characteris
 }
 
 void ftmsbike::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
-    qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
+    qDebug() << QStringLiteral("characteristicRead ") << characteristic.name() << newValue.toHex(' ');
 }
 
 void ftmsbike::serviceScanDone(void) {
@@ -2026,7 +2026,7 @@ void ftmsbike::serviceScanDone(void) {
 }
 
 void ftmsbike::errorService(QLowEnergyService::ServiceError err) {
-    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
+    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("ftmsbike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
@@ -2097,9 +2097,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(bluetoothDevice.name().toUpper().startsWith("DIRETO XR")) {
             qDebug() << QStringLiteral("DIRETO XR found");
             DIRETO_XR = true;
-        } else if(bluetoothDevice.name().toUpper().startsWith("JFBK5.0IC") ||
-                  bluetoothDevice.name().toUpper().startsWith("JFBK5.0R") ||
-                  bluetoothDevice.name().toUpper().startsWith("JFBK7.0")) {
+        } else if(bluetoothDevice.name().toUpper().startsWith("JFBK5.0UI")) {
+            qDebug() << QStringLiteral("JFBK5.0UI found - using standard FTMS handling");
+        } else if(bluetoothDevice.name().toUpper().startsWith("JFBK5.0") || bluetoothDevice.name().toUpper().startsWith("JFBK7.0")) {
             qDebug() << QStringLiteral("JFBK5.0 found");
             resistance_lvl_mode = true;
             ergModeSupported = false;
