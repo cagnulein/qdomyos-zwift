@@ -160,20 +160,12 @@ void DirconProcessor::tcpNewConnection() {
     DirconProcessorClient *client = new DirconProcessorClient(socket);
     clientsMap.insert(socket, client);
 
-    if (rouvy_compatibility) {
-        // Send initial notification for 0x2AD2 (Indoor Bike Data) - Apple TV/Windows compatibility
-        // Elite Avanti sends this immediately after connection
-        DirconPacket initPkt;
-        initPkt.isRequest = false;
-        initPkt.Identifier = DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION;
-        initPkt.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
-        initPkt.uuid = 0x2AD2;
-        initPkt.additional_data = QByteArray(29, 0x00); // Empty data for now
-        QByteArray initData = initPkt.encode(0);
-        socket->write(initData);
-        socket->flush();
-        qDebug() << "Sent initial notification for 0x2AD2 to" << socket->peerAddress().toString();
-    }
+    // No unsolicited 0x2AD2 here. The Apple TV/Windows compatibility frame is still sent -
+    // see the DPKT_MSGID_ENABLE_CHARACTERISTIC_NOTIFICATIONS branch in processPacket() -
+    // but only once a client has actually subscribed to Indoor Bike Data. A frame pushed
+    // at connect time, before the client has even discovered the characteristic, made
+    // MyWhoosh disable 0x2AD2 outright and fall back to CSC with no power source, even
+    // when the payload was truthful. Observed 2026-08-25 against MyWhoosh on Windows 11.
 }
 
 void DirconProcessor::tcpDisconnected() {
@@ -267,8 +259,18 @@ DirconPacket DirconProcessor::processPacket(DirconProcessorClient *client, const
 
                             if ((idx = client->char_notify.indexOf(pkt.uuid)) >= 0 && !notif)
                                 client->char_notify.removeAt(idx);
-                            else if (idx < 0 && notif)
+                            else if (idx < 0 && notif) {
                                 client->char_notify.append(pkt.uuid);
+                                // The Elite Avanti sends an Indoor Bike Data frame as soon as
+                                // a client is listening, and Apple TV/Windows clients expect
+                                // one. Give them the last frame CharacteristicNotifier2AD2
+                                // produced rather than a hand-built payload, so the greeting
+                                // and the stream that follows describe the same machine. When
+                                // the notifier has not run yet there is no device attached and
+                                // nothing truthful to say, so nothing is sent.
+                                if (pkt.uuid == 0x2AD2 && !last2AD2Notification.isEmpty())
+                                    pending2AD2Greeting = true;
+                            }
                             out.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
                             emit onCharacteristicNotificationSwitch(cc->uuid, notif);
                         } else
@@ -296,6 +298,10 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
     QSettings settings;
     bool rv = true, rvs;
     pkt.additional_data = data;
+    // Remember the real Indoor Bike Data frame so a client connecting later is greeted
+    // with the machine as it actually is - see tcpNewConnection().
+    if (uuid == 0x2AD2 && !data.isEmpty())
+        last2AD2Notification = data;
     pkt.Identifier = DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION;
     pkt.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
     pkt.uuid = uuid;
@@ -347,6 +353,22 @@ void DirconProcessor::tcpDataAvailable() {
                     QByteArray byteout = resp.encode(pkt.SequenceNumber);
                     if (byteout.size() && client && client->sock)
                         client->sock->write(byteout);
+                }
+                if (pending2AD2Greeting) {
+                    pending2AD2Greeting = false;
+                    if (client && client->sock) {
+                        DirconPacket initPkt;
+                        initPkt.isRequest = false;
+                        initPkt.Identifier = DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION;
+                        initPkt.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
+                        initPkt.uuid = 0x2AD2;
+                        initPkt.additional_data = last2AD2Notification;
+                        client->sock->write(initPkt.encode(0));
+                        client->sock->flush();
+                        qDebug() << "Sent initial notification for 0x2AD2 to"
+                                 << client->sock->peerAddress().toString()
+                                 << last2AD2Notification.toHex(' ');
+                    }
                 }
             } else if (rembuf >= 0) {
                 DirconPacket resp;
