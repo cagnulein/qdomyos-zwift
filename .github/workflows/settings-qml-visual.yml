@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - 'src/settings*.qml'
+      - 'src/main.cpp'
       - 'src/main.qml'
       - 'src/AccordionElement.qml'
       - 'src/settings-catalog.json'
@@ -72,6 +73,46 @@ jobs:
           qmake
           make -j8
           make install
+
+      - name: Patch Qt 5 visual root item contexts
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/main.cpp')
+          text = path.read_text(encoding='utf-8')
+          old = '''        // QQuickWindow::contentItem is C++-created, so on Qt 5 it has no QQmlContext by default.
+        // settings.qml deliberately grabs the full window content for each visual-parity frame;
+        // attach the engine context here so QQuickItem::grabToImage can run in this minimal path.
+        if (QQuickWindow *quickWindow = qobject_cast<QQuickWindow *>(engine.rootObjects().constFirst())) {
+            QQuickItem *contentItem = quickWindow->contentItem();
+            if (contentItem && !QQmlEngine::contextForObject(contentItem)) {
+                QQmlEngine::setContextForObject(contentItem, engine.rootContext());
+                fprintf(stderr, "SETTINGS_VISUAL: attached QML context to window contentItem\\n");
+                fflush(stderr);
+            }
+        }
+'''
+          new = '''        // QQuickWindow creates both QQuickContentItem and its QQuickRootItem ancestor in C++.
+        // On Qt 5 grabToImage() rejects the capture if any item in that ancestry has no QML
+        // engine, so attach the engine context to the whole parentItem chain, not just contentItem.
+        if (QQuickWindow *quickWindow = qobject_cast<QQuickWindow *>(engine.rootObjects().constFirst())) {
+            int attachedContexts = 0;
+            for (QQuickItem *item = quickWindow->contentItem(); item; item = item->parentItem()) {
+                if (!QQmlEngine::contextForObject(item)) {
+                    QQmlEngine::setContextForObject(item, engine.rootContext());
+                    ++attachedContexts;
+                }
+            }
+            fprintf(stderr, "SETTINGS_VISUAL: attached QML context to %d window item(s)\\n", attachedContexts);
+            fflush(stderr);
+        }
+'''
+          if old not in text:
+              raise SystemExit('Expected Qt 5 visual context block not found in src/main.cpp')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
 
       - name: Compile QZ Linux desktop
         run: |
