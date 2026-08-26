@@ -46,7 +46,7 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
         return peripheralManager.lastRequestedSpeed;
     }
     
-    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, currentInclination: UInt16, currentDistance: UInt64, elapsedTimeSeco[...]
+    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, currentInclination: UInt16, currentDistance: UInt64, elapsedTimeSeconds: UInt16) -> Bool
     {
         peripheralManager.NormalizeSpeed = normalizeSpeed
         peripheralManager.CurrentCadence = currentCadence
@@ -265,197 +265,198 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                    var high : Int16 = ((Int16)(requests.first!.value![4])) << 8;
                      self.CurrentSlope = (Double)((Int16)(requests.first!.value![3]) + high);
                 
-                 self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
-               
-               SwiftDebug.qtDebug("virtualtreadmill_zwift: new requested slope \(self.CurrentSlope)")
-           }
-           else if(requests.first!.value?.first == 0x03)
-           {
-               var high : Int16 = ((Int16)(requests.first!.value![2])) << 8;
-               self.CurrentSlope = ((Double)((Int16)(requests.first!.value![1]) + high)) * 10.0;
-                 
-               self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
-               
-               SwiftDebug.qtDebug("virtualtreadmill_zwift: new requested slope \(self.CurrentSlope)")
-           }
-             else if(requests.first!.value?.first == 0x05)
-           {
-                 var high : UInt16 = (((UInt16)(requests.first!.value![2])) << 8);
-                 self.PowerRequested = (Double)((UInt16)(requests.first!.value![1]) + high);
-           }
-           else if(requests.first!.value?.first == 0x02)
-           {
-                 // Set Target Speed
-                 let a = requests.first!.value![1]
-                 let b = requests.first!.value![2]
-                 
-                 let uspeed = UInt16(a) + (UInt16(b) << 8)
-                 let requestSpeed = Double(uspeed) / 100.0
-                 
-                 self.RequestedSpeed = requestSpeed
-                 self.lastRequestedSpeed = UInt64(Date().timeIntervalSince1970)
-                 
-                 SwiftDebug.qtDebug("virtualtreadmill_zwift: new requested speed \(requestSpeed)")
-           }
-           self.connected = true;
-           self.peripheralManager.respond(to: requests.first!, withResult: .success)
-           SwiftDebug.qtDebug("virtualtreadmill_zwift: Responded successfully to a read request")
+                self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
+              
+              SwiftDebug.qtDebug("virtualtreadmill_zwift: new requested slope \(self.CurrentSlope)")
+          }
+          else if(requests.first!.value?.first == 0x03)
+          {
+              var high : Int16 = ((Int16)(requests.first!.value![2])) << 8;
+              self.CurrentSlope = ((Double)((Int16)(requests.first!.value![1]) + high)) * 10.0;
+                
+              self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
+              
+              SwiftDebug.qtDebug("virtualtreadmill_zwift: new requested slope \(self.CurrentSlope)")
+          }
+            else if(requests.first!.value?.first == 0x05)
+          {
+                var high : UInt16 = (((UInt16)(requests.first!.value![2])) << 8);
+                self.PowerRequested = (Double)((UInt16)(requests.first!.value![1]) + high);
+          }
+          else if(requests.first!.value?.first == 0x02)
+          {
+                // Set Target Speed
+                let a = requests.first!.value![1]
+                let b = requests.first!.value![2]
+                
+                let uspeed = UInt16(a) + (UInt16(b) << 8)
+                let requestSpeed = Double(uspeed) / 100.0
+                
+                self.RequestedSpeed = requestSpeed
+                self.lastRequestedSpeed = UInt64(Date().timeIntervalSince1970)
+                
+                SwiftDebug.qtDebug("virtualtreadmill_zwift: new requested speed \(requestSpeed)")
+          }
+          self.connected = true;
+          self.peripheralManager.respond(to: requests.first!, withResult: .success)
+          SwiftDebug.qtDebug("virtualtreadmill_zwift: Responded successfully to a read request")
+           
+          let funcCode: UInt8 = requests.first!.value![0]
+          var response: [UInt8] = [0x80, funcCode , 0x01]
+          let responseData = Data(bytes: &response, count: 3)
             
-           let funcCode: UInt8 = requests.first!.value![0]
-           var response: [UInt8] = [0x80, funcCode , 0x01]
-           let responseData = Data(bytes: &response, count: 3)
-             
-           self.peripheralManager.updateValue(responseData, for: self.FitnessMachineControlPointCharacteristic, onSubscribedCentrals: nil)
-       }
-     }
-     
-   func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-     if request.characteristic == self.heartRateCharacteristic {
-       request.value = self.calculateHeartRate()
-       self.peripheralManager.respond(to: request, withResult: .success)
-       SwiftDebug.qtDebug("virtualtreadmill_zwift: Responded successfully to a read request")
-     }
-   }
-   
-   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
-     SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully subscribed")
-      self.connected = true
-     updateSubscribers();
-     self.startSendingDataToSubscribers()
-   }
-   
-   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
-     //self.notificationTimer.invalidate()
-      self.connected = false
-     SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully unsubscribed")
-   }
+          self.peripheralManager.updateValue(responseData, for: self.FitnessMachineControlPointCharacteristic, onSubscribedCentrals: nil)
+      }
+    }
+    
+  func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
+    if request.characteristic == self.heartRateCharacteristic {
+      request.value = self.calculateHeartRate()
+      self.peripheralManager.respond(to: request, withResult: .success)
+      SwiftDebug.qtDebug("virtualtreadmill_zwift: Responded successfully to a read request")
+    }
+  }
+  
+  func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
+    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully subscribed")
+     self.connected = true
+    updateSubscribers();
+    self.startSendingDataToSubscribers()
+  }
+  
+  func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
+    //self.notificationTimer.invalidate()
+     self.connected = false
+    SwiftDebug.qtDebug("virtualtreadmill_zwift: Successfully unsubscribed")
+  }
 
-   func startSendingDataToSubscribers() {
-     if self.notificationTimer == nil {
-         self.notificationTimer = Timer.scheduledTimer(timeInterval: 0.3, target: self, selector: #selector(self.updateSubscribers), userInfo: nil, repeats: true)
-         }
-   }
+  func startSendingDataToSubscribers() {
+    if self.notificationTimer == nil {
+        self.notificationTimer = Timer.scheduledTimer(timeInterval: 0.3, target: self, selector: #selector(self.updateSubscribers), userInfo: nil, repeats: true)
+        }
+  }
 
-   func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
-     SwiftDebug.qtDebug("virtualtreadmill_zwift: Peripheral manager is ready to update subscribers")
-     updateSubscribers();
-     self.startSendingDataToSubscribers()
-   }
+  func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
+    SwiftDebug.qtDebug("virtualtreadmill_zwift: Peripheral manager is ready to update subscribers")
+    updateSubscribers();
+    self.startSendingDataToSubscribers()
+  }
 
-   func calculateHeartRate() -> Data {
-     //self.delegate?.BLEPeripheralManagerDidSendValue(self.heartRate)
-     var heartRateBPM: [UInt8] = [0, self.heartRate, 0, 0, 0, 0, 0, 0]
-     let heartRateData = Data(bytes: &heartRateBPM, count: heartRateBPM.count)
-     return heartRateData
-   }
-     
-     func calculateIndoorBike() -> Data {
-         let flags0:UInt8 = 0x64
-         let flags1:UInt8 = 0x02
-       //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
-         var indoorBike: [UInt8] = [flags0, flags1, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),  (UInt8)(self.CurrentCadence & 0xFF), (UInt8)((self.CurrentCade[...]
-                                    self.heartRate, 0x00]
-       let indoorBikeData = Data(bytes: &indoorBike, count: 12)
-       return indoorBikeData
-     }
+  func calculateHeartRate() -> Data {
+    //self.delegate?.BLEPeripheralManagerDidSendValue(self.heartRate)
+    var heartRateBPM: [UInt8] = [0, self.heartRate, 0, 0, 0, 0, 0, 0]
+    let heartRateData = Data(bytes: &heartRateBPM, count: heartRateBPM.count)
+    return heartRateData
+  }
+    
+    func calculateIndoorBike() -> Data {
+        let flags0:UInt8 = 0x64
+        let flags1:UInt8 = 0x02
+      //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
+        var indoorBike: [UInt8] = [flags0, flags1, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),  (UInt8)(self.CurrentCadence & 0xFF), (UInt8)((self.CurrentCadence >> 8) & 0xFF), self.CurrentResistance, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF),
+                                   self.heartRate, 0x00]
+      let indoorBikeData = Data(bytes: &indoorBike, count: 12)
+      return indoorBikeData
+    }
 
-     func calculateTreadmillData() -> Data {
-         let flags0:UInt8 = bike_cadence_sensor ? 0x0C : 0x0E // old behavior (0x0C) vs new behavior with average speed (0x0E)
-         let flagsMSO:UInt8 = 0x05 // HR (bit 0 of MSO) | ElapsedTime (bit 2 of MSO)
+    func calculateTreadmillData() -> Data {
+        let flags0:UInt8 = bike_cadence_sensor ? 0x0C : 0x0E // old behavior (0x0C) vs new behavior with average speed (0x0E)
+        let flagsMSO:UInt8 = 0x05 // HR (bit 0 of MSO) | ElapsedTime (bit 2 of MSO)
 
-         var treadmillData: [UInt8]
+        var treadmillData: [UInt8]
 
-         if bike_cadence_sensor {
-             // Old behavior: no average speed
-             treadmillData = [flags0, flagsMSO, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
-                             (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
-                             (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
-                             (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
-                             self.heartRate,
-                             (UInt8)(self.ElapsedTimeSeconds & 0xFF), (UInt8)((self.ElapsedTimeSeconds >> 8) & 0xFF)]
-         } else {
-             // New behavior: include average speed
-             var avgSpeed: UInt16 = 0
-             if self.ElapsedTimeSeconds > 0 {
-                 let distanceMeters = Double(self.CurrentDistance)
-                 let kmh = (distanceMeters * 3.6) / Double(self.ElapsedTimeSeconds)
-                 avgSpeed = UInt16(min(max(kmh * 100.0, 0), Double(UInt16.max)))
-             }
+        if bike_cadence_sensor {
+            // Old behavior: no average speed
+            treadmillData = [flags0, flagsMSO, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
+                            (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
+                            (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
+                            (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
+                            self.heartRate,
+                            (UInt8)(self.ElapsedTimeSeconds & 0xFF), (UInt8)((self.ElapsedTimeSeconds >> 8) & 0xFF)]
+        } else {
+            // New behavior: include average speed
+            var avgSpeed: UInt16 = 0
+            if self.ElapsedTimeSeconds > 0 {
+                let distanceMeters = Double(self.CurrentDistance)
+                let kmh = (distanceMeters * 3.6) / Double(self.ElapsedTimeSeconds)
+                avgSpeed = UInt16(min(max(kmh * 100.0, 0), Double(UInt16.max)))
+            }
 
-             treadmillData = [flags0, flagsMSO, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
-                             (UInt8)(avgSpeed & 0xFF), (UInt8)((avgSpeed >> 8) & 0xFF),
-                             (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
-                             (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
-                             (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
-                             self.heartRate,
-                             (UInt8)(self.ElapsedTimeSeconds & 0xFF), (UInt8)((self.ElapsedTimeSeconds >> 8) & 0xFF)]
-         }
+            treadmillData = [flags0, flagsMSO, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
+                            (UInt8)(avgSpeed & 0xFF), (UInt8)((avgSpeed >> 8) & 0xFF),
+                            (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
+                            (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
+                            (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
+                            self.heartRate,
+                            (UInt8)(self.ElapsedTimeSeconds & 0xFF), (UInt8)((self.ElapsedTimeSeconds >> 8) & 0xFF)]
+        }
 
-       let treadmillDataData = Data(bytes: &treadmillData, count: treadmillData.count)
-       return treadmillDataData
-     }
+      let treadmillDataData = Data(bytes: &treadmillData, count: treadmillData.count)
+      return treadmillDataData
+    }
 
-     func calculateRSCMeasurement() -> Data {
-     // Set flags to indicate distance is present (bit 1)
-     let flags0: UInt8 = 0x02
-     
-     // Calculate speed (existing logic)
-     let speed: UInt16 = UInt16(((Double(self.NormalizeSpeed) / 100.0) / 3.6) * 256.0)
-     
-     // Distance in meters (assuming you have a totalDistance property)
-     // Using UInt32 as per BLE specification for distance
-     let distance: UInt32 = UInt32(self.CurrentDistance) * 10
-     
-     // Create measurement array with distance
-     var rscMeasurement: [UInt8] = [
-         flags0,                              // Flags
-         UInt8(speed & 0xFF),                // Speed LSB
-         UInt8((speed >> 8) & 0xFF),         // Speed MSB
-         UInt8(self.CurrentCadence & 0xFF),  // Cadence
-         UInt8(distance & 0xFF),             // Distance LSB
-         UInt8((distance >> 8) & 0xFF),      // Distance byte 2
-         UInt8((distance >> 16) & 0xFF),     // Distance byte 3
-         UInt8((distance >> 24) & 0xFF)      // Distance MSB
-     ]
-     
-     let rscMeasurementData = Data(bytes: &rscMeasurement, count: 8)
-     return rscMeasurementData
- }
-     
-   @objc func updateSubscribers() {
-     let heartRateData = self.calculateHeartRate()
-     let indoorBikeData = self.calculateIndoorBike()
-     let treadmillData = self.calculateTreadmillData()
-     let rscMeasurementData = self.calculateRSCMeasurement()
-     
-       if(self.serviceToggle == 0 && !garmin_bluetooth_compatibility)
-     {
-         let ok = self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
-         if(ok) {
-             self.serviceToggle = 1;
-         }
-     }
-     else if(self.serviceToggle == 1 && !garmin_bluetooth_compatibility)
-     {
-         let ok = self.peripheralManager.updateValue(treadmillData, for: self.treadmilldataCharacteristic, onSubscribedCentrals: nil)
-         if(ok) {
-             self.serviceToggle = 2;
-         }
-     }
-       else if(self.serviceToggle == 2 || garmin_bluetooth_compatibility)
-     {
-         let ok = self.peripheralManager.updateValue(rscMeasurementData, for: self.rscMeasurementCharacteristic, onSubscribedCentrals: nil)
-         if(ok) {
-             self.serviceToggle = 3;
-         }
-     }
-     else
-     {
-         let ok = self.peripheralManager.updateValue(indoorBikeData, for: self.indoorbikeCharacteristic, onSubscribedCentrals: nil)
-         if(ok) {
-             self.serviceToggle = 0;
-         }
-     }
-   }
-   
- } /// class-end
+    func calculateRSCMeasurement() -> Data {
+    // Set flags to indicate distance is present (bit 1)
+    let flags0: UInt8 = 0x02
+    
+    // Calculate speed (existing logic)
+    let speed: UInt16 = UInt16(((Double(self.NormalizeSpeed) / 100.0) / 3.6) * 256.0)
+    
+    // Distance in meters (assuming you have a totalDistance property)
+    // Using UInt32 as per BLE specification for distance
+    let distance: UInt32 = UInt32(self.CurrentDistance) * 10
+    
+    // Create measurement array with distance
+    var rscMeasurement: [UInt8] = [
+        flags0,                              // Flags
+        UInt8(speed & 0xFF),                // Speed LSB
+        UInt8((speed >> 8) & 0xFF),         // Speed MSB
+        UInt8(self.CurrentCadence & 0xFF),  // Cadence
+        UInt8(distance & 0xFF),             // Distance LSB
+        UInt8((distance >> 8) & 0xFF),      // Distance byte 2
+        UInt8((distance >> 16) & 0xFF),     // Distance byte 3
+        UInt8((distance >> 24) & 0xFF)      // Distance MSB
+    ]
+    
+    let rscMeasurementData = Data(bytes: &rscMeasurement, count: 8)
+    return rscMeasurementData
+}
+    
+  @objc func updateSubscribers() {
+    let heartRateData = self.calculateHeartRate()
+    let indoorBikeData = self.calculateIndoorBike()
+    let treadmillData = self.calculateTreadmillData()
+    let rscMeasurementData = self.calculateRSCMeasurement()
+    
+      if(self.serviceToggle == 0 && !garmin_bluetooth_compatibility)
+    {
+        let ok = self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
+        if(ok) {
+            self.serviceToggle = 1;
+        }
+    }
+    else if(self.serviceToggle == 1 && !garmin_bluetooth_compatibility)
+    {
+        let ok = self.peripheralManager.updateValue(treadmillData, for: self.treadmilldataCharacteristic, onSubscribedCentrals: nil)
+        if(ok) {
+            self.serviceToggle = 2;
+        }
+    }
+      else if(self.serviceToggle == 2 || garmin_bluetooth_compatibility)
+    {
+        let ok = self.peripheralManager.updateValue(rscMeasurementData, for: self.rscMeasurementCharacteristic, onSubscribedCentrals: nil)
+        if(ok) {
+            self.serviceToggle = 3;
+        }
+    }
+    else
+    {
+        let ok = self.peripheralManager.updateValue(indoorBikeData, for: self.indoorbikeCharacteristic, onSubscribedCentrals: nil)
+        if(ok) {
+            self.serviceToggle = 0;
+        }
+    }
+  }
+  
+} /// class-end
+
