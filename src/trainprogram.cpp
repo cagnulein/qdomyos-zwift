@@ -693,11 +693,25 @@ void trainprogram::scheduler() {
         }
     }
 
+    const int treadmillStartCountdown =
+        qMax(0, settings.value(QZSettings::treadmill_start_countdown,
+                               QZSettings::default_treadmill_start_countdown).toInt());
+    const bool treadmillStartupCountdownActive =
+        bluetoothManager && bluetoothManager->device() &&
+        bluetoothManager->device()->deviceType() == TREADMILL &&
+        treadmillStartCountdown > 0 && ticks >= 0 && ticks < treadmillStartCountdown;
+
+    if (treadmillStartupCountdownActive) {
+        qDebug() << "trainprogram treadmill startup countdown" << ticks
+                 << "of" << treadmillStartCountdown << "seconds";
+    }
+
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool() &&
-         !pelotonBootcampFloor && !resumingAfterPelotonBootcampFloor) ||
-        (bluetoothManager->device()->isPaused() && !pelotonBootcampFloor && !resumingAfterPelotonBootcampFloor)) {
+         !pelotonBootcampFloor && !resumingAfterPelotonBootcampFloor && !treadmillStartupCountdownActive) ||
+        (bluetoothManager->device()->isPaused() && !pelotonBootcampFloor && !resumingAfterPelotonBootcampFloor &&
+         !treadmillStartupCountdownActive)) {
         
         if(bluetoothManager->device() && (bluetoothManager->device()->deviceType() == TREADMILL || bluetoothManager->device()->deviceType() == ELLIPTICAL) &&
            settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token &&

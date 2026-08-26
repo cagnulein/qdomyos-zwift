@@ -1774,6 +1774,8 @@ import AndroidStatusBar 1.0
             property double treadmill_inclination_override_device_command_140: 14.0
             property double treadmill_inclination_override_device_command_145: 14.5
             property double treadmill_inclination_override_device_command_150: 15.0
+
+            property int treadmill_start_countdown: 0
         }
 
 
@@ -10988,6 +10990,53 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.umay_s100_treadmill = checked; window.settings_restart_to_apply = true; }
                             }
                         }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Treadmill Start Countdown:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: treadmillStartCountdownTextField
+                            text: settings.treadmill_start_countdown.toString()
+                            horizontalAlignment: Text.AlignRight
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.preferredWidth: 80
+                        }
+                        Label {
+                            text: qsTr("seconds")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                var value = parseInt(treadmillStartCountdownTextField.text)
+                                if (isNaN(value))
+                                    value = 0
+                                value = Math.max(0, Math.min(30, value))
+                                settings.treadmill_start_countdown = value
+                                treadmillStartCountdownTextField.text = value.toString()
+                                toast.show(qsTr("Setting saved!"))
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Time in seconds between the Start command and the treadmill belt beginning to move. Training programs continue advancing during this countdown to stay synchronized. Set to 0 to disable. Default is 0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {

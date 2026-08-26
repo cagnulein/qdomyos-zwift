@@ -305,6 +305,12 @@ class QZSettings {
     static const QString treadmill_force_speed;
     static constexpr bool default_treadmill_force_speed = false;
 
+    /**
+     *@brief seconds during which a treadmill may run its own startup countdown.
+     */
+    static const QString treadmill_start_countdown;
+    static constexpr int default_treadmill_start_countdown = 0;
+
     static const QString treadmill_force_running_activity;
     static constexpr bool default_treadmill_force_running_activity = false;
 
