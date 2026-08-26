@@ -1,0 +1,48 @@
+name: Xcode Cloud PR Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: GitHub pull request number to build in Xcode Cloud
+        required: true
+        type: number
+
+permissions:
+  contents: read
+
+jobs:
+  trigger:
+    name: Start Xcode Cloud PR build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+      XCODE_CLOUD_WORKFLOW_ID: ${{ vars.XCODE_CLOUD_WORKFLOW_ID }}
+      PR_NUMBER: ${{ inputs.pr_number }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPOSITORY: ${{ github.repository }}
+
+    steps:
+      - name: Validate configuration
+        shell: bash
+        run: |
+          missing=0
+          for name in ASC_ISSUER_ID ASC_KEY_ID ASC_PRIVATE_KEY XCODE_CLOUD_WORKFLOW_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing required configuration: $name"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - uses: actions/checkout@v4
+
+      - name: Install JWT dependency
+        run: python3 -m pip install --disable-pip-version-check --quiet PyJWT cryptography
+
+      - name: Trigger Xcode Cloud
+        run: python3 .github/scripts/trigger_xcode_cloud_pr.py
