@@ -6941,7 +6941,7 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
             if (trainProgram && trainProgram->isStarted() && trainProgram->resistanceOffsetForTrainingProgram() != 0) {
                 this->target_resistance->setSecondLine(
-                    QStringLiteral("%1%2%")
+                    QStringLiteral("%1%2")
                         .arg(trainProgram->resistanceOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
                                                                                     : QStringLiteral(""))
                         .arg(trainProgram->resistanceOffsetForTrainingProgram()));
