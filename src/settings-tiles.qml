@@ -1606,7 +1606,7 @@ ScrollView {
         }
 
         Label {
-            text: qsTr("Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. Bike only: while a Peloton class is active, the +/- buttons nudge the resistance target picked from the class's range (Peloton 0-100 scale) up or down by 1 for the rest of the ride. Resets to 0 when a new class starts.")
+            text: qsTr("Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. During a Peloton class (bike only), +/- shifts the class's resistance target up or down for the rest of the ride.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2
