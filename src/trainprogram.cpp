@@ -697,13 +697,13 @@ void trainprogram::scheduler() {
         qMax(0, settings.value(QZSettings::treadmill_start_countdown,
                                QZSettings::default_treadmill_start_countdown).toInt());
     const bool treadmillStartupCountdownActive =
-        bluetoothManager && bluetoothManager->device() &&
-        bluetoothManager->device()->deviceType() == TREADMILL &&
-        treadmillStartCountdown > 0 && ticks >= 0 && ticks < treadmillStartCountdown;
+        started && bluetoothManager && bluetoothManager->device() &&
+        bluetoothManager->device()->deviceType() == TREADMILL && currentStep == 0 &&
+        treadmillStartCountdown > 0 && treadmillStartCountdownElapsed < treadmillStartCountdown;
 
     if (treadmillStartupCountdownActive) {
-        qDebug() << "trainprogram treadmill startup countdown" << ticks
-                 << "of" << treadmillStartCountdown << "seconds";
+        qDebug() << "trainprogram treadmill startup countdown window"
+                 << treadmillStartCountdownElapsed << "of" << treadmillStartCountdown << "seconds";
     }
 
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
@@ -945,6 +945,9 @@ void trainprogram::scheduler() {
 #endif
 
     ticks++;
+    if (treadmillStartupCountdownActive && treadmillStartCountdownElapsed < treadmillStartCountdown) {
+        treadmillStartCountdownElapsed++;
+    }
     qDebug() << QStringLiteral("trainprogram ticks") << ticks << QStringLiteral("currentTimerJitter") << currentTimerJitter;
 
     if(qAbs(currentTimerJitter) > 1000) {
@@ -971,6 +974,15 @@ void trainprogram::scheduler() {
         currentStepDistance = 0;
         lastOdometer = odometerFromTheDevice;
         emit intervalTransitionApplied();
+
+        if (bluetoothManager->device()->deviceType() == TREADMILL && treadmillStartCountdown > 0 &&
+            !treadmillStartCountdownCompensationApplied) {
+            ticks += treadmillStartCountdown;
+            treadmillStartCountdownCompensationApplied = true;
+            qDebug() << "trainprogram treadmill startup countdown compensation"
+                     << treadmillStartCountdown << "seconds, adjusted ticks" << ticks;
+        }
+
         if (bluetoothManager->device()->deviceType() == TREADMILL) {
             if (isPelotonBootcampFloorRow(rows.at(0))) {
                 if (settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool()) {
@@ -1698,6 +1710,8 @@ void trainprogram::onTapeStarted() { started = true; }
 
 void trainprogram::restart() {
     trainingProgramPowerOffset = 0;
+    treadmillStartCountdownElapsed = 0;
+    treadmillStartCountdownCompensationApplied = false;
     for (int i = 0; i < rows.length() && i < loadedRows.length(); i++) {
         if (loadedRows.at(i).power != -1) {
             rows[i].power = loadedRows.at(i).power;

@@ -217,6 +217,8 @@ private slots:
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
     int32_t trainingProgramPowerOffset = 0;
+    int treadmillStartCountdownElapsed = 0;
+    bool treadmillStartCountdownCompensationApplied = false;
     int lastLapButtonToastStep = -1;
     int lastLapButtonToastTick = -30;
     

@@ -11027,7 +11027,7 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        text: qsTr("Time in seconds between the Start command and the treadmill belt beginning to move. Training programs continue advancing during this countdown to stay synchronized. Set to 0 to disable. Default is 0.")
+                        text: qsTr("Seconds to compensate for a treadmill's startup countdown. QZ advances the training-program timeline by this amount once at the initial start and keeps the program clock running during the countdown. It is not applied to later treadmill restarts. Set to 0 to disable. Default is 0.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
