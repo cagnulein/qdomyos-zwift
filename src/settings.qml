@@ -1743,8 +1743,6 @@ import AndroidStatusBar 1.0
             property bool nordictrack_incline_trainer_x7i_ntl15010_0: false
             property bool custom_inclination_resistance_table_enabled: false
             property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
-            property bool tile_peloton_resistance_offset_enabled: false
-            property int  tile_peloton_resistance_offset_order: 55
         }
 
 

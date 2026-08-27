@@ -895,7 +895,6 @@ public:
     DataObject *peloton_resistance;
     DataObject *target_resistance;
     DataObject *target_peloton_resistance;
-    DataObject *peloton_resistance_offset;
     DataObject *target_cadence;
     DataObject *target_power;
     DataObject *target_zone;

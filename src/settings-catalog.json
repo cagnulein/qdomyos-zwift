@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 973,
+  "settingCount": 971,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -1663,7 +1663,7 @@
     {
       "key": "tile_target_resistance_order",
       "name": "order index",
-      "description": "Displays target resistance in your bike\u2019s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile.",
+      "description": "Displays target resistance in your bike\u2019s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. Bike only: while a Peloton class is active, the +/- buttons nudge the resistance target picked from the class's range (Peloton 0-100 scale) up or down by 1 for the rest of the ride, the same way Target Power's +/- persistently offsets ERG workouts. Resets to 0 when a new class starts.",
       "parent": "tile_target_resistance_enabled",
       "type": "integer",
       "qmlType": "int",
@@ -1700,35 +1700,6 @@
       "visible": true,
       "defaultValue": 21,
       "defaultExpression": "21",
-      "options": {
-        "source": "expression",
-        "expression": "rootItem.tile_order"
-      }
-    },
-    {
-      "key": "tile_peloton_resistance_offset_enabled",
-      "name": "Peloton Resistance Offset",
-      "description": null,
-      "parent": "Tiles",
-      "type": "boolean",
-      "qmlType": "bool",
-      "control": "switch",
-      "visible": true,
-      "defaultValue": false,
-      "defaultExpression": "false",
-      "options": null
-    },
-    {
-      "key": "tile_peloton_resistance_offset_order",
-      "name": "order index",
-      "description": "Nudges the resistance target picked from the active Peloton class's range (e.g. 35-45) up or down, on the Peloton 0-100 scale, for the rest of the ride.",
-      "parent": "tile_peloton_resistance_offset_enabled",
-      "type": "integer",
-      "qmlType": "int",
-      "control": "select",
-      "visible": true,
-      "defaultValue": 55,
-      "defaultExpression": "55",
       "options": {
         "source": "expression",
         "expression": "rootItem.tile_order"
