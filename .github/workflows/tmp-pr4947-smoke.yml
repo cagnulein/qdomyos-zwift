@@ -1,0 +1,9 @@
+name: Temporary PR 4947 smoke
+on:
+  push:
+    branches: [tmp/pr4947-fix-start-countdown-20260827]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok
