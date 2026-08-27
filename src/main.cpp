@@ -609,13 +609,13 @@ int main(int argc, char *argv[]) {
 
         AndroidStatusBar::registerQmlType();
         QQmlApplicationEngine engine;
-        const QUrl url(QStringLiteral("qrc:/main.qml"));
+        const QUrl url(QStringLiteral("qrc:/settings-visual-harness.qml"));
 
         QObject::connect(
             &engine, &QQmlApplicationEngine::objectCreated, app.data(),
             [url](QObject *obj, const QUrl &objUrl) {
                 if (!obj && url == objUrl) {
-                    fprintf(stderr, "SETTINGS_VISUAL: main.qml root creation failed\n");
+                    fprintf(stderr, "SETTINGS_VISUAL: visual harness root creation failed\n");
                     fflush(stderr);
                     QCoreApplication::exit(-1);
                 }
@@ -631,11 +631,11 @@ int main(int argc, char *argv[]) {
         FileSearcher fileSearcher;
         engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
 
-        fprintf(stderr, "SETTINGS_VISUAL: loading qrc:/main.qml\n");
+        fprintf(stderr, "SETTINGS_VISUAL: loading qrc:/settings-visual-harness.qml\n");
         fflush(stderr);
         engine.load(url);
         if (engine.rootObjects().isEmpty()) {
-            fprintf(stderr, "SETTINGS_VISUAL: main.qml load failed\n");
+            fprintf(stderr, "SETTINGS_VISUAL: visual harness load failed\n");
             fflush(stderr);
             return -2;
         }

@@ -4,9 +4,14 @@
 #include <QUrl>
 #include <QDebug>
 #include <QVariantMap>
+#include <QProcess>
 
 FileSearcher::FileSearcher(QObject *parent)
     : QObject(parent) {
+}
+
+bool FileSearcher::captureScreen(const QString &path) {
+    return QProcess::execute(QStringLiteral("scrot"), QStringList() << QStringLiteral("-u") << QStringLiteral("-o") << path) == 0;
 }
 
 QVariantList FileSearcher::searchRecursively(const QString &basePath,

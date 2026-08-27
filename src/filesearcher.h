@@ -32,6 +32,7 @@ public:
     Q_INVOKABLE QVariantList searchRecursively(const QString &basePath,
                                                 const QString &filterPattern,
                                                 const QStringList &nameFilters = QStringList() << "*.xml" << "*.zwo");
+    Q_INVOKABLE bool captureScreen(const QString &path);
 
 signals:
     /**

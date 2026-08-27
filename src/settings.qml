@@ -103,8 +103,8 @@ import AndroidStatusBar 1.0
                 var persistent = settingsCatalog.settings || []
                 for (var p = 0; p < persistent.length; p++) {
                     var pe = persistent[p]
-                    if (!pe.visible || pe.control === "virtualOption")
-                        continue
+                        if ((!visualTestMode && !pe.visible) || (!visualTestMode && pe.control === "virtualOption"))
+                            continue
                     if (sourceMap[pe.key] !== modernSettingsExternalTarget)
                         continue
                     pe.catalogKind = "setting"
@@ -431,11 +431,9 @@ import AndroidStatusBar 1.0
             }
 
             for (var j = 0; j < persistentSettings.length; j++) {
-                if (persistentSettings[j].control === "virtualOption")
-                    continue
-                if (!persistentSettings[j].visible)
-                    continue
-                if (settingsPane.isTileOrderSetting(persistentSettings[j]))
+                if ((!visualTestMode && persistentSettings[j].control === "virtualOption") ||
+                    (!visualTestMode && !persistentSettings[j].visible) ||
+                    (!visualTestMode && settingsPane.isTileOrderSetting(persistentSettings[j])))
                     continue
                 persistentSettings[j].catalogKind = "setting"
                 items.push(persistentSettings[j])
@@ -461,6 +459,18 @@ import AndroidStatusBar 1.0
 
         function isTileOrderSetting(entry) {
             return entry && entry.key && entry.key.indexOf("tile_") === 0 && entry.key.lastIndexOf("_order") === entry.key.length - 6
+        }
+
+        function visualRenderedControl(entry) {
+            if (!entry)
+                return "unknown"
+            if (entry.catalogKind === "page")
+                return "button"
+            if (entry.catalogKind === "virtual")
+                return "select"
+            if (entry.type === "boolean")
+                return "switch"
+            return optionValues(entry).length > 0 ? "select" : "text"
         }
 
         // Try to find a translation for a catalog entry name by probing common QML contexts.
@@ -2322,11 +2332,15 @@ import AndroidStatusBar 1.0
         property string visualOutputDir: "settings-qml-visual-report/raw"
         property bool visualHarnessFailed: false
         property int visualCaptureCount: 0
-        property int visualCapturePageLimit: 160
-        property int visualCaptureTotalLimit: 2400
+        property int visualCapturePageLimit: 400
+        property int visualCaptureTotalLimit: 4000
         property int visualModernPageCount: 0
         property var visualVisitedModernPages: ({})
         property int visualCatalogWaitAttempts: 0
+        property int visualLayoutWaitAttempts: 0
+        property var visualCoveredKeys: ({})
+        property string visualPendingFilename: ""
+        property var visualPendingCallback: null
 
         function visualResolveOutputDir() {
             var args = Qt.application.arguments
@@ -2350,7 +2364,7 @@ import AndroidStatusBar 1.0
                 return
             visualHarnessFailed = true
             console.log("SETTINGS_VISUAL: FATAL", message)
-            Qt.callLater(function() { Qt.quit() })
+            Qt.callLater(function() { Qt.exit(1) })
         }
 
         function visualCapture(filename, callback) {
@@ -2361,21 +2375,48 @@ import AndroidStatusBar 1.0
                 return
             }
             visualCaptureCount += 1
+            visualPendingFilename = filename
+            visualPendingCallback = callback || null
+            visualCaptureTimer.restart()
+        }
+
+        function visualCaptureNow() {
+            var filename = visualPendingFilename
+            var callback = visualPendingCallback
+            visualPendingFilename = ""
+            visualPendingCallback = null
             Qt.callLater(function() {
                 if (visualHarnessFailed)
                     return
-                window.contentItem.grabToImage(function(result) {
-                    var path = visualOutputDir + "/" + filename
-                    var ok = result.saveToFile(path)
-                    console.log("SETTINGS_VISUAL:", ok ? "saved" : "FAILED", path)
-                    if (!ok) {
-                        visualFail("failed to save " + path)
-                        return
-                    }
-                    if (callback)
-                        Qt.callLater(callback)
-                })
+                var path = visualOutputDir + "/" + filename
+                var ok = fileSearcher.captureScreen(path)
+                console.log("SETTINGS_VISUAL:", ok ? "saved" : "FAILED", path)
+                if (!ok) {
+                    visualFail("failed to save " + path)
+                    return
+                }
+                if (callback)
+                    Qt.callLater(callback)
             })
+        }
+
+        function visualTreePath(entry) {
+            var parts = [entry.name || entry.key]
+            var wanted = entry.parent || ""
+            var nodes = (settingsCatalog.legacyHierarchy || {}).nodes || []
+            for (var guard = 0; wanted && guard < 20; guard++) {
+                parts.unshift(wanted)
+                var found = null
+                for (var i = 0; i < nodes.length; i++) {
+                    if (String(nodes[i].name || "").toLowerCase() === String(wanted).toLowerCase() ||
+                        String(nodes[i].key || "").toLowerCase() === String(wanted).toLowerCase()) {
+                        found = nodes[i]
+                        break
+                    }
+                }
+                wanted = found && found.parent ? found.parent : ""
+            }
+            return parts.join(" › ")
         }
 
         function visualPositions(contentHeight, viewportHeight, key) {
@@ -2417,8 +2458,14 @@ import AndroidStatusBar 1.0
                 visualFail("missing capture list for " + prefix + "/" + key)
                 return
             }
-            if (!list.visible) {
-                visualFail("hidden capture list for " + prefix + "/" + key)
+            if (!list.visible || Number(list.width) <= 0 || Number(list.height) <= 0) {
+                if (visualLayoutWaitAttempts < 40) {
+                    visualLayoutWaitAttempts += 1
+                    Qt.callLater(function() { visualCaptureList(prefix, key, list, callback) })
+                    return
+                }
+                visualFail("invalid capture list geometry for " + prefix + "/" + key +
+                           ": visible=" + list.visible + " width=" + list.width + " height=" + list.height)
                 return
             }
             if (list.forceLayout)
@@ -2440,6 +2487,22 @@ import AndroidStatusBar 1.0
                 if (list.forceLayout)
                     list.forceLayout()
                 Qt.callLater(function() {
+                    console.log("SETTINGS_VISUAL: segment", prefix, key, index)
+                    if (prefix === "modern") {
+                        var children = list.contentItem ? list.contentItem.children : []
+                        for (var c = 0; c < children.length; c++) {
+                            var child = children[c]
+                            if (!child || child.entry === undefined || child.height <= 0)
+                                continue
+                            var childTop = child.y
+                            var childBottom = childTop + child.height
+                            if (childBottom > list.contentY && childTop < list.contentY + list.height) {
+                                if (!visualCoveredKeys[child.entry.key])
+                                    console.log("SETTINGS_VISUAL: visible", child.entry.key, child.entry.type || "unknown", child.entry.control || "default")
+                                visualCoveredKeys[child.entry.key] = true
+                            }
+                        }
+                    }
                     visualCapture(prefix + "-" + visualSlug(key) + "-" + index + ".png", function() { captureAt(index + 1) })
                 })
             }
@@ -2590,7 +2653,7 @@ import AndroidStatusBar 1.0
                 return
             if (index >= modernSettingsCategories.length) {
                 console.log("SETTINGS_VISUAL: modern traversal complete pages", visualModernPageCount, "captures", visualCaptureCount)
-                visualStartLegacy()
+                visualCaptureIndividualSettings()
                 return
             }
 
@@ -2607,6 +2670,41 @@ import AndroidStatusBar 1.0
                     visualCaptureModernCategories(index + 1)
                 })
             })
+        }
+
+        function visualCaptureIndividualSettings() {
+            if (visualHarnessFailed)
+                return
+            var entries = []
+            var persistent = settingsCatalog.settings || []
+            for (var i = 0; i < persistent.length; i++)
+                entries.push(persistent[i])
+            var virtual = settingsCatalog.virtualSettings || []
+            for (var v = 0; v < virtual.length; v++)
+                entries.push(virtual[v])
+            modernSettingsParent = "__visual_individual_settings__"
+            modernSettingsExternalTarget = ""
+            modernSettingsExternalTitle = ""
+            modernSettingsSearch.text = ""
+            function captureAt(index) {
+                if (index >= entries.length) {
+                    console.log("SETTINGS_VISUAL: individual settings complete", entries.length)
+                    visualStartLegacy()
+                    return
+                }
+                var entry = JSON.parse(JSON.stringify(entries[index]))
+                entry.catalogKind = entry.catalogKind || (entry.key && entry.key.indexOf("nordictrack_") === 0 ? "virtual" : "setting")
+                entry._translatedName = entry.name || entry.key
+                entry._visualTreePath = settingsPane.visualTreePath(entry)
+                modernSettingsItems = [entry]
+                modernItemList.positionViewAtBeginning()
+                Qt.callLater(function() {
+                    var capturedEntry = entry
+                    var capturedIndex = index
+                    visualCapture("setting-" + capturedIndex + "-" + visualSlug(capturedEntry.key) + ".png", function() { captureAt(capturedIndex + 1) })
+                })
+            }
+            captureAt(0)
         }
 
         function visualLegacyRoots() {
@@ -2719,6 +2817,8 @@ import AndroidStatusBar 1.0
             visualCaptureCount = 0
             visualModernPageCount = 0
             visualVisitedModernPages = ({})
+            visualLayoutWaitAttempts = 0
+            visualCoveredKeys = ({})
             console.log("SETTINGS_VISUAL: output", visualOutputDir)
             openModernSettingsPreview()
             if (modernSettingsCategories.length === 0) {
@@ -2730,6 +2830,13 @@ import AndroidStatusBar 1.0
                     visualCaptureModernCategories(0)
                 })
             })
+        }
+
+        Timer {
+            id: visualCaptureTimer
+            interval: 60
+            repeat: false
+            onTriggered: settingsPane.visualCaptureNow()
         }
 
         Timer {
@@ -2918,7 +3025,7 @@ import AndroidStatusBar 1.0
                         id: modernSettingRow
                         property var entry: modelData
                         width: modernItemList.width - modernItemList.leftMargin - modernItemList.rightMargin
-                        implicitHeight: modernSettingContent.implicitHeight + 24
+                        height: modernSettingContent.childrenRect.height + 24
                         radius: 10
                         color: settingsPane.modernCardColor()
 
@@ -2945,10 +3052,26 @@ import AndroidStatusBar 1.0
                                     }
                                     Label {
                                         Layout.fillWidth: true
-                                        visible: modernSettingsSearch.text.length > 0
+                                        visible: modernSettingsSearch.text.length > 0 && !visualTestMode
                                         text: settingsPane.parentDisplayName(entry)
                                         color: Material.color(Material.Grey)
                                         font.pixelSize: Qt.application.font.pixelSize - 2
+                                        elide: Text.ElideRight
+                                    }
+                                    Label {
+                                        Layout.fillWidth: true
+                                        visible: visualTestMode
+                                        text: "Tree: " + settingsPane.visualTreePath(entry)
+                                        color: Material.color(Material.Grey)
+                                        font.pixelSize: Qt.application.font.pixelSize - 3
+                                        elide: Text.ElideRight
+                                    }
+                                    Label {
+                                        Layout.fillWidth: true
+                                        visible: visualTestMode
+                                        text: entry.key + "  •  " + (entry.type || "unknown") + "  •  expected:" + (entry.control || "default") + "  •  rendered:" + settingsPane.visualRenderedControl(entry)
+                                        color: Material.color(Material.Grey)
+                                        font.pixelSize: Qt.application.font.pixelSize - 3
                                         elide: Text.ElideRight
                                     }
                                 }

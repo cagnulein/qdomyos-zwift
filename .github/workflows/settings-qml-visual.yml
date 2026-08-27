@@ -33,7 +33,7 @@ jobs:
       - name: Start Xvfb
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y xvfb
+          sudo apt-get install -y xvfb scrot
           Xvfb -ac $DISPLAY -screen 0 1280x780x24 &
 
       - name: Checkout SMTP client

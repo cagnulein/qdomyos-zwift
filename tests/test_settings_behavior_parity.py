@@ -21,7 +21,7 @@ class SettingsBehaviorParityTests(unittest.TestCase):
         self.assertIn("function displaySettingValue(entry)", self.qml)
 
     def test_restart_policy_is_explicit_for_every_persistent_setting(self):
-        self.assertEqual(len(self.by_key), 998)
+        self.assertEqual(self.catalog["settingCount"], len(self.by_key))
         missing = [key for key, entry in self.by_key.items() if "restartRequired" not in entry]
         self.assertEqual(missing, [])
         self.assertTrue(all(isinstance(entry["restartRequired"], bool) for entry in self.by_key.values()))

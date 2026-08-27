@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   audit:
@@ -34,53 +34,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Fix duplicate Drawer background
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          path = Path('src/settings.qml')
-          text = path.read_text(encoding='utf-8')
-          duplicate = '''            background: Rectangle { color: settingsPane.modernPageColor() }
-            edge: Qt.RightEdge
-            width: Math.min(settingsPane.width, 680)
-            height: settingsPane.height
-            modal: true
-            interactive: true
 
-            background: Rectangle {
-                color: Material.backgroundColor
-            }
-'''
-          fixed = '''            background: Rectangle { color: settingsPane.modernPageColor() }
-            edge: Qt.RightEdge
-            width: Math.min(settingsPane.width, 680)
-            height: settingsPane.height
-            modal: true
-            interactive: true
-'''
-          if duplicate in text:
-              path.write_text(text.replace(duplicate, fixed, 1), encoding='utf-8')
-              print('Removed duplicate Drawer background')
-          elif fixed in text:
-              print('Drawer background already fixed')
-          else:
-              raise SystemExit('Expected Drawer block not found')
-          PY
-      - name: Commit Drawer fix
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/settings-refactor-phase1-safety'
-        shell: bash
-        run: |
-          if git diff --quiet -- src/settings.qml; then
-            echo 'Drawer fix already committed.'
-          else
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add src/settings.qml
-            git commit -m 'Fix duplicate modern settings Drawer background'
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
-          fi
       - name: Fetch latest master
         run: git fetch --no-tags --depth=1 origin master:refs/remotes/origin/master
       - name: Test settings refactor infrastructure
