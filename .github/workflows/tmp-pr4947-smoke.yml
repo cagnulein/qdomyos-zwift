@@ -1,9 +1,37 @@
-name: Temporary PR 4947 smoke
+name: Temporary PR 4947 start countdown patch
 on:
   push:
     branches: [tmp/pr4947-fix-start-countdown-20260827]
+permissions:
+  contents: write
 jobs:
-  smoke:
+  patch:
     runs-on: ubuntu-latest
     steps:
-      - run: echo ok
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp/pr4947-fix-start-countdown-20260827
+          fetch-depth: 0
+      - name: Patch PR branch
+        run: |
+          cp .github/scripts/tmp-pr4947-fix-start-countdown.py /tmp/fix.py
+          git fetch origin codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+          git checkout codex/add-backward-compatible-inclination-mapping-extension-3shg4d
+          python3 /tmp/fix.py
+      - name: Validate
+        run: |
+          python3 -m json.tool src/settings-catalog.json >/dev/null
+          grep -q 'treadmillStartCountdownElapsed = 0' src/trainprogram.h
+          grep -q 'treadmill startup countdown compensation' src/trainprogram.cpp
+          grep -q 'ticks += treadmillStartCountdown' src/trainprogram.cpp
+          ! grep -q 'ticks >= 0 && ticks < treadmillStartCountdown' src/trainprogram.cpp
+          ! grep -q 'Training programs continue advancing during this countdown to stay synchronized' src/settings.qml
+          test "$(grep -c '\"key\": \"treadmill_start_countdown\"' src/settings-catalog.json)" -eq 1
+          git diff --check
+      - name: Commit and push
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/trainprogram.cpp src/trainprogram.h src/settings.qml src/settings-catalog.json
+          git commit -m 'Fix treadmill start countdown timing compensation'
+          git push origin HEAD:codex/add-backward-compatible-inclination-mapping-extension-3shg4d
