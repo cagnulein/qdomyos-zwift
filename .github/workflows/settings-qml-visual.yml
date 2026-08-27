@@ -74,22 +74,6 @@ jobs:
           make -j8
           make install
 
-      - name: Patch Qt 5 visual capture target
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          path = Path('src/settings.qml')
-          text = path.read_text(encoding='utf-8')
-          old = 'window.contentItem.grabToImage(function(result) {'
-          new = 'settingsPane.grabToImage(function(result) {'
-          occurrences = text.count(old)
-          if occurrences != 1:
-              raise SystemExit(f'Expected exactly one window.contentItem grabToImage call, found {occurrences}')
-          path.write_text(text.replace(old, new, 1), encoding='utf-8')
-          print('SETTINGS_VISUAL: patched capture target to QML-created settingsPane')
-          PY
 
       - name: Compile QZ Linux desktop
         run: |
