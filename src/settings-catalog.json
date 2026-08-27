@@ -1663,7 +1663,7 @@
     {
       "key": "tile_target_resistance_order",
       "name": "order index",
-      "description": "Displays target resistance in your bike\u2019s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. Bike only: while a Peloton class is active, the +/- buttons nudge the resistance target picked from the class's range (Peloton 0-100 scale) up or down by 1 for the rest of the ride, the same way Target Power's +/- persistently offsets ERG workouts. Resets to 0 when a new class starts.",
+      "description": "Displays target resistance in your bike\u2019s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. Bike only: while a Peloton class is active, the +/- buttons nudge the resistance target picked from the class's range (Peloton 0-100 scale) up or down by 1 for the rest of the ride. Resets to 0 when a new class starts.",
       "parent": "tile_target_resistance_enabled",
       "type": "integer",
       "qmlType": "int",
