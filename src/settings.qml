@@ -2899,7 +2899,9 @@ import AndroidStatusBar 1.0
             id: modernSettingsDrawer
             background: Rectangle { color: settingsPane.modernPageColor() }
             edge: Qt.RightEdge
-            width: Math.min(settingsPane.width, 680)
+            width: Qt.platform.os === "android"
+                   ? settingsPane.width
+                   : Math.min(settingsPane.width, 680)
             height: settingsPane.height
             modal: true
             interactive: true
