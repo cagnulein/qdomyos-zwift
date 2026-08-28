@@ -229,8 +229,10 @@ void computrainerbike::update() {
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         bool disable_hr_frommachinery =
             settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
-        bool cadenceSensorEnabled =
-            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool externalCadenceSensorEnabled =
+            !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"));
 
         int Buttons, Status;
         bool calibration;
@@ -244,7 +246,7 @@ void computrainerbike::update() {
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
         emit debug("Current Distance: " + QString::number(Distance.value()));
-        if (!cadenceSensorEnabled) {
+        if (!externalCadenceSensorEnabled) {
             Cadence = cadence;
             if (Cadence.value() > 0) {
                 CrankRevs++;
