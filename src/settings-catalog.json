@@ -736,11 +736,11 @@
       "description": "Seconds of early speed command per 1 km/h of target-speed increase. The stored value is normalized to seconds/km/h; the UI displays seconds/mph when imperial units are selected. Applies only to normal timed treadmill speed transitions and is capped at 10 seconds. Default 0 disables it.",
       "parent": "Treadmill Options",
       "type": "number",
-      "qmlType": "int",
+      "qmlType": "real",
       "control": "text",
       "visible": true,
       "defaultValue": 0.0,
-      "defaultExpression": "0"
+      "defaultExpression": "0.0"
     },
     {
       "key": "treadmill_speed_decrease_anticipation",
@@ -748,11 +748,11 @@
       "description": "Seconds of early speed command per 1 km/h of target-speed decrease. The stored value is normalized to seconds/km/h; the UI displays seconds/mph when imperial units are selected. Applies only to normal timed treadmill speed transitions and is capped at 10 seconds. Default 0 disables it.",
       "parent": "Treadmill Options",
       "type": "number",
-      "qmlType": "int",
+      "qmlType": "real",
       "control": "text",
       "visible": true,
       "defaultValue": 0.0,
-      "defaultExpression": "0"
+      "defaultExpression": "0.0"
     },
     {
       "key": "pause_on_start_treadmill",
