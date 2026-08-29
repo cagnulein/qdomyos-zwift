@@ -8,6 +8,10 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.system.ErrnoException;
+import android.system.Os;
+import android.system.OsConstants;
+import android.system.StructPollfd;
 import org.cagnulen.qdomyoszwift.QLog;
 import android.app.Service;
 import android.media.RingtoneManager;
@@ -34,20 +38,54 @@ import java.util.LinkedList;
 import java.util.concurrent.Callable;
 import java.util.ArrayList;
 import java.util.List;
-import java.nio.charset.StandardCharsets;
 
 public class Usbserial {
 
+    private static final char[] HEX_DIGITS = "0123456789ABCDEF".toCharArray();
+
     static UsbSerialPort port = null;
+    static java.io.FileDescriptor localSerialFd = null;
+    static boolean localSerialMode = false;
     static byte[] receiveData = new byte[4096];
     static int lastReadLen = 0;
+    static final String[] localSerialCandidates = {
+        "/dev/ttyS4",
+        "/dev/ttyS0",
+        "/dev/ttyS1",
+        "/dev/ttyS2",
+        "/dev/ttyS3"
+    };
+
+    private static String bytesToHex(byte[] data, int length) {
+        int count = Math.min(Math.max(length, 0), data.length);
+        StringBuilder hex = new StringBuilder(count == 0 ? 0 : count * 3 - 1);
+        for (int i = 0; i < count; i++) {
+            if (i > 0)
+                hex.append(' ');
+            int value = data[i] & 0xFF;
+            hex.append(HEX_DIGITS[value >>> 4]);
+            hex.append(HEX_DIGITS[value & 0x0F]);
+        }
+        return hex.toString();
+    }
 
     public static void open(Context context) {
         open(context, 2400); // Default baud rate for Computrainer
     }
 
     public static void open(Context context, int baudRate) {
+        open(context, baudRate, "");
+    }
+
+    public static void open(Context context, int baudRate, String devicePath) {
+        if (devicePath != null && (devicePath.startsWith("/dev/") || devicePath.equalsIgnoreCase("auto"))) {
+            openLocalSerial(devicePath, baudRate);
+            return;
+        }
+
         QLog.d("QZ","UsbSerial open with baud rate: " + baudRate);
+        localSerialMode = false;
+        localSerialFd = null;
         // Find all available drivers from attached devices.
         UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
@@ -110,11 +148,81 @@ public class Usbserial {
         }
     }
 
+    private static void openLocalSerial(String devicePath, int baudRate) {
+        QLog.d("QZ","UsbSerial local serial open " + devicePath + " with baud rate: " + baudRate);
+        port = null;
+        localSerialFd = null;
+        localSerialMode = false;
+        lastReadLen = 0;
+
+        if (devicePath.equalsIgnoreCase("auto")) {
+            for (String candidate : localSerialCandidates) {
+                if (openLocalSerialPath(candidate, baudRate)) {
+                    return;
+                }
+            }
+            QLog.d("QZ","UsbSerial local serial auto open failed");
+            return;
+        }
+
+        openLocalSerialPath(devicePath, baudRate);
+    }
+
+    private static boolean openLocalSerialPath(String devicePath, int baudRate) {
+        try {
+            configureLocalSerial(devicePath, baudRate);
+            localSerialFd = Os.open(devicePath, OsConstants.O_RDWR | OsConstants.O_NOCTTY | OsConstants.O_NONBLOCK, 0);
+            localSerialMode = true;
+            QLog.d("QZ","UsbSerial local serial opened successfully: " + devicePath);
+            return true;
+        }
+        catch (ErrnoException e) {
+            QLog.d("QZ","UsbSerial local serial open failed: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private static void configureLocalSerial(String devicePath, int baudRate) {
+        try {
+            String[] command = {
+                "stty",
+                "-F",
+                devicePath,
+                String.valueOf(baudRate),
+                "cs8",
+                "-cstopb",
+                "-parenb",
+                "raw",
+                "-echo"
+            };
+            Process process = Runtime.getRuntime().exec(command);
+            int rc = process.waitFor();
+            QLog.d("QZ","UsbSerial local serial stty exit code: " + rc);
+        }
+        catch (Exception e) {
+            QLog.d("QZ","UsbSerial local serial stty failed: " + e.getMessage());
+        }
+    }
+
     public static void write (byte[] bytes) {
+        if(localSerialMode) {
+            if(localSerialFd == null)
+               return;
+
+            try {
+                Os.write(localSerialFd, bytes, 0, bytes.length);
+            }
+            catch (ErrnoException | IOException e) {
+                QLog.d("QZ","UsbSerial local serial write failed: " + e.getMessage());
+            }
+            return;
+        }
+
         if(port == null)
            return;
 
-        QLog.d("QZ","UsbSerial writing " + new String(bytes, StandardCharsets.UTF_8));
+        QLog.d("QZ", "UsbSerial writing " + bytes.length + " bytes: " +
+                bytesToHex(bytes, bytes.length));
         try {
             port.write(bytes, 2000);
         }
@@ -128,6 +236,32 @@ public class Usbserial {
     }
 
     public static byte[] read() {
+        if(localSerialMode) {
+            if(localSerialFd == null) {
+               lastReadLen = 0;
+               return receiveData;
+            }
+
+            try {
+                StructPollfd pollFd = new StructPollfd();
+                pollFd.fd = localSerialFd;
+                pollFd.events = (short)OsConstants.POLLIN;
+                int ready = Os.poll(new StructPollfd[]{pollFd}, 0);
+                if(ready <= 0) {
+                    lastReadLen = 0;
+                    return receiveData;
+                }
+
+                lastReadLen = Os.read(localSerialFd, receiveData, 0, receiveData.length);
+                QLog.d("QZ","UsbSerial local serial reading " + lastReadLen);
+            }
+            catch (ErrnoException | IOException e) {
+                lastReadLen = 0;
+                QLog.d("QZ","UsbSerial local serial read failed: " + e.getMessage());
+            }
+            return receiveData;
+        }
+
         if(port == null) {
            lastReadLen = 0;
            return receiveData;
@@ -135,7 +269,8 @@ public class Usbserial {
 
         try {
             lastReadLen = port.read(receiveData, 2000);
-            QLog.d("QZ","UsbSerial reading " + lastReadLen + new String(receiveData, StandardCharsets.UTF_8));
+            QLog.d("QZ", "UsbSerial reading " + lastReadLen + " bytes: " +
+                    bytesToHex(receiveData, lastReadLen));
         }
         catch (IOException e) {
             // Do something here

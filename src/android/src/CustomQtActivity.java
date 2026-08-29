@@ -4,19 +4,29 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.SparseArray;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
+import android.graphics.Insets;
 import org.qtproject.qt5.android.bindings.QtActivity;
 
 public class CustomQtActivity extends QtActivity {
     private static final String TAG = "CustomQtActivity";
+    private static final int DOCUMENT_PICKER_PROFILE_REQUEST_CODE = 4101;
+    private static final int DOCUMENT_PICKER_TRAINING_REQUEST_CODE = 4102;
+    private static final int DOCUMENT_PICKER_GPX_REQUEST_CODE = 4103;
+    private static final int DOCUMENT_PICKER_SETTINGS_REQUEST_CODE = 4104;
+    private final SparseArray<String> pendingImportDirectories = new SparseArray<>();
 
     // Declare the native method that will be implemented in C++
-    private static native void onInsetsChanged(int top, int bottom, int left, int right);
+    private static native void onInsetsChanged(int top, int bottom, int left, int right,
+                                               int waterfallTop, int waterfallBottom,
+                                               int waterfallLeft, int waterfallRight);
     private static native void nativeOnOAuthCallback(String callbackUrl);
+    private static native void nativeOnDocumentPicked(int requestCode, int resultCode, String localPath);
 
     private void dispatchOAuthCallback(Intent intent) {
         if (intent == null) {
@@ -31,7 +41,11 @@ public class CustomQtActivity extends QtActivity {
         String url = data.toString();
         if (url.startsWith("https://www.qzfitness.com/peloton/callback")) {
             Log.d(TAG, "dispatchOAuthCallback: https://www.qzfitness.com/peloton/callback?code=XXXX&state=XXXX");
-            nativeOnOAuthCallback(url);
+            try {
+                nativeOnOAuthCallback(url);
+            } catch (UnsatisfiedLinkError e) {
+                Log.w(TAG, "Qt not ready yet for OAuth callback, ignoring: " + e.getMessage());
+            }
         }
     }
 
@@ -40,6 +54,8 @@ public class CustomQtActivity extends QtActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: CustomQtActivity initialized");
         dispatchOAuthCallback(getIntent());
+        AgeSignalsHelper.requestAgeSignals(this);
+        HealthConnectHelper.initialize(this);
 
         // This tells the OS that we want to handle the display cutout area ourselves
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -57,6 +73,10 @@ public class CustomQtActivity extends QtActivity {
                 int bottom = 0;
                 int left = 0;
                 int right = 0;
+                int waterfallTop = 0;
+                int waterfallBottom = 0;
+                int waterfallLeft = 0;
+                int waterfallRight = 0;
 
                 if (density > 0) {
                     // Use system window insets as primary source
@@ -74,6 +94,15 @@ public class CustomQtActivity extends QtActivity {
                             right = Math.max(right, Math.round(cutout.getSafeInsetRight() / density));
                             top = Math.max(top, Math.round(cutout.getSafeInsetTop() / density));
                             bottom = Math.max(bottom, Math.round(cutout.getSafeInsetBottom() / density));
+
+                            // Android 11+ exposes curved waterfall display areas separately from cutouts.
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                Insets waterfallInsets = cutout.getWaterfallInsets();
+                                waterfallLeft = Math.round(waterfallInsets.left / density);
+                                waterfallRight = Math.round(waterfallInsets.right / density);
+                                waterfallTop = Math.round(waterfallInsets.top / density);
+                                waterfallBottom = Math.round(waterfallInsets.bottom / density);
+                            }
                         }
                     }
                 }
@@ -94,11 +123,26 @@ public class CustomQtActivity extends QtActivity {
                               " Bottom:" + cutout.getSafeInsetBottom() + 
                               " Left:" + cutout.getSafeInsetLeft() + 
                               " Right:" + cutout.getSafeInsetRight());
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            Insets waterfallInsets = cutout.getWaterfallInsets();
+                            Log.d(TAG, "Waterfall insets - Top:" + waterfallInsets.top +
+                                  " Bottom:" + waterfallInsets.bottom +
+                                  " Left:" + waterfallInsets.left +
+                                  " Right:" + waterfallInsets.right);
+                        }
                     }
                 }
 
-                // Push the new, correct inset values to the C++ layer
-                onInsetsChanged(top, bottom, left, right);
+                // Push the new, correct inset values to the C++ layer.
+                // Guard against the race where Qt's native library hasn't finished
+                // loading yet when Android fires onApplyWindowInsets early (targetSdk>=36
+                // forces edge-to-edge, triggering this before QtActivity finishes
+                // loading libqdomyos-zwift in its background thread).
+                try {
+                    onInsetsChanged(top, bottom, left, right, waterfallTop, waterfallBottom, waterfallLeft, waterfallRight);
+                } catch (UnsatisfiedLinkError ignored) {
+                    // Qt not ready yet; insets will be re-applied once Qt initializes.
+                }
 
                 return v.onApplyWindowInsets(insets);
             }
@@ -112,8 +156,74 @@ public class CustomQtActivity extends QtActivity {
         dispatchOAuthCallback(intent);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (isDocumentPickerRequest(requestCode)) {
+            handleDocumentPickerResult(requestCode, resultCode, data);
+            return;
+        }
+
+        String uriString = "";
+        if (data != null && data.getData() != null) {
+            uriString = data.getData().toString();
+        }
+        Log.d(TAG, "onActivityResult passthrough requestCode=" + requestCode + " resultCode=" + resultCode + " uri=" + uriString);
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void openDocumentPicker(String mimeType, int requestCode, String destinationDir) {
+        pendingImportDirectories.put(requestCode, destinationDir == null ? "" : destinationDir);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType((mimeType == null || mimeType.isEmpty()) ? "*/*" : mimeType);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivityForResult(Intent.createChooser(intent, "Select file"), requestCode);
+    }
+
     // This method is still needed for the QML check
     public static int getApiLevel() {
         return Build.VERSION.SDK_INT;
+    }
+
+    private boolean isDocumentPickerRequest(int requestCode) {
+        return requestCode == DOCUMENT_PICKER_PROFILE_REQUEST_CODE
+            || requestCode == DOCUMENT_PICKER_TRAINING_REQUEST_CODE
+            || requestCode == DOCUMENT_PICKER_GPX_REQUEST_CODE
+            || requestCode == DOCUMENT_PICKER_SETTINGS_REQUEST_CODE;
+    }
+
+    private void handleDocumentPickerResult(int requestCode, int resultCode, Intent data) {
+        String destinationDir = pendingImportDirectories.get(requestCode, "");
+        pendingImportDirectories.remove(requestCode);
+
+        String action = "";
+        int flags = 0;
+        int clipItemCount = 0;
+        String uriString = "";
+        String localPath = "";
+
+        if (data != null) {
+            action = data.getAction() == null ? "" : data.getAction();
+            flags = data.getFlags();
+            if (data.getClipData() != null) {
+                clipItemCount = data.getClipData().getItemCount();
+            }
+            if (data.getData() != null) {
+                Uri uri = data.getData();
+                uriString = uri.toString();
+                if (resultCode == RESULT_OK) {
+                    localPath = ContentHelper.importContentToAppDir(this, uri, destinationDir);
+                }
+            }
+        }
+
+        Log.d(TAG, "handleDocumentPickerResult requestCode=" + requestCode
+            + " resultCode=" + resultCode
+            + " action=" + action
+            + " flags=0x" + Integer.toHexString(flags)
+            + " clipItems=" + clipItemCount
+            + " uri=" + uriString
+            + " localPath=" + localPath);
+        nativeOnDocumentPicked(requestCode, resultCode, localPath);
     }
 }

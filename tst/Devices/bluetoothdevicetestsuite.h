@@ -31,6 +31,12 @@ protected:
     TestSettings testSettings;
 
     /**
+     * @brief Disables runtime features that require real Bluetooth advertising or extra network services.
+     * Device detection tests only need constructor-side detection logic, not virtual peripherals.
+     */
+    void applyCiSafeRuntimeSettings();
+
+    /**
      * @brief Call bt.deviceDiscovered on the deviceInfo to try to detect and create the bluetoothdevice object for it.
      * If an exception is thrown, the test is failed with a call to FAIL().
      * Basically replaces EXPECT_NO_THROW, for ease of breakpoint placement.
@@ -159,4 +165,3 @@ TEST_P(BluetoothDeviceTestSuite, TestDeviceNotDetectedValidNamesSettingsDisabled
 TEST_P(BluetoothDeviceTestSuite, TestDeviceNotDetectedInvalidNamesSettingsEnabled) {
     this->test_deviceDetection_invalidNames_enabled();
 }
-

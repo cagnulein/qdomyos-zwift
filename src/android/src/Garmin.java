@@ -262,13 +262,17 @@ public class Garmin {
                                 HR = Integer.parseInt(var[0].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
                                 if(var.length > 1) {
                                     FootCad = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
-                                    if(var.length > 2) {
-                                        Power = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
-                                        Speed = Double.parseDouble(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
-                                    }
+                                }
+                                if(var.length > 2) {
+                                    Power = Integer.parseInt(var[2].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                                }
+                                if(var.length > 3) {
+                                    Speed = Double.parseDouble(var[3].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
                                 }
                                 QLog.d(TAG, "HR " + HR);
                                 QLog.d(TAG, "FootCad " + FootCad);
+                                QLog.d(TAG, "Power " + Power);
+                                QLog.d(TAG, "Speed " + Speed);
                             } catch (Exception e) {
                                 QLog.e(TAG, "Processing error", e);
                             }

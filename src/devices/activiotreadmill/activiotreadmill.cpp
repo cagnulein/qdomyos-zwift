@@ -14,6 +14,13 @@
 
 using namespace std::chrono_literals;
 
+namespace {
+uint8_t umayS100InclineChecksumA(uint8_t incline) {
+    static const int8_t nibbleOffsets[] = {0, 1, -2, -1};
+    return static_cast<uint8_t>(0x47 + (incline & 0xFC) + nibbleOffsets[incline & 0x03]);
+}
+}
+
 activiotreadmill::activiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
                                    double forceInitInclination) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -142,11 +149,21 @@ void activiotreadmill::forceSpeed(double requestSpeed) {
 }
 
 void activiotreadmill::forceIncline(double requestIncline) {
+    QSettings settings;
     uint8_t writeIncline[] = {0x04, 0x00, 0x00, 0x00, 0x00, 0x29, 0x06};
+    uint8_t incline = static_cast<uint8_t>(qRound(requestIncline));
 
-    writeIncline[2] = requestIncline;
-    writeIncline[5] += requestIncline;
-    writeIncline[6] += requestIncline;
+    if (settings.value(QZSettings::umay_s100_treadmill, QZSettings::default_umay_s100_treadmill).toBool()) {
+        double speedForIncline = currentSpeed().value() > 0 ? currentSpeed().value() : lastSpeed;
+        writeIncline[1] = static_cast<uint8_t>(qRound(speedForIncline * 10.0));
+        writeIncline[2] = incline;
+        writeIncline[5] = umayS100InclineChecksumA(incline);
+        writeIncline[6] = static_cast<uint8_t>(0x1C + incline);
+    } else {
+        writeIncline[2] = incline;
+        writeIncline[5] += incline;
+        writeIncline[6] += incline;
+    }
 
     writeCharacteristic(gattWriteCharacteristic, writeIncline, sizeof(writeIncline),
                         QStringLiteral("forceIncline incline=") + QString::number(requestIncline), false, false);
