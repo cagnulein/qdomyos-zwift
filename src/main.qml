@@ -965,6 +965,8 @@ ApplicationWindow {
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
+                    if (stackView.currentItem && typeof stackView.currentItem.modernSettingsBackFromHeader === "function" && stackView.currentItem.modernSettingsBackFromHeader())
+                        return;
                     if(window.settings_restart_to_apply === true) {
                         window.settings_restart_to_apply = false;
                         popupRestartApp.visible = true;

@@ -262,7 +262,7 @@ import AndroidStatusBar 1.0
             modernSettingsAwaitingExternalReturn = false
             modernSettingsExternalReturnState = null
             modernApplyNavigationState(state)
-            modernSettingsDrawer.open()
+            modernSettingsDrawer.visible = true
         }
 
         function openModernCatalogPage(entry) {
@@ -301,7 +301,7 @@ import AndroidStatusBar 1.0
             } else {
                 modernSettingsExternalReturnState = modernCaptureNavigationState()
                 modernSettingsAwaitingExternalReturn = true
-                modernSettingsDrawer.close()
+                modernSettingsDrawer.visible = false
                 stackView.push(entry.target)
             }
         }
@@ -329,7 +329,7 @@ import AndroidStatusBar 1.0
             modernSettingsSearch.text = ""
             rebuildModernSettingsCategories()
             modernResetCurrentScroll()
-            modernSettingsDrawer.open()
+            modernSettingsDrawer.visible = true
         }
 
         function openModernSettingsCategory(parentKey) {
@@ -343,21 +343,27 @@ import AndroidStatusBar 1.0
             modernResetCurrentScroll()
         }
 
-        function modernSettingsBack() {
+        function modernSettingsBackFromHeader() {
             if (modernSettingsSearch.text.length > 0) {
                 modernSettingsSearch.text = ""
                 rebuildModernSettingsItems("")
                 modernResetCurrentScroll()
-                return
+                return true
             }
             if (modernSettingsHistory.length > 0) {
                 var history = modernSettingsHistory.slice(0)
                 var state = history.pop()
                 modernSettingsHistory = history
                 modernApplyNavigationState(state)
-                return
+                return true
             }
-            modernSettingsDrawer.close()
+            return false
+        }
+
+        function modernSettingsBack() {
+            if (modernSettingsBackFromHeader())
+                return
+            stackView.pop()
         }
 
         function showSettingsSearch() {
@@ -2778,7 +2784,7 @@ import AndroidStatusBar 1.0
         function visualStartLegacy() {
             if (visualHarnessFailed)
                 return
-            modernSettingsDrawer.close()
+            modernSettingsDrawer.visible = false
             legacySettingsUiEnabled = true
             if (settingsPane.contentItem)
                 settingsPane.contentItem.contentY = 0
@@ -2895,50 +2901,14 @@ import AndroidStatusBar 1.0
         }
 
 
-        Drawer {
+        Item {
             id: modernSettingsDrawer
-            background: Rectangle { color: settingsPane.modernPageColor() }
-            edge: Qt.RightEdge
-            width: Qt.platform.os === "android"
-                   ? settingsPane.width
-                   : Math.min(settingsPane.width, 680)
-            height: settingsPane.height
-            modal: true
-            interactive: true
+            anchors.fill: parent
+            visible: false
 
             ColumnLayout {
                 anchors.fill: parent
                 spacing: 0
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: modernHeader.implicitHeight + 18
-                    color: Material.backgroundColor
-
-                    RowLayout {
-                        id: modernHeader
-                        anchors.fill: parent
-                        anchors.margins: 9
-                        spacing: 8
-
-                        ToolButton {
-                            text: modernSettingsParent.length > 0 || modernSettingsSearch.text.length > 0 || modernSettingsExternalTarget.length > 0 ? "‹" : "×"
-                            font.pixelSize: Qt.application.font.pixelSize + 8
-                            onClicked: settingsPane.modernSettingsBack()
-                        }
-
-                        Label {
-                            Layout.fillWidth: true
-                            text: settingsPane.modernSettingsParentName()
-                            font.bold: true
-                            font.pixelSize: Qt.application.font.pixelSize + (modernSettingsParent.length === 0 && modernSettingsExternalTarget.length === 0 ? 11 : 5)
-                            horizontalAlignment: modernSettingsParent.length === 0 && modernSettingsExternalTarget.length === 0 ? Text.AlignLeft : Text.AlignHCenter
-                            elide: Text.ElideRight
-                        }
-
-                        Item { Layout.preferredWidth: 44 }
-                    }
-                }
 
                 Rectangle {
                     Layout.fillWidth: true
