@@ -1776,6 +1776,10 @@ import AndroidStatusBar 1.0
             property double treadmill_inclination_override_device_command_150: 15.0
 
             property int treadmill_start_countdown: 0
+
+            property real treadmill_speed_increase_anticipation: 0.0
+
+            property real treadmill_speed_decrease_anticipation: 0.0
         }
 
 
@@ -11028,6 +11032,87 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Seconds to compensate for a treadmill's startup countdown. QZ advances the training-program timeline by this amount once at the initial start and keeps the program clock running during the countdown. It is not applied to later treadmill restarts. Set to 0 to disable. Default is 0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Speed Increase Anticipation:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: treadmillSpeedIncreaseAnticipationTextField
+                            text: (settings.treadmill_speed_increase_anticipation * (settings.miles_unit ? 1.60934 : 1.0)).toFixed(2)
+                            horizontalAlignment: Text.AlignRight
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.preferredWidth: 80
+                        }
+                        Label {
+                            text: settings.miles_unit ? qsTr("s / mph") : qsTr("s / km/h")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                var value = parseFloat(treadmillSpeedIncreaseAnticipationTextField.text)
+                                if (isNaN(value))
+                                    value = 0
+                                value = Math.max(0, Math.min(5, value))
+                                settings.treadmill_speed_increase_anticipation = value / (settings.miles_unit ? 1.60934 : 1.0)
+                                treadmillSpeedIncreaseAnticipationTextField.text = value.toFixed(2)
+                                toast.show(qsTr("Setting saved!"))
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Speed Decrease Anticipation:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: treadmillSpeedDecreaseAnticipationTextField
+                            text: (settings.treadmill_speed_decrease_anticipation * (settings.miles_unit ? 1.60934 : 1.0)).toFixed(2)
+                            horizontalAlignment: Text.AlignRight
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.preferredWidth: 80
+                        }
+                        Label {
+                            text: settings.miles_unit ? qsTr("s / mph") : qsTr("s / km/h")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                var value = parseFloat(treadmillSpeedDecreaseAnticipationTextField.text)
+                                if (isNaN(value))
+                                    value = 0
+                                value = Math.max(0, Math.min(5, value))
+                                settings.treadmill_speed_decrease_anticipation = value / (settings.miles_unit ? 1.60934 : 1.0)
+                                treadmillSpeedDecreaseAnticipationTextField.text = value.toFixed(2)
+                                toast.show(qsTr("Setting saved!"))
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Anticipates normal timed treadmill speed changes in proportion to the target-speed delta: anticipation = |next speed - current speed| x the selected factor, capped at 10 seconds. Increase and decrease use separate factors. It does not anticipate Bootcamp floor stop/resume, GPX/distance rows, blocking rows, or ramp steps. Set either value to 0 to disable that direction. Default is 0.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

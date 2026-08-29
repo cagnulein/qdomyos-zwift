@@ -653,6 +653,66 @@ bool trainprogram::isPelotonBootcampFloorRow(const trainrow &row) const {
            row.pace_intensity < 0;
 }
 
+
+void trainprogram::applyTreadmillSpeedAnticipation() {
+    if (!bluetoothManager || !bluetoothManager->device() ||
+        bluetoothManager->device()->deviceType() != TREADMILL ||
+        currentStep + 1 >= static_cast<uint16_t>(rows.length())) {
+        return;
+    }
+
+    if (anticipatedTreadmillSpeedStep <= static_cast<int>(currentStep))
+        anticipatedTreadmillSpeedStep = -1;
+
+    const int nextStep = static_cast<int>(currentStep) + 1;
+    if (anticipatedTreadmillSpeedStep == nextStep)
+        return;
+
+    const trainrow &current = rows.at(currentStep);
+    const trainrow &next = rows.at(nextStep);
+
+    if (current.distance != -1 || next.distance != -1 ||
+        isBlockingTransitionRow(current) || isBlockingTransitionRow(next) ||
+        isPelotonBootcampFloorRow(current) || isPelotonBootcampFloorRow(next) ||
+        !current.forcespeed || !next.forcespeed || current.speed <= 0.0 || next.speed <= 0.0 ||
+        current.rampDuration != QTime(0, 0, 0, 0) || current.rampElapsed != QTime(0, 0, 0, 0) ||
+        next.rampDuration != QTime(0, 0, 0, 0) || next.rampElapsed != QTime(0, 0, 0, 0) ||
+        !isnan(current.latitude) || !isnan(current.longitude) ||
+        !isnan(next.latitude) || !isnan(next.longitude)) {
+        return;
+    }
+
+    const double deltaSpeed = next.speed - current.speed;
+    if (qAbs(deltaSpeed) < 0.01)
+        return;
+
+    QSettings settings;
+    const double factor = qMax(0.0,
+        settings.value(deltaSpeed > 0.0 ? QZSettings::treadmill_speed_increase_anticipation
+                                        : QZSettings::treadmill_speed_decrease_anticipation,
+                       deltaSpeed > 0.0 ? QZSettings::default_treadmill_speed_increase_anticipation
+                                        : QZSettings::default_treadmill_speed_decrease_anticipation).toDouble());
+    const int anticipationSeconds = qBound(0, qRound(qAbs(deltaSpeed) * factor), 10);
+    if (anticipationSeconds <= 0)
+        return;
+
+    int32_t rowEndTick = 0;
+    for (int row = 0; row <= static_cast<int>(currentStep); ++row)
+        rowEndTick += static_cast<int32_t>(calculateTimeForRow(row));
+
+    const int secondsToTransition = rowEndTick - ticks;
+    if (secondsToTransition <= 0 || secondsToTransition > anticipationSeconds)
+        return;
+
+    qDebug() << "trainprogram anticipating treadmill speed"
+             << "from" << current.speed << "to" << next.speed
+             << "delta" << deltaSpeed << "factor" << factor
+             << "seconds before transition" << secondsToTransition
+             << "calculated anticipation" << anticipationSeconds;
+    emit changeSpeed(next.speed);
+    anticipatedTreadmillSpeedStep = nextStep;
+}
+
 void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
@@ -1118,6 +1178,8 @@ void trainprogram::scheduler() {
             emit changeGeoPosition(p, rows.at(0).azimuth, avgAzimuthNext300Meters());
         }
     }
+
+    applyTreadmillSpeedAnticipation();
 
     if (currentStep < rows.length() && isBlockingTransitionRow(rows.at(currentStep))) {
         const trainrow &row = rows.at(currentStep);
@@ -1682,6 +1744,7 @@ void trainprogram::goToPreviousRow() {
         ticks = targetTicks;
     }
     currentStep--;
+    anticipatedTreadmillSpeedStep = -1;
 
     rows[currentStep].started = QDateTime::currentDateTime();
     currentStepDistance = 0;
@@ -1712,6 +1775,7 @@ void trainprogram::restart() {
     trainingProgramPowerOffset = 0;
     treadmillStartCountdownElapsed = 0;
     treadmillStartCountdownCompensationApplied = false;
+    anticipatedTreadmillSpeedStep = -1;
     for (int i = 0; i < rows.length() && i < loadedRows.length(); i++) {
         if (loadedRows.at(i).power != -1) {
             rows[i].power = loadedRows.at(i).power;

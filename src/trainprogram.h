@@ -193,6 +193,7 @@ private slots:
     bool advanceBlockingStep(const QString &toastMessage);
     bool currentHeartRateEndConditionSatisfied() const;
     bool isPelotonBootcampFloorRow(const trainrow &row) const;
+    void applyTreadmillSpeedAnticipation();
     QString currentHeartRateEndConditionMessage() const;
     mutable QRecursiveMutex schedulerMutex;
     double avgAzimuthNext300Meters();
@@ -219,6 +220,7 @@ private slots:
     int32_t trainingProgramPowerOffset = 0;
     int treadmillStartCountdownElapsed = 0;
     bool treadmillStartCountdownCompensationApplied = false;
+    int anticipatedTreadmillSpeedStep = -1;
     int lastLapButtonToastStep = -1;
     int lastLapButtonToastTick = -30;
     

@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1000,
+  "settingCount": 1002,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -728,6 +728,30 @@
       "control": "text",
       "visible": true,
       "defaultValue": 0,
+      "defaultExpression": "0"
+    },
+    {
+      "key": "treadmill_speed_increase_anticipation",
+      "name": "Treadmill Speed Increase Anticipation",
+      "description": "Seconds of early speed command per 1 km/h of target-speed increase. The stored value is normalized to seconds/km/h; the UI displays seconds/mph when imperial units are selected. Applies only to normal timed treadmill speed transitions and is capped at 10 seconds. Default 0 disables it.",
+      "parent": "Treadmill Options",
+      "type": "number",
+      "qmlType": "int",
+      "control": "text",
+      "visible": true,
+      "defaultValue": 0.0,
+      "defaultExpression": "0"
+    },
+    {
+      "key": "treadmill_speed_decrease_anticipation",
+      "name": "Treadmill Speed Decrease Anticipation",
+      "description": "Seconds of early speed command per 1 km/h of target-speed decrease. The stored value is normalized to seconds/km/h; the UI displays seconds/mph when imperial units are selected. Applies only to normal timed treadmill speed transitions and is capped at 10 seconds. Default 0 disables it.",
+      "parent": "Treadmill Options",
+      "type": "number",
+      "qmlType": "int",
+      "control": "text",
+      "visible": true,
+      "defaultValue": 0.0,
       "defaultExpression": "0"
     },
     {

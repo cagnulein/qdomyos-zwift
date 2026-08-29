@@ -311,6 +311,14 @@ class QZSettings {
     static const QString treadmill_start_countdown;
     static constexpr int default_treadmill_start_countdown = 0;
 
+    // Seconds of command anticipation per 1 km/h of target-speed increase.
+    static const QString treadmill_speed_increase_anticipation;
+    static constexpr float default_treadmill_speed_increase_anticipation = 0.0;
+
+    // Seconds of command anticipation per 1 km/h of target-speed decrease.
+    static const QString treadmill_speed_decrease_anticipation;
+    static constexpr float default_treadmill_speed_decrease_anticipation = 0.0;
+
     static const QString treadmill_force_running_activity;
     static constexpr bool default_treadmill_force_running_activity = false;
 
