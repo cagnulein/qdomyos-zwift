@@ -134,11 +134,12 @@ public class InAppPurchase implements PurchasesUpdatedListener
             @Override
             public void onBillingSetupFinished(BillingResult billingResult) {
 					QLog.w(TAG, "onBillingSetupFinished");
-                if (billingResult.getResponseCode() == RESULT_OK) {
+                                        return;
+/*                if (billingResult.getResponseCode() == RESULT_OK) {
                     purchasedProductsQueried(m_nativePointer);
 						} else {
-					     QLog.w(TAG, "onBillingSetupFinished error!" + billingResult.getResponseCode());
-					 }
+					     Log.w(TAG, "onBillingSetupFinished error!" + billingResult.getResponseCode());
+                                         }*/
             }
 
             @Override
