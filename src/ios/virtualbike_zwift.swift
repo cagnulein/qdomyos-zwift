@@ -7,13 +7,14 @@ let FitnessMachineControlPointUuid = CBUUID(string: "0x2AD9");
 let indoorbikeUuid = CBUUID(string: "0x2AD2");
 let FitnessMachinestatusUuid = CBUUID(string: "0x2ADA");
 let TrainingStatusUuid = CBUUID(string: "0x2AD3");
+let YesoulAdvertisingName = "YS_G1MMAX_02033"
 
 @objc public class virtualbike_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerZwift!
     
-    @objc public init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool, watt_bike_emulator: Bool, tacx: Bool) {
+    @objc public init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool, watt_bike_emulator: Bool, tacx: Bool, yesoul: Bool) {
       super.init()
-      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, zwift_play_emulator: zwift_play_emulator, watt_bike_emulator: watt_bike_emulator, tacx: tacx)
+      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, zwift_play_emulator: zwift_play_emulator, watt_bike_emulator: watt_bike_emulator, tacx: tacx, yesoul: yesoul)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -64,6 +65,7 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var garmin_bluetooth_compatibility: Bool = false
   private var tacx: Bool = false
+  private var yesoul: Bool = false
   private var zwift_play_emulator: Bool = false
   private var watt_bike_emulator: Bool = false
     private var disable_hr: Bool = false
@@ -130,10 +132,11 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   //var delegate: BLEPeripheralManagerDelegate?
 
 
-  init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool, watt_bike_emulator: Bool, tacx: Bool) {
+  init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, zwift_play_emulator: Bool, watt_bike_emulator: Bool, tacx: Bool, yesoul: Bool) {
     super.init()
     self.disable_hr = disable_hr
     self.tacx = tacx
+    self.yesoul = yesoul
     self.garmin_bluetooth_compatibility = garmin_bluetooth_compatibility
     self.zwift_play_emulator = zwift_play_emulator
     self.watt_bike_emulator = watt_bike_emulator
@@ -353,7 +356,11 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     }
             
       
-      if(garmin_bluetooth_compatibility) {
+      if(yesoul) {
+          let advertisementData = [CBAdvertisementDataLocalNameKey: YesoulAdvertisingName,
+                                CBAdvertisementDataServiceUUIDsKey: [FitnessMachineServiceUuid]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
+      } else if(garmin_bluetooth_compatibility) {
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
                                 CBAdvertisementDataServiceUUIDsKey: [PowerServiceUUID]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
