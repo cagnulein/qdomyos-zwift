@@ -1,6 +1,7 @@
 import CoreBluetooth
 
 let FitnessMachineServiceUuid = CBUUID(string: "0x1826");
+let YesoulFitnessMachineServiceUuid = CBUUID(string: "00001826-0000-1000-8000-00805F9B34FB");
 let FitnessMachineFeatureCharacteristicUuid = CBUUID(string: "0x2ACC");
 let supported_resistance_level_rangeCharacteristicUuid = CBUUID(string: "0x2AD6");
 let FitnessMachineControlPointUuid = CBUUID(string: "0x2AD9");
@@ -358,7 +359,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       
       if(yesoul) {
           let advertisementData = [CBAdvertisementDataLocalNameKey: YesoulAdvertisingName,
-                                CBAdvertisementDataServiceUUIDsKey: [FitnessMachineServiceUuid]] as [String : Any]
+                                CBAdvertisementDataServiceUUIDsKey: [YesoulFitnessMachineServiceUuid]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
       } else if(garmin_bluetooth_compatibility) {
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
