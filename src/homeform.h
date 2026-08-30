@@ -173,7 +173,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool chartTreadmillMode READ chartTreadmillMode NOTIFY chartTreadmillModeChanged WRITE
                    setChartTreadmillMode)
     Q_PROPERTY(QUrl videoPath READ videoPath NOTIFY videoPathChanged)
-    Q_PROPERTY(int videoPosition READ videoPositionChanged WRITE setVideoPosition)
+    Q_PROPERTY(int videoPosition READ videoPosition NOTIFY videoPositionChanged WRITE setVideoPosition)
     Q_PROPERTY(double videoRate READ videoRate NOTIFY videoRateChanged WRITE setVideoRate)
     Q_PROPERTY(double currentSpeed READ currentSpeed NOTIFY currentSpeedChanged)
     Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
@@ -1117,7 +1117,7 @@ public:
     void intervalsicu_download_todays_workout();
     void intervalsicu_download_workout_completed(QNetworkReply *reply);
     QString intervalsicuAuthUrl;
-    bool intervalsicuWebVisible;
+    bool intervalsicuAuthWebVisible;
 
     static quint64 cryptoKeySettingsProfiles();
 
