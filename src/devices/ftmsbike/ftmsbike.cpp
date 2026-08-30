@@ -1056,6 +1056,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else if ((LYDSTO || DMASUN) && watt_ignore_builtin) {
                 m_watt = wattFromHR(true);
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+            } else if (watt_ignore_builtin && !externalPowerSensorEnabled && !externalCadenceSensorEnabled) {
+                qDebug() << QStringLiteral("Ignoring FTMS built-in wattage: using power from heart rate because power and cadence sensors are disabled");
+                m_watt = wattFromHR(true);
+                emit debug(QStringLiteral("Current Watt from HR: ") + QString::number(m_watt.value()));
             } else {
                 double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index))));
