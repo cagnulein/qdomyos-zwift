@@ -2375,7 +2375,7 @@ double ftmsbike::minGears() {
     } else if((zwiftPlayService != nullptr) && gears_zwift_ratio ) {
         return 1;
     } else if(WATTBIKE) {
-        return 22;
+        return 1;
     } else {
         return -9999.0;
     }
