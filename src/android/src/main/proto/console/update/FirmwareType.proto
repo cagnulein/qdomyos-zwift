@@ -1,0 +1,14 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.update";
+option java_outer_classname = "FirmwareTypeProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum FirmwareType {
+    FIRMWARE_TYPE_UNKNOWN = 0;
+    FIRMWARE_TYPE_BRAINBOARD = 1;
+    FIRMWARE_TYPE_ANT_PLUS_APPLICATION = 2;
+    FIRMWARE_TYPE_ANT_PLUS_BOOTLOADER = 3;
+    FIRMWARE_TYPE_MOTOR_CONTROLLER = 4;
+}

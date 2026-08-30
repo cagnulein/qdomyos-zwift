@@ -1,0 +1,17 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "workout/data/ControlType.proto";
+option java_package = "com.ifit.glassos.workout.data";
+option java_outer_classname = "ControlProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message Control {
+  ControlType type = 1;
+  double at = 2;
+  double value = 3;
+}
+
+message ControlList {
+  repeated Control controls = 1;
+}

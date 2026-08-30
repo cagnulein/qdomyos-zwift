@@ -1,0 +1,49 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "workout/WorkoutResult.proto";
+import "workout/data/Control.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "RpmServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message RpmMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double lastRpm = 3;
+  double maxRpm = 4;
+  double avgRpm = 5;
+  double minRpm = 6;
+  double targetRpm = 7;
+}
+
+message RpmMetricList {
+  repeated RpmMetric metrics = 1;
+}
+
+message RpmRequest {
+  double rpm = 1;
+}
+
+service RpmService {
+  // check whether Rpm is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+  rpc CanWriteVirtual(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Rpm relative to the current workout
+  rpc GetRpm(Empty) returns (RpmMetric) {}
+
+  // subscribe to Rpm updates relative to the current workout
+  rpc RpmSubscription(Empty) returns (stream RpmMetric) {}
+
+  // get the current workout controls
+  rpc GetAllTargets(Empty) returns (ControlList) {}
+  // subscribe to workout control updates
+  rpc AllTargetsSubscription(Empty) returns (stream ControlList) {}
+
+  // gets a list of all of the Rpm changes for the given workout ID
+  rpc GetRpmHistory(WorkoutID) returns (RpmMetricList) {}
+
+  rpc SetVirtualRpm(RpmRequest) returns (WorkoutResult) {}
+}

@@ -14,6 +14,11 @@
 #include <math.h>
 #include <QRegularExpression>
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QtAndroid>
+#endif
+
 using namespace std::chrono_literals;
 
 nordictrackifitadbtreadmillLogcatAdbThread::nordictrackifitadbtreadmillLogcatAdbThread(QString s) { Q_UNUSED(s) }
@@ -115,6 +120,96 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
 #endif
 }
 
+nordictrackifitadbtreadmill::DisplayValue nordictrackifitadbtreadmill::extractValue(const QString& ocrText, int imageWidth, bool isLeftSide) {
+    QStringList lines = ocrText.split("§§");
+    QRegularExpression rectRegex("Rect\\((\\d+), (\\d+) - (\\d+), (\\d+)\\)");
+    QRegularExpression numericRegex("^-?\\d+(\\.\\d+)?$");
+
+    DisplayValue result;
+    int minX = isLeftSide ? 0 : imageWidth - 200;
+    int maxX = isLeftSide ? 200 : imageWidth;
+    QStringList targetLabels = isLeftSide ? QStringList{"INCLINE"} : QStringList{"SPEED", "RESISTANCE", "MPH", "KPH"};
+
+    QRect labelRect;
+    int closestDistance = INT_MAX;
+
+    // First pass: find the label
+    for (const QString& line : lines) {
+        QStringList parts = line.split("$$");
+        if (parts.size() == 2) {
+            QString value = parts[0];
+            QRegularExpressionMatch match = rectRegex.match(parts[1]);
+
+            if (match.hasMatch()) {
+                int x1 = match.captured(1).toInt();
+                int x2 = match.captured(3).toInt();
+
+                if (x1 >= minX && x2 <= maxX) {
+                    for (const QString& targetLabel : targetLabels) {
+                        if (value.contains(targetLabel, Qt::CaseInsensitive)) {
+                            labelRect = QRect(x1, match.captured(2).toInt(),
+                                              x2 - x1, match.captured(4).toInt() - match.captured(2).toInt());
+                            result.label = value;
+                            break;
+                        }
+                    }
+                    if (!result.label.isEmpty()) break;
+                }
+            }
+        }
+    }
+
+    // Second pass: find the closest numeric value to the label
+    if (!labelRect.isNull()) {
+        for (const QString& line : lines) {
+            QStringList parts = line.split("$$");
+            if (parts.size() == 2) {
+                QString value = parts[0];
+                QRegularExpressionMatch match = rectRegex.match(parts[1]);
+
+                if (match.hasMatch() && numericRegex.match(value).hasMatch()) {
+                    int x1 = match.captured(1).toInt();
+                    int y1 = match.captured(2).toInt();
+                    int x2 = match.captured(3).toInt();
+                    int y2 = match.captured(4).toInt();
+
+                    QRect valueRect(x1, y1, x2 - x1, y2 - y1);
+
+                    if (x1 >= minX && x2 <= maxX) {
+                        int distance = qAbs(valueRect.center().y() - labelRect.center().y());
+                        if (distance < closestDistance) {
+                            closestDistance = distance;
+                            result.value = value;
+                            result.rect = valueRect;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+void nordictrackifitadbtreadmill::processOCROutput(const QString& ocrText, int imageWidth) {
+    DisplayValue leftValue = extractValue(ocrText, imageWidth, true);
+    DisplayValue rightValue = extractValue(ocrText, imageWidth, false);
+
+    if (!leftValue.value.isEmpty()) {
+        qDebug() << "Left value (" << leftValue.label << "):" << leftValue.value;
+        Inclination = leftValue.label.toDouble();
+    } else {
+        qDebug() << "Left value not found";
+    }
+
+    if (!rightValue.value.isEmpty()) {
+        qDebug() << "Right value (" << rightValue.label << "):" << rightValue.value;
+        Speed = rightValue.label.toDouble();
+    } else {
+        qDebug() << "Right value not found";
+    }
+}
+
 double nordictrackifitadbtreadmill::getDouble(QString v) {
     QChar d = QLocale().decimalPoint();
     if (d == ',') {
@@ -175,6 +270,14 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
 #endif
 #endif
     }
+
+    // Initialize gRPC service on Android
+#ifdef Q_OS_ANDROID
+    initializeGrpcService();
+    if (grpcInitialized) {
+        startGrpcMetricsUpdates();
+    }
+#endif
 
     initRequest = true;
 
@@ -464,9 +567,21 @@ disable_log, bool wait_for_response) { QEventLoop loop; QTimer timeout; if (wait
     loop.exec();
 }
 */
-void nordictrackifitadbtreadmill::forceIncline(double incline) {}
+void nordictrackifitadbtreadmill::forceIncline(double incline) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        setGrpcIncline(incline);
+    }
+#endif
+}
 
-void nordictrackifitadbtreadmill::forceSpeed(double speed) {}
+void nordictrackifitadbtreadmill::forceSpeed(double speed) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        setGrpcSpeed(speed);
+    }
+#endif
+}
 
 void nordictrackifitadbtreadmill::onWatt(double watt) {
     m_watt = watt;
@@ -599,35 +714,74 @@ void nordictrackifitadbtreadmill::update() {
         // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
         requestStop = -1;
     }
-    if (requestPause != -1) {
-        emit debug(QStringLiteral("pausing..."));
 
-        QSettings settings;
-        bool nordictrack_ifit_adb_remote =
-            settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
-                .toBool();
-        bool proform_trainer_9_0 = settings.value(QZSettings::proform_trainer_9_0, QZSettings::default_proform_trainer_9_0).toBool();
-
-        if (nordictrack_ifit_adb_remote && proform_trainer_9_0) {
-            // Double tap for pause
-            lastCommand = "input tap 512 350 && sleep 1 && input tap 512 350";
-            qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
-                                                      "(Ljava/lang/String;)V", command.object<jstring>());
-#elif defined(Q_OS_WIN)
-            if (logcatAdbThread)
-                logcatAdbThread->runCommand("shell " + lastCommand);
-#elif defined Q_OS_IOS
-#ifndef IO_UNDER_QT
-            h->adb_sendcommand(lastCommand.toStdString().c_str());
-#endif
-#endif
+    // Use gRPC to fetch current metrics instead of OCR
+    if (grpcInitialized) {
+        double currentSpeed = getGrpcSpeed();
+        double currentIncline = getGrpcIncline();
+        double currentWatts = getGrpcWatts();
+        double currentCadence = getGrpcCadence();
+        int currentFanSpeed = getGrpcFanSpeed();
+        
+        // Update the metrics if they've changed
+        if (currentSpeed != Speed.value()) {
+            Speed = currentSpeed;
+            emit debug(QString("gRPC Speed: %1").arg(currentSpeed));
+        }
+        
+        if (currentIncline != Inclination.value()) {
+            Inclination = currentIncline;
+            emit debug(QString("gRPC Incline: %1").arg(currentIncline));
+        }
+        
+        if (currentWatts != m_watt.value() && currentWatts > 0) {
+            m_watt = currentWatts;
+            wattReadFromTM = true;
+            emit debug(QString("gRPC Watts: %1").arg(currentWatts));
+        }
+        
+        if (currentCadence != Cadence.value() && currentCadence > 0) {
+            Cadence = currentCadence;
+            cadenceReadFromTM = true;
+            emit debug(QString("gRPC Cadence: %1").arg(currentCadence));
+        }
+        
+        if (currentFanSpeed != FanSpeed) {
+            FanSpeed = currentFanSpeed;
+            emit debug(QString("gRPC Fan Speed: %1").arg(currentFanSpeed));
         }
 
-        requestPause = -1;
+        if (requestInclination != -100) {
+            setGrpcIncline(requestInclination);
+            requestInclination = -100;
+        }
+
+        if (requestSpeed != -1) {
+            setGrpcSpeed(requestSpeed);
+            requestSpeed = -1;
+        }
+    } else {
+        // Fallback to OCR if gRPC is not available
+        QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
+        QString t = text.toString();
+        QAndroidJniObject textExtended = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastTextExtended");
+        QString tt = textExtended.toString();
+        jint w = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                           "getImageWidth", "()I");
+        jint h = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                           "getImageHeight", "()I");
+        QString tExtended = textExtended.toString();
+        QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
+        QString packageName = packageNameJava.toString();
+
+        qDebug() << QStringLiteral("OCR") << packageName << tt;
+        processOCROutput(tt, w);
     }
+#endif
 }
 
 void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, double percentage) {
@@ -649,6 +803,11 @@ bool nordictrackifitadbtreadmill::canStartStop() {
 
 void nordictrackifitadbtreadmill::stopLogcatAdbThread() {
     qDebug() << "stopLogcatAdbThread()";
+    
+#ifdef Q_OS_ANDROID
+    // Stop gRPC metrics updates
+    stopGrpcMetricsUpdates();
+#endif
     
 #ifdef Q_OS_WIN32
     initiateThreadStop();
@@ -832,4 +991,188 @@ int nordictrackifitadbtreadmill::proform_trainer_9_0_inclination_lookuptable(dou
     else if (reqInclination == 9.5) { y2 = 203; }
     else if (reqInclination == 10.0) { y2 = 190; }
     return y2;
+}
+
+// gRPC integration methods implementation
+void nordictrackifitadbtreadmill::initializeGrpcService() {
+#ifdef Q_OS_ANDROID
+    if (!grpcInitialized) {
+        try {
+            QSettings settings;
+            QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+            
+            // Set Android context first
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "setContext",
+                "(Landroid/content/Context;)V",
+                QtAndroid::androidContext().object()
+            );
+            
+            // Now initialize the service with the host IP
+            QAndroidJniObject hostObj = QAndroidJniObject::fromString(ip);
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+                "initialize",
+                "(Ljava/lang/String;)V",
+                hostObj.object<jstring>()
+            );
+            grpcInitialized = true;
+            emit debug("gRPC service initialized successfully with host: " + ip);
+        } catch (...) {
+            emit debug("Failed to initialize gRPC service");
+            grpcInitialized = false;
+        }
+    }
+#endif
+}
+
+void nordictrackifitadbtreadmill::startGrpcMetricsUpdates() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "startMetricsUpdates",
+            "()V"
+        );
+        emit debug("Started gRPC metrics updates");
+    }
+#endif
+}
+
+void nordictrackifitadbtreadmill::stopGrpcMetricsUpdates() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "stopMetricsUpdates",
+            "()V"
+        );
+        emit debug("Stopped gRPC metrics updates");
+    }
+#endif
+}
+
+double nordictrackifitadbtreadmill::getGrpcSpeed() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentSpeed",
+            "()D"
+        );
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbtreadmill::getGrpcIncline() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentIncline",
+            "()D"
+        );
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbtreadmill::getGrpcWatts() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentWatts",
+            "()D"
+        );
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbtreadmill::getGrpcCadence() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentCadence",
+            "()D"
+        );
+    }
+#endif
+    return 0.0;
+}
+
+void nordictrackifitadbtreadmill::setGrpcSpeed(double speed) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "adjustSpeed",
+            "(D)V",
+            speed - Speed.value()
+        );
+        emit debug(QString("Set gRPC speed to: %1").arg(speed));
+    }
+#endif
+}
+
+void nordictrackifitadbtreadmill::setGrpcIncline(double incline) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "adjustIncline",
+            "(D)V",
+            incline - Inclination.value()
+        );
+        emit debug(QString("Set gRPC incline to: %1").arg(incline));
+    }
+#endif
+}
+
+bool nordictrackifitadbtreadmill::changeFanSpeed(uint8_t speed) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        setGrpcFanSpeed(static_cast<int>(speed));
+        FanSpeed = speed;
+        emit debug(QString("changeFanSpeed: Set fan speed to %1 via gRPC").arg(speed));
+        return true;
+    } else {
+        emit debug(QString("changeFanSpeed: Fan speed request %1 (gRPC not available)").arg(speed));
+        return false;
+    }
+#else
+    emit debug(QString("changeFanSpeed: Fan speed request %1 (Android gRPC not available)").arg(speed));
+    return false;
+#endif
+}
+
+void nordictrackifitadbtreadmill::setGrpcFanSpeed(int fanSpeed) {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "setFanSpeed",
+            "(I)V",
+            fanSpeed
+        );
+        emit debug(QString("Set gRPC fan speed to: %1").arg(fanSpeed));
+    }
+#endif
+}
+
+int nordictrackifitadbtreadmill::getGrpcFanSpeed() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        return QAndroidJniObject::callStaticMethod<jint>(
+            "org/cagnulen/qdomyoszwift/GrpcTreadmillService",
+            "getCurrentFanSpeed",
+            "()I"
+        );
+    }
+#endif
+    return 0;
 }

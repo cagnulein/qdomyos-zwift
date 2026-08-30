@@ -1,0 +1,60 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "workout/data/Control.proto";
+import "workout/WorkoutResult.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "ResistanceServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message ResistanceMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double lastResistance = 3;
+  double maxResistance = 4;
+  double avgResistance = 5;
+  double minResistance = 6;
+}
+
+message ResistanceMetricList {
+  repeated ResistanceMetric metrics = 1;
+}
+
+message ResistanceRequest {
+  double resistance = 1;
+}
+
+service ResistanceService {
+  // check whether Resistance is Readable and Writeable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+  rpc CanWrite(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Resistance relative to the current workout
+  rpc GetResistance(Empty) returns (ResistanceMetric) {}
+
+  // sets the Resistance to the given value
+  rpc SetResistance(ResistanceRequest) returns (WorkoutResult) {}
+
+  // subscribe to Resistance updates relative to the current workout
+  rpc ResistanceSubscription(Empty) returns (stream ResistanceMetric) {}
+
+  // gets a list of all of the Resistance changes for the given workout ID
+  rpc GetResistanceHistory(WorkoutID) returns (ResistanceMetricList) {}
+
+  // follow the current workout
+  rpc FollowWorkout(Empty) returns (WorkoutResult) {}
+
+  // stop following the current workout
+  rpc StopFollowing(Empty) returns (Empty) {}
+
+  // check whether the current workout is being followed
+  rpc GetIsFollowing(Empty) returns (BooleanResponse) {}
+  // subscribe to following updates
+  rpc IsFollowingSubscription(Empty) returns (stream BooleanResponse) {}
+
+  // get the current workout controls
+  rpc GetControls(Empty) returns (ControlList) {}
+  // subscribe to workout control updates
+  rpc ControlsSubscription(Empty) returns (stream ControlList) {}
+}

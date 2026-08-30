@@ -1,0 +1,16 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.sleep";
+option java_outer_classname = "SleepStateServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+import "console/sleep/SleepState.proto";
+import "util/Util.proto";
+
+service SleepStateService {
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+  rpc CanWrite(Empty) returns (AvailabilityResponse) {}
+  rpc GetSleepState(Empty) returns (SleepStateResult) {}
+  rpc SetSleepState(SleepStateMessage) returns (SleepStateResult) {}
+  rpc SleepStateSubscription(Empty) returns (stream SleepStateMessage) {}
+}

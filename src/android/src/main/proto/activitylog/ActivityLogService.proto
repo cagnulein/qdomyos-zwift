@@ -1,0 +1,52 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/IFitError.proto";
+import "util/Util.proto";
+import "activitylog/ActivityLog.proto";
+import "activitylog/ActivityLogEvent.proto";
+import "activitylog/ActivityLogMetadata.proto";
+option java_package = "com.ifit.glassos.activitylog";
+option java_outer_classname = "ActivityLogServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message ActivityLogResult {
+  oneof errorOrToken {
+    IFitError error = 1;
+    ActivityLog activityLog = 2;
+    ActivityLogMetadata metadata = 3;
+  }
+}
+
+message ActivityLogID {
+  string id = 1;
+}
+message ExternalUploadRequest {
+  ActivityLog log = 1;
+  string userId = 2;
+}
+
+message ContentID {
+  string id = 1;
+}
+
+message ActivityLogUploading {
+  bool isUploading = 1;
+}
+
+service ActivityLogService {
+  rpc HasUnprocessedUploadEventsSubscription(Empty) returns (stream BooleanResponse) {}
+  rpc PopMostRecentUploadEvent(Empty) returns (ActivityLogEvent) {}
+
+  rpc ActivityLogEventSubscription(Empty) returns (stream ActivityLogEvent) {}
+  rpc ActivityLogUploadingSubscription(Empty) returns (stream ActivityLogUploading) {}
+
+  rpc GetActivityLogMetadataByWorkoutId(WorkoutID) returns (ActivityLogResult) {}
+  rpc ChangeActivityLogMetadata(ActivityLogMetadata) returns (ActivityLogResult) {}
+
+  rpc GetActivityLogByWorkoutId(WorkoutID) returns (ActivityLogResult) {}
+  rpc GetLatestActivityLogByContentId(ContentID) returns (ActivityLogResult) {}
+  rpc GetActivityLogByActivityLogId(ActivityLogID) returns (ActivityLogResult) {}
+  rpc DeleteActivityLogByActivityLogId(ActivityLogID) returns (ActivityLogResult) {}
+  rpc UploadActivityLogFromExternalSource(ExternalUploadRequest) returns (ActivityLogResult) {}
+}

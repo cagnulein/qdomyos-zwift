@@ -1,0 +1,69 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "UserProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "google/protobuf/timestamp.proto";
+import "settings/SystemUnitsService.proto";
+import "user/Address.proto";
+import "user/Gender.proto";
+import "user/SubscriptionProvider.proto";
+import "util/IFitError.proto";
+
+message User {
+  string id = 1;
+  bool isAnonymous = 2;
+  string email = 3;
+  string username = 4;
+  string imageUrl = 5;
+  string country = 6;
+  string firstName = 7;
+  string lastName = 8;
+  Gender gender = 9;
+  google.protobuf.Timestamp birthday = 10;
+  string subscriptionType = 11;
+  double weightKilograms = 12;
+  double heightMeters = 13;
+  string bio = 14;
+  google.protobuf.Timestamp expiration = 15;
+  SystemUnits units = 16;
+  bool isPremium = 17;
+  bool isSecondary = 18;
+  string phoneNumber = 19;
+  Address billing = 20;
+  Address shipping = 21;
+  google.protobuf.Timestamp warningAccepted = 22;
+  SubscriptionProvider subscriptionProvider = 23;
+  google.protobuf.Timestamp accountCreationDate = 24;
+  string largeImageUrl = 25;
+  bool isGenericImage = 26;
+  string facebook = 27;
+  string google = 28;
+  bool isPlanetFitnessUser = 29;
+  string organizationCode = 30;
+  double goalWeightKilograms = 31;
+  double weightGoalStartKilograms = 32;
+  double weightGoalEndKilograms = 33;
+  double targetWeightChangeKilograms = 34;
+  string interest = 35;
+  bool isPaused = 36;
+  string locale = 37;
+  string location = 38;
+  string timeZone = 39;
+  double preferredWorkoutLengthMin = 40;
+  double preferredWorkoutLengthMax = 41;
+  string onMissedWorkout = 42;
+  bool hasGlassAccess = 43;
+  repeated string permissions = 44;
+  optional bool privateMode = 45;
+  int32 latestAcceptedTermsVersion = 46;
+  optional bool skipFSBWarning = 47;
+  optional string dataFetchedTimestamp = 48;
+}
+
+message UserResult {
+  IFitError error = 1;
+  User user = 2;
+}

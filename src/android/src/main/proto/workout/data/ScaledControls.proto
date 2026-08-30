@@ -1,0 +1,28 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "workout/data/Control.proto";
+option java_package = "com.ifit.glassos.workout.data";
+option java_outer_classname = "ScaledControlsProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message ScaledControls {
+  ControlList minus6 = 1;
+  ControlList minus5 = 2;
+  ControlList minus4 = 3;
+  ControlList minus3 = 4;
+  ControlList minus2 = 5;
+  ControlList minus1 = 6;
+  ControlList plus1 = 7;
+  ControlList plus2 = 8;
+  ControlList plus3 = 9;
+  ControlList plus4 = 10;
+  ControlList plus5 = 11;
+  ControlList plus6 = 12;
+  ControlList plus7 = 13;
+  ControlList plus8 = 14;
+  ControlList plus9 = 15;
+  ControlList plus10 = 16;
+  ControlList plus11 = 17;
+  ControlList plus12 = 18;
+}
