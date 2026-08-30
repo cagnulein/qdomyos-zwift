@@ -1,0 +1,13 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "workout/data/video/VideoSourceHls.proto";
+import "workout/data/video/VideoSourceStream.proto";
+option java_package = "com.ifit.glassos.workout.data.video";
+option java_outer_classname = "SourcesProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message Sources {
+  VideoSourceHls hls = 1;
+  repeated VideoSourceStream fixed = 2;
+}

@@ -1,0 +1,35 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/IFitError.proto";
+import "util/Util.proto";
+import "console/ConsoleState.proto";
+import "console/ConsoleInfo.proto";
+option java_package = "com.ifit.glassos.console";
+option java_outer_classname = "ConsoleServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message ConnectionResult {
+  oneof errorOrState {
+    IFitError error = 1;
+    ConsoleState consoleState = 2;
+  }
+}
+
+message ConsoleStateMessage {
+  ConsoleState consoleState = 1;
+}
+
+service ConsoleService {
+  rpc Connect(Empty) returns (ConnectionResult) {}
+  rpc Disconnect(Empty) returns (Empty) {}
+
+  rpc GetConsole(Empty) returns (ConsoleInfo) {}
+  rpc ConsoleChanged(Empty) returns (stream ConsoleInfo) {}
+
+  rpc GetConsoleState(Empty) returns (ConsoleStateMessage) {}
+  rpc ConsoleStateChanged(Empty) returns (stream ConsoleStateMessage) {}
+
+  rpc GetKnownConsoleInfo(Empty) returns (ConsoleInfo) {}
+  rpc RefreshKnownConsoleInfo(Empty) returns (ConsoleInfo) {}
+}

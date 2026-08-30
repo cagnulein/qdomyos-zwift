@@ -245,7 +245,7 @@ HomeForm {
     Timer {
         interval: 200; running: true; repeat: false
         onTriggered: {
-            if(rootItem.firstRun()) {
+            if(rootItem.firstRun() && !rootItem.hasConnectedDevice()) {
                 stackView.push("Wizard.qml")
             }
         }

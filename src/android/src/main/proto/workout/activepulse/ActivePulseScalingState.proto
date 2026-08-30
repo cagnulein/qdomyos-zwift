@@ -1,0 +1,17 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.workout.activepulse";
+option java_outer_classname = "ActivePulseScalingStateProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum ActivePulseScalingState {
+  WARMING_UP = 0;
+  SCALING_DOWN = 1;
+  SCALING_UP = 2;
+  ON_TARGET = 3;
+  TRENDING_DOWN = 4;
+  TRENDING_UP = 5;
+  MONITORING = 6;
+  DISABLED = 7;
+}
