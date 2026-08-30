@@ -11225,9 +11225,18 @@ int homeform::preview_workout_points() {
 void homeform::licenseReply(QNetworkReply *reply) {
     QString r = reply->readAll();
     qDebug() << r;
+    static std::chrono::steady_clock::time_point lastNoAckToast;
     if (r.contains("OK")) {
         tLicense.stop();
+        lastNoAckToast = std::chrono::steady_clock::time_point{};
+        setToastRequested(tr("License ACK received"));
     } else {
+        const auto now = std::chrono::steady_clock::now();
+        if (lastNoAckToast == std::chrono::steady_clock::time_point{} ||
+            now - lastNoAckToast >= std::chrono::minutes(5)) {
+            setToastRequested(tr("License ACK not received"));
+            lastNoAckToast = now;
+        }
         licenseRequest();
     }
 }
