@@ -76,7 +76,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if ((ios_peloton_workaround && !cadence && !echelon && !ifit && !yesoul && !heart_only &&
      !virtual_device_tacx) ||
-    garmin_bluetooth_compatibility || virtual_device_tacx) {
+    garmin_bluetooth_compatibility || virtual_device_tacx || yesoul) {
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
