@@ -94,7 +94,9 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
         return false;
     }
     
-    if(zwiftPlayService && gears_zwift_ratio) {
+    const bool isPowerTarget = data_len > 0 && data[0] == FTMS_SET_TARGET_POWER;
+
+    if(zwiftPlayService && gears_zwift_ratio && !isPowerTarget) {
         qDebug() << QStringLiteral("zwiftPlayService is present!");
         return false;
     }
@@ -1938,6 +1940,21 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
                 b[1] = powerRequested & 0xFF;
                 b[2] = powerRequested >> 8;
             }
+        } else if(b.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL && bikeResistanceGain != 1.0) {
+            if(b.length() == 2) {
+                uint8_t resistance = (uint8_t)b.at(1);
+                qDebug() << "applying bikeResistanceGain to FTMS_SET_TARGET_RESISTANCE_LEVEL (1-byte) from" << resistance;
+                resistance = (uint8_t)qRound(((double)resistance) * bikeResistanceGain);
+                qDebug() << "to" << resistance;
+                b[1] = resistance;
+            } else if(b.length() >= 3) {
+                uint16_t resistance = (((uint8_t)b.at(1)) + ((uint8_t)b.at(2) << 8));
+                qDebug() << "applying bikeResistanceGain to FTMS_SET_TARGET_RESISTANCE_LEVEL (2-byte) from" << resistance;
+                resistance = (uint16_t)qRound(((double)resistance) * bikeResistanceGain);
+                qDebug() << "to" << resistance;
+                b[1] = resistance & 0xFF;
+                b[2] = resistance >> 8;
+            }
         }
         // gears on erg mode is quite useless and it's confusing
         /* else if(b.at(0) == FTMS_SET_TARGET_POWER && b.length() > 2) {
@@ -2238,6 +2255,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("USDC-D700 found");
             USDC_D700 = true;
             resistance_lvl_mode = true;
+        } else if (device.name().toUpper().startsWith("ICONSOLE+")) {
+            qDebug() << QStringLiteral("iConsole+ found as FTMS bike - ERG not supported");
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 24;
         }
 
 

@@ -41,6 +41,41 @@ class renphobike : public bike {
     bool connected() override;
     resistance_t maxResistance() override { return max_resistance; }
 
+    // Deterministic, gear-independent resistance implied purely by the current ROUVY/Zwift
+    // grade. Mirrors CharacteristicWriteProcessor::changeSlope()'s formula, computed locally
+    // so it never depends on the optional "Force Resistance" setting (virtualbike_forceresistance)
+    // -- renphobike never overrides virtualbike's default bikeResistanceGain/bikeResistanceOffset,
+    // so those defaults (1.0 / 4) are used here too.
+    static double autoResistanceFromSlope(int16_t iresistance, uint8_t crr, uint8_t cw, double CRRGain,
+                                          double CWGain, double bikeResistanceGain = 1.0,
+                                          int bikeResistanceOffset = 4);
+
+    // Reconciles QZ's virtual gear with the physical RENPHO resistance knob.
+    //
+    // Instead of inferring gear steps from raw resistance deltas (which are also driven by
+    // ROUVY's simulated grade and by the bike's own speed-dependent physics -- see issue #4873),
+    // this tracks an *expected* resistance (auto resistance from grade, plus the current gear
+    // offset) and only reconciles the gear when the bike's actual reported resistance disagrees
+    // with that expectation in a sustained way. A reading only counts once it has been observed
+    // twice in a row with the same expectation in effect, so neither a single noisy BLE sample
+    // nor the settling period right after a new grade/gear write can move the gear.
+    // Kept as a plain, Qt-BLE-free struct so it can be unit tested in isolation.
+    struct ResistanceReconciler {
+        bool hasExpectation = false;
+        double expectedResistance = 0.0;
+        double pendingDiscrepancy = 0.0;
+        int pendingCount = 0;
+
+        // Call whenever the expected resistance changes (new grade and/or new gear). Resets
+        // the debounce so the bike has time to settle before a fresh discrepancy is trusted.
+        void setExpected(double expected);
+
+        // Feeds a new resistance reading from the bike. Returns the confirmed, stable
+        // discrepancy (actual - expected) once it has been observed twice in a row against the
+        // same expectation, or 0 if there's nothing new/confirmed yet.
+        double feed(double actualResistance);
+    };
+
   private:
     const resistance_t max_resistance = 80;
     double bikeResistanceToPeloton(double resistance);
@@ -64,6 +99,9 @@ class renphobike : public bike {
     QByteArray lastFTMSPacketReceived;
     resistance_t lastRequestResistance = -1;
     double lastPowerRequestedFactor = 1;
+    ResistanceReconciler resistanceReconciler;
+    double m_autoResistanceBaseline = 0.0; // last autoResistanceFromSlope() result
+    resistance_t m_lastWrittenResistance = -1; // last value actually sent via forceResistance()
 
     bool initDone = false;
     bool initRequest = false;

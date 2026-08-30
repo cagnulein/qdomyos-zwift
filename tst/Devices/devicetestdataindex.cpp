@@ -387,6 +387,11 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
         ->configureSettingsWith( QZSettings::fitplus_bike);
 
+    // VirtuFit Etappe 2.0i
+    RegisterNewDeviceTestData(DeviceIndex::FitPlusVirtufitEtappeX100)
+        ->expectDevice<fitplusbike>()
+        ->acceptDeviceName("X100-", DeviceNameComparison::StartsWith);
+
 
     // FitPlus MRK
     RegisterNewDeviceTestData(DeviceIndex::FitPlusBike_MRK_NoSettings)
@@ -1453,6 +1458,11 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::UltrasportBike)
         ->expectDevice<ultrasportbike>()
         ->acceptDeviceName("X-BIKE", DeviceNameComparison::StartsWithIgnoreCase);
+
+    // XCX Bike (proprietary FFF6 telemetry; explicitly not generic FTMS)
+    RegisterNewDeviceTestData(DeviceIndex::XcxBike)
+        ->expectDevice<xcxbike>()
+        ->acceptDeviceName("XCX-001048", DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Wahoo KICKR CORE

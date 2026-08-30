@@ -236,6 +236,13 @@ void bluetooth::finished() {
         return;
     }
 
+    const QString manualDevice =
+        settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString();
+    if (!onlyDiscover && !gymModeEnabled() &&
+        manualDevice.compare(QZSettings::default_filter_device, Qt::CaseInsensitive) != 0) {
+        emit manualDeviceNotFound(manualDevice);
+    }
+
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QString ftmsAccessoryName =
@@ -1706,6 +1713,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) ||                     // Kingsmith WalkingPad Z1
                         (b.name().toUpper().startsWith(QStringLiteral("KS-AP-"))) ||                        // Kingsmith WalkingPad R3 Hybrid+
                         (b.name().toUpper().startsWith(QStringLiteral("KS-NG-"))) ||                        // Kingsmith X218 / Walking Pad
+                        (b.name().toUpper().startsWith(QStringLiteral("KS-ESP-"))) ||                       // KingSmith treadmill
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("TT8")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ST90")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1851,6 +1859,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(tacxneo2Bike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 tacxneo2Bike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(tacxneo2Bike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("XCX-")) && !xcxBike && filter) {
+                // XCX exposes FTMS, CSC and Cycling Power services, but its working telemetry is
+                // proprietary FFF6. This name-specific branch must remain before generic FTMS.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                xcxBike = new xcxbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(xcxBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                xcxBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(xcxBike);
             } else if (((b.name().toUpper().startsWith("INDOORCYCLE")) ||
                         ((b.name().toUpper().startsWith("MAGNUS ")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) &&
                        !cycleopsphantomBike && filter) {
@@ -1982,7 +2000,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("ROBX")) ||
                         (b.name().toUpper().startsWith("ORLAUF_ARES")) ||
                         (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
-                        (b.name().toUpper().startsWith("XCX-")) ||
                         (b.name().toUpper().startsWith("SMARTBIKE-")) ||
                         (b.name().toUpper().startsWith("D500V2")) ||
                         (b.name().toUpper().startsWith("FBIKE-HEAVY-PRO")) ||
@@ -2826,7 +2843,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                           (upperDeviceName.startsWith(QStringLiteral("FAL-SPORTS")) && toorx_bike) ||
                           upperDeviceName.startsWith(QStringLiteral("DKN MOTION"))) &&
                          (toorx_bike))) &&
-                       !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && (filter || isRI009R) && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) && !csc_as_bike) {
+                       !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && !isConfiguredFtmsRowerDevice && (filter || isRI009R) && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) && !csc_as_bike) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 trxappgateusbBike =
@@ -2928,6 +2945,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 snodeBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(snodeBike);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) ||
+                        b.name().startsWith(QStringLiteral("X100-")) ||
                         (b.name().toUpper().startsWith("H9110 OSAKA")) ||
                         b.name().startsWith(QStringLiteral("MRK-"))) &&
                        !fitPlusBike && !ftmsBike && !ftmsRower && !snodeBike && !horizonTreadmill && !trxappgateusbRower && filter) {
@@ -3350,8 +3368,8 @@ void bluetooth::connectedAndDiscovered() {
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(sramAXSController, &sramaxscontroller::debug, this, &bluetooth::debug);
-                connect(sramAXSController, &sramaxscontroller::plus, (bike*)this->device(), &bike::gearUp);
-                connect(sramAXSController, &sramaxscontroller::minus, (bike*)this->device(), &bike::gearDown);
+                connect(sramAXSController, &sramaxscontroller::plus, this, &bluetooth::controllerGearUp);
+                connect(sramAXSController, &sramaxscontroller::minus, this, &bluetooth::controllerGearDown);
                 sramAXSController->deviceDiscovered(b);
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested("SRAM Connected!");
@@ -3382,22 +3400,10 @@ void bluetooth::connectedAndDiscovered() {
                 if (!zwiftClickRemote) {
                     zwiftClickRemote = new zwiftclickremote(this->device(), AbstractZapDevice::ZWIFT_PLAY_TYPE::NONE);
                     connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
-                    connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, this, [this]() {
-                        auto *myWhoosh = MyWhooshLink::instance();
-                        if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
-                            myWhoosh->handleGearUp(true);
-                        } else if (this->device() && this->device()->deviceType() == BIKE) {
-                            static_cast<bike *>(this->device())->gearUp();
-                        }
-                    });
-                    connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, this, [this]() {
-                        auto *myWhoosh = MyWhooshLink::instance();
-                        if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
-                            myWhoosh->handleGearDown(true);
-                        } else if (this->device() && this->device()->deviceType() == BIKE) {
-                            static_cast<bike *>(this->device())->gearDown();
-                        }
-                    });
+                    connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, this,
+                            &bluetooth::controllerGearUpWithMyWhoosh);
+                    connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, this,
+                            &bluetooth::controllerGearDownWithMyWhoosh);
                     zwiftClickRemote->deviceDiscovered(b);
                     if(homeform::singleton())
                         homeform::singleton()->setToastRequested("Zwift Click Connected!");
@@ -3437,22 +3443,10 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPower, this, &bluetooth::zwiftRideRightPower);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightPowerUp, this, &bluetooth::zwiftRideRightPowerUp);
                 connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::rideRightOnOff, this, &bluetooth::zwiftRideRightOnOff);
-                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, this, [this]() {
-                    auto *myWhoosh = MyWhooshLink::instance();
-                    if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
-                        myWhoosh->handleGearUp(true);
-                    } else if (this->device() && this->device()->deviceType() == BIKE) {
-                        static_cast<bike *>(this->device())->gearUp();
-                    }
-                });
-                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, this, [this]() {
-                    auto *myWhoosh = MyWhooshLink::instance();
-                    if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
-                        myWhoosh->handleGearDown(true);
-                    } else if (this->device() && this->device()->deviceType() == BIKE) {
-                        static_cast<bike *>(this->device())->gearDown();
-                    }
-                });
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, this,
+                        &bluetooth::controllerGearUpWithMyWhoosh);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, this,
+                        &bluetooth::controllerGearDownWithMyWhoosh);
                 if (MyWhooshLink::instance() && MyWhooshLink::instance()->isEnabled()) {
                     auto *myWhoosh = MyWhooshLink::instance();
                     connect(zwiftPlayDevice.last()->playDevice, &AbstractZapDevice::leftUp, myWhoosh, &MyWhooshLink::handleLeftUp);
@@ -3496,8 +3490,8 @@ void bluetooth::connectedAndDiscovered() {
                 thinkriderController = new thinkridercontroller(this->device());
 
                 connect(thinkriderController, &thinkridercontroller::debug, this, &bluetooth::debug);
-                connect(thinkriderController, &thinkridercontroller::plus, (bike*)this->device(), &bike::gearUp);
-                connect(thinkriderController, &thinkridercontroller::minus, (bike*)this->device(), &bike::gearDown);
+                connect(thinkriderController, &thinkridercontroller::plus, this, &bluetooth::controllerGearUp);
+                connect(thinkriderController, &thinkridercontroller::minus, this, &bluetooth::controllerGearDown);
                 thinkriderController->deviceDiscovered(b);
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested("Thinkrider Controller Connected!");
@@ -3516,8 +3510,8 @@ void bluetooth::connectedAndDiscovered() {
                 cycplusBC2Controller = new cycplusbc2controller(this->device());
 
                 connect(cycplusBC2Controller, &cycplusbc2controller::debug, this, &bluetooth::debug);
-                connect(cycplusBC2Controller, &cycplusbc2controller::plus, (bike*)this->device(), &bike::gearUp);
-                connect(cycplusBC2Controller, &cycplusbc2controller::minus, (bike*)this->device(), &bike::gearDown);
+                connect(cycplusBC2Controller, &cycplusbc2controller::plus, this, &bluetooth::controllerGearUp);
+                connect(cycplusBC2Controller, &cycplusbc2controller::minus, this, &bluetooth::controllerGearDown);
                 cycplusBC2Controller->deviceDiscovered(b);
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested("CYCPLUS BC2 Connected!");
@@ -3535,8 +3529,8 @@ void bluetooth::connectedAndDiscovered() {
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(eliteSquareController, &elitesquarecontroller::debug, this, &bluetooth::debug);
-                connect(eliteSquareController, &elitesquarecontroller::plus, (bike*)this->device(), &bike::gearUp);
-                connect(eliteSquareController, &elitesquarecontroller::minus, (bike*)this->device(), &bike::gearDown);
+                connect(eliteSquareController, &elitesquarecontroller::plus, this, &bluetooth::controllerGearUp);
+                connect(eliteSquareController, &elitesquarecontroller::minus, this, &bluetooth::controllerGearDown);
                 eliteSquareController->deviceDiscovered(b);
                 if(homeform::singleton())
                     homeform::singleton()->setToastRequested("Elite Square Connected!");
@@ -3716,6 +3710,58 @@ void bluetooth::connectedAndDiscovered() {
     firstConnected = false;
 }
 
+void bluetooth::handleControllerGearChange(bool increase, bool allowMyWhooshOverride) {
+    auto *bikeDevice = dynamic_cast<bike *>(this->device());
+    if (!bikeDevice) {
+        return;
+    }
+
+    if (dynamic_cast<cscbike *>(bikeDevice) && cscbike::useCustomResistancePowerTable()) {
+        if (auto *form = homeform::singleton()) {
+            if (increase) {
+                form->Plus(QStringLiteral("resistance"));
+            } else {
+                form->Minus(QStringLiteral("resistance"));
+            }
+        }
+        return;
+    }
+
+    if (allowMyWhooshOverride) {
+        auto *myWhoosh = MyWhooshLink::instance();
+        if (myWhoosh && myWhoosh->isEnabled() && myWhoosh->overrideLocalGears()) {
+            if (increase) {
+                myWhoosh->handleGearUp(true);
+            } else {
+                myWhoosh->handleGearDown(true);
+            }
+            return;
+        }
+    }
+
+    if (increase) {
+        bikeDevice->gearUp();
+    } else {
+        bikeDevice->gearDown();
+    }
+}
+
+void bluetooth::controllerGearUp() {
+    handleControllerGearChange(true, false);
+}
+
+void bluetooth::controllerGearDown() {
+    handleControllerGearChange(false, false);
+}
+
+void bluetooth::controllerGearUpWithMyWhoosh() {
+    handleControllerGearChange(true, true);
+}
+
+void bluetooth::controllerGearDownWithMyWhoosh() {
+    handleControllerGearChange(false, true);
+}
+
 void bluetooth::gearUp() {
     QSettings settings;
     bool zwiftplay_swap = settings.value(QZSettings::zwiftplay_swap, QZSettings::default_zwiftplay_swap).toBool();
@@ -3774,6 +3820,8 @@ void bluetooth::selectGymModeDevice(const QString &deviceName) {
 
     gymModeSessionDevice = normalizedDeviceName;
     onlyDiscover = false;
+    forceHeartBeltOffForTimeout = false;
+    discoveryFinishedHandled = false;
     restart();
 }
 
@@ -4090,6 +4138,11 @@ void bluetooth::restart() {
 
         delete ultraSportBike;
         ultraSportBike = nullptr;
+    }
+    if (xcxBike) {
+
+        delete xcxBike;
+        xcxBike = nullptr;
     }
     if (mepanelBike) {
 
@@ -4541,6 +4594,8 @@ bluetoothdevice *bluetooth::device() {
         return bkoolBike;
     } else if (ultraSportBike) {
         return ultraSportBike;
+    } else if (xcxBike) {
+        return xcxBike;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
     } else if (lifefitnessTreadmill) {

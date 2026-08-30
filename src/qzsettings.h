@@ -1994,6 +1994,9 @@ class QZSettings {
     static const QString nordictrack_incline_trainer_x7i;
     static constexpr bool default_nordictrack_incline_trainer_x7i = false;
 
+    static const QString nordictrack_incline_trainer_x7i_ntl15010_0;
+    static constexpr bool default_nordictrack_incline_trainer_x7i_ntl15010_0 = false;
+
     static const QString strava_auth_external_webbrowser;
     static constexpr bool default_strava_auth_external_webbrowser = false;
 
@@ -2342,6 +2345,9 @@ class QZSettings {
     static const QString proform_treadmill_8_7;
     static constexpr bool default_proform_treadmill_8_7 = false;
 
+    static const QString virtual_device_tacx;
+    static constexpr bool default_virtual_device_tacx = false;
+    
     static const QString proform_bike_325_csx;
     static constexpr bool default_proform_bike_325_csx = false;
 
@@ -3290,6 +3296,14 @@ class QZSettings {
     static constexpr bool default_horizon_treadmill_omega_z = false;
 
     /**
+     * @brief NordicTrack Elliptical Spacesaver S700: uses its own BLE telemetry/control quirks
+     * (speed packet marker and resistance byte mapping differ from the other NordicTrack elliptical
+     * profiles), so it is gated behind its own setting to avoid affecting other models.
+     */
+    static const QString nordictrack_elliptical_s700;
+    static constexpr bool default_nordictrack_elliptical_s700 = false;
+    
+    /**
      * @brief Per-button gear mapping for Zwift Play/Ride controllers.
      * Values follow MyWhoosh::Action: 0 = Disabled, 1 = Gear Up, 2 = Gear Down.
      */
@@ -3309,6 +3323,9 @@ class QZSettings {
     static constexpr int default_zwiftplay_gear_lb = 0; // Disabled
     static const QString zwiftplay_gear_rb; // Ride On (RB)
     static constexpr int default_zwiftplay_gear_rb = 0; // Disabled
+
+    static const QString renpho_bike_knob_gears;
+    static constexpr bool default_renpho_bike_knob_gears = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

@@ -156,6 +156,7 @@
 #include "devices/ultrasportbike/ultrasportbike.h"
 #include "devices/wahookickrheadwind/wahookickrheadwind.h"
 #include "devices/wahookickrsnapbike/wahookickrsnapbike.h"
+#include "devices/xcxbike/xcxbike.h"
 #include "devices/yesoulbike/yesoulbike.h"
 #include "devices/ypooelliptical/ypooelliptical.h"
 #include "devices/ziprotreadmill/ziprotreadmill.h"
@@ -309,6 +310,7 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
+    xcxbike *xcxBike = nullptr;
     ypooelliptical *ypooElliptical = nullptr;
     ziprotreadmill *ziproTreadmill = nullptr;
     kineticinroadbike *kineticInroadBike = nullptr;
@@ -368,6 +370,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool thinkriderDeviceAvaiable();
     bool fitmetria_fanfit_isconnected(const QBluetoothDeviceInfo &device);
     bool gymModeEnabled() const;
+    void handleControllerGearChange(bool increase, bool allowMyWhooshOverride);
 
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;
@@ -385,6 +388,7 @@ class bluetooth : public QObject, public SignalHandler {
   signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
+    void manualDeviceNotFound(QString name);
     void searchingStop();
     void ftmsAccessoryConnected(smartspin2k *d);
 
@@ -434,6 +438,10 @@ class bluetooth : public QObject, public SignalHandler {
     void speedChanged(double);
     void inclinationChanged(double, double);
     void connectedAndDiscovered();
+    void controllerGearDown();
+    void controllerGearUp();
+    void controllerGearDownWithMyWhoosh();
+    void controllerGearUpWithMyWhoosh();
     void gearDown();
     void gearUp();
     void gearFailedDown();
