@@ -1,6 +1,6 @@
 # Bike and trainer troubleshooting
 
-## QZ detects my Yesoul bike, but the bike metrics stay at zero. What should I try?
+## QZ detects my bike, but the bike metrics stay at zero. What should I try?
 
 If QZ recognizes the bike but cadence, power, speed, or other bike data are not updating while other sources such as heart rate still work:
 
