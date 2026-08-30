@@ -1521,6 +1521,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 // The 0x2ACE characteristic carries a raw watt value that is unrealistically low.
                 // Use the same formula as the 0x2AD2 handler to avoid oscillation (#4828).
                 applyToputureTEB5Watt();
+            } else if (watt_ignore_builtin && !externalPowerSensorEnabled && !externalCadenceSensorEnabled) {
+                qDebug() << QStringLiteral("Ignoring FTMS 0x2ACE built-in wattage: using power from heart rate because power and cadence sensors are disabled");
+                m_watt = wattFromHR(true);
+                emit debug(QStringLiteral("Current Watt from HR (0x2ACE): ") + QString::number(m_watt.value()));
             } else {
                 double ftms_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
@@ -2371,7 +2375,7 @@ double ftmsbike::minGears() {
     } else if((zwiftPlayService != nullptr) && gears_zwift_ratio ) {
         return 1;
     } else if(WATTBIKE) {
-        return 1;
+        return 22;
     } else {
         return -9999.0;
     }
