@@ -10,6 +10,11 @@ Page {
     property int currentStep: 0
     property var selectedOptions: ({})
 
+    // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
+    function stripRssi(deviceName) {
+        return deviceName.replace(/ \(\d+%\)$/, "")
+    }
+
     Settings {
         id: settings
         property string peloton_username: "username"
@@ -1076,7 +1081,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
                         onClicked: {
-                            settings.filter_device = filterDeviceTextField.displayText;
+                            settings.filter_device = stripRssi(filterDeviceTextField.displayText);
                             stackViewLocal.push(unitSelectionComponent)
                         }
                     }
@@ -1392,7 +1397,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
                         onClicked: {
-                            settings.heart_rate_belt_name = heartBeltNameTextField.displayText;
+                            settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.displayText);
                             settings.garmin_companion = false
                             stackViewLocal.push(step3Component)
                         }

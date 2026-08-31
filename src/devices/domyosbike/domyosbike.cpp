@@ -30,12 +30,82 @@ domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testRes
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &domyosbike::update);
     refresh->start(300ms);
+
+    writeTimeoutTimer = new QTimer(this);
+    writeTimeoutTimer->setSingleShot(true);
+    connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
+        qDebug() << QStringLiteral("writeCharacteristic timeout - processing next in queue");
+        isWriting = false;
+        currentWriteWaitingForResponse = false;
+        processWriteQueue();
+    });
+
+    connect(this, &domyosbike::packetReceived, this, [this]() {
+        if (currentWriteWaitingForResponse && isWriting) {
+            writeTimeoutTimer->stop();
+            isWriting = false;
+            currentWriteWaitingForResponse = false;
+            processWriteQueue();
+        }
+    });
 }
 
 domyosbike::~domyosbike() { qDebug() << QStringLiteral("~domyosbike()"); }
 
 void domyosbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                      bool wait_for_response) {
+    WriteRequest request;
+    request.data = QByteArray((const char *)data, data_len);
+    request.info = info;
+    request.disable_log = disable_log;
+    request.wait_for_response = wait_for_response;
+
+    writeQueue.enqueue(request);
+    processWriteQueue();
+}
+
+void domyosbike::processWriteQueue() {
+    if (isWriting || writeQueue.isEmpty()) {
+        return;
+    }
+
+    if (!gattCommunicationChannelService ||
+        gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
+        m_control->state() == QLowEnergyController::UnconnectedState) {
+        qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
+        writeQueue.clear();
+        isWriting = false;
+        return;
+    }
+
+    if (!gattWriteCharacteristic.isValid()) {
+        qDebug() << QStringLiteral("gattWriteCharacteristic is invalid");
+        writeQueue.clear();
+        isWriting = false;
+        return;
+    }
+
+    WriteRequest request = writeQueue.dequeue();
+    isWriting = true;
+    currentWriteWaitingForResponse = request.wait_for_response;
+
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray(request.data);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+
+    if (!request.disable_log) {
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
+                        QStringLiteral(" // ") + request.info;
+    }
+
+    writeTimeoutTimer->start(300);
+}
+
+void domyosbike::writeCharacteristicBlocking(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                                             bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
@@ -47,9 +117,10 @@ void domyosbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
+    if (!gattCommunicationChannelService ||
+        gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
         m_control->state() == QLowEnergyController::UnconnectedState) {
-        qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
+        qDebug() << QStringLiteral("writeCharacteristicBlocking error because the connection is closed");
         return;
     }
 
@@ -503,7 +574,7 @@ void domyosbike::btinit_changyow(bool startTape) {
 
 init_reset:
     initPacketRecv = false;
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    writeCharacteristicBlocking(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     if (!initPacketRecv) {
         qDebug() << "init 1 not received, retrying...";
         goto init_reset;
@@ -511,7 +582,7 @@ init_reset:
 
 init_data2:
     initPacketRecv = false;
-    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+    writeCharacteristicBlocking(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
     if (!initPacketRecv) {
         qDebug() << "init 2 not received, retrying...";
         goto init_data2;
@@ -519,7 +590,7 @@ init_data2:
 
 init_start:
     initPacketRecv = false;
-    writeCharacteristic(initDataStart, sizeof(initDataStart), QStringLiteral("init"), false, true);
+    writeCharacteristicBlocking(initDataStart, sizeof(initDataStart), QStringLiteral("init"), false, true);
     if (!initPacketRecv) {
         qDebug() << "initDataStart not received, retrying...";
         goto init_start;
@@ -527,7 +598,7 @@ init_start:
 
 init_start2:
     initPacketRecv = false;
-    writeCharacteristic(initDataStart2, sizeof(initDataStart2), QStringLiteral("init"), false, true);
+    writeCharacteristicBlocking(initDataStart2, sizeof(initDataStart2), QStringLiteral("init"), false, true);
     if (!initPacketRecv) {
         qDebug() << "initDataStart2 not received, retrying...";
         goto init_start2;
@@ -535,7 +606,7 @@ init_start2:
 
 init_start3:
     initPacketRecv = false;
-    writeCharacteristic(initDataStart3, sizeof(initDataStart3), QStringLiteral("init"), false, true);
+    writeCharacteristicBlocking(initDataStart3, sizeof(initDataStart3), QStringLiteral("init"), false, true);
     if (!initPacketRecv) {
         qDebug() << "initDataStart3 not received, retrying...";
         goto init_start3;
@@ -543,7 +614,7 @@ init_start3:
 
 init_start4:
     initPacketRecv = false;
-    writeCharacteristic(initDataStart4, sizeof(initDataStart4), QStringLiteral("init"), false, true);
+    writeCharacteristicBlocking(initDataStart4, sizeof(initDataStart4), QStringLiteral("init"), false, true);
     if (!initPacketRecv) {
         qDebug() << "initDataStart4 not received, retrying...";
         goto init_start4;
@@ -551,7 +622,7 @@ init_start4:
 
 init_start5:
     initPacketRecv = false;
-    writeCharacteristic(initDataStart5, sizeof(initDataStart5), QStringLiteral("init"), false, true);
+    writeCharacteristicBlocking(initDataStart5, sizeof(initDataStart5), QStringLiteral("init"), false, true);
     if (!initPacketRecv) {
         qDebug() << "initDataStart5 not received, retrying...";
         goto init_start5;
@@ -559,8 +630,8 @@ init_start5:
 
 init_start6_7:
     initPacketRecv = false;
-    writeCharacteristic(initDataStart6, sizeof(initDataStart6), QStringLiteral("init"), false, false);
-    writeCharacteristic(initDataStart7, sizeof(initDataStart7), QStringLiteral("init"), false, true);
+    writeCharacteristicBlocking(initDataStart6, sizeof(initDataStart6), QStringLiteral("init"), false, false);
+    writeCharacteristicBlocking(initDataStart7, sizeof(initDataStart7), QStringLiteral("init"), false, true);
     if (!initPacketRecv) {
         qDebug() << "initDataStart6/7 not received, retrying...";
         goto init_start6_7;
@@ -568,8 +639,8 @@ init_start6_7:
 
 init_start8_9:
     initPacketRecv = false;
-    writeCharacteristic(initDataStart8, sizeof(initDataStart8), QStringLiteral("init"), false, false);
-    writeCharacteristic(initDataStart9, sizeof(initDataStart9), QStringLiteral("init"), false, true);
+    writeCharacteristicBlocking(initDataStart8, sizeof(initDataStart8), QStringLiteral("init"), false, false);
+    writeCharacteristicBlocking(initDataStart9, sizeof(initDataStart9), QStringLiteral("init"), false, true);
     if (!initPacketRecv) {
         qDebug() << "initDataStart8/9 not received, retrying...";
         goto init_start8_9;
@@ -577,8 +648,8 @@ init_start8_9:
 
 init_start10_11:
     initPacketRecv = false;
-    writeCharacteristic(initDataStart10, sizeof(initDataStart10), QStringLiteral("init"), false, false);
-    writeCharacteristic(initDataStart11, sizeof(initDataStart11), QStringLiteral("init"), false, true);
+    writeCharacteristicBlocking(initDataStart10, sizeof(initDataStart10), QStringLiteral("init"), false, false);
+    writeCharacteristicBlocking(initDataStart11, sizeof(initDataStart11), QStringLiteral("init"), false, true);
     if (!initPacketRecv) {
         qDebug() << "initDataStart10/11 not received, retrying...";
         goto init_start10_11;
@@ -587,8 +658,8 @@ init_start10_11:
     if (startTape) {
 init_start12_13:
         initPacketRecv = false;
-        writeCharacteristic(initDataStart12, sizeof(initDataStart12), QStringLiteral("init"), false, false);
-        writeCharacteristic(initDataStart13, sizeof(initDataStart13), QStringLiteral("init"), false, true);
+        writeCharacteristicBlocking(initDataStart12, sizeof(initDataStart12), QStringLiteral("init"), false, false);
+        writeCharacteristicBlocking(initDataStart13, sizeof(initDataStart13), QStringLiteral("init"), false, true);
         if (!initPacketRecv) {
             qDebug() << "initDataStart12/13 not received, retrying...";
             goto init_start12_13;
@@ -664,6 +735,12 @@ void domyosbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const
 void domyosbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     qDebug() << QStringLiteral("characteristicWritten ") + newValue.toHex(' ');
+
+    if (!currentWriteWaitingForResponse) {
+        writeTimeoutTimer->stop();
+        isWriting = false;
+        processWriteQueue();
+    }
 }
 
 void domyosbike::serviceScanDone(void) {
@@ -696,8 +773,6 @@ void domyosbike::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     qDebug() << QStringLiteral("domyosbike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                     m_control->errorString();
-
-    m_control->disconnectFromDevice();
 }
 
 void domyosbike::error(QLowEnergyController::Error err) {
@@ -862,6 +937,10 @@ void domyosbike::controllerStateChanged(QLowEnergyController::ControllerState st
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        writeTimeoutTimer->stop();
+        writeQueue.clear();
+        isWriting = false;
+        gattCommunicationChannelService = nullptr;
         m_control->connectToDevice();
     }
 }

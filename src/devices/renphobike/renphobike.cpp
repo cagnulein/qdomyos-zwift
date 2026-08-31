@@ -74,6 +74,55 @@ void renphobike::forcePower(int16_t requestPower) {
     writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(r));
 }
 
+double renphobike::autoResistanceFromSlope(int16_t iresistance, uint8_t crr, uint8_t cw, double CRRGain,
+                                           double CWGain, double bikeResistanceGain, int bikeResistanceOffset) {
+    // Mirrors CharacteristicWriteProcessor::changeSlope(). gain/offset come from the user's
+    // "Bike Resistance Gain/Offset" settings so the flat-ground baseline is tunable: with the
+    // defaults (1.0 / 4) a 0% grade lands on resistance 5, which several riders find too light
+    // (issue #4873). NOTE: CW_offset intentionally uses `crr`, not `cw`, matching the
+    // (pre-existing) formula in changeSlope() exactly.
+    Q_UNUSED(cw);
+
+    const double resistance = ((double)iresistance * 1.5) / 100.0;
+    const double CRR_offset = ((crr - 40) * 0.05) * CRRGain;
+    const double CW_offset = ((crr - 40) * 0.05) * CWGain;
+
+    return round(resistance * bikeResistanceGain) + bikeResistanceOffset + 1 + CRR_offset + CW_offset;
+}
+
+void renphobike::ResistanceReconciler::setExpected(double expected) {
+    if (!hasExpectation || !qFuzzyCompare(expected + 1.0, expectedResistance + 1.0)) {
+        expectedResistance = expected;
+        hasExpectation = true;
+        // the bike needs a moment to settle onto the new expectation, so any discrepancy
+        // observed right away must be re-confirmed from scratch before it can be trusted.
+        pendingDiscrepancy = 0.0;
+        pendingCount = 0;
+    }
+}
+
+double renphobike::ResistanceReconciler::feed(double actualResistance) {
+    if (!hasExpectation)
+        return 0.0;
+
+    const double discrepancy = actualResistance - expectedResistance;
+    if (!qFuzzyCompare(discrepancy + 1.0, pendingDiscrepancy + 1.0)) {
+        pendingDiscrepancy = discrepancy;
+        pendingCount = 1;
+        return 0.0;
+    }
+
+    pendingCount++;
+    if (pendingCount != 2)
+        // already confirmed (or still the very first sample of a repeated discrepancy)
+        return 0.0;
+
+    if (qAbs(discrepancy) < 0.5) // resistance is quantized in .5 steps: nothing to reconcile
+        return 0.0;
+
+    return discrepancy;
+}
+
 void renphobike::forceResistance(resistance_t requestResistance) {
     // requestPower = powerFromResistanceRequest(requestResistance);
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
@@ -148,7 +197,7 @@ void renphobike::update() {
 
                     requestResistance = -1;
                 } else if (lastRequestResistance != -1) {
-                    int8_t r = lastRequestResistance * m_difficult + gears();
+                    int8_t r = lastRequestResistance * m_difficult + gearsModifier();
                     debug("writing resistance for renpho forever " + QString::number(r));
                     forceResistance(r);
                 }
@@ -284,6 +333,46 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
         index += 2;
         debug("Current Resistance: " + QString::number(Resistance.value()));
+
+        bool renpho_bike_knob_gears =
+            settings.value(QZSettings::renpho_bike_knob_gears, QZSettings::default_renpho_bike_knob_gears).toBool();
+        // Only trust these readings as physical knob movements when QZ is not itself driving
+        // the bike's resistance (e.g. the "writing resistance for renpho forever" ERG path):
+        // otherwise the resistance changes we commanded (which already depend on the current
+        // gear) would be read back here and cause a feedback loop with the gears.
+        auto virtualBike = this->VirtualBike();
+        if (renpho_bike_knob_gears && virtualBike && virtualBike->ftmsDeviceConnected()) {
+            double discrepancy = resistanceReconciler.feed(Resistance.value());
+            if (discrepancy != 0.0) {
+                bool gears_custom_table_enabled = settings.value(QZSettings::gears_custom_table_enabled,
+                                                                  QZSettings::default_gears_custom_table_enabled)
+                                                       .toBool();
+                bool gears_zwift_ratio =
+                    settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+                if (!gears_custom_table_enabled && !gears_zwift_ratio) {
+                    // gearsModifier(g) == g + gears_offset here, so the offset cancels out and
+                    // the knob's discrepancy can be applied directly onto the current gear.
+                    double newGear = gears() + discrepancy;
+                    debug("Renpho knob reconciled: resistance " + QString::number(Resistance.value()) +
+                          " vs expected " + QString::number(resistanceReconciler.expectedResistance) +
+                          ", moving gears from " + QString::number(gears()) + " to " + QString::number(newGear));
+                    setGears(newGear);
+                    double newTarget = m_autoResistanceBaseline * difficult() + gearsModifier();
+                    resistanceReconciler.setExpected(newTarget);
+                    // the bike is already sitting on the value the rider dialled in, which is
+                    // exactly the new target: record it so the next unchanged grade doesn't
+                    // trigger a pointless re-write of a value the bike already holds.
+                    m_lastWrittenResistance =
+                        (resistance_t)qBound(1.0, round(newTarget), (double)max_resistance);
+                } else {
+                    // gearsModifier() isn't a simple additive offset here (custom table or
+                    // zwift-ratio clamping), so an exact inverse isn't well defined: skip
+                    // reconciling rather than risk moving the gear to the wrong value.
+                    debug("Renpho knob resistance mismatch detected but gears_custom_table_enabled/"
+                          "gears_zwift_ratio is on, skipping gear reconciliation");
+                }
+            }
+        }
     }
 
     if (Flags.instantPower) {
@@ -575,11 +664,56 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
             lastFTMSPacketReceived.append(((r & 0xFF00) >> 8) & 0x00FF);
             qDebug() << QStringLiteral("sending") << lastFTMSPacketReceived.toHex(' ');
         // handling gears
-        } else if (lastFTMSPacketReceived.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
-            qDebug() << "applying gears mod" << gears();
+        } else if (lastFTMSPacketReceived.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS &&
+                   lastFTMSPacketReceived.length() >= 7) {
+            bool renpho_bike_knob_gears = settings.value(QZSettings::renpho_bike_knob_gears,
+                                                          QZSettings::default_renpho_bike_knob_gears)
+                                               .toBool();
             int16_t slope = (((uint8_t)lastFTMSPacketReceived.at(3)) + (lastFTMSPacketReceived.at(4) << 8));
-            if (gears() != 0) {
-                slope += (gears() * 50);
+
+            if (renpho_bike_knob_gears) {
+                // Deterministic path (see issue #4873): rather than forwarding the raw ROUVY
+                // slope and letting the bike's own (speed-dependent) physics decide the
+                // resistance, compute an explicit target resistance from the grade + current
+                // gear and write it directly. This gives QZ exact knowledge of what the bike
+                // should read, so a genuine knob change can be reconciled precisely against it
+                // in characteristicChanged() instead of being confused with grade/speed noise.
+                uint8_t crr = (uint8_t)lastFTMSPacketReceived.at(5);
+                uint8_t cw = (uint8_t)lastFTMSPacketReceived.at(6);
+                double CRRGain = settings.value(QZSettings::CRRGain, QZSettings::default_CRRGain).toDouble();
+                double CWGain = settings.value(QZSettings::CWGain, QZSettings::default_CWGain).toDouble();
+                double bikeResistanceGain =
+                    settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                        .toDouble();
+                int bikeResistanceOffset =
+                    settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                        .toInt();
+
+                m_autoResistanceBaseline =
+                    autoResistanceFromSlope(slope, crr, cw, CRRGain, CWGain, bikeResistanceGain, bikeResistanceOffset);
+                double target = m_autoResistanceBaseline * difficult() + gearsModifier();
+                resistanceReconciler.setExpected(target);
+
+                resistance_t clampedTarget = (resistance_t)qBound(1.0, round(target), (double)max_resistance);
+                debug("Renpho auto resistance from slope " + QString::number(slope) + " = " +
+                      QString::number(m_autoResistanceBaseline) + ", + gears " + QString::number(gearsModifier()) +
+                      " = " + QString::number(target));
+                // ROUVY re-sends simulation params every 1-3s even when nothing actually
+                // changed (77% of writes were redundant in a real ride log): only write to the
+                // bike when the target actually moves, so the physical knob isn't fought by a
+                // periodic re-assertion of a stale value it never got a chance to override.
+                if (clampedTarget != m_lastWrittenResistance) {
+                    forceResistance(clampedTarget);
+                    m_lastWrittenResistance = clampedTarget;
+                } else {
+                    debug("Renpho auto resistance unchanged, skipping redundant write");
+                }
+                return; // the target resistance was already written directly, don't also forward the slope packet
+            }
+
+            qDebug() << "applying gears mod" << gears() << gearsModifier();
+            if (gearsModifier() != 0) {
+                slope += (gearsModifier() * 50);
                 lastFTMSPacketReceived[3] = slope & 0xFF;
                 lastFTMSPacketReceived[4] = slope >> 8;
             }

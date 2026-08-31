@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseSettings;
@@ -40,6 +41,8 @@ public class BleAdvertiser {
     private static final UUID IFIT_SERVICE_UUID = UUID.fromString("00001533-1412-efde-1523-785feabcd123");
     private static final String IFIT_DEVICE_NAME = "I_EB";
     private static final int IFIT_MANUFACTURER_ID = 0x01A5;
+    private static final UUID ECHELON_SERVICE_UUID = UUID.fromString("0bf669f0-45f2-11e7-9598-0800200c9a66");
+    private static final String ECHELON_DEVICE_NAME = "ECHEX-5s-160880";
     // PM5 Concept2 UUIDs
     private static final UUID PM5_DISCOVERY_SERVICE_UUID = UUID.fromString("CE060000-43E5-11E4-916C-0800200C9A66");
     private static final UUID PM5_ROWING_SERVICE_UUID = UUID.fromString("CE060030-43E5-11E4-916C-0800200C9A66");
@@ -48,6 +51,76 @@ public class BleAdvertiser {
     private static final byte[] IFIT_MANUFACTURER_DATA = new byte[] {
             0x02, (byte) 0xcc, 0x3c, (byte) 0x82, 0x00, 0x07, (byte) 0xdd, (byte) 0x1e, (byte) 0xdd
     };
+    private static final byte[] SERVICE_DATA_BIKE = {0x01, 0x20, 0x00};
+    private static final UUID TACX_ZWIFT_SERVICE_UUID = UUID.fromString("0000fc82-0000-1000-8000-00805f9b34fb");
+    private static final UUID TACX_CYCLING_POWER_UUID = UUID.fromString("00001818-0000-1000-8000-00805f9b34fb");
+    private static final UUID TACX_DEVICE_INFO_UUID = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
+    private static final UUID TACX_CUSTOM_UUID = UUID.fromString("6e40fec1-b5a3-f393-e0a9-e50e24dcca9e");
+    private static final byte[] TACX_ZWIFT_SERVICE_DATA = {0x01};
+
+    public static void startAdvertisingEchelon(Context context, String deviceName) {
+        try {
+            if (context == null) {
+                QLog.e("BleAdvertiser", "Context is null for Echelon advertising");
+                return;
+            }
+
+            BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            if (bluetoothManager != null) {
+                android.bluetooth.BluetoothAdapter adapter = bluetoothManager.getAdapter();
+                if (adapter == null) {
+                    QLog.e("BleAdvertiser", "Bluetooth adapter is null for Echelon advertising");
+                    return;
+                }
+
+                android.bluetooth.le.BluetoothLeAdvertiser advertiser = adapter.getBluetoothLeAdvertiser();
+
+                AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                        .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                        .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                        .setConnectable(true)
+                        .build();
+
+                AdvertiseData advertiseData = new AdvertiseData.Builder()
+                        .addServiceUuid(new ParcelUuid(ECHELON_SERVICE_UUID))
+                        .build();
+
+                if (advertiser != null) {
+                    try {
+                        adapter.setName(deviceName != null && !deviceName.isEmpty() ? deviceName : ECHELON_DEVICE_NAME);
+                    } catch (SecurityException | IllegalArgumentException e) {
+                        QLog.e("BleAdvertiser", "Unable to set Echelon device name: " + e.getMessage());
+                    }
+                    advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+                } else {
+                    QLog.e("BleAdvertiser", "BluetoothLeAdvertiser is null for Echelon advertising");
+                }
+            }
+        } catch (Throwable t) {
+            QLog.e("BleAdvertiser", "Echelon advertising crash: " + t.toString());
+        }
+    }
+
+    public static void stopAdvertising(Context context) {
+        try {
+            if (context == null) {
+                return;
+            }
+
+            BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            if (bluetoothManager == null || bluetoothManager.getAdapter() == null) {
+                return;
+            }
+
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser =
+                    bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+            if (advertiser != null) {
+                advertiser.stopAdvertising(advertiseCallback);
+            }
+        } catch (Throwable t) {
+            QLog.e("BleAdvertiser", "stopAdvertising crash: " + t.toString());
+        }
+    }
 
     public static void startAdvertisingRower(Context context) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -165,6 +238,63 @@ public class BleAdvertiser {
         }
     }
 
+    public static void startAdvertisingBike(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .addServiceUuid(new ParcelUuid(SERVICE_UUID))
+                    .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_BIKE)
+                    .build();
+
+            if (advertiser != null) {
+                advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+            }
+        }
+    }
+
+    public static void startAdvertisingTacxNeo2T(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager == null || bluetoothManager.getAdapter() == null) {
+            return;
+        }
+
+        BluetoothAdapter adapter = bluetoothManager.getAdapter();
+        android.bluetooth.le.BluetoothLeAdvertiser advertiser = adapter.getBluetoothLeAdvertiser();
+        if (advertiser == null) {
+            QLog.e("BleAdvertiser", "BluetoothLeAdvertiser is null");
+            return;
+        }
+
+        AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                .setConnectable(true)
+                .build();
+
+        AdvertiseData advertiseData = new AdvertiseData.Builder()
+                .setIncludeDeviceName(true)
+                .addServiceData(new ParcelUuid(TACX_ZWIFT_SERVICE_UUID), TACX_ZWIFT_SERVICE_DATA)
+                .build();
+
+        AdvertiseData scanResponse = new AdvertiseData.Builder()
+                .addServiceUuid(new ParcelUuid(TACX_CYCLING_POWER_UUID))
+                .addServiceUuid(new ParcelUuid(TACX_ZWIFT_SERVICE_UUID))
+                .addServiceUuid(new ParcelUuid(TACX_DEVICE_INFO_UUID))
+                .addServiceUuid(new ParcelUuid(TACX_CUSTOM_UUID))
+                .build();
+
+        QLog.d("BleAdvertiser", "Starting Tacx Neo 2T advertising");
+        advertiser.startAdvertising(settings, advertiseData, scanResponse, advertiseCallback);
+    }
     private static AdvertiseCallback advertiseCallback = new AdvertiseCallback() {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {

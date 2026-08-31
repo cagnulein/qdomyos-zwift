@@ -580,12 +580,23 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     lastPacket = newValue;
 
     if (newValue.length() == 20 && (uint8_t)newValue.at(0) == 0xff && newValue.at(1) == 0x11) {
-        Cadence = (uint8_t)(newValue.at(12));
+        const bool rowerTelemetryFrame = (uint8_t)newValue.at(2) == 0 && (uint8_t)newValue.at(3) == 0 &&
+                                         (uint8_t)newValue.at(4) == 0 && (uint8_t)newValue.at(5) == 0 &&
+                                         (uint8_t)newValue.at(6) == 0 && (uint8_t)newValue.at(7) == 0 &&
+                                         (uint8_t)newValue.at(8) == 0 && (uint8_t)newValue.at(9) == 0;
+        if (!rowerTelemetryFrame) {
+            return;
+        }
+        const uint8_t cadence = (uint8_t)(newValue.at(12));
+        uint16_t s = (((uint16_t)((uint8_t)newValue.at(14)) << 8) + (uint16_t)((uint8_t)newValue.at(13)));
+        if (cadence == 0 && s > 0) {
+            return;
+        }
+        Cadence = cadence;
         StrokesCount += (Cadence.value()) *
                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)) / 60000;
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
-        uint16_t s = (((uint16_t)((uint8_t)newValue.at(14)) << 8) + (uint16_t)((uint8_t)newValue.at(13)));
         if (s > 0)
             Speed = (60.0 / (double)(s)) * 30.0;
         else
@@ -595,7 +606,8 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     }
 
     if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
-        newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (newValue.at(5) != 0x2e && newValue.at(5) != 0x30) ||
+        newValue.at(3) != 0x04 || newValue.at(4) != 0x02 ||
+        (newValue.at(5) != 0x2e && newValue.at(5) != 0x30 && newValue.at(5) != 0x31) ||
         (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
          ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
          ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&

@@ -74,6 +74,7 @@ class sportsplusbike : public bike {
     bool readyToStart = false;
 
     bool carefitness_bike = false;
+    bool ht_variant_bike = false;
 
     const resistance_t max_resistance = 24;
 

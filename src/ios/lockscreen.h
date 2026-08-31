@@ -20,7 +20,11 @@ class lockscreen {
     void setHeartRate(unsigned char heartRate);
     void startWorkout(unsigned short deviceType);
     void stopWorkout();
-    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories, unsigned long long currentSteps, unsigned char deviceType, double currentDistance, double totalKcal, bool useMiles, unsigned char heartRate);
+    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories,
+                               unsigned long long currentSteps, unsigned char deviceType, double currentDistance,
+                               double totalKcal, bool useMiles, unsigned char heartRate,
+                               int liveActivityHeartRate, const char *compactLeadingMetric, int compactLeadingValue,
+                               const char *compactTrailingMetric, int compactTrailingValue);
     bool appleWatchAppInstalled();
 
     // virtualbike
@@ -28,7 +32,8 @@ class lockscreen {
     void virtualbike_setHeartRate(unsigned char heartRate);
     void virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime);
 
-    void virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator);
+    void virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator, bool tacx);
+
     double virtualbike_getCurrentSlope();
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();
@@ -55,6 +60,7 @@ class lockscreen {
     uint64_t virtualtreadmill_lastChangeCurrentSlope();
     double virtualtreadmill_getPowerRequested();
     double virtualtreadmill_getRequestedSpeed();
+    uint64_t virtualtreadmill_lastChangeRequestedSpeed();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
                                      unsigned short currentInclination, unsigned long long currentDistance, double elevationGain,

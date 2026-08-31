@@ -48,7 +48,8 @@ import UIKit
 
     // MARK: - Public Methods
 
-    @objc public func startActivity(deviceName: String, useMiles: Bool) {
+    @objc public func startActivity(deviceName: String, useMiles: Bool, compactLeadingMetric: String,
+                                    compactTrailingMetric: String) {
         // Check if Live Activities are supported and enabled
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             print("Live Activities are not enabled")
@@ -66,7 +67,11 @@ import UIKit
             heartRate: 0,
             distance: 0.0,
             kcal: 0.0,
-            useMiles: useMiles
+            useMiles: useMiles,
+            compactLeadingMetric: compactLeadingMetric,
+            compactLeadingValue: 0,
+            compactTrailingMetric: compactTrailingMetric,
+            compactTrailingValue: 0
         )
 
         do {
@@ -85,7 +90,10 @@ import UIKit
         }
     }
 
-    @objc public func updateActivity(speed: Double, cadence: Double, power: Double, heartRate: Int, distance: Double, kcal: Double, useMiles: Bool) {
+    @objc public func updateActivity(speed: Double, cadence: Double, power: Double, heartRate: Int,
+                                     distance: Double, kcal: Double, compactLeadingMetric: String,
+                                     compactLeadingValue: Int, compactTrailingMetric: String,
+                                     compactTrailingValue: Int, useMiles: Bool) {
         guard let activity = currentActivity else {
             print("No active Live Activity to update")
             return
@@ -101,7 +109,11 @@ import UIKit
             heartRate: heartRate,
             distance: distance,
             kcal: kcal,
-            useMiles: useMiles
+            useMiles: useMiles,
+            compactLeadingMetric: compactLeadingMetric,
+            compactLeadingValue: compactLeadingValue,
+            compactTrailingMetric: compactTrailingMetric,
+            compactTrailingValue: compactTrailingValue
         )
 
         Task {

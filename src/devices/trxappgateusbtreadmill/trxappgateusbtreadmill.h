@@ -41,6 +41,7 @@ class trxappgateusbtreadmill : public treadmill {
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
+    uint16_t GetHeartFromPacket(const QByteArray &packet);
     uint16_t GetElapsedFromPacket(const QByteArray &packet);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
@@ -50,8 +51,6 @@ class trxappgateusbtreadmill : public treadmill {
                              bool wait_for_response);
     void waitForAPacket();
     void startDiscover();
-    double DistanceCalculated = 0;
-
     QTimer *refresh;
 
     uint8_t firstVirtualTreadmill = 0;

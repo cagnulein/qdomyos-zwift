@@ -158,12 +158,12 @@ void tacxneo2::update() {
         }
         if (requestInclination != -100) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-            forceInclination(gearsFlywheelCheck(requestInclination, gears())); // since this bike doesn't have the concept of resistance,
+            forceInclination(gearsFlywheelCheck(requestInclination, gearsModifier())); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
             requestInclination = -100;            
         } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
             // in order to send the new gear value ASAP
-            forceInclination(gearsFlywheelCheck(lastRawRequestedInclinationValue, gears()));   // since this bike doesn't have the concept of resistance,
+            forceInclination(gearsFlywheelCheck(lastRawRequestedInclinationValue, gearsModifier()));   // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
         }
 
