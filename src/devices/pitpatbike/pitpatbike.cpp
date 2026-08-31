@@ -14,6 +14,20 @@
 
 using namespace std::chrono_literals;
 
+namespace {
+uint16_t pitpatReadBE16(const QByteArray &packet, int offset) {
+    return (static_cast<uint16_t>(static_cast<uint8_t>(packet.at(offset))) << 8) |
+           static_cast<uint16_t>(static_cast<uint8_t>(packet.at(offset + 1)));
+}
+
+uint8_t pitpatXorCrc(const QByteArray &packet) {
+    uint8_t crc = 0;
+    for (int i = 1; i < packet.size() - 2; ++i)
+        crc ^= static_cast<uint8_t>(packet.at(i));
+    return crc;
+}
+} // namespace
+
 #ifdef Q_OS_IOS
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
@@ -192,6 +206,71 @@ void pitpatbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     lastPacket = newValue;
 
+    // PitPat's current three-in-one protocol uses the legacy 0x6a framing.
+    // The startup frame is 34 bytes and advertises the actual bike layout.
+    if (newValue.size() >= 4 && static_cast<uint8_t>(newValue.at(0)) == 0x6a &&
+        static_cast<uint8_t>(newValue.at(3)) == 0x2c) {
+        legacyProtocol = true;
+        if (newValue.size() < 34) {
+            qDebug() << QStringLiteral("PitPat startup frame is too short") << newValue.size();
+            return;
+        }
+
+        qDebug() << QStringLiteral("PitPat startup: min resistance ") +
+                        QString::number(pitpatReadBE16(newValue, 9)) + QStringLiteral(", max resistance ") +
+                        QString::number(pitpatReadBE16(newValue, 11)) + QStringLiteral(", serial ") +
+                        QString::fromLatin1(newValue.constData() + 13, 16) + QStringLiteral(", version ") +
+                        QString::number(static_cast<uint8_t>(newValue.at(29))) + QStringLiteral(", model ") +
+                        QString::number(static_cast<uint8_t>(newValue.at(31))) +
+                        QStringLiteral(", crc ") +
+                        (pitpatXorCrc(newValue) == static_cast<uint8_t>(newValue.at(newValue.size() - 2))
+                             ? QStringLiteral("ok")
+                             : QStringLiteral("invalid"));
+        return;
+    }
+
+    if (legacyProtocol) {
+        // Legacy telemetry fields are documented by the APK's parser.
+        // Ignore commands/ACKs, but keep their raw log above.
+        if (newValue.size() < 28 || static_cast<uint8_t>(newValue.at(0)) != 0x6a ||
+            static_cast<uint8_t>(newValue.at(3)) != 0x02)
+            return;
+
+        if (pitpatXorCrc(newValue) != static_cast<uint8_t>(newValue.at(newValue.size() - 2)))
+            qDebug() << QStringLiteral("PitPat telemetry CRC mismatch") << newValue.toHex(' ');
+
+        QSettings settings;
+        const uint8_t cadence = static_cast<uint8_t>(newValue.at(25));
+        const uint16_t rawSpeed = pitpatReadBE16(newValue, 23);
+
+        Resistance = static_cast<uint8_t>(newValue.at(5));
+        m_pelotonResistance = m_pelotonResistance.value();
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            Cadence = cadence;
+        }
+
+        // Model 2 reports velocity in mm/s and distance in metres.
+        Speed = (static_cast<double>(rawSpeed) * 3.6) / 1000.0;
+        Distance = static_cast<double>(pitpatReadBE16(newValue, 10)) / 1000.0;
+        KCal = static_cast<double>(pitpatReadBE16(newValue, 12)) / 10.0;
+        Heart = static_cast<uint8_t>(newValue.at(18));
+        CrankRevs = pitpatReadBE16(newValue, 16);
+        LastCrankEventTime += cadence > 0 ? static_cast<uint16_t>(1024.0 / (static_cast<double>(cadence) / 60.0)) : 0;
+
+        // The APK has no watt field here: bytes 23/24 are velocity.
+        m_watt = 0;
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+        qDebug() << QStringLiteral("PitPat legacy metrics: resistance ") + QString::number(Resistance.value()) +
+                        QStringLiteral(", speed ") + QString::number(Speed.value()) + QStringLiteral(", distance ") +
+                        QString::number(Distance.value()) + QStringLiteral(", cadence ") + QString::number(Cadence.value()) +
+                        QStringLiteral(", calories ") + QString::number(KCal.value()) + QStringLiteral(", heart ") +
+                        QString::number(Heart.value()) + QStringLiteral(", crank revs ") + QString::number(CrankRevs);
+        return;
+    }
+
     if (newValue.length() != 30) {
         return;
     }
@@ -282,7 +361,7 @@ QTime pitpatbike::GetElapsedFromPacket(const QByteArray &packet) {
 }
 
 double pitpatbike::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
+    uint16_t convertedData = pitpatReadBE16(packet, 7);
     double data = ((double)convertedData) / 100.0f;
     return data;
 }
