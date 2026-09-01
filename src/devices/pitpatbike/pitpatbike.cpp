@@ -251,8 +251,8 @@ void pitpatbike::characteristicChanged(const QLowEnergyCharacteristic &character
             Cadence = cadence;
         }
 
-        // Model 2 reports velocity in mm/s and distance in metres.
-        Speed = (static_cast<double>(rawSpeed) * 3.6) / 1000.0;
+        // Model 2 reports velocity in mm/s; QZ speed is expressed in km/h.
+        Speed = static_cast<double>(rawSpeed) / 1000.0;
         Distance = static_cast<double>(pitpatReadBE16(newValue, 10)) / 1000.0;
         KCal = static_cast<double>(pitpatReadBE16(newValue, 12)) / 10.0;
         Heart = static_cast<uint8_t>(newValue.at(18));
