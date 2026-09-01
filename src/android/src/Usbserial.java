@@ -108,7 +108,12 @@ public class Usbserial {
                     granted[0] = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
                 }
             };
-            int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
+            // UsbManager answers by filling EXTRA_PERMISSION_GRANTED into this
+            // PendingIntent, so it has to be mutable. An immutable one drops every
+            // fill-in extra, and the broadcast then reads back as a denial even when
+            // the user tapped Allow.
+            final int FLAG_MUTABLE = 0x02000000; // PendingIntent.FLAG_MUTABLE, API 31
+            int flags = Build.VERSION.SDK_INT >= 31 ? FLAG_MUTABLE : 0;
             PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent("org.cagnulen.qdomyoszwift.USB_PERMISSION"), flags);
             IntentFilter filter = new IntentFilter("org.cagnulen.qdomyoszwift.USB_PERMISSION");
             ContextCompat.registerReceiver(
@@ -126,6 +131,11 @@ public class Usbserial {
                 catch (InterruptedException e) {
                     // Do something here
                 }
+            }
+            if (granted[0] == null || !granted[0]) {
+                // The broadcast can be missed or arrive stripped of its extras;
+                // the manager itself is the authoritative answer.
+                granted[0] = manager.hasPermission(driver.getDevice());
             }
             QLog.d("QZ","USB permission "+granted[0]);
         }
