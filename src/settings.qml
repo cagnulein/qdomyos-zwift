@@ -197,7 +197,7 @@ import AndroidStatusBar 1.0
             return Material.theme === Material.Dark ? "#1c1c1e" : "#f2f2f7"
         }
 
-        
+
 
         function modernCurrentScrollY() {
             if (modernSettingsParent.length === 0 && modernSettingsExternalTarget.length === 0 && modernSettingsSearch.text.length === 0)
@@ -306,7 +306,7 @@ import AndroidStatusBar 1.0
             }
         }
 
-        
+
 
         function modernSettingsParentName() {
             if (modernSettingsExternalTarget.length > 0)
