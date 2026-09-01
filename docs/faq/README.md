@@ -5,6 +5,7 @@ This directory contains practical QZ frequently asked questions, organized by ca
 ## Categories
 
 - [Bike and trainer troubleshooting](bike-troubleshooting.md)
+- [Integrations and authentication](integrations.md)
 - [Zwift and virtual gearing](zwift.md)
 
 More category files can be added when a confirmed support case does not fit an existing category.
