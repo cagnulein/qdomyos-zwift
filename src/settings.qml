@@ -28,13 +28,9 @@ import AndroidStatusBar 1.0
 
         property var settingsCatalog: ({ "settings": [], "virtualSettings": [], "pages": [] })
         property var searchableSettings: []
-        property var filteredSettings: []
         property bool settingsCatalogLoaded: false
         property bool settingsCatalogLoading: false
         property string settingsCatalogError: ""
-        property bool settingsSearchVisible: false
-        property bool settingsSearchActive: false
-        property bool settingsSearchPending: false
         property bool legacySettingsUiEnabled: false
 
 
@@ -319,6 +315,10 @@ import AndroidStatusBar 1.0
 
         function openModernSettingsPreview() {
             loadSettingsCatalog()
+            if (legacySettingsUiEnabled) {
+                modernSettingsDrawer.visible = false
+                return
+            }
             modernSettingsHistory = []
             modernSettingsAwaitingExternalReturn = false
             modernSettingsExternalReturnState = null
@@ -366,24 +366,9 @@ import AndroidStatusBar 1.0
             stackView.pop()
         }
 
-        function showSettingsSearch() {
-            settingsSearchVisible = true
-            loadSettingsCatalog()
-            Qt.callLater(function() {
-                settingsSearchTextField.forceActiveFocus()
-            })
-        }
-
-        function hideSettingsSearch() {
-            settingsSearchDebounceTimer.stop()
-            settingsSearchTextField.text = ""
-            settingsSearchVisible = false
-            settingsSearchActive = false
-            settingsSearchPending = false
-            filteredSettings = []
-        }
-
         function openGarminSection() {
+            legacySettingsUiEnabled = true
+            modernSettingsDrawer.visible = false
             garminOptionsAccordion.isOpen = true
             scrollTimer.start()
         }
@@ -456,10 +441,6 @@ import AndroidStatusBar 1.0
                 items[t]._translatedName = computeTranslatedName(items[t])
 
             searchableSettings = items
-            if (settingsSearchActive && settingsSearchPending && settingsSearchDebounceTimer.running)
-                return
-
-            updateFilteredSettings()
             rebuildModernSettingsCategories()
         }
 
@@ -467,17 +448,6 @@ import AndroidStatusBar 1.0
             return entry && entry.key && entry.key.indexOf("tile_") === 0 && entry.key.lastIndexOf("_order") === entry.key.length - 6
         }
 
-        function visualRenderedControl(entry) {
-            if (!entry)
-                return "unknown"
-            if (entry.catalogKind === "page")
-                return "button"
-            if (entry.catalogKind === "virtual")
-                return "select"
-            if (entry.type === "boolean")
-                return "switch"
-            return optionValues(entry).length > 0 ? "select" : "text"
-        }
 
         // Try to find a translation for a catalog entry name by probing common QML contexts.
         // Returns the translated string if found, or the original name as fallback.
@@ -549,42 +519,6 @@ import AndroidStatusBar 1.0
                 return qsTr("General")
             var name = catalogEntryNameByKey(entry.parent)
             return computeTranslatedName({name: name, key: entry.parent}) || name
-        }
-
-        function updateFilteredSettings() {
-            if (!settingsCatalogLoaded) {
-                filteredSettings = []
-                settingsSearchPending = settingsSearchActive
-                return
-            }
-
-            var query = settingsSearchTextField ? settingsSearchTextField.text.trim().toLowerCase() : ""
-            if (query.length === 0) {
-                filteredSettings = []
-                settingsSearchPending = false
-                return
-            }
-
-            var tokens = query.split(/\s+/)
-            var results = []
-            for (var i = 0; i < searchableSettings.length; i++) {
-                var haystack = searchableText(searchableSettings[i])
-                var matched = true
-                for (var tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
-                    if (haystack.indexOf(tokens[tokenIndex]) < 0) {
-                        matched = false
-                        break
-                    }
-                }
-
-                if (matched)
-                    results.push(searchableSettings[i])
-
-                if (results.length >= 80)
-                    break
-            }
-            filteredSettings = results
-            settingsSearchPending = false
         }
 
 
@@ -2371,13 +2305,20 @@ import AndroidStatusBar 1.0
             { label: qsTr("Hebrew"), value: "he" },
             { label: qsTr("Catalan"), value: "ca" }
         ]
-        Timer {
-            id: settingsSearchDebounceTimer
-            interval: 1500
-            repeat: false
-            onTriggered: settingsPane.updateFilteredSettings()
-        }
 
+        MessageDialog {
+            id: zwiftPlaySettingsDialog
+            text: qsTr("Zwift Play & Click Settings")
+            informativeText: qsTr("Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts.")
+            buttons: (MessageDialog.Yes | MessageDialog.No)
+            onYesClicked: {
+                settings.zwift_play = false;
+                settings.zwift_click = false;
+                settings.zwift_play_emulator = true;
+                window.settings_restart_to_apply = true;
+            }
+            visible: false
+        }
 
         Item {
             id: modernSettingsDrawer
@@ -2583,43 +2524,6 @@ import AndroidStatusBar 1.0
             spacing: 0
             anchors.fill: parent
 
-            RowLayout {
-                id: settingsSearchBar
-                visible: settingsSearchVisible
-                spacing: 8
-                Layout.fillWidth: true
-
-                TextField {
-                    id: settingsSearchTextField
-                    Layout.fillWidth: true
-                    placeholderText: qsTr("Search settings")
-                    selectByMouse: true
-                    inputMethodHints: Qt.ImhNoPredictiveText
-                    onTextChanged: {
-                        settingsPane.settingsSearchActive = text.trim().length > 0
-                        settingsSearchDebounceTimer.stop()
-                        if (settingsPane.settingsSearchActive) {
-                            settingsPane.filteredSettings = []
-                            settingsPane.settingsSearchPending = true
-                            settingsPane.loadSettingsCatalog()
-                            settingsSearchDebounceTimer.restart()
-                        } else {
-                            settingsPane.filteredSettings = []
-                            settingsPane.settingsSearchPending = false
-                        }
-                    }
-                }
-
-                Button {
-                    text: qsTr("New UI")
-                    onClicked: settingsPane.openModernSettingsPreview()
-                }
-
-                Button {
-                    text: qsTr("Clear")
-                    onClicked: settingsPane.hideSettingsSearch()
-                }
-            }
 
             Label {
                 visible: settingsCatalogError.length > 0
@@ -2629,211 +2533,11 @@ import AndroidStatusBar 1.0
                 Layout.fillWidth: true
             }
 
-            ColumnLayout {
-                id: settingsSearchResults
-                visible: settingsSearchActive
-                spacing: 4
-                Layout.fillWidth: true
-                Layout.preferredWidth: Math.max(1, column1.width)
-
-                Label {
-                    text: settingsCatalogLoading ? qsTr("Loading settings...") :
-                          settingsSearchPending ? qsTr("Searching...") :
-                          filteredSettings.length === 0 ? qsTr("No settings found") :
-                          qsTr("Search results") + " (" + filteredSettings.length + ")"
-                    color: Material.color(Material.Red)
-                    font.bold: true
-                    Layout.fillWidth: true
-                }
-
-                Repeater {
-                    model: filteredSettings
-
-                    delegate: Item {
-                        id: searchResultFrame
-                        property var entry: modelData
-                        width: Math.max(1, settingsSearchResults.width)
-                        Layout.fillWidth: true
-                        Layout.minimumWidth: 0
-                        Layout.preferredWidth: width
-                        Layout.preferredHeight: searchResultContent.implicitHeight + 8
-                        implicitWidth: width
-                        implicitHeight: searchResultContent.implicitHeight + 8
-
-                        Rectangle {
-                            anchors.fill: parent
-                            color: "transparent"
-                            border.color: Material.color(Material.Grey)
-                            border.width: 1
-                            radius: 2
-                        }
-
-                        ColumnLayout {
-                            id: searchResultContent
-                            spacing: 2
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            anchors.top: parent.top
-                            anchors.margins: 4
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                spacing: 8
-
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    Layout.minimumWidth: 0
-                                    spacing: 2
-
-                                    Label {
-                                        text: entry._translatedName || entry.name || entry.key
-                                        font.bold: true
-                                        wrapMode: Text.WordWrap
-                                        Layout.fillWidth: true
-                                        Layout.minimumWidth: 0
-                                    }
-
-                                    Label {
-                                        text: settingsPane.parentDisplayName(entry)
-                                        color: Material.color(Material.Grey)
-                                        font.pixelSize: Qt.application.font.pixelSize - 2
-                                        wrapMode: Text.WordWrap
-                                        Layout.fillWidth: true
-                                        Layout.minimumWidth: 0
-                                    }
-                                }
-
-                                Switch {
-                                    visible: entry.catalogKind === "setting" && entry.type === "boolean"
-                                    checked: visible ? settingsPane.settingValue(entry) : false
-                                    onClicked: settingsPane.setSettingValue(entry, checked)
-                                }
-
-                                Button {
-                                    visible: entry.catalogKind === "page"
-                                    text: entry.target && entry.target.indexOf("__category__:") === 0 ? "›" : qsTr("Open")
-                                    onClicked: settingsPane.openModernCatalogPage(entry)
-                                }
-                            }
-
-                            Label {
-                                visible: entry.description !== null && entry.description !== undefined && entry.description.length > 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                text: entry.description || ""
-                                color: Material.color(Material.Lime)
-                                font.bold: true
-                                font.italic: true
-                                font.pixelSize: Qt.application.font.pixelSize - 2
-                                textFormat: Text.PlainText
-                                wrapMode: Text.WordWrap
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                            }
-
-                            RowLayout {
-                                visible: entry.catalogKind === "setting" && entry.type !== "boolean" && settingsPane.optionValues(entry).length === 0
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                spacing: 8
-
-                                TextField {
-                                    id: searchSettingTextField
-                                    Layout.fillWidth: true
-                                    Layout.minimumWidth: 0
-                                    text: visible ? settingsPane.displaySettingValue(entry) : ""
-                                    horizontalAlignment: Text.AlignRight
-                                    inputMethodHints: entry.type === "string" ? Qt.ImhNoPredictiveText : Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settingsPane.setSettingValue(entry, text)
-                                    onActiveFocusChanged: if (this.focus) this.cursorPosition = this.text.length
-                                }
-
-                                Button {
-                                    text: "OK"
-                                    onClicked: settingsPane.setSettingValue(entry, searchSettingTextField.text)
-                                }
-                            }
-
-                            ComboBox {
-                                id: searchSettingComboBox
-                                visible: entry.catalogKind === "setting" && settingsPane.optionValues(entry).length > 0
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                model: visible ? settingsPane.optionLabels(entry) : []
-                                currentIndex: visible ? settingsPane.optionIndex(entry) : 0
-                                contentItem: Label {
-                                    leftPadding: 12
-                                    rightPadding: 36
-                                    text: searchSettingComboBox.displayText
-                                    font: searchSettingComboBox.font
-                                    color: searchSettingComboBox.palette.text
-                                    verticalAlignment: Text.AlignVCenter
-                                    elide: Text.ElideRight
-                                }
-                                delegate: ItemDelegate {
-                                    width: searchSettingComboBox.width
-                                    text: modelData
-                                    contentItem: Label {
-                                        text: modelData
-                                        font: searchSettingComboBox.font
-                                        color: searchSettingComboBox.palette.text
-                                        verticalAlignment: Text.AlignVCenter
-                                        elide: Text.ElideRight
-                                    }
-                                }
-                                onActivated: {
-                                    var selectedValue = settingsPane.optionValues(entry)[currentIndex]
-                                    if (entry.options && entry.options.expression && entry.options.expression.indexOf("bluetoothDevices") >= 0)
-                                        selectedValue = settingsPane.stripRssi(selectedValue)
-                                    settingsPane.setSettingValue(entry, selectedValue)
-                                }
-                            }
-
-                            ComboBox {
-                                id: searchVirtualComboBox
-                                visible: entry.catalogKind === "virtual"
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredHeight: visible ? implicitHeight : 0
-                                Layout.maximumHeight: visible ? implicitHeight : 0
-                                model: visible ? settingsPane.virtualOptionLabels(entry) : []
-                                currentIndex: visible ? settingsPane.virtualSelectedIndex(entry) : 0
-                                contentItem: Label {
-                                    leftPadding: 12
-                                    rightPadding: 36
-                                    text: searchVirtualComboBox.displayText
-                                    font: searchVirtualComboBox.font
-                                    color: searchVirtualComboBox.palette.text
-                                    verticalAlignment: Text.AlignVCenter
-                                    elide: Text.ElideRight
-                                }
-                                delegate: ItemDelegate {
-                                    width: searchVirtualComboBox.width
-                                    text: modelData
-                                    contentItem: Label {
-                                        text: modelData
-                                        font: searchVirtualComboBox.font
-                                        color: searchVirtualComboBox.palette.text
-                                        verticalAlignment: Text.AlignVCenter
-                                        elide: Text.ElideRight
-                                    }
-                                }
-                                onActivated: settingsPane.setVirtualSelection(entry, currentIndex)
-                            }
-                        }
-                    }
-                }
-            }
 
             ColumnLayout {
                 id: settingsContent
                 // Legacy settings UX retained as compiled fallback during validation, hidden by default.
-                visible: legacySettingsUiEnabled && !settingsSearchActive
+                visible: legacySettingsUiEnabled
                 spacing: 0
                 Layout.fillWidth: true
 
@@ -8313,20 +8017,6 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }              
-
-                    MessageDialog {
-                        id: zwiftPlaySettingsDialog
-                        text: qsTr("Zwift Play & Click Settings")
-                        informativeText: qsTr("Would you like to disable Zwift Play and Zwift Click settings? Having them enabled together with 'Get gears from Zwift' may cause conflicts.")
-                        buttons: (MessageDialog.Yes | MessageDialog.No)
-                        onYesClicked: {
-                            settings.zwift_play = false;
-                            settings.zwift_click = false;
-                            settings.zwift_play_emulator = true;
-                            window.settings_restart_to_apply = true;
-                        }
-                        visible: false
-                    }
 
                     IndicatorOnlySwitch {
                         text: qsTr("Get Gears from Zwift")
