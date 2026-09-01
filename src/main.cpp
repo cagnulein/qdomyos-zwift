@@ -262,7 +262,7 @@ int __cdecl CustomRTCErrorHandler(int errorType, const wchar_t* filename, int li
     wchar_t errorMessage[512];
     va_list args;
     
-    // Format the formatted error message using varargs
+    // Format the error message using varargs
     va_start(args, format);
     vswprintf(errorMessage, sizeof(errorMessage)/sizeof(wchar_t), format, args);
     va_end(args);
