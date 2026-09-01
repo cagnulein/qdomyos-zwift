@@ -605,7 +605,7 @@ import AndroidStatusBar 1.0
             property bool log_debug: false
             property bool virtual_device_onlyheart: false
             property bool virtual_device_echelon: false
-            property bool virtual_device_ifit: false
+            property bool virtual_device_ifit: false            
             property bool virtual_device_rower: false
             property bool virtual_device_force_bike: false
             property bool volume_change_gears: false
@@ -1743,6 +1743,7 @@ import AndroidStatusBar 1.0
             property bool nordictrack_incline_trainer_x7i_ntl15010_0: false
             property bool custom_inclination_resistance_table_enabled: false
             property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
+            property bool virtual_device_yesoul: false
         }
 
 
@@ -15865,6 +15866,34 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: 9
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    IndicatorOnlySwitch {
+                                        id: virtualDeviceYesoulDelegate
+                                        text: qsTr("Virtual Yesoul")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_yesoul
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: { settings.virtual_device_yesoul = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("Enables a virtual Bluetooth bridge to the Yesoul app using the FTMS and proprietary Yesoul services observed from a real YS_G1MMAX session. Default is off.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
