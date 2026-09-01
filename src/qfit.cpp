@@ -304,12 +304,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     }
 
     // Always calculate TRIMP if we have HR data (fallback or additional metric)
-    if (hr_count > 0) {
+    if (hr_count > 0 && user_max_hr > user_resting_hr) {
         double avg_hr = hr_sum / hr_count;
         uint32_t duration_minutes = duration_seconds / 60;
 
         // Bannister's TRIMP formula: D * HR_ratio * exp(b * HR_ratio)
-        // where HR_ratio = (avg_hr - resting_hr) / (max_hr - resting_hr)
+        // where HR_ratio = (HR - resting_hr) / (max_hr - resting_hr)
         //
         // COEFFICIENT SELECTION:
         // Standard Bannister formula uses b = 1.92 (men) and b = 1.67 (women)
@@ -317,17 +317,39 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         // to match Garmin's training load calculations more closely.
         // We use b = 1.67 for everyone to ensure compatibility with Garmin Connect's
         // acute training load and training status features.
-        double hr_ratio = 0;
-        if (user_max_hr > user_resting_hr) {
-            hr_ratio = (avg_hr - user_resting_hr) / (double)(user_max_hr - user_resting_hr);
+        //
+        // INTEGRATION, NOT A SINGLE AVERAGE:
+        // exp() is convex, so applying the formula once to the *session average* HR
+        // (as opposed to integrating it sample by sample) systematically underestimates
+        // the true load for any workout with HR variability (intervals, surges, sprints):
+        // by Jensen's inequality, avg(exp(b*x)) >= exp(b*avg(x)). A steady Zone 2 ride and
+        // an interval session with the same average HR would otherwise score identically,
+        // even though the interval session carries more real physiological strain — this
+        // is also how a real Garmin device computes it, accumulating load minute by minute.
+        double b = 1.67;
+        double integrated_trimp = 0.0;
+        uint32_t prev_elapsed = session.at(firstRealIndex).elapsedTime;
+        for (int i = firstRealIndex; i < session.length(); i++) {
+            if (session.at(i).heart == 0)
+                continue;
+
+            uint32_t elapsed = session.at(i).elapsedTime;
+            double delta_seconds = (elapsed > prev_elapsed) ? (double)(elapsed - prev_elapsed) : 1.0;
+            if (delta_seconds > 30.0) // guard against pauses/reconnects: cap a single gap
+                delta_seconds = 30.0;
+            prev_elapsed = elapsed;
+
+            double hr_ratio_i = (session.at(i).heart - user_resting_hr) / (double)(user_max_hr - user_resting_hr);
+            if (hr_ratio_i <= 0)
+                continue;
+            if (hr_ratio_i > 1.5) // guard against sensor spikes/HR above configured max
+                hr_ratio_i = 1.5;
+
+            integrated_trimp += (delta_seconds / 60.0) * hr_ratio_i * std::exp(b * hr_ratio_i);
         }
 
-        // Use coefficient 1.67 (matches Garmin implementation)
-        double b = 1.67;
-
-        // Calculate TRIMP
-        if (hr_ratio > 0 && hr_ratio < 2.0) {  // Sanity check
-            training_load = duration_minutes * hr_ratio * std::exp(b * hr_ratio);
+        if (integrated_trimp > 0) {
+            training_load = (float)integrated_trimp;
             qDebug() << "Training Load (TRIMP) calculated:" << training_load
                      << "Duration:" << duration_minutes << "min"
                      << "Avg HR:" << avg_hr

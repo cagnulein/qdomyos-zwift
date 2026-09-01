@@ -1112,6 +1112,7 @@ public:
 
     int16_t fanOverride = 0;
     const float powerJog = 5.0;
+    const int32_t resistanceOffsetJog = 1;
 
     void update();
     void ten_hz();
