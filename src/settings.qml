@@ -34,6 +34,134 @@ import AndroidStatusBar 1.0
         // MODERN_SETTINGS_PREVIEW_V1
         property var modernSettingsCategories: []
         property var modernSettingsItems: []
+        property var modernSettingsActions: [
+            {
+                key: "action_refresh_heart_rate_devices",
+                name: qsTr("Refresh Devices List"),
+                description: null,
+                parent: "heartRateOptionsAccordion",
+                action: "refreshBluetoothDevices",
+                legacySourceLine: 3284,
+                catalogKind: "action"
+            },
+            {
+                key: "action_open_floating_browser",
+                name: qsTr("Open Floating on a Browser"),
+                description: null,
+                parent: "uiGeneralOptionsAccordion",
+                action: "openFloatingWindowBrowser",
+                legacySourceLine: 6810,
+                catalogKind: "action"
+            },
+            {
+                key: "action_connect_peloton",
+                name: qsTr("Connect Peloton"),
+                description: null,
+                parent: "pelotonAccordion",
+                action: "connectPeloton",
+                legacySourceLine: 7195,
+                catalogKind: "action"
+            },
+            {
+                key: "action_test_garmin_login",
+                name: qsTr("Test Garmin Login"),
+                description: null,
+                parent: "garminOptionsAccordion",
+                action: "testGarminLogin",
+                legacySourceLine: 8538,
+                catalogKind: "action"
+            },
+            {
+                key: "action_refresh_rower_devices",
+                name: qsTr("Refresh Devices List"),
+                description: null,
+                parent: "ftmsRowerTextField",
+                action: "refreshBluetoothDevices",
+                legacySourceLine: 12603,
+                catalogKind: "action"
+            },
+            {
+                key: "action_refresh_elliptical_devices",
+                name: qsTr("Refresh Devices List"),
+                description: null,
+                parent: "ellipticalAccordion",
+                action: "refreshBluetoothDevices",
+                legacySourceLine: 12812,
+                catalogKind: "action"
+            },
+            {
+                key: "action_refresh_filter_devices",
+                name: qsTr("Refresh Devices List"),
+                description: null,
+                parent: "advancedSettingsAccordion",
+                action: "refreshBluetoothDevices",
+                legacySourceLine: 13059,
+                catalogKind: "action"
+            },
+            {
+                key: "action_refresh_cadence_devices",
+                name: qsTr("Refresh Devices List"),
+                description: null,
+                parent: "cadenceSensorOptionsAccordion",
+                action: "refreshBluetoothDevices",
+                legacySourceLine: 14088,
+                catalogKind: "action"
+            },
+            {
+                key: "action_refresh_power_devices",
+                name: qsTr("Refresh Devices List"),
+                description: null,
+                parent: "powerSensorOptionsAccordion",
+                action: "refreshBluetoothDevices",
+                legacySourceLine: 14618,
+                catalogKind: "action"
+            },
+            {
+                key: "action_refresh_elite_rizer_devices",
+                name: qsTr("Refresh Devices List"),
+                description: null,
+                parent: "eliteRizerOptionsAccordion",
+                action: "refreshBluetoothDevices",
+                legacySourceLine: 14684,
+                catalogKind: "action"
+            },
+            {
+                key: "action_refresh_elite_sterzo_devices",
+                name: qsTr("Refresh Devices List"),
+                description: null,
+                parent: "eliteSterzoSmartOptionsAccordion",
+                action: "refreshBluetoothDevices",
+                legacySourceLine: 14752,
+                catalogKind: "action"
+            },
+            {
+                key: "action_refresh_smartspin2k_devices",
+                name: qsTr("Refresh Devices List"),
+                description: null,
+                parent: "ftmsAccessoryOptionsAccordion",
+                action: "refreshBluetoothDevices",
+                legacySourceLine: 14799,
+                catalogKind: "action"
+            },
+            {
+                key: "action_clear_history",
+                name: qsTr("Clear History"),
+                description: qsTr("Clears all the QZ logs, QZ .fit files and QZ images from your device while maintaining your saved Profiles and Settings."),
+                parent: "experimentalFeatureAccordion",
+                action: "clearHistory",
+                legacySourceLine: 17113,
+                catalogKind: "action"
+            },
+            {
+                key: "action_show_logs_folder",
+                name: qsTr("Show Logs Folder"),
+                description: null,
+                parent: "experimentalFeatureAccordion",
+                action: "showLogsFolder",
+                legacySourceLine: 17119,
+                catalogKind: "action"
+            }
+        ]
         property string modernSettingsParent: ""
         property string modernSettingsExternalTarget: ""
         property string modernSettingsExternalTitle: ""
@@ -72,13 +200,6 @@ import AndroidStatusBar 1.0
                     catalogKind: "page"
                 })
             }
-            categories.push({
-                key: "__settings_actions__",
-                name: qsTr("Service Actions"),
-                target: "__settings_actions__",
-                legacySourceLine: 2147483647,
-                catalogKind: "page"
-            })
             categories.sort(function(a, b) { return a.legacySourceLine - b.legacySourceLine })
             modernSettingsCategories = categories
             rebuildModernSettingsItems("")
@@ -149,6 +270,10 @@ import AndroidStatusBar 1.0
                 if (settingsPane.modernEntryNodeKey(entry) === modernSettingsParent)
                     items.push(entry)
             }
+            for (var a = 0; a < modernSettingsActions.length; a++) {
+                if (modernSettingsActions[a].parent === modernSettingsParent)
+                    items.push(modernSettingsActions[a])
+            }
             items.sort(function(a, b) { return modernItemOrder(a) - modernItemOrder(b) })
             modernSettingsItems = items
         }
@@ -169,6 +294,8 @@ import AndroidStatusBar 1.0
             var mapping = hierarchy.settingNodeByKey || ({})
             if (entry.catalogKind === "virtual")
                 mapping = hierarchy.virtualNodeByKey || ({})
+            else if (entry.catalogKind === "action")
+                return entry.parent || ""
             else if (entry.catalogKind === "page") {
                 var layoutPages = layout.pageNodeByKey || ({})
                 if (layoutPages[entry.key])
@@ -269,10 +396,6 @@ import AndroidStatusBar 1.0
         function openModernCatalogPage(entry) {
             if (!entry || !entry.target)
                 return
-            if (entry.target === "__settings_actions__") {
-                openSettingsActions()
-                return
-            }
             if (entry.target.indexOf("__category__:") === 0) {
                 openModernSettingsCategory(entry.target.substring("__category__:".length))
                 return
@@ -370,10 +493,6 @@ import AndroidStatusBar 1.0
         }
 
         function modernSettingsBackFromHeader() {
-            if (settingsActionsView.visible) {
-                closeSettingsActions()
-                return true
-            }
             if (modernSettingsSearch.text.length > 0) {
                 modernSettingsSearch.text = ""
                 rebuildModernSettingsItems("")
@@ -405,15 +524,23 @@ import AndroidStatusBar 1.0
                 loadSettingsCatalog()
         }
 
-        function openSettingsActions() {
-            modernSettingsDrawer.visible = false
-            settingsActionsView.visible = true
-            settingsActionsView.forceActiveFocus()
-        }
+        function runModernSettingsAction(entry) {
+            if (!entry || !entry.action)
+                return
 
-        function closeSettingsActions() {
-            settingsActionsView.visible = false
-            modernSettingsDrawer.visible = true
+            if (entry.action === "refreshBluetoothDevices")
+                refresh_bluetooth_devices_clicked()
+            else if (entry.action === "openFloatingWindowBrowser")
+                openFloatingWindowBrowser()
+            else if (entry.action === "connectPeloton") {
+                stackView.push("WebPelotonAuth.qml")
+                peloton_connect_clicked()
+            } else if (entry.action === "testGarminLogin")
+                rootItem.garmin_connect_login()
+            else if (entry.action === "clearHistory")
+                rootItem.clearFiles()
+            else if (entry.action === "showLogsFolder")
+                toast.show(rootItem.getProfileDir())
         }
 
         // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
@@ -480,14 +607,8 @@ import AndroidStatusBar 1.0
                 items.push(pages[k])
             }
 
-            items.push({
-                key: "__settings_actions__",
-                name: qsTr("Service Actions"),
-                description: qsTr("Authentication and device maintenance actions."),
-                target: "__settings_actions__",
-                legacySourceLine: 2147483647,
-                catalogKind: "page"
-            })
+            for (var a = 0; a < modernSettingsActions.length; a++)
+                items.push(modernSettingsActions[a])
 
             for (var t = 0; t < items.length; t++)
                 items[t]._translatedName = computeTranslatedName(items[t])
@@ -569,6 +690,10 @@ import AndroidStatusBar 1.0
         }
 
         function parentDisplayName(entry) {
+            if (entry.catalogKind === "action") {
+                var actionNode = modernHierarchyNode(entry.parent)
+                return actionNode ? actionNode.name : entry.parent
+            }
             if (!entry.parent)
                 return qsTr("General")
             var name = catalogEntryNameByKey(entry.parent)
@@ -2557,6 +2682,7 @@ import AndroidStatusBar 1.0
                                     spacing: 2
                                     Label {
                                         Layout.fillWidth: true
+                                        visible: entry.catalogKind !== "action"
                                         text: entry._translatedName || entry.name || entry.key
                                         font.bold: true
                                         wrapMode: Text.WordWrap
@@ -2584,9 +2710,9 @@ import AndroidStatusBar 1.0
                                 }
 
                                 Button {
-                                    visible: entry.key === "garmin_upload_enabled"
-                                    text: qsTr("Test Garmin Login")
-                                    onClicked: rootItem.garmin_connect_login()
+                                    visible: entry.catalogKind === "action"
+                                    text: entry._translatedName || entry.name || entry.key
+                                    onClicked: settingsPane.runModernSettingsAction(entry)
                                 }
                             }
 
@@ -2644,79 +2770,6 @@ import AndroidStatusBar 1.0
                 }
             }
         }
-
-        ColumnLayout {
-            id: settingsActionsView
-            anchors.fill: parent
-            anchors.margins: 16
-            visible: false
-            focus: true
-            spacing: 12
-
-            Label {
-                text: qsTr("Service Actions")
-                font.pixelSize: Qt.application.font.pixelSize + 4
-                font.bold: true
-                Layout.fillWidth: true
-            }
-
-            Label {
-                text: qsTr("These actions are not regular settings and are kept here separately from the settings catalog.")
-                color: Material.color(Material.Grey)
-                wrapMode: Text.WordWrap
-                Layout.fillWidth: true
-            }
-
-            Button {
-                text: qsTr("Open Garmin Settings")
-                Layout.fillWidth: true
-                onClicked: {
-                    settingsActionsView.visible = false
-                    modernSettingsDrawer.visible = true
-                    if (!openModernSettingsCategoryByName("Garmin Options"))
-                        modernSettingsPendingCategory = "Garmin Options"
-                }
-            }
-
-            Button {
-                text: qsTr("Connect Peloton")
-                Layout.fillWidth: true
-                onClicked: {
-                    stackView.push("WebPelotonAuth.qml")
-                    peloton_connect_clicked()
-                }
-            }
-
-            Button {
-                text: qsTr("Refresh Bluetooth Devices")
-                Layout.fillWidth: true
-                onClicked: refresh_bluetooth_devices_clicked()
-            }
-
-            Button {
-                text: qsTr("Open Floating Window in Browser")
-                Layout.fillWidth: true
-                onClicked: openFloatingWindowBrowser()
-            }
-
-            Button {
-                text: qsTr("Clear History and Session Files")
-                Layout.fillWidth: true
-                onClicked: rootItem.clearFiles()
-            }
-
-            Button {
-                text: qsTr("Show Logs Folder")
-                Layout.fillWidth: true
-                onClicked: toast.show(rootItem.getProfileDir())
-            }
-
-            Item {
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-            }
-        }
-
 
     }
 /*##^##
