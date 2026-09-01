@@ -9,6 +9,14 @@ using namespace std::chrono_literals;
 #define DM_MACHINE_TYPE_BIKE 1
 #define DM_MACHINE_TYPE_TREADMILL 2
 
+// Base for the advertised DirCon serial-number. Machine indexes start at 0,
+// and a serial-number of 0 is rejected by some DirCon consumers: MyWhoosh
+// parses this field as an unsigned integer and treats 0 as "sensor invalid",
+// so the trainer pairs and streams normally while every reading is reported
+// back as -1 ("no power source connected"). Offsetting the index keeps the
+// serial unique per machine and never zero.
+#define DM_SERIAL_BASE 1
+
 #define DM_SERV_OP(OP, P1, P2, P3, ZWIFT_ENABLED)                                                                     \
     OP(FITNESS_MACHINE_CYCLE, 0x1826, WAHOO_KICKR, P1, P2, P3)                                                         \
     OP(FITNESS_MACHINE_TREADMILL, 0x1826, WAHOO_TREADMILL, P1, P2, P3)                                                 \
@@ -142,7 +150,7 @@ enum {
                 P2,                                                                                                    \
                 QString(QStringLiteral(NAME))                                                                          \
                     .replace(QStringLiteral("$uuid_hex$"), dircon_id),                                                 \
-                server_base_port + DM_MACHINE_##DESC, rouvy_compatibility ? dircon_id : QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC), mac,       \
+                server_base_port + DM_MACHINE_##DESC, rouvy_compatibility ? dircon_id : QString(QStringLiteral("%1")).arg(DM_SERIAL_BASE + DM_MACHINE_##DESC), mac,       \
                 this);                                                                                                 \
             QString servdesc;                                                                                          \
             foreach (DirconProcessorService *s, P2) { servdesc += *s + QStringLiteral(","); }                          \
