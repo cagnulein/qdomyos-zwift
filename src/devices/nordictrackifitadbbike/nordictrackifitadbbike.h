@@ -85,6 +85,7 @@ class nordictrackifitadbbike : public bike {
     QDateTime lastResistanceChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
+    double crankEventTimeRemainder = 0.0; // sub-tick carry for LastCrankEventTime
 
     bool initDone = false;
     bool initRequest = false;
