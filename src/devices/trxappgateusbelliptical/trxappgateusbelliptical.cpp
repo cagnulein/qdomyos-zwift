@@ -479,7 +479,8 @@ void trxappgateusbelliptical::error(QLowEnergyController::Error err) {
 
 void trxappgateusbelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
-    if (device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) {
+    if (device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
+        device.name().toUpper().startsWith(QStringLiteral("TOORX"))) {
         elliptical_type = DCT2000I;
         qDebug() << "DCT2000I workaround activacted!";
     }
