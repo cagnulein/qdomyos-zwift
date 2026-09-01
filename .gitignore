@@ -63,5 +63,3 @@ src/android/local.properties
 src/translations/*.qm
 /tools/__pycache__
 *.qm
-src/qdomyos-zwift.pro.user
-*.user

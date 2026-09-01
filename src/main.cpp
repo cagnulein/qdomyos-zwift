@@ -24,9 +24,6 @@
 #include <QEvent>
 #include <QOperatingSystemVersion>
 #include <QQmlApplicationEngine>
-#include <QQmlEngine>
-#include <QQuickItem>
-#include <QQuickWindow>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QList>
@@ -571,8 +568,6 @@ int main(int argc, char *argv[]) {
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
 
-    const bool settingsVisualTest = app->arguments().contains(QStringLiteral("--settings-visual-test"));
-
     OAuthCallbackEventFilter oauthCallbackEventFilter;
     app->installEventFilter(&oauthCallbackEventFilter);
 #ifdef CHARTJS
@@ -581,7 +576,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
-    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack && !smokeTest && !settingsVisualTest) {
+    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack && !smokeTest) {
 
         printf("Runme as root!\n");
         return -1;
@@ -600,62 +595,6 @@ int main(int argc, char *argv[]) {
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
 
     QSettings settings;
-
-    // CI-only visual settings validation path. Keep it ahead of device/network initialization
-    // so screenshots are deterministic and do not depend on Bluetooth or other hardware.
-    if (settingsVisualTest) {
-        fprintf(stderr, "SETTINGS_VISUAL: fast path detected\n");
-        fflush(stderr);
-
-        AndroidStatusBar::registerQmlType();
-        QQmlApplicationEngine engine;
-        const QUrl url(QStringLiteral("qrc:/settings-visual-harness.qml"));
-
-        QObject::connect(
-            &engine, &QQmlApplicationEngine::objectCreated, app.data(),
-            [url](QObject *obj, const QUrl &objUrl) {
-                if (!obj && url == objUrl) {
-                    fprintf(stderr, "SETTINGS_VISUAL: visual harness root creation failed\n");
-                    fflush(stderr);
-                    QCoreApplication::exit(-1);
-                }
-            },
-            Qt::QueuedConnection);
-
-        engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Other"));
-#ifdef CHARTJS
-        engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));
-#else
-        engine.rootContext()->setContextProperty("CHARTJS", QVariant(false));
-#endif
-        FileSearcher fileSearcher;
-        engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
-
-        fprintf(stderr, "SETTINGS_VISUAL: loading qrc:/settings-visual-harness.qml\n");
-        fflush(stderr);
-        engine.load(url);
-        if (engine.rootObjects().isEmpty()) {
-            fprintf(stderr, "SETTINGS_VISUAL: visual harness load failed\n");
-            fflush(stderr);
-            return -2;
-        }
-
-        // QQuickWindow::contentItem is C++-created, so on Qt 5 it has no QQmlContext by default.
-        // settings.qml deliberately grabs the full window content for each visual-parity frame;
-        // attach the engine context here so QQuickItem::grabToImage can run in this minimal path.
-        if (QQuickWindow *quickWindow = qobject_cast<QQuickWindow *>(engine.rootObjects().constFirst())) {
-            QQuickItem *contentItem = quickWindow->contentItem();
-            if (contentItem && !QQmlEngine::contextForObject(contentItem)) {
-                QQmlEngine::setContextForObject(contentItem, engine.rootContext());
-                fprintf(stderr, "SETTINGS_VISUAL: attached QML context to window contentItem\n");
-                fflush(stderr);
-            }
-        }
-
-        fprintf(stderr, "SETTINGS_VISUAL: main.qml loaded; entering event loop\n");
-        fflush(stderr);
-        return app->exec();
-    }
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
     QString profileName = "";
