@@ -58,7 +58,7 @@ class DataObject : public QObject {
     Q_PROPERTY(int gridId READ gridId NOTIFY gridIdChanged WRITE setGridId)
     Q_PROPERTY(QString value READ value WRITE setValue NOTIFY valueChanged)
     Q_PROPERTY(QString secondLine READ secondLine WRITE setSecondLine NOTIFY secondLineChanged)
-    Q_PROPERTY(int valueFontSize READ valueFontSize WRITE setValueFontSize NOTIFY valueChanged)
+    Q_PROPERTY(int valueFontSize READ valueFontSize WRITE setValueFontSize NOTIFY valueFontSizeChanged)
     Q_PROPERTY(QString valueFontColor READ valueFontColor WRITE setValueFontColor NOTIFY valueFontColorChanged)
     Q_PROPERTY(int labelFontSize READ labelFontSize WRITE setLabelFontSize NOTIFY labelFontSizeChanged)
     Q_PROPERTY(bool writable READ writable NOTIFY writableChanged)
@@ -1105,7 +1105,7 @@ public:
     void intervalsicu_download_todays_workout();
     void intervalsicu_download_workout_completed(QNetworkReply *reply);
     QString intervalsicuAuthUrl;
-    bool intervalsicuWebVisible;
+    bool intervalsicuAuthWebVisible;
 
     static quint64 cryptoKeySettingsProfiles();
 
