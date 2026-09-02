@@ -1503,8 +1503,10 @@ ApplicationWindow {
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
             focus: true
-            Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
-            Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
+            // On Android, MediaButtonReceiver handles volume changes when the setting is enabled.
+            // Do not process the same event again through the QML Keys path.
+            Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); if (Qt.platform.os !== "android" || !settings.volume_change_gears) volumeUp(); event.accepted = settings.volume_change_gears; }
+            Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); if (Qt.platform.os !== "android" || !settings.volume_change_gears) volumeDown(); event.accepted = settings.volume_change_gears; }
             Keys.onPressed: (event)=> {
                 if (event.key === Qt.Key_MediaPrevious) {
                     keyMediaPrevious();
