@@ -1,0 +1,27 @@
+name: Settings catalog validation
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate-settings-catalog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch pull request base
+        if: github.event_name == 'pull_request'
+        run: git fetch origin "${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
+
+      - name: Validate settings catalog
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            python3 tools/check_settings_catalog.py "origin/${{ github.base_ref }}"
+          else
+            python3 tools/check_settings_catalog.py "HEAD^"
+          fi
