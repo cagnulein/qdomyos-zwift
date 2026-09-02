@@ -219,6 +219,7 @@ class homeform : public QObject {
 
     Q_PROPERTY(bool currentCoordinateValid READ currentCoordinateValid)
     Q_PROPERTY(bool trainProgramLoadedWithVideo READ trainProgramLoadedWithVideo)
+    Q_PROPERTY(bool mediaButtonReceiverEventReceived READ mediaButtonReceiverEventReceived NOTIFY mediaButtonReceiverEventReceivedChanged)
 
     Q_PROPERTY(QString getStravaAuthUrl READ getStravaAuthUrl NOTIFY stravaAuthUrlChanged)
     Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
@@ -235,6 +236,13 @@ class homeform : public QObject {
 
   public:
     static homeform *singleton() { return m_singleton; }
+    bool mediaButtonReceiverEventReceived() const { return m_mediaButtonReceiverEventReceived; }
+    void markMediaButtonReceiverEventReceived() {
+        if (!m_mediaButtonReceiverEventReceived) {
+            m_mediaButtonReceiverEventReceived = true;
+            emit mediaButtonReceiverEventReceivedChanged(true);
+        }
+    }
     bluetooth *bluetoothManager;
     QQmlApplicationEngine *getEngine() { return engine; }
 
@@ -979,6 +987,7 @@ public:
     int m_topBarHeight = 120;
     QString m_info = QStringLiteral("Connecting...");
     bool m_labelHelp = true;
+    bool m_mediaButtonReceiverEventReceived = false;
     bool m_generalPopupVisible = false;
     bool m_pelotonPopupVisible = false;
     bool m_LicensePopupVisible = false;
@@ -1320,6 +1329,7 @@ public:
     void startRequestedChanged(bool value);
     void stopRequestedChanged(bool value);
     void trainingProgramIntervalSoundRequested();
+    void mediaButtonReceiverEventReceivedChanged(bool value);
 
     void previewWorkoutPointsChanged(int value);
     void previewWorkoutDescriptionChanged(QString value);
