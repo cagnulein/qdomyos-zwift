@@ -501,7 +501,7 @@ void ftmsbike::update() {
             double gearMultiplier = 5;
             if(REEBOK)
                 gearMultiplier = 1;
-            resistance_t rR = requestResistance + (gearsModifier() * gearMultiplier);
+            resistance_t rR = requestResistance + (settings.value(QZSettings::gears_custom_table_enabled, QZSettings::default_gears_custom_table_enabled).toBool() ? 0 : gearsModifier() * gearMultiplier);
 
             if (rR != currentResistance().value() || lastGearValue != gears()) {
                 bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
