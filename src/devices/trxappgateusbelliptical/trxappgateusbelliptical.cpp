@@ -162,7 +162,12 @@ void trxappgateusbelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 double trxappgateusbelliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
-    if (elliptical_type == TYPE::JTX_FITNESS) {
+    if (bluetoothDevice.name().compare(QStringLiteral("TOORX0095"), Qt::CaseInsensitive) == 0) {
+        QSettings settings;
+        double cadence_speed_ratio = settings.value(QZSettings::cadence_sensor_speed_ratio,
+                                                    QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+        return toorx0095SpeedFromCadence(toorx0095CadenceFromPacket(packet), cadence_speed_ratio);
+    } else if (elliptical_type == TYPE::JTX_FITNESS) {
         // JTX Fitness doesn't send speed via bluetooth, calculate from cadence using settings ratio
         QSettings settings;
         double cadence_speed_ratio = settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
@@ -178,13 +183,23 @@ double trxappgateusbelliptical::GetSpeedFromPacket(const QByteArray &packet) {
 double trxappgateusbelliptical::GetCadenceFromPacket(const QByteArray &packet) {
 
     uint16_t convertedData;
-    if (elliptical_type == TYPE::JTX_FITNESS) {
+    if (bluetoothDevice.name().compare(QStringLiteral("TOORX0095"), Qt::CaseInsensitive) == 0) {
+        return toorx0095CadenceFromPacket(packet);
+    } else if (elliptical_type == TYPE::JTX_FITNESS) {
         // JTX Fitness uses only byte 5 for cadence
         convertedData = packet.at(5);
     } else {
         convertedData = ((uint16_t)packet.at(9)) + ((uint16_t)packet.at(8) * 100);
     }
     return convertedData;
+}
+
+double trxappgateusbelliptical::toorx0095CadenceFromPacket(const QByteArray &packet) {
+    return static_cast<uint8_t>(packet.at(5));
+}
+
+double trxappgateusbelliptical::toorx0095SpeedFromCadence(double cadence, double ratio) {
+    return cadence * ratio;
 }
 
 double trxappgateusbelliptical::GetWattFromPacket(const QByteArray &packet) {
