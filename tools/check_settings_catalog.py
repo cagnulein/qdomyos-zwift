@@ -218,9 +218,17 @@ def validate_catalog(catalog: dict, qml_text: str) -> tuple[list[str], set[str]]
         qml_keys = set(settings_properties(qml_text))
     except RuntimeError as exc:
         errors.append(str(exc))
-        return errors, {entry.get("key") for entry in settings if isinstance(entry, dict)}
+        return errors, {
+            entry["key"]
+            for entry in settings
+            if isinstance(entry, dict) and isinstance(entry.get("key"), str)
+        }
 
-    catalog_keys = {entry.get("key") for entry in settings if isinstance(entry, dict)}
+    catalog_keys = {
+        entry["key"]
+        for entry in settings
+        if isinstance(entry, dict) and isinstance(entry.get("key"), str)
+    }
     missing_from_catalog = sorted(qml_keys - catalog_keys)
     missing_from_qml = sorted(catalog_keys - qml_keys)
     if missing_from_catalog:
@@ -244,7 +252,11 @@ def main() -> int:
 
     base_catalog = load_json(read_git_file(base_ref, CATALOG_PATH), f"{base_ref}:{CATALOG_PATH}")
     base_settings = base_catalog.get("settings", [])
-    base_keys = {entry.get("key") for entry in base_settings if isinstance(entry, dict)}
+    base_keys = {
+        entry["key"]
+        for entry in base_settings
+        if isinstance(entry, dict) and isinstance(entry.get("key"), str)
+    }
     new_keys = sorted(current_keys - base_keys)
 
     if current_catalog_text == read_git_file(base_ref, CATALOG_PATH):
