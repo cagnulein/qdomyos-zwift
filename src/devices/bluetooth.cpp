@@ -3885,6 +3885,11 @@ void bluetooth::restart() {
         delete horizonTreadmill;
         horizonTreadmill = nullptr;
     }
+    if (horizonElliptical) {
+
+        delete horizonElliptical;
+        horizonElliptical = nullptr;
+    }	
     if (speraXTreadmill) {
 
         delete speraXTreadmill;
@@ -4614,6 +4619,8 @@ bluetoothdevice *bluetooth::device() {
         return xcxBike;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
+    } else if (horizonElliptical) {
+        return horizonElliptical;		
     } else if (lifefitnessTreadmill) {
         return lifefitnessTreadmill;
     } else if (speraXTreadmill) {
