@@ -10,6 +10,7 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#include <QtMath>
 #include <math.h>
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
@@ -201,6 +202,26 @@ void ftmsbike::init() {
 }
 
 ftmsbike::~ftmsbike() {
+}
+
+resistance_t ftmsbike::normalizedResistanceForDevice(const QString &deviceName, double rawResistance) {
+    if (deviceName != QStringLiteral("ZBike2.0")) {
+        return static_cast<resistance_t>(rawResistance);
+    }
+
+    if (!std::isfinite(rawResistance)) {
+        return 0;
+    }
+
+    return qBound<resistance_t>(0, qRound((rawResistance - 50.0) / 10.0), 15);
+}
+
+resistance_t ftmsbike::rawResistanceForDevice(const QString &deviceName, resistance_t displayedResistance) {
+    if (deviceName != QStringLiteral("ZBike2.0") || displayedResistance < 0) {
+        return displayedResistance;
+    }
+
+    return qBound<resistance_t>(50, displayedResistance * 10 + 50, 200);
 }
 
 void ftmsbike::zwiftPlayInit() {
@@ -483,7 +504,7 @@ void ftmsbike::update() {
             powerForced = false;
             requestPower = -1;
             init();
-            forceResistance(currentResistance().value());
+            forceResistance(rawResistanceForDevice(bluetoothDevice.name(), currentResistance().value()));
         }
 
         auto virtualBike = this->VirtualBike();        
@@ -960,7 +981,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     d = d / 10.0;
                 // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
                 if(!SL010 && !TITAN_7000 && !SPORT01 && !TOPUTURE_TEB5 && !FS_YK && !SMARTBIKE_3DIGIT) {
-                    Resistance = d;
+                    Resistance = normalizedResistanceForDevice(bluetoothDevice.name(), d);
                     native_resistance_received = true;
                     calculatedResistanceFallbackSince = QDateTime();
                 }
@@ -1620,7 +1641,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         if (gears() != 0) {
             gears_modified_inclination += (gearsModifier() * GEARS_SLOPE_MULTIPLIER / 100.0);
         }
-        _inclinationResistanceTable.collectData(gears_modified_inclination, Resistance.value(), m_watt.value());
+        _inclinationResistanceTable.collectData(gears_modified_inclination,
+                                                rawResistanceForDevice(bluetoothDevice.name(), Resistance.value()),
+                                                m_watt.value());
     }
 
 #ifdef Q_OS_IOS

@@ -81,6 +81,8 @@ class ftmsbike : public bike {
     double maxGears() override;
     double minGears() override;
     void enableManualResistancePowerAdjustment(resistance_t resistance);
+    static resistance_t normalizedResistanceForDevice(const QString &deviceName, double rawResistance);
+    static resistance_t rawResistanceForDevice(const QString &deviceName, resistance_t displayedResistance);
 
     // Most FTMS bikes can use QZ's software ERG emulation, but FS-YK devices
     // should stay on direct resistance control because it doesn't send the current resistance value and it conflicts
