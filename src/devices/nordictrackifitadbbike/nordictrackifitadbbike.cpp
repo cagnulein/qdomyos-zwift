@@ -256,6 +256,13 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     }
 }
 
+int nordictrackifitadbbike::physicalResistanceGearDelta(resistance_t previous, resistance_t current) {
+    if (previous <= 0 || current <= 0)
+        return 0;
+    const int delta = current - previous;
+    return qAbs(delta) <= 5 ? delta : 0;
+}
+
 bool nordictrackifitadbbike::inclinationAvailableByHardware() { 
     QSettings settings;
     bool proform_studio_NTEX71021 =
@@ -741,6 +748,20 @@ void nordictrackifitadbbike::update() {
         }
         
         if (currentResistance != Resistance.value()) {
+            const bool gearsFromBike =
+                settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool();
+            const bool gearResistanceMode = settings.value(
+                QZSettings::nordictrackadbbike_gear_resistance_mode,
+                QZSettings::default_nordictrackadbbike_gear_resistance_mode).toBool();
+            if (gearsFromBike && !gearResistanceMode && requestResistance == -1) {
+                const int delta = bike::physicalResistanceGearDelta(lastDeviceResistance, currentResistance);
+                if (delta != 0) {
+                    lastRawRequestedResistanceValue = -1;
+                    setGears(gears() + delta);
+                    qDebug() << "Physical resistance change applied to gears:" << delta << "new gears:" << gears();
+                }
+            }
+            lastDeviceResistance = currentResistance;
             Resistance = currentResistance;
             emit debug(QString("gRPC Resistance: %1").arg(currentResistance));
         }
@@ -789,6 +810,7 @@ void nordictrackifitadbbike::update() {
         }
         
         if(requestResistance != - 1) {
+            lastDeviceResistance = requestResistance;
             setGrpcResistance(requestResistance);
             requestResistance = -1;
         } else if (lastGearValue != gears()) {
