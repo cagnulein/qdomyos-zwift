@@ -592,6 +592,7 @@ void DeviceTestDataIndex::Initialize() {
         "MRK-S38-",
         "SMB1",
         "UBIKE FTMS",
+        "TX-500MB IRON",
         "INRIDE"
     };
     RegisterNewDeviceTestData(DeviceIndex::FTMSBike)
