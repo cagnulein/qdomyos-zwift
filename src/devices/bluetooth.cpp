@@ -1646,9 +1646,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(lifefitnessTreadmill);
-            } else if (QRegularExpression(QStringLiteral("\\d\\.\\dAE"))
-                           .match(b.name().toUpper())
-                           .hasMatch() &&
+            } else if (b.name().toUpper().startsWith(QStringLiteral("HORIZON_7.0AE")) &&
                        !horizonElliptical && !horizonTreadmill && filter) {
                 // Horizon ellipticals (e.g. "HORIZON_7.0AE F108") share the custom FFF0 protocol
                 // with the treadmills, but inclination is a 1-20 level rather than a percentage and
