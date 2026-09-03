@@ -39,8 +39,8 @@ class trxappgateusbelliptical : public elliptical {
                    double bikeResistanceGain = 1.0);
     bool connected() override;
     bool inclinationAvailableByHardware() override;
-    static double toorx0095CadenceFromPacket(const QByteArray &packet);
-    static double toorx0095SpeedFromCadence(double cadence, double ratio);
+    static double toorxCadenceFromPacket(const QByteArray &packet);
+    static double toorxSpeedFromPacket(const QByteArray &packet);
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -63,6 +63,7 @@ class trxappgateusbelliptical : public elliptical {
     QByteArray lastPacket;
     QDateTime lastValidPacketTime = QDateTime::currentDateTime();
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastToorxPollTime;
     uint8_t firstStateChanged = 0;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
@@ -86,6 +87,7 @@ class trxappgateusbelliptical : public elliptical {
         DCT2000I = 1,
         JTX_FITNESS = 2,
         TAURUS_FX99 = 3,
+        TOORX = 4,
     } TYPE;
     TYPE elliptical_type = ELLIPTICAL_GENERIC;
 

@@ -5,12 +5,14 @@
 
 #include "devices/trxappgateusbelliptical/trxappgateusbelliptical.h"
 
-TEST(TrxAppGateUsBellipticalParserTest, Toorx0095UsesByteFiveAsCadence) {
-    const QByteArray packet = QByteArray::fromHex("f0b22301073a010101010101010101010101020217");
+TEST(TrxAppGateUsBellipticalParserTest, ToorxUsesCadenceFieldFromPacket) {
+    const QByteArray packet = QByteArray::fromHex("f0b223010121011401130101010101010145020261");
 
-    EXPECT_DOUBLE_EQ(trxappgateusbelliptical::toorx0095CadenceFromPacket(packet), 58.0);
+    EXPECT_DOUBLE_EQ(trxappgateusbelliptical::toorxCadenceFromPacket(packet), 18.0);
 }
 
-TEST(TrxAppGateUsBellipticalParserTest, Toorx0095SpeedIsCalculatedFromCadenceAndRatio) {
-    EXPECT_NEAR(trxappgateusbelliptical::toorx0095SpeedFromCadence(58.0, 0.33), 19.14, 0.000001);
+TEST(TrxAppGateUsBellipticalParserTest, ToorxUsesSpeedFieldFromPacket) {
+    const QByteArray packet = QByteArray::fromHex("f0b223010121011401130101010101010145020261");
+
+    EXPECT_DOUBLE_EQ(trxappgateusbelliptical::toorxSpeedFromPacket(packet), 1.9);
 }
