@@ -226,15 +226,40 @@ void pitpatbike::characteristicChanged(const QLowEnergyCharacteristic &character
                         (pitpatXorCrc(newValue) == static_cast<uint8_t>(newValue.at(newValue.size() - 2))
                              ? QStringLiteral("ok")
                              : QStringLiteral("invalid"));
+
+        // The official PitPat app answers the 0x2c startup frame before it starts
+        // polling or sending resistance commands. Until this handshake is ACKed,
+        // the S01PRO remains in its startup/scan state.
+        if (!initDone) {
+            uint8_t legacyHandshake[] = {0x6a, 0x05, 0x50, 0x1b, 0x01, 0x4f, 0x43};
+            writeCharacteristic(legacyHandshake, sizeof(legacyHandshake), QStringLiteral("legacy handshake"), false,
+                                false);
+        }
+        return;
+    }
+
+    // ACK observed in the official app immediately after the legacy handshake.
+    if (legacyProtocol && newValue == QByteArray::fromHex("6a06b01b0100ac43")) {
+        qDebug() << QStringLiteral("PitPat legacy handshake acknowledged");
+        initDone = true;
+        sec1Update = 0;
         return;
     }
 
     if (legacyProtocol) {
-        // Legacy telemetry fields are documented by the APK's parser.
-        // Ignore commands/ACKs, but keep their raw log above.
+        // Legacy telemetry fields are documented by the APK's parser and were
+        // confirmed against a live HCI snoop from the official PitPat app.
         if (newValue.size() < 28 || static_cast<uint8_t>(newValue.at(0)) != 0x6a ||
             static_cast<uint8_t>(newValue.at(3)) != 0x02)
             return;
+
+        // If the ACK notification was lost but telemetry has already started,
+        // the bike necessarily accepted the handshake, so it is safe to proceed.
+        if (!initDone) {
+            qDebug() << QStringLiteral("PitPat legacy telemetry received; handshake accepted");
+            initDone = true;
+            sec1Update = 0;
+        }
 
         if (pitpatXorCrc(newValue) != static_cast<uint8_t>(newValue.at(newValue.size() - 2)))
             qDebug() << QStringLiteral("PitPat telemetry CRC mismatch") << newValue.toHex(' ');
@@ -367,7 +392,20 @@ double pitpatbike::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 void pitpatbike::btinit() {
-    initDone = true;
+    // Give the S01PRO a short window to advertise its 0x2c startup frame before
+    // enabling the normal poll/control loop. Existing PitPat devices that do not
+    // use this startup handshake continue on the old path after the timeout.
+    if (legacyProtocol && initDone)
+        return;
+
+    initDone = false;
+    sec1Update = 0;
+    QTimer::singleShot(1500ms, this, [this]() {
+        if (!legacyProtocol && m_control && m_control->state() != QLowEnergyController::UnconnectedState) {
+            qDebug() << QStringLiteral("PitPat legacy startup frame not seen; enabling existing protocol path");
+            initDone = true;
+        }
+    });
 }
 
 void pitpatbike::stateChanged(QLowEnergyService::ServiceState state) {
@@ -548,6 +586,8 @@ void pitpatbike::controllerStateChanged(QLowEnergyController::ControllerState st
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        legacyProtocol = false;
+        sec1Update = 0;
         m_control->connectToDevice();
     }
 }
