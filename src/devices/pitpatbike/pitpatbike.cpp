@@ -236,7 +236,7 @@ void pitpatbike::update() {
 }
 
 void pitpatbike::serviceDiscovered(const QBluetoothUuid &gatt) {
-    qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString());
+    qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
 
 resistance_t pitpatbike::pelotonToBikeResistance(int pelotonResistance) {
