@@ -503,7 +503,11 @@ void ftmsbike::update() {
             }
 
             double gearMultiplier = 5;
-            if (REEBOK || TX_500MB_IRON)
+            // bike::changeResistance() already includes gearsModifier() for TX-500MB IRON.
+            // Do not apply it a second time in this FTMS path.
+            if (TX_500MB_IRON)
+                gearMultiplier = 0;
+            else if (REEBOK)
                 gearMultiplier = 1;
             resistance_t rR = requestResistance + (gearsModifier() * gearMultiplier);
 
