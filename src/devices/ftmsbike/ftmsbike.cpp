@@ -503,7 +503,7 @@ void ftmsbike::update() {
             }
 
             double gearMultiplier = 5;
-            if(REEBOK)
+            if (REEBOK || TX_500MB_IRON)
                 gearMultiplier = 1;
             resistance_t rR = requestResistance + (gearsModifier() * gearMultiplier);
 
