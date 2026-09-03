@@ -21,7 +21,6 @@ ApplicationWindow {
 
     // Force update on orientation change
     property int currentOrientation: Screen.orientation
-    property double volumeLastChangeMs: 0
     onCurrentOrientationChanged: {
         if (Qt.platform.os === "android") {
             console.log("Orientation changed to:", currentOrientation)
@@ -84,19 +83,6 @@ ApplicationWindow {
 
     function shortcutReady(sequence) {
         return Qt.platform.os !== "ios" && settings.shortcuts_enabled && !isConfiguringShortcuts() && String(sequence).length > 0;
-    }
-
-    function handleVolumeKey(up) {
-        var now = Date.now()
-        if (settings.gears_volume_debouncing && volumeLastChangeMs > 0 && now - volumeLastChangeMs < 500) {
-            console.log("volume debouncing")
-            return
-        }
-        volumeLastChangeMs = now
-        if (up)
-            volumeUp()
-        else
-            volumeDown()
     }
     function stripBluetoothDeviceName(deviceName) {
         return deviceName.replace(/ \(\d+%\)$/, "")
@@ -1517,8 +1503,8 @@ ApplicationWindow {
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
             focus: true
-            Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); handleVolumeKey(true); event.accepted = settings.volume_change_gears; }
-            Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); handleVolumeKey(false); event.accepted = settings.volume_change_gears; }
+            Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
+            Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
             Keys.onPressed: (event)=> {
                 if (event.key === Qt.Key_MediaPrevious) {
                     keyMediaPrevious();
