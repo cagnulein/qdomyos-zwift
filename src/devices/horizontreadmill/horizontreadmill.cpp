@@ -7,6 +7,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
+#include <QRegularExpression>
 #include <QSettings>
 
 #include <QThread>
@@ -1626,8 +1627,49 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                        1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        parseInclination(treadmillInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0));
+        // Horizon names its ellipticals "<model>AE" and its treadmills "<model>AT" - the same
+        // convention the discovery match in bluetooth.cpp already relies on for "HZ_7.0AT-", so the
+        // model suffix identifies the machine class without a new setting. Requiring a
+        // <digit>.<digit> prefix keeps it off unrelated names containing "AE".
+        const bool horizonElliptical =
+            QRegularExpression(QStringLiteral("\\d\\.\\dAE")).match(bluetoothDevice.name().toUpper()).hasMatch();
+
+        // The ellipticals report inclination as machine LEVELS, not a percentage: byte 63 steps by
+        // 5 per level and tops out at 100, i.e. 20 levels. Dividing by 10 like the treadmills
+        // halves it (console level 2 showed as 1.0). Verified on a 7.0 AE: byte 63 of
+        // 5/10/15/50/100 is console level 1/2/3/10/20.
+        parseInclination(treadmillInclinationOverride((double)((uint8_t)newValue.at(63)) /
+                                                      (horizonElliptical ? 5.0 : 10.0)));
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+
+        // The ellipticals also carry a usable cadence at byte 81, which the treadmills do not.
+        // Confirmed 1:1 with RPM on a 7.0 AE: at a console-indicated 4.2 mph the byte read 34
+        // while the console showed 34 RPM, and 31 at 3.8 mph. Byte 81 was picked over the other
+        // effort bytes (71, 73) by how each one's ratio to speed behaves: a cadence stays linear
+        // with speed because speed = cadence x stride, whereas power grows superlinearly.
+        if (horizonElliptical && newValue.length() > 81) {
+            double cadence = (uint8_t)newValue.at(81);
+            if (cadence > 0 && cadence < 250) {
+                parseCadence(cadence);
+                // Mark cadence as real, otherwise the fallback further down synthesises it from
+                // speed x stride and overwrites this. That fallback is right for a treadmill - it
+                // produces running SPM (~137) - and about 4x too high for an elliptical at ~31 RPM.
+                cadenceAvailable = true;
+                emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+            }
+        }
+
+        // Resistance is at byte 85, 1:1 with the console's 1-20 levels and unscaled. Identified by
+        // sweeping each control separately: byte 85 held flat at 1 through a full inclination sweep
+        // (byte 63 running 0 to 100 and back), then walked 1..20 and back while inclination stayed
+        // parked at 0. The treadmills do not report this.
+        if (horizonElliptical && newValue.length() > 85) {
+            double resistance = (uint8_t)newValue.at(85);
+            if (resistance > 0 && resistance <= 40) {
+                Resistance = resistance;
+                emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+            }
+        }
 
         if (firstDistanceCalculated && watts(weight))
             KCal +=
