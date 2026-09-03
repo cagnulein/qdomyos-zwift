@@ -84,7 +84,7 @@ uint16_t pitpatEstimatedWatts(double cadence, double resistance) {
     } else {
         const double wattBase = wattsOfLevel[wattStep];
         watts = (((wattsOfLevel[wattStep + 1] - wattBase) / 10.0) *
-                 static_cast<int>(cadence) % 10) +
+                 (static_cast<int>(cadence) % 10)) +
                 wattBase;
     }
 
@@ -236,7 +236,7 @@ void pitpatbike::update() {
 }
 
 void pitpatbike::serviceDiscovered(const QBluetoothUuid &gatt) {
-    qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
+    qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
 resistance_t pitpatbike::pelotonToBikeResistance(int pelotonResistance) {
