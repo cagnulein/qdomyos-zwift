@@ -943,6 +943,9 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
         qDebug() << "byte popped from rxBuf";
         if (fullLen >= size) {
             qDebug() << size << QByteArray((const char *)bytes, size).toHex(' ');
+            // A frame assembled entirely from the preserved RX buffer is complete
+            // and must be accepted just like one read directly from USB.
+            cleanFrame = true;
             return size;
         }
     }
@@ -1001,6 +1004,10 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
             // Release JNI memory before returning
             env->ReleaseByteArrayElements(d, b, 0);
             env->PopLocalFrame(NULL); // Pop frame to release all local refs created in this iteration
+            // USB serial reads are not guaranteed to stop at Computrainer packet
+            // boundaries. The requested frame is complete; the following bytes
+            // remain buffered above for the next rawRead() and do not invalidate it.
+            cleanFrame = true;
             return size;
         }
         for (int i = fullLen; i < len + fullLen; i++) {
