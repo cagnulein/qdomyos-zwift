@@ -1066,7 +1066,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else if ((LYDSTO || DMASUN) && watt_ignore_builtin) {
                 m_watt = wattFromHR(true);
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
-            } else if (watt_ignore_builtin && !externalPowerSensorEnabled && !externalCadenceSensorEnabled) {
+            } else if (TX_500MB_IRON && watt_ignore_builtin && !externalPowerSensorEnabled && !externalCadenceSensorEnabled) {
                 qDebug() << QStringLiteral("Ignoring FTMS built-in wattage: using power from heart rate because power and cadence sensors are disabled");
                 m_watt = wattFromHR(true);
                 emit debug(QStringLiteral("Current Watt from HR: ") + QString::number(m_watt.value()));
@@ -1535,7 +1535,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                        !SMARTBIKE_3DIGIT && cscbike::useCustomResistancePowerTable()) {
                 m_watt = cscbike::customResistanceAdjustedWatts(currentCadence().value(), manualResistanceTarget);
                 emit debug(QStringLiteral("Current Watt (custom resistance table): ") + QString::number(m_watt.value()));
-            } else if (watt_ignore_builtin && !externalPowerSensorEnabled && !externalCadenceSensorEnabled) {
+            } else if (TX_500MB_IRON && watt_ignore_builtin && !externalPowerSensorEnabled && !externalCadenceSensorEnabled) {
                 qDebug() << QStringLiteral("Ignoring FTMS 0x2ACE built-in wattage: using power from heart rate because power and cadence sensors are disabled");
                 m_watt = wattFromHR(true);
                 emit debug(QStringLiteral("Current Watt from HR (0x2ACE): ") + QString::number(m_watt.value()));
