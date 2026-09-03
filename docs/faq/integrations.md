@@ -20,6 +20,21 @@ In this setup the watch does not need to be paired to QZ as an ANT+ sensor. Conf
 
 Choose **ANT+ SDM/footpod** when you want the watch itself to see and record the treadmill speed/distance during the workout. Choose **Garmin Connect FIT upload** when your main goal is simply to have the finished activity and its metrics in Garmin Connect.
 
+## Can I use a basic indoor bike with a Bluetooth cadence sensor in MyWhoosh through QZ?
+
+Yes. QZ can use a compatible Bluetooth cadence sensor as the bike data source and expose a virtual bike/trainer that MyWhoosh can connect to.
+
+1. Open **QZ Settings > Accessories** and select the Bluetooth sensor under **Cadence sensor**, then confirm the selection.
+2. Enable the option that uses the **cadence sensor as a bike**.
+3. Confirm that cadence is updating in QZ before opening MyWhoosh.
+4. Run MyWhoosh on a separate device and pair the virtual QZ trainer.
+
+When MyWhoosh lists the virtual QZ devices, select **Wahoo KICK 0000** as the **Power Source**. If MyWhoosh also shows a separate **Controllable/Trainer** field, select **Wahoo KICK 0000** there as well.
+
+**Wahoo HRM** is only QZ's virtual heart-rate device, so select it only in MyWhoosh's heart-rate field if you also want QZ to forward heart rate.
+
+In a confirmed support case, selecting the external cadence sensor in QZ restored cadence immediately; the `cadence_sensor_as_bike` setting is also part of QZ's current device-discovery configuration.
+
 ## Peloton login from QZ stays on a spinning screen on an Echelon console. What should I try?
 
 On some Echelon consoles, the built-in **Lightning** browser may no longer complete the Peloton authentication flow correctly. QZ can appear to remain on the spinning login screen even though the problem is actually the browser on the console.
