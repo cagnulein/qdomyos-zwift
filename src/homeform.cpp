@@ -1384,26 +1384,6 @@ JNIEXPORT void JNICALL
 }
 #endif
 
-// The Horizon ellipticals run on the treadmill driver because they share the FFF0 protocol, so
-// deviceType() reports TREADMILL and the FIT file is written as a run: wrong sport, and
-// TotalStrides populated from step count. Correct the sport for the FIT writers only.
-//
-// Deliberately NOT done by overriding deviceType(): elliptical and treadmill are sibling classes
-// under bluetoothdevice, and around twenty call sites (mainwindow, templateinfosenderbuilder,
-// peloton) C-style-cast the device on the reported type, so returning ELLIPTICAL from a treadmill
-// object would be undefined behaviour. qfit::save performs no casts, so correcting it here is safe.
-static BLUETOOTH_TYPE fitSportTypeFor(bluetoothdevice *dev) {
-    if (!dev)
-        return BLUETOOTH_TYPE::UNKNOWN;
-    BLUETOOTH_TYPE t = dev->deviceType();
-    if (t == BLUETOOTH_TYPE::TREADMILL &&
-        QRegularExpression(QStringLiteral("\\d\\.\\dAE"))
-            .match(dev->bluetoothDevice.name().toUpper())
-            .hasMatch())
-        return BLUETOOTH_TYPE::ELLIPTICAL;
-    return t;
-}
-
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
 
 void homeform::chartSaved(QString fileName) {
@@ -1717,7 +1697,7 @@ void homeform::backup() {
                                  Qt::QueuedConnection,
                                  Q_ARG(QString, filename),
                                  Q_ARG(QList<SessionLine>, Session),
-                                 Q_ARG(BLUETOOTH_TYPE, fitSportTypeFor(dev)),
+                                 Q_ARG(BLUETOOTH_TYPE, dev->deviceType()),
                                  Q_ARG(uint32_t, qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE),
                                  Q_ARG(FIT_SPORT, stravaPelotonWorkoutType),
                                  Q_ARG(QString, workoutName()),
@@ -9402,7 +9382,7 @@ void homeform::fit_save_clicked() {
             }
         }
         
-        qfit::save(filename, Session, fitSportTypeFor(dev),
+        qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
                    stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name(),
                    workoutSource, pelotonWorkoutId, pelotonUrl, trainingProgramFile,

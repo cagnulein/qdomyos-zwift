@@ -1646,6 +1646,24 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(lifefitnessTreadmill);
+            } else if (QRegularExpression(QStringLiteral("\\d\\.\\dAE"))
+                           .match(b.name().toUpper())
+                           .hasMatch() &&
+                       !horizonElliptical && !horizonTreadmill && filter) {
+                // Horizon ellipticals (e.g. "HORIZON_7.0AE F108") share the custom FFF0 protocol
+                // with the treadmills, but inclination is a 1-20 level rather than a percentage and
+                // they report cadence and resistance the treadmills do not. Horizon names
+                // ellipticals "<model>AE" and treadmills "<model>AT", which is the same convention
+                // the treadmill match below relies on for "HZ_7.0AT-".
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                horizonElliptical = new horizonelliptical(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(horizonElliptical, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(horizonElliptical, &horizonelliptical::debug, this, &bluetooth::debug);
+                horizonElliptical->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(horizonElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_T101-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("HZ_7.0AT-")) ||
@@ -1744,7 +1762,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("BODYCRAFT_")) ||                         // Bodycraft T850 Treadmill
                         (b.name().toUpper().startsWith(QStringLiteral("WT")) && b.name().length() == 5 && b.name().midRef(2).toInt() > 0) // WT treadmill (e.g. WT703)
                         ) &&
-                       !horizonTreadmill && filter) {
+                       !horizonTreadmill && !horizonElliptical && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 horizonTreadmill = new horizontreadmill(noWriteResistance, noHeartService);
