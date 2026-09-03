@@ -503,9 +503,10 @@ void ftmsbike::update() {
             }
 
             double gearMultiplier = 5;
-            // bike::changeResistance() already includes gearsModifier() for TX-500MB IRON.
+            // bike::changeResistance() already includes gearsModifier() when
+            // the custom resistance/watt table is enabled.
             // Do not apply it a second time in this FTMS path.
-            if (TX_500MB_IRON)
+            if (cscbike::useCustomResistancePowerTable())
                 gearMultiplier = 0;
             else if (REEBOK)
                 gearMultiplier = 1;
