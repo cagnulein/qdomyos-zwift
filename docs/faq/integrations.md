@@ -35,6 +35,14 @@ When MyWhoosh lists the virtual QZ devices, select **Wahoo KICK 0000** as the **
 
 In a confirmed support case, selecting the external cadence sensor in QZ restored cadence immediately; the `cadence_sensor_as_bike` setting is also part of QZ's current device-discovery configuration.
 
+## Can I use QZ virtual gears with Rouvy?
+
+Yes. QZ can manage virtual gear changes while Rouvy controls the trainer through QZ. The current QZ gear is handled by QZ itself, so you should not expect Rouvy to display QZ's virtual gear number on its ride screen.
+
+If using the phone's volume buttons to shift is inconvenient, enable QZ's **volume buttons change gears** option and use a Bluetooth media/volume remote. QZ handles volume-up and volume-down key events as gear controls when this option is enabled, so a small handlebar-mounted Bluetooth remote that sends the same keys can be used for shifting.
+
+On Android, the system volume overlay may still briefly appear when those keys are pressed; that does not prevent QZ from using the key presses for gear changes.
+
 ## Peloton login from QZ stays on a spinning screen on an Echelon console. What should I try?
 
 On some Echelon consoles, the built-in **Lightning** browser may no longer complete the Peloton authentication flow correctly. QZ can appear to remain on the spinning login screen even though the problem is actually the browser on the console.
