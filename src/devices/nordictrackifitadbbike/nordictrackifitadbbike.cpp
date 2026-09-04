@@ -754,7 +754,7 @@ void nordictrackifitadbbike::update() {
                 QZSettings::nordictrackadbbike_gear_resistance_mode,
                 QZSettings::default_nordictrackadbbike_gear_resistance_mode).toBool();
             if (gearsFromBike && !gearResistanceMode && requestResistance == -1) {
-                const int delta = bike::physicalResistanceGearDelta(lastDeviceResistance, currentResistance);
+                const int delta = physicalResistanceGearDelta(lastDeviceResistance, currentResistance);
                 if (delta != 0) {
                     lastRawRequestedResistanceValue = -1;
                     setGears(gears() + delta);
