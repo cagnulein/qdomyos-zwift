@@ -13250,7 +13250,8 @@
       "visible": true,
       "defaultValue": false,
       "defaultExpression": "false",
-      "options": null
+      "options": null,
+      "restartRequired": true
     },
     {
       "key": "cadence_sensor_as_treadmill",
