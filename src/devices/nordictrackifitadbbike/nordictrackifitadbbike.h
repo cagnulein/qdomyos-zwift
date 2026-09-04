@@ -77,6 +77,7 @@ class nordictrackifitadbbike : public bike {
     bool ifitCompatible() override;
     void changePower(int32_t power) override;
     bool changeFanSpeed(uint8_t speed) override;
+    static int physicalResistanceGearDelta(resistance_t previous, resistance_t current);
 
   private:
     const resistance_t max_resistance = 20; // max inclination for s22i
@@ -127,6 +128,7 @@ class nordictrackifitadbbike : public bike {
 
     bool gearsAvailable = false;
     double lastGearValue = 0;
+    resistance_t lastDeviceResistance = -1;
     
     // Gear change debouncing
     QTimer *gearDebounceTimer = nullptr;
