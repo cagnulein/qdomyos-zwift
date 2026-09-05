@@ -262,7 +262,8 @@ void ftmsbike::forcePower(int16_t requestPower) {
 }
 
 bool ftmsbike::isManualResistanceBike() const {
-    return SMARTBIKE_3DIGIT || TX_500MB_IRON;
+    return SMARTBIKE_3DIGIT || TX_500MB_IRON ||
+           bluetoothDevice.name().toUpper().startsWith(QStringLiteral("FBIKE-HEAVY-PRO"));
 }
 
 void ftmsbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
