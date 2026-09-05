@@ -6,6 +6,7 @@ This directory contains practical QZ frequently asked questions, organized by ca
 
 - [Bike and trainer troubleshooting](bike-troubleshooting.md)
 - [Integrations and authentication](integrations.md)
+- [Rowing](rowing.md)
 - [Treadmill troubleshooting](treadmill-troubleshooting.md)
 - [Zwift and virtual gearing](zwift.md)
 
