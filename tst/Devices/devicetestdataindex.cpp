@@ -1412,6 +1412,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::TrxAppGateUSBEllipticalIConsole)
         ->expectDevice<trxappgateusbelliptical>()
         ->acceptDeviceName("I-CONSOLE+", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("TOORX", DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding(toorxAppGateUSBBikeExclusions)
         ->configureSettingsWith([trxAppGateUSBEllipticalSettingsApplicator](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) -> void
                                 {
