@@ -39,6 +39,7 @@ class trxappgateusbelliptical : public elliptical {
                    double bikeResistanceGain = 1.0);
     bool connected() override;
     bool inclinationAvailableByHardware() override;
+    static bool toorxResistanceInRange(resistance_t resistance);
     static double toorxCadenceFromPacket(const QByteArray &packet);
     static double toorxSpeedFromPacket(const QByteArray &packet);
 

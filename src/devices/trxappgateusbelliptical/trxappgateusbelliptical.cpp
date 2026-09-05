@@ -75,6 +75,10 @@ void trxappgateusbelliptical::forceResistance(resistance_t requestResistance) {
     }
 }
 
+bool trxappgateusbelliptical::toorxResistanceInRange(resistance_t resistance) {
+    return resistance >= 1 && resistance <= 32;
+}
+
 void trxappgateusbelliptical::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -117,8 +121,9 @@ void trxappgateusbelliptical::update() {
             if (requestResistance != -1) {
                 if (requestResistance < 1)
                     requestResistance = 1;
-                if (requestResistance != currentResistance().value() && requestResistance >= 1 &&
-                    requestResistance <= 15) {
+                if (requestResistance != currentResistance().value() &&
+                    ((elliptical_type == TYPE::TOORX && toorxResistanceInRange(requestResistance)) ||
+                     (elliptical_type != TYPE::TOORX && requestResistance >= 1 && requestResistance <= 15))) {
                     emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                     forceResistance(requestResistance);
                 }
