@@ -18,6 +18,13 @@ class CharacteristicWriteProcessor : public QObject {
 
     explicit CharacteristicWriteProcessor(double bikeResistanceGain, int8_t bikeResistanceOffset,
                                           bluetoothdevice *bike, QObject *parent = nullptr);
+
+    // Rebind the control path when the DIRCON endpoint outlives the bike it was
+    // built for. May be called with nullptr; writeProcess(), changePower() and
+    // changeSlope() all dereference Bike, so callers must not drive a processor
+    // whose device is null.
+    virtual void setDevice(bluetoothdevice *bike) { Bike = bike; }
+
     virtual int writeProcess(quint16 uuid, const QByteArray &data, QByteArray &out) = 0;
     virtual void changePower(uint16_t power);
     virtual void changeSlope(int16_t iresistance, uint8_t crr, uint8_t cw);
