@@ -1,0 +1,89 @@
+name: C++ static analysis
+
+on:
+  pull_request:
+    paths:
+      - '**/*.c'
+      - '**/*.cc'
+      - '**/*.cpp'
+      - '**/*.cxx'
+      - '**/*.h'
+      - '**/*.hh'
+      - '**/*.hpp'
+      - '**/*.hxx'
+      - '.github/workflows/cppcheck.yml'
+  push:
+    branches: [ master ]
+    paths:
+      - '**/*.c'
+      - '**/*.cc'
+      - '**/*.cpp'
+      - '**/*.cxx'
+      - '**/*.h'
+      - '**/*.hh'
+      - '**/*.hpp'
+      - '**/*.hxx'
+      - '.github/workflows/cppcheck.yml'
+  workflow_dispatch:
+
+jobs:
+  cppcheck:
+    name: cppcheck (informational)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cppcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cppcheck
+          cppcheck --version
+
+      - name: Build tracked source file list
+        shell: bash
+        run: |
+          git ls-files -- \
+            '*.c' '*.cc' '*.cpp' '*.cxx' \
+            '*.h' '*.hh' '*.hpp' '*.hxx' \
+            | grep -Ev '(^|/)(third_party|third-party|3rdparty|vendor|external)/' \
+            > cppcheck-files.txt
+
+          echo "Analyzing $(wc -l < cppcheck-files.txt) tracked C/C++ files"
+
+      - name: Run cppcheck
+        shell: bash
+        run: |
+          # Intentionally informational for the first rollout:
+          # findings are printed in the Actions log but do not fail the job.
+          cppcheck \
+            --file-list=cppcheck-files.txt \
+            --enable=warning,performance,portability \
+            --std=c++17 \
+            --inline-suppr \
+            --suppress=missingIncludeSystem \
+            --template='{file}:{line}: {severity}: {id}: {message}' \
+            2>&1 | tee cppcheck-report.txt
+
+      - name: Publish summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f cppcheck-report.txt ]; then
+            COUNT=$(grep -Ec ':[0-9]+: (warning|performance|portability|error): ' cppcheck-report.txt || true)
+            {
+              echo '## cppcheck informational report'
+              echo
+              echo "Potential findings: **${COUNT}**"
+              echo
+              echo 'This check is intentionally non-blocking while we establish a clean baseline and tune suppressions.'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload cppcheck report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cppcheck-report
+          path: cppcheck-report.txt
+          if-no-files-found: ignore
