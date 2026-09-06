@@ -382,6 +382,7 @@ const QString QZSettings::log_debug = QStringLiteral("log_debug");
 const QString QZSettings::virtual_device_onlyheart = QStringLiteral("virtual_device_onlyheart");
 const QString QZSettings::virtual_device_echelon = QStringLiteral("virtual_device_echelon");
 const QString QZSettings::virtual_device_ifit = QStringLiteral("virtual_device_ifit");
+const QString QZSettings::virtual_device_yesoul = QStringLiteral("virtual_device_yesoul");
 const QString QZSettings::virtual_device_rower = QStringLiteral("virtual_device_rower");
 const QString QZSettings::virtual_device_rower_pm5 = QStringLiteral("virtual_device_rower_pm5");
 const QString QZSettings::virtual_device_force_bike = QStringLiteral("virtual_device_force_bike");
@@ -1285,7 +1286,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1005;
+const uint32_t allSettingsCount = 1006;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1599,6 +1600,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart},
     {QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon},
     {QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit},
+    {QZSettings::virtual_device_yesoul, QZSettings::default_virtual_device_yesoul},
     {QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower},
     {QZSettings::virtual_device_rower_pm5, QZSettings::default_virtual_device_rower_pm5},
     {QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike},

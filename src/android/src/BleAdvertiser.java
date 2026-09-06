@@ -116,6 +116,11 @@ public class BleAdvertiser {
         }
     }
 
+    private static final String YESOUL_DEVICE_NAME = "YS_G1MMAX_02033";
+    private static final byte[] SERVICE_DATA_YESOUL = {0x01, 0x20, 0x00};
+    private static final byte[] MANUFACTURER_DATA_YESOUL = {0x01, 0x05, 0x00, (byte) 0xff, (byte) 0xff};
+    private static final int MANUFACTURER_ID_YESOUL = 0x027d;
+
     public static void startAdvertisingRower(Context context) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager != null) {
@@ -248,6 +253,34 @@ public class BleAdvertiser {
 
         QLog.d("BleAdvertiser", "Starting Tacx Neo 2T advertising");
         advertiser.startAdvertising(settings, advertiseData, scanResponse, advertiseCallback);
+    }
+
+    public static void startAdvertisingYesoul(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            BluetoothAdapter adapter = bluetoothManager.getAdapter();
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = adapter.getBluetoothLeAdvertiser();
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .addManufacturerData(MANUFACTURER_ID_YESOUL, MANUFACTURER_DATA_YESOUL)
+                    .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_YESOUL)
+                    .build();
+            AdvertiseData scanResponse = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .build();
+            if (advertiser != null) {
+                try {
+                    adapter.setName(YESOUL_DEVICE_NAME);
+                } catch (SecurityException | IllegalArgumentException e) {
+                    QLog.e("BleAdvertiser", "Unable to set Yesoul device name: " + e.getMessage());
+                }
+                advertiser.startAdvertising(settings, advertiseData, scanResponse, advertiseCallback);
+            }
+        }
     }
 
     private static AdvertiseCallback advertiseCallback = new AdvertiseCallback() {
