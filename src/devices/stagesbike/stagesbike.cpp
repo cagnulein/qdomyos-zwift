@@ -109,11 +109,11 @@ void stagesbike::update() {
                 QByteArray a;
                 if(DR) {
                     // For DR devices, use setBrakeLevel with inclination value (converted from percentage)
-                    double inclinationValue = lastRawRequestedResistanceValue + gears();
+                    double inclinationValue = lastRawRequestedResistanceValue + gearsModifier();
                     a = setBrakeLevel(inclinationValue / 100.0);
                 } else {
                     a = setSimulationMode(
-                        lastRawRequestedInclinationValue + gears(), 0.005, 0.5, 0.0, 1.0); // since this bike doesn't have the concept of resistance,
+                        lastRawRequestedInclinationValue + gearsModifier(), 0.005, 0.5, 0.0, 1.0); // since this bike doesn't have the concept of resistance,
                                                                                            // i'm using the gears in the inclination
                 }
                 uint8_t b[20];
@@ -135,7 +135,7 @@ void stagesbike::update() {
             if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 if(eliteService != nullptr) {
-                    QByteArray a = setBrakeLevel((lastRawRequestedResistanceValue + gears()) / 100.0);
+                    QByteArray a = setBrakeLevel((lastRawRequestedResistanceValue + gearsModifier()) / 100.0);
                     uint8_t b[20];
                     memcpy(b, a.constData(), a.length());
                     writeCharacteristic(eliteService, eliteWriteCharacteristic, b, a.length(), "forceResistance", false, false);
@@ -311,16 +311,17 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                 index += 2;
             }
 
-            int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
+            int32_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
             if (deltaT < 0) {
-                deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
+                deltaT = LastCrankEventTime + 65536 - oldLastCrankEventTime;
             }
 
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 if (CrankRevs != oldCrankRevs && deltaT) {
-                    double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
+                    double cadence = (static_cast<double>(CrankRevs - oldCrankRevs) / static_cast<double>(deltaT)) *
+                                     time_division * 60.0;
                     if (!crank_rev_present)
                         cadence =
                             cadence /

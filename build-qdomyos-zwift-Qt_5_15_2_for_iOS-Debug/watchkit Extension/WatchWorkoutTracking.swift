@@ -162,7 +162,29 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             
             var infoToShare: Set<HKSampleType> = []
             
-            if #available(watchOSApplicationExtension 10.0, *) {
+            if #available(watchOSApplicationExtension 11.0, *) {
+                infoToShare = Set([
+                    HKSampleType.quantityType(forIdentifier: .stepCount)!,
+                    HKSampleType.quantityType(forIdentifier: .heartRate)!,
+                    HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
+                    HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
+                    HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
+                    HKSampleType.quantityType(forIdentifier: .basalEnergyBurned)!,
+                    HKSampleType.quantityType(forIdentifier: .cyclingPower)!,
+                    HKSampleType.quantityType(forIdentifier: .cyclingSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .cyclingCadence)!,
+                    HKSampleType.quantityType(forIdentifier: .runningPower)!,
+                    HKSampleType.quantityType(forIdentifier: .runningSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .runningStrideLength)!,
+                    HKSampleType.quantityType(forIdentifier: .runningVerticalOscillation)!,
+                    HKSampleType.quantityType(forIdentifier: .walkingSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .walkingStepLength)!,
+                    HKSampleType.quantityType(forIdentifier: .distanceRowing)!,
+                    HKSampleType.quantityType(forIdentifier: .rowingSpeed)!,
+                    HKSampleType.quantityType(forIdentifier: .flightsClimbed)!,
+                    HKSampleType.workoutType()
+                    ])
+            } else if #available(watchOSApplicationExtension 10.0, *) {
                 infoToShare = Set([
                     HKSampleType.quantityType(forIdentifier: .stepCount)!,
                     HKSampleType.quantityType(forIdentifier: .heartRate)!,
@@ -213,6 +235,8 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         // Reset flights climbed and elevation gain for new workout
         WorkoutTracking.flightsClimbed = 0
         WorkoutTracking.elevationGain = 0
+        WorkoutTracking.totalKcal = 0
+        WatchKitConnection.totalKcal = 0
         print("Start workout")
         configWorkout()
         workoutSession.startActivity(with: Date())
@@ -230,35 +254,55 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     
     func stopWorkOut() {
         print("Stop workout")
+        WorkoutTracking.kcal = WatchKitConnection.kcal
+        WorkoutTracking.totalKcal = WatchKitConnection.totalKcal
+        WatchKitConnection.shared.sendDebug("stop pressed local watchKcal=\(WatchKitConnection.kcal) watchTotalKcal=\(WatchKitConnection.totalKcal) trackingKcal=\(WorkoutTracking.kcal) trackingTotalKcal=\(WorkoutTracking.totalKcal)")
         workoutSession.stopActivity(with: Date())
         workoutSession.end()
         
-        // Write active calories
+        // Write active and basal calories
         guard let activeQuantityType = HKQuantityType.quantityType(
           forIdentifier: .activeEnergyBurned) else {
           return
         }
-            
+
         let unit = HKUnit.kilocalorie()
         let activeEnergyBurned = WorkoutTracking.kcal
         let activeQuantity = HKQuantity(unit: unit,
                                        doubleValue: activeEnergyBurned)
-        
+        let basalEnergyBurned = max(WorkoutTracking.totalKcal - activeEnergyBurned, 0)
+        WatchKitConnection.shared.sendDebug("stop energy samples active=\(activeEnergyBurned) total=\(WorkoutTracking.totalKcal) basal=\(basalEnergyBurned)")
+
         let startDate = workoutSession.startDate ?? WorkoutTracking.lastDateMetric
-        
+
         let activeSample = HKCumulativeQuantitySeriesSample(type: activeQuantityType,
                                                            quantity: activeQuantity,
                                                            start: startDate,
                                                            end: Date())
-        
-        workoutBuilder.add([activeSample]) {(success, error) in
+        var energySamples = [activeSample]
+
+        if basalEnergyBurned > 0,
+           let basalQuantityType = HKQuantityType.quantityType(forIdentifier: .basalEnergyBurned) {
+            let basalQuantity = HKQuantity(unit: unit,
+                                           doubleValue: basalEnergyBurned)
+            let basalSample = HKCumulativeQuantitySeriesSample(type: basalQuantityType,
+                                                               quantity: basalQuantity,
+                                                               start: startDate,
+                                                               end: Date())
+            energySamples.append(basalSample)
+        }
+
+        workoutBuilder.add(energySamples) {(success, error) in
             if let error = error {
-                print("WatchWorkoutTracking active calories: \(error.localizedDescription)")
+                print("WatchWorkoutTracking energy calories: \(error.localizedDescription)")
+                WatchKitConnection.shared.sendDebug("stop energy add error=\(error.localizedDescription) active=\(activeEnergyBurned) total=\(WorkoutTracking.totalKcal) basal=\(basalEnergyBurned)")
+            } else {
+                WatchKitConnection.shared.sendDebug("stop energy add success=\(success) active=\(activeEnergyBurned) total=\(WorkoutTracking.totalKcal) basal=\(basalEnergyBurned)")
             }
         }
                     
         let unitDistance = HKUnit.mile()
-        let miles = WorkoutTracking.distance
+        let miles = WorkoutTracking.distance * 0.621371
         let quantityMiles = HKQuantity(unit: unitDistance,
                                   doubleValue: miles)
         
@@ -325,16 +369,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                  }
              }
              
-             // Per il rowing, HealthKit utilizza un tipo specifico di distanza
-             // Se non esiste un tipo specifico per il rowing, possiamo usare un tipo generico di distanza
-             var quantityTypeDistance: HKQuantityType?
-             
-             // In watchOS 10 e versioni successive, possiamo usare un tipo specifico se disponibile
-             if #available(watchOSApplicationExtension 10.0, *) {
-                 // Verifica se esiste un tipo specifico per il rowing, altrimenti utilizza un tipo generico
-                 quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceSwimming)
+             let quantityTypeDistance: HKQuantityType?
+             if #available(watchOSApplicationExtension 11.0, *) {
+                 quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceRowing)
              } else {
-                 // Nelle versioni precedenti, usa il tipo generico
                  quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)
              }
              

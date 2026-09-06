@@ -613,6 +613,7 @@ class bluetoothdevice : public QObject {
      * @brief Heart rate. Unit: beats per minute
      */
     metric Heart;
+    bool heartRateFromHealthKit = false;
 
     /**
      * @brief HRV Heart Rate Variability (RMSSD). Unit: milliseconds

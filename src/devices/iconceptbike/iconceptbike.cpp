@@ -251,8 +251,32 @@ void iconceptbike::readSocket() {
     if (!socket)
         return;
 
-    while (socket->bytesAvailable()) {
-        QByteArray line = socket->readAll();
+    socketReadBuffer.append(socket->readAll());
+
+    while (!socketReadBuffer.isEmpty()) {
+        const qsizetype startIndex = socketReadBuffer.indexOf(char(0x55));
+        if (startIndex < 0) {
+            qDebug() << QStringLiteral("iconceptbike::readSocket dropping unsynced bytes")
+                     << socketReadBuffer.toHex(' ');
+            socketReadBuffer.clear();
+            return;
+        }
+
+        if (startIndex > 0) {
+            qDebug() << QStringLiteral("iconceptbike::readSocket dropping prefix bytes")
+                     << socketReadBuffer.left(startIndex).toHex(' ');
+            socketReadBuffer.remove(0, startIndex);
+        }
+
+        if (socketReadBuffer.size() < 3)
+            return;
+
+        const int frameLength = 3 + static_cast<uint8_t>(socketReadBuffer.at(2));
+        if (socketReadBuffer.size() < frameLength)
+            return;
+
+        QByteArray line = socketReadBuffer.left(frameLength);
+        socketReadBuffer.remove(0, frameLength);
         qDebug() << QStringLiteral(" << ") + line.toHex(' ');
 
         if (line.length() == 16) {

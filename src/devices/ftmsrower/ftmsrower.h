@@ -74,6 +74,8 @@ class ftmsrower : public rower {
     bool ICONSOLE_PLUS = false;
     bool FITSHOW = false;
     bool DOMYOS = false;
+    bool TC_ROWER = false;
+    bool WDK_PACE_POWER = false;
 
     bool WATER_ROWER = false;
     bool DFIT_L_R = false;
