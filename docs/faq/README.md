@@ -4,6 +4,7 @@ This directory contains practical QZ frequently asked questions, organized by ca
 
 ## Categories
 
+- [Android](android.md)
 - [Bike and trainer troubleshooting](bike-troubleshooting.md)
 - [Integrations and authentication](integrations.md)
 - [Rowing](rowing.md)
