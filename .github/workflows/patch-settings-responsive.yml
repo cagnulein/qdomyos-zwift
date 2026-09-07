@@ -107,10 +107,6 @@ jobs:
           test = test.replace(anchor, replacement, 1)
           test_path.write_text(test)
 
-          # Audit remaining multi-button RowLayouts. These are not automatically
-          # rewritten because some rows intentionally contain compact +/- controls.
-          # The ScrollView width guard above prevents them from widening the page;
-          # this audit makes any remaining candidate visible in the workflow log.
           source = settings_path.read_text()
           lines = source.splitlines()
           candidates = []
@@ -128,16 +124,16 @@ jobs:
               block = '\n'.join(lines[start:i])
               count = block.count('Button {')
               if count >= 2:
-                  candidates.append((start + 1, count, lines[start].strip()))
+                  candidates.append((start + 1, count))
           print('Remaining RowLayout blocks containing 2+ Button controls:')
           if not candidates:
               print('  none')
           else:
-              for line, count, _ in candidates:
+              for line, count in candidates:
                   print(f'  line {line}: {count} buttons')
           PY
 
-          rm .github/workflows/patch-settings-responsive.yml
+          rm -f .github/workflows/patch-settings-responsive.yml .settings-layout-trigger
 
           git config user.name "Roberto Viola"
           git config user.email "Cagnulein@gmail.com"
