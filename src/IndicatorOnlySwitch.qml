@@ -8,6 +8,7 @@ import QtQuick.Dialogs 1.0
 SwitchDelegate {
     id: root
 
+    // Keep the native Material content item; only make its text resilient to long translations.
     function configureTextItem(item) {
         if (!item)
             return false
