@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include <QApplication>
-#include <QDebug>
 #include <QQmlComponent>
 #include <QQmlEngine>
 #include <QResource>
@@ -19,16 +18,12 @@ static int runSettingsLabelLayoutProbe(int argc, char *argv[])
 
     QQmlEngine engine;
     QQmlComponent component(&engine, QUrl(QStringLiteral("qrc:/IndicatorOnlySwitch.qml")));
-    if (component.isError()) {
-        qWarning().noquote() << component.errorString();
+    if (component.isError())
         return 10;
-    }
 
     QScopedPointer<QObject> object(component.create());
-    if (!object) {
-        qWarning().noquote() << component.errorString();
+    if (!object)
         return 11;
-    }
 
     object->setProperty("width", 280.0);
     object->setProperty(
