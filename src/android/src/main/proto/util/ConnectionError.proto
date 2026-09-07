@@ -1,0 +1,15 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.util";
+option java_outer_classname = "ConnectionErrorCodeProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum ConnectionErrorCode {
+  CONNECTION_FAILURE = 0;
+}
+
+message ConnectionError {
+  ConnectionErrorCode errorCode = 1;
+  string message = 2;
+}

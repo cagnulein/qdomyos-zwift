@@ -1,0 +1,21 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "console/tdf/TDFChainRingConfig.proto";
+import "console/tdf/TDFRearCassetteConfig.proto";
+import "util/IFitError.proto";
+option java_package = "com.ifit.glassos.console.tdf";
+option java_outer_classname = "TDFGearConfigProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message TDFGearConfig {
+    TDFChainRingConfig frontGearConfig = 1;
+    TDFRearCassetteConfig rearGearConfig = 2;
+}
+
+message TDFGearConfigResult {
+    oneof errorOrGearConfig {
+        IFitError error = 1;
+        TDFGearConfig gearConfig = 2;
+    }
+}

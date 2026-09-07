@@ -1,0 +1,60 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "workout/data/Control.proto";
+import "workout/WorkoutResult.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "InclineServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message InclineMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  double lastInclinePercent = 3;
+  double maxInclinePercent = 4;
+  double avgInclinePercent = 5;
+  double minInclinePercent = 6;
+}
+
+message InclineMetricList {
+  repeated InclineMetric metrics = 1;
+}
+
+message InclineRequest {
+  double percent = 1;
+}
+
+service InclineService {
+  // check whether Incline is Readable and Writeable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+  rpc CanWrite(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Incline relative to the current workout
+  rpc GetIncline(Empty) returns (InclineMetric) {}
+
+  // sets the Incline to the given value
+  rpc SetIncline(InclineRequest) returns (WorkoutResult) {}
+
+  // subscribe to Incline updates relative to the current workout
+  rpc InclineSubscription(Empty) returns (stream InclineMetric) {}
+
+  // gets a list of all of the Incline changes for the given workout ID
+  rpc GetInclineHistory(WorkoutID) returns (InclineMetricList) {}
+
+  // follow the current workout
+  rpc FollowWorkout(Empty) returns (WorkoutResult) {}
+
+  // stop following the current workout
+  rpc StopFollowing(Empty) returns (Empty) {}
+
+  // check whether the current workout is being followed
+  rpc GetIsFollowing(Empty) returns (BooleanResponse) {}
+  // subscribe to following updates
+  rpc IsFollowingSubscription(Empty) returns (stream BooleanResponse) {}
+
+  // get the current workout controls
+  rpc GetControls(Empty) returns (ControlList) {}
+  // subscribe to workout control updates
+  rpc ControlsSubscription(Empty) returns (stream ControlList) {}
+}

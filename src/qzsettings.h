@@ -1171,7 +1171,7 @@ class QZSettings {
     static constexpr bool default_horizon_paragon_x = false;
 
     static const QString treadmill_step_speed;
-    static constexpr float default_treadmill_step_speed = 0.5;
+    static constexpr float default_treadmill_step_speed = 0.1;
 
     static const QString treadmill_step_incline;
     static constexpr float default_treadmill_step_incline = 0.5;
@@ -2305,7 +2305,7 @@ class QZSettings {
     static const QString stryd_speed_instead_treadmill;
     static constexpr bool default_stryd_speed_instead_treadmill = false;
     static const QString inclination_delay_seconds;
-    static constexpr float default_inclination_delay_seconds = 0.0;
+    static constexpr float default_inclination_delay_seconds = 3.0;
 
     static const QString ergDataPoints;
     static const QString default_ergDataPoints;
@@ -2381,6 +2381,12 @@ class QZSettings {
 
     static const QString nordictrackadbbike_resistance;
     static constexpr bool default_nordictrackadbbike_resistance = false;
+
+    static const QString nordictrackadbbike_gear_resistance_mode;
+    static constexpr bool default_nordictrackadbbike_gear_resistance_mode = false;
+
+    static const QString nordictrackadbbike_gear_debounce_ms;
+    static constexpr int default_nordictrackadbbike_gear_debounce_ms = 100;
 
     static const QString proform_treadmill_carbon_t7;
     static constexpr bool default_proform_treadmill_carbon_t7 = false;
@@ -2936,6 +2942,11 @@ class QZSettings {
     static constexpr int default_tile_auto_virtual_shifting_sprint_order = 57;
 
     /**
+     * @brief Track if Grupetto legal disclaimer has been shown to user
+     */
+    static const QString grupetto_disclaimer_shown;
+    static constexpr bool default_grupetto_disclaimer_shown = false;
+    /**
      * @brief Enable power averaging tile
      */
     static const QString tile_power_avg_enabled;
@@ -3294,6 +3305,11 @@ class QZSettings {
     static constexpr bool default_horizon_treadmill_omega_z = false;
 
     /**
+     * @brief Use heart rate received from another QZ instance running on iOS via the QZ iPhone companion socket.
+     */
+    static const QString ios_heart_companion;
+    static constexpr bool default_ios_heart_companion = false;
+    /*
      * @brief NordicTrack Elliptical Spacesaver S700: uses its own BLE telemetry/control quirks
      * (speed packet marker and resistance byte mapping differ from the other NordicTrack elliptical
      * profiles), so it is gated behind its own setting to avoid affecting other models.
