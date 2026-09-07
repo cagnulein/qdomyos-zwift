@@ -111,6 +111,97 @@ public:
      * Verifies that time-based pace.zone targets serialize to speed bounds and forcespeed.
      */
     void test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
+
+    /**
+     * @brief Test Garmin zoneNumber-only power/HR targets from training plans.
+     *
+     * Verifies Garmin power.zone/heart.rate.zone payloads that provide zoneNumber
+     * without numeric target bounds still serialize as QZ workout targets.
+     */
+    void test_workoutDetailsJson_zoneNumberTargetsSerialize();
+
+    /**
+     * @brief Test Garmin lap-button steps from training plans.
+     *
+     * Verifies that endCondition "lap.button" is serialized as an explicit wait-for-lap row.
+     */
+    void test_workoutDetailsJson_lapButtonStepWaitsForLap();
+
+    /**
+     * @brief Test Garmin heart-rate threshold end conditions.
+     *
+     * Verifies Above/Below bpm steps are serialized as blocking QZ workout rows.
+     */
+    void test_workoutDetailsJson_heartRateThresholdEndConditionsSerialize();
+
+    /**
+     * @brief Test Garmin power-curve targets.
+     *
+     * Verifies power.curve steps use downloaded curve data, with FTP as fallback.
+     */
+    void test_workoutDetailsJson_powerCurveTargetsSerialize();
+
+    /**
+     * @brief Test nested RepeatGroupDTO (e.g. 2x12x10s sprint) is correctly unrolled.
+     *
+     * Verifies that when a RepeatGroupDTO contains another RepeatGroupDTO as an inner step,
+     * the outer repeat is unrolled (since loadXML does not support nested <repeat> blocks)
+     * while the inner repeat is preserved as a <repeat times="N"> block.
+     * Regression test for the bug where the inner repeat was passed to appendGarminStep()
+     * and produced an empty <row/> with no attributes.
+     */
+    void test_workoutDetailsJson_nestedRepeatGroupIsUnrolled();
+
+    /**
+     * @brief Test calendar workout filenames include sport suffixes.
+     *
+     * Verifies that same-day run and ride workouts with the same title do not collide.
+     */
+    void test_workoutFileName_appendsSportSuffix();
+
+    /**
+     * @brief Test calendar workout filenames are sanitized.
+     */
+    void test_workoutFileName_sanitizesUnsafeCharacters();
+
+    /**
+     * @brief Regression test for issue #4805 using a real "Bike FTP Test" workout log
+     * (debug-Sun_Jul_12_21_00_57_2026.log) where cadence is the PRIMARY target and heart
+     * rate is the SECONDARY target, expressed as explicit bpm bounds.
+     *
+     * Verifies that both the primary cadence target and the secondary heart-rate target
+     * are serialized on the same row, instead of the secondary target being silently dropped.
+     */
+    void test_workoutDetailsJson_issue4805_cadencePrimaryHeartRateSecondaryExplicitBpm();
+
+    /**
+     * @brief Regression test for issue #4805 using the same real workout log, for steps
+     * where the secondary heart-rate target is expressed only as an HR zone number
+     * (secondaryZoneNumber) with no explicit bpm bounds.
+     *
+     * Verifies that a zone-number-only secondary HR target is serialized as "zonehr"
+     * instead of being dropped.
+     */
+    void test_workoutDetailsJson_issue4805_cadencePrimaryHeartRateSecondaryZoneNumber();
+
+    /**
+     * @brief Regression test for issue #4805 using a real "Bike FTP Test" workout log
+     * (debug-Sat_Jul_11_21_00_57_2026.log) where power is the PRIMARY target and cadence
+     * is the SECONDARY target.
+     *
+     * Verifies that the secondary cadence target is serialized alongside the primary power
+     * target.
+     */
+    void test_workoutDetailsJson_issue4805_powerPrimaryCadenceSecondary();
+
+    /**
+     * @brief Regression test for issue #4805: cadence-only steps (no secondary target)
+     * inside a repeat group, taken from the real workout log.
+     *
+     * Verifies that a plain cadence primary target (previously unhandled entirely) is
+     * serialized as lower_cadence/upper_cadence/cadence attributes.
+     */
+    void test_workoutDetailsJson_issue4805_cadenceOnlyStepInRepeat();
 };
 
 // Register individual tests with Google Test
@@ -156,6 +247,50 @@ TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogDistanceWorkoutUsesDistanceOnl
 
 TEST_F(GarminConnectTestSuite, ScheduleJsonRealLogEasyRunPaceZoneSetsSpeedAndForceSpeed) {
     this->test_scheduleJson_realLogEasyRunPaceZoneSetsSpeedAndForceSpeed();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonZoneNumberTargetsSerialize) {
+    this->test_workoutDetailsJson_zoneNumberTargetsSerialize();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonLapButtonStepWaitsForLap) {
+    this->test_workoutDetailsJson_lapButtonStepWaitsForLap();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonHeartRateThresholdEndConditionsSerialize) {
+    this->test_workoutDetailsJson_heartRateThresholdEndConditionsSerialize();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonPowerCurveTargetsSerialize) {
+    this->test_workoutDetailsJson_powerCurveTargetsSerialize();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonNestedRepeatGroupIsUnrolled) {
+    this->test_workoutDetailsJson_nestedRepeatGroupIsUnrolled();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutFileNameAppendsSportSuffix) {
+    this->test_workoutFileName_appendsSportSuffix();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutFileNameSanitizesUnsafeCharacters) {
+    this->test_workoutFileName_sanitizesUnsafeCharacters();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonIssue4805CadencePrimaryHeartRateSecondaryExplicitBpm) {
+    this->test_workoutDetailsJson_issue4805_cadencePrimaryHeartRateSecondaryExplicitBpm();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonIssue4805CadencePrimaryHeartRateSecondaryZoneNumber) {
+    this->test_workoutDetailsJson_issue4805_cadencePrimaryHeartRateSecondaryZoneNumber();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonIssue4805PowerPrimaryCadenceSecondary) {
+    this->test_workoutDetailsJson_issue4805_powerPrimaryCadenceSecondary();
+}
+
+TEST_F(GarminConnectTestSuite, WorkoutDetailsJsonIssue4805CadenceOnlyStepInRepeat) {
+    this->test_workoutDetailsJson_issue4805_cadenceOnlyStepInRepeat();
 }
 
 #endif // GARMINCONNECTTESTSUITE_H

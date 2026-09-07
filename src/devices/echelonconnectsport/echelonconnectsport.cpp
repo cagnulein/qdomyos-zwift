@@ -489,7 +489,9 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
             settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround =
             settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence) {
+        bool virtual_device_echelon =
+            settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+        if (ios_peloton_workaround && cadence && !virtual_device_echelon) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
             h->virtualbike_ios();

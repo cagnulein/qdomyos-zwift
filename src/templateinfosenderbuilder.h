@@ -96,6 +96,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAutoresistance(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onPasteTrainingProgramFromClipboard(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onDeleteTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
@@ -105,6 +106,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onTrainingProgramAutostart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onWorkoutEditorEnv(TemplateInfoSender *tempSender);
     void onWorkoutEditorStart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onWebTranslations(TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetSessionArray(TemplateInfoSender *tempSender);
     void onGetPreviewSessionArray(TemplateInfoSender *tempSender);

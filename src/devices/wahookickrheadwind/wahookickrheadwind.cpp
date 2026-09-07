@@ -2,7 +2,6 @@
 #include "wahookickrheadwind.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
-#include <QEventLoop>
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
@@ -23,6 +22,24 @@ wahookickrheadwind::wahookickrheadwind(bluetoothdevice *parentDevice) {
     refresh = new QTimer(this);
     connect(refresh, &QTimer::timeout, this, &wahookickrheadwind::update);
     refresh->start(1000ms);
+
+    writeTimeoutTimer = new QTimer(this);
+    writeTimeoutTimer->setSingleShot(true);
+    connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
+        qDebug() << QStringLiteral("writeCharacteristic timeout - processing next in queue");
+        isWriting = false;
+        currentWriteWaitingForResponse = false;
+        processWriteQueue();
+    });
+
+    connect(this, &wahookickrheadwind::packetReceived, this, [this]() {
+        if (currentWriteWaitingForResponse && isWriting) {
+            writeTimeoutTimer->stop();
+            isWriting = false;
+            currentWriteWaitingForResponse = false;
+            processWriteQueue();
+        }
+    });
 }
 
 void wahookickrheadwind::update() {
@@ -101,48 +118,65 @@ void wahookickrheadwind::fanSpeedRequest(uint8_t speed) {
 void wahookickrheadwind::writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic *writeChar,
                                              uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                              bool wait_for_response) {
-    QEventLoop loop;
-    QTimer timeout;
+    WriteRequest request;
+    request.service = service;
+    if (writeChar) {
+        request.writeChar = *writeChar;
+    }
+    request.data = QByteArray((const char *)data, data_len);
+    request.info = info;
+    request.disable_log = disable_log;
+    request.wait_for_response = wait_for_response;
 
-    if (service == nullptr || writeChar->isValid() == false) {
+    writeQueue.enqueue(request);
+    processWriteQueue();
+}
+
+void wahookickrheadwind::processWriteQueue() {
+    if (isWriting || writeQueue.isEmpty()) {
+        return;
+    }
+
+    WriteRequest request = writeQueue.dequeue();
+
+    if (request.service == nullptr || request.writeChar.isValid() == false) {
         qDebug() << QStringLiteral(
             "wahookickrheadwind trying to change the fan speed before the connection is estabilished");
+        writeQueue.clear();
+        isWriting = false;
         return;
     }
 
-    // if there are some crash here, maybe it's better to use 2 separate event for the characteristicChanged.
-    // one for the resistance changed event (spontaneous), and one for the other ones.
-    if (wait_for_response) {
-        connect(service, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    } else {
-        connect(service, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    }
-
-    if (service->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
+    if (!m_control || request.service->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
         m_control->state() == QLowEnergyController::UnconnectedState) {
         qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
+        writeQueue.clear();
+        isWriting = false;
         return;
     }
 
-    if (!writeChar->isValid()) {
+    if (!request.writeChar.isValid()) {
         qDebug() << QStringLiteral("gattWriteCharacteristic is invalid");
+        writeQueue.clear();
+        isWriting = false;
         return;
     }
+
+    isWriting = true;
+    currentWriteWaitingForResponse = request.wait_for_response;
 
     if (writeBuffer) {
         delete writeBuffer;
     }
-    writeBuffer = new QByteArray((const char *)data, data_len);
+    writeBuffer = new QByteArray(request.data);
 
-    service->writeCharacteristic(*writeChar, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
+    request.service->writeCharacteristic(request.writeChar, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
 
-    if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
+    if (!request.disable_log) {
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + request.info;
     }
 
-    loop.exec();
+    writeTimeoutTimer->start(300);
 }
 
 void wahookickrheadwind::stateChanged(QLowEnergyService::ServiceState state) {
@@ -244,6 +278,12 @@ void wahookickrheadwind::characteristicWritten(const QLowEnergyCharacteristic &c
                                                const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
+
+    if (!currentWriteWaitingForResponse && isWriting) {
+        writeTimeoutTimer->stop();
+        isWriting = false;
+        processWriteQueue();
+    }
 }
 
 void wahookickrheadwind::serviceScanDone(void) {

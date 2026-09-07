@@ -11,6 +11,7 @@
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
 #include <QtCore/qbytearray.h>
+#include <QtCore/qqueue.h>
 
 #ifndef Q_OS_ANDROID
 #include <QtCore/qcoreapplication.h>
@@ -76,18 +77,37 @@ class ftmsbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    void changePower(int32_t power) override;
     double maxGears() override;
     double minGears() override;
+    void enableManualResistancePowerAdjustment(resistance_t resistance);
 
-    // true because or the bike supports it by hardware or because QZ is emulating this in this module
-    bool ergModeSupportedAvailableBySoftware() override { return true; }
+    // Most FTMS bikes can use QZ's software ERG emulation, but FS-YK devices
+    // should stay on direct resistance control because it doesn't send the current resistance value and it conflicts
+    // with the PID HR method
+    bool ergModeSupportedAvailableBySoftware() override { return !FS_YK; }
     bool inclinationAvailableBySoftware() override { return !resistance_lvl_mode; }
 
   private:
+    struct WriteRequest {
+        QByteArray data;
+        QString info;
+        bool disable_log = false;
+        bool wait_for_response = false;
+        QLowEnergyService *service = nullptr;
+        QLowEnergyCharacteristic characteristic;
+        bool write_without_response = false;
+    };
+
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    bool enqueueWrite(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic, uint8_t *data,
+                      uint8_t data_len, const QString &info, bool disable_log, bool wait_for_response,
+                      bool write_without_response);
+    void processWriteQueue();
+    void completeCurrentWrite();
     void zwiftPlayInit();
     void startDiscover();
     void setWheelDiameter(double diameter);
@@ -98,6 +118,7 @@ class ftmsbike : public bike {
     void forceInclination(double requestInclination);
     void sendZwiftPlayInclination(double inclination);
     uint16_t wattsFromResistance(double resistance);
+    bool isManualResistanceBike() const;
 
     QTimer *refresh;
     
@@ -110,6 +131,11 @@ class ftmsbike : public bike {
 
     QLowEnergyCharacteristic zwiftPlayWriteChar;
     QLowEnergyService *zwiftPlayService = nullptr;
+
+    // MOK Fitness bikes don't use the FTMS control point (0x2AD9) to change resistance,
+    // they need a raw command written to a proprietary characteristic (0xFFF2) instead.
+    QLowEnergyCharacteristic gattWriteCharMokFitnessId;
+    QLowEnergyService *gattMokFitnessService = nullptr;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -134,6 +160,11 @@ class ftmsbike : public bike {
 
     bool powerForced = false;
     resistance_t m_lastErgResistance = 0;
+    resistance_t m_pendingErgResistance = -1;
+    QDateTime m_pendingErgResistanceTime;
+    bool manualResistancePowerAdjustmentActive = false;
+    bool manualResistancePowerAdjustmentToastShown = false;
+    resistance_t manualResistanceTarget = 1;
 
     bool resistance_lvl_mode = false;
     bool resistance_received = false;
@@ -176,6 +207,7 @@ class ftmsbike : public bike {
     bool MAGNUS = false;
     bool MRK_S26C = false;
     bool MRK_S28 = false;
+    bool MRK_S36C = false;
     bool HAMMER = false;
     bool YPBM = false;
     bool SPORT01 = false;
@@ -183,6 +215,11 @@ class ftmsbike : public bike {
     bool S18 = false;
     bool ZIPRO_RAVE = false;
     bool SPEEDRACEX = false;
+    bool USDC_D700 = false;
+    bool TOPUTURE_TEB5 = false;
+    bool SMARTBIKE_3DIGIT = false;
+    bool TX_500MB_IRON = false;
+    bool MOK_FITNESS = false;
 
     uint8_t secondsToResetTimer = 5;
 
@@ -192,6 +229,12 @@ class ftmsbike : public bike {
 
     bool wattReceived = false;
     bool gearInclinationSent = false;
+
+    QQueue<WriteRequest> writeQueue;
+    bool isWriting = false;
+    bool currentWriteWaitingForResponse = false;
+    QLowEnergyService *currentWriteService = nullptr;
+    QTimer *writeTimeoutTimer = nullptr;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;

@@ -18,6 +18,9 @@ The Workout Editor lets you create multi-device training sessions without leavin
 - **Save** writes the XML back into the same folder (name is sanitised automatically).
 - **Save & Start** persists the file and immediately queues it for playback.
 - Existing files trigger an overwrite confirmation.
+- XML files saved by QZ include the target device on the root element, for example `<rows device="elliptical">`.
+- Supported XML `device` values are `unknown`, `treadmill`, `bike`, `rower`, `elliptical`, `jumprope`, and `stairclimber`.
+- Older XML files without a root `device` attribute still load; QZ falls back to the connected device type and, in the Workout Editor, field-based detection.
 
 ## Tips
 - Durations must follow `hh:mm:ss` format.

@@ -338,8 +338,22 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         let quantityMiles = HKQuantity(unit: unitDistance,
                                   doubleValue: miles)
         
-        if(WorkoutTracking.sport == 2 || WorkoutTracking.sport == 4) {
-            if WorkoutTracking.sport == 4 {
+        if(WorkoutTracking.sport == 2 || WorkoutTracking.sport == 3 || WorkoutTracking.sport == 4) {
+            if WorkoutTracking.sport == 3 {
+                if #available(iOS 18.0, *),
+                   let quantityTypeDistance = HKQuantityType.quantityType(forIdentifier: .distanceRowing) {
+                    let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
+                                                                  quantity: quantityMiles,
+                                                                  start: startDate,
+                                                                  end: Date())
+
+                    workoutBuilder.add([sampleDistance]) {(success, error) in
+                        if let error = error {
+                            SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
+                        }
+                    }
+                }
+            } else if WorkoutTracking.sport == 4 {
                 guard let quantityTypeDistance = HKQuantityType.quantityType(
                         forIdentifier: .distanceCycling) else {
                   return
@@ -371,7 +385,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         if let error = error {
                             SwiftDebug.qtDebug("WorkoutTracking: " + error.localizedDescription)
                         }
-                        if WorkoutTracking.sport == 4 {
+                        if WorkoutTracking.sport == 3 || WorkoutTracking.sport == 4 {
                             workout?.setValue(quantityMiles, forKey: "totalDistance")
                         }
                         // Set total energy burned on the workout

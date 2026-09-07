@@ -88,7 +88,8 @@ void fitplusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
 
 void fitplusbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
-    bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+    bool virtufit_etappe = virtufitEtappe ||
+                           settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
     requestResistanceCompleted = false;
     if (virtufit_etappe || merach_MRK || H9110_OSAKA) {
@@ -304,8 +305,8 @@ void fitplusbike::update() {
                gattNotify1Characteristic.isValid() && initDone) {
         QSettings settings;
         update_metrics(false, watts());
-        bool virtufit_etappe =
-            settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+        bool virtufit_etappe = virtufitEtappe ||
+                               settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
         bool sportstech_sx600 =
             settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
@@ -413,7 +414,8 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     lastPacket = newValue;
 
-    bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+    bool virtufit_etappe = virtufitEtappe ||
+                           settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
     if (sportstech_sx600 && characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
@@ -752,7 +754,8 @@ double fitplusbike::bikeResistanceToPeloton(double resistance) {
 void fitplusbike::btinit() {
 
     QSettings settings;
-    bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+    bool virtufit_etappe = virtufitEtappe ||
+                           settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
     if (merach_MRK) {
@@ -1014,6 +1017,9 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().startsWith(QStringLiteral("MRK-"))) {
             qDebug() << QStringLiteral("merach_MRK workaround enabled!");
             merach_MRK = true;
+        } else if (device.name().startsWith(QStringLiteral("X100-"))) {
+            qDebug() << QStringLiteral("VirtuFit Etappe 2.0i workaround enabled!");
+            virtufitEtappe = true;
         } else if (device.name().toUpper().startsWith("H9110 OSAKA")) {
             qDebug() << QStringLiteral("H9110 OSAKA workaround enabled!");
             max_resistance = 32;
@@ -1080,7 +1086,8 @@ void fitplusbike::controllerStateChanged(QLowEnergyController::ControllerState s
 
 uint16_t fitplusbike::wattsFromResistance(double resistance) {
     QSettings settings;
-    bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+    bool virtufit_etappe = virtufitEtappe ||
+                           settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
 
     // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
     /*if(currentCadence().value() < 90)

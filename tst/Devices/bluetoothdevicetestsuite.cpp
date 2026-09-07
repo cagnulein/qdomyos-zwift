@@ -199,26 +199,41 @@ void BluetoothDeviceTestSuite::test_deviceDetection_exclusions() {
     if(exclusionNames.size()==0)
         GTEST_SKIP() << "No exclusions defined for this device: " << testData->Name().toStdString();
 
-    // Only take the first for each type of exclusion
-    std::vector<const BluetoothDeviceTestData*> exclusions;
-    std::unordered_set<int> exclusionTypeIds;
-    for(auto exclusionName : exclusionNames)
-    {
-        auto deviceTestData = DeviceTestDataIndex::GetTestData(exclusionName);
-        if(exclusionTypeIds.count(deviceTestData->ExpectedDeviceType()))
-            continue;
-        exclusions.push_back(deviceTestData);
-        exclusionTypeIds.insert(deviceTestData->ExpectedDeviceType());
-    }
-
     bluetooth bt(this->defaultDiscoveryOptions);
 
     // Test that it doesn't detect this device if its higher priority "namesakes" are already detected.
-    for(auto exclusion : exclusions) {
+    for(QString deviceName : this->names)
+    {
+        // Prefer exclusions that actually collide with the specific bluetooth name being tested.
+        std::vector<const BluetoothDeviceTestData*> exclusions;
+        std::unordered_set<int> exclusionTypeIds;
 
-        // For each name that would otherwise result in the device being detected
-        for(QString deviceName : this->names)
+        for(auto exclusionName : exclusionNames)
         {
+            auto candidate = DeviceTestDataIndex::GetTestData(exclusionName);
+            auto typeId = candidate->ExpectedDeviceType();
+
+            if(exclusionTypeIds.count(typeId))
+                continue;
+
+            const BluetoothDeviceTestData *selected = candidate;
+            for(auto alternativeName : exclusionNames)
+            {
+                auto alternative = DeviceTestDataIndex::GetTestData(alternativeName);
+                if(alternative->ExpectedDeviceType() != typeId)
+                    continue;
+
+                if(alternative->NamePatternGroup()->DeviceNames().contains(deviceName)) {
+                    selected = alternative;
+                    break;
+                }
+            }
+
+            exclusions.push_back(selected);
+            exclusionTypeIds.insert(typeId);
+        }
+
+        for(auto exclusion : exclusions) {
             // Get the enabling configurations
             auto enablingConfigurations = this->getConfigurations(testData, deviceName, true);
 
@@ -255,7 +270,6 @@ void BluetoothDeviceTestSuite::test_deviceDetection_exclusions() {
                                   .arg(testData->Name()).arg(deviceName).arg(i).arg(exclusion->Name());
                 this->testDeviceDetection(testData, bt, *enablingDiscoveryInfo.DeviceInfo(), false, true, failMessage);
             }
-
         }
     }
 }

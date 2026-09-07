@@ -612,10 +612,36 @@ bool treadmill::cadenceFromAppleWatch() {
                    .startsWith(QStringLiteral("Disabled"))) {
         long appleWatchCadence = h.stepCadence();
         qDebug() << QStringLiteral("Current Cadence: ") << QString::number(appleWatchCadence);
+        // Slow-jogging mode: derive Speed from Apple Watch cadence when running on Fake
+        // Treadmill. Gated on both toggles so this only runs in the explicit Fake Treadmill
+        // use case and does not affect normal treadmill users by default.
+        const bool appleWatchTreadmillSpeed =
+            settings.value(QZSettings::applewatch_as_treadmill_speed,
+                           QZSettings::default_applewatch_as_treadmill_speed).toBool() &&
+            settings.value(QZSettings::fakedevice_treadmill,
+                           QZSettings::default_fakedevice_treadmill).toBool();
         if (appleWatchCadence > 0) {
             evaluateStepCount();
-            Cadence = appleWatchCadence;
+            const double cadence_gain =
+                settings.value(QZSettings::cadence_gain,
+                               QZSettings::default_cadence_gain).toDouble();
+            const double cadence_offset =
+                settings.value(QZSettings::cadence_offset,
+                               QZSettings::default_cadence_offset).toDouble();
+            Cadence = (appleWatchCadence * cadence_gain) + cadence_offset;
+            if (appleWatchTreadmillSpeed) {
+                const double ratio =
+                    settings.value(QZSettings::cadence_sensor_speed_ratio,
+                                   QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+                Speed = appleWatchCadence * (ratio > 0.0 ? ratio : 0.0);
+            }
             return true;
+        }
+        if (appleWatchCadence == 0 && appleWatchTreadmillSpeed) {
+            // Cadence reported as exactly zero (user stopped); zero Speed too so the virtual
+            // treadmill broadcast doesn't ghost the previous value. Negative values are
+            // treated as "no fresh sample" and leave Speed unchanged.
+            Speed = 0;
         }
         return false;
     }
@@ -673,6 +699,11 @@ double treadmill::calculateCadenceFromSpeed(double speed) {
     // speed is in km/h, convert to m/s
     double speedMs = speed * 1000.0 / 3600.0;  // km/h to m/s
     double calculatedCadence = (speedMs / strideLengthM) * 60.0;
+    const double cadence_gain =
+        settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
+    const double cadence_offset =
+        settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
+    calculatedCadence = (calculatedCadence * cadence_gain) + cadence_offset;
 
     qDebug() << "Calculated Cadence from Speed:" << calculatedCadence
              << "SPM (speed:" << speed << "km/h, stride:" << (strideLengthM * 100) << "cm)";
