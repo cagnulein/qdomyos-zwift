@@ -86,7 +86,13 @@ public class HidBridge {
 		}
 		
 		// Create and intent and request a permission.
-                int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
+                // UsbManager answers by filling EXTRA_DEVICE and
+                // EXTRA_PERMISSION_GRANTED into this PendingIntent, so it has to be
+                // mutable. An immutable one drops every fill-in extra, so mUsbReceiver
+                // below sees a null device and a false grant even when the user
+                // tapped Allow.
+                final int FLAG_MUTABLE = 0x02000000; // PendingIntent.FLAG_MUTABLE, API 31
+                int flags = Build.VERSION.SDK_INT >= 31 ? FLAG_MUTABLE : 0;
                 PendingIntent mPermissionIntent = PendingIntent.getBroadcast(_context, 0, new Intent(ACTION_USB_PERMISSION), flags);
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
 				ContextCompat.registerReceiver(
