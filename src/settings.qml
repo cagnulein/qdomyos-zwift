@@ -10,7 +10,8 @@ import AndroidStatusBar 1.0
 //Page {
     ScrollView {
         objectName: "settingsPage"
-        contentWidth: -1
+        // Settings is a vertical page: never let a wide translated child enlarge the viewport.
+        contentWidth: availableWidth
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
@@ -16656,19 +16657,25 @@ import AndroidStatusBar 1.0
                         color: Material.color(Material.Lime)
                     }
 
-                    RowLayout {
+                    GridLayout {
+                        id: logsButtonsLayout
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        columns: width >= clearLogs.implicitWidth + showLogs.implicitWidth + columnSpacing ? 2 : 1
 
                         Button {
                             id: clearLogs
                             text: qsTr("Clear History")
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
                             onClicked: rootItem.clearFiles();
                         }
 
                         Button {
+                            id: showLogs
                             text: qsTr("Show Logs Folder")
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
                             onClicked: {
                                 toast.show(rootItem.getProfileDir())
                             }
