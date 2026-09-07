@@ -1,6 +1,8 @@
 #include "testsettingstestsuite.h"
 
 #include <QCoreApplication>
+#include <QFile>
+#include <QResource>
 #include "Tools/testsettings.h"
 
 
@@ -81,8 +83,39 @@ void TestSettingsTestSuite::test_destructor(){
         // testSettings should be destroyed here, which should restore the original QCoreApplication details
     }
 
-    EXPECT_EQ(QCoreApplication::organizationName(), originalOrgName);
     EXPECT_EQ(QCoreApplication::applicationName(), originalAppName);
+    EXPECT_EQ(QCoreApplication::organizationName(), originalOrgName);
+}
+
+void TestSettingsTestSuite::test_longTranslatedSwitchLabelsWrap(){
+    Q_INIT_RESOURCE(qml);
+
+    QFile indicatorOnlySwitch(":/IndicatorOnlySwitch.qml");
+    ASSERT_TRUE(indicatorOnlySwitch.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString indicatorSource = QString::fromUtf8(indicatorOnlySwitch.readAll());
+
+    // Keep translated switch titles responsive: prefer word boundaries, but allow
+    // breaking long German compound words when necessary. Two lines are enough for
+    // the setting title while keeping each row compact.
+    EXPECT_TRUE(indicatorSource.contains("contentItem: Label {"));
+    EXPECT_TRUE(indicatorSource.contains("wrapMode: Text.WrapAtWordBoundaryOrAnywhere"));
+    EXPECT_TRUE(indicatorSource.contains("maximumLineCount: 2"));
+    EXPECT_TRUE(indicatorSource.contains("elide: Text.ElideRight"));
+
+    QFile settingsQml(":/settings.qml");
+    ASSERT_TRUE(settingsQml.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString settingsSource = QString::fromUtf8(settingsQml.readAll());
+
+    // Regression case: the German translation of this setting previously appeared
+    // as "Nutze Apple Watch Cadence für gefälschte Laufbandges..." on narrow screens.
+    const QString regressionTitle =
+        "text: qsTr(\"Use Apple Watch Cadence for Fake Treadmill Speed\")";
+    const int titlePosition = settingsSource.indexOf(regressionTitle);
+    ASSERT_NE(titlePosition, -1);
+
+    const int delegatePosition = settingsSource.lastIndexOf("IndicatorOnlySwitch {", titlePosition);
+    ASSERT_NE(delegatePosition, -1);
+    EXPECT_LT(titlePosition - delegatePosition, 600);
 }
 
 
