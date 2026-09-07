@@ -2,6 +2,8 @@
 
 #include <QCoreApplication>
 #include <QFile>
+#include <QProcess>
+#include <QProcessEnvironment>
 #include <QResource>
 #include "Tools/testsettings.h"
 
@@ -88,19 +90,36 @@ void TestSettingsTestSuite::test_destructor(){
 }
 
 void TestSettingsTestSuite::test_longTranslatedSwitchLabelsWrap(){
+    // Run the real QML control in an isolated GUI subprocess. The main test process
+    // intentionally remains QCoreApplication-based, so this does not change the
+    // environment or behavior of the rest of the test suite.
+    QProcess probe;
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    environment.insert("QT_QPA_PLATFORM", "offscreen");
+    probe.setProcessEnvironment(environment);
+    probe.start(QCoreApplication::applicationFilePath(),
+                QStringList() << "--settings-label-layout-probe");
+
+    ASSERT_TRUE(probe.waitForStarted(10000));
+    ASSERT_TRUE(probe.waitForFinished(30000));
+
+    const QByteArray probeOutput = probe.readAllStandardError() + probe.readAllStandardOutput();
+    EXPECT_EQ(probe.exitStatus(), QProcess::NormalExit) << probeOutput.constData();
+    EXPECT_EQ(probe.exitCode(), 0) << probeOutput.constData();
+
     Q_INIT_RESOURCE(qml);
 
     QFile indicatorOnlySwitch(":/IndicatorOnlySwitch.qml");
     ASSERT_TRUE(indicatorOnlySwitch.open(QIODevice::ReadOnly | QIODevice::Text));
     const QString indicatorSource = QString::fromUtf8(indicatorOnlySwitch.readAll());
 
-    // Keep translated switch titles responsive: prefer word boundaries, but allow
-    // breaking long German compound words when necessary. Two lines are enough for
-    // the setting title while keeping each row compact.
-    EXPECT_TRUE(indicatorSource.contains("contentItem: Label {"));
-    EXPECT_TRUE(indicatorSource.contains("wrapMode: Text.WrapAtWordBoundaryOrAnywhere"));
-    EXPECT_TRUE(indicatorSource.contains("maximumLineCount: 2"));
-    EXPECT_TRUE(indicatorSource.contains("elide: Text.ElideRight"));
+    // Do not replace Material's IconLabel: it owns colors, disabled state,
+    // padding, icon handling and RTL layout. Only configure its text child.
+    EXPECT_FALSE(indicatorSource.contains("contentItem:"));
+    EXPECT_TRUE(indicatorSource.contains("configureTextItem"));
+    EXPECT_TRUE(indicatorSource.contains("Text.WrapAtWordBoundaryOrAnywhere"));
+    EXPECT_TRUE(indicatorSource.contains("maximumLineCount = 2"));
+    EXPECT_TRUE(indicatorSource.contains("elide = Text.ElideRight"));
 
     QFile settingsQml(":/settings.qml");
     ASSERT_TRUE(settingsQml.open(QIODevice::ReadOnly | QIODevice::Text));
