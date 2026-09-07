@@ -8,16 +8,20 @@ import QtQuick.Dialogs 1.0
 SwitchDelegate {
     id: root
 
-    contentItem: Label {
-        leftPadding: root.mirrored && root.indicator ? root.indicator.width + root.spacing : 0
-        rightPadding: !root.mirrored && root.indicator ? root.indicator.width + root.spacing : 0
-        text: root.text
-        font: root.font
-        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-        maximumLineCount: 2
-        elide: Text.ElideRight
-        verticalAlignment: Text.AlignVCenter
+    function configureContentItem() {
+        if (!contentItem)
+            return
+
+        if (contentItem.wrapMode !== undefined)
+            contentItem.wrapMode = Text.WrapAtWordBoundaryOrAnywhere
+        if (contentItem.maximumLineCount !== undefined)
+            contentItem.maximumLineCount = 2
+        if (contentItem.elide !== undefined)
+            contentItem.elide = Text.ElideRight
     }
+
+    Component.onCompleted: configureContentItem()
+    onContentItemChanged: configureContentItem()
 
     MouseArea {
         anchors.fill: parent
