@@ -135,6 +135,19 @@ void TestSettingsTestSuite::test_longTranslatedSwitchLabelsWrap(){
     const int delegatePosition = settingsSource.lastIndexOf("IndicatorOnlySwitch {", titlePosition);
     ASSERT_NE(delegatePosition, -1);
     EXPECT_LT(titlePosition - delegatePosition, 600);
+
+    // No translated control may enlarge the vertical settings page beyond the
+    // visible viewport. This protects labels, buttons, combo boxes and future
+    // controls with a large implicit width.
+    EXPECT_TRUE(settingsSource.contains("contentWidth: availableWidth"));
+
+    // Concrete regression case from the German UI: the two log buttons used to
+    // make the entire settings page wider than a phone screen. Keep them in two
+    // columns when they fit and stack them when the translated labels do not.
+    EXPECT_TRUE(settingsSource.contains("id: logsButtonsLayout"));
+    EXPECT_TRUE(settingsSource.contains(
+        "columns: width >= clearLogs.implicitWidth + showLogs.implicitWidth + columnSpacing ? 2 : 1"));
+    EXPECT_TRUE(settingsSource.contains("id: showLogs"));
 }
 
 

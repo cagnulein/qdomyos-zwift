@@ -4,24 +4,7 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  apply-responsive-settings-fix:
-    if: github.event_name == 'pull_request' && github.head_ref == 'fix/settings-long-translations'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout PR branch
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-
-      - name: Apply width-safe settings layout
-        run: python3 .github/scripts/apply-responsive-settings.py "${{ github.head_ref }}"
-
   validate-settings-catalog:
     runs-on: ubuntu-latest
 
