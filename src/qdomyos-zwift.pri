@@ -800,6 +800,7 @@ devices/heartratebelt/heartratebelt.h \
 homeform.h \
 mywhooshlink.h \
 garminconnect.h \
+profiletokenstore.h \
 devices/horizontreadmill/horizontreadmill.h \
 devices/inspirebike/inspirebike.h \
 ios/lockscreen.h \
