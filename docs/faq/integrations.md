@@ -35,6 +35,19 @@ When MyWhoosh lists the virtual QZ devices, select **Wahoo KICK 0000** as the **
 
 In a confirmed support case, selecting the external cadence sensor in QZ restored cadence immediately; the `cadence_sensor_as_bike` setting is also part of QZ's current device-discovery configuration.
 
+## Can I use Zwift Ride virtual gears with Kinomap through QZ?
+
+Yes. QZ can use the Zwift Ride controllers for shifting while Kinomap connects to QZ as the virtual trainer.
+
+For this setup:
+
+1. Enable **Zwift Play** in **QZ Settings > Accessories**.
+2. Wake the Zwift Ride controllers before starting QZ so QZ can discover them.
+3. In **Bike Options**, keep **FTMS Bike** set to **Disabled** unless you specifically need to force a particular FTMS bike implementation.
+4. Start QZ and verify that the controllers are connected, then pair the QZ virtual trainer in Kinomap.
+
+If the controllers appear connected but gear changes do not work in Kinomap, check **FTMS Bike** first. Selecting a trainer model there can make QZ use the wrong bike path for this setup. In a confirmed support case, changing **FTMS Bike** from a KICKR model back to **Disabled** restored virtual shifting immediately.
+
 ## Can I use QZ virtual gears with Rouvy?
 
 Yes. QZ can manage virtual gear changes while Rouvy controls the trainer through QZ. The current QZ gear is handled by QZ itself, so you should not expect Rouvy to display QZ's virtual gear number on its ride screen.
