@@ -1087,6 +1087,7 @@ public:
     QTimer *backupTimer;
     QTimer *automaticShiftingTimer;
     QTimer *clipboardWorkoutTimer = nullptr;
+    QMetaObject::Connection hardwareStopConnection;
 
     // HR PID controller state - tracks when training program changes speed to prevent race conditions
     QDateTime lastTrainingProgramSpeedChange = QDateTime::fromMSecsSinceEpoch(0);
@@ -1189,8 +1190,7 @@ public:
     // directly while suppressing command echo back to the physical console.
     void StartFromDevice();
     void PauseFromDevice();
-    void StopFromDevice();
-    void StopFromDeviceInitial();
+    void StopFromDevice(bool showCompletionScreen);
 
   private slots:
     void StopFromTrainProgram(bool paused);

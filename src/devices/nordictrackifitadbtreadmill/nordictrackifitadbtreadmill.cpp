@@ -1,4 +1,5 @@
 #include "nordictrackifitadbtreadmill.h"
+#include "fitproworkoutstate.h"
 #include "homeform.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -852,19 +853,15 @@ void nordictrackifitadbtreadmill::update() {
                 // WORKOUT_STATE_RESULTS = 5
 
                 // The first queued event is the initial FitPro sample, not a stop/start transition.
-                // Synchronize QZ's initial state without showing the completion screen.
-                if (previousState == 0) {
-                    if (!homeform::singleton()) {
-                        emit debug("Cannot synchronize initial FitPro workout state: HomeForm is unavailable");
-                    } else if (currentWorkoutState == 4) { // PAUSED
-                        emit debug("Synchronizing initial QZ paused state without an outbound pause/resume command");
+                const auto initialState = fitproInitialWorkoutState(previousState, currentWorkoutState);
+                if (initialState == FitProInitialWorkoutState::Paused) {
+                    emit debug("Synchronizing initial QZ paused state without an outbound pause/resume command");
+                    if (homeform::singleton())
                         homeform::singleton()->PauseFromDevice();
-                    } else if (currentWorkoutState == 1 || currentWorkoutState == 5) { // IDLE or RESULTS
-                        emit debug("Synchronizing initial QZ stopped state without completion screen");
-                        homeform::singleton()->StopFromDeviceInitial();
-                    } else {
-                        emit debug("FitPro initial workout state is running; leaving QZ state unchanged");
-                    }
+                } else if (initialState == FitProInitialWorkoutState::Stopped) {
+                    emit debug("Synchronizing initial QZ stopped state without completion screen");
+                    if (homeform::singleton())
+                        homeform::singleton()->StopFromDevice(false);
                 }
                 // If workout started (IDLE/PAUSED -> RUNNING)
                 else if (currentWorkoutState == 3 && (previousState == 1 || previousState == 4)) {
@@ -890,7 +887,7 @@ void nordictrackifitadbtreadmill::update() {
                     emit debug("Workout completed in iFit app - showing workout complete screen");
                     if (homeform::singleton()) {
                         emit debug("Synchronizing QZ stopped state from FitPro event without an outbound stop command");
-                        homeform::singleton()->StopFromDevice();
+                        homeform::singleton()->StopFromDevice(true);
                     }
                 }
                 // If workout paused (RUNNING -> PAUSED)
@@ -1305,8 +1302,6 @@ void nordictrackifitadbtreadmill::startGrpcWorkoutStateMonitoring() {
             "()V"
         );
         emit debug(QString("Started gRPC workout state monitoring"));
-
-        emit debug(QString("Started gRPC workout state monitoring; initial state will be synchronized from the first FitPro sample"));
     } else {
         emit debug(QString("Cannot start workout state monitoring: gRPC not initialized"));
     }

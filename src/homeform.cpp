@@ -1954,8 +1954,7 @@ void homeform::trainProgramSignals() {
                    &homeform::StartFromDevice);
         disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWPause, this,
                    &homeform::PauseFromDevice);
-        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
-                   &homeform::StopFromDevice);
+        disconnect(hardwareStopConnection);
         disconnect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram,
                    &trainprogram::onTapeStarted);
         disconnect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
@@ -1995,8 +1994,8 @@ void homeform::trainProgramSignals() {
                     &homeform::StartFromDevice);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWPause, this,
                     &homeform::PauseFromDevice);
-            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
-                    &homeform::StopFromDevice);
+            hardwareStopConnection = connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop,
+                                              this, [this]() { StopFromDevice(true); });
             connect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
         } else if (bluetoothManager->device()->deviceType() == BIKE) {
             connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
@@ -5937,17 +5936,14 @@ void homeform::PauseFromDevice() {
     Start_inner(false);
 }
 
-void homeform::StopFromDevice() {
+void homeform::StopFromDevice(bool showCompletionScreen) {
     qDebug() << QStringLiteral("Synchronizing QZ stop from hardware; suppressing outbound device command");
     Stop_inner(false);
-    // Preserve the existing QML completion-screen flow. When its queued Stop() runs, QZ is already
-    // stopped, so Stop_inner(true) returns before it can echo a command to the device.
-    StopRequested();
-}
-
-void homeform::StopFromDeviceInitial() {
-    qDebug() << QStringLiteral("Synchronizing initial QZ stopped state without completion screen");
-    Stop_inner(false);
+    if (showCompletionScreen) {
+        // Preserve the existing QML completion-screen flow. When its queued Stop() runs, QZ is already
+        // stopped, so Stop_inner(true) returns before it can echo a command to the device.
+        StopRequested();
+    }
 }
 
 void homeform::StartRequested() {
