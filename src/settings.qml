@@ -1479,9 +1479,6 @@ import AndroidStatusBar 1.0
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
 
-            property bool nordictrackadbbike_gear_resistance_mode: false
-            property int nordictrackadbbike_gear_debounce_ms: 100
-
             // 2.20.3
             property bool technogym_group_cycle: false
             property int ant_bike_device_number: 0
@@ -1747,6 +1744,8 @@ import AndroidStatusBar 1.0
             property bool nordictrack_incline_trainer_x7i_ntl15010_0: false
             property bool custom_inclination_resistance_table_enabled: false
             property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
+            property bool nordictrackadbbike_gear_resistance_mode: false
+            property int nordictrackadbbike_gear_debounce_ms: 100
         }
 
 

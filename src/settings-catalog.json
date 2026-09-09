@@ -9509,7 +9509,8 @@
       "visible": true,
       "defaultValue": false,
       "defaultExpression": "false",
-      "options": null
+      "options": null,
+      "restartRequired": false
     },
     {
       "key": "nordictrackadbbike_gear_debounce_ms",
@@ -9522,7 +9523,8 @@
       "visible": true,
       "defaultValue": 100,
       "defaultExpression": "100",
-      "options": null
+      "options": null,
+      "restartRequired": false
     },
     {
       "key": "proform_treadmill_carbon_t7",
