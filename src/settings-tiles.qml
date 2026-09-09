@@ -367,6 +367,8 @@ ScrollView {
         property string shortcut_start_stop: ""            
         property bool tile_watt_color_enabled: true
         property bool tile_pace_color_enabled: true
+        property bool tile_alternative_pace_enabled: false
+        property int  tile_alternative_pace_order: 80
     }
 
 
@@ -777,6 +779,36 @@ ScrollView {
                     text: qsTr("OK")
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_avg_pace_order = avgpaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                }
+            }
+        }
+
+        AccordionCheckElement {
+            id: alternativePaceEnabledAccordion
+            title: qsTr("Alternative Pace")
+            linkedBoolSetting: "tile_alternative_pace_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelalternativePaceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: alternativePaceOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_alternative_pace_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: displayText = alternativePaceOrderTextField.currentValue
+                }
+                Button {
+                    id: okalternativePaceOrderButton
+                    text: qsTr("OK")
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: { settings.tile_alternative_pace_order = alternativePaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }

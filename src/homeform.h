@@ -880,6 +880,7 @@ public:
     DataObject *calories;
     DataObject *odometer;
     DataObject *pace;
+    DataObject *alternative_pace;
     DataObject *avg_pace;
     DataObject *grade_adjusted_pace;
     DataObject *datetime;

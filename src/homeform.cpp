@@ -541,6 +541,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     pace =
         new DataObject(tr("Pace (m/%1)").arg(unit), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0:00"), false, QStringLiteral("pace"), 48, labelFontSize);
+    alternative_pace =
+        new DataObject(tr("Alternative Pace (m/%1)").arg(unit), QStringLiteral("icons/icons/pace.png"),
+                       QStringLiteral("N/A"), false, QStringLiteral("alternative_pace"), 48, labelFontSize);
 
     avg_pace =
         new DataObject(tr("Avg Pace (m/%1)").arg(unit), QStringLiteral("icons/icons/pace.png"),
@@ -2208,6 +2211,16 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_pace_order, 0).toInt() == i) {
                 pace->setGridId(i);
                 dataList.append(pace);
+            }
+
+            if (settings.value(QZSettings::tile_alternative_pace_enabled,
+                               QZSettings::default_tile_alternative_pace_enabled)
+                        .toBool() &&
+                settings.value(QZSettings::tile_alternative_pace_order,
+                               QZSettings::default_tile_alternative_pace_order)
+                        .toInt() == i) {
+                alternative_pace->setGridId(i);
+                dataList.append(alternative_pace);
             }
 
             if (settings.value(QZSettings::tile_avg_pace_enabled, QZSettings::default_tile_avg_pace_enabled).toBool() &&
@@ -6575,6 +6588,15 @@ void homeform::update() {
                 ((treadmill *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
                 QStringLiteral(" MAX: ") +
                 ((treadmill *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
+            strydrunpowersensor *runningPowerSensor = bluetoothManager->runningPowerSensor();
+            if (runningPowerSensor && runningPowerSensor->alternativeSpeed() > 2) {
+                this->alternative_pace->setValue(runningPowerSensor->alternativePace().toString(QStringLiteral("m:ss")));
+                this->alternative_pace->setSecondLine(
+                    QStringLiteral("Speed: ") + QString::number(runningPowerSensor->alternativeSpeed() * unit_conversion, 'f', 1));
+            } else {
+                this->alternative_pace->setValue(QStringLiteral("N/A"));
+                this->alternative_pace->setSecondLine(QString());
+            }
             this->avg_pace->setValue(
                 ((treadmill *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setSecondLine(

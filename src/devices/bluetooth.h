@@ -183,6 +183,7 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *device();
     bluetoothdevice *externalInclination() { return eliteRizer; }
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
+    strydrunpowersensor *runningPowerSensor() { return powerSensorRun; }
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
