@@ -14,7 +14,29 @@ DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_servi
     foreach (DirconProcessorService *my_service, my_services) { my_service->setParent(this); }
 }
 
-DirconProcessor::~DirconProcessor() {}
+DirconProcessor::~DirconProcessor() {
+    // The three mDNS objects are all children of this processor, and QObject destroys
+    // children in the order they were added - which initAdvertising() makes server,
+    // hostname, provider. That is exactly backwards: ~ProviderPrivate() sends the goodbye
+    // through `server->sendMessageToAll()`, so it reaches through a QObject that was freed
+    // two destructors ago.
+    //
+    // It cost nothing for a long time because the ordinary quit path never gets there. The
+    // provider only says goodbye once its name has been confirmed by a probe - a second or
+    // two after the endpoint comes up - and on quit `aboutToQuit` fires sayGoodbye() first,
+    // which sets saidGoodbye and makes the destructor's call return early. What is left is
+    // every mid-session teardown: releaseShared(), which DirconManager::shared() calls when
+    // a treadmill replaces a bike. That path crashed, and the goodbye it exists to send was
+    // being written into freed memory rather than onto the wire.
+    //
+    // So take them down in dependency order instead of leaving it to child order.
+    delete mdnsProvider;
+    mdnsProvider = nullptr;
+    delete mdnsHostname;
+    mdnsHostname = nullptr;
+    delete mdnsServer;
+    mdnsServer = nullptr;
+}
 
 QString DirconProcessor::convertUUIDFromUINT16ToString (quint16 uuid) {
     if(uuid == ZWIFT_PLAY_CHAR1_ENUM_VALUE)
@@ -59,10 +81,24 @@ void DirconProcessor::initAdvertising() {
     if (!mdnsServer) {
         qDebug() << "Dircon Adv init for" << serverName;
         mdnsServer = new QMdnsEngine::Server(this);
-        mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, serverName.toUtf8() + QByteArrayLiteral("H"), this);
+        // MyWhoosh keys its pending-service map on the instance name with spaces
+        // hyphenated - WahooProgram.ServiceFound() does serviceName.Replace(" ", "-")
+        // + ".local." - then looks that key up with the SRV target hostname and drops
+        // the device silently when it misses. The old trailing "H" and the unhyphenated
+        // spaces both broke that match, so MyWhoosh never resolved us and never opened
+        // TCP to 36866. Hostname appends ".local." itself, and Rouvy ignores the target.
+        // IPv4Only because initServer() binds AnyIPv4: publishing an AAAA would
+        // advertise a link-local address nothing is listening on, and a client
+        // that picks it stalls in SYN_SENT rather than falling back.
+        mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, serverName.toUtf8().replace(' ', '-'),
+                                                 QMdnsEngine::HostnameAddressFamily::IPv4Only, this);
         mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
         QMdnsEngine::Service mdnsService;
-        mdnsService.setType(rouvy_compatibility ? "_wahoo-fitness-tnp._tcp.local" : "_wahoo-fitness-tnp._tcp.local.");
+        // Both spellings encode to the same bytes - writeName() chops the trailing
+        // dot - so the Rouvy branch never changed what went out on the wire. What it
+        // did do was leave the record names unable to match any query, which is why
+        // Rouvy could only find QZ if it was already running when QZ announced.
+        mdnsService.setType("_wahoo-fitness-tnp._tcp.local.");
         mdnsService.setName(serverName.toUtf8());
         mdnsService.addAttribute(QByteArrayLiteral("mac-address"), mac.toUtf8());
         mdnsService.addAttribute(QByteArrayLiteral("serial-number"), serialN.toUtf8());
@@ -124,20 +160,12 @@ void DirconProcessor::tcpNewConnection() {
     DirconProcessorClient *client = new DirconProcessorClient(socket);
     clientsMap.insert(socket, client);
 
-    if (rouvy_compatibility) {
-        // Send initial notification for 0x2AD2 (Indoor Bike Data) - Apple TV/Windows compatibility
-        // Elite Avanti sends this immediately after connection
-        DirconPacket initPkt;
-        initPkt.isRequest = false;
-        initPkt.Identifier = DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION;
-        initPkt.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
-        initPkt.uuid = 0x2AD2;
-        initPkt.additional_data = QByteArray(29, 0x00); // Empty data for now
-        QByteArray initData = initPkt.encode(0);
-        socket->write(initData);
-        socket->flush();
-        qDebug() << "Sent initial notification for 0x2AD2 to" << socket->peerAddress().toString();
-    }
+    // No unsolicited 0x2AD2 here. The Apple TV/Windows compatibility frame is still sent -
+    // see the DPKT_MSGID_ENABLE_CHARACTERISTIC_NOTIFICATIONS branch in processPacket() -
+    // but only once a client has actually subscribed to Indoor Bike Data. A frame pushed
+    // at connect time, before the client has even discovered the characteristic, made
+    // MyWhoosh disable 0x2AD2 outright and fall back to CSC with no power source, even
+    // when the payload was truthful. Observed 2026-08-25 against MyWhoosh on Windows 11.
 }
 
 void DirconProcessor::tcpDisconnected() {
@@ -231,8 +259,18 @@ DirconPacket DirconProcessor::processPacket(DirconProcessorClient *client, const
 
                             if ((idx = client->char_notify.indexOf(pkt.uuid)) >= 0 && !notif)
                                 client->char_notify.removeAt(idx);
-                            else if (idx < 0 && notif)
+                            else if (idx < 0 && notif) {
                                 client->char_notify.append(pkt.uuid);
+                                // The Elite Avanti sends an Indoor Bike Data frame as soon as
+                                // a client is listening, and Apple TV/Windows clients expect
+                                // one. Give them the last frame CharacteristicNotifier2AD2
+                                // produced rather than a hand-built payload, so the greeting
+                                // and the stream that follows describe the same machine. When
+                                // the notifier has not run yet there is no device attached and
+                                // nothing truthful to say, so nothing is sent.
+                                if (pkt.uuid == 0x2AD2 && !last2AD2Notification.isEmpty())
+                                    pending2AD2Greeting = true;
+                            }
                             out.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
                             emit onCharacteristicNotificationSwitch(cc->uuid, notif);
                         } else
@@ -260,6 +298,10 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
     QSettings settings;
     bool rv = true, rvs;
     pkt.additional_data = data;
+    // Remember the real Indoor Bike Data frame so a client connecting later is greeted
+    // with the machine as it actually is - see tcpNewConnection().
+    if (uuid == 0x2AD2 && !data.isEmpty())
+        last2AD2Notification = data;
     pkt.Identifier = DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION;
     pkt.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
     pkt.uuid = uuid;
@@ -311,6 +353,22 @@ void DirconProcessor::tcpDataAvailable() {
                     QByteArray byteout = resp.encode(pkt.SequenceNumber);
                     if (byteout.size() && client && client->sock)
                         client->sock->write(byteout);
+                }
+                if (pending2AD2Greeting) {
+                    pending2AD2Greeting = false;
+                    if (client && client->sock) {
+                        DirconPacket initPkt;
+                        initPkt.isRequest = false;
+                        initPkt.Identifier = DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION;
+                        initPkt.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
+                        initPkt.uuid = 0x2AD2;
+                        initPkt.additional_data = last2AD2Notification;
+                        client->sock->write(initPkt.encode(0));
+                        client->sock->flush();
+                        qDebug() << "Sent initial notification for 0x2AD2 to"
+                                 << client->sock->peerAddress().toString()
+                                 << last2AD2Notification.toHex(' ');
+                    }
                 }
             } else if (rembuf >= 0) {
                 DirconPacket resp;

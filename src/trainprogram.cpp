@@ -644,6 +644,7 @@ void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
+    auto setErgMode = [&settings](bool enabled) { settings.setValue(QZSettings::zwift_erg, enabled); };
     QDateTime now = QDateTime::currentDateTime();
     qint64 msecsElapsed = lastSchedulerCall.msecsTo(now);
 
@@ -769,6 +770,7 @@ void trainprogram::scheduler() {
                                 if(zwift_api_autoinclination) {
                                     if(bluetoothManager->device()->deviceType() == TREADMILL || 
                                         (bluetoothManager->device()->deviceType() == ELLIPTICAL && ((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware())) {
+                                        setErgMode(false);
                                         bluetoothManager->device()->changeInclination(grade, grade);
                                     }
                                     if (bluetoothManager->device()->deviceType() == ELLIPTICAL &&
@@ -778,6 +780,7 @@ void trainprogram::scheduler() {
                                         double bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, bikeResistanceOffset).toInt();
                                         double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, bikeResistanceGain).toDouble();
 
+                                        setErgMode(false);
                                         bluetoothManager->device()->changeResistance((resistance_t)(round(grade * bikeResistanceGain)) + bikeResistanceOffset + 1); // resistance start from 1
                                     }
                                 }
@@ -836,6 +839,7 @@ void trainprogram::scheduler() {
                                     ss[0] = ss[0].replace("l", "1");
                                     ss[0] = ss[0].replace(" ", "");
                                     if (ss[0].toInt() < 15 && ss[0].toInt() > -15) {
+                                        setErgMode(false);
                                         bluetoothManager->device()->changeInclination(ss[0].toInt(), ss[0].toInt());
                                     } else {
                                         qDebug() << "filtering" << ss[0].toInt();
@@ -941,11 +945,13 @@ void trainprogram::scheduler() {
                     inc = rows.at(0).inclination;
                 }
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
+                setErgMode(false);
                 emit changeInclination(inc, inc);
                 emit changeNextInclination300Meters(avgInclinationNext300Meters());
             }
             if (rows.at(0).power != -1) {
                 qDebug() << QStringLiteral("trainprogram change power") + QString::number(rows.at(0).power);
+                setErgMode(true);
                 emit changePower(rows.at(0).power);
             }
         } else if (bluetoothManager->device()->deviceType() == ROWING) {
@@ -959,15 +965,18 @@ void trainprogram::scheduler() {
             }
             if (rows.at(0).power != -1) {
                 qDebug() << QStringLiteral("trainprogram change power") + QString::number(rows.at(0).power);
+                setErgMode(true);
                 emit changePower(rows.at(0).power);
             }
             if (rows.at(0).resistance != -1) {
                 qDebug() << QStringLiteral("trainprogram change resistance") + QString::number(rows.at(0).resistance);
+                setErgMode(false);
                 emit changeResistance(rows.at(0).resistance);
             }
         } else {
             if (rows.at(0).resistance != -1) {
                 qDebug() << QStringLiteral("trainprogram change resistance") + QString::number(rows.at(0).resistance);
+                setErgMode(false);
                 emit changeResistance(rows.at(0).resistance);
             }
 
@@ -978,12 +987,14 @@ void trainprogram::scheduler() {
 
             if (rows.at(0).power != -1) {
                 qDebug() << QStringLiteral("trainprogram change power") + QString::number(rows.at(0).power);
+                setErgMode(true);
                 emit changePower(rows.at(0).power);
             }
 
             if (rows.at(0).requested_peloton_resistance != -1) {
                 qDebug() << QStringLiteral("trainprogram change requested peloton resistance") +
                                 QString::number(rows.at(0).requested_peloton_resistance);
+                setErgMode(false);
                 emit changeRequestedPelotonResistance(rows.at(0).requested_peloton_resistance);
             }
 
@@ -1018,6 +1029,7 @@ void trainprogram::scheduler() {
                         settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
                             .toDouble();
 
+                    setErgMode(false);
                     bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                                  bikeResistanceOffset + 1); // resistance start from 1
                 }
@@ -1028,6 +1040,7 @@ void trainprogram::scheduler() {
                 if (bluetoothManager->device()->deviceType() == BIKE ||
                     (isElliptical && ellipticalInclinationByHardware)) {
                     qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
+                    setErgMode(false);
                     emit changeInclination(inc, inc);
                     emit changeNextInclination300Meters(inclinationNext300Meters());
                 }
@@ -1058,6 +1071,7 @@ void trainprogram::scheduler() {
                          << "row" << currentStep
                          << "condition" << blockingTransitionRowDescription(row);
             }
+            setErgMode(true);
             emit changePower(row.power);
         }
     }
@@ -1199,6 +1213,7 @@ void trainprogram::scheduler() {
             if (rows.length() > currentStep && rows.at(currentStep).power != -1) {
                 qDebug() << QStringLiteral("trainprogram change power ") +
                                 QString::number(rows.at(currentStep).power);
+                setErgMode(true);
                 emit changePower(rows.at(currentStep).power);
             }
 
@@ -1219,6 +1234,7 @@ void trainprogram::scheduler() {
                         settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
                             .toDouble();
 
+                    setErgMode(false);
                     bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                                  bikeResistanceOffset + 1); // resistance start from 1
                     
@@ -1228,6 +1244,7 @@ void trainprogram::scheduler() {
                     bluetoothManager->device()->setInclination(inc);
 
                 qDebug() << QStringLiteral("trainprogram change inclination due to gps") + QString::number(inc);
+                setErgMode(false);
                 emit changeInclination(inc, inc);
                 if (bluetoothManager->device()->deviceType() == TREADMILL)
                     emit changeNextInclination300Meters(avgInclinationNext300Meters());
@@ -1339,6 +1356,32 @@ bool trainprogram::adjustPowerOffsetForTrainingProgram(int32_t delta) {
     return true;
 }
 
+bool trainprogram::adjustResistanceOffsetForTrainingProgram(int32_t delta) {
+    if (!started || currentStep >= rows.length() || currentRow().requested_peloton_resistance == -1 ||
+        loadedRows.length() != rows.length()) {
+        return false;
+    }
+
+    trainingProgramResistanceOffset += delta;
+    qDebug() << "applying training program resistance offset" << trainingProgramResistanceOffset;
+
+    bluetoothdevice *dev = bluetoothManager ? bluetoothManager->device() : nullptr;
+    bike *b = (dev && dev->deviceType() == BIKE) ? (bike *)dev : nullptr;
+
+    for (int i = 0; i < rows.length(); i++) {
+        if (loadedRows.at(i).requested_peloton_resistance != -1) {
+            int32_t newPeloton =
+                qBound(0, loadedRows.at(i).requested_peloton_resistance + trainingProgramResistanceOffset, 100);
+            rows[i].requested_peloton_resistance = newPeloton;
+            if (b) {
+                rows[i].resistance = b->pelotonToBikeResistance(newPeloton);
+            }
+        }
+    }
+
+    return true;
+}
+
 bool trainprogram::currentHeartRateEndConditionSatisfied() const {
     if (!bluetoothManager || !bluetoothManager->device() || currentStep >= rows.length())
         return false;
@@ -1433,6 +1476,7 @@ void trainprogram::applyCurrentStepSettings() {
         return;
 
     QSettings settings;
+    auto setErgMode = [&settings](bool enabled) { settings.setValue(QZSettings::zwift_erg, enabled); };
     emit intervalTransitionApplied();
 
     if (bluetoothManager->device()->deviceType() == TREADMILL) {
@@ -1455,12 +1499,14 @@ void trainprogram::applyCurrentStepSettings() {
                 inc = rows.at(currentStep).inclination;
             }
             qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
+            setErgMode(false);
             emit changeInclination(inc, inc);
             emit changeNextInclination300Meters(avgInclinationNext300Meters());
         }
         if (rows.at(currentStep).power != -1) {
             qDebug() << QStringLiteral("trainprogram change power ") +
                             QString::number(rows.at(currentStep).power);
+            setErgMode(true);
             emit changePower(rows.at(currentStep).power);
         }
     } else if (bluetoothManager->device()->deviceType() == ROWING) {
@@ -1483,17 +1529,20 @@ void trainprogram::applyCurrentStepSettings() {
         if (rows.at(currentStep).power != -1) {
             qDebug() << QStringLiteral("trainprogram change power ") +
                             QString::number(rows.at(currentStep).power);
+            setErgMode(true);
             emit changePower(rows.at(currentStep).power);
         }
         if (rows.at(currentStep).resistance != -1) {
             qDebug() << QStringLiteral("trainprogram change resistance ") +
                             QString::number(rows.at(currentStep).resistance);
+            setErgMode(false);
             emit changeResistance(rows.at(currentStep).resistance);
         }
     } else {
         if (rows.at(currentStep).resistance != -1) {
             qDebug() << QStringLiteral("trainprogram change resistance ") +
                             QString::number(rows.at(currentStep).resistance);
+            setErgMode(false);
             emit changeResistance(rows.at(currentStep).resistance);
         }
         if (rows.at(currentStep).cadence != -1) {
@@ -1504,11 +1553,13 @@ void trainprogram::applyCurrentStepSettings() {
         if (rows.at(currentStep).power != -1) {
             qDebug() << QStringLiteral("trainprogram change power ") +
                             QString::number(rows.at(currentStep).power);
+            setErgMode(true);
             emit changePower(rows.at(currentStep).power);
         }
         if (rows.at(currentStep).requested_peloton_resistance != -1) {
             qDebug() << QStringLiteral("trainprogram change requested peloton resistance ") +
                             QString::number(rows.at(currentStep).requested_peloton_resistance);
+            setErgMode(false);
             emit changeRequestedPelotonResistance(rows.at(currentStep).requested_peloton_resistance);
         }
         if (rows.at(currentStep).inclination != -200 &&
@@ -1537,6 +1588,7 @@ void trainprogram::applyCurrentStepSettings() {
                     settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
                 double bikeResistanceGain =
                     settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
+                setErgMode(false);
                 bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                              bikeResistanceOffset + 1);
             }
@@ -1547,6 +1599,7 @@ void trainprogram::applyCurrentStepSettings() {
             if (bluetoothManager->device()->deviceType() == BIKE ||
                 (isElliptical && ellipticalInclinationByHardware)) {
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
+                setErgMode(false);
                 emit changeInclination(inc, inc);
                 emit changeNextInclination300Meters(inclinationNext300Meters());
             }
@@ -1613,9 +1666,14 @@ void trainprogram::onTapeStarted() { started = true; }
 
 void trainprogram::restart() {
     trainingProgramPowerOffset = 0;
+    trainingProgramResistanceOffset = 0;
     for (int i = 0; i < rows.length() && i < loadedRows.length(); i++) {
         if (loadedRows.at(i).power != -1) {
             rows[i].power = loadedRows.at(i).power;
+        }
+        if (loadedRows.at(i).requested_peloton_resistance != -1) {
+            rows[i].requested_peloton_resistance = loadedRows.at(i).requested_peloton_resistance;
+            rows[i].resistance = loadedRows.at(i).resistance;
         }
     }
 
@@ -1764,7 +1822,15 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows,
             if (row.upper_cadence >= 0) {
                 stream.writeAttribute(QStringLiteral("upper_cadence"), QString::number(row.upper_cadence));
             }
-            if (row.power >= 0) {
+            if (row.rampPowerFromOriginal >= 0.0 && row.rampPowerToOriginal >= 0.0) {
+                if (row.rampIsFtpFraction) {
+                    stream.writeAttribute(QStringLiteral("powerzonefrom"), QString::number(row.rampPowerFromOriginal, 'f', 4));
+                    stream.writeAttribute(QStringLiteral("powerzoneto"), QString::number(row.rampPowerToOriginal, 'f', 4));
+                } else {
+                    stream.writeAttribute(QStringLiteral("powerfrom"), QString::number((int)row.rampPowerFromOriginal));
+                    stream.writeAttribute(QStringLiteral("powerto"), QString::number((int)row.rampPowerToOriginal));
+                }
+            } else if (row.power >= 0) {
                 stream.writeAttribute(QStringLiteral("power"), QString::number(row.power));
             }
             if (row.waitForLap) {
@@ -2107,16 +2173,15 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
                 for (int i = 0; i < speedDelta; i++) {
                     trainrow rowI(row);
                     int spare = 0;
-                    if (spareSeconds)
-                        spare = (i % spareSeconds == 0 && i > 0) ? 1 : 0;
-                    spareSum += spare;
-                    if (i == speedDelta && spareSum < spareSeconds) {
-                        spare += (spareSeconds - spareSum) - durationStep;
-                        spareSum = spareSeconds;
+                    if (spareSeconds) {
+                        int before = (int)((qint64)i * spareSeconds / speedDelta);
+                        int after = (int)((qint64)(i + 1) * spareSeconds / speedDelta);
+                        spare = after - before;
                     }
+                    spareSum += spare;
                     rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
-                    rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
-                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum - durationStep + spare);
+                    rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum - spare);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * (i + 1)) - spareSum);
                     rowI.forcespeed = 1;
                     if (speedFrom < speedTo) {
                         if(device_type == TREADMILL) {
@@ -2135,7 +2200,62 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
                                          settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
                         }
                     }
+                    rowI.rampIsFtpFraction = true;
+                    rowI.rampPowerFromOriginal = speedFrom;
+                    rowI.rampPowerToOriginal = speedTo;
                     qDebug() << "TrainRow" << rowI.toString();
+                    if (insideRepeat) {
+                        repeatRows.append(rowI);
+                    } else {
+                        list.append(rowI);
+                    }
+                }
+                ramp = true;
+            }
+            if (atts.hasAttribute(QStringLiteral("powerfrom")) && atts.hasAttribute(QStringLiteral("powerto")) &&
+                atts.hasAttribute(QStringLiteral("duration"))) {
+                int powerFrom = atts.value(QStringLiteral("powerfrom")).toInt();
+                int powerTo = atts.value(QStringLiteral("powerto")).toInt();
+                QTime duration = QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
+                int durationS = duration.hour() * 3600 + duration.minute() * 60 + duration.second();
+                int powerDelta = abs(powerTo - powerFrom);
+                int durationStep;
+                double powerStep;
+                int spareSeconds;
+                if (powerDelta == 0)
+                    powerDelta = 1;
+                if (powerDelta <= durationS) {
+                    durationStep = durationS / powerDelta;
+                    powerStep = 1.0;
+                    spareSeconds = durationS % powerDelta;
+                } else {
+                    durationStep = 1;
+                    powerStep = (double)abs(powerTo - powerFrom) / (durationS - 1);
+                    powerDelta = durationS - 1;
+                    spareSeconds = 0;
+                }
+                int spareSum = 0;
+                for (int i = 0; i < powerDelta; i++) {
+                    trainrow rowI(row);
+                    int spare = 0;
+                    if (spareSeconds) {
+                        int before = (int)((qint64)i * spareSeconds / powerDelta);
+                        int after = (int)((qint64)(i + 1) * spareSeconds / powerDelta);
+                        spare = after - before;
+                    }
+                    spareSum += spare;
+                    rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
+                    rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum - spare);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * (i + 1)) - spareSum);
+                    if (powerFrom <= powerTo) {
+                        rowI.power = (int)(powerFrom + (powerStep * i));
+                    } else {
+                        rowI.power = (int)(powerFrom - (powerStep * i));
+                    }
+                    rowI.rampIsFtpFraction = false;
+                    rowI.rampPowerFromOriginal = (double)powerFrom;
+                    rowI.rampPowerToOriginal = (double)powerTo;
+                    qDebug() << "TrainRow (power ramp)" << rowI.toString();
                     if (insideRepeat) {
                         repeatRows.append(rowI);
                     } else {

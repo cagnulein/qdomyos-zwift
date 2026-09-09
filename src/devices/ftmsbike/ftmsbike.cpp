@@ -970,7 +970,24 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             emit debug(QStringLiteral("FTMS Treadmill Data Force On Belt: ") + QString::number(forceOnBelt));
             emit debug(QStringLiteral("FTMS Treadmill Data Power Output: ") + QString::number(powerOutput));
         }
-    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
+    }
+
+    auto applyToputureTEB5Watt = [&]() {
+        const double k[32] = {0.60, 0.64, 0.68, 0.72, 0.76, 0.80, 0.84, 0.88, 0.92, 0.96, 1.00, 1.05, 1.10, 1.15, 1.20, 1.26, 1.32, 1.39, 1.46, 1.54, 1.62, 1.70, 1.79, 1.88, 1.97, 2.05, 2.12, 2.18, 2.24, 2.30, 2.35, 2.40};
+        const double ac = 0.01243107769;
+        const double bc = 1.145964912;
+        const double cc = -23.50977444;
+        const double baseline_watt = ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc;
+        int resistance_level = (int)Resistance.value();
+        if (resistance_level < 1) resistance_level = 1;
+        if (resistance_level > 32) resistance_level = 32;
+        m_watt = baseline_watt * k[resistance_level - 1];
+        if (m_watt.value() < 0) m_watt = 0;
+        emit debug(QStringLiteral("Current Watt (TOPUTURE_TEB5 formula - R%1 x%2): %3")
+            .arg(resistance_level).arg(k[resistance_level - 1]).arg(m_watt.value()));
+    };
+
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
         union flags {
             struct {
                 uint16_t moreData : 1;

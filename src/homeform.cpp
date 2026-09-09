@@ -654,7 +654,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                        true, QStringLiteral("peloton_remaining"), valueElapsedFontSize, labelFontSize);
     strokesCount = new DataObject(tr("Strokes Count"), QStringLiteral("icons/icons/cadence.png"),
                                   QStringLiteral("0"), false, QStringLiteral("strokes_count"), 48, labelFontSize);
-    strokesLength = new DataObject(tr("Stroke Length"), QStringLiteral("icons/icons/cadence.png"),
+    strokesLength = new DataObject(tr("Strokes Length"), QStringLiteral("icons/icons/cadence.png"),
                                    QStringLiteral("0"), false, QStringLiteral("strokes_length"), 48, labelFontSize);
     gears = new DataObject(tr("Gears"), QStringLiteral("icons/icons/elevationgain.png"),
                            QStringLiteral("0"), true, QStringLiteral("gears"), 48, labelFontSize);
@@ -894,6 +894,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(bluetoothManager, &bluetooth::bluetoothDeviceConnected, this, &homeform::bluetoothDeviceConnected);
     connect(bluetoothManager, &bluetooth::bluetoothDeviceDisconnected, this, &homeform::bluetoothDeviceDisconnected);
     connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);
+    connect(bluetoothManager, &bluetooth::manualDeviceNotFound, this, [this](const QString &name) {
+        setToastRequested(
+            QStringLiteral("QZ is looking for %1. Please wake it up or change this device under the Manual Device "
+                           "setting in Advanced Settings.")
+                .arg(name));
+    });
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
     connect(bluetoothManager, &bluetooth::ftmsAccessoryConnected, this, &homeform::ftmsAccessoryConnected);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
@@ -2119,6 +2125,26 @@ void homeform::gearDown() {
     }
 }
 
+void homeform::externalControllerGearUp() {
+    const bool useManualResistance = dynamic_cast<cscbike *>(bluetoothManager->device()) &&
+                                      cscbike::useCustomResistancePowerTable();
+    if (useManualResistance || autoResistance()) {
+        Plus(useManualResistance ? QStringLiteral("resistance") : QStringLiteral("gears"));
+        automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
+        automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
+    }
+}
+
+void homeform::externalControllerGearDown() {
+    const bool useManualResistance = dynamic_cast<cscbike *>(bluetoothManager->device()) &&
+                                      cscbike::useCustomResistancePowerTable();
+    if (useManualResistance || autoResistance()) {
+        Minus(useManualResistance ? QStringLiteral("resistance") : QStringLiteral("gears"));
+        automaticShiftingGearUpStartTime = QDateTime::currentDateTime();
+        automaticShiftingGearDownStartTime = QDateTime::currentDateTime();
+    }
+}
+
 void homeform::speedPlus() {
     Plus(QStringLiteral("speed"));
 }
@@ -2137,8 +2163,8 @@ void homeform::inclinationMinus() {
 
 void homeform::ftmsAccessoryConnected(smartspin2k *d) {
     connect(this, &homeform::autoResistanceChanged, d, &smartspin2k::autoResistanceChanged);
-    connect(d, &smartspin2k::gearUp, this, &homeform::gearUp);
-    connect(d, &smartspin2k::gearDown, this, &homeform::gearDown);
+    connect(d, &smartspin2k::gearUp, this, &homeform::externalControllerGearUp);
+    connect(d, &smartspin2k::gearDown, this, &homeform::externalControllerGearDown);
 }
 
 void homeform::sortTiles() {
@@ -4568,35 +4594,37 @@ void homeform::moveTile(QString name, int newIndex, int oldIndex) {
     if (current) {
         qDebug() << "moveTile" << name << newIndex << oldIndex;
 
-        foreach (QString s, settings.allKeys()) {
-            if (s.contains(QStringLiteral("tile_")) && s.contains(QStringLiteral("_order"))) {
-
-                qDebug() << s << settings.value(s);
-            }
-        }
+        // Some DataObject m_ids don't match their QZSettings _order key (camelCase vs snake_case).
+        // This lambda returns the correct settings key for a given DataObject.
+        auto orderKey = [](const DataObject *d) -> QString {
+            static const QHash<QString, QString> overrides = {
+                {QStringLiteral("avgWattLap"),          QStringLiteral("tile_avg_watt_lap_order")},
+                {QStringLiteral("joul"),                QStringLiteral("tile_jouls_order")},
+                {QStringLiteral("steeringangle"),       QStringLiteral("tile_steering_angle_order")},
+                {QStringLiteral("stride_length"),       QStringLiteral("tile_instantaneous_stride_length_order")},
+                {QStringLiteral("external_inclination"),QStringLiteral("tile_ext_incline_order")},
+                {QStringLiteral("target_inclination"),  QStringLiteral("tile_target_incline_order")},
+            };
+            auto it = overrides.constFind(d->m_id);
+            if (it != overrides.constEnd()) return it.value();
+            return QStringLiteral("tile_") + d->m_id.toLower() + QStringLiteral("_order");
+        };
 
         int i = 0;
         foreach (QObject *d, dataList) {
             if (i == newIndex) {
-                settings.setValue("tile_" + current->m_id.toLower() + "_order", i);
+                settings.setValue(orderKey(current), i);
                 i++;
             }
-            QString n = ((DataObject *)d)->m_id;
             if (((DataObject *)d)->name().compare(name)) {
-                settings.setValue("tile_" + n.toLower() + "_order", i);
+                settings.setValue(orderKey((DataObject *)d), i);
                 i++;
             }
         }
-
-        foreach (QString s, settings.allKeys()) {
-            if (s.contains(QStringLiteral("tile_")) && s.contains(QStringLiteral("_order"))) {
-
-                qDebug() << s << settings.value(s);
-            }
+        if (i <= newIndex) {
+            settings.setValue(orderKey(current), newIndex);
         }
 
-        // sortTiles();
-        // dataList.move(oldIndex, newIndex);
         // very dirty, but i needed a way to synchronize QML with C++
         QTimer::singleShot(100, this, &homeform::sortTilesTimeout);
     }
@@ -4707,6 +4735,13 @@ void homeform::LargeButton(const QString &name) {
     qDebug() << QStringLiteral("LargeButton") << name;
     if (!bluetoothManager || !bluetoothManager->device())
         return;
+
+    if (name.startsWith(QStringLiteral("preset_powerzone_")) || name.contains(QStringLiteral("target_power")) ||
+        name.contains(QStringLiteral("target_zone"))) {
+        settings.setValue(QZSettings::zwift_erg, true);
+    } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("inclination"))) {
+        settings.setValue(QZSettings::zwift_erg, false);
+    }
 
     if (bluetoothManager->device()->deviceType() == BIKE || 
         bluetoothManager->device()->deviceType() == ELLIPTICAL ||
@@ -5186,6 +5221,11 @@ void homeform::Plus(const QString &name) {
 
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     qDebug() << QStringLiteral("Plus") << name;
+    if (name.contains(QStringLiteral("target_power")) || name.contains(QStringLiteral("target_zone"))) {
+        settings.setValue(QZSettings::zwift_erg, true);
+    } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("inclination"))) {
+        settings.setValue(QZSettings::zwift_erg, false);
+    }
     if (name.contains(QStringLiteral("target_speed")) || name.contains(QStringLiteral("target_pace"))) {
         if (bluetoothManager->device()) {
 
@@ -5341,7 +5381,10 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains(QStringLiteral("target_resistance"))) {
         if (bluetoothManager->device()) {
 
-            if (bluetoothManager->device()->deviceType() == BIKE ||
+            if (bluetoothManager->device()->deviceType() == BIKE && trainProgram &&
+                trainProgram->adjustResistanceOffsetForTrainingProgram(resistanceOffsetJog)) {
+                ((bike *)bluetoothManager->device())->changeResistance(trainProgram->currentRow().resistance);
+            } else if (bluetoothManager->device()->deviceType() == BIKE ||
                 bluetoothManager->device()->deviceType() == ELLIPTICAL ||
                 bluetoothManager->device()->deviceType() == ROWING) {
 
@@ -5489,6 +5532,11 @@ void homeform::Minus(const QString &name) {
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     qDebug() << QStringLiteral("Minus") << name;
+    if (name.contains(QStringLiteral("target_power")) || name.contains(QStringLiteral("target_zone"))) {
+        settings.setValue(QZSettings::zwift_erg, true);
+    } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("inclination"))) {
+        settings.setValue(QZSettings::zwift_erg, false);
+    }
     if (name.contains(QStringLiteral("target_speed")) || name.contains(QStringLiteral("target_pace"))) {
         if (bluetoothManager->device()) {
 
@@ -5641,7 +5689,10 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("target_resistance"))) {
         if (bluetoothManager->device()) {
 
-            if (bluetoothManager->device()->deviceType() == BIKE ||
+            if (bluetoothManager->device()->deviceType() == BIKE && trainProgram &&
+                trainProgram->adjustResistanceOffsetForTrainingProgram(-resistanceOffsetJog)) {
+                ((bike *)bluetoothManager->device())->changeResistance(trainProgram->currentRow().resistance);
+            } else if (bluetoothManager->device()->deviceType() == BIKE ||
                 bluetoothManager->device()->deviceType() == ELLIPTICAL ||
                 bluetoothManager->device()->deviceType() == ROWING) {
 
@@ -6938,15 +6989,23 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((bike *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
-            this->target_resistance->setSecondLine(
-                QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
-                QString::number(
-                    bluetoothManager->device()->difficult() *
-                        settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
-                            .toDouble() +
-                        settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
-                            .toDouble(),
-                    'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->resistanceOffsetForTrainingProgram() != 0) {
+                this->target_resistance->setSecondLine(
+                    QStringLiteral("%1%2")
+                        .arg(trainProgram->resistanceOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                                    : QStringLiteral(""))
+                        .arg(trainProgram->resistanceOffsetForTrainingProgram()));
+            } else {
+                this->target_resistance->setSecondLine(
+                    QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
+                    QString::number(
+                        bluetoothManager->device()->difficult() *
+                            settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                                .toDouble() +
+                            settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                                .toDouble(),
+                        'f', 0));
+            }
 
             this->steeringAngle->setValue(
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
@@ -7676,6 +7735,8 @@ void homeform::update() {
             // Get resistance and inclination values
             int resistance = 0;
             double inclination = 0.0;
+            int antEquipmentType = 0x19; // ANT+ FE Trainer/Stationary Bike
+            int strokeCount = 0;
             
             if (bluetoothManager->device()->deviceType() == BIKE) {
                 resistance = (int)((bike*)bluetoothManager->device())->currentResistance().value();
@@ -7684,17 +7745,21 @@ void homeform::update() {
                 resistance = (int)((elliptical*)bluetoothManager->device())->currentResistance().value();
                 inclination = ((elliptical*)bluetoothManager->device())->currentInclination().value();
             } else if (bluetoothManager->device()->deviceType() == ROWING) {
+                antEquipmentType = 0x16; // ANT+ FE Rower
                 resistance = (int)((rower*)bluetoothManager->device())->currentResistance().value();
+                strokeCount = (int)((rower*)bluetoothManager->device())->currentStrokesCount().value();
             }
             
             // Call the extended metrics update via JNI
             KeepAwakeHelper::antObject(false)->callMethod<void>("updateBikeTransmitterExtendedMetrics", 
-                "(JIDID)V", 
+                "(JIDIDII)V",
                 distanceMeters, 
                 heartRate, 
                 elapsedTimeSeconds, 
                 resistance, 
-                inclination);                                      
+                inclination,
+                antEquipmentType,
+                strokeCount);
         }
 #endif
 
@@ -10805,7 +10870,7 @@ void homeform::sendMail() {
                        ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")) +
                        QStringLiteral("\n");
         textMessage +=
-            QStringLiteral("Average Stroke Length: ") +
+            QStringLiteral("Average Strokes Length: ") +
             QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1) + "\n";
     } else if (bluetoothManager->device()->deviceType() == TREADMILL || bluetoothManager->device()->deviceType() == ELLIPTICAL) {
         textMessage += QStringLiteral("Average Pace: ") +

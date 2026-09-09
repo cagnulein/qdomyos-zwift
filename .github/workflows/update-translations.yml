@@ -95,6 +95,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          base: master
           branch: ${{ env.BRANCH_NAME }}
           title: "🌍 Update translation strings"
           body: |
