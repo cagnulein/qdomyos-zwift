@@ -1,0 +1,19 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/IFitError.proto";
+option java_package = "com.ifit.glassos.console.tdf";
+option java_outer_classname = "TDFGearProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message TDFGear {
+    int32 frontGear = 1;
+    int32 rearGear = 2;
+}
+
+message TDFGearResult {
+    oneof errorOrGear {
+        IFitError error = 1;
+        TDFGear gear = 2;
+    }
+}

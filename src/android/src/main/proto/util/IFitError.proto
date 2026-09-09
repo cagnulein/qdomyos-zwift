@@ -1,0 +1,30 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.util";
+option java_outer_classname = "IFitErrorProto";
+option java_multiple_files = true;
+option swift_prefix = "";
+
+import "activitylog/ActivityLogError.proto";
+import "auth/AuthError.proto";
+import "console/ConsoleError.proto";
+import "user/UserError.proto";
+import "util/ConnectionError.proto";
+import "util/InputError.proto";
+import "util/NetworkError.proto";
+import "workout/ProgrammedWorkoutSessionError.proto";
+import "workout/WorkoutError.proto";
+
+message IFitError {
+  oneof error {
+    NetworkError networkError = 1;
+    UserError userError = 2;
+    AuthError authError = 3;
+    ConnectionError connectionError = 4;
+    WorkoutError workoutError = 5;
+    InputError inputError = 6;
+    ActivityLogError activityLogError = 7;
+    ConsoleError consoleError = 8;
+    ProgrammedWorkoutSessionError programmedSessionError = 9;
+  }
+}

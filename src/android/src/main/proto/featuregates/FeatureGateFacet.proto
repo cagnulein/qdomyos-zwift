@@ -1,0 +1,64 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "user/UserTier.proto";
+import "console/ConsoleType.proto";
+import "club/ClubSettingsService.proto";
+option java_package = "com.ifit.glassos.featuregates";
+option java_outer_classname = "FeatureGateFacetProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum FeatureGateFacet {
+  FEATURE_FACET_UNKNOWN = 0;
+  FEATURE_FACET_CHINA = 1;
+  FEATURE_FACET_CLUB_CONSOLE = 2;
+  FEATURE_FACET_CLUB_USER_ROLE = 3;
+  FEATURE_FACET_DEMO_MODE = 4;
+  FEATURE_FACET_ENTIRE_FEATURE = 5;
+  FEATURE_FACET_MOBILE = 6;
+  FEATURE_FACET_MOBILE_FORM_FACTOR = 7;
+  FEATURE_FACET_MODALITY = 8;
+  FEATURE_FACET_SOFTWARE_NUMBER = 9;
+  FEATURE_FACET_USER_TIER = 10;
+}
+
+message FacetMessage {
+  FeatureGateFacet featureGateFacet = 1;
+  oneof payload {
+    BooleanFacetPayload booleanFacetPayload = 2;
+    EnumeratedUserRoleFacetMessage enumeratedUserRoleFacetMessage = 3;
+    EnumeratedStringFacetMessage enumeratedStringFacetMessage = 4;
+    EnumeratedConsoleTypeFacetMessage enumeratedConsoleTypeFacetMessage = 5;
+    EnumeratedIntFacetMessage enumeratedIntFacetMessage = 6;
+    EnumeratedUserTierFacetMessage enumeratedUserTierFacetMessage = 7;
+  }
+}
+
+message BooleanFacetPayload {
+  bool enabled = 1;
+}
+
+message EnumeratedUserRoleFacetMessage {
+  repeated club.UserRole allowedValues = 1;
+  repeated club.UserRole disallowedValues = 2;
+}
+
+message EnumeratedStringFacetMessage {
+  repeated string allowedValues = 1;
+  repeated string disallowedValues = 2;
+}
+
+message EnumeratedConsoleTypeFacetMessage {
+  repeated ConsoleType allowedValues = 1;
+  repeated ConsoleType disallowedValues = 2;
+}
+
+message EnumeratedIntFacetMessage {
+  repeated int32 allowedValues = 1;
+  repeated int32 disallowedValues = 2;
+}
+
+message EnumeratedUserTierFacetMessage {
+  repeated UserTier allowedValues = 1;
+  repeated UserTier disallowedValues = 2;
+}

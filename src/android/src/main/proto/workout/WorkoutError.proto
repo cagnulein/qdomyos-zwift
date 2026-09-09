@@ -1,0 +1,19 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "workout/WorkoutState.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "WorkoutErrorProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum WorkoutErrorCode {
+  NO_CONSOLE_CONNECTED = 0;
+  STATE_INVALID = 1;
+}
+
+message WorkoutError {
+  WorkoutErrorCode errorCode = 1;
+  string message = 2;
+  WorkoutState state = 3;
+  repeated WorkoutState expectedStates = 4;
+}

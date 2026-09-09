@@ -1,0 +1,18 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.antplus";
+option java_outer_classname = "AntPlusServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "antplus/AntPlusDevice.proto";
+import "util/Util.proto";
+
+message AntPlusScanDurationMessage {
+  int32 durationSeconds = 1;
+}
+
+service AntPlusService {
+  rpc ScanForDuration(AntPlusScanDurationMessage) returns (Empty) {}
+  rpc FoundAntPlusDevicesSubscription(Empty) returns (stream AntPlusDeviceList) {}
+}

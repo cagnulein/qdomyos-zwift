@@ -1,0 +1,15 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.user";
+option java_outer_classname = "LatestAcceptedTermsVersionProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+import "util/IFitError.proto";
+
+message LatestAcceptedTermsVersionResult {
+  oneof errorOrLatestAcceptedTermsVersion {
+    IFitError error = 1;
+    int32 latestAcceptedTermsVersion = 2;
+  }
+}

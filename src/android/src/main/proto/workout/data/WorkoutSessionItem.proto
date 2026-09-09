@@ -1,0 +1,20 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "activitylog/ActivityLogMetadata.proto";
+import "workout/data/ItemType.proto";
+import "workout/data/Workout.proto";
+option java_package = "com.ifit.glassos.workout.data";
+option java_outer_classname = "WorkoutSessionItemProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message WorkoutSessionItem {
+  Workout workout = 1;
+  ItemType itemType = 2;
+  optional string workoutInstanceId = 3;
+  ActivityLogMetadata metadata = 4;
+}
+
+message WorkoutSessionItemList {
+  repeated WorkoutSessionItem items = 1;
+}

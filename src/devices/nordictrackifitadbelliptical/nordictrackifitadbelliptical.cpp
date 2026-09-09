@@ -204,6 +204,14 @@ nordictrackifitadbelliptical::nordictrackifitadbelliptical(bool noWriteResistanc
 #endif
 #endif
     }
+
+#ifdef Q_OS_ANDROID
+    // Initialize FitPro USB-HID service (direct console link)
+    initializeFitProService();
+    if (fitproInitialized) {
+        startFitProMetricsUpdates();
+    }
+#endif
 }
 
 void nordictrackifitadbelliptical::onSpeedInclination(double speed, double inclination) {
@@ -506,17 +514,51 @@ void nordictrackifitadbelliptical::onHRM(int hrm) {
     }
 }
 
-void nordictrackifitadbelliptical::forceResistance(double resistance) {}
+void nordictrackifitadbelliptical::forceResistance(double resistance) {
+#ifdef Q_OS_ANDROID
+    if (fitproInitialized)
+        setFitProResistance(resistance);
+#endif
+}
 
 void nordictrackifitadbelliptical::update() {
 
     QSettings settings;
     update_metrics(false, 0);
 
+#ifdef Q_OS_ANDROID
+    // Pull metrics from the FitPro USB-HID console link
+    if (fitproInitialized) {
+        double currentResistance = getFitProResistance();
+        double currentCadence = getFitProCadence();
+        double currentWatts = getFitProWatts();
+        double currentHeart = getFitProHeartRate();
+
+        if (currentResistance != Resistance.value()) {
+            Resistance = currentResistance;
+        }
+        if (currentCadence > 0)
+            Cadence = currentCadence;
+        if (currentWatts > 0) {
+            m_watt = currentWatts;
+            wattReadFromTM = true;
+        }
+        QString heartRateBeltName =
+            settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+        if (currentHeart > 0 && heartRateBeltName.startsWith(QStringLiteral("Disabled")))
+            Heart = currentHeart;
+
+        if (requestResistance != -1) {
+            setFitProResistance(requestResistance);
+            requestResistance = -1;
+        }
+    }
+#endif
+
     if (initRequest) {
         initRequest = false;
         emit connectedAndDiscovered();
-    }    
+    }
 
     // updating the treadmill console every second
     if (sec1Update++ == (500 / refresh->interval())) {
@@ -537,6 +579,107 @@ void nordictrackifitadbelliptical::update() {
         requestStop = -1;
     }
 }
+
+// ******************************************* FitPro USB-HID integration *******************************************
+void nordictrackifitadbelliptical::initializeFitProService() {
+#ifdef Q_OS_ANDROID
+    if (!fitproInitialized) {
+        try {
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/FitProDeviceService", "setContext",
+                "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+            QAndroidJniObject host = QAndroidJniObject::fromString(ip);
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/FitProDeviceService", "initialize",
+                "(Ljava/lang/String;)V", host.object<jstring>());
+            fitproInitialized = true;
+            emit debug(QStringLiteral("FitPro service initialized"));
+        } catch (...) {
+            emit debug(QStringLiteral("Failed to initialize FitPro service"));
+            fitproInitialized = false;
+        }
+    }
+#endif
+}
+
+void nordictrackifitadbelliptical::startFitProMetricsUpdates() {
+#ifdef Q_OS_ANDROID
+    if (fitproInitialized)
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FitProDeviceService",
+                                                  "startMetricsUpdates", "()V");
+#endif
+}
+
+void nordictrackifitadbelliptical::stopFitProMetricsUpdates() {
+#ifdef Q_OS_ANDROID
+    if (fitproInitialized)
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FitProDeviceService",
+                                                  "stopMetricsUpdates", "()V");
+#endif
+}
+
+double nordictrackifitadbelliptical::getFitProSpeed() {
+#ifdef Q_OS_ANDROID
+    if (fitproInitialized)
+        return QAndroidJniObject::callStaticMethod<jdouble>("org/cagnulen/qdomyoszwift/FitProDeviceService",
+                                                            "getCurrentSpeed", "()D");
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbelliptical::getFitProIncline() {
+#ifdef Q_OS_ANDROID
+    if (fitproInitialized)
+        return QAndroidJniObject::callStaticMethod<jdouble>("org/cagnulen/qdomyoszwift/FitProDeviceService",
+                                                            "getCurrentIncline", "()D");
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbelliptical::getFitProWatts() {
+#ifdef Q_OS_ANDROID
+    if (fitproInitialized)
+        return QAndroidJniObject::callStaticMethod<jdouble>("org/cagnulen/qdomyoszwift/FitProDeviceService",
+                                                            "getCurrentWatts", "()D");
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbelliptical::getFitProCadence() {
+#ifdef Q_OS_ANDROID
+    if (fitproInitialized)
+        return QAndroidJniObject::callStaticMethod<jdouble>("org/cagnulen/qdomyoszwift/FitProDeviceService",
+                                                            "getCurrentCadence", "()D");
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbelliptical::getFitProResistance() {
+#ifdef Q_OS_ANDROID
+    if (fitproInitialized)
+        return QAndroidJniObject::callStaticMethod<jdouble>("org/cagnulen/qdomyoszwift/FitProDeviceService",
+                                                            "getCurrentResistance", "()D");
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbelliptical::getFitProHeartRate() {
+#ifdef Q_OS_ANDROID
+    if (fitproInitialized)
+        return QAndroidJniObject::callStaticMethod<jdouble>("org/cagnulen/qdomyoszwift/FitProDeviceService",
+                                                            "getCurrentHeartRate", "()D");
+#endif
+    return 0.0;
+}
+
+void nordictrackifitadbelliptical::setFitProResistance(double resistance) {
+#ifdef Q_OS_ANDROID
+    if (fitproInitialized)
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FitProDeviceService",
+                                                  "adjustResistance", "(D)V", resistance - Resistance.value());
+#endif
+}
+// *****************************************************************************************************************
 
 uint16_t nordictrackifitadbelliptical::watts() { return m_watt.value(); }
 

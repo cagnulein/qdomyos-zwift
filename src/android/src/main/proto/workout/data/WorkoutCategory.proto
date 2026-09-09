@@ -1,0 +1,17 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.workout.data";
+option java_outer_classname = "WorkoutCategoryProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum WorkoutCategory {
+    WORKOUT_CATEGORY_MANUAL = 0;
+    WORKOUT_CATEGORY_VIDEO = 1;
+    WORKOUT_CATEGORY_MAP = 2;
+    WORKOUT_CATEGORY_TIME_GOAL = 3;
+    WORKOUT_CATEGORY_CALORIE_GOAL = 4;
+    WORKOUT_CATEGORY_DISTANCE_GOAL = 5;
+    WORKOUT_CATEGORY_CUSTOM = 6;
+    WORKOUT_CATEGORY_THIRD_PARTY = 7;
+}

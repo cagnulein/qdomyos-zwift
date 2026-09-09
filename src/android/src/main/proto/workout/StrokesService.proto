@@ -1,0 +1,37 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/Util.proto";
+import "workout/WorkoutResult.proto";
+option java_package = "com.ifit.glassos.workout";
+option java_outer_classname = "StrokesServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+message StrokesMetric {
+  string workoutID = 1;
+  int32 timeSeconds = 2;
+  int32 lastStrokes = 3;
+  double strokesCount = 4;      // Total strokes count
+  double strokesLength = 5;     // Current strokes length
+  double avgStrokesLength = 6;  // Average strokes length
+  double maxStrokesLength = 7;  // Maximum strokes length
+  double minStrokesLength = 8;  // Minimum strokes length
+}
+
+message StrokesMetricList {
+  repeated StrokesMetric metrics = 1;
+}
+
+service StrokesService {
+  // check whether Strokes is Readable
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+
+  // get the current Strokes relative to the current workout
+  rpc GetStrokes(Empty) returns (StrokesMetric) {}
+
+  // subscribe to Strokes updates relative to the current workout
+  rpc StrokesSubscription(Empty) returns (stream StrokesMetric) {}
+
+  // gets a list of all of the Strokes changes for the given workout ID
+  rpc GetStrokesHistory(WorkoutID) returns (StrokesMetricList) {}
+}

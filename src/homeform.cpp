@@ -204,6 +204,19 @@ bool clearAndroidJniException(const char *context) {
     return true;
 }
 
+int androidSdkInt() {
+    if (clearAndroidJniException("androidSdkInt-before")) {
+        return 0;
+    }
+
+    const jint sdk = QAndroidJniObject::getStaticField<jint>("android/os/Build$VERSION", "SDK_INT");
+    if (clearAndroidJniException("androidSdkInt-after")) {
+        return 0;
+    }
+
+    return sdk;
+}
+
 QString fallbackFileNameFromUri(const QString &uriString) {
     QUrl url(uriString);
     QString fileName = url.fileName();
@@ -480,12 +493,15 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 
 #ifdef Q_OS_ANDROID
-    m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
-                                              "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
-    if(m_locationServices) {
-        QSettings settings;
-        // so if someone pressed the skip message but now he forgot to enable GPS it will prompt out
-        settings.setValue(QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog);
+    const bool nordictrack = true; // to replace
+    if(!nordictrack) {
+        m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
+                                                "(Landroid/content/Context;)Z", QtAndroid::androidContext().object());
+        if(m_locationServices) {
+            QSettings settings;
+            // so if someone pressed the skip message but now he forgot to enable GPS it will prompt out
+            settings.setValue(QZSettings::skipLocationServicesDialog, QZSettings::default_skipLocationServicesDialog);
+        }
     }
 #endif
 
@@ -1084,7 +1100,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     
     // Android 14 restrics access to /Android/data folder
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
-    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    if (android_documents_folder || androidSdkInt() >= 34) {
         QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
         QDir().mkdir(getWritableAppDir());
         QDir().mkdir(getProfileDir());
@@ -1121,8 +1137,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 workoutModel->refresh();
             });
     fitProcessor->processDirectory(getWritableAppDir() + "fit");
-
-    m_speech.setLocale(QLocale::English);
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QBluetoothDeviceInfo b;
@@ -1654,12 +1668,27 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 
 }
 
+QTextToSpeech *homeform::ensureSpeech() {
+#if defined(Q_OS_ANDROID)
+    if (androidSdkInt() <= 23) {
+        return nullptr;
+    }
+#endif
+
+    if (!m_speech) {
+        m_speech = new QTextToSpeech(this);
+        m_speech->setLocale(QLocale::English);
+    }
+
+    return m_speech;
+}
+
 QString homeform::getWritableAppDir() {
     QString path = QLatin1String("");
 #if defined(Q_OS_ANDROID)
     QSettings settings;
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
-    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    if (android_documents_folder || androidSdkInt() >= 34) {
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
         QDir().mkdir(path);
         // Create .nomedia file to prevent gallery indexing
@@ -1925,8 +1954,7 @@ void homeform::trainProgramSignals() {
                    &homeform::StartFromDevice);
         disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWPause, this,
                    &homeform::PauseFromDevice);
-        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
-                   &homeform::StopFromDevice);
+        disconnect(hardwareStopConnection);
         disconnect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram,
                    &trainprogram::onTapeStarted);
         disconnect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
@@ -1966,8 +1994,8 @@ void homeform::trainProgramSignals() {
                     &homeform::StartFromDevice);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWPause, this,
                     &homeform::PauseFromDevice);
-            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
-                    &homeform::StopFromDevice);
+            hardwareStopConnection = connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop,
+                                              this, [this]() { StopFromDevice(true); });
             connect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
         } else if (bluetoothManager->device()->deviceType() == BIKE) {
             connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
@@ -2045,7 +2073,9 @@ void homeform::onToastRequested(QString message) {
 
     // Use TTS if enabled
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
-        m_speech.say(message);
+        if (QTextToSpeech *speech = ensureSpeech()) {
+            speech->say(message);
+        }
     }
 }
 
@@ -5792,8 +5822,11 @@ void homeform::Start_inner(bool send_event_to_device) {
 
     m_overridePower = false;
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
-        m_speech.say("Start pressed");
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+        if (QTextToSpeech *speech = ensureSpeech()) {
+            speech->say("Start pressed");
+        }
+    }
 
     if (!paused && !stopped) {
         paused = true;
@@ -5886,18 +5919,31 @@ void homeform::Start_inner(bool send_event_to_device) {
 }
 
 void homeform::StartFromDevice() {
-    qDebug() << QStringLiteral("Physical start button pressed on device");
-    Start_inner(false);  // false = don't send command back to device (it already started)
+    if (!paused && !stopped) {
+        qDebug() << QStringLiteral("Hardware-originated start ignored: QZ is already running");
+        return;
+    }
+    qDebug() << QStringLiteral("Synchronizing QZ start/resume from hardware; suppressing outbound device command");
+    Start_inner(false);
 }
 
 void homeform::PauseFromDevice() {
-    qDebug() << QStringLiteral("Physical pause button pressed on device");
-    Start_inner(false);  // false = don't send command back to device
+    if (paused || stopped) {
+        qDebug() << QStringLiteral("Hardware-originated pause ignored: QZ is already paused or stopped");
+        return;
+    }
+    qDebug() << QStringLiteral("Synchronizing QZ pause from hardware; suppressing outbound device command");
+    Start_inner(false);
 }
 
-void homeform::StopFromDevice() {
-    qDebug() << QStringLiteral("Physical stop button pressed on device - stopping app");
-    Stop();
+void homeform::StopFromDevice(bool showCompletionScreen) {
+    qDebug() << QStringLiteral("Synchronizing QZ stop from hardware; suppressing outbound device command");
+    Stop_inner(false);
+    if (showCompletionScreen) {
+        // Preserve the existing QML completion-screen flow. When its queued Stop() runs, QZ is already
+        // stopped, so Stop_inner(true) returns before it can echo a command to the device.
+        StopRequested();
+    }
 }
 
 void homeform::StartRequested() {
@@ -5919,14 +5965,16 @@ void homeform::StopFromTrainProgram(bool paused) {
     Stop();
 }
 
-void homeform::Stop() {
+void homeform::Stop() { Stop_inner(true); }
+
+void homeform::Stop_inner(bool send_event_to_device) {
     QSettings settings;
 
     m_startRequested = false;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    if(h && !h->appleWatchAppInstalled())
+    if (send_event_to_device && h && !h->appleWatchAppInstalled())
         h->stopWorkout();
     // End iOS Live Activity when workout stops
     ios_liveactivity::endLiveActivity();
@@ -5958,10 +6006,13 @@ void homeform::Stop() {
         this->innerTemplateManager->reinit();
 #endif
 
-    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
-        m_speech.say("Stop pressed");
+    if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
+        if (QTextToSpeech *speech = ensureSpeech()) {
+            speech->say("Stop pressed");
+        }
+    }
 
-    if (bluetoothManager->device()) {
+    if (bluetoothManager->device() && send_event_to_device) {
         bluetoothManager->device()->stop(false);
     }
 
@@ -8353,7 +8404,8 @@ void homeform::update() {
                 bool description =
                     settings.value(QZSettings::tts_description_enabled, QZSettings::default_tts_description_enabled)
                         .toBool();
-                if (m_speech.state() == QTextToSpeech::Ready) {
+                QTextToSpeech *speech = ensureSpeech();
+                if (speech && speech->state() == QTextToSpeech::Ready) {
                     if (++tts_summary_count >=
                         settings.value(QZSettings::tts_summary_sec, QZSettings::default_tts_summary_sec).toInt()) {
                         tts_summary_count = 0;
@@ -8567,7 +8619,7 @@ void homeform::update() {
                                      QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1));
 
                         qDebug() << "tts" << s;
-                        m_speech.say(s);
+                        speech->say(s);
                     } else if (bluetoothManager->device()->deviceType() == TREADMILL &&
                                bluetoothManager->device()->currentSpeed().value() != tts_speed_played &&
                                settings.value(QZSettings::tts_act_speed, QZSettings::default_tts_act_speed).toBool()) {
@@ -8581,7 +8633,7 @@ void homeform::update() {
                                                            'f', 1)) +
                                  (description ? tr(" miles per hour") : ""));
                         qDebug() << "tts" << s;
-                        m_speech.say(s);
+                        speech->say(s);
                     }
                 }
             }
@@ -8755,7 +8807,7 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
 QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 #ifdef Q_OS_ANDROID        
-    qDebug() << "Android Version:" << QOperatingSystemVersion::current();
+    qDebug() << "Android SDK_INT:" << androidSdkInt();
     const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(file);
     const QString destinationDir = getWritableAppDir() + subfolder + "/";
     QDir().mkpath(destinationDir);

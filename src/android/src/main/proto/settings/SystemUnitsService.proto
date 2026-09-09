@@ -1,0 +1,32 @@
+syntax = "proto3";
+package com.ifit.glassos;
+import "util/IFitError.proto";
+import "util/Util.proto";
+option java_package = "com.ifit.glassos.settings";
+option java_outer_classname = "SystemUnitsServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum SystemUnits {
+  METRIC = 0;
+  STANDARD = 1;
+}
+
+message SystemUnitsMessage {
+  SystemUnits units = 1;
+}
+
+message SystemUnitsResult {
+  oneof errorOrSystemUnits {
+    IFitError error = 1;
+    SystemUnits systemUnits = 2;
+  }
+}
+
+service SystemUnitsService {
+  rpc CanRead(Empty) returns (AvailabilityResponse) {}
+  rpc CanWrite(Empty) returns (AvailabilityResponse) {}
+  rpc GetSystemUnits(Empty) returns (SystemUnitsMessage) {}
+  rpc SystemUnitsChanged(Empty) returns (stream SystemUnitsMessage) {}
+  rpc SetSystemUnits(SystemUnitsMessage) returns (Empty) {}
+}

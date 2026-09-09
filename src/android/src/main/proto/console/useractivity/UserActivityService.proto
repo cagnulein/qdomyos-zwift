@@ -1,0 +1,15 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.console.useractivity";
+option java_outer_classname = "UserActivityServiceProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+import "console/useractivity/UserActivity.proto";
+import "util/Util.proto";
+
+service UserActivityService {
+  rpc DurationSinceLastScreenTap(Empty) returns (stream DurationResult) {}
+  rpc StartUserActivityOverride(Empty) returns (UserActivityOverrideMessage) {}
+  rpc CompleteUserActivityOverride(UserActivityOverrideMessage) returns (UserActivityServiceResult) {}
+  rpc SetDurationSinceLastScreenTap(SetDurationRequest) returns (UserActivityServiceResult) {}
+}

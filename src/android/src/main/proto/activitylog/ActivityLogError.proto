@@ -1,0 +1,18 @@
+syntax = "proto3";
+package com.ifit.glassos;
+option java_package = "com.ifit.glassos.activitylog";
+option java_outer_classname = "ActivityLogErrorProto";
+option java_multiple_files = true;
+option swift_prefix = "IFit";
+
+enum ActivityLogErrorCode {
+  ACTIVITY_LOG_UNKNOWN_ERROR = 0;
+  ACTIVITY_LOG_NOT_FOUND_ERROR = 1;
+  ACTIVITY_LOG_INVALID_TYPE_ERROR = 2;
+  ACTIVITY_LOG_INVALID_DURATION_ERROR = 3;
+}
+
+message ActivityLogError {
+  ActivityLogErrorCode errorCode = 1;
+  string message = 2;
+}
