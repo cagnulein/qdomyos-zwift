@@ -462,6 +462,13 @@ void DeviceTestDataIndex::Initialize() {
         // SW, 14 characters total
         ->acceptDeviceName("SW345678901234", DeviceNameComparison::Exact)
         ->acceptDeviceName("SWFOURTEENCHAR", DeviceNameComparison::Exact)
+
+        // FitShow SW fingerprint: 15 characters with '-' at index 10
+        ->acceptDeviceName("SW5731CAXI-0061", DeviceNameComparison::Exact)
+        ->acceptDeviceName("SW12345678-1234", DeviceNameComparison::Exact)
+        ->rejectDeviceName("SW5731CAXI0-061", DeviceNameComparison::Exact)
+        ->rejectDeviceName("SW5731CAXI-006", DeviceNameComparison::Exact)
+
         ->acceptDeviceName("WINFITA", DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceName("NOBLEPRO CONNECT", DeviceNameComparison::StartsWithIgnoreCase)
 
