@@ -1190,6 +1190,7 @@ public:
     void StartFromDevice();
     void PauseFromDevice();
     void StopFromDevice();
+    void StopFromDeviceInitial();
 
   private slots:
     void StopFromTrainProgram(bool paused);

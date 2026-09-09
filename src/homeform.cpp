@@ -5945,6 +5945,11 @@ void homeform::StopFromDevice() {
     StopRequested();
 }
 
+void homeform::StopFromDeviceInitial() {
+    qDebug() << QStringLiteral("Synchronizing initial QZ stopped state without completion screen");
+    Stop_inner(false);
+}
+
 void homeform::StartRequested() {
     Start();
     m_stopRequested = false;

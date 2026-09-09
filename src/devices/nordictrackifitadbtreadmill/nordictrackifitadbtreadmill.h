@@ -122,7 +122,6 @@ class nordictrackifitadbtreadmill : public treadmill {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool grpcInitialized = false;
-    int previousWorkoutState = 1; // WORKOUT_STATE_IDLE
     bool proform_trainer_9_0 = false;
 
     QDateTime lastTimeDataReceived;

@@ -851,8 +851,23 @@ void nordictrackifitadbtreadmill::update() {
                 // WORKOUT_STATE_PAUSED = 4
                 // WORKOUT_STATE_RESULTS = 5
 
+                // The first queued event is the initial FitPro sample, not a stop/start transition.
+                // Synchronize QZ's initial state without showing the completion screen.
+                if (previousState == 0) {
+                    if (!homeform::singleton()) {
+                        emit debug("Cannot synchronize initial FitPro workout state: HomeForm is unavailable");
+                    } else if (currentWorkoutState == 4) { // PAUSED
+                        emit debug("Synchronizing initial QZ paused state without an outbound pause/resume command");
+                        homeform::singleton()->PauseFromDevice();
+                    } else if (currentWorkoutState == 1 || currentWorkoutState == 5) { // IDLE or RESULTS
+                        emit debug("Synchronizing initial QZ stopped state without completion screen");
+                        homeform::singleton()->StopFromDeviceInitial();
+                    } else {
+                        emit debug("FitPro initial workout state is running; leaving QZ state unchanged");
+                    }
+                }
                 // If workout started (IDLE/PAUSED -> RUNNING)
-                if (currentWorkoutState == 3 && (previousState == 1 || previousState == 4)) {
+                else if (currentWorkoutState == 3 && (previousState == 1 || previousState == 4)) {
                     emit debug("Workout started in iFit app - auto-starting QZ recording");
                     if (homeform::singleton()) {
                         const bool qzPausedOrStopped = isPaused();
@@ -887,7 +902,6 @@ void nordictrackifitadbtreadmill::update() {
                     }
                 }
 
-                previousWorkoutState = currentWorkoutState;
             }
         }
     } else {
@@ -1292,28 +1306,7 @@ void nordictrackifitadbtreadmill::startGrpcWorkoutStateMonitoring() {
         );
         emit debug(QString("Started gRPC workout state monitoring"));
 
-        // Synchronize QZ with current iFit workout state
-        int initialState = getGrpcWorkoutState();
-        emit debug(QString("Initial workout state at startup: %1").arg(initialState));
-
-        if (initialState == 3) { // RUNNING
-            emit debug("iFit workout already running - QZ already started by default, no action needed");
-        } else if (initialState == 4) { // PAUSED
-            emit debug("iFit workout paused - auto-pausing QZ recording");
-            if (homeform::singleton()) {
-                emit debug("Synchronizing initial QZ paused state without an outbound pause/resume command");
-                homeform::singleton()->PauseFromDevice();
-            }
-        } else if (initialState == 1 || initialState == 5) { // IDLE or RESULTS
-            emit debug("iFit workout stopped/idle - auto-stopping QZ recording");
-            if (homeform::singleton()) {
-                emit debug("Synchronizing initial QZ stopped state without an outbound stop command");
-                homeform::singleton()->StopFromDevice();
-            }
-        }
-
-        // Update previous state to avoid triggering false transitions
-        previousWorkoutState = initialState;
+        emit debug(QString("Started gRPC workout state monitoring; initial state will be synchronized from the first FitPro sample"));
     } else {
         emit debug(QString("Cannot start workout state monitoring: gRPC not initialized"));
     }

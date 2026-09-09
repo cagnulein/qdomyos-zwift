@@ -56,6 +56,7 @@ object FitProDeviceService {
     private const val ACTION_USB_PERMISSION = "org.cagnulen.qdomyoszwift.FITPRO_USB_PERMISSION"
 
     // QZ workout states, mirroring the gRPC WorkoutState the C++ layer expects.
+    private const val STATE_UNKNOWN = 0
     private const val STATE_IDLE = 1
     private const val STATE_RUNNING = 3
     private const val STATE_PAUSED = 4
@@ -87,7 +88,7 @@ object FitProDeviceService {
     private var collectJob: Job? = null
 
     // Workout-state machine, fed from the polled WORKOUT_MODE field.
-    @Volatile private var currentWorkoutState = STATE_IDLE
+    @Volatile private var currentWorkoutState = STATE_UNKNOWN
     private val stateChangeQueue = ConcurrentLinkedQueue<IntArray>()
 
     // ---------------------------------------------------------------------------------------------
@@ -172,7 +173,7 @@ object FitProDeviceService {
             try { s?.stop() } catch (e: Exception) { QLog.w(TAG, "stop error: ${e.message}") }
         }
         stateChangeQueue.clear()
-        currentWorkoutState = STATE_IDLE
+        currentWorkoutState = STATE_UNKNOWN
         latest = ExerciseData.ZERO
     }
 
