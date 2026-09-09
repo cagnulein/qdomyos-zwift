@@ -10,6 +10,18 @@ If speed is updating but distance is still not behaving correctly, check **QZ Se
 
 In a confirmed support case, the session/distance started working after correcting these settings. QZ's current treadmill implementation also calculates distance from speed when `Treadmill Direct Distance` is disabled.
 
+## My Horizon treadmill connects to QZ but behaves incorrectly or does not expose all expected data/control. What should I try?
+
+Some Horizon treadmills expose both Horizon's proprietary Bluetooth service and the standard FTMS service. If QZ connects but the treadmill behaves incorrectly, try forcing QZ to use FTMS instead of the proprietary Horizon protocol.
+
+1. Open **QZ Settings > Treadmill Options > Horizon Treadmill options**.
+2. Enable **Force Using FTMS**.
+3. Restart QZ and reconnect the treadmill.
+
+This setting is especially relevant when the treadmill advertises a usable FTMS service. QZ's Horizon implementation explicitly detects this situation and can prompt the user to enable **Force Using FTMS**. In a confirmed Horizon 7.4AT support case, enabling it resolved most of the connection/control issues.
+
+Note that some treadmill consoles disable their physical controls while an app has an active Bluetooth control connection. That behavior can be firmware-specific and is separate from QZ's protocol selection.
+
 ## Can Zwift automatically control both treadmill incline and speed through QZ?
 
 QZ can use the Zwift integration for **automatic inclination**. Configure your Zwift credentials in QZ and enable the Zwift auto-inclination option.
