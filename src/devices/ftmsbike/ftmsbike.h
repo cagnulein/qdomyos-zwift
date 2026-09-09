@@ -118,6 +118,7 @@ class ftmsbike : public bike {
     void forceInclination(double requestInclination);
     void sendZwiftPlayInclination(double inclination);
     uint16_t wattsFromResistance(double resistance);
+    bool isManualResistanceBike() const;
 
     QTimer *refresh;
     
@@ -217,6 +218,7 @@ class ftmsbike : public bike {
     bool USDC_D700 = false;
     bool TOPUTURE_TEB5 = false;
     bool SMARTBIKE_3DIGIT = false;
+    bool TX_500MB_IRON = false;
     bool MOK_FITNESS = false;
 
     uint8_t secondsToResetTimer = 5;
