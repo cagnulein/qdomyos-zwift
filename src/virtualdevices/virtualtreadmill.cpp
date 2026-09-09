@@ -1,4 +1,5 @@
 #include "virtualdevices/virtualtreadmill.h"
+#include "devices/echelonstride/echelonstride.h"
 #include <QThread>
 #include <QSettings>
 #include <QtMath>
@@ -12,6 +13,21 @@
 
 using namespace std::chrono_literals;
 
+namespace {
+QByteArray echelonPacket(std::initializer_list<uint8_t> bytes) {
+    QByteArray value;
+    uint8_t checksum = 0;
+
+    for (uint8_t byte : bytes) {
+        value.append(static_cast<char>(byte));
+        checksum = static_cast<uint8_t>(checksum + byte);
+    }
+
+    value.append(static_cast<char>(checksum));
+    return value;
+}
+}
+
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     QSettings settings;
     treadMill = t;
@@ -21,6 +37,9 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     double bikeResistanceGain =
         settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
     bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool echelon = settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    const QString echelonAdvertisingName =
+        !t->bluetoothDevice.name().isEmpty() ? t->bluetoothDevice.name() : QStringLiteral("ECHEX-5s-113399");
     this->noHeartService = noHeartService;
     if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(t, bikeResistanceOffset, bikeResistanceGain, this);
@@ -60,11 +79,15 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
+        if (echelon) {
+            advertisingData.setLocalName(echelonAdvertisingName);
+        } else {
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
-        advertisingData.setLocalName(QStringLiteral("KICKR RUN"));
+            advertisingData.setLocalName(QStringLiteral("KICKR RUN"));
 #else            
-        advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
+            advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
 #endif
+        }
         QList<QBluetoothUuid> services;
 
         // Add Wahoo Run Service UUID
@@ -83,32 +106,45 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             services << QBluetoothUuid::HeartRate;
         }
 
+        if (echelon) {
+            services << QBluetoothUuid(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66"));
+        }
+
         /*services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
         services << QBluetoothUuid::DeviceInformation;*/
 
         advertisingData.setServices(services);
         //! [Advertising Data]
 
-        // Add Device Information Service
+        // Add Device Information Service. When emulating an Echelon treadmill we report Echelon-branded
+        // values (and a Model Number) so the GATT layout matches the real Stride.
         QLowEnergyCharacteristicData manufacturerNameChar;
         manufacturerNameChar.setUuid(QBluetoothUuid::CharacteristicType::ManufacturerNameString);
         manufacturerNameChar.setProperties(QLowEnergyCharacteristic::Read);
-        manufacturerNameChar.setValue(QByteArray("Wahoo Fitness")); // Changed to Wahoo Fitness
+        manufacturerNameChar.setValue(echelon ? QByteArray("Echelon") : QByteArray("Wahoo Fitness"));
 
         QLowEnergyCharacteristicData firmwareRevChar;
         firmwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::FirmwareRevisionString);
         firmwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
-        firmwareRevChar.setValue(QByteArray("1.0.11"));
+        firmwareRevChar.setValue(echelon ? QByteArray("1.0.0") : QByteArray("1.0.11"));
 
         QLowEnergyCharacteristicData hardwareRevChar;
         hardwareRevChar.setUuid(QBluetoothUuid::CharacteristicType::HardwareRevisionString);
         hardwareRevChar.setProperties(QLowEnergyCharacteristic::Read);
-        hardwareRevChar.setValue(QByteArray("1"));
+        hardwareRevChar.setValue(echelon ? QByteArray("1.0") : QByteArray("1"));
 
-        // Create Device Information Service        
+        QLowEnergyCharacteristicData modelNumberChar;
+        modelNumberChar.setUuid(QBluetoothUuid::CharacteristicType::ModelNumberString);
+        modelNumberChar.setProperties(QLowEnergyCharacteristic::Read);
+        modelNumberChar.setValue(echelonAdvertisingName.toUtf8());
+
+        // Create Device Information Service
         serviceDataDIS.setType(QLowEnergyServiceData::ServiceTypePrimary);
         serviceDataDIS.setUuid(QBluetoothUuid::DeviceInformation);
         serviceDataDIS.addCharacteristic(manufacturerNameChar);
+        if (echelon) {
+            serviceDataDIS.addCharacteristic(modelNumberChar);
+        }
         serviceDataDIS.addCharacteristic(firmwareRevChar);
         serviceDataDIS.addCharacteristic(hardwareRevChar);
 
@@ -137,6 +173,44 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
         serviceDataWahoo.addCharacteristic(wahooNotifyChar);
         serviceDataWahoo.addCharacteristic(wahooWriteChar);
+
+        if (echelon) {
+            serviceDataEchelon.setType(QLowEnergyServiceData::ServiceTypePrimary);
+            serviceDataEchelon.setUuid(QBluetoothUuid(QStringLiteral("0bf669f1-45f2-11e7-9598-0800200c9a66")));
+
+            QLowEnergyCharacteristicData echelonWrite;
+            echelonWrite.setUuid(QBluetoothUuid(QStringLiteral("0bf669f2-45f2-11e7-9598-0800200c9a66")));
+            echelonWrite.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::WriteNoResponse);
+
+            QLowEnergyCharacteristicData echelonNotify1;
+            echelonNotify1.setUuid(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
+            echelonNotify1.setProperties(QLowEnergyCharacteristic::Notify);
+            echelonNotify1.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                                  QByteArray::fromHex("0100")));
+
+            QLowEnergyCharacteristicData echelonNotify2;
+            echelonNotify2.setUuid(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+            echelonNotify2.setProperties(QLowEnergyCharacteristic::Notify);
+            echelonNotify2.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                                  QByteArray::fromHex("0100")));
+
+            serviceDataEchelon.addCharacteristic(echelonWrite);
+            serviceDataEchelon.addCharacteristic(echelonNotify1);
+            serviceDataEchelon.addCharacteristic(echelonNotify2);
+
+            // The real Echelon Stride runs on a Nordic chip and also exposes the Nordic Secure DFU service
+            // (0xFE59). We replicate it for GATT parity only; QZ does not implement firmware flashing, so it
+            // intentionally has no handler. The Device Information service (0x180A) is already provided above.
+            QLowEnergyCharacteristicData dfuButtonless;
+            dfuButtonless.setUuid(QBluetoothUuid(QStringLiteral("8ec90003-f315-4f60-9fb8-838830daea50")));
+            dfuButtonless.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
+            dfuButtonless.addDescriptor(QLowEnergyDescriptorData(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                                 QByteArray::fromHex("0000")));
+
+            serviceDataEchelonDFU.setType(QLowEnergyServiceData::ServiceTypePrimary);
+            serviceDataEchelonDFU.setUuid(QBluetoothUuid(QStringLiteral("0000fe59-0000-1000-8000-00805f9b34fb")));
+            serviceDataEchelonDFU.addCharacteristic(dfuButtonless);
+        }
 
         //! [Service Data]
         if (ftmsServiceEnable()) {
@@ -355,10 +429,18 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         serviceDIS = leController->addService(serviceDataDIS);
         QThread::msleep(100);
         
-        serviceWahoo = leController->addService(serviceDataWahoo);
+        if (!echelon) {
+            serviceWahoo = leController->addService(serviceDataWahoo);
+        }
+
+        if (echelon) {
+            serviceEchelon = leController->addService(serviceDataEchelon);
+            QThread::msleep(100);
+            serviceEchelonDFU = leController->addService(serviceDataEchelonDFU);
+        }
         QThread::msleep(100);
 
-#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)        
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         genericAccessServer = leController->addService(genericAccessServerData);
         genericAttributeService = leController->addService(genericAttributeServiceData);
 #endif          
@@ -375,6 +457,11 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             QObject::connect(serviceWahoo, &QLowEnergyService::characteristicChanged, this,
                              &virtualtreadmill::wahooCharacteristicChanged);
 
+        if (serviceEchelon) {
+            QObject::connect(serviceEchelon, &QLowEnergyService::characteristicChanged, this,
+                             &virtualtreadmill::characteristicChanged);
+        }
+
         bool bluetooth_relaxed =
             settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
@@ -385,10 +472,17 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         }  
 
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
-                                                 "startAdvertisingTreadmill",
-                                                 "(Landroid/content/Context;)V",
-                                                 QtAndroid::androidContext().object());
+        if (echelon) {
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingEchelon",
+                "(Landroid/content/Context;Ljava/lang/String;)V", QtAndroid::androidContext().object(),
+                QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+        } else {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                     "startAdvertisingTreadmill",
+                                                     "(Landroid/content/Context;)V",
+                                                     QtAndroid::androidContext().object());
+        }
 
 #elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         pars.setInterval(30, 50);
@@ -436,6 +530,217 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
         break;
     }
+
+    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("0bf669f2-45f2-11e7-9598-0800200c9a66")) &&
+        serviceEchelon && newValue.length() > 3) {
+        // When QZ is backed by a real Echelon treadmill, forward the app payload to the treadmill and let
+        // the treadmill's own notifications be mirrored back to the client (firmware unlock passthrough).
+        if (auto *realEchelon = dynamic_cast<echelonstride *>(treadMill); realEchelon && realEchelon->connected()) {
+            realEchelon->proxyVirtualTreadmillCommand(newValue);
+            return;
+        }
+
+        // Otherwise (fake treadmill / no real Echelon hardware) answer the handshake synthetically, exactly
+        // like the real Echelon Stride does in the HCI snoop traces.
+        QLowEnergyCharacteristic notify1 =
+            serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
+        QLowEnergyCharacteristic notify2 =
+            serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+
+        if (notify1.isValid() && leController->state() == QLowEnergyController::ConnectedState) {
+            const uint8_t command = static_cast<uint8_t>(newValue.at(1));
+            if (command == 0xA1) {
+                writeEchelonCharacteristic(notify1, QByteArray::fromHex("f0a1072064009606ff01b8"));
+                echelonWriteStatus();
+                echelonInitDone = true;
+            } else if (command == 0xA3) {
+                writeEchelonCharacteristic(notify1, QByteArray::fromHex("f0a3070c00271001f400d2"));
+            } else if (command == 0xA4) {
+                writeEchelonCharacteristic(notify1, QByteArray::fromHex("f0a4010095"));
+            } else if (command == 0xA5) {
+                writeEchelonCharacteristic(notify1, QByteArray::fromHex("f0a5010ea4"));
+            } else if (command == 0xB0 && static_cast<uint8_t>(newValue.at(3)) == 0x00) {
+                if (auto *treadmillDevice = qobject_cast<treadmill *>(treadMill)) {
+                    treadmillDevice->stop(false);
+                }
+                writeEchelonCharacteristic(notify2, QByteArray::fromHex("f0d00100c1"));
+                echelonWriteRunningState();
+            } else if (command == 0xB0 && notify2.isValid()) {
+                if (auto *treadmillDevice = qobject_cast<treadmill *>(treadMill)) {
+                    treadmillDevice->start();
+                }
+                writeEchelonCharacteristic(notify2, QByteArray::fromHex("f0d00100c1"));
+                writeEchelonCharacteristic(notify2, QByteArray::fromHex("f0d00111d2"));
+                echelonWriteRunningState();
+            } else if (command == 0xA0) {
+                // keep-alive echo
+                writeEchelonCharacteristic(notify1, newValue);
+            } else if (command == 0xD3 && newValue.length() >= 6) {
+                // The Echelon app drives the Stride speed: f0 d3 02 <speed_hi> <speed_lo> (mm/s, /1000 = km/h).
+                if (auto *treadmillDevice = qobject_cast<treadmill *>(treadMill)) {
+                    const uint16_t rawSpeed =
+                        (static_cast<uint8_t>(newValue.at(3)) << 8) | static_cast<uint8_t>(newValue.at(4));
+                    treadmillDevice->changeSpeed(static_cast<double>(rawSpeed) / 1000.0);
+                }
+            } else if (command == 0xD2 && newValue.length() >= 5) {
+                // The Echelon app drives the Stride inclination: f0 d2 01 <inclination>.
+                if (auto *treadmillDevice = qobject_cast<treadmill *>(treadMill)) {
+                    const double inclination = static_cast<uint8_t>(newValue.at(3));
+                    treadmillDevice->changeInclination(inclination, inclination);
+                }
+            }
+        }
+    }
+}
+
+void virtualtreadmill::relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value) {
+    if (!serviceEchelon || !leController || leController->state() != QLowEnergyController::ConnectedState) {
+        return;
+    }
+
+    QLowEnergyCharacteristic targetCharacteristic;
+    if (sourceUuid == QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66"))) {
+        targetCharacteristic =
+            serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f3-45f2-11e7-9598-0800200c9a66")));
+    } else if (sourceUuid == QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66"))) {
+        targetCharacteristic =
+            serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+    } else {
+        return;
+    }
+
+    if (!targetCharacteristic.isValid()) {
+        qDebug() << QStringLiteral("virtual echelon treadmill target characteristic is invalid");
+        return;
+    }
+
+    writeEchelonCharacteristic(targetCharacteristic, value);
+}
+
+bool virtualtreadmill::isEchelonVirtualEnabled() const {
+    QSettings settings;
+    return settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+}
+
+void virtualtreadmill::writeEchelonCharacteristic(const QLowEnergyCharacteristic &characteristic,
+                                                  const QByteArray &value) {
+    if (!serviceEchelon || !characteristic.isValid() || !leController ||
+        leController->state() != QLowEnergyController::ConnectedState) {
+        return;
+    }
+
+    try {
+        serviceEchelon->writeCharacteristic(characteristic, value);
+    } catch (...) {
+        qDebug() << QStringLiteral("virtualtreadmill echelon error!");
+    }
+}
+
+void virtualtreadmill::echelonWriteStatus() {
+    if (!serviceEchelon) {
+        return;
+    }
+
+    QLowEnergyCharacteristic characteristic =
+        serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+    if (!characteristic.isValid()) {
+        return;
+    }
+
+    const QTime elapsed = treadMill->elapsedTime();
+    const uint16_t elapsedSeconds = static_cast<uint16_t>(
+        (elapsed.hour() * 3600) + (elapsed.minute() * 60) + elapsed.second());
+    const uint32_t distanceMeters = qRound(static_cast<treadmill *>(treadMill)->odometerFromStartup() * 1000.0);
+    const uint16_t calories = static_cast<uint16_t>(static_cast<treadmill *>(treadMill)->calories().value());
+    const uint8_t heartRate = static_cast<uint8_t>(static_cast<treadmill *>(treadMill)->currentHeart().value());
+
+    writeEchelonCharacteristic(characteristic, echelonPacket({
+                                                   0xf0,
+                                                   0xd1,
+                                                   0x09,
+                                                   static_cast<uint8_t>(elapsedSeconds >> 8),
+                                                   static_cast<uint8_t>(elapsedSeconds),
+                                                   static_cast<uint8_t>(distanceMeters >> 24),
+                                                   static_cast<uint8_t>(distanceMeters >> 16),
+                                                   static_cast<uint8_t>(distanceMeters >> 8),
+                                                   static_cast<uint8_t>(distanceMeters),
+                                                   static_cast<uint8_t>(calories >> 8),
+                                                   static_cast<uint8_t>(calories),
+                                                   heartRate,
+                                               }));
+}
+
+void virtualtreadmill::echelonWriteSpeed() {
+    if (!serviceEchelon) {
+        return;
+    }
+
+    // Stream the speed on every tick (the real Stride streams d3 continuously); the app needs it to show
+    // the current speed, not only on change.
+    const qint32 speedValue = qRound(static_cast<treadmill *>(treadMill)->currentSpeed().value() * 1000.0);
+
+    QLowEnergyCharacteristic characteristic =
+        serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+    if (!characteristic.isValid()) {
+        return;
+    }
+
+    writeEchelonCharacteristic(characteristic, echelonPacket({
+                                                   0xf0,
+                                                   0xd3,
+                                                   0x02,
+                                                   static_cast<uint8_t>((speedValue >> 8) & 0xff),
+                                                   static_cast<uint8_t>(speedValue & 0xff),
+                                               }));
+    echelonLastSpeed = speedValue;
+}
+
+void virtualtreadmill::echelonWriteInclination() {
+    if (!serviceEchelon) {
+        return;
+    }
+
+    // Stream the inclination on every tick so the app always shows the current value.
+    const int inclinationValue = qRound(static_cast<treadmill *>(treadMill)->currentInclination().value());
+
+    QLowEnergyCharacteristic characteristic =
+        serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+    if (!characteristic.isValid()) {
+        return;
+    }
+
+    writeEchelonCharacteristic(characteristic, echelonPacket({
+                                                   0xf0,
+                                                   0xd2,
+                                                   0x01,
+                                                   static_cast<uint8_t>(qBound(0, inclinationValue, 255)),
+                                               }));
+    echelonLastInclination = inclinationValue;
+}
+
+void virtualtreadmill::echelonWriteRunningState() {
+    if (!serviceEchelon) {
+        return;
+    }
+
+    const bool running = static_cast<treadmill *>(treadMill)->currentSpeed().value() > 0.0;
+    if (echelonLastRunning == running) {
+        return;
+    }
+
+    QLowEnergyCharacteristic characteristic =
+        serviceEchelon->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+    if (!characteristic.isValid()) {
+        return;
+    }
+
+    writeEchelonCharacteristic(characteristic, echelonPacket({
+                                                   0xf0,
+                                                   0xd5,
+                                                   0x01,
+                                                   static_cast<uint8_t>(running ? 0x02 : 0x01),
+                                               }));
+    echelonLastRunning = running;
 }
 
 void virtualtreadmill::slopeChanged() {
@@ -488,8 +793,21 @@ void virtualtreadmill::reconnect() {
     serviceDIS = leController->addService(serviceDataDIS);
     QThread::msleep(100);
     
-    serviceWahoo = leController->addService(serviceDataWahoo);
-    QThread::msleep(100);
+    const bool echelon =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    if (!echelon) {
+        serviceWahoo = leController->addService(serviceDataWahoo);
+        QThread::msleep(100);
+    }
+
+    if (!serviceDataEchelon.characteristics().isEmpty()) {
+        serviceEchelon = leController->addService(serviceDataEchelon);
+        QThread::msleep(100);
+        if (!serviceDataEchelonDFU.characteristics().isEmpty()) {
+            serviceEchelonDFU = leController->addService(serviceDataEchelonDFU);
+            QThread::msleep(100);
+        }
+    }
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     genericAccessServer = leController->addService(genericAccessServerData);
@@ -503,12 +821,22 @@ void virtualtreadmill::reconnect() {
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
 
-    if (serviceFTMS || serviceRSC || serviceWahoo) {
+    if (serviceFTMS || serviceRSC || serviceWahoo || serviceEchelon) {
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
-                                                 "startAdvertisingTreadmill",
-                                                 "(Landroid/content/Context;)V",
-                                                 QtAndroid::androidContext().object());
+        if (echelon) {
+            const QString echelonAdvertisingName =
+                !treadMill->bluetoothDevice.name().isEmpty() ? treadMill->bluetoothDevice.name()
+                                                             : QStringLiteral("ECHEX-5s-113399");
+            QAndroidJniObject::callStaticMethod<void>(
+                "org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingEchelon",
+                "(Landroid/content/Context;Ljava/lang/String;)V", QtAndroid::androidContext().object(),
+                QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+        } else {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                     "startAdvertisingTreadmill",
+                                                     "(Landroid/content/Context;)V",
+                                                     QtAndroid::androidContext().object());
+        }
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif
@@ -520,6 +848,7 @@ void virtualtreadmill::treadmillProvider() {
     const uint64_t slopeTimeoutSecs = 30;
     QSettings settings;
     bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    const bool echelon = isEchelonVirtualEnabled();
 
     if ((uint64_t)QDateTime::currentSecsSinceEpoch() > lastSlopeChanged + slopeTimeoutSecs)
         m_autoInclinationEnabled = false;
@@ -623,6 +952,20 @@ void virtualtreadmill::treadmillProvider() {
         if (bluetooth_relaxed) {
             leController->stopAdvertising();
         }
+    }
+
+    // In Echelon emulation mode we own the telemetry entirely (status/speed/inclination/running state) and
+    // must stream it on every tick. The FTMS/RSC/HR machinery below is for the non-Echelon virtual treadmill
+    // and contains early returns that would otherwise short-circuit the Echelon notifications, so handle it
+    // here and return.
+    if (echelon) {
+        if (echelonInitDone && serviceEchelon) {
+            echelonWriteStatus();
+            echelonWriteRunningState();
+            echelonWriteInclination();
+            echelonWriteSpeed();
+        }
+        return;
     }
 
     QByteArray value;
@@ -749,6 +1092,9 @@ bool virtualtreadmill::connected() {
 
 bool virtualtreadmill::ftmsServiceEnable() {
     QSettings settings;
+    if (settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool()) {
+        return false;
+    }
     bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
     if (!cadence)
         return true;
@@ -759,6 +1105,9 @@ bool virtualtreadmill::ftmsServiceEnable() {
 
 bool virtualtreadmill::ftmsTreadmillEnable() {
     QSettings settings;
+    if (settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool()) {
+        return false;
+    }
     bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
     if (!cadence)
         return true;

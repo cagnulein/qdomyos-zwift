@@ -195,12 +195,15 @@ double echelonrower::bikeResistanceToPeloton(double resistance) {
 
 void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newvalue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     qDebug() << QStringLiteral(" << ") + newvalue.toHex(' ');
+
+    if (auto *virtualRower = dynamic_cast<virtualrower *>(VirtualDevice())) {
+        virtualRower->relayEchelonPacket(characteristic.uuid(), newvalue);
+    }
 
     if (lastPacket.count() > 0 && lastPacket.count() + newvalue.count() == 21 && ((unsigned char)lastPacket.at(0)) == 0xf0) {
         lastPacket = lastPacket.append(newvalue);
@@ -284,7 +287,9 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     bool virtual_device_rower =
         settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
-    if (ios_peloton_workaround && cadence && !virtual_device_rower && h && firstStateChanged) {
+    bool virtual_device_echelon =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    if (ios_peloton_workaround && cadence && !virtual_device_rower && h && firstStateChanged && !virtual_device_echelon) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
     }
@@ -397,7 +402,9 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
                 settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
             bool ios_peloton_workaround =
                 settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-            if (ios_peloton_workaround && cadence && !virtual_device_rower) {
+            bool virtual_device_echelon =
+                settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+            if (ios_peloton_workaround && cadence && !virtual_device_rower && !virtual_device_echelon) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
                 h->virtualbike_ios();
@@ -506,6 +513,17 @@ bool echelonrower::connected() {
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
+}
+
+void echelonrower::proxyVirtualRowerCommand(const QByteArray &value) {
+    if (!gattCommunicationChannelService || !gattWriteCharacteristic.isValid() || !m_control ||
+        m_control->state() == QLowEnergyController::UnconnectedState) {
+        qDebug() << QStringLiteral("proxyVirtualRowerCommand ignored because the Echelon rower is not ready");
+        return;
+    }
+
+    writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(value.constData())), value.size(),
+                        QStringLiteral("virtual echelon rower proxy"));
 }
 
 uint16_t echelonrower::watts() {
