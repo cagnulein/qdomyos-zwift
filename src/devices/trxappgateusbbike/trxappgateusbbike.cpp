@@ -17,6 +17,78 @@
 
 using namespace std::chrono_literals;
 
+bool trxappgateusbbike::parseSrx500FtmsPower(const QByteArray &packet, double &power) {
+    if (packet.length() < 2) {
+        return false;
+    }
+
+    const uint16_t flags = (static_cast<uint16_t>(static_cast<uint8_t>(packet.at(1))) << 8) |
+                           static_cast<uint16_t>(static_cast<uint8_t>(packet.at(0)));
+    int index = 2;
+
+    const auto skip = [&packet, &index](int count) {
+        if (index + count > packet.length()) {
+            return false;
+        }
+        index += count;
+        return true;
+    };
+    const auto readSigned16 = [&packet, &index](double &value) {
+        if (index + 2 > packet.length()) {
+            return false;
+        }
+        const uint16_t raw = static_cast<uint16_t>(static_cast<uint8_t>(packet.at(index))) |
+                             (static_cast<uint16_t>(static_cast<uint8_t>(packet.at(index + 1))) << 8);
+        value = static_cast<double>(static_cast<qint16>(raw));
+        index += 2;
+        return true;
+    };
+
+    // Indoor Bike Data fields precede power in the order defined by FTMS.
+    if (!(flags & 0x0001) && !skip(2)) { // instantaneous speed
+        return false;
+    }
+    if ((flags & 0x0002) && !skip(2)) { // average speed
+        return false;
+    }
+    if ((flags & 0x0004) && !skip(2)) { // instantaneous cadence
+        return false;
+    }
+    if ((flags & 0x0008) && !skip(2)) { // average cadence
+        return false;
+    }
+    if ((flags & 0x0010) && !skip(3)) { // total distance
+        return false;
+    }
+    if ((flags & 0x0020) && !skip(2)) { // resistance level
+        return false;
+    }
+
+    bool powerFound = false;
+    double instantPower = 0;
+    double averagePower = 0;
+    if (flags & 0x0040) { // instantaneous power
+        if (!readSigned16(instantPower)) {
+            return false;
+        }
+        powerFound = true;
+    }
+    if (flags & 0x0080) { // average power
+        if (!readSigned16(averagePower)) {
+            return false;
+        }
+        if (!powerFound) {
+            power = averagePower;
+            powerFound = true;
+        }
+    }
+
+    if (powerFound && (flags & 0x0040)) {
+        power = instantPower;
+    }
+    return powerFound;
+}
+
 trxappgateusbbike::trxappgateusbbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                      double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -232,6 +304,17 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     emit packetReceived();
 
+    if (bike_type == TOORX_SRX_500 && characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
+        double power = 0;
+        if (parseSrx500FtmsPower(newValue, power) && power >= 0) {
+            ftmsWatt = power;
+            lastFtmsWattTime = QDateTime::currentMSecsSinceEpoch();
+            m_watt = power;
+            emit debug(QStringLiteral("Current FTMS watt: ") + QString::number(power));
+        }
+        return;
+    }
+
     qDebug() << newValue.toHex(' ') << bike_type;
 
     lastPacket = newValue;
@@ -281,6 +364,10 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         speed = GetSpeedFromPacket(newValue);
         resistance = GetResistanceFromPacket(newValue);
         watt = GetWattFromPacket(newValue);
+        if (bike_type == TOORX_SRX_500 && lastFtmsWattTime > 0 &&
+            QDateTime::currentMSecsSinceEpoch() - lastFtmsWattTime <= 2000) {
+            watt = ftmsWatt;
+        }
         if (!settings.value(QZSettings::kcal_ignore_builtin, QZSettings::default_kcal_ignore_builtin).toBool())
             KCal = GetKcalFromPacket(newValue);
         else {
@@ -1145,6 +1232,40 @@ void trxappgateusbbike::serviceScanDone(void) {
 
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &trxappgateusbbike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
+
+    if (bike_type == TYPE::TOORX_SRX_500 && m_control->services().contains(QBluetoothUuid((quint16)0x1826))) {
+        gattFTMSService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
+        if (gattFTMSService) {
+            connect(gattFTMSService, &QLowEnergyService::stateChanged, this, &trxappgateusbbike::ftmsStateChanged);
+            gattFTMSService->discoverDetails();
+        }
+    }
+}
+
+void trxappgateusbbike::ftmsStateChanged(QLowEnergyService::ServiceState state) {
+    if (state != QLowEnergyService::ServiceDiscovered) {
+        return;
+    }
+
+    connect(gattFTMSService, &QLowEnergyService::characteristicChanged, this,
+            &trxappgateusbbike::characteristicChanged);
+    for (const QLowEnergyCharacteristic &characteristic : gattFTMSService->characteristics()) {
+        emit debug(QStringLiteral("FTMS characteristic ") + characteristic.uuid().toString());
+        if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2) &&
+            (characteristic.properties() & (QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Indicate))) {
+            const QLowEnergyDescriptor ccc =
+                characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+            if (!ccc.isValid()) {
+                emit debug(QStringLiteral("FTMS SRX-500 Indoor Bike Data has no CCC descriptor"));
+                continue;
+            }
+            QByteArray descriptor;
+            descriptor.append((characteristic.properties() & QLowEnergyCharacteristic::Notify) ? char(0x01) : char(0x02));
+            descriptor.append(char(0x00));
+            gattFTMSService->writeDescriptor(ccc, descriptor);
+            emit debug(QStringLiteral("FTMS SRX-500 Indoor Bike Data power enabled"));
+        }
+    }
 }
 
 void trxappgateusbbike::errorService(QLowEnergyService::ServiceError err) {

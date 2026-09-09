@@ -38,6 +38,7 @@ class trxappgateusbbike : public bike {
     trxappgateusbbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                       double bikeResistanceGain);
     bool connected() override;
+    static bool parseSrx500FtmsPower(const QByteArray &packet, double &power);
     resistance_t maxResistance() override { return 32; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
 
@@ -77,6 +78,7 @@ class trxappgateusbbike : public bike {
     QByteArray lastPacket;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
@@ -84,6 +86,8 @@ class trxappgateusbbike : public bike {
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
+    double ftmsWatt = 0;
+    qint64 lastFtmsWattTime = 0;
 
     typedef enum TYPE {
         TRXAPPGATE = 0,
@@ -142,6 +146,7 @@ class trxappgateusbbike : public bike {
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
+    void ftmsStateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
