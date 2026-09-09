@@ -499,7 +499,7 @@ void ftmsbike::update() {
             }
 
             double gearMultiplier = 5;
-            if(REEBOK)
+            if(REEBOK || TUNTURI_E50_168)
                 gearMultiplier = 1;
             resistance_t rR = requestResistance + (gearsModifier() * gearMultiplier);
 
@@ -1405,7 +1405,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)newValue.at(index)))) /
-                       1000.0;
+                       (TUNTURI_E50_168 ? 10000.0 : 1000.0);
             index += 3;
         } else {
             // Only calculate distance if 2AD2 hasn't already done it recently (within 2000ms)
@@ -2260,6 +2260,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false;
             max_resistance = 24;
+        } else if (device.name().compare(QStringLiteral("Tunturi E50-168"), Qt::CaseInsensitive) == 0) {
+            qDebug() << QStringLiteral("Tunturi E50-168 found - enabling direct resistance and distance workaround");
+            TUNTURI_E50_168 = true;
+            resistance_lvl_mode = true;
+            max_resistance = 48;
         }
 
 
