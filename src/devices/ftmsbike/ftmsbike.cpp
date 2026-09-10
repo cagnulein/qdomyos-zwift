@@ -2000,7 +2000,7 @@ void ftmsbike::characteristicWritten(const QLowEnergyCharacteristic &characteris
 }
 
 void ftmsbike::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
-    qDebug() << QStringLiteral("characteristicRead ") << characteristic.name() << characteristic.uuid() << newValue.toHex(' ');
+    qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
 }
 
 void ftmsbike::serviceScanDone(void) {
