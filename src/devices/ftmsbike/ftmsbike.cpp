@@ -1025,6 +1025,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             } else if (SPORT01 && settings.value(QZSettings::toputure_teb1, QZSettings::default_toputure_teb1).toBool()) {
                 // Custom power calculation for SPORT01
+                // Resistance multipliers for levels 1-10
                 const double k[10] = {0.60, 0.75, 0.85, 0.95, 1.00, 1.18, 1.40, 1.70, 2.00, 2.40};
 
                 // Baseline power curve coefficients (MyWhoosh cadence-power at resistance 5)
@@ -1999,7 +2000,7 @@ void ftmsbike::characteristicWritten(const QLowEnergyCharacteristic &characteris
 }
 
 void ftmsbike::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
-    qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
+    qDebug() << QStringLiteral("characteristicRead ") << characteristic.name() << characteristic.uuid() << newValue.toHex(' ');
 }
 
 void ftmsbike::serviceScanDone(void) {
