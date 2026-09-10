@@ -374,7 +374,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(SL010 || SPORT01 || TOPUTURE_TEB5 || FS_YK)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK) {
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -1025,7 +1025,6 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             } else if (SPORT01 && settings.value(QZSettings::toputure_teb1, QZSettings::default_toputure_teb1).toBool()) {
                 // Custom power calculation for SPORT01
-                // Resistance multipliers for levels 1-10
                 const double k[10] = {0.60, 0.75, 0.85, 0.95, 1.00, 1.18, 1.40, 1.70, 2.00, 2.40};
 
                 // Baseline power curve coefficients (MyWhoosh cadence-power at resistance 5)
