@@ -30,6 +30,18 @@ To test this:
 
 In a confirmed support case, an unnoticed second device was connecting to the bike; removing that competing connection restored QZ connectivity.
 
+## QZ keeps finding or searching for the wrong nearby fitness device. How can I force the intended trainer or bike?
+
+If several supported Bluetooth fitness devices are nearby and QZ selects or keeps searching for the wrong one, use the **Manual Device** setting to restrict discovery to the device you actually want to use.
+
+1. Open **QZ Settings > Advanced Settings**.
+2. Set **Manual Device** to the Bluetooth name of the intended bike or trainer.
+3. Fully close and restart QZ, then let it reconnect.
+
+QZ stores this selection as its device filter and uses it instead of unrestricted automatic discovery. To return to automatic device selection later, set **Manual Device** back to **Disabled**.
+
+In a confirmed support case, QZ was searching for a different nearby fitness machine instead of the intended smart trainer. Selecting the trainer under **Manual Device** restored the expected connection.
+
 ## MyWhoosh connects to QZ for my Echelon bike, but power stays at 0 W. What should I check?
 
 If the Echelon bike itself is already working normally in QZ and MyWhoosh can see/connect to the QZ device but the workout data remains at zero, check whether **Virtual Echelon** is still enabled from a previous setup or unlock attempt.
