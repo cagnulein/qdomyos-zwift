@@ -34,6 +34,7 @@ public:
     /**
      * @brief Gets the identifier for the specified friendly name.
      * @param deviceName
+     * @return
      */
     static const QString Identifier(const QString& deviceName);
 
