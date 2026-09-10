@@ -38,6 +38,7 @@ def patch_bluetooth():
     text = "".join(lines)
 
     cleanup = '''    if (fitPlusBike) {
+
         delete fitPlusBike;
         fitPlusBike = nullptr;
     }
@@ -47,6 +48,7 @@ def patch_bluetooth():
     text = text.replace(
         cleanup,
         cleanup + '''    if (fitPlusRower) {
+
         delete fitPlusRower;
         fitPlusRower = nullptr;
     }
