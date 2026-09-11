@@ -139,7 +139,12 @@ void echelonconnectsport::update() {
 
     if (initRequest) {
         initRequest = false;
-        btinit();
+        if (transparentVirtualEchelonBridgeEnabled()) {
+            qDebug() << QStringLiteral("Virtual Echelon transparent bridge: skipping QZ btinit");
+            initDone = true;
+        } else {
+            btinit();
+        }
     } else if ((useNativeIOS ||
                 (bluetoothDevice.isValid() &&
                  m_control->state() == QLowEnergyController::DiscoveredState &&
@@ -149,6 +154,13 @@ void echelonconnectsport::update() {
                  gattNotify2Characteristic.isValid())) &&
                initDone) {
         update_metrics(true, watts());
+
+        // The external Echelon client owns the complete proprietary protocol session in
+        // transparent mode. QZ may still consume notifications for metrics, but must not
+        // inject polls, ERG/resistance changes, or start/stop commands into that session.
+        if (transparentVirtualEchelonBridgeEnabled()) {
+            return;
+        }
 
         // Continuous ERG mode support - recalculate resistance as cadence changes when using power zone tiles
         if (RequestedPower.value() > 0) {
@@ -259,6 +271,13 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
 
     qDebug() << " << " + newValue.toHex(' ');
+
+    if (transparentVirtualEchelonBridgeEnabled()) {
+        const QString channel = characteristic.uuid() == gattNotify1Characteristic.uuid() ? QStringLiteral("F3")
+                                                                                           : QStringLiteral("F4");
+        qDebug() << QStringLiteral("Virtual Echelon RX from physical bike %1: %2")
+                        .arg(channel, QString::fromLatin1(newValue.toHex(' ')));
+    }
 
     maybePromptToEnableVirtualEchelon(newValue);
 
@@ -750,8 +769,19 @@ void echelonconnectsport::proxyVirtualBikeCommand(const QByteArray &value) {
         maybePromptForClassicBridge();
     }
 
+    qDebug() << QStringLiteral("Virtual Echelon TX to physical bike: %1")
+                    .arg(QString::fromLatin1(value.toHex(' ')));
     writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(value.constData())), value.size(),
                         QStringLiteral("virtual echelon proxy"));
+}
+
+bool echelonconnectsport::transparentVirtualEchelonBridgeEnabled() const {
+    QSettings settings;
+    return !classicVirtualBridgeActive &&
+           settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool() &&
+           settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool() &&
+           settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool() &&
+           !settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
 }
 
 bool echelonconnectsport::connected() {
