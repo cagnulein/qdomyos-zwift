@@ -1,10 +1,16 @@
 # Android
 
-## Zwift loses its connection to QZ after about a minute when QZ is in the background. What should I do?
+## Zwift loses its connection to QZ after about a minute or a few minutes when QZ is in the background. What should I do?
 
-On Android, enable **Settings > Experimental Settings > Android Notification** in QZ, then restart QZ before starting your session.
+On Android, check both the QZ foreground notification setting and Android's battery restrictions:
 
-This setting creates an active QZ notification while the app is running and is required for same-device Zwift operation on Android. In a confirmed support case, enabling it stopped a repeatable disconnect that occurred about every 60 seconds whenever Zwift was in the foreground.
+1. In QZ, enable **Settings > Experimental Settings > Android Notification**.
+2. In Android settings, open the app settings for QZ and set its battery usage to **Unrestricted** or **No restrictions**.
+3. Restart QZ before starting your session, then open Zwift.
+
+The exact Android menu names vary by device and manufacturer. On some devices, the unrestricted battery option is hidden inside additional battery optimization or background usage settings, so make sure QZ is really excluded from battery restrictions.
+
+The QZ Android Notification setting helps keep QZ active while Zwift is in the foreground, but Android's own battery management can still suspend or stop QZ in the background. In a confirmed support case, QZ repeatedly disconnected after roughly 2 to 5 minutes until the user found the additional Android battery setting and changed QZ to unrestricted battery usage. See [issue #5034](https://github.com/cagnulein/qdomyos-zwift/issues/5034).
 
 This workaround is Android-specific. iOS does not provide QZ with the same background mechanism; if your iOS setup requires QZ and the training app to remain active at the same time, use separate devices.
 
