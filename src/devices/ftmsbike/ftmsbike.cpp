@@ -62,6 +62,12 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
     writeTimeoutTimer = new QTimer(this);
     writeTimeoutTimer->setSingleShot(true);
     connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
+        if (currentWriteWaitingForResponse && !currentWriteExpectedResponse.isEmpty()) {
+            qDebug() << QStringLiteral("writeCharacteristic timeout - still waiting for exact FTMS response")
+                     << currentWriteExpectedResponse.toHex(' ');
+            writeTimeoutTimer->start(2000);
+            return;
+        }
         qDebug() << QStringLiteral("writeCharacteristic timeout - processing next in queue");
         completeCurrentWrite();
     });
@@ -148,6 +154,15 @@ void ftmsbike::processWriteQueue() {
 
     isWriting = true;
     currentWriteWaitingForResponse = request.wait_for_response;
+    currentWriteExpectedResponse.clear();
+    if (request.wait_for_response && request.characteristic.uuid() == QBluetoothUuid((quint16)0x2AD9) &&
+        request.data.length() > 0) {
+        // FTMS Control Point responses must identify the command they acknowledge
+        // and report success: 0x80 <request opcode> 0x01.
+        currentWriteExpectedResponse.append((char)FTMS_RESPONSE_CODE);
+        currentWriteExpectedResponse.append(request.data.at(0));
+        currentWriteExpectedResponse.append((char)FTMS_SUCCESS);
+    }
     currentWriteService = request.service;
 
     if (request.write_without_response) {
@@ -167,6 +182,7 @@ void ftmsbike::completeCurrentWrite() {
     writeTimeoutTimer->stop();
     isWriting = false;
     currentWriteWaitingForResponse = false;
+    currentWriteExpectedResponse.clear();
     currentWriteService = nullptr;
     processWriteQueue();
 }
@@ -184,6 +200,18 @@ void ftmsbike::init() {
     
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
     bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
+
+    // Dirty Tacx Flux 2 test: the native app requests control, resets, requests
+    // control again, and only then starts/resumes the simulation. Each command
+    // is queued with response waiting enabled so the next command is not sent
+    // until the previous FTMS response has been received.
+    const bool tacx_flux_2 = bluetoothDevice.name().compare(QStringLiteral("Tacx Flux-2 33326"), Qt::CaseInsensitive) == 0;
+    if (tacx_flux_2) {
+        uint8_t reset[] = {FTMS_RESET};
+        ret = writeCharacteristic(reset, sizeof(reset), "tacx flux 2 reset", false, true);
+        ret = writeCharacteristic(write, sizeof(write), "tacx flux 2 requestControl", false, true);
+    }
+
     if (USDC_D700) {
         // Kinomap keeps this bike streaming by following request-control with STOP/PAUSE(0x01)
         // instead of the usual START/RESUME opcode.
@@ -341,7 +369,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
     if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
         resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false) {
 
-        uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
+        uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x33};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
         if(ergModeNotSupported) {
@@ -402,7 +430,9 @@ void ftmsbike::forceInclination(double requestInclination) {
     // Byte 3-4: Grade/Inclination (sint16, 0.01%)
     // Byte 5-6: Coefficient of Rolling Resistance (uint8, 0.0001)
 
-    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
+    // Dirty Flux 2 test: use the simulation parameters observed in the native app
+    // BTSnoop (zero wind, 0x28 / 0x33 resistance coefficients).
+    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x33};
 
     // Convert inclination to FTMS format (multiply by 100 for 0.01% units)
     int16_t inclination = (int16_t)(requestInclination * 100.0);
@@ -721,7 +751,18 @@ bool ftmsbike::shouldUseCalculatedResistanceFallback(const QDateTime &now) {
 
 void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     if (isWriting && currentWriteWaitingForResponse && sender() == currentWriteService) {
-        completeCurrentWrite();
+        if (currentWriteExpectedResponse.isEmpty()) {
+            // Non-FTMS writes retain the previous generic response behavior.
+            completeCurrentWrite();
+        } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD9) &&
+                   newValue == currentWriteExpectedResponse) {
+            qDebug() << "matched FTMS response" << newValue.toHex(' ');
+            completeCurrentWrite();
+        } else {
+            qDebug() << "ignoring unexpected FTMS response while waiting for"
+                     << currentWriteExpectedResponse.toHex(' ') << "received" << newValue.toHex(' ')
+                     << "from" << characteristic.uuid();
+        }
     }
 
     QDateTime now = QDateTime::currentDateTime();
@@ -1882,6 +1923,16 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
 
     QByteArray b = newValue;
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
+
+    // Dirty Flux 2 test: match the native app's FTMS simulation parameters
+    // captured in the BTSnoop (zero wind, 0x28 / 0x33 coefficients).
+    if (b.length() >= 7 && (uint8_t)b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+        b[1] = 0x00;
+        b[2] = 0x00;
+        b[5] = 0x28;
+        b[6] = 0x33;
+        qDebug() << "Flux 2 dirty FTMS parameters" << b.toHex(' ');
+    }
 
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
