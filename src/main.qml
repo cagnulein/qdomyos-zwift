@@ -940,7 +940,7 @@ ApplicationWindow {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
-        property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
+        property bool settingsPageActive: stackView.currentItem && stackView.currentItem.objectName === "settingsPage"
         topPadding: getTopPadding()
         leftPadding: getLeftPadding()
         rightPadding: getRightPadding()
@@ -952,6 +952,8 @@ ApplicationWindow {
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
+                    if (stackView.currentItem && typeof stackView.currentItem.modernSettingsBackFromHeader === "function" && stackView.currentItem.modernSettingsBackFromHeader())
+                        return;
                     if(window.settings_restart_to_apply === true) {
                         window.settings_restart_to_apply = false;
                         popupRestartApp.visible = true;
@@ -1062,20 +1064,6 @@ ApplicationWindow {
             }
             anchors.right: toolButtonSaveSettings.left
             visible: false
-        }
-
-        ToolButton {
-            id: toolButtonSettingsSearch
-            text: "\uD83D\uDD0D"
-            font.pixelSize: Qt.application.font.pixelSize * 1.25
-            onClicked: {
-                if (headerToolbar.settingsPageActive)
-                    stackView.currentItem.showSettingsSearch()
-            }
-            anchors.right: toolButtonLoadSettings.left
-            visible: headerToolbar.settingsPageActive
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("Search settings")
         }
 
         ToolButton {

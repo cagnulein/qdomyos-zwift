@@ -125,29 +125,19 @@ void TestSettingsTestSuite::test_longTranslatedSwitchLabelsWrap(){
     ASSERT_TRUE(settingsQml.open(QIODevice::ReadOnly | QIODevice::Text));
     const QString settingsSource = QString::fromUtf8(settingsQml.readAll());
 
-    // Regression case: the German translation of this setting previously appeared
-    // as "Nutze Apple Watch Cadence für gefälschte Laufbandges..." on narrow screens.
-    const QString regressionTitle =
-        "text: qsTr(\"Use Apple Watch Cadence for Fake Treadmill Speed\")";
-    const int titlePosition = settingsSource.indexOf(regressionTitle);
-    ASSERT_NE(titlePosition, -1);
-
-    const int delegatePosition = settingsSource.lastIndexOf("IndicatorOnlySwitch {", titlePosition);
-    ASSERT_NE(delegatePosition, -1);
-    EXPECT_LT(titlePosition - delegatePosition, 600);
-
-    // No translated control may enlarge the vertical settings page beyond the
-    // visible viewport. This protects labels, buttons, combo boxes and future
-    // controls with a large implicit width.
+    // The modern settings renderer uses catalog-backed rows rather than the
+    // legacy per-setting controls. Keep every row constrained to the viewport,
+    // and wrap translated titles and descriptions inside that width.
     EXPECT_TRUE(settingsSource.contains("contentWidth: availableWidth"));
-
-    // Concrete regression case from the German UI: the two log buttons used to
-    // make the entire settings page wider than a phone screen. Keep them in two
-    // columns when they fit and stack them when the translated labels do not.
-    EXPECT_TRUE(settingsSource.contains("id: logsButtonsLayout"));
+    EXPECT_TRUE(settingsSource.contains("id: modernItemList"));
     EXPECT_TRUE(settingsSource.contains(
-        "columns: width >= clearLogs.implicitWidth + showLogs.implicitWidth + columnSpacing ? 2 : 1"));
-    EXPECT_TRUE(settingsSource.contains("id: showLogs"));
+        "width: modernItemList.width - modernItemList.leftMargin - modernItemList.rightMargin"));
+    EXPECT_TRUE(settingsSource.contains("wrapMode: Text.WordWrap"));
+
+    // The legacy log buttons are represented by explicit actions in the modern
+    // catalog-driven renderer.
+    EXPECT_TRUE(settingsSource.contains("key: \"action_clear_history\""));
+    EXPECT_TRUE(settingsSource.contains("key: \"action_show_logs_folder\""));
 }
 
 

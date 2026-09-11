@@ -24,7 +24,7 @@ ColumnLayout {
 
         Accessible.role: Accessible.Button 
         Accessible.name: title 
-        Accessible.description: expanded ? "Expanded" : "Collapsed"
+        Accessible.description: isOpen ? "Expanded" : "Collapsed"
         Accessible.onPressAction: toggle()
 
         Rectangle{
