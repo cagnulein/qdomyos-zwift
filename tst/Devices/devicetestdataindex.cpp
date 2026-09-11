@@ -393,11 +393,20 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("X100-", DeviceNameComparison::StartsWith);
 
 
+    // FitPlus Rower - Merach R28
+    // Reproduces the support case from matthieu.f.graveleau@gmail.com:
+    // debug-Wed_Sep_9_22_16_00_2026.log.txt reported MRK-R28-6B51.
+    RegisterNewDeviceTestData(DeviceIndex::FitPlusRower_MRK_R28)
+        ->expectDevice<fitplusrower>()
+        ->acceptDeviceName("MRK-R28-6B51", DeviceNameComparison::Exact);
+
     // FitPlus MRK
     RegisterNewDeviceTestData(DeviceIndex::FitPlusBike_MRK_NoSettings)
         ->expectDevice<fitplusbike>()
         ->acceptDeviceName("MRK-", DeviceNameComparison::StartsWith)
+        ->rejectDeviceName("MRK-R28-", DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding<ftmsbike>()
+        ->excluding<fitplusrower>()
         ->excluding<snodebike>();
 
     // FitShow FS

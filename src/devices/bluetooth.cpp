@@ -2183,6 +2183,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(concept2Skierg, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 concept2Skierg->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(concept2Skierg);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("MRK-R28-")) &&
+                       !fitPlusRower && filter) {
+                // Support case: matthieu.f.graveleau@gmail.com, debug-Wed_Sep_9_22_16_00_2026.log.txt.
+                // The R28 advertises FTMS, but QZ 2.20.29 successfully used the proprietary FFF0 Merach protocol.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                fitPlusRower = new fitplusrower(noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(fitPlusRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                fitPlusRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(fitPlusRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CR 00")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KAYAKPRO")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WHIPR")) ||
@@ -2192,7 +2205,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MRK-CRYDN-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MRK-R06-")) ||
-						b.name().toUpper().startsWith(QStringLiteral("MRK-R28-")) ||
 						b.name().toUpper().startsWith(QStringLiteral("MRK-R15-")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("MRK-R11S-")) && !iconsole_rower) ||
                         b.name().toUpper().startsWith(QStringLiteral("YOROTO-RW-")) ||
@@ -4428,6 +4440,11 @@ void bluetooth::restart() {
         delete fitPlusBike;
         fitPlusBike = nullptr;
     }
+    if (fitPlusRower) {
+
+        delete fitPlusRower;
+        fitPlusRower = nullptr;
+    }
     if (skandikaWiriBike) {
 
         delete skandikaWiriBike;
@@ -4724,6 +4741,8 @@ bluetoothdevice *bluetooth::device() {
         return pafersBike;
     } else if (fitPlusBike) {
         return fitPlusBike;
+    } else if (fitPlusRower) {
+        return fitPlusRower;
     } else if (pelotonBike) {
         return pelotonBike;
     } else if (skandikaWiriBike) {
