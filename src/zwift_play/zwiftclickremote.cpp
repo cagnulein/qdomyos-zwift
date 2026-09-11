@@ -37,14 +37,30 @@ void zwiftclickremote::update() {
     if (initRequest && !initDone) {
         initRequest = false;
         QByteArray s = playDevice->buildHandshakeStart();
-        qDebug() << s.length();
         writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
+        // For left controller: send ff0400 unlock-ack so an already-unlocked device stays in unlocked mode.
+        // OpenBikeControl sends this only when they know the device was unlocked within the last 24h;
+        // we send it unconditionally — it's a no-op on a locked device and maintains unlock on an unlocked one.
+        if(typeZap == AbstractZapDevice::LEFT) {
+            QByteArray unlockAck = QByteArray::fromHex("ff0400");
+            writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
+                               (uint8_t*)unlockAck.data(), unlockAck.length(), "unlockAck");
+        }
         initDone = true;
+        keepAliveCounter = 0;
     } else if(initDone) {
         countRxTimeout++;
         if(countRxTimeout == 10) {
             if(homeform::singleton())
                 homeform::singleton()->setToastRequested("Zwift device: UPGRADE THE FIRMWARE!");
+        }
+        // Keepalive: re-send RideOn every 3 seconds to prevent Click V2 deep-sleep (causes HCI 0x08 drop).
+        // Applies to LEFT and RIGHT types only; NONE is the old Zwift Click which uses a different protocol.
+        if(typeZap != AbstractZapDevice::NONE && ++keepAliveCounter >= 3) {
+            keepAliveCounter = 0;
+            QByteArray s = playDevice->buildHandshakeStart();
+            writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic,
+                               (uint8_t*)s.data(), s.length(), "keepAlive", true);
         }
     }
 }
@@ -75,9 +91,19 @@ void zwiftclickremote::handleCharacteristicValueChanged(const QBluetoothUuid &uu
     if(uuid == QBluetoothUuid(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1"))) {
         playDevice->processCharacteristic("Async", newValue, typeZap);
     } else if(uuid == QBluetoothUuid(QStringLiteral("00000004-19CA-4651-86E5-FA29DCDD09D1"))) {
+        // Unlock detection: when the device is in unencrypted (unlocked) mode it echoes back
+        // the RideOn handshake on SYNC_TX, starting with 0x52 ('R'). A locked device instead
+        // sends a crypto challenge starting with 0xFF. See OpenBikeControl zwift_ride.dart,
+        // commit 2cb079fc ("attempt to improve Zwift Click V2 unlock").
+        if(!deviceUnlocked && !newValue.isEmpty() && (uint8_t)newValue[0] == 0x52) {
+            deviceUnlocked = true;
+            qDebug() << QStringLiteral("zwiftclickremote: device UNLOCKED (RideOn echo) typeZap=") << typeZap;
+            if(typeZap == AbstractZapDevice::LEFT && homeform::singleton())
+                homeform::singleton()->setToastRequested("Zwift Click V2: Left controller unlocked!");
+        }
         playDevice->processCharacteristic("SyncTx", newValue, typeZap);
     } else if(uuid == QBluetoothUuid::BatteryLevel) {
-        
+
     }
 }
 
@@ -346,6 +372,8 @@ void zwiftclickremote::controllerStateChanged(QLowEnergyController::ControllerSt
         qDebug() << QStringLiteral("trying to connect back again...");
         initRequest = false;
         initDone = false;
+        keepAliveCounter = 0;
+        deviceUnlocked = false;
 
         if(m_control)
             m_control->connectToDevice();

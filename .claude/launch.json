@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "treadmill-pro-dashboard",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "7891", "--directory", "src/inner_templates"],
+      "port": 7891
+    }
+  ]
+}
