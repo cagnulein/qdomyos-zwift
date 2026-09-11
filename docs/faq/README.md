@@ -7,6 +7,7 @@ This directory contains practical QZ frequently asked questions, organized by ca
 - [Android](android.md)
 - [Bike and trainer troubleshooting](bike-troubleshooting.md)
 - [Integrations and authentication](integrations.md)
+- [ROUVY](rouvy.md)
 - [Rowing](rowing.md)
 - [Training programs](training-programs.md)
 - [Treadmill troubleshooting](treadmill-troubleshooting.md)
