@@ -11,6 +11,7 @@
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
 #include <QtCore/qbytearray.h>
+#include <QtCore/qelapsedtimer.h>
 
 #ifndef Q_OS_ANDROID
 #include <QtCore/qcoreapplication.h>
@@ -61,6 +62,12 @@ class wahookickrsnapbike : public bike {
         _setSimWindSpeed = 71,
         _setWheelCircumference = 72,
     };
+
+    enum CommandGroup : uint8_t {
+        _noCommandGroup = 0,
+        _inclinationCommandGroup = 1,
+        _gearCommandGroup = 2,
+    };
     
     // Variabili per iOS (pubbliche per permettere all'implementazione iOS di impostarle)
     bool zwift_found = false;
@@ -76,6 +83,8 @@ class wahookickrsnapbike : public bike {
         QString info;
         bool disable_log;
         bool wait_for_response;
+        uint8_t response_opcode = 0;
+        uint8_t coalesce_key = _noCommandGroup;
     };
     QByteArray unlockCommand();
     QByteArray setResistanceMode(double resistance);
@@ -89,8 +98,11 @@ class wahookickrsnapbike : public bike {
     QByteArray setWheelCircumference(double millimeters);
 
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
-                             bool wait_for_response = false);
+                             bool wait_for_response = false, uint8_t response_opcode = 0,
+                             uint8_t coalesce_key = _noCommandGroup);
     void processWriteQueue();
+    bool isExpectedCommandResponse(const QBluetoothUuid &uuid, const QByteArray &value) const;
+    void logCommandResponse(const QByteArray &value);
     uint16_t wattsFromResistance(double resistance);
     metric ResistanceFromFTMSAccessory;
     void startDiscover();
@@ -108,6 +120,11 @@ class wahookickrsnapbike : public bike {
     QQueue<WriteRequest> writeQueue;
     bool isWriting = false;
     bool currentWriteWaitingForResponse = false;
+    uint8_t currentWriteResponseOpcode = 0;
+    QString currentWriteInfo;
+    QElapsedTimer currentWriteTimer;
+    quint64 commandAckCount = 0;
+    quint64 commandAckTotalMs = 0;
     QTimer *writeTimeoutTimer = nullptr;
 
     uint8_t sec1Update = 0;
