@@ -1,0 +1,70 @@
+name: Treadmill summary JS test
+
+on:
+  push:
+    branches:
+      - treadmill-post-workout-summary
+    paths:
+      - 'src/inner_templates/chartjs/chart.htm'
+      - 'src/inner_templates/chartjs/dochart.js'
+      - 'src/inner_templates/chartjs/treadmill_summary.js'
+      - 'tst/js/treadmill_summary_test.js'
+      - 'tst/js/treadmill_summary_visual_test.js'
+      - 'tst/js/treadmill_summary_visual_fixture.htm'
+      - '.github/workflows/treadmill-summary-js-test.yml'
+  pull_request:
+    paths:
+      - 'src/inner_templates/chartjs/chart.htm'
+      - 'src/inner_templates/chartjs/dochart.js'
+      - 'src/inner_templates/chartjs/treadmill_summary.js'
+      - 'tst/js/treadmill_summary_test.js'
+      - 'tst/js/treadmill_summary_visual_test.js'
+      - 'tst/js/treadmill_summary_visual_fixture.htm'
+      - '.github/workflows/treadmill-summary-js-test.yml'
+  workflow_dispatch:
+
+jobs:
+  treadmill-summary-js:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run deterministic treadmill post-workout test
+        run: node tst/js/treadmill_summary_test.js
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start local chart server
+        run: |
+          python3 -m http.server 8765 --directory . > /tmp/qz-chart-http.log 2>&1 &
+          echo $! > /tmp/qz-chart-http.pid
+          for i in {1..20}; do
+            if curl --silent --fail http://127.0.0.1:8765/tst/js/treadmill_summary_visual_fixture.htm >/dev/null; then
+              exit 0
+            fi
+            sleep 0.5
+          done
+          cat /tmp/qz-chart-http.log
+          exit 1
+
+      - name: Render and validate treadmill summary screenshot
+        run: node tst/js/treadmill_summary_visual_test.js
+
+      - name: Stop local chart server
+        if: always()
+        run: |
+          if [ -f /tmp/qz-chart-http.pid ]; then
+            kill "$(cat /tmp/qz-chart-http.pid)" || true
+          fi
+
+      - name: Upload treadmill summary test report and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: treadmill-summary-js-report
+          path: tst/js/artifacts/
+          if-no-files-found: error
