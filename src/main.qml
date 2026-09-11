@@ -952,6 +952,12 @@ ApplicationWindow {
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
+                    var remindToSaveProfile = headerToolbar.settingsPageActive &&
+                            stackView.currentItem &&
+                            typeof stackView.currentItem.profileSaveReminderNeeded === "function" &&
+                            stackView.currentItem.profileSaveReminderNeeded()
+                    var activeProfileName = settings.profile_name
+
                     if(window.settings_restart_to_apply === true) {
                         window.settings_restart_to_apply = false;
                         popupRestartApp.visible = true;
@@ -961,6 +967,9 @@ ApplicationWindow {
                     toolButtonLoadSettings.visible = false;
                     toolButtonSaveSettings.visible = false;
                     rootItem.sortTiles()
+                    if (remindToSaveProfile) {
+                        toast.show(qsTr("Remember to save profile \"%1\" if you want to keep these changes.").arg(activeProfileName))
+                    }
                 } else {
                     drawer.open()
                 }
