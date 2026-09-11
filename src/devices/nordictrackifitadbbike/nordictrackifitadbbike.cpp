@@ -812,6 +812,8 @@ void nordictrackifitadbbike::update() {
             }
         }
 
+        updateContinuousErg(now);
+
         // Update lastGearValue for gear change detection (only if not using debounced mode)
         if (!nordictrackadbbike_gear_resistance_mode || !gearChangesPending) {
             lastGearValue = gears();
@@ -1257,17 +1259,109 @@ void nordictrackifitadbbike::disableGrpcWatts() {
 void nordictrackifitadbbike::changePower(int32_t power) {
     // Call base class implementation first to set RequestedPower
     bike::changePower(power);
-    
-    // If gRPC is available, use it to set the power directly
+
+    // Bikes with a learned resistance table are controlled continuously below.
+    // GlassOS' ConstantWatts service only selects resistance when the target is
+    // sent, so cadence changes otherwise leave resistance fixed.
 #ifdef Q_OS_ANDROID
-    if (grpcInitialized && power > 0) {
+    if (grpcInitialized && power > 0 && _ergTable.getMaxResistance() > 1) {
+        if (hasActiveWattsTarget) {
+            disableGrpcWatts();
+        }
+        lastErgTargetPower = power;
+        lastErgCommandedResistance = -1;
+        lastErgAdjustment = QDateTime::currentDateTime().addMSecs(-3000);
+        emit debug(QString("changePower: Armed continuous learned ERG control for %1W").arg(power));
+    } else if (grpcInitialized && power > 0) {
         setGrpcWatts(static_cast<double>(power));
         emit debug(QString("changePower: Set power to %1W via gRPC").arg(power));
     } else {
+        if (grpcInitialized && hasActiveWattsTarget) {
+            disableGrpcWatts();
+        }
+        lastErgTargetPower = 0;
+        lastErgCommandedResistance = -1;
         emit debug(QString("changePower: Power request %1W (gRPC not available or power <= 0)").arg(power));
     }
 #else
     emit debug(QString("changePower: Power request %1W (Android gRPC not available)").arg(power));
+#endif
+}
+
+void nordictrackifitadbbike::updateContinuousErg(const QDateTime &now) {
+#ifdef Q_OS_ANDROID
+    if (!grpcInitialized || !autoResistance() || _ergTable.getMaxResistance() <= 1 ||
+        lastRequestedPower().value() <= 0) {
+        lastErgCommandedResistance = -1;
+        return;
+    }
+
+    const double cadence = Cadence.value();
+    if (cadence < 30 || lastErgAdjustment.msecsTo(now) < 2500) {
+        return;
+    }
+
+    const int targetPower = qRound(lastRequestedPower().value());
+    if (targetPower != lastErgTargetPower) {
+        lastErgTargetPower = targetPower;
+        lastErgCommandedResistance = -1;
+    }
+
+    const int currentResistance = qBound(
+        1, qRound(Resistance.value()),
+        qMin<int>(max_resistance, _ergTable.getMaxResistance()));
+    const int measuredPower = qRound(m_watt.average5s());
+    if (measuredPower <= 0) {
+        return;
+    }
+
+    QSettings settings;
+    const double upperDeadband = settings.value(
+        QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+    const double lowerDeadband = settings.value(
+        QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+
+    int desiredResistance = currentResistance;
+    if (measuredPower < targetPower - upperDeadband) {
+        desiredResistance = qMax<int>(
+            resistanceFromPowerRequest(targetPower), currentResistance + 1);
+    } else if (measuredPower > targetPower + lowerDeadband) {
+        desiredResistance = qMin<int>(
+            resistanceFromPowerRequest(targetPower), currentResistance - 1);
+    } else {
+        lastErgAdjustment = now;
+        emit debug(QString("continuous ERG: target %1W, measured %2W within deadband at resistance %3")
+                       .arg(targetPower).arg(measuredPower).arg(currentResistance));
+        return;
+    }
+
+    desiredResistance = qBound(
+        1, desiredResistance,
+        qMin<int>(max_resistance, _ergTable.getMaxResistance()));
+
+    // Avoid sudden load changes while still allowing cadence-based feed-forward.
+    int nextResistance = qBound(
+        currentResistance - 2, desiredResistance, currentResistance + 2);
+
+    // ERG death-spiral protection: never add load below 50 rpm.
+    if (cadence < 50 && nextResistance > currentResistance) {
+        emit debug(QString("continuous ERG: cadence %1 below 50 rpm; blocked resistance increase %2 -> %3")
+                       .arg(cadence).arg(currentResistance).arg(nextResistance));
+        lastErgAdjustment = now;
+        return;
+    }
+
+    if (nextResistance != currentResistance &&
+        nextResistance != lastErgCommandedResistance) {
+        emit debug(QString("continuous ERG: cadence %1 rpm, target %2W, measured %3W, resistance %4 -> %5")
+                       .arg(cadence).arg(targetPower).arg(measuredPower)
+                       .arg(currentResistance).arg(nextResistance));
+        forceResistance(nextResistance);
+        lastErgCommandedResistance = nextResistance;
+    }
+    lastErgAdjustment = now;
+#else
+    Q_UNUSED(now)
 #endif
 }
 
