@@ -220,6 +220,7 @@ class ftmsbike : public bike {
     bool SMARTBIKE_3DIGIT = false;
     bool TX_500MB_IRON = false;
     bool MOK_FITNESS = false;
+    bool TUNTURI_E50_168 = false;
 
     uint8_t secondsToResetTimer = 5;
 

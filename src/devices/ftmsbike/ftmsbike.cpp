@@ -378,7 +378,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         if(SL010 || SPORT01 || TOPUTURE_TEB5 || FS_YK)
             Resistance = requestResistance;
         
-        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK) {
+        if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -508,7 +508,7 @@ void ftmsbike::update() {
             // Do not apply it a second time in this FTMS path.
             if (cscbike::useCustomResistancePowerTable())
                 gearMultiplier = 0;
-            else if (REEBOK)
+            else if (REEBOK || TUNTURI_E50_168)
                 gearMultiplier = 1;
             resistance_t rR = requestResistance + (gearsModifier() * gearMultiplier);
 
@@ -1419,7 +1419,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)newValue.at(index)))) /
-                       1000.0;
+                       (TUNTURI_E50_168 ? 10000.0 : 1000.0);
             index += 3;
         } else {
             // Only calculate distance if 2AD2 hasn't already done it recently (within 2000ms)
@@ -2289,6 +2289,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false;
             max_resistance = 24;
+        } else if (device.name().compare(QStringLiteral("Tunturi E50-168"), Qt::CaseInsensitive) == 0) {
+            qDebug() << QStringLiteral("Tunturi E50-168 found - enabling direct resistance and distance workaround");
+            TUNTURI_E50_168 = true;
+            resistance_lvl_mode = true;
+            max_resistance = 48;
         }
 
 
