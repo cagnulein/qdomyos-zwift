@@ -10,6 +10,7 @@
 #include <QSettings>
 #include <QThread>
 #include <chrono>
+#include <limits>
 #include <math.h>
 
 #ifdef Q_OS_ANDROID
@@ -878,12 +879,40 @@ void nordictrackifitadbbike::changeInclinationRequested(double grade, double per
 bool nordictrackifitadbbike::connected() { return true; }
 
 resistance_t nordictrackifitadbbike::resistanceFromPowerRequest(uint16_t power) {
-    // actually it's using inclination for the s22i
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
     if (Cadence.value() == 0)
         return 0;
 
+    // NordicTrack bikes without native ERG support already contribute their
+    // measured cadence, wattage and resistance to bluetoothdevice::_ergTable.
+    // Prefer that learned table when it contains data so target-power commands
+    // use the actual bike curve. This changes only ERG target selection; the
+    // simulation-grade/inclination path remains unchanged.
+    const uint16_t learnedMaxResistance = _ergTable.getMaxResistance();
+    if (learnedMaxResistance > 1) {
+        const uint16_t tableLimit = qMin<uint16_t>(learnedMaxResistance, max_resistance);
+        resistance_t learnedResistance = 1;
+        double smallestDifference = std::numeric_limits<double>::max();
+
+        // The X24 has discrete resistance steps. Pick the step whose learned
+        // wattage is closest to the request instead of always choosing the
+        // lower side of a bracket.
+        for (resistance_t resistance = 1; resistance <= tableLimit; ++resistance) {
+            const double estimatedWatts = _ergTable.estimateWattage(Cadence.value(), resistance);
+            const double difference = std::abs(estimatedWatts - power);
+            if (difference < smallestDifference) {
+                smallestDifference = difference;
+                learnedResistance = resistance;
+            }
+        }
+
+        qDebug() << QStringLiteral("resistanceFromPowerRequest learned ERG table")
+                 << learnedResistance << power << Cadence.value() << smallestDifference;
+        return learnedResistance;
+    }
+
+    // Fall back to the historical S22i curve until enough learned data exists.
     for (resistance_t i = 0; i < max_resistance; i++) {
         if (wattsFromResistance(i, Cadence.value()) <= power && wattsFromResistance(i + 1, Cadence.value()) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i, Cadence.value())
