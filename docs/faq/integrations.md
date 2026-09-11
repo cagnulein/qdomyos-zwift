@@ -35,6 +35,19 @@ When MyWhoosh lists the virtual QZ devices, select **Wahoo KICK 0000** as the **
 
 In a confirmed support case, selecting the external cadence sensor in QZ restored cadence immediately; the `cadence_sensor_as_bike` setting is also part of QZ's current device-discovery configuration.
 
+## Can I use a Bluetooth power meter or trainer power service as the bike source in QZ?
+
+Yes. If the Bluetooth device is fundamentally being detected as an external power sensor rather than as a complete bike, QZ can promote that sensor to the bike data source.
+
+1. Select the device as the **Power Sensor** in QZ.
+2. Enable **Power Sensor as a Bike**.
+3. Confirm that power and the available sensor metrics are updating on the QZ main screen before opening the downstream training app.
+4. Then pair the virtual QZ bike/trainer in the training app instead of pairing the physical power sensor directly there.
+
+The `power_sensor_as_bike` option is part of QZ's current device-discovery configuration and changes how a selected power sensor is treated by QZ. This is useful for setups where the physical device provides usable cycling power data but is not otherwise selected as QZ's primary bike.
+
+In a confirmed support case, QZ could see the physical trainer/power source but was not exposing the expected bike data path until **Power Sensor as a Bike** was enabled; after enabling it, the setup began working.
+
 ## Can I use Zwift Ride virtual gears with Kinomap through QZ?
 
 Yes. QZ can use the Zwift Ride controllers for shifting while Kinomap connects to QZ as the virtual trainer.
@@ -55,6 +68,20 @@ Yes. QZ can manage virtual gear changes while Rouvy controls the trainer through
 If using the phone's volume buttons to shift is inconvenient, enable QZ's **volume buttons change gears** option and use a Bluetooth media/volume remote. QZ handles volume-up and volume-down key events as gear controls when this option is enabled, so a small handlebar-mounted Bluetooth remote that sends the same keys can be used for shifting.
 
 On Android, the system volume overlay may still briefly appear when those keys are pressed; that does not prevent QZ from using the key presses for gear changes.
+
+## How do I follow Peloton resistance targets when my bike uses a different resistance scale?
+
+Do not try to make the bike's native resistance scale match Peloton numerically. QZ calculates a separate **Peloton Resistance** value for supported bikes so you can follow the resistance target shown by a Peloton workout while the physical bike continues to use its own native levels.
+
+If you only see the bike's normal resistance value:
+
+1. Open **QZ Settings > Tiles**.
+2. Find **Peloton Resistance** and make sure the tile is enabled.
+3. Return to the main QZ screen and follow the **Peloton Resistance** tile during the workout rather than the normal **Resistance** tile.
+
+For example, a bike whose native resistance stops at level 32 does not need to be remapped so that its normal tile reaches 40 or another Peloton number. The Peloton Resistance tile is the converted value intended for that purpose.
+
+In a confirmed support case, enabling the Peloton Resistance tile immediately exposed the converted Peloton-scale value while the bike's normal resistance remained on its native scale.
 
 ## Peloton login from QZ stays on a spinning screen on an Echelon console. What should I try?
 
