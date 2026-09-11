@@ -10,7 +10,8 @@ import AndroidStatusBar 1.0
 //Page {
     ScrollView {
         objectName: "settingsPage"
-        contentWidth: -1
+        // Settings is a vertical page: never let a wide translated child enlarge the viewport.
+        contentWidth: availableWidth
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent

@@ -2001,6 +2001,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("ORLAUF_ARES")) ||
                         (b.name().toUpper().startsWith("SPEEDMAGPRO")) ||                        
                         (b.name().toUpper().startsWith("SMARTBIKE-")) ||
+                        (b.name().toUpper().startsWith("TX-500MB IRON")) ||
                         (b.name().toUpper().startsWith("D500V2")) ||
                         (b.name().toUpper().startsWith("FBIKE-HEAVY-PRO")) ||
                         (b.name().toUpper().startsWith("NEO BIKE PLUS ")) ||
@@ -2128,6 +2129,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("RACER S")) ||
                         ((b.name().toUpper().startsWith("KU")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith("ELITETRAINER")) ||
+                        (b.name().toUpper().startsWith("MISURO B+")) ||
                         (b.name().toUpper().startsWith("TOUR 600")) ||
                         (b.name().toUpper().startsWith("SMART+ #")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("QD")) && b.name().length() == 2) ||
@@ -2181,6 +2183,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(concept2Skierg, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 concept2Skierg->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(concept2Skierg);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("MRK-R28-")) &&
+                       !fitPlusRower && filter) {
+                // Support case: matthieu.f.graveleau@gmail.com, debug-Wed_Sep_9_22_16_00_2026.log.txt.
+                // The R28 advertises FTMS, but QZ 2.20.29 successfully used the proprietary FFF0 Merach protocol.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                fitPlusRower = new fitplusrower(noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(fitPlusRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                fitPlusRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(fitPlusRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CR 00")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KAYAKPRO")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WHIPR")) ||
@@ -2190,7 +2205,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MRK-CRYDN-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MRK-R06-")) ||
-						b.name().toUpper().startsWith(QStringLiteral("MRK-R28-")) ||
 						b.name().toUpper().startsWith(QStringLiteral("MRK-R15-")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("MRK-R11S-")) && !iconsole_rower) ||
                         b.name().toUpper().startsWith(QStringLiteral("YOROTO-RW-")) ||
@@ -2980,6 +2994,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
                          !b.name().contains('(') && !b.name().contains(')') && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
+                        (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 15 &&
+                         b.name().indexOf('-') == 10) || // FitShow SW fingerprint: SW5731CAXI-0061
                         (b.name().toUpper().startsWith(QStringLiteral("WINFITA"))) || //  also FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T80-")) ||   // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("SW-BLE"))) ||       // FTMS
@@ -4424,6 +4440,11 @@ void bluetooth::restart() {
         delete fitPlusBike;
         fitPlusBike = nullptr;
     }
+    if (fitPlusRower) {
+
+        delete fitPlusRower;
+        fitPlusRower = nullptr;
+    }
     if (skandikaWiriBike) {
 
         delete skandikaWiriBike;
@@ -4720,6 +4741,8 @@ bluetoothdevice *bluetooth::device() {
         return pafersBike;
     } else if (fitPlusBike) {
         return fitPlusBike;
+    } else if (fitPlusRower) {
+        return fitPlusRower;
     } else if (pelotonBike) {
         return pelotonBike;
     } else if (skandikaWiriBike) {

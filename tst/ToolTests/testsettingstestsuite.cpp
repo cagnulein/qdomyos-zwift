@@ -1,6 +1,10 @@
 #include "testsettingstestsuite.h"
 
 #include <QCoreApplication>
+#include <QFile>
+#include <QProcess>
+#include <QProcessEnvironment>
+#include <QResource>
 #include "Tools/testsettings.h"
 
 
@@ -81,8 +85,59 @@ void TestSettingsTestSuite::test_destructor(){
         // testSettings should be destroyed here, which should restore the original QCoreApplication details
     }
 
-    EXPECT_EQ(QCoreApplication::organizationName(), originalOrgName);
     EXPECT_EQ(QCoreApplication::applicationName(), originalAppName);
+    EXPECT_EQ(QCoreApplication::organizationName(), originalOrgName);
+}
+
+void TestSettingsTestSuite::test_longTranslatedSwitchLabelsWrap(){
+    // Run the real QML control in an isolated GUI subprocess. The main test process
+    // intentionally remains QCoreApplication-based, so this does not change the
+    // environment or behavior of the rest of the test suite.
+    QProcess probe;
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    environment.insert("QT_QPA_PLATFORM", "offscreen");
+    probe.setProcessEnvironment(environment);
+    probe.start(QCoreApplication::applicationFilePath(),
+                QStringList() << "--settings-label-layout-probe");
+
+    ASSERT_TRUE(probe.waitForStarted(10000));
+    ASSERT_TRUE(probe.waitForFinished(30000));
+
+    const QByteArray probeOutput = probe.readAllStandardError() + probe.readAllStandardOutput();
+    EXPECT_EQ(probe.exitStatus(), QProcess::NormalExit) << probeOutput.constData();
+    EXPECT_EQ(probe.exitCode(), 0) << probeOutput.constData();
+
+    Q_INIT_RESOURCE(qml);
+
+    QFile indicatorOnlySwitch(":/IndicatorOnlySwitch.qml");
+    ASSERT_TRUE(indicatorOnlySwitch.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString indicatorSource = QString::fromUtf8(indicatorOnlySwitch.readAll());
+
+    // Do not replace Material's IconLabel: it owns colors, disabled state,
+    // padding, icon handling and RTL layout. Only configure its text child.
+    EXPECT_FALSE(indicatorSource.contains("contentItem:"));
+    EXPECT_TRUE(indicatorSource.contains("configureTextItem"));
+    EXPECT_TRUE(indicatorSource.contains("Text.WrapAtWordBoundaryOrAnywhere"));
+    EXPECT_TRUE(indicatorSource.contains("maximumLineCount = 2"));
+    EXPECT_TRUE(indicatorSource.contains("elide = Text.ElideRight"));
+
+    QFile settingsQml(":/settings.qml");
+    ASSERT_TRUE(settingsQml.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString settingsSource = QString::fromUtf8(settingsQml.readAll());
+
+    // The modern settings renderer uses catalog-backed rows rather than the
+    // legacy per-setting controls. Keep every row constrained to the viewport,
+    // and wrap translated titles and descriptions inside that width.
+    EXPECT_TRUE(settingsSource.contains("contentWidth: availableWidth"));
+    EXPECT_TRUE(settingsSource.contains("id: modernItemList"));
+    EXPECT_TRUE(settingsSource.contains(
+        "width: modernItemList.width - modernItemList.leftMargin - modernItemList.rightMargin"));
+    EXPECT_TRUE(settingsSource.contains("wrapMode: Text.WordWrap"));
+
+    // The legacy log buttons are represented by explicit actions in the modern
+    // catalog-driven renderer.
+    EXPECT_TRUE(settingsSource.contains("key: \"action_clear_history\""));
+    EXPECT_TRUE(settingsSource.contains("key: \"action_show_logs_folder\""));
 }
 
 
