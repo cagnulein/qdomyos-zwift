@@ -31,6 +31,7 @@ SOURCES += \
         Devices/TestSchwinn411510EParser.cpp \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
+        Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestKeepBikeParser.cpp \
         Devices/TestRenphoBikeKnobGears.cpp \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
@@ -65,6 +66,7 @@ HEADERS += \
     Devices/devicetestdataindex.h \
     Devices/TestSchwinn411510EParser.h \
     Devices/TestApexBikeParser.h \
+    Devices/TestTrxAppGateUsBellipticalParser.h \
     Devices/TestKeepBikeParser.h \
     Devices/TestRenphoBikeKnobGears.h \
     Devices/TestNordictrackEllipticalS700Parser.h \
