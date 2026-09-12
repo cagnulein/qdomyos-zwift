@@ -11506,6 +11506,20 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
+                                id: horizonTreadmillSpeedMilesDelegate
+                                text: qsTr("Horizon speed is in miles")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.sole_treadmill_miles
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.sole_treadmill_miles = checked
+                            }
+                            IndicatorOnlySwitch {
                                 id: horizon78TreadmillDelegate
                                 text: qsTr("Horizon 7.8 start issue")
                                 spacing: 0
