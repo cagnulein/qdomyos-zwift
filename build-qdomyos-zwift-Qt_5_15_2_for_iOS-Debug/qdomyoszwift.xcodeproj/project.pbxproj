@@ -278,6 +278,8 @@
 		87433F2127D8B722003D1672 /* simplecrypt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87433F2027D8B722003D1672 /* simplecrypt.cpp */; };
 		87440FBD2640291700E4DC0B /* fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBC2640291700E4DC0B /* fitplusbike.cpp */; };
 		87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */; };
+		87F000012F00000000000001 /* fitplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000004 /* fitplusrower.cpp */; };
+		87F000012F00000000000002 /* moc_fitplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000005 /* moc_fitplusrower.cpp */; };
 		8745B2762AFCB4A300991A39 /* android in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8745B2752AFCB4A300991A39 /* android */; };
 		87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9527ECA9EE00C203F5 /* proformrower.cpp */; };
 		87473A9827ECAA0500C203F5 /* moc_proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9727ECAA0500C203F5 /* moc_proformrower.cpp */; };
@@ -1252,6 +1254,9 @@
 		87440FBB2640291700E4DC0B /* fitplusbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fitplusbike.h; path = ../src/devices/fitplusbike/fitplusbike.h; sourceTree = "<group>"; };
 		87440FBC2640291700E4DC0B /* fitplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fitplusbike.cpp; path = ../src/devices/fitplusbike/fitplusbike.cpp; sourceTree = "<group>"; };
 		87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitplusbike.cpp; sourceTree = "<group>"; };
+		87F000012F00000000000003 /* fitplusrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fitplusrower.h; path = ../src/devices/fitplusrower/fitplusrower.h; sourceTree = "<group>"; };
+		87F000012F00000000000004 /* fitplusrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fitplusrower.cpp; path = ../src/devices/fitplusrower/fitplusrower.cpp; sourceTree = "<group>"; };
+		87F000012F00000000000005 /* moc_fitplusrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitplusrower.cpp; sourceTree = "<group>"; };
 		8745B2742AFCB3B300991A39 /* libadb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libadb.a; path = ../src/ios/libadb.a; sourceTree = "<group>"; };
 		8745B2752AFCB4A300991A39 /* android */ = {isa = PBXFileReference; lastKnownFileType = folder; name = android; path = ../src/ios/android; sourceTree = "<group>"; };
 		8745B2772AFCB52800991A39 /* AdbClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AdbClient.h; path = ../src/ios/AdbClient.h; sourceTree = "<group>"; };
@@ -2340,6 +2345,7 @@
 				87A3BC24265642A200D302E3 /* moc_rower.cpp */,
 				8780D948264FB8B800192D41 /* moc_smartspin2k.cpp */,
 				87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */,
+				87F000012F00000000000005 /* moc_fitplusrower.cpp */,
 				875F69BA26342E9A0009FD78 /* moc_spirittreadmill.cpp */,
 				8718CBAA263063CE004BF4EE /* moc_soleelliptical.cpp */,
 				8718CBA8263063CD004BF4EE /* moc_tcpclientinfosender.cpp */,
@@ -2836,6 +2842,8 @@
 				8780D945264FB8AB00192D41 /* smartspin2k.h */,
 				87440FBC2640291700E4DC0B /* fitplusbike.cpp */,
 				87440FBB2640291700E4DC0B /* fitplusbike.h */,
+				87F000012F00000000000004 /* fitplusrower.cpp */,
+				87F000012F00000000000003 /* fitplusrower.h */,
 				875F69B826342E8D0009FD78 /* spirittreadmill.cpp */,
 				875F69B726342E8D0009FD78 /* spirittreadmill.h */,
 				8718CB9A263063BC004BF4EE /* soleelliptical.cpp */,
@@ -3836,6 +3844,7 @@
 				87C5F0D926285E7E0067A1B5 /* moc_mimeattachment.cpp in Compile Sources */,
 				87B617F225F260150094A1CB /* moc_fitshowtreadmill.cpp in Compile Sources */,
 				87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */,
+				87F000012F00000000000001 /* fitplusrower.cpp in Compile Sources */,
 				8556B13A3D02D52A21FC5E3E /* bluetooth.cpp in Compile Sources */,
 				87586A4125B8340E00A243C4 /* proformbike.cpp in Compile Sources */,
 				87C5F0C126285E5F0067A1B5 /* mimeattachment.cpp in Compile Sources */,
@@ -4170,6 +4179,7 @@
 				872DCC392A18D4A800EC9F68 /* virtualdevice.cpp in Compile Sources */,
 				0F974CB18B3E792B42270F19 /* FitDecode.mm in Compile Sources */,
 				87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */,
+				87F000012F00000000000002 /* moc_fitplusrower.cpp in Compile Sources */,
 				8768C8CA2BBC11C80099DBE1 /* sockets.c in Compile Sources */,
 				87B617EC25F25FED0094A1CB /* screencapture.cpp in Compile Sources */,
 				8755E5D42E4E260B006A12E4 /* moc_fontmanager.cpp in Compile Sources */,
