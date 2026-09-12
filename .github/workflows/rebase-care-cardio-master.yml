@@ -1,5 +1,6 @@
 name: Rebase CARE Cardio Master PR
 
+# Temporary helper: rebuild the PR cleanly on latest master.
 on:
   push:
     branches:
