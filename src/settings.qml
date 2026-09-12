@@ -283,14 +283,21 @@ import AndroidStatusBar 1.0
             return []
         }
 
+        function isBluetoothDeviceSetting(entry) {
+            return entry && entry.options && entry.options.expression &&
+                   entry.options.expression.indexOf("bluetoothDevices") >= 0
+        }
+
         function optionIndex(entry) {
             var values = optionValues(entry)
             var value = settingValue(entry)
+            var bluetoothDeviceSetting = isBluetoothDeviceSetting(entry)
             for (var i = 0; i < values.length; i++) {
-                if (values[i] === value)
+                var candidate = bluetoothDeviceSetting ? stripRssi(values[i]) : values[i]
+                if (candidate === value)
                     return i
             }
-            return 0
+            return bluetoothDeviceSetting ? -1 : 0
         }
 
         function virtualOptionLabels(entry) {
@@ -2009,6 +2016,9 @@ import AndroidStatusBar 1.0
                                 Layout.maximumHeight: visible ? implicitHeight : 0
                                 model: visible ? settingsPane.optionValues(entry) : []
                                 currentIndex: visible ? settingsPane.optionIndex(entry) : 0
+                                displayText: visible && settingsPane.isBluetoothDeviceSetting(entry)
+                                             ? settingsPane.settingValue(entry)
+                                             : currentText
                                 contentItem: Label {
                                     leftPadding: 12
                                     rightPadding: 36
@@ -2031,7 +2041,7 @@ import AndroidStatusBar 1.0
                                 }
                                 onActivated: {
                                     var selectedValue = currentValue
-                                    if (entry.options && entry.options.expression && entry.options.expression.indexOf("bluetoothDevices") >= 0)
+                                    if (settingsPane.isBluetoothDeviceSetting(entry))
                                         selectedValue = settingsPane.stripRssi(selectedValue)
                                     settingsPane.setSettingValue(entry, selectedValue)
                                 }
