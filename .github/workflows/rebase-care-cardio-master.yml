@@ -1,0 +1,58 @@
+name: Rebase CARE Cardio Master PR
+
+# Temporary helper: rebuild the PR cleanly on latest master.
+on:
+  push:
+    branches:
+      - care-cardio-master-55430-2
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: care-cardio-master-55430-2
+          fetch-depth: 0
+      - name: Rebuild patch on latest master
+        run: |
+          git fetch origin master
+          git reset --hard origin/master
+          python3 - <<'PY'
+          from pathlib import Path
+
+          bluetooth = Path("src/devices/bluetooth.cpp")
+          text = bluetooth.read_text()
+          old = '''                        (b.name().toUpper().contains(QStringLiteral("CARE")) &&
+                         b.name().length() == 11)) // CARE9040177 - Carefitness CV-351
+'''
+          new = '''                        ((b.name().toUpper().contains(QStringLiteral("CARE")) &&
+                          b.name().length() == 11) || // CARE9040177 - Carefitness CV-351
+                         (b.name().startsWith(QStringLiteral("CARE"), Qt::CaseInsensitive) &&
+                          b.name().contains(QLatin1Char('+'))))) // CARE Cardio Master family, e.g. CARE11216+0156
+'''
+          if text.count(old) != 1:
+              raise SystemExit(f"Expected one CARE bike detection block, found {text.count(old)}")
+          bluetooth.write_text(text.replace(old, new, 1))
+
+          sportsplus = Path("src/devices/sportsplusbike/sportsplusbike.cpp")
+          text = sportsplus.read_text()
+          old = '''    if (!sp_ht_9600ie && !carefitness_bike) {
+        const uint8_t initData1[] = {0x40, 0x00, 0x16, 0x0a, 0x60};
+'''
+          new = '''    const bool care_cardio_master =
+        bluetoothDevice.name().startsWith(QStringLiteral("CARE"), Qt::CaseInsensitive) &&
+        bluetoothDevice.name().contains(QLatin1Char('+'));
+
+    if (!sp_ht_9600ie && (!carefitness_bike || care_cardio_master)) {
+        const uint8_t initData1[] = {0x40, 0x00, 0x16, 0x0a, 0x60};
+'''
+          if text.count(old) != 1:
+              raise SystemExit(f"Expected one SportsPlus init condition, found {text.count(old)}")
+          sportsplus.write_text(text.replace(old, new, 1))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/devices/bluetooth.cpp src/devices/sportsplusbike/sportsplusbike.cpp
+          git commit -m "Match CARE Cardio Master family pattern"
+          git push --force origin HEAD:care-cardio-master-55430-2

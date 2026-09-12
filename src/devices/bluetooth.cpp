@@ -2512,8 +2512,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) ||
                         ((b.name().toUpper().startsWith(QStringLiteral("HT")) && b.name().length() == 10) &&
                          ftms_bike.contains(QZSettings::default_ftms_bike)) ||
-                        (b.name().toUpper().contains(QStringLiteral("CARE")) &&
-                         b.name().length() == 11)) // CARE9040177 - Carefitness CV-351
+                        ((b.name().toUpper().contains(QStringLiteral("CARE")) &&
+                          b.name().length() == 11) || // CARE9040177 - Carefitness CV-351
+                         !b.name().compare(QStringLiteral("CARE11216+0156"), Qt::CaseInsensitive))) // CARE Cardio Master 55430-2
                        && !sportsPlusBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
