@@ -1290,16 +1290,7 @@ void nordictrackifitadbbike::changePower(int32_t power) {
 
 void nordictrackifitadbbike::updateContinuousErg(const QDateTime &now) {
 #ifdef Q_OS_ANDROID
-    QSettings settings;
-    const bool ergMode = settings.value(
-        QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
-
-    if (!ergMode && lastRequestedPower().value() > 0) {
-        emit debug("continuous ERG: setting disabled; clearing target power");
-        changePower(0);
-    }
-
-    if (!ergMode || !grpcInitialized || !autoResistance() || _ergTable.getMaxResistance() <= 1 ||
+    if (!grpcInitialized || !autoResistance() || _ergTable.getMaxResistance() <= 1 ||
         lastRequestedPower().value() <= 0) {
         lastErgCommandedResistance = -1;
         return;
@@ -1324,6 +1315,7 @@ void nordictrackifitadbbike::updateContinuousErg(const QDateTime &now) {
         return;
     }
 
+    QSettings settings;
     const double upperDeadband = settings.value(
         QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
     const double lowerDeadband = settings.value(
