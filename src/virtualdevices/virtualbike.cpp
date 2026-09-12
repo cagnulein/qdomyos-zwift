@@ -1512,6 +1512,12 @@ void virtualbike::bikeProvider() {
     if (leController->state() != QLowEnergyController::ConnectedState) {
         qDebug() << QStringLiteral("virtual bike bluetooth not connected");
 
+        if (Bike->deviceType() == BIKE &&
+            ((bike *)Bike)->lastRequestedPower().value() > 0) {
+            qDebug() << QStringLiteral("virtual bike disconnected: clearing target power");
+            writeP2AD9->changePower(0);
+        }
+
         return;
     } else {
         bool bluetooth_relaxed =
