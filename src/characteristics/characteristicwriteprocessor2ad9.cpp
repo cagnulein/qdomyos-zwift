@@ -46,6 +46,9 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 int16_t iresistance = (((uint8_t)data.at(3)) + (data.at(4) << 8));
                 uint8_t crr = data.at(5);
                 uint8_t cw = data.at(6);
+                // A simulation command switches the trainer out of target-power
+                // mode. Clear any retained ERG request before applying grade.
+                changePower(0);
                 changeSlope(iresistance, crr, cw);
             } else if (cmd == FTMS_SET_TARGET_POWER) // erg mode
 
@@ -64,7 +67,9 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 reply.append((quint8)FTMS_START_RESUME);
                 reply.append((quint8)FTMS_SUCCESS);
             } else if (cmd == FTMS_STOP_PAUSE) {
-                qDebug() << QStringLiteral("stop/pause simulation! ignoring it");
+                qDebug() << QStringLiteral("stop/pause simulation: clearing target power");
+
+                changePower(0);
 
                 reply.append((quint8)FTMS_RESPONSE_CODE);
                 reply.append((quint8)FTMS_STOP_PAUSE);

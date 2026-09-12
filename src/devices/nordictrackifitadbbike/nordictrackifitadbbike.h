@@ -102,6 +102,7 @@ class nordictrackifitadbbike : public bike {
     void disableGrpcWatts();
     void setGrpcFanSpeed(int fanSpeed);
     int getGrpcFanSpeed();
+    void updateContinuousErg(const QDateTime &now);
     
     // Gear change debouncing
     void processPendingGearChange();
@@ -124,6 +125,9 @@ class nordictrackifitadbbike : public bike {
     bool grpcInitialized = false;
     bool lastErgMode = true;
     bool hasActiveWattsTarget = false;
+    QDateTime lastErgAdjustment = QDateTime::currentDateTime();
+    int lastErgCommandedResistance = -1;
+    int lastErgTargetPower = 0;
 
     bool gearsAvailable = false;
     double lastGearValue = 0;
