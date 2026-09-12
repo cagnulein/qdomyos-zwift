@@ -1,0 +1,57 @@
+name: Update CARE Cardio Master pattern
+
+on:
+  push:
+    branches:
+      - care-cardio-master-55430-2
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: care-cardio-master-55430-2
+          fetch-depth: 0
+      - name: Replace exact CARE id with family pattern
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('src/devices/bluetooth.cpp')
+          s = p.read_text()
+          old = '''                        ((b.name().toUpper().contains(QStringLiteral("CARE")) &&
+                          b.name().length() == 11) || // CARE9040177 - Carefitness CV-351
+                         !b.name().compare(QStringLiteral("CARE11216+0156"), Qt::CaseInsensitive))) // CARE Cardio Master 55430-2
+'''
+          new = '''                        ((b.name().toUpper().contains(QStringLiteral("CARE")) &&
+                          b.name().length() == 11) || // CARE9040177 - Carefitness CV-351
+                         (b.name().startsWith(QStringLiteral("CARE"), Qt::CaseInsensitive) &&
+                          b.name().contains(QLatin1Char('+'))))) // CARE Cardio Master family, e.g. CARE11216+0156
+'''
+          if s.count(old) != 1:
+              raise SystemExit(f'bluetooth.cpp expected 1 match, got {s.count(old)}')
+          p.write_text(s.replace(old, new, 1))
+
+          p = Path('src/devices/sportsplusbike/sportsplusbike.cpp')
+          s = p.read_text()
+          old = '''    if (!sp_ht_9600ie &&
+        (!carefitness_bike ||
+         !bluetoothDevice.name().compare(QStringLiteral("CARE11216+0156"), Qt::CaseInsensitive))) {
+'''
+          new = '''    const bool care_cardio_master =
+        bluetoothDevice.name().startsWith(QStringLiteral("CARE"), Qt::CaseInsensitive) &&
+        bluetoothDevice.name().contains(QLatin1Char('+'));
+
+    if (!sp_ht_9600ie && (!carefitness_bike || care_cardio_master)) {
+'''
+          if s.count(old) != 1:
+              raise SystemExit(f'sportsplusbike.cpp expected 1 match, got {s.count(old)}')
+          p.write_text(s.replace(old, new, 1))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/devices/bluetooth.cpp src/devices/sportsplusbike/sportsplusbike.cpp
+          git rm .github/workflows/update-care-pattern.yml
+          git commit -m "Match CARE Cardio Master family pattern"
+          git push origin HEAD:care-cardio-master-55430-2
