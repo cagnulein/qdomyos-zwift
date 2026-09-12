@@ -2621,6 +2621,10 @@ void horizontreadmill::serviceScanDone(void) {
                 qDebug() << s << "skipping (DOMYOS-TC will use only FTMS)";
                 continue;
             }
+            if (TM55_TREADMILL && s != _FTMSServiceId) {
+                qDebug() << s << "skipping (TM55 treadmill will use only FTMS 0x1826)";
+                continue;
+            }
 
             qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
@@ -2767,6 +2771,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("TM6500 treadmill found");
             TM6500 = true;
             minInclination = -3.0;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TM55-"))) {
+            qDebug() << QStringLiteral("TM55 treadmill found; will use only FTMS service (0x1826)");
+            TM55_TREADMILL = true;
         } else if (device.name().toUpper().startsWith(QStringLiteral("MRK-T"))) {
             qDebug() << QStringLiteral("MERACH treadmill workaround ON!");
             MERACH_TREADMILL = true;
