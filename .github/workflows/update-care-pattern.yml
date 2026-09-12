@@ -1,5 +1,6 @@
 name: Update CARE Cardio Master pattern
 
+# Trigger after the workflow exists on the branch.
 on:
   push:
     branches:
