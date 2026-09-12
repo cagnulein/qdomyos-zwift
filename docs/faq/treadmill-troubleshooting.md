@@ -22,6 +22,25 @@ This setting is especially relevant when the treadmill advertises a usable FTMS 
 
 Note that some treadmill consoles disable their physical controls while an app has an active Bluetooth control connection. That behavior can be firmware-specific and is separate from QZ's protocol selection.
 
+## My Horizon 7.4AT is set to km/h, but QZ shows a value about 1.609 times higher. How can I keep Peloton automatic speed control working?
+
+On some Horizon 7.4AT setups, the proprietary Horizon protocol can report a speed value that QZ interprets as miles per hour even though the treadmill itself is configured for km/h. A typical symptom is that the treadmill shows **0.8** while QZ shows about **1.3 km/h**.
+
+If enabling **Force Using FTMS** fixes the displayed speed but causes Peloton automatic treadmill speed control to stop working, keep the Horizon proprietary protocol and correct the conversion with the speed gain instead:
+
+1. Keep the treadmill itself configured for **km/h**.
+2. Set QZ to **km/h**.
+3. Open **QZ Settings > Treadmill Options > Horizon Treadmill options** and leave **Force Using FTMS** disabled.
+4. Set **Speed Gain** to **0.621371**. If the field does not accept that many digits, **0.6214** is fine.
+5. Set **Speed Offset** to **0**.
+6. Restart QZ and reconnect the treadmill.
+
+`0.621371` is the inverse of the miles-to-kilometers conversion factor, so it cancels the unwanted `x 1.60934` conversion in this case.
+
+This setup was confirmed on a Horizon 7.4AT to correct the displayed km/h value while preserving Peloton automatic speed control through QZ.
+
+Because **Speed Gain** also participates in QZ's treadmill speed-control path, verify both directions after changing it: manually set a simple treadmill speed and confirm QZ displays the same value, then start a Peloton treadmill workout and confirm an automatically requested speed produces the expected treadmill speed.
+
 ## Can Zwift automatically control both treadmill incline and speed through QZ?
 
 QZ can use the Zwift integration for **automatic inclination**. Configure your Zwift credentials in QZ and enable the Zwift auto-inclination option.
