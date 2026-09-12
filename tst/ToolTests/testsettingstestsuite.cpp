@@ -138,6 +138,17 @@ void TestSettingsTestSuite::test_longTranslatedSwitchLabelsWrap(){
     // catalog-driven renderer.
     EXPECT_TRUE(settingsSource.contains("key: \"action_clear_history\""));
     EXPECT_TRUE(settingsSource.contains("key: \"action_show_logs_folder\""));
+
+    // Bluetooth discovery values include a transient RSSI suffix. The modern
+    // search renderer must match and display the persisted device name while
+    // keeping the RSSI-decorated values available in the selector.
+    EXPECT_TRUE(settingsSource.contains("function isBluetoothDeviceSetting"));
+    EXPECT_TRUE(settingsSource.contains(
+        "var candidate = bluetoothDeviceSetting ? stripRssi(values[i]) : values[i]"));
+    EXPECT_TRUE(settingsSource.contains("return bluetoothDeviceSetting ? -1 : 0"));
+    EXPECT_TRUE(settingsSource.contains(
+        "displayText: visible && settingsPane.isBluetoothDeviceSetting(entry)"));
+    EXPECT_TRUE(settingsSource.contains("selectedValue = settingsPane.stripRssi(selectedValue)"));
 }
 
 
