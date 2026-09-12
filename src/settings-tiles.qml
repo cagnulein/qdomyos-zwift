@@ -367,6 +367,8 @@ ScrollView {
         property string shortcut_start_stop: ""            
         property bool tile_watt_color_enabled: true
         property bool tile_pace_color_enabled: true
+        property bool tile_alternative_pace_enabled: false
+        property int  tile_alternative_pace_order: 80
     }
 
 
@@ -779,6 +781,49 @@ ScrollView {
                     onClicked: {settings.tile_avg_pace_order = avgpaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
+        }
+
+        AccordionCheckElement {
+            id: alternativePaceEnabledAccordion
+            title: qsTr("Alternative Pace")
+            linkedBoolSetting: "tile_alternative_pace_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelalternativePaceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: alternativePaceOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_alternative_pace_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: displayText = alternativePaceOrderTextField.currentValue
+                }
+                Button {
+                    id: okalternativePaceOrderButton
+                    text: qsTr("OK")
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: { settings.tile_alternative_pace_order = alternativePaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Shows the pace calculated from an available running sensor, such as HRM Pro Plus or Stryd. The treadmill pace remains unchanged.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {

@@ -392,6 +392,9 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         // Unit is in m/s with a resolution of 1/256
         uint16_t speedMs = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
         double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
+        // Keep the running sensor speed available for the alternative pace tile without
+        // changing the inherited treadmill speed metric.
+        alternativeSpeedValue = speed;
         bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
         if(stryd_speed_instead_treadmill)
             emit speedChanged(speed);
@@ -415,8 +418,6 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         Cadence = cadence;
         emit cadenceChanged(cadence);
         if (treadmill_from_sensor) {
-            Speed = speed;
-
             emit speedChanged(speed);
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCadenceChanged.msecsTo(now)));
