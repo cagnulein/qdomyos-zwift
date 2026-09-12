@@ -1,16 +1,15 @@
 name: Apply CARE Cardio Master family pattern
 
 on:
-  pull_request:
+  push:
     branches:
-      - master
+      - care-cardio-master-55430-2
 
 permissions:
   contents: write
 
 jobs:
   apply-care-pattern:
-    if: github.head_ref == 'care-cardio-master-55430-2'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
