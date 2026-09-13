@@ -76,7 +76,7 @@ void bike::changeResistance(resistance_t resistance) {
 void bike::changeInclination(double grade, double percentage) {
     qDebug() << QStringLiteral("bike::changeInclination") << autoResistanceEnable << grade << percentage;
     lastRawRequestedInclinationValue = grade;
-    if (autoResistanceEnable) {        
+    if (autoResistanceEnable) {
         requestInclination = grade;
     }
     emit inclinationChanged(grade, percentage);
@@ -110,20 +110,50 @@ void bike::changePower(int32_t power) {
         settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
     double erg_filter_lower =
         settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
-    
+
     // Apply bike power offset
     int bike_power_offset = settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toInt();
     power += bike_power_offset;
     qDebug() << QStringLiteral("changePower: original power with offset applied: ") + QString::number(power) + QStringLiteral(" (offset: ") + QString::number(bike_power_offset) + QStringLiteral(")");
 
     requestPower = power; // used by some bikes that have ERG mode builtin
-    
-    if(power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0 && fabs(requestPower - m_watt.average5s()) < qMax(erg_filter_upper, erg_filter_lower)) {
-        qDebug() << "applying delta watt to power request m_rawWatt" << m_rawWatt.average5s() << "watt" << m_watt.average5s() << "req" << requestPower;
-        // the concept here is to trying to add or decrease the delta from the power sensor
-        requestPower += (requestPower - m_watt.average5s());
+
+    // With native ERG plus an external power meter, compensate the systematic
+    // difference between the external meter and the trainer's own power reading.
+    // Using external-vs-raw bias avoids chasing rider/transient power directly.
+    // The existing ERG filters limit the correction in each direction and the
+    // settling period prevents averages from the previous interval being used.
+    if (power_sensor && ergModeSupported && m_rawWatt.value() > 0 && m_watt.value() > 0) {
+        const qint64 targetAgeMs = RequestedPower.valueChanged().msecsTo(QDateTime::currentDateTime());
+        const bool settling = targetAgeMs >= 0 && targetAgeMs < 3000;
+        const double rawPower = m_rawWatt.average5s();
+        const double externalPower = m_watt.average5s();
+
+        if (!settling && rawPower > 0 && externalPower > 0) {
+            const double sensorBias = externalPower - rawPower;
+            const double maxCorrectionUp = qMax(0.0, erg_filter_upper);
+            const double maxCorrectionDown = qMax(0.0, erg_filter_lower);
+            const double correction = qBound(-maxCorrectionDown, -sensorBias, maxCorrectionUp);
+            const double compensatedPower = qMax(0.0, requestPower + correction);
+
+            qDebug() << "external ERG bias compensation"
+                     << "target" << requestPower
+                     << "raw" << rawPower
+                     << "external" << externalPower
+                     << "bias" << sensorBias
+                     << "correction" << correction
+                     << "final" << compensatedPower;
+
+            requestPower = compensatedPower;
+        } else {
+            qDebug() << "external ERG bias settling"
+                     << "target" << requestPower
+                     << "raw" << rawPower
+                     << "external" << externalPower
+                     << "targetAgeMs" << targetAgeMs;
+        }
     }
-        
+
     bool force_resistance =
         settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
             .toBool();
@@ -239,7 +269,7 @@ void bike::setGears(double gears) {
     // - If we're trying to set a gear outside valid range AND we're already at a valid gear,
     //   reject the change (normal case: user at gear 1 tries to go to 0.5, should fail)
     // - If we're trying to set a gear outside valid range BUT we're currently below minimum,
-    //   clamp to valid range (startup case: system starts at 0, first gearUp with 0.5 gain 
+    //   clamp to valid range (startup case: system starts at 0, first gearUp with 0.5 gain
     //   goes to 0.5, should be clamped to 1 to allow the system to reach valid state)
     // This prevents the system from getting stuck below minGears due to fractional gains
     // while preserving normal boundary rejection behavior for users at valid gear positions
@@ -302,7 +332,6 @@ void bike::setGears(double gears) {
         homeform::singleton()->updateGearsValue();
     }
 
-    
     if (MyWhooshLink::instance() && MyWhooshLink::instance()->isEnabled() &&
         !qFuzzyCompare(previousGears + 1.0, m_gears + 1.0)) {
         const bool uiAligned = settings.value(QZSettings::zwift_gear_ui_aligned,
@@ -372,7 +401,7 @@ void bike::clearStats() {
     WattKg.clear(false);
     for(int i=0; i<maxHeartZone(); i++) {
         hrZonesSeconds[i].clear(false);
-    }    
+    }
 }
 
 void bike::setPaused(bool p) {
@@ -399,7 +428,7 @@ void bike::setPaused(bool p) {
     WattKg.setPaused(p);
     for(int i=0; i<maxHeartZone(); i++) {
         hrZonesSeconds[i].setPaused(p);
-    }    
+    }
 }
 
 void bike::setLap() {
@@ -426,14 +455,13 @@ void bike::setLap() {
     Resistance.setLap(false);
     for(int i=0; i<maxHeartZone(); i++) {
         hrZonesSeconds[i].setLap(false);
-    }    
+    }
 }
 
 int bike::metricValueForSetting(const QString &setting) {
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
         return qRound(currentHeart().value());
     } else if (!setting.compare(QStringLiteral("Speed"))) {
-
         return qRound(currentSpeed().value());
     } else if (!setting.compare(QStringLiteral("Inclination"))) {
 
