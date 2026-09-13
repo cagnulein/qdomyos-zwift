@@ -306,6 +306,6 @@ void WebServerInfoSender::processBinaryMessage(QByteArray message) {
     if (pClient) {
         pClient->sendBinaryMessage(message);
     }*/
-    //qDebug() << QStringLiteral("Binary Message received:") << message;
+    //qDebug() << QStringLiteral("Binary Message received:") << message.toHex();
     emit onDataReceived(message);
 }
