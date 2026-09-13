@@ -1,64 +1,103 @@
 # QZ Android Artemis pilot tests
 
-This directory contains opt-in Android end-to-end tests driven by [Google Artemis](https://github.com/google/artemis). They complement the deterministic C++/GoogleTest suite; they do not replace it and are not a required GitHub Actions check.
+This directory contains Android end-to-end tests driven by [Google Artemis](https://github.com/google/artemis). They complement the deterministic C++/GoogleTest suite; they do not replace it.
 
 ## Why Artemis
 
 QZ uses Qt Quick/QML, so Android's accessibility hierarchy can be incomplete or misleading. Existing Android automation therefore sometimes falls back to fixed coordinates. Artemis can combine accessibility data with coordinate and visual targeting, which makes it useful for regression tests across QZ's custom UI.
 
-## Requirements
+## CI design
 
-- Python 3.10+
-- an Android emulator or dedicated test device with QZ installed
-- USB debugging or an emulator visible to the Artemis host
-- a running Artemis daemon
-- `artemis-client`
+QZ already builds the Android APK and runs it in `android-emulator-test` with `ReactiveCircus/android-emulator-runner`. Artemis should reuse that same emulator rather than creating a second Android job.
 
-Install the pinned client version used by this pilot:
+The pilot runs only on the existing API 35 matrix entry. This avoids running LLM-driven UI tests on all nine Android versions while still testing the exact APK produced by `android-build`.
 
-```bash
-python3 -m pip install -r tst/artemis/requirements.txt
+Artemis itself runs locally on the GitHub-hosted runner with `artemis run --standalone`; no Artemis daemon or external device host is required. The Artemis checkout is pinned to commit `371aa6df56880643da57b30da936e9812fb0ec66` so upstream changes cannot silently change test behavior.
+
+## Required GitHub secret
+
+Artemis needs an LLM credential. Add this repository Actions secret:
+
+```text
+ARTEMIS_GEMINI_API_KEY
 ```
 
-The pin is intentional so an upstream Artemis change cannot silently alter QZ test behavior. Update it explicitly when validating a newer Artemis revision.
+Its value is a Google AI Studio / Gemini API key. The workflow maps it to `GEMINI_API_KEY`, which Artemis accepts as its Google provider credential.
 
-Start Artemis from its own checkout and connect the target device as described by the Artemis project. By default these tests connect to `http://127.0.0.1:8000`.
+When the secret is unavailable, for example on an untrusted fork PR, `run_ci.sh` exits successfully with a notice instead of exposing credentials.
 
-## Important: use a test device/profile
+## Existing workflow integration
 
-The persistence test enables **Android Notification** and **Fake Device**. Run these tests only on an emulator or dedicated QZ test device/profile, not on a personal production configuration.
+For the API 35 entry, the workflow prepares Artemis before `android-emulator-runner`:
 
-The FTMS search regression test expects **FTMS Bike** to have a non-default value. Before running the suite, set FTMS Bike to a test device in QZ and export the exact displayed value:
+```yaml
+- name: Setup Python for Artemis
+  if: matrix.api-level == 35
+  uses: actions/setup-python@v5
+  with:
+    python-version: '3.12'
 
-```bash
-export QZ_FTMS_BIKE_EXPECTED='My Test Bike'
+- name: Checkout pinned Artemis
+  if: matrix.api-level == 35
+  uses: actions/checkout@v4
+  with:
+    repository: google/artemis
+    ref: 371aa6df56880643da57b30da936e9812fb0ec66
+    path: .artemis
+
+- name: Prepare Artemis
+  if: matrix.api-level == 35
+  run: |
+    python -m pip install --upgrade uv
+    cd .artemis
+    uv sync --frozen
 ```
 
-Using a real/non-default value is intentional: if FTMS Bike is left at `Disabled`, the regression where the search result incorrectly falls back to `Disabled` cannot be detected.
+The existing emulator step exposes the secret:
 
-## Run
+```yaml
+env:
+  GEMINI_API_KEY: ${{ secrets.ARTEMIS_GEMINI_API_KEY }}
+```
+
+After QZ has been installed, permissions granted, and the app process verified, the same `script:` invokes:
 
 ```bash
-export ARTEMIS_BASE_URL=http://127.0.0.1:8000
-export ARTEMIS_DEVICE_SERIAL=emulator-5554   # optional when only one device is connected
-export QZ_FTMS_BIKE_EXPECTED='My Test Bike'
+if [ "${{ matrix.api-level }}" = "35" ]; then
+  bash tst/artemis/run_ci.sh
+fi
+```
 
-python3 tst/artemis/test_qz_android.py -v
+This means the lifecycle is:
+
+`android-build -> APK artifact -> existing API 35 emulator -> QZ -> Artemis UI tests`
+
+There is no second APK build and no second emulator for Artemis.
+
+## Pilot coverage
+
+1. **FTMS Bike search consistency**: reads the FTMS Bike value in normal Settings, searches for `ftms`, and requires the filtered result to show exactly the same value. A clean emulator will normally have `Disabled`; the exact saved-non-default-device variant still requires a discoverable BLE test device or a future deterministic Bluetooth fixture.
+2. **Experimental setting persistence**: enables Android Notification and Fake Device, leaves Settings, reopens it, and verifies both values persisted.
+3. **Settings navigation smoke test**: exercises Settings, search, Experimental Features, and the return to the main screen while checking for crashes, ANRs, blank pages, and unrecoverable navigation failures.
+
+The first two tasks use Artemis `pro`; the broad smoke flow uses `flash` to keep the pilot reasonably fast.
+
+## Local use
+
+The same runner can be used on a local emulator or dedicated Android device. Checkout the pinned Artemis revision into `.artemis`, install it with Python 3.12 and `uv sync --frozen`, export a Gemini key, make sure `adb devices` shows the target, then run:
+
+```bash
+export GEMINI_API_KEY='...'
+bash tst/artemis/run_ci.sh
 ```
 
 Optional variables:
 
-- `ARTEMIS_PROFILE`: `flash` by default; use `pro` for deeper exploration.
-- `ARTEMIS_TIMEOUT`: per-test timeout in seconds, default `900`.
-- `ARTEMIS_TOKEN`: optional token if the daemon is behind an authenticated proxy.
+- `ARTEMIS_DIR`: Artemis checkout, defaults to `$GITHUB_WORKSPACE/.artemis`.
+- `ARTEMIS_DEVICE_SERIAL`: target ADB serial; auto-detected when omitted.
+- `ARTEMIS_TRACES_PATH`: output directory for Artemis traces.
 - `QZ_ANDROID_PACKAGE`: defaults to `org.cagnulen.qdomyoszwift`.
 
-## Pilot coverage
+## Safety
 
-1. **FTMS Bike search consistency**: verifies that a non-default FTMS Bike value is identical in the normal Settings view and in search results. This protects against the regression where search showed `Disabled` even though a device was saved.
-2. **Experimental setting persistence**: enables Android Notification and Fake Device, leaves Settings, reopens it, and verifies both values persisted.
-3. **Settings navigation smoke test**: exercises Settings, search, Experimental Features, and the return to the main screen while checking for crashes, ANRs, blank pages, and unrecoverable navigation failures.
-
-## CI strategy
-
-Keep these tests opt-in while evaluating reliability. If the pilot proves stable, the recommended next step is a nightly Artemis job on a dedicated emulator/device, with a much smaller smoke test considered later for pull requests.
+The persistence test changes Android Notification and Fake Device. Run it only on an emulator or dedicated QZ test profile, not on a personal production configuration.
