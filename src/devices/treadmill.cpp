@@ -165,6 +165,12 @@ void treadmill::update_metrics(bool watt_calc, const double watts, const bool fr
             m_watt = 0;
             WattKg = 0;
         }
+    } else if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause)
+                             .toBool()) {
+        if (watt_calc) {
+            m_watt = watts;
+        }
+        WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     } else if (m_watt.value() > 0) {
         m_watt = 0;
         WattKg = 0;
@@ -287,7 +293,12 @@ double treadmill::requestedSpeed() { return requestSpeed; }
 double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
-void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
+void treadmill::cadenceSensor(uint8_t cadence) {
+    if (Cadence.value() > 0 || cadence > 0) {
+        evaluateStepCount();
+    }
+    Cadence.setValue(cadence);
+}
 void treadmill::powerSensor(uint16_t power) {
     double vwatts = 0;
     if(power > 0) {
