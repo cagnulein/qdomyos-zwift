@@ -1,0 +1,175 @@
+name: Rebuild PR 4803 settings
+
+on:
+  push:
+    branches:
+      - rebuild-4803-seq
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: rebuild-4803-seq
+          fetch-depth: 0
+      - name: Apply settings changes on current master content
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          key = "power_sensor_speed_correction_threshold"
+
+          # qzsettings.cpp: add key, registry entry, and increment current count.
+          p = Path("src/qzsettings.cpp")
+          s = p.read_text()
+          if f'QZSettings::{key} = QStringLiteral("{key}")' not in s:
+              anchor = 'const QString QZSettings::power_sensor_as_treadmill = QStringLiteral("power_sensor_as_treadmill");\n'
+              assert anchor in s
+              s = s.replace(anchor, anchor + f'const QString QZSettings::{key} = QStringLiteral("{key}");\n', 1)
+
+              m = re.search(r'const uint32_t allSettingsCount = (\d+);', s)
+              assert m
+              s = s[:m.start()] + f'const uint32_t allSettingsCount = {int(m.group(1)) + 1};' + s[m.end():]
+
+              anchor = '    {QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill},\n'
+              assert anchor in s
+              s = s.replace(anchor, anchor + f'    {{QZSettings::{key}, QZSettings::default_{key}}},\n', 1)
+              p.write_text(s)
+
+          # settings-catalog.json: insert entry without reformatting the whole file.
+          p = Path("src/settings-catalog.json")
+          s = p.read_text()
+          if f'"key": "{key}"' not in s:
+              m = re.search(r'"settingCount"\s*:\s*(\d+)', s)
+              assert m
+              s = s[:m.start(1)] + str(int(m.group(1)) + 1) + s[m.end(1):]
+
+              needle = '"key": "power_sensor_as_treadmill"'
+              pos = s.index(needle)
+              start = s.rfind('{', 0, pos)
+              assert start >= 0
+              depth = 0
+              in_string = False
+              escaped = False
+              end = None
+              for i in range(start, len(s)):
+                  ch = s[i]
+                  if in_string:
+                      if escaped:
+                          escaped = False
+                      elif ch == '\\':
+                          escaped = True
+                      elif ch == '"':
+                          in_string = False
+                      continue
+                  if ch == '"':
+                      in_string = True
+                  elif ch == '{':
+                      depth += 1
+                  elif ch == '}':
+                      depth -= 1
+                      if depth == 0:
+                          end = i + 1
+                          break
+              assert end is not None
+              indent = re.match(r'[ \t]*', s[s.rfind('\n', 0, start) + 1:start]).group(0)
+              entry = (',\n' + indent + '{\n'
+                       + indent + f'  "key": "{key}",\n'
+                       + indent + '  "name": "Power sensor speed correction threshold (%)",\n'
+                       + indent + '  "description": "Maximum allowed difference between power sensor speed and treadmill speed before QZ stops applying the relative correction. Default: 20%.",\n'
+                       + indent + '  "parent": "Power Sensor Options",\n'
+                       + indent + '  "type": "number",\n'
+                       + indent + '  "qmlType": "real",\n'
+                       + indent + '  "control": "text",\n'
+                       + indent + '  "visible": true,\n'
+                       + indent + '  "defaultValue": 20.0,\n'
+                       + indent + '  "defaultExpression": "20.0",\n'
+                       + indent + '  "options": null\n'
+                       + indent + '}')
+              # Existing object is already followed by a comma. Replace that separator
+              # so the new object sits directly after power_sensor_as_treadmill.
+              j = end
+              while j < len(s) and s[j] in ' \t\r\n':
+                  j += 1
+              assert j < len(s) and s[j] == ','
+              s = s[:end] + entry + s[j+1:]
+              p.write_text(s)
+
+          # settings.qml: property must be the last setting declared in the Settings object.
+          p = Path("src/settings.qml")
+          s = p.read_text()
+          if f'property real {key}:' not in s:
+              function_pos = s.index('        function paddingZeros')
+              before = s[:function_pos]
+              prop_matches = list(re.finditer(r'^\s+property\s+[^\n]+$', before, re.MULTILINE))
+              assert prop_matches
+              last = prop_matches[-1]
+              insert_at = last.end()
+              s = s[:insert_at] + f'\n            property real {key}: 20.0' + s[insert_at:]
+
+          if f'id: powerSensorSpeedCorrectionThresholdTextField' not in s:
+              needle = ('                            IndicatorOnlySwitch {\n'
+                        '                                text: qsTr("Use inclination from the power sensor")')
+              assert needle in s
+              block = '''                            Label {
+                                text: qsTr("Power sensor speed correction threshold (%):")
+                                Layout.fillWidth: true
+                            }
+                            RowLayout {
+                                spacing: 10
+                                TextField {
+                                    id: powerSensorSpeedCorrectionThresholdTextField
+                                    text: settings.power_sensor_speed_correction_threshold
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    validator: DoubleValidator { bottom: 0; top: 100 }
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: {
+                                        var value = Number(powerSensorSpeedCorrectionThresholdTextField.text)
+                                        if (isNaN(value)) value = 20
+                                        settings.power_sensor_speed_correction_threshold = Math.max(0, Math.min(100, value))
+                                        powerSensorSpeedCorrectionThresholdTextField.text = settings.power_sensor_speed_correction_threshold
+                                        toast.show(qsTr("Setting saved!"))
+                                    }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Maximum allowed difference between power sensor speed and treadmill speed before QZ stops applying the relative correction. Default: 20%.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+'''
+              s = s.replace(needle, block + needle, 1)
+          p.write_text(s)
+
+          # Remove this one-shot workflow from the final branch.
+          Path('.github/workflows/rebuild-4803-sync.yml').unlink()
+          PY
+
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Align PR 4803 settings with current master"
+          git push origin HEAD:rebuild-4803-seq
