@@ -7,7 +7,7 @@ This directory contains procedures for testing QZ (qdomyos-zwift) with Android e
 - [qz.md](qz.md) - Installing and testing QZ on an emulator or device
 - [zwift.md](zwift.md) - Testing the QZ <-> Zwift integration through Android notifications, without Bluetooth
 - [automation.md](automation.md) - UI Automator and adb scripts for automated tests
-- [Artemis pilot tests](../../tst/artemis/README.md) - Opt-in AI-assisted Android end-to-end regression tests
+- [../../tst/artemis/README.md](../../tst/artemis/README.md) - Artemis agent-driven Android UI tests, designed to reuse the existing GitHub Actions API 35 emulator
 
 ## Current Status (2026-06-19)
 
