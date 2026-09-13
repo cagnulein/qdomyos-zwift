@@ -237,7 +237,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     lastPacket = newValue;
     if ((newValue.length() != 21 && (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 &&
                                      bike_type != TUNTURI && bike_type != TUNTURI_2 && bike_type != TOORX_SRX_500 &&
-                                     bike_type != FAL_SPORTS && bike_type != HAMMER_SPEED_BIKE_S)) ||
+                                     bike_type != FAL_SPORTS && bike_type != PASYOU && bike_type != HAMMER_SPEED_BIKE_S)) ||
         (newValue.length() != 19 && (bike_type == JLL_IC400 || bike_type == ASVIVA || bike_type == FYTTER_RI08 ||
                                      bike_type == PASYOU || bike_type == HAMMER_SPEED_BIKE_S)) ||
         (newValue.length() != 20 && newValue.length() != 21 &&
