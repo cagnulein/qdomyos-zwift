@@ -24,7 +24,7 @@ ARTEMIS_GEMINI_API_KEY
 
 Its value is a Google AI Studio / Gemini API key. The workflow maps it to `GEMINI_API_KEY`, which Artemis accepts as its Google provider credential.
 
-When the secret is unavailable, for example on an untrusted fork PR, `run_ci.sh` exits successfully with a notice instead of exposing credentials.
+When the secret is unavailable, for example on an untrusted fork PR, `run_ci.sh` normally exits successfully with a notice instead of exposing credentials. Set `ARTEMIS_REQUIRED=true` for a trusted run when a missing credential must fail the job.
 
 ## Existing workflow integration
 
@@ -58,6 +58,7 @@ The existing emulator step exposes the secret:
 ```yaml
 env:
   GEMINI_API_KEY: ${{ secrets.ARTEMIS_GEMINI_API_KEY }}
+  ARTEMIS_REQUIRED: true
 ```
 
 After QZ has been installed, permissions granted, and the app process verified, the same `script:` invokes:
@@ -96,6 +97,7 @@ Optional variables:
 - `ARTEMIS_DIR`: Artemis checkout, defaults to `$GITHUB_WORKSPACE/.artemis`.
 - `ARTEMIS_DEVICE_SERIAL`: target ADB serial; auto-detected when omitted.
 - `ARTEMIS_TRACES_PATH`: output directory for Artemis traces.
+- `ARTEMIS_REQUIRED`: set to `true` to fail instead of skip when no LLM credential is present.
 - `QZ_ANDROID_PACKAGE`: defaults to `org.cagnulen.qdomyoszwift`.
 
 ## Safety
