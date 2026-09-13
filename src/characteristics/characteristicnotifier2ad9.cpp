@@ -2,7 +2,7 @@
 #include "devices/ftmsbike/ftmsbike.h"
 
 CharacteristicNotifier2AD9::CharacteristicNotifier2AD9(bluetoothdevice *Bike, QObject *parent)
-    : CharacteristicNotifier(0x2ad9, parent), Bike(Bike) {}
+    : CharacteristicNotifier(0x2ad9, Bike, parent) {}
 
 int CharacteristicNotifier2AD9::notify(QByteArray &value) {
     if(answer.length()) {

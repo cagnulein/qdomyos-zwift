@@ -2,7 +2,7 @@
 #include "devices/treadmill.h"
 
 CharacteristicNotifier2A53::CharacteristicNotifier2A53(bluetoothdevice *Bike, QObject *parent)
-    : CharacteristicNotifier(0x2a53, parent), Bike(Bike) {}
+    : CharacteristicNotifier(0x2a53, Bike, parent) {}
 
 int CharacteristicNotifier2A53::notify(QByteArray &value) {
     BLUETOOTH_TYPE dt = Bike->deviceType();
