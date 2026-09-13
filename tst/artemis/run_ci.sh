@@ -45,6 +45,11 @@ run_artemis() {
     local profile="$2"
     local goal="$3"
     local expected="$4"
+    local verification_args=()
+
+    if [[ "$profile" == "pro" ]]; then
+        verification_args=(--verification-level strict)
+    fi
 
     echo "::group::Artemis: $name"
     (
@@ -57,7 +62,8 @@ run_artemis() {
             --test-name "$name" \
             --traces-path "$ARTEMIS_TRACES_PATH" \
             --output-description "$expected" \
-            --disable-committee
+            --disable-committee \
+            "${verification_args[@]}"
     )
     echo "::endgroup::"
 }
