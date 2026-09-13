@@ -303,7 +303,7 @@ void proformwifibike::innerWriteResistance() {
             setWorkoutType(last_mode);
         }
         emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-        forceResistance(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+        forceResistance(requestInclination + gearsModifier()); // since this bike doesn't have the concept of resistance,
                                                        // i'm using the gears in the inclination
         requestInclination = -100;
     }
@@ -508,7 +508,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         // so I would like to keep the real inclination value instead of showing to the user the modified inclination + gears.
         // this is very helpful when you're following a GPX for example
         if(inclinationAvailableByHardware() && !erg_mode)
-            incline = incline - gears();
+            incline = incline - gearsModifier();
         Inclination = incline;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
     } else if (!values[QStringLiteral("Incline")].isUndefined()) {
@@ -518,7 +518,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         // so I would like to keep the real inclination value instead of showing to the user the modified inclination + gears.
         // this is very helpful when you're following a GPX for example
         if(inclinationAvailableByHardware() && !erg_mode)
-            incline = incline - gears();
+            incline = incline - gearsModifier();
         Inclination = incline;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
     }
@@ -564,7 +564,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
                     }
                     if (value != 0.0) {
                         setGears(gears() + value);
-                        forceResistance(lastRawRequestedInclinationValue + gears()); // to force an immediate change
+                        forceResistance(lastRawRequestedInclinationValue + gearsModifier()); // to force an immediate change
                     }
                 } else {
                     double value = 0;

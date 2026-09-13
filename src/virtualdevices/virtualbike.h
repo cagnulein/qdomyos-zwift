@@ -33,8 +33,12 @@ class virtualbike : public virtualdevice {
     Q_OBJECT
   public:
     virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false,
-                int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
+                int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
+                bool forceClassicMode = false, DirconManager *existingDirconManager = nullptr);
+    ~virtualbike() override;
     bool connected() override;
+    void relayEchelonPacket(const QBluetoothUuid &sourceUuid, const QByteArray &value);
+    DirconManager *detachDirconManager();
     bool ftmsDeviceConnected() { return lastFTMSFrameReceived != 0 || lastDirconFTMSFrameReceived != 0; }
     qint64 whenLastFTMSFrameReceived() {
         if (lastFTMSFrameReceived != 0)
@@ -56,6 +60,8 @@ class virtualbike : public virtualdevice {
     QLowEnergyService *serviceFIT = nullptr;
     QLowEnergyService *service = nullptr;
     QLowEnergyService *serviceChanged = nullptr;
+    QLowEnergyService *serviceCSC = nullptr;
+    QLowEnergyService *serviceTacxCustom = nullptr;
     QLowEnergyService *serviceWattAtomBike = nullptr;
     QLowEnergyService *serviceZwiftPlayBike = nullptr;
     QLowEnergyAdvertisingData advertisingData;
@@ -64,9 +70,13 @@ class virtualbike : public virtualdevice {
     QLowEnergyServiceData serviceDataFIT;
     QLowEnergyServiceData serviceData;
     QLowEnergyServiceData serviceDataChanged;
+    QLowEnergyServiceData serviceDataCSC;
+    QLowEnergyServiceData serviceDataTacxCustom;
     QLowEnergyServiceData serviceEchelon;
     QLowEnergyServiceData serviceDataWattAtomBike;
     QLowEnergyServiceData serviceDataZwiftPlayBike;
+    QLowEnergyService *serviceDIS = nullptr;
+    QLowEnergyServiceData serviceDataDIS;
     QTimer bikeTimer;
     bluetoothdevice *Bike;
     CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
@@ -95,11 +105,25 @@ class virtualbike : public virtualdevice {
     bool iFit_Stop = false;
 
     bool echelonInitDone = false;
+    bool forceClassicMode = false;
     void echelonWriteResistance();
     void echelonWriteStatus();
+    bool isEchelonVirtualEnabled() const;
+    void attachDirconManager(DirconManager *manager);
 
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
+    void writeTacxCustomNotification(const QByteArray &value);
+    void broadcastTacxCustomData();
+    void handleTacxCustomWrite(const QByteArray &newValue);
+    QByteArray buildTacxAntResponse(quint8 page) const;
+    QByteArray buildTacxAntBroadcast(quint8 page);
+    static quint8 tacxAntChecksum(const QByteArray &payload);
+    quint8 tacxBroadcastPageToggle = 0;
+    quint8 tacxUpdateEventCount = 0;
+    quint16 tacxAccumulatedPower = 0;
+    qint64 tacxLastBroadcastMs = 0;
+    quint16 tacxLastProprietaryInclineRaw = 0;
     
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

@@ -359,16 +359,16 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                     if (inc != currentInclination().value()) {
                         bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
                         int x1 = 75;
-                        int y2 = (int)(616.18 - (17.223 * (inc + gears())));
+                        int y2 = (int)(616.18 - (17.223 * (inc + gearsModifier())));
                         int y1Resistance = (int)(616.18 - (17.223 * currentInclination().value()));
 
                         if(proform_studio || freemotion_coachbike_b22_7) {
                             x1 = 1827;
-                            y2 = (int)(806 - (21.375 * (inc + gears())));
+                            y2 = (int)(806 - (21.375 * (inc + gearsModifier())));
                             y1Resistance = (int)(806 - (21.375 * currentInclination().value()));
                         } else if(proform_tdf_10_0) {
                             x1 = 75;
-                            y2 = (int)(477 - (12.5 * (inc + gears())));
+                            y2 = (int)(477 - (12.5 * (inc + gearsModifier())));
                             y1Resistance = (int)(477 - (12.5 * currentInclination().value()));
                         }
 
@@ -404,7 +404,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             // inclination
             else if (lastInclinationChanged.secsTo(now) > inclination_delay_seconds) {
                 lastInclinationChanged = now;
-                double r = currentResistance().value() + difficult() + gears();
+                double r = currentResistance().value() + difficult() + gearsModifier();
                 QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";" + QString::number(r).toLocal8Bit();
                 requestInclination = -100;
                 int ret = socket->writeDatagram(message, message.size(), sender, 8003);

@@ -387,12 +387,26 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
         ->configureSettingsWith( QZSettings::fitplus_bike);
 
+    // VirtuFit Etappe 2.0i
+    RegisterNewDeviceTestData(DeviceIndex::FitPlusVirtufitEtappeX100)
+        ->expectDevice<fitplusbike>()
+        ->acceptDeviceName("X100-", DeviceNameComparison::StartsWith);
+
+
+    // FitPlus Rower - Merach R28
+    // Reproduces the support case from matthieu.f.graveleau@gmail.com:
+    // debug-Wed_Sep_9_22_16_00_2026.log.txt reported MRK-R28-6B51.
+    RegisterNewDeviceTestData(DeviceIndex::FitPlusRower_MRK_R28)
+        ->expectDevice<fitplusrower>()
+        ->acceptDeviceName("MRK-R28-6B51", DeviceNameComparison::Exact);
 
     // FitPlus MRK
     RegisterNewDeviceTestData(DeviceIndex::FitPlusBike_MRK_NoSettings)
         ->expectDevice<fitplusbike>()
         ->acceptDeviceName("MRK-", DeviceNameComparison::StartsWith)
+        ->rejectDeviceName("MRK-R28-", DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding<ftmsbike>()
+        ->excluding<fitplusrower>()
         ->excluding<snodebike>();
 
     // FitShow FS
@@ -407,16 +421,47 @@ void DeviceTestDataIndex::Initialize() {
                 if(enable){
                     config.setValue(QZSettings::snode_bike, false);
                     config.setValue(QZSettings::fitplus_bike, false);
+                    config.setValue(QZSettings::hammer_racer_s, false);
+                    config.setValue(QZSettings::iconsole_elliptical, false);
+                    config.setValue(QZSettings::gymstick_gx6_0_elliptical, false);
+                    config.setValue(QZSettings::virtufit_etappe, false);
                     configurations.push_back(config);
                 } else {
-                    for(int i=1; i<4; i++) {
-                        config.setValue(QZSettings::snode_bike, i&1);
-                        config.setValue(QZSettings::fitplus_bike, i&2);
-                        configurations.push_back(config);
-                    }
+                    config.setValue(QZSettings::snode_bike, true);
+                    config.setValue(QZSettings::fitplus_bike, false);
+                    config.setValue(QZSettings::hammer_racer_s, false);
+                    config.setValue(QZSettings::iconsole_elliptical, false);
+                    config.setValue(QZSettings::gymstick_gx6_0_elliptical, false);
+                    config.setValue(QZSettings::virtufit_etappe, false);
+                    configurations.push_back(config);
+
+                    config.setValue(QZSettings::snode_bike, false);
+                    config.setValue(QZSettings::fitplus_bike, true);
+                    configurations.push_back(config);
+
+                    config.setValue(QZSettings::fitplus_bike, false);
+                    config.setValue(QZSettings::virtufit_etappe, true);
+                    configurations.push_back(config);
+
+                    config.setValue(QZSettings::virtufit_etappe, false);
+                    config.setValue(QZSettings::hammer_racer_s, true);
+                    configurations.push_back(config);
+
+                    config.setValue(QZSettings::hammer_racer_s, false);
+                    config.setValue(QZSettings::iconsole_elliptical, true);
+                    configurations.push_back(config);
+
+                    config.setValue(QZSettings::iconsole_elliptical, false);
+                    config.setValue(QZSettings::gymstick_gx6_0_elliptical, true);
+                    configurations.push_back(config);
                 }
             })
         ->excluding<ftmsbike>();
+
+    // FitShow TR510-T
+    RegisterNewDeviceTestData(DeviceIndex::FitShowTR510T)
+        ->expectDevice<fitshowtreadmill>()
+        ->acceptDeviceName("TR510-T", DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // FitShow SW
@@ -426,6 +471,13 @@ void DeviceTestDataIndex::Initialize() {
         // SW, 14 characters total
         ->acceptDeviceName("SW345678901234", DeviceNameComparison::Exact)
         ->acceptDeviceName("SWFOURTEENCHAR", DeviceNameComparison::Exact)
+
+        // FitShow SW fingerprint: 15 characters with '-' at index 10
+        ->acceptDeviceName("SW5731CAXI-0061", DeviceNameComparison::Exact)
+        ->acceptDeviceName("SW12345678-1234", DeviceNameComparison::Exact)
+        ->rejectDeviceName("SW5731CAXI0-061", DeviceNameComparison::Exact)
+        ->rejectDeviceName("SW5731CAXI-006", DeviceNameComparison::Exact)
+
         ->acceptDeviceName("WINFITA", DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceName("NOBLEPRO CONNECT", DeviceNameComparison::StartsWithIgnoreCase)
 
@@ -553,8 +605,10 @@ void DeviceTestDataIndex::Initialize() {
         "MRK-S26S-",
         "MRK-S26C-",
         "MRK-S28-",
+        "MRK-S38-",
         "SMB1",
         "UBIKE FTMS",
+        "TX-500MB IRON",
         "INRIDE"
     };
     RegisterNewDeviceTestData(DeviceIndex::FTMSBike)
@@ -625,6 +679,12 @@ void DeviceTestDataIndex::Initialize() {
                             DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding(ftmsBikeConfigureExclusions)
         ->configureSettingsWith(QBluetoothUuid((quint16)0x1826));
+
+    // FTMS Bike Horizon 5.0R
+    RegisterNewDeviceTestData(DeviceIndex::FTMSBikeHorizon5R)
+        ->expectDevice<ftmsbike>()
+        ->acceptDeviceName("JFBK5.0R", DeviceNameComparison::IgnoreCase)
+        ->excluding(ftmsBikeConfigureExclusions);
 
     // FTMS Rower
     RegisterNewDeviceTestData(DeviceIndex::FTMSRower)
@@ -1083,7 +1143,8 @@ void DeviceTestDataIndex::Initialize() {
     // Sole Bike
     RegisterNewDeviceTestData(DeviceIndex::SoleBike)
         ->expectDevice<solebike>()
-        ->acceptDeviceNames({"LCB", "R92"}, DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceNames({"LCB", "LCR", "R92"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->configureSettingsWith(QZSettings::ftms_bike, QZSettings::default_ftms_bike, "XX");
 
     // Sole Elliptical
     RegisterNewDeviceTestData(DeviceIndex::SoleElliptical)
@@ -1123,6 +1184,11 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<sportsplusbike>()        
         ->acceptDeviceName("CARDIOFIT", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Sports Plus Rower
+    RegisterNewDeviceTestData(DeviceIndex::SportsPlusRower)
+        ->expectDevice<sportsplusrower>()
+        ->acceptDeviceName("CARE10692135", DeviceNameComparison::IgnoreCase);
+
     // Sports Tech Bike
     RegisterNewDeviceTestData(DeviceIndex::SportsTechBike)
         ->expectDevice<sportstechbike>()        
@@ -1135,7 +1201,7 @@ void DeviceTestDataIndex::Initialize() {
     // Stages Bike
     RegisterNewDeviceTestData(DeviceIndex::StagesBike)
         ->expectDevice<stagesbike>()        
-        ->acceptDeviceNames({"STAGES ", "TACX SATORI", "RACER S", "ELITETRAINER"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"STAGES ", "TACX SATORI", "RACER S", "ELITETRAINER", "MISURO B+"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceNames({"QD","DFC", "KU"}, DeviceNameComparison::IgnoreCase)
         ->excluding(stagesBikeExclusions);
 
@@ -1409,6 +1475,11 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::UltrasportBike)
         ->expectDevice<ultrasportbike>()
         ->acceptDeviceName("X-BIKE", DeviceNameComparison::StartsWithIgnoreCase);
+
+    // XCX Bike (proprietary FFF6 telemetry; explicitly not generic FTMS)
+    RegisterNewDeviceTestData(DeviceIndex::XcxBike)
+        ->expectDevice<xcxbike>()
+        ->acceptDeviceName("XCX-001048", DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Wahoo KICKR CORE
