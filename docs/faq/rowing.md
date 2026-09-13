@@ -16,6 +16,20 @@ If Bluetooth discovery is unreliable with both apps on the same device, running 
 
 This setup was explicitly confirmed working in a support case where the original rower could not provide usable data to the training app.
 
+## EXR connects to QZ as a PM5 but does not receive usable rowing data or disconnects. What should I try?
+
+If you are bridging a non-Concept2 rower through QZ to EXR, use QZ's standard virtual FTMS rower rather than PM5 emulation:
+
+1. Enable the **Virtual Rower** in QZ.
+2. Disable the **PM5** virtual-rower compatibility option.
+3. Restart the virtual connection if necessary, then pair EXR with the QZ rower again.
+
+With PM5 mode enabled, QZ advertises Concept2-specific PM5 services and a PM5-style device identity. With PM5 mode disabled, the virtual rower exposes the standard FTMS rower service instead.
+
+In a confirmed support case, EXR initially connected to QZ as `PM5 430000000` but did not receive usable distance/speed/pace data and the virtual connection dropped. Disabling PM5 while leaving the virtual rower enabled made EXR discover the rower as QZ and all rowing data worked correctly.
+
+Use PM5 mode only when you specifically need Concept2/PM5 compatibility.
+
 ## How can I show my rowing pace per 500 m in QZ?
 
 Open **QZ Settings > Tiles** and enable **Pace Last 500m**.
