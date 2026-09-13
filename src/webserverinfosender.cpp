@@ -28,8 +28,7 @@ bool WebServerInfoSender::listen() {
             bound = innerTcpServer->listen(QHostAddress::Any, 0);
         }
         if (bound) {
-            if (!port)
-                port = innerTcpServer->serverPort();
+            port = innerTcpServer->serverPort();
             settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_port"), port);
             httpServer->bind(innerTcpServer);
 
@@ -307,6 +306,6 @@ void WebServerInfoSender::processBinaryMessage(QByteArray message) {
     if (pClient) {
         pClient->sendBinaryMessage(message);
     }*/
-    //qDebug() << QStringLiteral("Binary Message received:") << message.toHex();
+    //qDebug() << QStringLiteral("Binary Message received:") << message;
     emit onDataReceived(message);
 }
