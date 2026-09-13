@@ -1,1 +1,0 @@
-artemis-client @ git+https://github.com/google/artemis.git@371aa6df56880643da57b30da936e9812fb0ec66#subdirectory=packages/artemis-client
