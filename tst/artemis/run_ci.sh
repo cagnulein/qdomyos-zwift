@@ -6,6 +6,10 @@ ARTEMIS_DIR="${ARTEMIS_DIR:-${GITHUB_WORKSPACE:-$PWD}/.artemis}"
 ARTEMIS_TRACES_PATH="${ARTEMIS_TRACES_PATH:-${GITHUB_WORKSPACE:-$PWD}/artemis-traces}"
 
 if [[ -z "${GEMINI_API_KEY:-${GOOGLE_API_KEY:-}}" ]]; then
+    if [[ "${ARTEMIS_REQUIRED:-false}" == "true" ]]; then
+        echo "::error::Artemis UI tests are enabled but no Gemini/Google API key is available."
+        exit 1
+    fi
     echo "::notice::Artemis UI tests skipped because ARTEMIS_GEMINI_API_KEY/GEMINI_API_KEY is not available."
     exit 0
 fi
