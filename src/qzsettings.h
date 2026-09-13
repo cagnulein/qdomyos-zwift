@@ -1029,6 +1029,9 @@ class QZSettings {
     static const QString power_sensor_as_treadmill;
     static constexpr bool default_power_sensor_as_treadmill = false;
 
+    static const QString power_sensor_speed_correction_threshold;
+    static constexpr double default_power_sensor_speed_correction_threshold = 20.0;
+
     static const QString power_sensor_speed_inclination_coeff_a;
     static constexpr double default_power_sensor_speed_inclination_coeff_a = 0.0;
 
