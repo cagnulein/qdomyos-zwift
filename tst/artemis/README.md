@@ -81,7 +81,7 @@ There is no second APK build and no second emulator for Artemis.
 2. **Experimental setting persistence**: enables Android Notification and Fake Device, leaves Settings, reopens it, and verifies both values persisted.
 3. **Settings navigation smoke test**: exercises Settings, search, Experimental Features, and the return to the main screen while checking for crashes, ANRs, blank pages, and unrecoverable navigation failures.
 
-The first two tasks use Artemis `pro`; the broad smoke flow uses `flash` to keep the pilot reasonably fast.
+The first two tasks use Artemis `pro` with strict final/checkpoint verification; the broad smoke flow uses `flash` to keep the pilot reasonably fast.
 
 ## Local use
 
