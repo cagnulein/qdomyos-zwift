@@ -12,6 +12,8 @@ Your Garmin watch can then pair with QZ as a footpod or speed/distance sensor an
 
 The Android device running QZ must be able to **transmit ANT+**. If the phone or tablet does not have usable native ANT+ support, a compatible USB ANT+ dongle with the appropriate USB/OTG adapter can be used. Make sure the dongle supports transmission, not only reception.
 
+On Android devices that rely on an external USB ANT+ stick, the ANT stack may also require the **ANT Radio Service** and **ANT USB Service** components. If Android does not recognize the stick for ANT+ use, install those two ANT service components, reconnect the stick through USB/OTG, and restart QZ. In a confirmed support case, an Android phone could then use QZ to broadcast trainer/power/speed data that became visible on a Garmin device.
+
 ### Option 2: upload the completed QZ workout to Garmin Connect
 
 If you do not need the Garmin watch to receive the treadmill data live, QZ can record the workout itself and upload the generated **FIT activity** to Garmin Connect.
