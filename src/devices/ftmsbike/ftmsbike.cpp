@@ -184,7 +184,7 @@ void ftmsbike::init() {
     
     uint8_t write[] = {FTMS_REQUEST_CONTROL};
     bool ret = writeCharacteristic(write, sizeof(write), "requestControl", false, true);
-    if (USDC_D700) {
+    if (USDC_D700 || bluetoothDevice.name().toUpper().startsWith("WLT-BK-")) {
         // Kinomap keeps this bike streaming by following request-control with STOP/PAUSE(0x01)
         // instead of the usual START/RESUME opcode.
         uint8_t usdcStart[] = {FTMS_STOP_PAUSE, 0x01};
