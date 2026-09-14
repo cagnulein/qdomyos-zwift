@@ -27,15 +27,22 @@ uint8_t pitpatXorCrc(const QByteArray &packet) {
     return crc;
 }
 
-uint16_t pitpatEstimatedWatts(double cadence) {
+uint16_t pitpatEstimatedWatts(double cadence, double resistance) {
     if (cadence <= 0.0)
         return 0;
 
-    // Measurements taken from the S01PRO native profile show the same power
-    // mapping across resistance levels 1, 2, 20, 28 and 32: power is cadence
-    // multiplied by 4 (for example 50 RPM = 200 W, 75 RPM = 300 W,
-    // 100 RPM = 400 W). Resistance did not affect the reported value.
-    const double watts = cadence * 4.0;
+    // The S01PRO native profile reports an unrealistic cadence-only power value
+    // (roughly cadence * 4), independent of resistance. For QZ we instead use
+    // resistance as a linear scale: at 100 RPM level 1 is about 40 W and level
+    // 32 is about 400 W, with the 30 intermediate levels evenly interpolated.
+    double level = resistance;
+    if (level < 1.0)
+        level = 1.0;
+    else if (level > 32.0)
+        level = 32.0;
+
+    const double resistanceScale = 0.10 + (0.90 * ((level - 1.0) / 31.0));
+    const double watts = cadence * 4.0 * resistanceScale;
     if (watts >= 65535.0)
         return 65535;
     return static_cast<uint16_t>(watts + 0.5);
@@ -298,12 +305,13 @@ void pitpatbike::characteristicChanged(const QLowEnergyCharacteristic &character
         CrankRevs = pitpatReadBE16(newValue, 16);
         LastCrankEventTime += cadence > 0 ? static_cast<uint16_t>(1024.0 / (static_cast<double>(cadence) / 60.0)) : 0;
 
-        // The S01PRO legacy frame has no watt field. Measurements from the
-        // native profile show that its reported power is simply cadence * 4.
+        // The S01PRO legacy frame has no watt field. Use a resistance-scaled
+        // estimate agreed for live testing instead of reproducing the native
+        // cadence-only value, which is clearly not physically meaningful.
         if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
-            m_watt = pitpatEstimatedWatts(Cadence.value());
+            m_watt = pitpatEstimatedWatts(Cadence.value(), Resistance.value());
         }
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
