@@ -3633,11 +3633,11 @@
       "qmlType": "real",
       "control": "text",
       "visible": true,
-       "defaultValue": 20.0,
-       "defaultExpression": "20.0",
-       "options": null,
-       "restartRequired": false
-     },
+      "defaultValue": 20.0,
+      "defaultExpression": "20.0",
+      "options": null,
+      "restartRequired": false
+    },
     {
       "key": "powr_sensor_running_cadence_double",
       "name": "Doubling Cadence for Run",
