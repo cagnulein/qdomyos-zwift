@@ -646,30 +646,50 @@ void ftmsbike::update() {
         // and cadence changes don't trigger resistance adjustment.
         if (resistance_lvl_mode && !ergModeSupported && !isManualResistanceBike() &&
             lastRequestedPower().value() > 0 && autoResistance()) {
+            double erg_filter_upper =
+                settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+            double erg_filter_lower =
+                settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+            double deltaDown = wattsMetric().value() - (double)lastRequestedPower().value();
+            double deltaUp = (double)lastRequestedPower().value() - wattsMetric().value();
             resistance_t newR = resistanceFromPowerRequest(
                 (uint16_t)lastRequestedPower().value());
             if (newR > 0 && newR != m_lastErgResistance) {
-                // Debounce: only commit a resistance change once the new value has been
-                // requested consistently for ERG_RESISTANCE_DEBOUNCE_MS. Cadence noise right
-                // at a lookup-table boundary can otherwise flip newR back and forth every
-                // update() cycle even after quantizing the cadence (see resistanceFromPowerRequest).
-                const int ERG_RESISTANCE_DEBOUNCE_MS = 2000;
-                if (newR != m_pendingErgResistance) {
-                    m_pendingErgResistance = newR;
-                    m_pendingErgResistanceTime = QDateTime::currentDateTime();
-                } else if (m_pendingErgResistanceTime.msecsTo(QDateTime::currentDateTime()) >=
-                           ERG_RESISTANCE_DEBOUNCE_MS) {
-                    // ERG death spiral protection: below 50 RPM, only allow resistance decreases
-                    if (Cadence.value() > 0 && Cadence.value() < 50 && newR > m_lastErgResistance) {
-                        qDebug() << "ERG death spiral protection: cadence" << Cadence.value()
-                                 << "< 50, blocking resistance increase"
-                                 << m_lastErgResistance << "->" << newR;
-                    } else {
-                        qDebug() << "continuous ERG: cadence" << Cadence.value()
-                                 << "target" << lastRequestedPower().value()
-                                 << "resistance" << m_lastErgResistance << "->" << newR;
-                        forceResistance(newR);
-                        m_lastErgResistance = newR;
+                bool wantsDecrease = newR < m_lastErgResistance;
+                bool wantsIncrease = newR > m_lastErgResistance;
+                // Respect the ERG watt filter: skip resistance change if current watts
+                // are already within the user-configured deadband around the target.
+                if ((wantsDecrease && deltaDown <= erg_filter_lower) ||
+                    (wantsIncrease && deltaUp <= erg_filter_upper)) {
+                    qDebug() << "continuous ERG: filter blocked cadence" << Cadence.value()
+                             << "target" << lastRequestedPower().value()
+                             << "deltaDown" << deltaDown << "deltaUp" << deltaUp
+                             << "filter up/down" << erg_filter_upper << erg_filter_lower
+                             << "resistance" << m_lastErgResistance << "->" << newR;
+                    m_pendingErgResistance = -1;
+                } else {
+                    // Debounce: only commit a resistance change once the new value has been
+                    // requested consistently for ERG_RESISTANCE_DEBOUNCE_MS. Cadence noise right
+                    // at a lookup-table boundary can otherwise flip newR back and forth every
+                    // update() cycle even after quantizing the cadence (see resistanceFromPowerRequest).
+                    const int ERG_RESISTANCE_DEBOUNCE_MS = 2000;
+                    if (newR != m_pendingErgResistance) {
+                        m_pendingErgResistance = newR;
+                        m_pendingErgResistanceTime = QDateTime::currentDateTime();
+                    } else if (m_pendingErgResistanceTime.msecsTo(QDateTime::currentDateTime()) >=
+                               ERG_RESISTANCE_DEBOUNCE_MS) {
+                        // ERG death spiral protection: below 50 RPM, only allow resistance decreases
+                        if (Cadence.value() > 0 && Cadence.value() < 50 && wantsIncrease) {
+                            qDebug() << "ERG death spiral protection: cadence" << Cadence.value()
+                                     << "< 50, blocking resistance increase"
+                                     << m_lastErgResistance << "->" << newR;
+                        } else {
+                            qDebug() << "continuous ERG: cadence" << Cadence.value()
+                                     << "target" << lastRequestedPower().value()
+                                     << "resistance" << m_lastErgResistance << "->" << newR;
+                            forceResistance(newR);
+                            m_lastErgResistance = newR;
+                        }
                     }
                 }
             } else {
