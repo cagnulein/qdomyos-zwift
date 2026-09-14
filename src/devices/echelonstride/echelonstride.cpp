@@ -252,10 +252,13 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
     qDebug() << QStringLiteral(" << ") + newValue.toHex(' ');
+
+    if (auto *virtualTreadmill = dynamic_cast<virtualtreadmill *>(VirtualDevice())) {
+        virtualTreadmill->relayEchelonPacket(characteristic.uuid(), newValue);
+    }
 
     lastPacket = newValue;
 
@@ -531,6 +534,17 @@ bool echelonstride::connected() {
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
+}
+
+void echelonstride::proxyVirtualTreadmillCommand(const QByteArray &value) {
+    if (!gattCommunicationChannelService || !gattWriteCharacteristic.isValid() || !m_control ||
+        m_control->state() == QLowEnergyController::UnconnectedState) {
+        qDebug() << QStringLiteral("proxyVirtualTreadmillCommand ignored because the Echelon treadmill is not ready");
+        return;
+    }
+
+    writeCharacteristic(reinterpret_cast<uint8_t *>(const_cast<char *>(value.constData())), value.size(),
+                        QStringLiteral("virtual echelon treadmill proxy"));
 }
 
 bool echelonstride::autoPauseWhenSpeedIsZero() {
