@@ -401,6 +401,8 @@ class homeform : public QObject {
         QString proformtreadmillip = settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString();
         QString freebeatSerialPort =
             settings.value(QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport).toString();
+        QString daumSerialPort =
+            settings.value(QZSettings::daum_serialport, QZSettings::default_daum_serialport).toString();
         QString computrainerSerialPort =
             settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
 
@@ -423,7 +425,7 @@ class homeform : public QObject {
                 nordictrack_2950_ip.isEmpty() && tdf_10_ip.isEmpty() && !fake_bike && !fakedevice_elliptical &&
                 !fakedevice_rower && !waterrower_usb && !fakedevice_treadmill && !antbike && !android_antbike && proform_elliptical_ip.isEmpty() &&
                 proformtdf4ip.isEmpty() && proformtdf1ip.isEmpty() && proformtreadmillip.isEmpty() &&
-                freebeatSerialPort.isEmpty() && computrainerSerialPort.isEmpty();
+                freebeatSerialPort.isEmpty() && daumSerialPort.isEmpty() && computrainerSerialPort.isEmpty();
     }
 
 

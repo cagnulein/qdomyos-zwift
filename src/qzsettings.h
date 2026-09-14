@@ -1820,6 +1820,9 @@ class QZSettings {
     static const QString kettler_usb_baudrate;
     static constexpr int default_kettler_usb_baudrate = 9600;
 
+    static const QString daum_serialport;
+    static const QString default_daum_serialport;
+
     static const QString freebeat_serialport;
     static const QString default_freebeat_serialport;
 
