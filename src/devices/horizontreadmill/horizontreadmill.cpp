@@ -1559,6 +1559,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool treadmill_direct_distance =
         settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
+    const double horizon_speed_multiplier =
+        settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool()
+            ? 1.60934
+            : 1.0;
 
     QDateTime now = QDateTime::currentDateTime();
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
@@ -1597,7 +1601,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
                            (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
                  100.0) *
-                1.60934); // miles/h
+                horizon_speed_multiplier);
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
@@ -1623,7 +1627,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 70 &&
                newValue.at(0) == 0x55 && newValue.at(5) == 0x12) {
         parseSpeed((((double)(((uint16_t)((uint8_t)newValue.at(62)) << 8) | (uint16_t)((uint8_t)newValue.at(61)))) / 1000.0) *
-                       1.60934); // miles/h
+                       horizon_speed_multiplier);
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         parseInclination(treadmillInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0));
