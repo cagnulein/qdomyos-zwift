@@ -262,7 +262,9 @@ void ftmsbike::forcePower(int16_t requestPower) {
 }
 
 bool ftmsbike::isManualResistanceBike() const {
-    return SMARTBIKE_3DIGIT || TX_500MB_IRON;
+    return SMARTBIKE_3DIGIT || TX_500MB_IRON ||
+           (bluetoothDevice.name().toUpper().startsWith(QStringLiteral("FBIKE-HEAVY-PRO")) &&
+            cscbike::useCustomResistancePowerTable());
 }
 
 void ftmsbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
@@ -515,10 +517,18 @@ void ftmsbike::update() {
             if (rR != currentResistance().value() || lastGearValue != gears()) {
                 bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
                 qDebug() << QStringLiteral("writing resistance ") << requestResistance << ergModeNotSupported << requestPower << resistance_lvl_mode;
+                const bool fbikeManualResistance =
+                    bluetoothDevice.name().toUpper().startsWith(QStringLiteral("FBIKE-HEAVY-PRO")) &&
+                    cscbike::useCustomResistancePowerTable();
+                if (fbikeManualResistance) {
+                    if (requestResistance != -1) {
+                        enableManualResistancePowerAdjustment(rR);
+                    }
+                }
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
                 // FTMS bike. This condition handles the peloton requests
-                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode || ergModeNotSupported) &&
-                    (requestPower == 0 || requestPower == -1 || resistance_lvl_mode || ergModeNotSupported)) {
+                else if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike || resistance_lvl_mode || ergModeNotSupported) &&
+                         (requestPower == 0 || requestPower == -1 || resistance_lvl_mode || ergModeNotSupported)) {
                     if (DOMYOS) {
                         QDateTime now = QDateTime::currentDateTime();
                         const qint64 sinceLastDomyosResistance = lastDomyosResistanceCommand.msecsTo(now);
