@@ -2,28 +2,12 @@
 #define SRAMAXSCONTROLLER_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
-#include <QtBluetooth/qlowenergyadvertisingdata.h>
-#include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
-#include <QtBluetooth/qlowenergycharacteristicdata.h>
 #include <QtBluetooth/qlowenergycontroller.h>
-#include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
-#include <QtBluetooth/qlowenergyservicedata.h>
 #include <QtCore/qbytearray.h>
-
-#ifndef Q_OS_ANDROID
-#include <QtCore/qcoreapplication.h>
-#else
-#include <QtGui/qguiapplication.h>
-#endif
-#include <QtCore/qlist.h>
-#include <QtCore/qmutex.h>
-#include <QtCore/qscopedpointer.h>
+#include <QtCore/qqueue.h>
 #include <QtCore/qtimer.h>
-
-#include <QObject>
-#include <QTime>
 
 #include "devices/bluetoothdevice.h"
 
@@ -33,16 +17,52 @@ class sramaxscontroller : public bluetoothdevice {
     sramaxscontroller();
     bool connected() override;
 
+    static bool isCompatibleDevice(const QBluetoothDeviceInfo &device);
+    static int decodeRearGear(const QByteArray &plaintext);
+    static int decodeRearGearCount(const QByteArray &plaintext);
+    // QZ's virtual gear-up means a harder/larger virtual ratio. SRAM positions
+    // increase toward the larger/easier cassette cogs, so the directions invert.
+    static int virtualGearDirectionForRearDelta(int delta);
+
   private:
-    QList<QLowEnergyService *> gattCommunicationChannelService;
-    QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyService* gattWriteCharCustomService;
+    static const QBluetoothUuid liveStateUuid();
+    static const QBluetoothUuid liveStateChangedUuid();
+    static const QBluetoothUuid drivetrainConfigUuid();
+    static const QBluetoothUuid bondServiceUuid();
+    static const QBluetoothUuid bondCharacteristicUuid();
+    static const QBluetoothUuid serialUuid();
 
-    void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
-                                               uint8_t *data, uint8_t data_len, QString info, bool disable_log,
-                                               bool wait_for_response);
+    QList<QLowEnergyService *> services;
+    QLowEnergyService *liveService = nullptr;
+    QLowEnergyService *bondService = nullptr;
+    QLowEnergyService *serialService = nullptr;
+    QLowEnergyService *configService = nullptr;
+    QLowEnergyCharacteristic liveCharacteristic;
+    QLowEnergyCharacteristic liveStateChangedCharacteristic;
+    QLowEnergyCharacteristic drivetrainConfigCharacteristic;
+    QLowEnergyCharacteristic bondCharacteristic;
+    QLowEnergyCharacteristic serialCharacteristic;
 
-    volatile int notificationSubscribed = 0;
+    QByteArray deviceKey;
+    QByteArray deviceIdentifier;
+    QQueue<QByteArray> bondResponses;
+    QTimer reconnectTimer;
+    int lastRearGear = -1;
+    int totalRearGears = 24;
+    bool pairingStarted = false;
+    bool readyStarted = false;
+
+    void writeBondValue(const QByteArray &value);
+    QByteArray waitForBondValue(int minimumLength, int timeoutMs = 5000, int exactLength = 0);
+    void beginReady();
+    void loadStoredKey();
+    void startMonitoring();
+    void startPairing();
+    void readLiveState();
+    void processLiveFrame(const QByteArray &frame);
+    void processPlaintext(const QByteArray &plaintext);
+    QString keySettingName() const;
+    QString deviceIdentifierString() const;
 
   signals:
     void disconnected();
@@ -50,24 +70,23 @@ class sramaxscontroller : public bluetoothdevice {
     void packetReceived();
     void plus();
     void minus();
+    void bondResponseReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void disconnectBluetooth();
 
   private slots:
-
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
-
     void serviceDiscovered(const QBluetoothUuid &gatt);
-    void serviceScanDone(void);
-    void update();
+    void serviceScanDone();
     void error(QLowEnergyController::Error err);
-    void errorService(QLowEnergyService::ServiceError);
+    void errorService(QLowEnergyService::ServiceError err);
 };
 
 #endif // SRAMAXSCONTROLLER_H
