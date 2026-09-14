@@ -10,6 +10,7 @@
 #include <QDebug>
 
 #ifdef Q_OS_ANDROID
+#include <QAndroidJniEnvironment>
 #include <QtAndroid>
 #endif
 
