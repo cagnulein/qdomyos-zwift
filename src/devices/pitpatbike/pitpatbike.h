@@ -72,6 +72,7 @@ class pitpatbike : public bike {
 
     bool initDone = false;
     bool initRequest = false;
+    bool legacyProtocol = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;

@@ -14,6 +14,41 @@
 
 using namespace std::chrono_literals;
 
+namespace {
+uint16_t pitpatReadBE16(const QByteArray &packet, int offset) {
+    return (static_cast<uint16_t>(static_cast<uint8_t>(packet.at(offset))) << 8) |
+           static_cast<uint16_t>(static_cast<uint8_t>(packet.at(offset + 1)));
+}
+
+uint8_t pitpatXorCrc(const QByteArray &packet) {
+    uint8_t crc = 0;
+    for (int i = 1; i < packet.size() - 2; ++i)
+        crc ^= static_cast<uint8_t>(packet.at(i));
+    return crc;
+}
+
+uint16_t pitpatEstimatedWatts(double cadence, double resistance) {
+    if (cadence <= 0.0)
+        return 0;
+
+    // The S01PRO native profile reports an unrealistic cadence-only power value
+    // (roughly cadence * 4), independent of resistance. For QZ we instead use
+    // resistance as a linear scale: at 100 RPM level 1 is about 40 W and level
+    // 32 is about 400 W, with the 30 intermediate levels evenly interpolated.
+    double level = resistance;
+    if (level < 1.0)
+        level = 1.0;
+    else if (level > 32.0)
+        level = 32.0;
+
+    const double resistanceScale = 0.10 + (0.90 * ((level - 1.0) / 31.0));
+    const double watts = cadence * 4.0 * resistanceScale;
+    if (watts >= 65535.0)
+        return 65535;
+    return static_cast<uint16_t>(watts + 0.5);
+}
+} // namespace
+
 #ifdef Q_OS_IOS
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
@@ -192,6 +227,103 @@ void pitpatbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     lastPacket = newValue;
 
+    // PitPat's current three-in-one protocol uses the legacy 0x6a framing.
+    // The startup frame is 34 bytes and advertises the actual bike layout.
+    if (newValue.size() >= 4 && static_cast<uint8_t>(newValue.at(0)) == 0x6a &&
+        static_cast<uint8_t>(newValue.at(3)) == 0x2c) {
+        legacyProtocol = true;
+        if (newValue.size() < 34) {
+            qDebug() << QStringLiteral("PitPat startup frame is too short") << newValue.size();
+            return;
+        }
+
+        qDebug() << QStringLiteral("PitPat startup: min resistance ") +
+                        QString::number(pitpatReadBE16(newValue, 9)) + QStringLiteral(", max resistance ") +
+                        QString::number(pitpatReadBE16(newValue, 11)) + QStringLiteral(", serial ") +
+                        QString::fromLatin1(newValue.constData() + 13, 16) + QStringLiteral(", version ") +
+                        QString::number(static_cast<uint8_t>(newValue.at(29))) + QStringLiteral(", model ") +
+                        QString::number(static_cast<uint8_t>(newValue.at(31))) +
+                        QStringLiteral(", crc ") +
+                        (pitpatXorCrc(newValue) == static_cast<uint8_t>(newValue.at(newValue.size() - 2))
+                             ? QStringLiteral("ok")
+                             : QStringLiteral("invalid"));
+
+        // The official PitPat app answers the 0x2c startup frame before it starts
+        // polling or sending resistance commands. Until this handshake is ACKed,
+        // the S01PRO remains in its startup/scan state.
+        if (!initDone) {
+            uint8_t legacyHandshake[] = {0x6a, 0x05, 0x50, 0x1b, 0x01, 0x4f, 0x43};
+            writeCharacteristic(legacyHandshake, sizeof(legacyHandshake), QStringLiteral("legacy handshake"), false,
+                                false);
+        }
+        return;
+    }
+
+    // ACK observed in the official app immediately after the legacy handshake.
+    if (legacyProtocol && newValue == QByteArray::fromHex("6a06b01b0100ac43")) {
+        qDebug() << QStringLiteral("PitPat legacy handshake acknowledged");
+        initDone = true;
+        sec1Update = 0;
+        return;
+    }
+
+    if (legacyProtocol) {
+        // Legacy telemetry fields are documented by the APK's parser and were
+        // confirmed against a live HCI snoop from the official PitPat app.
+        if (newValue.size() < 28 || static_cast<uint8_t>(newValue.at(0)) != 0x6a ||
+            static_cast<uint8_t>(newValue.at(3)) != 0x02)
+            return;
+
+        // If the ACK notification was lost but telemetry has already started,
+        // the bike necessarily accepted the handshake, so it is safe to proceed.
+        if (!initDone) {
+            qDebug() << QStringLiteral("PitPat legacy telemetry received; handshake accepted");
+            initDone = true;
+            sec1Update = 0;
+        }
+
+        if (pitpatXorCrc(newValue) != static_cast<uint8_t>(newValue.at(newValue.size() - 2)))
+            qDebug() << QStringLiteral("PitPat telemetry CRC mismatch") << newValue.toHex(' ');
+
+        QSettings settings;
+        const uint8_t cadence = static_cast<uint8_t>(newValue.at(25));
+        const uint16_t rawSpeed = pitpatReadBE16(newValue, 23);
+
+        Resistance = static_cast<uint8_t>(newValue.at(5));
+        m_pelotonResistance = m_pelotonResistance.value();
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            Cadence = cadence;
+        }
+
+        // Model 2 reports velocity in mm/s; QZ speed is expressed in km/h.
+        Speed = static_cast<double>(rawSpeed) / 1000.0;
+        Distance = static_cast<double>(pitpatReadBE16(newValue, 10)) / 1000.0;
+        KCal = static_cast<double>(pitpatReadBE16(newValue, 12)) / 10.0;
+        Heart = static_cast<uint8_t>(newValue.at(18));
+        CrankRevs = pitpatReadBE16(newValue, 16);
+        LastCrankEventTime += cadence > 0 ? static_cast<uint16_t>(1024.0 / (static_cast<double>(cadence) / 60.0)) : 0;
+
+        // The S01PRO legacy frame has no watt field. Use a resistance-scaled
+        // estimate agreed for live testing instead of reproducing the native
+        // cadence-only value, which is clearly not physically meaningful.
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            m_watt = pitpatEstimatedWatts(Cadence.value(), Resistance.value());
+        }
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+        qDebug() << QStringLiteral("PitPat legacy metrics: resistance ") + QString::number(Resistance.value()) +
+                        QStringLiteral(", speed ") + QString::number(Speed.value()) + QStringLiteral(", distance ") +
+                        QString::number(Distance.value()) + QStringLiteral(", cadence ") + QString::number(Cadence.value()) +
+                        QStringLiteral(", watts ") + QString::number(watts()) + QStringLiteral(", calories ") +
+                        QString::number(KCal.value()) + QStringLiteral(", heart ") + QString::number(Heart.value()) +
+                        QStringLiteral(", crank revs ") + QString::number(CrankRevs);
+        return;
+    }
+
     if (newValue.length() != 30) {
         return;
     }
@@ -282,13 +414,26 @@ QTime pitpatbike::GetElapsedFromPacket(const QByteArray &packet) {
 }
 
 double pitpatbike::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
+    uint16_t convertedData = pitpatReadBE16(packet, 7);
     double data = ((double)convertedData) / 100.0f;
     return data;
 }
 
 void pitpatbike::btinit() {
-    initDone = true;
+    // Give the S01PRO a short window to advertise its 0x2c startup frame before
+    // enabling the normal poll/control loop. Existing PitPat devices that do not
+    // use this startup handshake continue on the old path after the timeout.
+    if (legacyProtocol && initDone)
+        return;
+
+    initDone = false;
+    sec1Update = 0;
+    QTimer::singleShot(1500ms, this, [this]() {
+        if (!legacyProtocol && m_control && m_control->state() != QLowEnergyController::UnconnectedState) {
+            qDebug() << QStringLiteral("PitPat legacy startup frame not seen; enabling existing protocol path");
+            initDone = true;
+        }
+    });
 }
 
 void pitpatbike::stateChanged(QLowEnergyService::ServiceState state) {
@@ -469,6 +614,8 @@ void pitpatbike::controllerStateChanged(QLowEnergyController::ControllerState st
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+        legacyProtocol = false;
+        sec1Update = 0;
         m_control->connectToDevice();
     }
 }
