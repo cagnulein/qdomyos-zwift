@@ -130,3 +130,13 @@ If this happens:
 In a confirmed support case, replacing the built-in Lightning browser with Chrome immediately allowed the Peloton authentication flow to complete normally.
 
 If changing the browser does not help, try opening the Peloton website directly in the console browser. If it also fails there, the issue is likely outside QZ itself.
+
+## QZ says the Peloton login is successful, but it no longer detects my active workout. What should I try?
+
+If QZ still reports a successful Peloton login but stops recognizing an active Peloton workout, changing the Peloton account password can refresh the authentication state even when simply signing out and back in does not help.
+
+1. Change or reset the password for the Peloton account.
+2. Update the saved Peloton password in QZ.
+3. Restart QZ, confirm that the Peloton login succeeds, and open the workout again.
+
+In a confirmed support case, signing out and back in did not restore workout detection, while changing the Peloton password did and the integration immediately started working again.
