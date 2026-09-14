@@ -94,6 +94,53 @@ void pelotonbike::update() {
         emit connectedAndDiscovered();
     }
 
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+        "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
+    QString t = text.toString();
+    qDebug() << "OCR" << t;
+
+    QStringList list = t.split('\n');
+    bool waitCadence = false;
+    bool waitPower = false;
+    bool waitResistance = false;
+    bool waitSpeed = false;
+    foreach(QString l, list) {
+       if(l.startsWith("CADENCE")) {
+           waitCadence = true;
+       } else if(l.startsWith("RESISTANCE")) {
+           waitResistance = true;
+       } else if(l.startsWith("OUTPUT")) {
+           waitPower = true;
+       } else if(l.startsWith("SPEED")) {
+           waitSpeed = true;
+       } else if(waitCadence) {
+           waitCadence = false;
+           Cadence = l.toInt();
+       } else if(waitPower) {
+           waitPower = false;
+           m_watt = l.toInt();
+       } else if(waitResistance) {
+           waitResistance = false;
+           Resistance = l.toInt();
+       } else if(waitSpeed) {
+           waitSpeed = false;
+           Speed = l.split(" ").first().toDouble();
+       }
+    }
+
+    QAndroidJniObject adb = QAndroidJniObject::callStaticObjectMethod<jstring>(
+        "org/cagnulen/qdomyoszwift/ShellRuntime", "lastOutput");
+    QString tAdb = adb.toString();
+    qDebug() << "ADB lastOutput" << tAdb;
+
+    QString command = "logcat -d | grep \"V1Callback\"";
+    QAndroidJniObject commandString = QAndroidJniObject::fromString(command);
+    QAndroidJniObject::callStaticMethod<void>(
+        "org/cagnulen/qdomyoszwift/ShellRuntime", "execAndGetOutput","(Ljava/lang/String;)V", commandString.object<jstring>());
+
+#endif
+
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
