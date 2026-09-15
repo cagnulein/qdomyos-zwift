@@ -54,3 +54,17 @@ If the Echelon bike itself is already working normally in QZ and MyWhoosh can se
 **Virtual Echelon** is intended for the Echelon initialization/unlock workflow. It is not normally needed once the bike can connect and operate directly through QZ. In a confirmed support case, disabling this setting and restarting QZ immediately restored data transmission to MyWhoosh.
 
 If the bike itself is locked and QZ explicitly asks you to enable Virtual Echelon for initialization, follow the on-screen unlock instructions first; this troubleshooting step applies when the bike is already operating normally in QZ but the downstream training app receives no metrics.
+
+## My Echelon bike is locked and QZ cannot start it directly. Can I unlock it with a second device?
+
+Yes. For Echelon bikes that require the manufacturer's initialization before they will expose normal workout data, a practical workaround is to use a second phone or tablet only to unlock the bike, then let QZ take over.
+
+1. Keep QZ ready on the primary device, but do not let another training app connect directly to the bike.
+2. On a second phone or tablet, use an Echelon-compatible unlock app to connect to and initialize the bike.
+3. Once the bike is unlocked, disconnect or close the unlock app so it releases Bluetooth.
+4. Start or reconnect QZ on the primary device and verify that cadence, resistance, and power are updating.
+5. Connect Zwift, MyWhoosh, ROUVY, or another training app to QZ's virtual device rather than directly to the physical bike.
+
+The unlock step may need to be repeated after the bike is power-cycled. In a confirmed support case with an Echelon EX-7s, this two-device sequence reliably unlocked the bike and QZ then operated normally.
+
+If QZ already connects to and initializes your bike directly, this workaround is unnecessary.
