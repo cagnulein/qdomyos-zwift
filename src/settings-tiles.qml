@@ -365,6 +365,8 @@ ScrollView {
         property string shortcut_auto_resistance: ""
         property string shortcut_lap: ""
         property string shortcut_start_stop: ""            
+        property bool tile_watt_color_enabled: true
+        property bool tile_pace_color_enabled: true
     }
 
 
@@ -703,29 +705,46 @@ ScrollView {
             title: qsTr("Pace")
             linkedBoolSetting: "tile_pace_enabled"
             settings: settings
-            accordionContent: RowLayout {
-                spacing: 10
-                Label {
-                    id: labelpaceOrder
-                    text: qsTr("order index:")
+            accordionContent: ColumnLayout {
+                SwitchDelegate {
+                    id: paceColorEnabled
+                    text: qsTr("Enable Pace color")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.tile_pace_color_enabled
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignRight
+                    onClicked: settings.tile_pace_color_enabled = checked
                 }
-                ComboBox {
-                    id: paceOrderTextField
-                    model: rootItem.tile_order
-                    displayText: settings.tile_pace_order
-                    Layout.fillHeight: false
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onActivated: {
-                        displayText = paceOrderTextField.currentValue
-                     }
-                }
-                Button {
-                    id: okpaceOrderButton
-                    text: qsTr("OK")
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_pace_order = paceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelpaceOrder
+                        text: qsTr("order index:")
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    ComboBox {
+                        id: paceOrderTextField
+                        model: rootItem.tile_order
+                        displayText: settings.tile_pace_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = paceOrderTextField.currentValue
+                         }
+                    }
+                    Button {
+                        id: okpaceOrderButton
+                        text: qsTr("OK")
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_pace_order = paceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
                 }
             }
         }
@@ -870,29 +889,46 @@ ScrollView {
             title: qsTr("Watt")
             linkedBoolSetting: "tile_watt_enabled"
             settings: settings
-            accordionContent:  RowLayout {
-                spacing: 10
-                Label {
-                    id: labelwattOrder
-                    text: qsTr("order index:")
+            accordionContent:  ColumnLayout {
+                SwitchDelegate {
+                    id: wattColorEnabled
+                    text: qsTr("Enable Watt color")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.tile_watt_color_enabled
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignRight
+                    onClicked: settings.tile_watt_color_enabled = checked
                 }
-                ComboBox {
-                    id: wattOrderTextField
-                    model: rootItem.tile_order
-                    displayText: settings.tile_watt_order
-                    Layout.fillHeight: false
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onActivated: {
-                        displayText = wattOrderTextField.currentValue
-                     }
-                }
-                Button {
-                    id: okwattOrderButton
-                    text: qsTr("OK")
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_watt_order = wattOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelwattOrder
+                        text: qsTr("order index:")
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    ComboBox {
+                        id: wattOrderTextField
+                        model: rootItem.tile_order
+                        displayText: settings.tile_watt_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = wattOrderTextField.currentValue
+                         }
+                    }
+                    Button {
+                        id: okwattOrderButton
+                        text: qsTr("OK")
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_watt_order = wattOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
                 }
             }
         }
@@ -2265,7 +2301,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: targetStrokesLengthAccordion
-            title: qsTr("Strokes Length")
+            title: qsTr("Stroke Length")
             linkedBoolSetting: "tile_strokes_length_enabled"
             settings: settings
             accordionContent: RowLayout {

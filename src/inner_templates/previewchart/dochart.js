@@ -33,6 +33,10 @@ var maxHeartRate = 190;
 var heartZones = [];
 var miles = 1;
 
+function t(key, fallback) {
+    return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+}
+
 function process_arr(arr) {
     let watts = [];
     let reqpower = [];
@@ -211,7 +215,7 @@ function process_arr(arr) {
         plugins: [backgroundFill],
         data: {
             datasets: [{
-                label: 'Watts',
+                label: t('chart.watts', 'Watts'),
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 cubicInterpolationMode: 'monotone',
@@ -229,7 +233,7 @@ function process_arr(arr) {
                                                                        window.chartColors.red,
                 }
             }, {
-                label: 'Req. Watts',
+                label: t('chart.requestedWatts', 'Req. Watts'),
                 backgroundColor: window.chartColors.black,
                 borderColor: window.chartColors.black,
                 //cubicInterpolationMode: 'monotone',
@@ -386,12 +390,21 @@ function process_arr(arr) {
     let ctx = document.getElementById('canvas').getContext('2d');
     var powerChart = new Chart(ctx, config);
 
+    const heartChartBottom = 50;
+    const heartChartTop = Math.max(heartZones[3] + 10, maxHeartRate + 10, heart_max + 5, 200);
+    const heartZoneLabelPositions = [
+        Math.round((heartChartBottom + heartZones[0]) / 2),
+        Math.round((heartZones[0] + heartZones[1]) / 2),
+        Math.round((heartZones[1] + heartZones[2]) / 2),
+        Math.round((heartZones[2] + heartZones[3]) / 2),
+        Math.round((heartZones[3] + heartChartTop) / 2),
+    ];
     config = {
         type: 'line',
         plugins: [backgroundFill],
         data: {
             datasets: [{
-                label: 'Heart',
+                label: t('metric.heart', 'Heart'),
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 //cubicInterpolationMode: 'monotone',
@@ -438,7 +451,7 @@ function process_arr(arr) {
                             type: 'box',
                             xMin: 0,
                             xMax: maxEl,
-                            yMin: 0,
+                            yMin: heartChartBottom,
                             yMax: heartZones[0],
                             backgroundColor: window.chartColors.lightsteelbluet,
                             },
@@ -475,7 +488,7 @@ function process_arr(arr) {
                             xMin: 0,
                             xMax: maxEl,
                             yMin: heartZones[3],
-                            yMax: maxHeartRate,
+                            yMax: heartChartTop,
                             backgroundColor: window.chartColors.redt,
                             },
                     }
@@ -510,16 +523,17 @@ function process_arr(arr) {
                         display: false,
                         text: 'Heart rate'
                     },
-                    min: 50,
+                    min: heartChartBottom,
+                    max: heartChartTop,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => [heartZones[0] * 0.8, heartZones[0], heartZones[1], heartZones[2], heartZones[3], heartZones[4]].includes(value) ?
-                            value === heartZones[0] * 0.8 ? 'zone 1' :
-                            value === heartZones[0] ? 'zone 2' :
-                            value === heartZones[1] ? 'zone 3' :
-                            value === heartZones[2] ? 'zone 4' :
-                            value === heartZones[3] ? 'zone 5' : undefined : undefined,
+                        callback: value => heartZoneLabelPositions.includes(value) ?
+                            value === heartZoneLabelPositions[0] ? 'zone 1' :
+                            value === heartZoneLabelPositions[1] ? 'zone 2' :
+                            value === heartZoneLabelPositions[2] ? 'zone 3' :
+                            value === heartZoneLabelPositions[3] ? 'zone 4' :
+                            value === heartZoneLabelPositions[4] ? 'zone 5' : undefined : undefined,
                         color: 'black',
                         padding: -50,
                         align: 'end',
@@ -539,7 +553,7 @@ function process_arr(arr) {
         data: {
             datasets: [
                 {
-                    label: 'Resistance',
+                    label: t('workoutEditor.resistance', 'Resistance'),
                     //cubicInterpolationMode: 'monotone',
                     data: resistance,
                     fill: false,
@@ -549,7 +563,7 @@ function process_arr(arr) {
                     borderColor: window.chartColors.red,
                 },
                 {
-                    label: 'Target R.',
+                    label: t('chart.targetResistanceShort', 'Target R.'),
                     //cubicInterpolationMode: 'monotone',
                     data: reqresistance,
                     fill: false,
@@ -639,7 +653,7 @@ function process_arr(arr) {
         data: {
             datasets: [
                 {
-                    label: 'Resistance',
+                    label: t('workoutEditor.resistance', 'Resistance'),
                     //cubicInterpolationMode: 'monotone',
                     data: pelotonresistance,
                     fill: false,
@@ -649,7 +663,7 @@ function process_arr(arr) {
                     borderColor: window.chartColors.red,
                 },
                 {
-                    label: 'Target R.',
+                    label: t('chart.targetResistanceShort', 'Target R.'),
                     //cubicInterpolationMode: 'monotone',
                     data: pelotonreqresistance,
                     fill: false,
@@ -741,7 +755,7 @@ function process_arr(arr) {
                 {
                     backgroundColor: window.chartColors.blue,
                     borderColor: window.chartColors.blue,
-                    label: 'Cadence',
+                    label: t('workoutEditor.cadence', 'Cadence'),
                     //cubicInterpolationMode: 'monotone',
                     data: cadence,
                     fill: false,
@@ -751,7 +765,7 @@ function process_arr(arr) {
                 {
                     backgroundColor: window.chartColors.black,
                     borderColor: window.chartColors.black,
-                    label: 'Target C.',
+                    label: t('chart.targetCadenceShort', 'Target C.'),
                     //cubicInterpolationMode: 'monotone',
                     data: reqcadence,
                     fill: false,
@@ -904,7 +918,7 @@ function process_arr(arr) {
                 {
                     backgroundColor: window.chartColors.blue,
                     borderColor: window.chartColors.blue,
-                    label: 'Speed (' + (miles === 1 ? 'km/h' : 'mph') + ')',
+                    label: miles === 1 ? t('workoutEditor.speedKmh', 'Speed (km/h)') : t('workoutEditor.speedMph', 'Speed (mph)'),
                     //cubicInterpolationMode: 'monotone',
                     data: speed,
                     fill: false,
@@ -914,7 +928,7 @@ function process_arr(arr) {
                 {
                     backgroundColor: window.chartColors.green,
                     borderColor: window.chartColors.green,
-                    label: 'Inclination',
+                    label: t('metric.inclinationTitle', 'Inclination'),
                     //cubicInterpolationMode: 'monotone',
                     data: inclination,
                     fill: false,
@@ -1029,7 +1043,7 @@ function dochart_init() {
                         age = msg.content[key];
                         maxHeartRate = 220 - age;
                     } else if (key === 'heart_max_override_enable') {
-                        heart_max_override_enable = msg.content[key];
+                        heart_max_override_enable = (msg.content[key] === true || msg.content[key] === 'true');
                     } else if (key === 'heart_max_override_value') {
                         heart_max_override_value = msg.content[key];
                     } else if (key === 'heart_rate_zone1') {

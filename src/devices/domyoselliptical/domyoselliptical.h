@@ -19,6 +19,7 @@
 #endif
 #include <QtCore/qlist.h>
 #include <QtCore/qmutex.h>
+#include <QtCore/qqueue.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
@@ -38,6 +39,13 @@ class domyoselliptical : public elliptical {
     bool inclinationAvailableByHardware() override;
 
   private:
+    struct WriteRequest {
+        QByteArray data;
+        QString info;
+        bool disable_log;
+        bool wait_for_response;
+    };
+
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(const QByteArray &packet);
@@ -49,6 +57,7 @@ class domyoselliptical : public elliptical {
     void btinit_telink(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    void processWriteQueue();
     void startDiscover();
     uint16_t watts();
 
@@ -70,6 +79,10 @@ class domyoselliptical : public elliptical {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QQueue<WriteRequest> writeQueue;
+    bool isWriting = false;
+    bool currentWriteWaitingForResponse = false;
+    QTimer *writeTimeoutTimer = nullptr;
 
     enum _BIKE_TYPE {
         CHANG_YOW,
@@ -80,6 +93,7 @@ class domyoselliptical : public elliptical {
   Q_SIGNALS:
     void disconnected();
     void debug(QString string);
+    void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

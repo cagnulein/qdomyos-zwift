@@ -91,6 +91,7 @@ ScrollView {
         property string shortcut_auto_resistance: ""
         property string shortcut_lap: ""
         property string shortcut_start_stop: ""
+        property string shortcut_stop: ""
     }
 
     ColumnLayout {
@@ -179,8 +180,12 @@ ScrollView {
             ColumnLayout {
                 anchors.fill: parent
                 RowLayout {
-                    Label { text: qsTr("Start / Stop"); Layout.fillWidth: true }
+                    Label { text: qsTr("Start / Pause"); Layout.fillWidth: true }
                     ShortcutField { text: settings.shortcut_start_stop; settingName: "shortcut_start_stop" }
+                }
+                RowLayout {
+                    Label { text: qsTr("Stop"); Layout.fillWidth: true }
+                    ShortcutField { text: settings.shortcut_stop; settingName: "shortcut_stop" }
                 }
                 RowLayout {
                     Label { text: qsTr("Lap"); Layout.fillWidth: true }

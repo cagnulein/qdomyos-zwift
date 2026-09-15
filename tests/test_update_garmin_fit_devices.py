@@ -1,0 +1,142 @@
+import sys
+import tempfile
+import unittest
+from unittest import mock
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
+import update_garmin_fit_devices as updater
+
+
+ROOT = Path(__file__).parents[1]
+QML = (ROOT / "src/settings.qml").read_text(encoding="utf-8")
+PROFILE = (ROOT / "src/fit-sdk/fit_profile.hpp").read_text(encoding="utf-8")
+
+
+class GarminFitUpdaterTest(unittest.TestCase):
+    def setUp(self):
+        self.catalog = updater.parse_catalog(PROFILE)
+
+    def test_parses_repository_qml(self):
+        start, end = updater.locate_control(QML)
+        devices = updater.parse_current(QML[start:end])
+        self.assertGreater(len(devices), 100)
+        self.assertEqual(devices[20].macro, "EDGE_830")
+
+    def test_adds_one_and_is_idempotent(self):
+        catalog = dict(self.catalog, FENIX_TEST=5000)
+        updated, added, old = updater.update_qml(QML, catalog)
+        self.assertIn("FENIX_TEST", [d.macro for d in added])
+        self.assertTrue(all(d.macro in updated for d in old))
+        again, second, _ = updater.update_qml(updated, catalog)
+        self.assertEqual(again, updated)
+        self.assertEqual(second, [])
+
+    def test_multiple_are_deterministic_and_alphabetical(self):
+        catalog = dict(self.catalog, VENU_FUTURE=5002, EDGE_FUTURE=5001)
+        updated, added, _ = updater.update_qml(QML, catalog)
+        self.assertIn("EDGE_FUTURE", [d.macro for d in added])
+        self.assertIn("VENU_FUTURE", [d.macro for d in added])
+        self.assertLess(updated.index("Edge Future"), updated.index("Venu Future"))
+        start, end = updater.locate_control(updated)
+        displays = [device.display for device in updater.parse_current(updated[start:end])]
+        self.assertEqual(displays, sorted(displays, key=str.casefold))
+
+    def test_forerunner_display_name_is_expanded_before_sorting(self):
+        self.assertEqual(updater.display_name("FR970"), "Forerunner 970")
+        self.assertEqual(updater.display_name("FR970_LTE"), "Forerunner 970 Lte")
+        updated, added, _ = updater.update_qml(QML, dict(self.catalog, FR970=60001))
+        self.assertIn("Forerunner 970", [device.display for device in added])
+        self.assertNotIn('"Fr970"', updated)
+        self.assertLess(updated.index('"Forerunner 965"'), updated.index('"Forerunner 970"'))
+        self.assertLess(updated.index('"Forerunner 970"'), updated.index('"Tacx"'))
+
+    def test_upstream_disappearance_preserves_existing(self):
+        start, end = updater.locate_control(QML)
+        old = updater.parse_current(QML[start:end])
+        catalog = {d.macro: d.product for d in old if d.macro not in ("Tacx", "Zwift")}
+        catalog.pop("FENIX8")
+        updated, added, _ = updater.update_qml(QML, catalog)
+        self.assertEqual(added, [])
+        self.assertEqual(updater.parse_current(updated[updater.locate_control(updated)[0]:updater.locate_control(updated)[1]]), old)
+
+    def test_rejects_duplicate_and_empty_catalog(self):
+        with self.assertRaises(updater.UpdateError):
+            updater.parse_catalog("")
+        duplicate = "#define FIT_GARMIN_PRODUCT_A ((FIT_GARMIN_PRODUCT)1)\n#define FIT_GARMIN_PRODUCT_A ((FIT_GARMIN_PRODUCT)2)"
+        with self.assertRaises(updater.UpdateError):
+            updater.parse_catalog(duplicate, minimum=1)
+
+    def test_missing_and_multiple_target_rejected(self):
+        with self.assertRaises(updater.UpdateError):
+            updater.locate_control("ComboBox {}")
+        with self.assertRaises(updater.UpdateError):
+            updater.locate_control(QML + QML)
+
+    def test_malformed_model_rejected(self):
+        broken = QML.replace('"D2Airvenu",', 'someFunction(),', 1)
+        with self.assertRaises(updater.UpdateError):
+            updater.update_qml(broken, self.catalog)
+
+    def test_unrelated_qml_is_byte_identical(self):
+        updated, _, _ = updater.update_qml(QML, dict(self.catalog, FR_FUTURE=5003))
+        old_start, old_end = updater.locate_control(QML)
+        new_start, new_end = updater.locate_control(updated)
+        self.assertEqual(QML[:old_start], updated[:new_start])
+        self.assertEqual(QML[old_end:], updated[new_end:])
+
+    def test_product_number_is_not_treated_as_chronology(self):
+        _, added, _ = updater.update_qml(QML, dict(self.catalog, FENIX_FUTURE=13))
+        self.assertIn("FENIX_FUTURE", [d.macro for d in added])
+
+    def test_structured_variants_and_non_devices_are_excluded(self):
+        catalog = dict(
+            self.catalog,
+            FENIX_FUTURE_JPN=5004,
+            EDGE_FUTURE_BONTRAGER=5005,
+            FR225_SINGLE_BYTE_PRODUCT_ID=14,
+        )
+        _, added, _ = updater.update_qml(QML, catalog)
+        macros = {d.macro for d in added}
+        self.assertTrue(macros.isdisjoint(catalog.keys() - self.catalog.keys()))
+
+    def test_cli_reports_if_qml_changed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            qml = Path(directory) / "settings.qml"
+            catalog = Path(directory) / "fit_profile.hpp"
+            output = Path(directory) / "github-output"
+            qml.write_text(QML, encoding="utf-8")
+            catalog.write_text(
+                PROFILE + "\n#define FIT_GARMIN_PRODUCT_FENIX_TEST "
+                "((FIT_GARMIN_PRODUCT)60000)\n",
+                encoding="utf-8",
+            )
+            argv = [
+                "update_garmin_fit_devices.py", "--qml", str(qml),
+                "--catalog", str(catalog), "--github-output", str(output),
+            ]
+            with mock.patch.object(sys, "argv", argv):
+                self.assertEqual(updater.main(), 0)
+            self.assertEqual(output.read_text(encoding="utf-8"), "changed=true\n")
+            with mock.patch.object(sys, "argv", argv):
+                self.assertEqual(updater.main(), 0)
+            self.assertTrue(output.read_text(encoding="utf-8").endswith("changed=false\n"))
+
+    def test_supported_families_include_current_garmin_watch_lines(self):
+        expected = {
+            "APPROACH_S70", "DESCENT_MK3", "ENDURO3", "INSTINCT3_SOLAR_50MM",
+            "LILY2", "MARQ_GEN2", "SWIM2", "TACTIX8_AMOLED", "VIVOMOVE_TREND",
+        }
+        self.assertTrue(all(updater.eligible(macro) for macro in expected))
+
+    def test_non_watch_products_remain_excluded(self):
+        excluded = {
+            "DESCENT_T1", "DESCENT_T2", "HRM_PRO_PLUS", "INDEX_SMART_SCALE_2", "TACX_NEO2_T_SMART",
+            "VARIA_RCT715", "VIRB_360", "GPSMAP66I", "CONNECTIQ_SIMULATOR",
+        }
+        self.assertTrue(all(not updater.eligible(macro) for macro in excluded))
+
+
+if __name__ == "__main__":
+    unittest.main()
