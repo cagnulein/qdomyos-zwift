@@ -39,7 +39,12 @@ class MainController: WKInterfaceController {
     }
     
     @IBAction func changeSport(_ value: Int) {
-        self.sport = value
+        if MainController.start {
+            cmbSports.setSelectedItemIndex(sport)
+            return
+        }
+
+        sport = value
         UserDefaults.standard.set(value, forKey: "sport")
         UserDefaults.standard.synchronize()
     }
