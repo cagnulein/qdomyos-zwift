@@ -4451,6 +4451,7 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
+					"-Wl,-force_load,/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
 					"-Wl,-rpath,@executable_path/Frameworks",
 					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
 					"-framework",
@@ -4608,6 +4609,7 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
+					"-Wl,-force_load,/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
 					"-Wl,-rpath,@executable_path/Frameworks",
 					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
 					"-framework",
@@ -4801,6 +4803,7 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
+					"-Wl,-force_load,/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
 					"-Wl,-rpath,@executable_path/Frameworks",
 					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
 					"-framework",
@@ -5006,6 +5009,7 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
+					"-Wl,-force_load,/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
 					"-Wl,-rpath,@executable_path/Frameworks",
 					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
 					"-framework",
