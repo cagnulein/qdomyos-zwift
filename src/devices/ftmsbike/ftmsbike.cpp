@@ -189,6 +189,13 @@ void ftmsbike::init() {
         // instead of the usual START/RESUME opcode.
         uint8_t usdcStart[] = {FTMS_STOP_PAUSE, 0x01};
         ret = writeCharacteristic(usdcStart, sizeof(usdcStart), "usdc d700 start workaround", false, true);
+    } else if (bluetoothDevice.name().toUpper().startsWith("WLT-BK-")) {
+        // Kinomap starts WLT-BK bikes with REQUEST_CONTROL -> STOP -> START.
+        // The write queue keeps STOP and START separated by the control-point ACK/timeout.
+        uint8_t wltStop[] = {FTMS_STOP_PAUSE, 0x01};
+        ret = writeCharacteristic(wltStop, sizeof(wltStop), "wlt-bk stop before start", false, true);
+        uint8_t wltStart[] = {FTMS_START_RESUME};
+        ret = writeCharacteristic(wltStart, sizeof(wltStart), "wlt-bk start after stop", false, true);
     } else {
         write[0] = {FTMS_START_RESUME};
         ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
@@ -310,6 +317,20 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         lastDomyosRequestedResistance = requestResistance;
     }
     enableManualResistancePowerAdjustment(requestResistance);
+
+    if (bluetoothDevice.name().toUpper().startsWith("WLT-BK-")) {
+        // WLT-BK-5310 reports Supported Resistance Level Range 1..24 (step 1),
+        // while Kinomap writes FTMS target resistance as a one-byte value in 0.1 units.
+        if (requestResistance < 1)
+            requestResistance = 1;
+        if (requestResistance > 24)
+            requestResistance = 24;
+        uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL,
+                           (uint8_t)(((uint16_t)requestResistance) * 10)};
+        writeCharacteristic(write, sizeof(write),
+                            QStringLiteral("forceResistance WLT-BK ") + QString::number(requestResistance));
+        return;
+    }
 
     if (MOK_FITNESS) {
         // The MOK Fitness S10 Ultra NAKs the FTMS control point (0x2AD9) for resistance changes.
