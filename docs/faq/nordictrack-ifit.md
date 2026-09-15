@@ -110,4 +110,6 @@ If iFIT is running at the same time, it may keep control of the USB hardware and
 
 QZ Companion is not required with either of these direct-console methods. QZ itself runs on the NordicTrack / ProForm Android console and communicates with the exercise machine using either gRPC through iFIT or direct FitPro USB-HID access.
 
+If QZ Companion was previously installed, **removing it is recommended but not strictly required**. The direct-console QZ builds do not use it anymore, so keeping it installed provides no benefit. Uninstalling it also keeps the setup simpler and avoids accidentally starting an obsolete bridge that is no longer needed.
+
 You may still use another device for Zwift, Rouvy, or another training application, depending on your setup.
