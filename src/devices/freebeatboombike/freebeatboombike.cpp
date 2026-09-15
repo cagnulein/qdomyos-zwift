@@ -101,7 +101,6 @@ void freebeatboombike::writeCharacteristic(const QByteArray &data, const QString
 }
 
 void freebeatboombike::btinit() {
-    writeCharacteristic(streamCommand(true), QStringLiteral("enable data stream"));
     initDone = true;
 }
 
@@ -180,6 +179,10 @@ void freebeatboombike::update() {
     if (m_control->state() != QLowEnergyController::DiscoveredState || !initDone) {
         return;
     }
+
+    // The official Boom Bike app polls with MACHINE_QUERY every ~150 ms;
+    // enabling the repeat-stream command alone only returns a status frame.
+    writeCharacteristic(queryCommand(), QStringLiteral("query telemetry"));
 
     QSettings settings;
     const QString heartRateBeltName =
