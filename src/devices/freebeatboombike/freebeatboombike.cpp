@@ -49,7 +49,8 @@ bool freebeatboombike::parseTelemetry(const QByteArray &packet, Telemetry *telem
     telemetry->resistance = static_cast<uint8_t>(packet.at(7));
     telemetry->rpm = static_cast<uint16_t>(static_cast<uint8_t>(packet.at(8))) |
                      (static_cast<uint16_t>(static_cast<uint8_t>(packet.at(9))) << 8);
-    telemetry->speed = telemetry->rpm * M_PI * wheelDiameter * 2.0 * wheelMultiplier / 60.0;
+    // The APK computes metres per second; QZ stores/display speed in km/h.
+    telemetry->speed = telemetry->rpm * M_PI * wheelDiameter * 2.0 * wheelMultiplier * 3.6 / 60.0;
     return true;
 }
 
