@@ -39,11 +39,6 @@ class MainController: WKInterfaceController {
     }
     
     @IBAction func changeSport(_ value: Int) {
-        if MainController.start {
-            cmbSports.setSelectedItemIndex(sport)
-            return
-        }
-
         sport = value
         UserDefaults.standard.set(value, forKey: "sport")
         UserDefaults.standard.synchronize()
@@ -83,6 +78,7 @@ extension MainController {
                 MainController.start = true
                 self.startButton.setTitle("Stop")
                 self.cmbSports.setEnabled(false)
+                self.cmbSports.setHidden(true)
                 WorkoutTracking.authorizeHealthKit()
                 WorkoutTracking.shared.setSport(selectedSport)
                 WorkoutTracking.shared.startWorkOut()
@@ -98,6 +94,7 @@ extension MainController {
             MainController.start = false
             startButton.setTitle("Start")
             cmbSports.setEnabled(true)
+            cmbSports.setHidden(false)
             WorkoutTracking.shared.stopWorkOut()
         }
     }
