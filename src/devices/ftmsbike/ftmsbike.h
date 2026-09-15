@@ -234,6 +234,7 @@ class ftmsbike : public bike {
     QQueue<WriteRequest> writeQueue;
     bool isWriting = false;
     bool currentWriteWaitingForResponse = false;
+    QByteArray currentWriteExpectedResponse;
     QLowEnergyService *currentWriteService = nullptr;
     QTimer *writeTimeoutTimer = nullptr;
 
