@@ -13,8 +13,8 @@ jobs:
         with:
           ref: wlt-bk-ftms-start-workaround
       - name: Patch WLT-BK handling
-        shell: python
         run: |
+          python3 - <<'PY'
           from pathlib import Path
 
           h = Path('src/devices/ftmsbike/ftmsbike.h')
@@ -27,7 +27,9 @@ jobs:
           cpp = Path('src/devices/ftmsbike/ftmsbike.cpp')
           s = cpp.read_text()
 
-          s = s.replace('} else if (bluetoothDevice.name().toUpper().startsWith("WLT-BK-")) {', '} else if (WLT_BK) {', 1)
+          old = '} else if (bluetoothDevice.name().toUpper().startsWith("WLT-BK-")) {'
+          assert old in s
+          s = s.replace(old, '} else if (WLT_BK) {', 1)
 
           special = '''\n    if (bluetoothDevice.name().toUpper().startsWith("WLT-BK-")) {\n        // WLT-BK-5310 reports Supported Resistance Level Range 1..24 (step 1),\n        // while Kinomap writes FTMS target resistance as a one-byte value in 0.1 units.\n        if (requestResistance < 1)\n            requestResistance = 1;\n        if (requestResistance > 24)\n            requestResistance = 24;\n        uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL,\n                           (uint8_t)(((uint16_t)requestResistance) * 10)};\n        writeCharacteristic(write, sizeof(write),\n                            QStringLiteral("forceResistance WLT-BK ") + QString::number(requestResistance));\n        return;\n    }\n'''
           assert special in s
@@ -59,6 +61,7 @@ jobs:
           s = s.replace(old, new, 1)
 
           cpp.write_text(s)
+          PY
       - name: Commit cleanup
         run: |
           rm .github/workflows/patch-wlt-cleanup.yml
