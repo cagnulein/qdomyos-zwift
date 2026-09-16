@@ -6,6 +6,7 @@
  */
 
 #include "daumbike.h"
+#include "homeform.h"
 #include "keepawakehelper.h"
 
 #include <QSettings>
@@ -141,8 +142,21 @@ void daumbike::update() {
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     int status;
+    uint8_t gear;
     double power, heartRate, cadence, speed, distance;
-    myDaum->getTelemetry(power, heartRate, cadence, speed, distance, status);
+    myDaum->getTelemetry(power, heartRate, cadence, speed, distance, gear, status);
+
+    // In Program 0 the cockpit reports the physical gear even though Set_Gang
+    // is not guaranteed to control it. Keep QZ's displayed gear in sync with
+    // that observed value without issuing a compensating command.
+    if (gear >= 1 && gear <= 28 && m_gears != static_cast<double>(gear)) {
+        m_gears = gear;
+        if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool())
+            settings.setValue(QZSettings::gears_current_value, m_gears);
+        if (homeform::singleton())
+            homeform::singleton()->updateGearsValue();
+        emit debug(QStringLiteral("Current Gear: ") + QString::number(m_gears));
+    }
 
     Speed = speed;
     Distance = distance / 1000.0;

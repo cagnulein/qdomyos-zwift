@@ -60,25 +60,34 @@ int DaumUSB::pause() {
 int DaumUSB::stop() {
     pvars.lock();
     deviceStatus = 0;
+    writePower = false;
     pvars.unlock();
     return 0;
 }
 
 void DaumUSB::setPower(double power) {
+    const int step = powerStep(power);
     pvars.lock();
+    // Daum accepts one Set_Watt command per target. Re-sending the same
+    // target every 200 ms makes the cockpit overwrite manual jog-dial input.
+    if ((writePower && powerStep(targetPower) == step) || lastPowerStep == step) {
+        pvars.unlock();
+        return;
+    }
     targetPower = power;
     writePower = true;
     pvars.unlock();
 }
 
 void DaumUSB::getTelemetry(double &power, double &heartRate, double &cadence, double &speed,
-                           double &distance, int &status) {
+                           double &distance, uint8_t &gear, int &status) {
     pvars.lock();
     power = devicePower;
     heartRate = deviceHeartRate;
     cadence = deviceCadence;
     speed = deviceSpeed;
     distance = deviceDistance;
+    gear = deviceGear;
     status = deviceStatus;
     pvars.unlock();
 }
@@ -88,6 +97,15 @@ bool DaumUSB::connected() {
     bool result = (deviceStatus & DAUM_RUNNING) && !(deviceStatus & DAUM_PAUSED);
     pvars.unlock();
     return result;
+}
+
+int DaumUSB::powerStep(double power) {
+    int step = static_cast<int>((power + 2.5) / 5.0);
+    if (step < 5)
+        step = 5;
+    if (step > 160)
+        step = 160;
+    return step;
 }
 
 QByteArray DaumUSB::readResponse(int expectedLength, unsigned long timeoutMs) {
@@ -130,11 +148,7 @@ bool DaumUSB::writePowerTarget(double power) {
     // Set_Watt stores the target in 5 W units. Classic cockpits accept either
     // 25..400 W or 50..800 W depending on model. The 8008 TRS_3 supports the
     // upper range, so keep the protocol byte inside its documented 5..160 range.
-    int step = static_cast<int>((power + 2.5) / 5.0);
-    if (step < 5)
-        step = 5;
-    if (step > 160)
-        step = 160;
+    const int step = powerStep(power);
 
     char request[3] = {
         static_cast<char>(0x51),
@@ -156,6 +170,11 @@ bool DaumUSB::writePowerTarget(double power) {
 
     if (!acknowledged)
         qDebug() << "Daum Set_Watt acknowledgement missing:" << response.toHex(' ');
+    else {
+        pvars.lock();
+        lastPowerStep = step;
+        pvars.unlock();
+    }
 
     QThread::msleep(60);
     return acknowledged;
@@ -192,11 +211,14 @@ bool DaumUSB::pollTelemetry() {
     const uint8_t gear = static_cast<uint8_t>(response.at(start + 16));
 
     pvars.lock();
-    devicePower = static_cast<double>(powerInFiveWatts) * 5.0;
+    // The cockpit always reports its minimum 25 W step while stopped. Do not
+    // expose that idle value as actual effort to FTMS applications.
+    devicePower = cadence == 0 ? 0.0 : static_cast<double>(powerInFiveWatts) * 5.0;
     deviceHeartRate = heartRate;
     deviceCadence = cadence;
     deviceSpeed = speed;
     deviceDistance = static_cast<double>(distanceInHundredMeters) * 100.0;
+    deviceGear = gear;
     pvars.unlock();
 
     qDebug() << "Daum status HR" << deviceHeartRate
@@ -212,6 +234,9 @@ void DaumUSB::run() {
     pvars.lock();
     deviceStatus = DAUM_RUNNING;
     devicePower = deviceHeartRate = deviceCadence = deviceSpeed = deviceDistance = 0.0;
+    deviceGear = 1;
+    writePower = false;
+    lastPowerStep = -1;
     pvars.unlock();
 
     if (openPort() != 0) {

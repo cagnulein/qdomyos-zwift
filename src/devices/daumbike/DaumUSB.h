@@ -47,7 +47,7 @@ class DaumUSB : public QThread {
 
     void setPower(double power);
     void getTelemetry(double &power, double &heartRate, double &cadence, double &speed,
-                      double &distance, int &status);
+                      double &distance, uint8_t &gear, int &status);
     bool connected();
 
   private:
@@ -62,6 +62,7 @@ class DaumUSB : public QThread {
     bool detectCockpit();
     bool pollTelemetry();
     bool writePowerTarget(double power);
+    static int powerStep(double power);
 
     QMutex pvars;
     volatile double devicePower = 0.0;
@@ -69,10 +70,12 @@ class DaumUSB : public QThread {
     volatile double deviceCadence = 0.0;
     volatile double deviceSpeed = 0.0;
     volatile double deviceDistance = 0.0;
+    volatile uint8_t deviceGear = 1;
     volatile int deviceStatus = 0;
 
     volatile double targetPower = 100.0;
     volatile bool writePower = false;
+    volatile int lastPowerStep = -1;
 
     QString deviceFilename;
     int baudrate = 9600;
