@@ -1,0 +1,69 @@
+name: Apply WLT-BK cleanup
+on:
+  push:
+    branches: [wlt-bk-ftms-start-workaround]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.event.head_commit.message == 'chore: apply WLT-BK cleanup'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wlt-bk-ftms-start-workaround
+      - name: Patch WLT-BK handling
+        shell: python
+        run: |
+          from pathlib import Path
+
+          h = Path('src/devices/ftmsbike/ftmsbike.h')
+          s = h.read_text()
+          old = '    bool USDC_D700 = false;\n    bool TOPUTURE_TEB5 = false;'
+          new = '    bool USDC_D700 = false;\n    bool WLT_BK = false;\n    bool TOPUTURE_TEB5 = false;'
+          assert old in s
+          h.write_text(s.replace(old, new, 1))
+
+          cpp = Path('src/devices/ftmsbike/ftmsbike.cpp')
+          s = cpp.read_text()
+
+          s = s.replace('} else if (bluetoothDevice.name().toUpper().startsWith("WLT-BK-")) {', '} else if (WLT_BK) {', 1)
+
+          special = '''\n    if (bluetoothDevice.name().toUpper().startsWith("WLT-BK-")) {\n        // WLT-BK-5310 reports Supported Resistance Level Range 1..24 (step 1),\n        // while Kinomap writes FTMS target resistance as a one-byte value in 0.1 units.\n        if (requestResistance < 1)\n            requestResistance = 1;\n        if (requestResistance > 24)\n            requestResistance = 24;\n        uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL,\n                           (uint8_t)(((uint16_t)requestResistance) * 10)};\n        writeCharacteristic(write, sizeof(write),\n                            QStringLiteral("forceResistance WLT-BK ") + QString::number(requestResistance));\n        return;\n    }\n'''
+          assert special in s
+          s = s.replace(special, '\n', 1)
+
+          old = '        resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false) {'
+          new = '        resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false && WLT_BK == false) {'
+          assert old in s
+          s = s.replace(old, new, 1)
+
+          old = '            if(_3G_Cardio_RB || SL010 || MRK_S36C)\n                requestResistance = requestResistance * 10;'
+          new = '            if(_3G_Cardio_RB || SL010 || MRK_S36C || WLT_BK)\n                requestResistance = requestResistance * 10;'
+          assert old in s
+          s = s.replace(old, new, 1)
+
+          old = 'settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700) {'
+          new = 'settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700 || WLT_BK) {'
+          assert old in s
+          s = s.replace(old, new, 1)
+
+          old = '(settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_290R || SMB1 || FIT_BK)) {'
+          new = '(settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_290R || SMB1 || FIT_BK || WLT_BK)) {'
+          assert old in s
+          s = s.replace(old, new, 1)
+
+          old = '''        } else if (device.name().toUpper().startsWith("USDC-D700-")) {\n            qDebug() << QStringLiteral("USDC-D700 found");\n            USDC_D700 = true;\n            resistance_lvl_mode = true;\n        } else if (device.name().toUpper().startsWith("ICONSOLE+")) {'''
+          new = '''        } else if (device.name().toUpper().startsWith("USDC-D700-")) {\n            qDebug() << QStringLiteral("USDC-D700 found");\n            USDC_D700 = true;\n            resistance_lvl_mode = true;\n        } else if (device.name().toUpper().startsWith("WLT-BK-")) {\n            qDebug() << QStringLiteral("WLT-BK found");\n            WLT_BK = true;\n            max_resistance = 24;\n        } else if (device.name().toUpper().startsWith("ICONSOLE+")) {'''
+          assert old in s
+          s = s.replace(old, new, 1)
+
+          cpp.write_text(s)
+      - name: Commit cleanup
+        run: |
+          rm .github/workflows/patch-wlt-cleanup.yml
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add src/devices/ftmsbike/ftmsbike.cpp src/devices/ftmsbike/ftmsbike.h .github/workflows/patch-wlt-cleanup.yml
+          git commit -m "Refine WLT-BK FTMS handling"
+          git push
