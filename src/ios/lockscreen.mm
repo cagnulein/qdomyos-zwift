@@ -339,12 +339,13 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
 void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt,
                                        unsigned short currentCalories, unsigned long long currentSteps,
                                        unsigned char deviceType, double currentDistance, double totalKcal,
-                                       bool useMiles, unsigned char heartRate, int liveActivityHeartRate,
+                                       double elevationGain, bool useMiles, unsigned char heartRate, int liveActivityHeartRate,
                                        const char *compactLeadingMetric, int compactLeadingValue, const char *compactTrailingMetric,
                                        int compactTrailingValue) {
     const double healthCadence = (deviceType == BIKE) ? cadence : cadence * 2.0;
+    qDebug() << "Apple Health workout elevation gain:" << elevationGain;
     if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:watt cadence:healthCadence speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:0 heartRate:heartRate];
+        [workoutTracking addMetricsWithPower:watt cadence:healthCadence speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:elevationGain heartRate:heartRate];
 
     // Start Live Activity on first update, then keep updating
     if (!ios_liveactivity::isLiveActivityRunning()) {
