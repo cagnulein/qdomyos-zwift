@@ -17,6 +17,11 @@ Build the plugin with `tools/build_qios_uiscene.sh`. Set `BUILD_CONFIG=debug`
 to create the debug variant. The script defaults to the local Qt 5.15.2 iOS
 installation and the patched source directory used during development.
 
+The resulting QPA archives are also versioned under `binary/` as
+`libqios.a` and `libqios_debug.a`. Xcode Cloud normally gets the release
+`libqios.a` from the Qt iOS27 package; keeping both archives here makes the
+patch directory self-contained for local Debug and Release builds.
+
 The QtBluetooth backend also contains a small Xcode 27 compatibility guard in
 `qtconnectivity/src/bluetooth/osx/osxbtcentralmanager.mm`: CoreBluetooth can
 deliver a duplicate connection request while the manager is busy, which was a
