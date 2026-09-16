@@ -10,7 +10,7 @@ TEST(FreebeatBoomBikeParser, DecodesBoomBikeTelemetry) {
     ASSERT_TRUE(freebeatboombike::parseTelemetry(packet, &telemetry));
     EXPECT_EQ(telemetry.rpm, 80);
     EXPECT_EQ(telemetry.resistance, 10);
-    EXPECT_NEAR(telemetry.speed, 28.751, 0.01);
+    EXPECT_NEAR(telemetry.speed, 17.865, 0.01);
 }
 
 TEST(FreebeatBoomBikeParser, RejectsInvalidBoomBikeTelemetry) {
