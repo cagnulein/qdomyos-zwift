@@ -60,6 +60,7 @@ class DaumUSB : public QThread {
     QByteArray readResponse(int expectedLength, unsigned long timeoutMs);
 
     bool detectCockpit();
+    bool initializeGearAdjustment();
     bool pollTelemetry();
     bool writePowerTarget(double power);
     static int powerStep(double power);

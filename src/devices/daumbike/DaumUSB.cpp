@@ -144,6 +144,38 @@ bool DaumUSB::detectCockpit() {
     return false;
 }
 
+bool DaumUSB::initializeGearAdjustment() {
+    // Ergo48 sends Set_Gang 14 once after starting its smart workout. The
+    // following Run_Daten responses then contain the physical jog-dial gear
+    // changes. This is an initialization command, not a per-change command.
+    constexpr uint8_t initialGear = 14;
+    const char request[3] = {
+        static_cast<char>(0x53),
+        static_cast<char>(cockpitAddress),
+        static_cast<char>(initialGear)
+    };
+    rawWrite(request, sizeof(request));
+
+    const QByteArray response = readResponse(3, 1200);
+    bool acknowledged = false;
+    for (int i = 0; i + 2 < response.size(); ++i) {
+        if (static_cast<uint8_t>(response.at(i)) == 0x53 &&
+            static_cast<uint8_t>(response.at(i + 1)) == cockpitAddress &&
+            static_cast<uint8_t>(response.at(i + 2)) == initialGear) {
+            acknowledged = true;
+            break;
+        }
+    }
+
+    if (acknowledged)
+        qDebug() << "Daum gear adjustment initialized at gear" << initialGear;
+    else
+        qDebug() << "Daum Set_Gang acknowledgement missing:" << response.toHex(' ');
+
+    QThread::msleep(60);
+    return acknowledged;
+}
+
 bool DaumUSB::writePowerTarget(double power) {
     // Set_Watt stores the target in 5 W units. Classic cockpits accept either
     // 25..400 W or 50..800 W depending on model. The 8008 TRS_3 supports the
@@ -251,6 +283,11 @@ void DaumUSB::run() {
         stop();
         return;
     }
+
+    // This arms the same gear-adjustment mode used by Ergo48. The physical
+    // gear changes themselves are reported by Run_Daten and are not written
+    // back by QZ.
+    initializeGearAdjustment();
 
     while (true) {
         pvars.lock();
