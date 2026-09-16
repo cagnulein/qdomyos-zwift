@@ -189,6 +189,13 @@ void ftmsbike::init() {
         // instead of the usual START/RESUME opcode.
         uint8_t usdcStart[] = {FTMS_STOP_PAUSE, 0x01};
         ret = writeCharacteristic(usdcStart, sizeof(usdcStart), "usdc d700 start workaround", false, true);
+    } else if (WLT_BK) {
+        // Kinomap starts WLT-BK bikes with REQUEST_CONTROL -> STOP -> START.
+        // The write queue keeps STOP and START separated by the control-point ACK/timeout.
+        uint8_t wltStop[] = {FTMS_STOP_PAUSE, 0x01};
+        ret = writeCharacteristic(wltStop, sizeof(wltStop), "wlt-bk stop before start", false, true);
+        uint8_t wltStart[] = {FTMS_START_RESUME};
+        ret = writeCharacteristic(wltStart, sizeof(wltStart), "wlt-bk start after stop", false, true);
     } else {
         write[0] = {FTMS_START_RESUME};
         ret = writeCharacteristic(write, sizeof(write), "start simulation", false, true);
@@ -311,6 +318,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
     }
     enableManualResistancePowerAdjustment(requestResistance);
 
+
     if (MOK_FITNESS) {
         // The MOK Fitness S10 Ultra NAKs the FTMS control point (0x2AD9) for resistance changes.
         // Its own app changes resistance with a single write to 0xFFF2: AF 05 04 <level> AA.
@@ -339,7 +347,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
     bool ergModeNotSupported = (requestPower > 0 && !ergModeSupported);
     if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
-        resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false) {
+        resistance_lvl_mode == false && _3G_Cardio_RB == false && JFBK5_0 == false && WLT_BK == false) {
 
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x19};
 
@@ -386,7 +394,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         } else {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-            if(_3G_Cardio_RB || SL010 || MRK_S36C)
+            if(_3G_Cardio_RB || SL010 || MRK_S36C || WLT_BK)
                 requestResistance = requestResistance * 10;
             write[1] = ((uint8_t)(requestResistance));
             writeCharacteristic(write, sizeof(write),
@@ -1718,7 +1726,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
             }
             
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700) {
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700 || WLT_BK) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
@@ -1808,7 +1816,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
-        (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_290R || SMB1 || FIT_BK)) {
+        (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_290R || SMB1 || FIT_BK || WLT_BK)) {
         init();
     }
 
@@ -2284,6 +2292,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("USDC-D700 found");
             USDC_D700 = true;
             resistance_lvl_mode = true;
+        } else if (device.name().toUpper().startsWith("WLT-BK-")) {
+            qDebug() << QStringLiteral("WLT-BK found");
+            WLT_BK = true;
+            max_resistance = 24;
         } else if (device.name().toUpper().startsWith("ICONSOLE+")) {
             qDebug() << QStringLiteral("iConsole+ found as FTMS bike - ERG not supported");
             resistance_lvl_mode = true;
