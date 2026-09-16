@@ -50,6 +50,19 @@ The `power_sensor_as_bike` option is part of QZ's current device-discovery confi
 
 In a confirmed support case, QZ could see the physical trainer/power source but was not exposing the expected bike data path until **Power Sensor as a Bike** was enabled; after enabling it, the setup began working.
 
+## Can I use an Apple Watch for treadmill cadence while taking heart rate from a chest strap?
+
+Yes. QZ can receive cadence from the QZ Apple Watch app while the watch supplies heart rate from a Bluetooth chest strap paired directly to the Apple Watch.
+
+For example, with a smart treadmill, Apple Watch, and a Bluetooth heart-rate strap:
+
+1. Pair the heart-rate strap with the **Apple Watch** in the watch Bluetooth settings.
+2. Run the QZ app on the iPhone and the QZ companion app on the Apple Watch during the workout.
+3. The Apple Watch can provide treadmill cadence to QZ, while the heart-rate value used by the watch comes from the paired external strap.
+4. QZ can then record the treadmill metrics together with the cadence and heart-rate data.
+
+You do not need to pair the chest strap separately to QZ for this setup. QZ's current treadmill code includes Apple Watch cadence handling, and its external heart-rate path explicitly supports Apple Watch heart-rate data.
+
 ## Can I use Zwift Ride virtual gears with Kinomap through QZ?
 
 Yes. QZ can use the Zwift Ride controllers for shifting while Kinomap connects to QZ as the virtual trainer.
