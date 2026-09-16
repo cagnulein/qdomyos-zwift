@@ -424,7 +424,7 @@ diff --git a/src/plugins/platforms/ios/qiosviewcontroller.mm b/src/plugins/platf
 diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios/qioswindow.mm
 --- a/src/plugins/platforms/ios/qioswindow.mm
 +++ b/src/plugins/platforms/ios/qioswindow.mm
-@@ -265,15 +265,24 @@
+@@ -265,15 +265,35 @@
          // in applyGeometry(), as we don't want to artificially limit window
          // placement "outside" of the screen bounds if that's what the user wants.
  
@@ -441,6 +441,17 @@ diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios
 +            QRect fullscreenGeometry = screen()->geometry();
 +            QRect maximizedGeometry = screen()->availableGeometry();
 +            if (m_view.window) {
++                UIScreen *uiScreen = m_view.window.windowScene.screen;
++                UIEdgeInsets safeAreaInsets = m_view.window.safeAreaInsets;
++                if (uiScreen) {
++                    if (m_view.window.bounds.size.width == uiScreen.bounds.size.width)
++                        maximizedGeometry.adjust(safeAreaInsets.left, 0,
++                            -safeAreaInsets.right, 0);
++                    if (m_view.window.bounds.size.height == uiScreen.bounds.size.height)
++                        maximizedGeometry.adjust(0, safeAreaInsets.top,
++                            0, -safeAreaInsets.bottom);
++                }
++
 +                fullscreenGeometry = fullscreenGeometry.intersected(uiWindowBounds);
 +                maximizedGeometry = maximizedGeometry.intersected(uiWindowBounds);
 +            }
