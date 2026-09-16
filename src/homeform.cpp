@@ -5350,7 +5350,10 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains(QStringLiteral("target_resistance"))) {
         if (bluetoothManager->device()) {
 
-            if (bluetoothManager->device()->deviceType() == BIKE ||
+            if (bluetoothManager->device()->deviceType() == BIKE && trainProgram &&
+                trainProgram->adjustResistanceOffsetForTrainingProgram(resistanceOffsetJog)) {
+                ((bike *)bluetoothManager->device())->changeResistance(trainProgram->currentRow().resistance);
+            } else if (bluetoothManager->device()->deviceType() == BIKE ||
                 bluetoothManager->device()->deviceType() == ELLIPTICAL ||
                 bluetoothManager->device()->deviceType() == ROWING) {
 
@@ -5655,7 +5658,10 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("target_resistance"))) {
         if (bluetoothManager->device()) {
 
-            if (bluetoothManager->device()->deviceType() == BIKE ||
+            if (bluetoothManager->device()->deviceType() == BIKE && trainProgram &&
+                trainProgram->adjustResistanceOffsetForTrainingProgram(-resistanceOffsetJog)) {
+                ((bike *)bluetoothManager->device())->changeResistance(trainProgram->currentRow().resistance);
+            } else if (bluetoothManager->device()->deviceType() == BIKE ||
                 bluetoothManager->device()->deviceType() == ELLIPTICAL ||
                 bluetoothManager->device()->deviceType() == ROWING) {
 
@@ -6933,15 +6939,23 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((bike *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
-            this->target_resistance->setSecondLine(
-                QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
-                QString::number(
-                    bluetoothManager->device()->difficult() *
-                        settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
-                            .toDouble() +
-                        settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
-                            .toDouble(),
-                    'f', 0));
+            if (trainProgram && trainProgram->isStarted() && trainProgram->resistanceOffsetForTrainingProgram() != 0) {
+                this->target_resistance->setSecondLine(
+                    QStringLiteral("%1%2")
+                        .arg(trainProgram->resistanceOffsetForTrainingProgram() > 0 ? QStringLiteral("+")
+                                                                                    : QStringLiteral(""))
+                        .arg(trainProgram->resistanceOffsetForTrainingProgram()));
+            } else {
+                this->target_resistance->setSecondLine(
+                    QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
+                    QString::number(
+                        bluetoothManager->device()->difficult() *
+                            settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                                .toDouble() +
+                            settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                                .toDouble(),
+                        'f', 0));
+            }
 
             this->steeringAngle->setValue(
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
