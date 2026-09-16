@@ -7,13 +7,11 @@ object V2Codec {
 
     private const val COMM_TYPE: Byte = 0x02
 
-    // Outgoing command types (V2Command)
     private const val CMD_SUBSCRIBE: Int = 0x01
     private const val CMD_WRITE: Int = 0x02
     private const val CMD_SUPPORTED_FEATURES: Int = 0x06
     private const val CMD_UNSUBSCRIBE: Int = 0x07
 
-    // Incoming response types (V2ResponseType) — different numbering from commands
     private const val RSP_FEATURES: Int = 0x01
     private const val RSP_ACKNOWLEDGE: Int = 0x03
     private const val RSP_ERROR: Int = 0x04
@@ -54,7 +52,10 @@ object V2Codec {
         return when (type) {
             RSP_FEATURES -> decodeSupportedFeatures(payload)
             RSP_ACKNOWLEDGE -> V2Message.Incoming.Acknowledge(sourceAndType)
-            RSP_ERROR -> V2Message.Incoming.Error(if (payload.isNotEmpty()) payload[0].toInt() and 0xFF else 0)
+            RSP_ERROR -> V2Message.Incoming.Error(
+                command = if (payload.isNotEmpty()) payload[0].toInt() and 0xFF else 0,
+                code = if (payload.size > 1) payload[1].toInt() and 0xFF else 0,
+            )
             RSP_EVENT -> decodeEvent(payload)
             else -> V2Message.Incoming.Unknown(data.copyOf())
         }
@@ -97,11 +98,17 @@ object V2Codec {
 
     private fun decodeSupportedFeatures(payload: ByteArray): V2Message.Incoming {
         val features = mutableListOf<V2FeatureId>()
+        val unknownCodes = mutableListOf<Int>()
         var i = 0
         while (i + 1 < payload.size) {
-            V2FeatureId.fromWireBytes(payload[i], payload[i + 1])?.let { features.add(it) }
+            val feature = V2FeatureId.fromWireBytes(payload[i], payload[i + 1])
+            if (feature != null) {
+                features.add(feature)
+            } else {
+                unknownCodes.add((payload[i].toInt() and 0xFF) or ((payload[i + 1].toInt() and 0xFF) shl 8))
+            }
             i += 2
         }
-        return V2Message.Incoming.SupportedFeatures(features)
+        return V2Message.Incoming.SupportedFeatures(features, unknownCodes)
     }
 }
