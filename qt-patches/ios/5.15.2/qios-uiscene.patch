@@ -1,0 +1,497 @@
+# Qt 5.15.2 iOS UIScene backport for Xcode 27
+# Based on Qt's upstream iOS scene lifecycle change (qtbase commit 76ebf51bc08f6af624a8540e7af88b9129b22ae1).
+# Apply from the qtbase source root with: git apply -p1 qios-uiscene.patch
+
+diff --git a/src/plugins/platforms/ios/qiosapplicationdelegate.mm b/src/plugins/platforms/ios/qiosapplicationdelegate.mm
+--- a/src/plugins/platforms/ios/qiosapplicationdelegate.mm
++++ b/src/plugins/platforms/ios/qiosapplicationdelegate.mm
+@@ -39,17 +39,99 @@
+ 
+ #include "qiosapplicationdelegate.h"
+ 
++#include "qiosglobal.h"
+ #include "qiosintegration.h"
+ #include "qiosservices.h"
+ #include "qiosviewcontroller.h"
+ #include "qioswindow.h"
++#include "qiosscreen.h"
+ 
+ #include <qpa/qplatformintegration.h>
+ 
+ #include <QtCore/QtCore>
+ 
++@interface QIOSWindowSceneDelegate : NSObject<UIWindowSceneDelegate>
++@property (nonatomic, retain) QUIWindow *window;
++- (void)configureWindowForScene:(UIWindowScene *)windowScene;
++@end
++
+ @implementation QIOSApplicationDelegate
+ 
++- (UISceneConfiguration *)application:(UIApplication *)application
++                          configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession
++                          options:(UISceneConnectionOptions *)options
++{
++    Q_UNUSED(application);
++    qCDebug(lcQpaWindowScene) << "Configuring scene for" << connectingSceneSession
++        << "with options" << options;
++
++    UISceneConfiguration *sceneConfig = connectingSceneSession.configuration;
++    sceneConfig.delegateClass = QIOSWindowSceneDelegate.class;
++    return sceneConfig;
++}
++
++@end
++
++@implementation QIOSWindowSceneDelegate
++
++- (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session
++       options:(UISceneConnectionOptions *)connectionOptions
++{
++    Q_UNUSED(session);
++    qCDebug(lcQpaWindowScene) << "Connecting" << scene << "to" << session;
++
++    if (![scene isKindOfClass:[UIWindowScene class]])
++        return;
++
++    UIWindowScene *windowScene = static_cast<UIWindowScene *>(scene);
++    self.window = [[[QUIWindow alloc] initWithWindowScene:windowScene] autorelease];
++    [self configureWindowForScene:windowScene];
++
++    if (connectionOptions.URLContexts.count > 0)
++        [self scene:scene openURLContexts:connectionOptions.URLContexts];
++}
++
++- (void)configureWindowForScene:(UIWindowScene *)windowScene
++{
++    if (!qGuiApp)
++        return;
++
++    QIOSScreen *screen = nullptr;
++    for (QScreen *qScreen : qGuiApp->screens()) {
++        QIOSScreen *platformScreen = static_cast<QIOSScreen *>(qScreen->handle());
++        if (platformScreen->uiScreen() == windowScene.screen) {
++            screen = platformScreen;
++            break;
++        }
++    }
++
++    if (!screen) {
++        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 50 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
++            [self configureWindowForScene:windowScene];
++        });
++        return;
++    }
++
++    self.window.rootViewController = [[[QIOSViewController alloc]
++        initWithWindow:self.window andScreen:screen] autorelease];
++}
++
++- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
++{
++    Q_UNUSED(scene);
++    QIOSIntegration *iosIntegration = QIOSIntegration::instance();
++    if (!iosIntegration)
++        return;
++
++    QIOSServices *iosServices = static_cast<QIOSServices *>(iosIntegration->services());
++    for (UIOpenURLContext *urlContext in URLContexts)
++        iosServices->handleUrl(QUrl::fromNSURL(urlContext.URL));
++}
++
++@end
++
++@implementation QIOSApplicationDelegate (URLHandling)
++
+ - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *restorableObjects))restorationHandler
+ {
+     Q_UNUSED(application);
+@@ -87,4 +169,3 @@
+ }
+ 
+ @end
+-
+diff --git a/src/plugins/platforms/ios/qiosglobal.h b/src/plugins/platforms/ios/qiosglobal.h
+--- a/src/plugins/platforms/ios/qiosglobal.h
++++ b/src/plugins/platforms/ios/qiosglobal.h
+@@ -50,6 +50,7 @@
+ Q_DECLARE_LOGGING_CATEGORY(lcQpaApplication);
+ Q_DECLARE_LOGGING_CATEGORY(lcQpaInputMethods);
+ Q_DECLARE_LOGGING_CATEGORY(lcQpaWindow);
++Q_DECLARE_LOGGING_CATEGORY(lcQpaWindowScene);
+ 
+ #if !defined(QT_NO_DEBUG)
+ #define qImDebug \
+@@ -69,6 +70,7 @@
+ #endif
+ 
+ int infoPlistValue(NSString* key, int defaultValue);
++UIView *rootViewForScreen(const QPlatformScreen *screen);
+ 
+ QT_END_NAMESPACE
+ 
+
+
+diff --git a/src/plugins/platforms/ios/qiosglobal.mm b/src/plugins/platforms/ios/qiosglobal.mm
+--- a/src/plugins/platforms/ios/qiosglobal.mm
++++ b/src/plugins/platforms/ios/qiosglobal.mm
+@@ -49,6 +49,7 @@
+ Q_LOGGING_CATEGORY(lcQpaApplication, "qt.qpa.application");
+ Q_LOGGING_CATEGORY(lcQpaInputMethods, "qt.qpa.input.methods");
+ Q_LOGGING_CATEGORY(lcQpaWindow, "qt.qpa.window");
++Q_LOGGING_CATEGORY(lcQpaWindowScene, "qt.qpa.window.scene");
+ 
+ bool isQtApplication()
+ {
+@@ -121,6 +122,37 @@
+     return value ? [value intValue] : defaultValue;
+ }
+ 
++UIView *rootViewForScreen(const QPlatformScreen *screen)
++{
++    Q_ASSERT(screen);
++
++    const auto *iosScreen = static_cast<const QIOSScreen *>(screen);
++    for (UIScene *scene in [qt_apple_sharedApplication().connectedScenes allObjects]) {
++        if (![scene isKindOfClass:UIWindowScene.class])
++            continue;
++
++        UIWindowScene *windowScene = static_cast<UIWindowScene *>(scene);
++        if (windowScene.screen != iosScreen->uiScreen())
++            continue;
++
++        UIWindow *uiWindow = nil;
++        if ([windowScene.keyWindow isKindOfClass:[QUIWindow class]])
++            uiWindow = windowScene.keyWindow;
++        if (!uiWindow) {
++            for (UIWindow *window in windowScene.windows) {
++                if ([window isKindOfClass:[QUIWindow class]]) {
++                    uiWindow = window;
++                    break;
++                }
++            }
++        }
++
++        return uiWindow ? uiWindow.rootViewController.view : nil;
++    }
++
++    return nullptr;
++}
++
+ QT_END_NAMESPACE
+ 
+ // -------------------------------------------------------------------------
+@@ -188,4 +220,3 @@
+ UIResponder *FirstResponderCandidate::s_firstResponderCandidate = 0;
+ 
+ QT_END_NAMESPACE
+-
+
+
+diff --git a/src/plugins/platforms/ios/qiosscreen.h b/src/plugins/platforms/ios/qiosscreen.h
+--- a/src/plugins/platforms/ios/qiosscreen.h
++++ b/src/plugins/platforms/ios/qiosscreen.h
+@@ -88,7 +88,6 @@
+     void deliverUpdateRequests() const;
+ 
+     UIScreen *m_uiScreen;
+-    UIWindow *m_uiWindow;
+     QRect m_geometry;
+     QRect m_availableGeometry;
+     int m_depth;
+
+
+diff --git a/src/plugins/platforms/ios/qiosscreen.mm b/src/plugins/platforms/ios/qiosscreen.mm
+--- a/src/plugins/platforms/ios/qiosscreen.mm
++++ b/src/plugins/platforms/ios/qiosscreen.mm
+@@ -251,7 +251,6 @@
+ QIOSScreen::QIOSScreen(UIScreen *screen)
+     : QPlatformScreen()
+     , m_uiScreen(screen)
+-    , m_uiWindow(0)
+     , m_orientationListener(0)
+ {
+     QString deviceIdentifier = deviceModelIdentifier();
+@@ -284,21 +283,6 @@
+         // External display, hard to say
+         m_depth = 24;
+         m_physicalDpi = 96;
+-    }
+-
+-    if (!qt_apple_isApplicationExtension()) {
+-        for (UIWindow *existingWindow in qt_apple_sharedApplication().windows) {
+-            if (existingWindow.screen == m_uiScreen) {
+-                m_uiWindow = [m_uiWindow retain];
+-                break;
+-            }
+-        }
+-
+-        if (!m_uiWindow) {
+-            // Create a window and associated view-controller that we can use
+-            m_uiWindow = [[QUIWindow alloc] initWithFrame:[m_uiScreen bounds]];
+-            m_uiWindow.rootViewController = [[[QIOSViewController alloc] initWithQIOSScreen:this] autorelease];
+-        }
+     }
+ 
+     updateProperties();
+@@ -313,7 +297,6 @@
+     [m_displayLink invalidate];
+ 
+     [m_orientationListener release];
+-    [m_uiWindow release];
+ }
+ 
+ QString QIOSScreen::name() const
+@@ -333,38 +316,14 @@
+ 
+     m_geometry = QRectF::fromCGRect(m_uiScreen.bounds).toRect();
+ 
+-    // The application frame doesn't take safe area insets into account, and
+-    // the safe area insets are not available before the UIWindow is shown,
+-    // and do not take split-view constraints into account, so we have to
+-    // combine the two to get the correct available geometry.
+-    QRect applicationFrame = QRectF::fromCGRect(m_uiScreen.qt_applicationFrame).toRect();
+-    UIEdgeInsets safeAreaInsets = m_uiWindow.qt_safeAreaInsets;
+-    m_availableGeometry = m_geometry.adjusted(safeAreaInsets.left, safeAreaInsets.top,
+-        -safeAreaInsets.right, -safeAreaInsets.bottom).intersected(applicationFrame);
++    // Safe area margins and the maximized state are handled by QIOSWindow.
++    // The scene-owned UIWindow does not exist yet while QGuiApplication starts.
++    m_availableGeometry = m_geometry;
+ 
+ #ifndef Q_OS_TVOS
+-    if (m_uiScreen == [UIScreen mainScreen]) {
+-        QIOSViewController *qtViewController = [m_uiWindow.rootViewController isKindOfClass:[QIOSViewController class]] ?
+-            static_cast<QIOSViewController *>(m_uiWindow.rootViewController) : nil;
+-
+-        if (qtViewController.lockedOrientation) {
+-            Q_ASSERT(!qt_apple_isApplicationExtension());
+-
+-            // Setting the statusbar orientation (content orientation) on will affect the screen geometry,
+-            // which is not what we want. We want to reflect the screen geometry based on the locked orientation,
+-            // and adjust the available geometry based on the repositioned status bar for the current status
+-            // bar orientation.
+-
+-            Qt::ScreenOrientation statusBarOrientation = toQtScreenOrientation(
+-                UIDeviceOrientation(qt_apple_sharedApplication().statusBarOrientation));
+-
+-            Qt::ScreenOrientation lockedOrientation = toQtScreenOrientation(UIDeviceOrientation(qtViewController.lockedOrientation));
+-            QTransform transform = transformBetween(lockedOrientation, statusBarOrientation, m_geometry).inverted();
+-
+-            m_geometry = transform.mapRect(m_geometry);
+-            m_availableGeometry = transform.mapRect(m_availableGeometry);
+-        }
+-    }
++    // The old implementation queried a UIWindow owned by QIOSScreen here.
++    // With UIScene, orientation is owned by the scene's view controller and
++    // is updated from QIOSViewController instead.
+ #endif
+ 
+     if (m_geometry != previousGeometry) {
+@@ -537,26 +496,30 @@
+     if (window && ![reinterpret_cast<id>(window) isKindOfClass:[UIView class]])
+         return QPixmap();
+ 
+-    UIView *view = window ? reinterpret_cast<UIView *>(window) : m_uiWindow;
++    UIView *view = window ? reinterpret_cast<UIView *>(window) : rootViewForScreen(this);
++    if (!view || !view.window)
++        return QPixmap();
+ 
++    UIWindow *uiWindow = view.window;
++
+     if (width < 0)
+         width = qMax(view.bounds.size.width - x, CGFloat(0));
+     if (height < 0)
+         height = qMax(view.bounds.size.height - y, CGFloat(0));
+ 
+-    CGRect captureRect = [m_uiWindow convertRect:CGRectMake(x, y, width, height) fromView:view];
+-    captureRect = CGRectIntersection(captureRect, m_uiWindow.bounds);
++    CGRect captureRect = [uiWindow convertRect:CGRectMake(x, y, width, height) fromView:view];
++    captureRect = CGRectIntersection(captureRect, uiWindow.bounds);
+ 
+     UIGraphicsBeginImageContextWithOptions(captureRect.size, NO, 0.0);
+     CGContextRef context = UIGraphicsGetCurrentContext();
+     CGContextTranslateCTM(context, -captureRect.origin.x, -captureRect.origin.y);
+ 
+-    // Draws the complete view hierarchy of m_uiWindow into the given rect, which
+-    // needs to be the same aspect ratio as the m_uiWindow's size. Since we've
++    // Draws the complete view hierarchy of the scene UIWindow into the given rect, which
++    // needs to be the same aspect ratio as the UIWindow's size. Since we've
+     // translated the graphics context, and are potentially drawing into a smaller
+     // context than the full window, the resulting image will be a subsection of the
+     // full screen.
+-    [m_uiWindow drawViewHierarchyInRect:m_uiWindow.bounds afterScreenUpdates:NO];
++    [uiWindow drawViewHierarchyInRect:uiWindow.bounds afterScreenUpdates:NO];
+ 
+     UIImage *screenshot = UIGraphicsGetImageFromCurrentImageContext();
+     UIGraphicsEndImageContext();
+@@ -571,7 +534,8 @@
+ 
+ UIWindow *QIOSScreen::uiWindow() const
+ {
+-    return m_uiWindow;
++    UIView *rootView = rootViewForScreen(this);
++    return rootView.window;
+ }
+ 
+ #include "moc_qiosscreen.cpp"
+
+
+diff --git a/src/plugins/platforms/ios/qiosviewcontroller.h b/src/plugins/platforms/ios/qiosviewcontroller.h
+--- a/src/plugins/platforms/ios/qiosviewcontroller.h
++++ b/src/plugins/platforms/ios/qiosviewcontroller.h
+@@ -48,7 +48,7 @@
+ 
+ @interface QIOSViewController : UIViewController
+ 
+-- (instancetype)initWithQIOSScreen:(QT_PREPEND_NAMESPACE(QIOSScreen) *)screen;
++- (instancetype)initWithWindow:(UIWindow *)window andScreen:(QT_PREPEND_NAMESPACE(QIOSScreen) *)screen;
+ - (void)updateProperties;
+ 
+ #ifndef Q_OS_TVOS
+@@ -61,4 +61,3 @@
+ #endif
+ 
+ @end
+-
+
+
+diff --git a/src/plugins/platforms/ios/qiosviewcontroller.mm b/src/plugins/platforms/ios/qiosviewcontroller.mm
+--- a/src/plugins/platforms/ios/qiosviewcontroller.mm
++++ b/src/plugins/platforms/ios/qiosviewcontroller.mm
+@@ -58,6 +58,7 @@
+ // -------------------------------------------------------------------------
+ 
+ @interface QIOSViewController ()
++@property (nonatomic, assign) UIWindow *window;
+ @property (nonatomic, assign) QPointer<QT_PREPEND_NAMESPACE(QIOSScreen)> platformScreen;
+ @property (nonatomic, assign) BOOL changingOrientation;
+ @end
+@@ -122,17 +123,10 @@
+ {
+     Q_UNUSED(subview);
+ 
+-    QT_PREPEND_NAMESPACE(QIOSScreen) *screen = self.qtViewController.platformScreen;
++    UIWindow *uiWindow = self.qtViewController.window;
+ 
+-    // The 'window' property of our view is not valid until the window
+-    // has been shown, so we have to access it through the QIOSScreen.
+-    UIWindow *uiWindow = screen->uiWindow();
+-
+-    if (uiWindow.hidden) {
+-        // Associate UIWindow to screen and show it the first time a QWindow
+-        // is mapped to the screen. For external screens this means disabling
+-        // mirroring mode and presenting alternate content on the screen.
+-        uiWindow.screen = screen->uiScreen();
++    if (uiWindow && uiWindow.hidden) {
++        // Show the scene-owned UIWindow the first time a QWindow is mapped.
+         uiWindow.hidden = NO;
+     }
+ }
+@@ -254,9 +248,10 @@
+ @synthesize preferredStatusBarStyle;
+ #endif
+ 
+-- (instancetype)initWithQIOSScreen:(QT_PREPEND_NAMESPACE(QIOSScreen) *)screen
++- (instancetype)initWithWindow:(UIWindow *)window andScreen:(QT_PREPEND_NAMESPACE(QIOSScreen) *)screen
+ {
+     if (self = [self init]) {
++        self.window = window;
+         self.platformScreen = screen;
+ 
+         self.changingOrientation = NO;
+@@ -318,6 +313,15 @@
+             name:UIApplicationDidChangeStatusBarOrientationNotification
+             object:qt_apple_sharedApplication()];
+ #endif
++
++    // The QML top-level window can be created before UIKit connects the scene.
++    // Reparent those already-created Qt windows into this scene's desktop view.
++    for (auto *window : qGuiApp->topLevelWindows()) {
++        if (window->screen()->handle() != self.platformScreen)
++            continue;
++        if (auto *platformWindow = window->handle())
++            platformWindow->setParent(nullptr);
++    }
+ }
+ 
+ - (void)viewDidUnload
+@@ -524,4 +528,3 @@
+ }
+ 
+ @end
+-
+
+
+diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios/qioswindow.mm
+--- a/src/plugins/platforms/ios/qioswindow.mm
++++ b/src/plugins/platforms/ios/qioswindow.mm
+@@ -265,15 +265,35 @@
+         // in applyGeometry(), as we don't want to artificially limit window
+         // placement "outside" of the screen bounds if that's what the user wants.
+ 
+-        QRect uiWindowBounds = QRectF::fromCGRect(m_view.window.bounds).toRect();
+-        QRect fullscreenGeometry = screen()->geometry().intersected(uiWindowBounds);
+-        QRect maximizedGeometry = window()->flags() & Qt::MaximizeUsingFullscreenGeometryHint ?
+-            fullscreenGeometry : screen()->availableGeometry().intersected(uiWindowBounds);
++        QRect uiWindowBounds = m_view.window ? QRectF::fromCGRect(m_view.window.bounds).toRect() : QRect();
++        if (NSProcessInfo.processInfo.iOSAppOnMac) {
++            // iPad apps running on macOS use a scaled UIScreen coordinate system.
++            // The scene UIWindow is the authoritative coordinate space.
++            applyGeometry(uiWindowBounds);
++        } else {
++            QRect fullscreenGeometry = screen()->geometry();
++            QRect maximizedGeometry = screen()->availableGeometry();
++            if (m_view.window) {
++                UIScreen *uiScreen = m_view.window.windowScene.screen;
++                UIEdgeInsets safeAreaInsets = m_view.window.safeAreaInsets;
++                if (uiScreen) {
++                    if (m_view.window.bounds.size.width == uiScreen.bounds.size.width)
++                        maximizedGeometry.adjust(safeAreaInsets.left, 0,
++                            -safeAreaInsets.right, 0);
++                    if (m_view.window.bounds.size.height == uiScreen.bounds.size.height)
++                        maximizedGeometry.adjust(0, safeAreaInsets.top,
++                            0, -safeAreaInsets.bottom);
++                }
++
++                fullscreenGeometry = fullscreenGeometry.intersected(uiWindowBounds);
++                maximizedGeometry = maximizedGeometry.intersected(uiWindowBounds);
++            }
+ 
+-        if (state & Qt::WindowFullScreen)
+-            applyGeometry(fullscreenGeometry);
+-        else
+-            applyGeometry(maximizedGeometry);
++            if (state & Qt::WindowFullScreen)
++                applyGeometry(fullscreenGeometry);
++            else
++                applyGeometry(maximizedGeometry);
++        }
+     } else {
+         applyGeometry(m_normalGeometry);
+     }
+@@ -282,8 +291,9 @@
+ void QIOSWindow::setParent(const QPlatformWindow *parentWindow)
+ {
+     UIView *parentView = parentWindow ? reinterpret_cast<UIView *>(parentWindow->winId())
+-        : isQtApplication() ? static_cast<QIOSScreen *>(screen())->uiWindow().rootViewController.view : 0;
++        : isQtApplication() ? rootViewForScreen(screen()) : 0;
+ 
+-    [parentView addSubview:m_view];
++    if (parentView)
++        [parentView addSubview:m_view];
+ }
+ 
+@@ -290,9 +290,14 @@
+ void QIOSWindow::requestActivateWindow()
+ {
+     // Note that several windows can be active at the same time if they exist in the same
+     // hierarchy (transient children). But only one window can be QGuiApplication::focusWindow().
+     // Dispite the name, 'requestActivateWindow' means raise and transfer focus to the window:
+     if (blockedByModal())
+         return;
+ 
++    // The QWindow can become visible before UIKit has connected the scene.
++    // Activation is retried when the view is attached to the scene-owned window.
++    if (!m_view.window)
++        return;
++ 
+     Q_ASSERT(m_view.window);

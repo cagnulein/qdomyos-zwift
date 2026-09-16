@@ -235,6 +235,7 @@ devices/fakebike/fakebike.cpp \
 filedownloader.cpp \
 devices/fitmetria_fanfit/fitmetria_fanfit.cpp \
 devices/fitplusbike/fitplusbike.cpp \
+devices/fitplusrower/fitplusrower.cpp \
 devices/fitshowtreadmill/fitshowtreadmill.cpp \
 fit-sdk/fit.cpp \
 fit-sdk/fit_accumulated_field.cpp \
@@ -566,6 +567,7 @@ devices/fakebike/fakebike.h \
 filedownloader.h \
 devices/fitmetria_fanfit/fitmetria_fanfit.h \
 devices/fitplusbike/fitplusbike.h \
+devices/fitplusrower/fitplusrower.h \
 devices/ftmsrower/ftmsrower.h \
 homefitnessbuddy.h \
 devices/horizongr7bike/horizongr7bike.h \
@@ -1079,4 +1081,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.21.6
+VERSION = 2.22.0

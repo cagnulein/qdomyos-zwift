@@ -20,6 +20,9 @@ class lockscreen {
     void setHeartRate(unsigned char heartRate);
     void startWorkout(unsigned short deviceType);
     void stopWorkout();
+    bool canWriteHistoricalWorkoutToHealthKit(unsigned short sport);
+    bool saveHistoricalWorkoutToHealthKit(unsigned short sport, double startTimestamp, double endTimestamp,
+                                          double distanceMeters, double calories);
     void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt, unsigned short currentCalories,
                                unsigned long long currentSteps, unsigned char deviceType, double currentDistance,
                                double totalKcal, bool useMiles, unsigned char heartRate,
