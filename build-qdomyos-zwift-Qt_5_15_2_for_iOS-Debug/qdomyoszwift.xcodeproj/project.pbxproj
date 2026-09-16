@@ -4525,6 +4525,7 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
+					"-Wl,-force_load,/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
 					"-Wl,-rpath,@executable_path/Frameworks",
 					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
 					"-framework",
@@ -4682,6 +4683,7 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
+					"-Wl,-force_load,/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
 					"-Wl,-rpath,@executable_path/Frameworks",
 					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
 					"-framework",
@@ -4875,6 +4877,7 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
+					"-Wl,-force_load,/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
 					"-Wl,-rpath,@executable_path/Frameworks",
 					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
 					"-framework",
@@ -5080,6 +5083,7 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
+					"-Wl,-force_load,/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
 					"-Wl,-rpath,@executable_path/Frameworks",
 					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
 					"-framework",
@@ -5212,7 +5216,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Debug;
 		};
@@ -5304,7 +5308,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Release;
 		};
@@ -5420,7 +5424,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Debug;
 		};
@@ -5533,7 +5537,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Release;
 		};
