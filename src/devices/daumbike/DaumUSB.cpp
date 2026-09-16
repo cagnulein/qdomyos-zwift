@@ -61,6 +61,7 @@ int DaumUSB::stop() {
     pvars.lock();
     deviceStatus = 0;
     writePower = false;
+    gearAdjustmentRequested = false;
     pvars.unlock();
     return 0;
 }
@@ -76,6 +77,12 @@ void DaumUSB::setPower(double power) {
     }
     targetPower = power;
     writePower = true;
+    pvars.unlock();
+}
+
+void DaumUSB::requestGearAdjustment() {
+    pvars.lock();
+    gearAdjustmentRequested = true;
     pvars.unlock();
 }
 
@@ -142,6 +149,42 @@ bool DaumUSB::detectCockpit() {
 
     qDebug() << "Daum Get_Adress failed, response" << response.toHex(' ');
     return false;
+}
+
+bool DaumUSB::initializeProgram0() {
+    auto sendCommand = [this](uint8_t command, bool hasData, uint8_t data,
+                              int expectedLength, const char *name) {
+        QByteArray request;
+        request.append(static_cast<char>(command));
+        request.append(static_cast<char>(cockpitAddress));
+        if (hasData)
+            request.append(static_cast<char>(data));
+
+        rawWrite(request.constData(), request.size());
+        const QByteArray response = readResponse(expectedLength, 1200);
+        const bool acknowledged = response.startsWith(request);
+        if (!acknowledged)
+            qDebug() << "Daum" << name << "acknowledgement missing:" << response.toHex(' ');
+        QThread::msleep(60);
+        return acknowledged;
+    };
+
+    // Match the safe setup sequence used by Ergo48: reset the cockpit, stop
+    // any active program, start the PC-controlled program, then select the
+    // manual Watt program (Program 0). Do not overwrite the user's cockpit
+    // person profile; QZ only needs the program/control state.
+    if (!sendCommand(0x12, false, 0, 2, "Reset_Device"))
+        return false;
+    QThread::msleep(1000);
+    if (!sendCommand(0x22, false, 0, 3, "Stop_Prog"))
+        return false;
+    if (!sendCommand(0x21, false, 0, 3, "Start_Prog"))
+        return false;
+    if (!sendCommand(0x23, true, 0, 4, "Set_Prog"))
+        return false;
+
+    qDebug() << "Daum Program 0 initialized";
+    return true;
 }
 
 bool DaumUSB::initializeGearAdjustment() {
@@ -284,18 +327,22 @@ void DaumUSB::run() {
         return;
     }
 
-    // This arms the same gear-adjustment mode used by Ergo48. The physical
-    // gear changes themselves are reported by Run_Daten and are not written
-    // back by QZ.
-    initializeGearAdjustment();
+    if (!initializeProgram0()) {
+        closePort();
+        stop();
+        return;
+    }
 
     while (true) {
         pvars.lock();
         int status = deviceStatus;
         bool shouldWritePower = writePower;
+        bool shouldInitializeGears = gearAdjustmentRequested;
         double power = targetPower;
         if (shouldWritePower)
             writePower = false;
+        if (shouldInitializeGears)
+            gearAdjustmentRequested = false;
         pvars.unlock();
 
         if (!(status & DAUM_RUNNING))
@@ -305,6 +352,12 @@ void DaumUSB::run() {
             QThread::msleep(100);
             continue;
         }
+
+        // Ergo48 sends Set_Gang once after the Program 0 setup. The physical
+        // gear changes themselves arrive in Run_Daten and are not written
+        // back by QZ.
+        if (shouldInitializeGears)
+            initializeGearAdjustment();
 
         if (shouldWritePower)
             writePowerTarget(power);

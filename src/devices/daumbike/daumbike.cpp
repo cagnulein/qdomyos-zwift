@@ -146,8 +146,8 @@ void daumbike::update() {
     double power, heartRate, cadence, speed, distance;
     myDaum->getTelemetry(power, heartRate, cadence, speed, distance, gear, status);
 
-    // In Program 0 the cockpit reports the physical gear even though Set_Gang
-    // is not guaranteed to control it. Keep QZ's displayed gear in sync with
+    // The cockpit reports the physical gear even in Program 0 after the
+    // one-time gear-adjustment command. Keep QZ's displayed gear in sync with
     // that observed value without issuing a compensating command.
     if (gear >= 1 && gear <= 28 && m_gears != static_cast<double>(gear)) {
         m_gears = gear;
@@ -239,6 +239,8 @@ resistance_t daumbike::pelotonToBikeResistance(int pelotonResistance) {
 
 void daumbike::btinit() {
     initDone = true;
+    if (myDaum)
+        myDaum->requestGearAdjustment();
 }
 
 void daumbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
