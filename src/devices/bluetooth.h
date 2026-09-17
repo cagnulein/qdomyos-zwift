@@ -29,6 +29,7 @@
 #include "devices/bhfitnesselliptical/bhfitnesselliptical.h"
 #include "devices/bkoolbike/bkoolbike.h"
 #include "devices/bluetoothdevice.h"
+#include "devices/freebeatboombike/freebeatboombike.h"
 #include "devices/bowflext216treadmill/bowflext216treadmill.h"
 #include "devices/bowflextreadmill/bowflextreadmill.h"
 #include "devices/chronobike/chronobike.h"
@@ -204,6 +205,7 @@ class bluetooth : public QObject, public SignalHandler {
     crossrope *crossRope = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
     focustreadmill *focusTreadmill = nullptr;
+    freebeatboombike *freebeatBoomBike = nullptr;
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
     kettlerusbbike *kettlerUsbBike = nullptr;
