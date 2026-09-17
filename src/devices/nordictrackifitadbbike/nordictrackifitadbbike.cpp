@@ -423,8 +423,21 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                      ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
         if (Cadence.value() > 0) {
-            CrankRevs++;
-            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+            // Accumulate crank revolutions and the crank event clock over the real
+            // elapsed time, the same way KCal and Distance do above. Incrementing
+            // once per update inflated both fields by the update rate, which made
+            // the 16-bit event timestamp wrap far sooner than the 64s the spec
+            // implies and frequently run backwards, so a consumer deriving cadence
+            // from the deltas saw 0 rpm most of the time with brief flashes of the
+            // true value.
+            double deltaMs = (double)lastRefreshCharacteristicChanged.msecsTo(now);
+            if (deltaMs > 0) {
+                CrankRevs += (((double)Cadence.value()) / 60.0) * (deltaMs / 1000.0);
+                double ticks = deltaMs * 1.024 + crankEventTimeRemainder;
+                uint32_t wholeTicks = (uint32_t)ticks;
+                crankEventTimeRemainder = ticks - (double)wholeTicks;
+                LastCrankEventTime += (uint16_t)wholeTicks; // 1/1024 s, wraps at 64s
+            }
         }
 
         lastRefreshCharacteristicChanged = now;
