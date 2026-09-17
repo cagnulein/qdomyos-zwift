@@ -1,5 +1,4 @@
 #include "ftmsbike.h"
-#include "ftmsbikepowerutils.h"
 #include "devices/cscbike/cscbike.h"
 #include "horizon5r_defaults.h"
 #include "speedracex_defaults.h"
@@ -1112,8 +1111,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                         .toString()
                         .startsWith(QStringLiteral("Disabled"))) {
-                    if (ftmsbikepowerutils::shouldForceZeroAveragePower(MRK_S26C, Flags.instantCadence,
-                                                                        Cadence.value())) {
+                    if (MRK_S26C && Flags.instantCadence && Cadence.value() == 0) {
                         m_watt = 0;
                     } else {
                         m_watt = avgPower;
@@ -1854,7 +1852,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
             auto virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-            // connect(virtualBike,&virtualbike::debug ,this, &ftmsbike::debug);
+            // connect(virtualBike,&virtualbike::debug ,this,&ftmsbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &ftmsbike::changeInclination);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &ftmsbike::ftmsCharacteristicChanged);
             this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
