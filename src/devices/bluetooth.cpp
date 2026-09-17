@@ -2419,8 +2419,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(bkoolBike, &bkoolbike::debug, this, &bluetooth::debug);
                 bkoolBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(bkoolBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("FEAQ51A_")) &&
-                       deviceHasService(b, QBluetoothUuid((quint16)0xfff0)) && !freebeatBoomBike && filter) {
+            } else if (b.name().toUpper().startsWith(QStringLiteral("FEAQ51A_")) && !freebeatBoomBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 freebeatBoomBike =
