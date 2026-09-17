@@ -132,6 +132,7 @@ SOURCES += \
     $$PWD/osc.cpp \
     $$PWD/workoutloaderworker.cpp \
     $$PWD/workoutmodel.cpp \
+    $$PWD/workouttextprocessor.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
 devices/csafe/csafe.cpp \
@@ -444,6 +445,7 @@ HEADERS += \
     $$PWD/wheelcircumference.h \
     $$PWD/workoutloaderworker.h \
     $$PWD/workoutmodel.h \
+    $$PWD/workouttextprocessor.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csafe/csafe.h \
@@ -1022,7 +1024,9 @@ DISTFILES += \
 	android/src/org/qtproject/qt/android/purchasing/Base64DecoderException.java \
 	ios/AppDelegate.swift \
 	ios/BLEPeripheralManager.swift \
-	ios/LiveActivityManager.swift
+	ios/LiveActivityManager.swift \
+	ios/WorkoutAIService.swift \
+	ios/WorkoutAppIntents.swift
 
 win32: DISTFILES += \
    $$PWD/adb/AdbWinApi.dll \
@@ -1040,6 +1044,7 @@ ios {
     ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
     ios/ios_liveactivity.mm \
+    ios/workout_ai_bridge.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
 	 fit-sdk/FitEncode.mm \
@@ -1052,7 +1057,8 @@ ios {
     SOURCES += ios/M3iNSQT.cpp
 
     OBJECTIVE_HEADERS += ios/M3iNS.h \
-    ios/ios_liveactivity.h
+    ios/ios_liveactivity.h \
+    ios/workout_ai_bridge.h
 
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
