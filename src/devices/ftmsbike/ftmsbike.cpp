@@ -1111,8 +1111,12 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                         .toString()
                         .startsWith(QStringLiteral("Disabled"))) {
-                    m_watt = avgPower;
-                    emit debug(QStringLiteral("Current Watt (from average): ") + QString::number(m_watt.value()));
+                    if (MRK_S26C && Flags.instantCadence && Cadence.value() == 0) {
+                        m_watt = 0;
+                    } else {
+                        m_watt = avgPower;
+                        emit debug(QStringLiteral("Current Watt (from average): ") + QString::number(m_watt.value()));
+                    }
                 }
             }
         }
