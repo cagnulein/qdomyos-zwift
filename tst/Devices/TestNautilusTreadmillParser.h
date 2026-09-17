@@ -17,6 +17,13 @@ TEST(NautilusTreadmillParserTest, DecodesSchwinnOmniInclination) {
     EXPECT_EQ(nautilustreadmill::inclinationFromPacket(packet), 15.0);
 }
 
+TEST(NautilusTreadmillParserTest, PreservesLegacyNautilusPacketDecoding) {
+    const QByteArray packet = QByteArray::fromHex("00 00 61 64 00 62 05 63 7d 00 64 00");
+
+    EXPECT_NEAR(nautilustreadmill::speedFromPacket(packet), 1.60934, 0.00001);
+    EXPECT_EQ(nautilustreadmill::inclinationFromPacket(packet), 5.0);
+}
+
 TEST(NautilusTreadmillParserTest, RejectsShortSchwinnOmniPackets) {
     const QByteArray packet = QByteArray::fromHex("00 00 61 64 00");
 
