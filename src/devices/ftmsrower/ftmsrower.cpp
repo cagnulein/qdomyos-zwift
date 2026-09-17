@@ -380,8 +380,9 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         const bool strokeCountChanged = lastStrokesCount != StrokesCount.value();
         if (JOROTO_MR280PRO) {
             const qint64 nowMs = now.toMSecsSinceEpoch();
+            const bool jorotoStale = jorotoCadence.isStale(nowMs);
             Cadence = jorotoCadence.update(static_cast<quint16>(StrokesCount.value()), nowMs, reportedCadence);
-            if (jorotoCadence.isStale(nowMs)) {
+            if (jorotoStale) {
                 qDebug() << "Resetting JOROTO cadence!";
                 Cadence = 0;
                 m_watt = 0;

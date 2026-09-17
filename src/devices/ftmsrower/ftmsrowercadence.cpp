@@ -3,10 +3,18 @@
 #include <QtGlobal>
 
 double ftmsrowerCadenceCalculator::update(quint16 strokeCount, qint64 timestampMs, double reportedCadence) {
+    Q_UNUSED(reportedCadence);
+
     if (m_samples.isEmpty()) {
         m_samples.append({strokeCount, timestampMs});
-        m_lastStrokeTimestampMs = timestampMs;
-        m_cadence = reportedCadence;
+        m_cadence = 0;
+        return m_cadence;
+    }
+
+    // A pause must not become part of the first interval after resuming.
+    if (isStale(timestampMs)) {
+        reset();
+        m_samples.append({strokeCount, timestampMs});
         return m_cadence;
     }
 
@@ -15,15 +23,23 @@ double ftmsrowerCadenceCalculator::update(quint16 strokeCount, qint64 timestampM
     const qint64 elapsedMs = timestampMs - previous.timestampMs;
 
     if (strokeDelta == 0) {
-        return m_cadence > 0 ? m_cadence : reportedCadence;
+        return m_cadence;
     }
 
     // A large backwards jump is a device reset, not a real stroke burst.
     if (strokeDelta > 1000 || elapsedMs <= 0) {
         reset();
         m_samples.append({strokeCount, timestampMs});
+        return m_cadence;
+    }
+
+    // The first increment after startup/resume establishes a new real-stroke baseline.
+    if (!m_hasStroke) {
+        m_samples.clear();
+        m_samples.append({strokeCount, timestampMs});
+        m_hasStroke = true;
         m_lastStrokeTimestampMs = timestampMs;
-        m_cadence = reportedCadence;
+        m_cadence = 0;
         return m_cadence;
     }
 
@@ -42,11 +58,11 @@ double ftmsrowerCadenceCalculator::update(quint16 strokeCount, qint64 timestampM
         m_lastStrokeTimestampMs = timestampMs;
     }
 
-    return m_cadence > 0 ? m_cadence : reportedCadence;
+    return m_cadence;
 }
 
 bool ftmsrowerCadenceCalculator::isStale(qint64 timestampMs) const {
-    if (m_lastStrokeTimestampMs < 0 || timestampMs <= m_lastStrokeTimestampMs) {
+    if (!m_hasStroke || m_lastStrokeTimestampMs < 0 || timestampMs <= m_lastStrokeTimestampMs) {
         return false;
     }
 
@@ -57,6 +73,7 @@ bool ftmsrowerCadenceCalculator::isStale(qint64 timestampMs) const {
 void ftmsrowerCadenceCalculator::reset() {
     m_samples.clear();
     m_cadence = 0;
+    m_hasStroke = false;
     m_lastStrokeTimestampMs = -1;
     m_recentIntervalMs = 0;
 }

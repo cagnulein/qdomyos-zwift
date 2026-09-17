@@ -13,12 +13,21 @@ TEST(FtmsRowerCadenceTest, UsesStrokeCountOnlyForJorotoMr280Pro) {
     EXPECT_FALSE(ftmsrower::usesJorotoStrokeCountCadence(QStringLiteral("Concept2 PM5")));
 }
 
-TEST(FtmsRowerCadenceTest, IgnoresReportedSpikeWhenStrokeCountDoesNotAdvance) {
+TEST(FtmsRowerCadenceTest, DoesNotUseReportedCadenceDuringStartup) {
     ftmsrowerCadenceCalculator calculator;
 
-    EXPECT_DOUBLE_EQ(calculator.update(100, 0, 22), 22);
-    EXPECT_NEAR(calculator.update(101, 3000, 22), 20, 0.001);
-    EXPECT_NEAR(calculator.update(101, 3500, 66), 20, 0.001);
+    EXPECT_DOUBLE_EQ(calculator.update(100, 0, 22), 0);
+    EXPECT_DOUBLE_EQ(calculator.update(100, 480, 80), 0);
+    EXPECT_DOUBLE_EQ(calculator.update(101, 3000, 22), 0);
+}
+
+TEST(FtmsRowerCadenceTest, CalculatesCadenceOnlyAfterTwoRealStrokeIncrements) {
+    ftmsrowerCadenceCalculator calculator;
+
+    calculator.update(100, 0, 22);
+    calculator.update(101, 3000, 22);
+
+    EXPECT_NEAR(calculator.update(102, 6000, 22), 20, 0.001);
 }
 
 TEST(FtmsRowerCadenceTest, RollingWindowSmoothsCadenceFromStrokeCount) {
@@ -30,6 +39,19 @@ TEST(FtmsRowerCadenceTest, RollingWindowSmoothsCadenceFromStrokeCount) {
     calculator.update(103, 9000, 44);
 
     EXPECT_NEAR(calculator.cadence(), 20, 0.001);
+}
+
+TEST(FtmsRowerCadenceTest, StalePauseResetsHistoryBeforeResume) {
+    ftmsrowerCadenceCalculator calculator;
+
+    calculator.update(100, 0, 22);
+    calculator.update(101, 3000, 22);
+    calculator.update(102, 6000, 22);
+    ASSERT_TRUE(calculator.isStale(12001));
+
+    EXPECT_DOUBLE_EQ(calculator.update(102, 12001, 22), 0);
+    EXPECT_DOUBLE_EQ(calculator.update(103, 15001, 22), 0);
+    EXPECT_NEAR(calculator.update(104, 18001, 22), 20, 0.001);
 }
 
 TEST(FtmsRowerCadenceTest, SlowRowingGetsAWindowBasedTimeout) {

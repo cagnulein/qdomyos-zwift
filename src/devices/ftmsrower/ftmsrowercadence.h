@@ -19,6 +19,7 @@ class ftmsrowerCadenceCalculator {
 
     QList<sample> m_samples;
     double m_cadence = 0;
+    bool m_hasStroke = false;
     qint64 m_lastStrokeTimestampMs = -1;
     qint64 m_recentIntervalMs = 0;
 };
