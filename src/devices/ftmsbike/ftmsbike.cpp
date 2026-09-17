@@ -90,7 +90,7 @@ bool ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
     if(!gattFTMSService) {
-        qDebug() << QStringLiteral("gattFTMSService is null!");
+        qDebug() << QStringLiteral("writeCharacteristic error because service/characteristic is invalid");
         return false;
     }
     
@@ -1108,7 +1108,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
             // Use average power if instant power is zero or not available
             if ((!Flags.instantPower || m_watt.value() == 0) && avgPower > 0 && !wattReceived) {
-                if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                if (Flags.instantCadence && Cadence.value() == 0) {
+                    m_watt = 0;
+                } else if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                         .toString()
                         .startsWith(QStringLiteral("Disabled"))) {
                     m_watt = avgPower;
@@ -1597,7 +1599,6 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                                                             // kg * 3.5) / 200 ) / 60
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
-
 #ifdef Q_OS_ANDROID
         if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
