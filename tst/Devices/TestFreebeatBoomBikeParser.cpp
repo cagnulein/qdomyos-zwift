@@ -30,3 +30,8 @@ TEST(FreebeatBoomBikeParser, BuildsProtocolCommandsFromDocumentedLayout) {
     EXPECT_EQ(freebeatboombike::resistanceCommand(100), QByteArray::fromHex("25036467a0"));
     EXPECT_EQ(freebeatboombike::resistanceCommand(0), QByteArray::fromHex("25030104a0"));
 }
+
+TEST(FreebeatBoomBikeParser, CalculatesDistanceInKilometresFromSpeed) {
+    EXPECT_NEAR(freebeatboombike::distanceIncrement(17.865, 3600000), 17.865, 0.001);
+    EXPECT_NEAR(freebeatboombike::distanceIncrement(17.865, 1000), 17.865 / 3600.0, 0.000001);
+}
