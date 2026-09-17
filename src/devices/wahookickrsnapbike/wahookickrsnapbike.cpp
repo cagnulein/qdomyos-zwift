@@ -372,7 +372,7 @@ void wahookickrsnapbike::update() {
                     emit debug(QStringLiteral("writing resistance due to gears changed ") + QString::number(lastForcedResistance));
                     if(lastForcedResistance == -1)
                         lastForcedResistance = 1;
-                    lastForcedResistance = ((double)lastForcedResistance + (gears() - lastGearValue));
+                    lastForcedResistance = ((double)lastForcedResistance + (gearsModifier() - lastGearModifierValue));
                     QByteArray a = setResistanceMode(lastForcedResistance / 100.0);
                     uint8_t b[20];
                     memcpy(b, a.constData(), a.length());
@@ -385,6 +385,7 @@ void wahookickrsnapbike::update() {
         }
 
         lastGearValue = gears();
+        lastGearModifierValue = gearsModifier();
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
@@ -1001,7 +1002,7 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
         lastGrade = grade;
         emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
         double g = grade;
-        g += gears();
+        g += gearsModifier();
         QByteArray a = setSimGrade(g);
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
@@ -1022,7 +1023,7 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
         emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
         double g = grade;
         if(KICKR_SNAP) {
-            g += gears() * 0.5;
+            g += gearsModifier() * 0.5;
             qDebug() << "adding gear offset so " << g;
         }
         QByteArray a = setSimGrade(g);

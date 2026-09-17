@@ -13,6 +13,7 @@
 #include <QDateTime>
 #include <QEventLoop>
 #include <QHttpMultiPart>
+#include <QMap>
 
 /**
  * @brief GarminConnect class handles authentication and file upload to Garmin Connect
@@ -99,6 +100,14 @@ public:
     void downloadTodaysWorkout(const QString &saveDir);
 
     /**
+     * @brief Check Garmin Connect for the latest cycling/running FTP values.
+     *
+     * Emits ftpValuesAvailable() only when the request succeeds. The caller decides
+     * whether values should be applied or ignored.
+     */
+    void checkFtpUpdates();
+
+    /**
      * @brief Get the last error message
      * @return Error message string
      */
@@ -156,6 +165,16 @@ signals:
      * @brief Emitted when no workout is scheduled for today
      */
     void noWorkoutFoundToday();
+
+    /**
+     * @brief Emitted with Garmin's latest non-stale FTP values.
+     * @param cyclingFtp Latest cycling FTP, or 0 if unavailable
+     * @param cyclingCreateTime Garmin create timestamp for cycling FTP
+     * @param runningFtp Latest running FTP, or 0 if unavailable
+     * @param runningCreateTime Garmin create timestamp for running FTP
+     */
+    void ftpValuesAvailable(int cyclingFtp, const QString &cyclingCreateTime,
+                            int runningFtp, const QString &runningCreateTime);
 
 private:
     // Network
@@ -226,6 +245,12 @@ private:
                                 const QString &workoutName, const QString &itemType,
                                 const QString &sportTypeKey, const QString &saveDir,
                                 bool useScheduleEndpoint = false);
+    void downloadPowerCurveAndSaveWorkout(const QJsonObject &workoutPayload, const QString &date,
+                                          const QString &workoutName, const QString &sportTypeKey,
+                                          const QString &saveDir);
+    void saveWorkoutXml(const QJsonObject &workoutPayload, const QString &date,
+                        const QString &workoutName, const QString &sportTypeKey,
+                        const QString &saveDir, const QMap<int, double> &powerCurve);
 
     void loadTokensFromSettings();
     void saveTokensToSettings();
@@ -260,6 +285,8 @@ private:
 };
 
 // Exposed for unit tests and internal reuse: convert Garmin workout JSON payload to QZ XML.
-QString garminConnectGenerateWorkoutXml(const QJsonObject &workoutJson);
+QString garminConnectGenerateWorkoutXml(const QJsonObject &workoutJson,
+                                        const QMap<int, double> &powerCurve = QMap<int, double>());
+QString garminConnectWorkoutFileName(const QString &date, const QString &workoutName, const QString &sportTypeKey);
 
 #endif // GARMINCONNECT_H

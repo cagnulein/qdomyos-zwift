@@ -210,7 +210,7 @@ void computrainerbike::innerWriteResistance() {
 
     if (requestInclination != -100) {
         emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-        forceResistance(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+        forceResistance(requestInclination + gearsModifier()); // since this bike doesn't have the concept of resistance,
                                                        // i'm using the gears in the inclination
         requestInclination = -100;
     }
@@ -229,6 +229,10 @@ void computrainerbike::update() {
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         bool disable_hr_frommachinery =
             settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+        bool externalCadenceSensorEnabled =
+            !settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"));
 
         int Buttons, Status;
         bool calibration;
@@ -242,12 +246,14 @@ void computrainerbike::update() {
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
         emit debug("Current Distance: " + QString::number(Distance.value()));
-        Cadence = cadence;
-        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-        if (Cadence.value() > 0) {
-            CrankRevs++;
-            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        if (!externalCadenceSensorEnabled) {
+            Cadence = cadence;
+            if (Cadence.value() > 0) {
+                CrankRevs++;
+                LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+            }
         }
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
         m_watt = Power;
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));

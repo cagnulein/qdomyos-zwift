@@ -3,6 +3,8 @@
 #include "keepawakehelper.h"
 #endif
 #include "virtualdevices/virtualbike.h"
+#include "homeform.h"
+#include "qzsettings.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -515,6 +517,25 @@ void solebike::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+
+    if (!gattCommunicationChannelService) {
+        // Main Sole service not found, try FTMS service as a fallback to avoid crashes.
+        QBluetoothUuid ftmsServiceId((quint16)0x1826);
+        QLowEnergyService *ftmsService = m_control->createServiceObject(ftmsServiceId);
+        if (ftmsService) {
+            QSettings settings;
+            settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
+            qDebug() << "forcing FTMS bike since Sole main service is missing but FTMS service is available";
+            if (homeform::singleton()) {
+                homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change");
+            }
+            delete ftmsService;
+        } else {
+            qDebug() << "Sole main service and FTMS service not found, skipping service init to avoid crash";
+        }
+        return;
+    }
+
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &solebike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }

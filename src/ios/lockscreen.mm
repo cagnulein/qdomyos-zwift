@@ -3,6 +3,7 @@
 #import <UIKit/UIKit.h>
 #import <WatchConnectivity/WatchConnectivity.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#import <HealthKit/HealthKit.h>
 #import <WebKit/WKWebsiteDataStore.h>
 #import <AVFoundation/AVFoundation.h>
 #import <ConnectIQ/ConnectIQ.h>
@@ -48,6 +49,43 @@ static NSString *LockscreenStringFromCString(const char *message)
         string = [NSString stringWithFormat:@"(invalid UTF8) %s", message];
     }
     return string;
+}
+
+static HKWorkoutActivityType HistoricalHealthKitActivityType(unsigned short sport)
+{
+    switch (sport) {
+    case 1: // FIT_SPORT_RUNNING
+        return HKWorkoutActivityTypeRunning;
+    case 11: // FIT_SPORT_WALKING
+        return HKWorkoutActivityTypeWalking;
+    case 2: // FIT_SPORT_CYCLING
+        return HKWorkoutActivityTypeCycling;
+    case 15: // FIT_SPORT_ROWING
+        return HKWorkoutActivityTypeRowing;
+    case 4: // FIT_SPORT_FITNESS_EQUIPMENT
+        return HKWorkoutActivityTypeElliptical;
+    default:
+        return HKWorkoutActivityTypeOther;
+    }
+}
+
+static HKQuantityType *HistoricalHealthKitDistanceType(unsigned short sport)
+{
+    switch (sport) {
+    case 1:
+    case 11:
+        return [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+    case 2:
+    case 4:
+        return [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
+    case 15:
+        if (@available(iOS 18.0, *)) {
+            return [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceRowing];
+        }
+        return nil;
+    default:
+        return nil;
+    }
 }
 
 static ios_eliteariafan* ios_eliteAriaFan = nil;
@@ -131,6 +169,98 @@ void lockscreen::stopWorkout() {
         [workoutTracking stopWorkOut];
 }
 
+bool lockscreen::canWriteHistoricalWorkoutToHealthKit(unsigned short sport) {
+    if (![HKHealthStore isHealthDataAvailable]) {
+        return false;
+    }
+
+    HKHealthStore *healthStore = [[HKHealthStore alloc] init];
+    HKWorkoutType *workoutType = [HKObjectType workoutType];
+    HKQuantityType *energyType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierActiveEnergyBurned];
+    HKQuantityType *distanceType = HistoricalHealthKitDistanceType(sport);
+
+    if ([healthStore authorizationStatusForType:workoutType] != HKAuthorizationStatusSharingAuthorized ||
+        !energyType || [healthStore authorizationStatusForType:energyType] != HKAuthorizationStatusSharingAuthorized) {
+        return false;
+    }
+
+    return !distanceType || [healthStore authorizationStatusForType:distanceType] == HKAuthorizationStatusSharingAuthorized;
+}
+
+bool lockscreen::saveHistoricalWorkoutToHealthKit(unsigned short sport, double startTimestamp, double endTimestamp,
+                                                   double distanceMeters, double calories) {
+    if (endTimestamp <= startTimestamp || !canWriteHistoricalWorkoutToHealthKit(sport)) {
+        return false;
+    }
+
+    HKHealthStore *healthStore = [[HKHealthStore alloc] init];
+    HKWorkoutConfiguration *configuration = [[HKWorkoutConfiguration alloc] init];
+    configuration.activityType = HistoricalHealthKitActivityType(sport);
+    configuration.locationType = HKWorkoutSessionLocationTypeIndoor;
+
+    HKWorkoutBuilder *builder = [[HKWorkoutBuilder alloc] initWithHealthStore:healthStore
+                                                                configuration:configuration
+                                                                       device:[HKDevice localDevice]];
+    NSDate *startDate = [NSDate dateWithTimeIntervalSince1970:startTimestamp];
+    NSDate *endDate = [NSDate dateWithTimeIntervalSince1970:endTimestamp];
+
+    [builder beginCollectionWithStartDate:startDate completion:^(BOOL success, NSError *error) {
+        if (!success) {
+            qDebug() << "Historical Apple Health workout begin failed:" << error.localizedDescription.UTF8String;
+            return;
+        }
+
+        NSMutableArray<HKSample *> *samples = [NSMutableArray array];
+        HKQuantityType *energyType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierActiveEnergyBurned];
+        if (calories > 0 && energyType) {
+            HKQuantity *energy = [HKQuantity quantityWithUnit:[HKUnit kilocalorieUnit] doubleValue:calories];
+            [samples addObject:[HKQuantitySample quantitySampleWithType:energyType
+                                                               quantity:energy
+                                                              startDate:startDate
+                                                                endDate:endDate]];
+        }
+
+        HKQuantityType *distanceType = HistoricalHealthKitDistanceType(sport);
+        if (distanceMeters > 0 && distanceType) {
+            HKQuantity *distance = [HKQuantity quantityWithUnit:[HKUnit meterUnit] doubleValue:distanceMeters];
+            [samples addObject:[HKQuantitySample quantitySampleWithType:distanceType
+                                                               quantity:distance
+                                                              startDate:startDate
+                                                                endDate:endDate]];
+        }
+
+        void (^finishWorkout)(void) = ^{
+            [builder endCollectionWithEndDate:endDate completion:^(BOOL endSuccess, NSError *endError) {
+                if (!endSuccess) {
+                    qDebug() << "Historical Apple Health workout end failed:" << endError.localizedDescription.UTF8String;
+                    return;
+                }
+                [builder finishWorkoutWithCompletion:^(HKWorkout *workout, NSError *finishError) {
+                    if (finishError) {
+                        qDebug() << "Historical Apple Health workout save failed:" << finishError.localizedDescription.UTF8String;
+                    } else {
+                        qDebug() << "Historical workout saved to Apple Health";
+                    }
+                }];
+            }];
+        };
+
+        if (samples.count == 0) {
+            finishWorkout();
+        } else {
+            [builder addSamples:samples completion:^(BOOL addSuccess, NSError *addError) {
+                if (!addSuccess) {
+                    qDebug() << "Historical Apple Health workout samples failed:" << addError.localizedDescription.UTF8String;
+                    return;
+                }
+                finishWorkout();
+            }];
+        }
+    }];
+
+    return true;
+}
+
 long lockscreen::heartRate()
 {
     return [h heartRate];
@@ -153,7 +283,7 @@ void lockscreen::setTotalKcal(double totalKcal)
 
 void lockscreen::setDistance(double distance)
 {
-    [h setDistanceWithDistance:distance * 0.621371];
+    [h setDistanceWithDistance:distance];
 }
 
 void lockscreen::setSteps(double steps)
@@ -209,24 +339,26 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
 void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt,
                                        unsigned short currentCalories, unsigned long long currentSteps,
                                        unsigned char deviceType, double currentDistance, double totalKcal,
-                                       bool useMiles, unsigned char heartRate, const char *compactLeadingMetric,
-                                       int compactLeadingValue, const char *compactTrailingMetric,
+                                       double elevationGain, bool useMiles, unsigned char heartRate, int liveActivityHeartRate,
+                                       const char *compactLeadingMetric, int compactLeadingValue, const char *compactTrailingMetric,
                                        int compactTrailingValue) {
+    const double healthCadence = (deviceType == BIKE) ? cadence : cadence * 2.0;
+    qDebug() << "Apple Health workout elevation gain:" << elevationGain;
     if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:watt cadence:cadence*2 speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:0];
+        [workoutTracking addMetricsWithPower:watt cadence:healthCadence speed:speed * 100 kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:totalKcal elevationGain:elevationGain heartRate:heartRate];
 
     // Start Live Activity on first update, then keep updating
     if (!ios_liveactivity::isLiveActivityRunning()) {
         ios_liveactivity::startLiveActivity("QZ", useMiles, compactLeadingMetric, compactTrailingMetric);
     }
-    ios_liveactivity::updateLiveActivity(speed, cadence, watt, heartRate, currentDistance, currentCalories, useMiles,
+    ios_liveactivity::updateLiveActivity(speed, cadence, watt, liveActivityHeartRate, currentDistance, currentCalories, useMiles,
                                          compactLeadingMetric, compactLeadingValue, compactTrailingMetric,
                                          compactTrailingValue);
 }
 
-void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator)
+void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility, bool zwift_play_emulator, bool watt_bike_emulator, bool tacx)
 {
-    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr:disable_hr garmin_bluetooth_compatibility:garmin_bluetooth_compatibility zwift_play_emulator:zwift_play_emulator watt_bike_emulator:watt_bike_emulator];
+    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr:disable_hr garmin_bluetooth_compatibility:garmin_bluetooth_compatibility zwift_play_emulator:zwift_play_emulator watt_bike_emulator:watt_bike_emulator tacx:tacx];
 }
 
 void lockscreen::virtualrower_ios()
@@ -277,9 +409,6 @@ double lockscreen::virtualbike_getPowerRequested()
 
 bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, signed short Gears, UInt16 currentCalories, UInt32 Distance, UInt8 deviceType)
 {
-    if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:0 deviceType: deviceType distance:Distance totalKcal:0 elevationGain:0];
-
     if(_virtualbike_zwift != nil)
         return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime Gears:Gears];
     return 0;
@@ -287,9 +416,6 @@ bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResi
 
 bool lockscreen::virtualrower_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, UInt16 StrokesCount, UInt32 Distance, UInt16 KCal, UInt16 Pace, UInt8 deviceType)
 {
-    if(workoutTracking != nil && !appleWatchAppInstalled())
-        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:KCal steps:0 deviceType: deviceType distance:Distance totalKcal:0 elevationGain:0];
-
     if(_virtualrower != nil)
         return [_virtualrower updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime StrokesCount:StrokesCount Distance:Distance KCal:KCal Pace:Pace];
     return 0;
@@ -356,12 +482,17 @@ double lockscreen::virtualtreadmill_getRequestedSpeed()
     return 0;
 }
 
+uint64_t lockscreen::virtualtreadmill_lastChangeRequestedSpeed()
+{
+    if(_virtualtreadmill_zwift != nil)
+    {
+        return [_virtualtreadmill_zwift lastChangeRequestedSpeed];
+    }
+    return 0;
+}
+
 bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance, double elevationGain, unsigned short currentCalories, qint32 currentSteps,  unsigned short elapsedSeconds, UInt8 deviceType)
 {
-    if(workoutTracking != nil && !appleWatchAppInstalled()) {
-        [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed kcal:currentCalories steps:currentSteps deviceType:deviceType distance:currentDistance totalKcal:0 elevationGain:elevationGain];
-    }
-
     if(_virtualtreadmill_zwift != nil)
         return [_virtualtreadmill_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt currentInclination:currentInclination currentDistance:currentDistance elapsedTimeSeconds:elapsedSeconds];
     return 0;

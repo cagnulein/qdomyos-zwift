@@ -14,9 +14,222 @@
 
 using namespace std::chrono_literals;
 
+namespace {
+uint16_t toUInt16LE(const QByteArray &packet, int offset) {
+    return (static_cast<uint8_t>(packet.at(offset + 1)) << 8) | static_cast<uint8_t>(packet.at(offset));
+}
+
+bool readVarint(const QByteArray &packet, int &offset, quint32 &value) {
+    value = 0;
+    int shift = 0;
+    while (offset < packet.size() && shift <= 28) {
+        const uint8_t byte = static_cast<uint8_t>(packet.at(offset++));
+        value |= static_cast<quint32>(byte & 0x7f) << shift;
+        if ((byte & 0x80) == 0) {
+            return true;
+        }
+        shift += 7;
+    }
+    return false;
+}
+
+void appendVarint(QByteArray &packet, quint32 value) {
+    do {
+        uint8_t byte = value & 0x7f;
+        value >>= 7;
+        if (value != 0) {
+            byte |= 0x80;
+        }
+        packet.append(static_cast<char>(byte));
+    } while (value != 0);
+}
+
+uint8_t newProtocolMessageType(const QByteArray &payload) {
+    if (payload.startsWith(QByteArray::fromHex("02b53130362f34"))) {
+        return 0x03;
+    }
+    return 0x01;
+}
+}
+
 #ifdef Q_OS_IOS
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
+
+uint16_t keepbike::newProtocolCrc(const QByteArray &packet) {
+    uint16_t crc = 0;
+    for (const char rawByte : packet) {
+        crc ^= static_cast<uint8_t>(rawByte) << 8;
+        for (int bit = 0; bit < 8; ++bit) {
+            crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+        }
+    }
+    return crc;
+}
+
+bool keepbike::isNewProtocolFrame(const QByteArray &packet) {
+    if (packet.length() < 8 || static_cast<uint8_t>(packet.at(0)) != 0xa5 ||
+        static_cast<uint8_t>(packet.at(1)) != 0xa5) {
+        return false;
+    }
+
+    const uint16_t bodyLength = toUInt16LE(packet, 4);
+    if (packet.length() != bodyLength + 8) {
+        return false;
+    }
+
+    const uint16_t expectedCrc = toUInt16LE(packet, packet.length() - 2);
+    return newProtocolCrc(packet.left(packet.length() - 2)) == expectedCrc;
+}
+
+QByteArray keepbike::buildNewProtocolFrame(uint16_t sequence, quint32 session, const QByteArray &payload) {
+    QByteArray body = QByteArray::fromHex("3216ef2355");
+    body.append(static_cast<char>(newProtocolMessageType(payload)));
+    body.append(static_cast<char>(session & 0xff));
+    body.append(static_cast<char>((session >> 8) & 0xff));
+    body.append(static_cast<char>((session >> 16) & 0xff));
+    body.append(static_cast<char>((session >> 24) & 0xff));
+    body.append(static_cast<char>(0x00));
+    body.append(static_cast<char>(0x00));
+    body.append(payload);
+
+    QByteArray frame;
+    frame.append(static_cast<char>(0xa5));
+    frame.append(static_cast<char>(0xa5));
+    frame.append(static_cast<char>(sequence & 0xff));
+    frame.append(static_cast<char>((sequence >> 8) & 0xff));
+    frame.append(static_cast<char>(body.length() & 0xff));
+    frame.append(static_cast<char>((body.length() >> 8) & 0xff));
+    frame.append(body);
+
+    const uint16_t crc = newProtocolCrc(frame);
+    frame.append(static_cast<char>(crc & 0xff));
+    frame.append(static_cast<char>((crc >> 8) & 0xff));
+    return frame;
+}
+
+QByteArray keepbike::buildNewProtocolResistancePayload(resistance_t resistance) {
+    QByteArray payload = QByteArray::fromHex("01b53130362f37ff");
+    appendVarint(payload, 0x20);
+    appendVarint(payload, resistance * 1000);
+    return payload;
+}
+
+keepbike::NewProtocolMetrics keepbike::parseNewProtocolMetricsFrame(const QByteArray &packet) {
+    NewProtocolMetrics metrics;
+    if (!isNewProtocolFrame(packet)) {
+        return metrics;
+    }
+
+    const QByteArray body = packet.mid(6, toUInt16LE(packet, 4));
+    if (body.length() < 20 || body.left(6) != QByteArray::fromHex("ef2332165545")) {
+        return metrics;
+    }
+
+    const QByteArray payload = body.mid(12);
+    const QByteArray metricsPrefix = QByteArray::fromHex("01b53130362f37ff");
+    if (!payload.startsWith(metricsPrefix)) {
+        return metrics;
+    }
+
+    const QByteArray protobuf = payload.mid(metricsPrefix.length());
+    int offset = 0;
+    while (offset < protobuf.length()) {
+        quint32 key = 0;
+        if (!readVarint(protobuf, offset, key)) {
+            return NewProtocolMetrics();
+        }
+
+        const quint32 field = key >> 3;
+        const quint32 wireType = key & 0x07;
+        if (wireType != 0) {
+            return NewProtocolMetrics();
+        }
+
+        quint32 value = 0;
+        if (!readVarint(protobuf, offset, value)) {
+            return NewProtocolMetrics();
+        }
+
+        switch (field) {
+        case 1:
+            metrics.timestamp = value;
+            break;
+        case 2:
+            metrics.elapsed = static_cast<uint16_t>(value);
+            break;
+        case 5:
+            metrics.resistance = static_cast<uint16_t>(value);
+            break;
+        case 6:
+            metrics.cadence = static_cast<uint16_t>(value);
+            break;
+        case 7:
+            metrics.watt = static_cast<uint16_t>(value);
+            break;
+        case 8:
+            metrics.status = static_cast<uint16_t>(value);
+            break;
+        default:
+            break;
+        }
+    }
+
+    metrics.valid = metrics.timestamp != 0;
+    return metrics;
+}
+
+resistance_t keepbike::parseNewProtocolResistanceFrame(const QByteArray &packet) {
+    if (!isNewProtocolFrame(packet)) {
+        return -1;
+    }
+
+    const QByteArray body = packet.mid(6, toUInt16LE(packet, 4));
+    if (body.length() < 19 || body.left(5) != QByteArray::fromHex("ef23321655")) {
+        return -1;
+    }
+
+    const QByteArray payload = body.mid(12);
+    const QByteArray readPrefix = QByteArray::fromHex("01b53130362f34ff");
+    const QByteArray notifyPrefix = QByteArray::fromHex("04b53130362f34ff");
+    const QByteArray writePrefix = QByteArray::fromHex("02b53130362f34ff");
+
+    QByteArray protobuf;
+    if (payload.startsWith(readPrefix)) {
+        protobuf = payload.mid(readPrefix.length());
+    } else if (payload.startsWith(notifyPrefix)) {
+        protobuf = payload.mid(notifyPrefix.length());
+    } else if (payload.startsWith(writePrefix)) {
+        protobuf = payload.mid(writePrefix.length());
+    } else {
+        return -1;
+    }
+
+    int offset = 0;
+    while (offset < protobuf.length()) {
+        quint32 key = 0;
+        if (!readVarint(protobuf, offset, key)) {
+            return -1;
+        }
+
+        const quint32 field = key >> 3;
+        const quint32 wireType = key & 0x07;
+        if (wireType != 0) {
+            return -1;
+        }
+
+        quint32 value = 0;
+        if (!readVarint(protobuf, offset, value)) {
+            return -1;
+        }
+
+        if (field == 1) {
+            return static_cast<resistance_t>(value);
+        }
+    }
+
+    return -1;
+}
 
 keepbike::keepbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
@@ -77,6 +290,17 @@ void keepbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
 }
 
 void keepbike::forceResistance(resistance_t requestResistance) {
+    if (newProtocol) {
+        if (requestResistance > max_resistance)
+            requestResistance = max_resistance;
+        else if (requestResistance <= 0)
+            requestResistance = 1;
+
+        writeNewProtocolCommand(buildNewProtocolResistancePayload(requestResistance),
+                                QStringLiteral("new protocol resistance"));
+        return;
+    }
+
     uint8_t up[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
     uint8_t down[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
 
@@ -127,8 +351,12 @@ void keepbike::update() {
         // updating the treadmill console every second
         if (sec1Update++ == (1000 / refresh->interval())) {
             sec1Update = 0;
-            uint8_t noOpData[] = {0x01, 0x53, 0x23, 0x00, 0x00};
-            writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+            if (newProtocol) {
+                sendPollNewProtocol();
+            } else {
+                uint8_t noOpData[] = {0x01, 0x53, 0x23, 0x00, 0x00};
+                writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+            }
         } else {
         }
 
@@ -189,6 +417,13 @@ void keepbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
+
+    if (isNewProtocolFrame(newValue)) {
+        newProtocol = true;
+        handleNewProtocolFrame(newValue);
+        return;
+    }
+
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
@@ -286,6 +521,84 @@ void keepbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     }
 }
 
+bool keepbike::handleNewProtocolFrame(const QByteArray &newValue) {
+    const resistance_t resistance = parseNewProtocolResistanceFrame(newValue);
+    if (resistance != -1) {
+        lastPacket = newValue;
+        Resistance = resistance;
+        emit resistanceRead(Resistance.value());
+        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
+
+        qDebug() << QStringLiteral("Keep Bike new protocol resistance: ") + QString::number(Resistance.value());
+        return true;
+    }
+
+    const NewProtocolMetrics metrics = parseNewProtocolMetricsFrame(newValue);
+    if (!metrics.valid) {
+        return false;
+    }
+
+    QDateTime now = QDateTime::currentDateTime();
+    QSettings settings;
+    QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+
+    lastPacket = newValue;
+
+    if (metrics.resistance > 0) {
+        Resistance = metrics.resistance;
+        emit resistanceRead(Resistance.value());
+        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
+    }
+
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+            .toString()
+            .startsWith(QStringLiteral("Disabled"))) {
+        Cadence = metrics.cadence;
+    }
+
+    m_watt = metrics.watt;
+    Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),
+                                            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+
+    if (watts())
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) *
+               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+              200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(now))));
+
+    Distance += ((Speed.value() / 3600000.0) *
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+
+    if (Cadence.value() > 0) {
+        CrankRevs++;
+        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+    }
+
+    lastRefreshCharacteristicChanged = now;
+
+#ifdef Q_OS_ANDROID
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+    } else
+#endif
+    {
+        if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
+            update_hr_from_external();
+        }
+    }
+
+    qDebug() << QStringLiteral("Keep Bike new protocol elapsed: ") + QString::number(metrics.elapsed);
+    qDebug() << QStringLiteral("Current resistance: ") + QString::number(Resistance.value());
+    qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
+    qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
+    qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
+    qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
+
+    return true;
+}
+
 QTime keepbike::GetElapsedFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(3) << 8) | packet.at(4);
     QTime t(0, convertedData / 60, convertedData % 60);
@@ -311,7 +624,6 @@ double keepbike::GetSpeedFromPacket(const QByteArray &packet) {
 }
 
 void keepbike::btinit() {
-
     uint8_t initData1[] = {0x01, 0x4b, 0xf6, 0x00, 0x2e, 0x35, 0x36, 0x64, 0x61, 0x34,
                            0x32, 0x61, 0x64, 0x64, 0x30, 0x36, 0x63, 0x39, 0x39, 0x38};
     uint8_t initData2[] = {0x01, 0x45, 0x01, 0x35, 0x31, 0x30, 0x39, 0x35, 0x31,
@@ -335,12 +647,39 @@ void keepbike::btinit() {
 
     initDone = true;
 
+    btinitNewProtocol();
+
     if (lastResistanceBeforeDisconnection != -1) {
         qDebug() << QStringLiteral("forcing resistance to ") + QString::number(lastResistanceBeforeDisconnection) +
                         QStringLiteral(". It was the last value before the disconnection.");
         forceResistance(lastResistanceBeforeDisconnection);
         lastResistanceBeforeDisconnection = -1;
     }
+}
+
+void keepbike::writeNewProtocolCommand(const QByteArray &payload, const QString &info, bool wait_for_response) {
+    QByteArray frame = buildNewProtocolFrame(newProtocolSequence, newProtocolSession, payload);
+    newProtocolSequence += 0x0100;
+    writeCharacteristic(reinterpret_cast<uint8_t *>(frame.data()), frame.length(), info, false, wait_for_response);
+}
+
+void keepbike::btinitNewProtocol() {
+    newProtocolSession = static_cast<quint32>(QDateTime::currentMSecsSinceEpoch() & 0xffffffff);
+    newProtocolSequence = 0x00a0;
+
+    writeNewProtocolCommand(QByteArray::fromHex("01b3312f31ff6134633664323438353566623930376300"),
+                            QStringLiteral("new protocol device id"));
+    writeNewProtocolCommand(QByteArray::fromHex(
+                                "046100553130362f33ff0a18353966393532633231636633643130393064366138376333121066643265353031653665356464363230"),
+                            QStringLiteral("new protocol auth"));
+    writeNewProtocolCommand(QByteArray::fromHex("046100553130362f36"), QStringLiteral("new protocol mode"));
+    writeNewProtocolCommand(QByteArray::fromHex("046100553130362f34"), QStringLiteral("new protocol status"));
+
+    initDone = true;
+}
+
+void keepbike::sendPollNewProtocol() {
+    writeNewProtocolCommand(QByteArray::fromHex("01b53130362f37"), QStringLiteral("new protocol metrics poll"));
 }
 
 void keepbike::stateChanged(QLowEnergyService::ServiceState state) {

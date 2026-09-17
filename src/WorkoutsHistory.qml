@@ -3,10 +3,17 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtCharts 2.15
 import Qt.labs.calendar 1.0
+import Qt.labs.settings 1.0
 
 Page {
     id: workoutHistoryPage
 
+
+
+    Settings {
+        id: settings
+        property bool miles_unit: false
+    }
 
     // Signal for chart preview
     signal fitfile_preview_clicked(var url)
@@ -37,15 +44,18 @@ Page {
         }
     }
 
-    function hasAnyUploadServiceConfigured() {
-        return rootItem &&
-               (rootItem.isStravaLoggedIn() ||
-                rootItem.isGarminUploadConfigured() ||
-                rootItem.isIntervalsICUUploadConfigured())
+    function hasAnyUploadServiceConfigured(workoutId) {
+        return (rootItem &&
+                (rootItem.isStravaLoggedIn() ||
+                 rootItem.isGarminUploadConfigured() ||
+                 rootItem.isIntervalsICUUploadConfigured())) ||
+               (Qt.platform.os === "ios" &&
+                workoutModel &&
+                workoutModel.canWriteAppleHealth(workoutId))
     }
 
     function openUploadMenu(delegateItem, workoutId, workoutTitle) {
-        if (!workoutModel || !hasAnyUploadServiceConfigured()) {
+        if (!workoutModel || !hasAnyUploadServiceConfigured(workoutId)) {
             return
         }
 
@@ -473,6 +483,14 @@ Page {
             text: "Upload to Intervals.icu"
             visible: rootItem && rootItem.isIntervalsICUUploadConfigured()
             onTriggered: rootItem.uploadHistoricalWorkoutToIntervalsICU(uploadMenu.filePath)
+        }
+
+        MenuItem {
+            text: "Upload to Apple Health"
+            visible: Qt.platform.os === "ios" &&
+                     workoutModel &&
+                     workoutModel.canWriteAppleHealth(uploadMenu.workoutId)
+            onTriggered: workoutModel.uploadWorkoutToAppleHealth(uploadMenu.workoutId)
         }
     }
 

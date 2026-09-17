@@ -6,6 +6,7 @@
 #include "mqtt/qmqttclient.h"
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QPointer>
 #include <QSettings>
 #include <QHash>
 #include <QVariant>
@@ -13,7 +14,6 @@
 #include "devices/bike.h"
 #include "devices/treadmill.h"
 #include "devices/rower.h"
-#include "homeform.h"
 #include "bluetooth.h"
 
 class MQTTPublisher : public QObject {
@@ -38,6 +38,8 @@ private slots:
     void onError(QMqttClient::ClientError error);
     void publishWorkoutData();
     void onMessageReceived(const QByteArray &message, const QMqttTopicName &topic);
+    void onBluetoothDeviceConnected(bluetoothdevice *device);
+    void onBluetoothDeviceDisconnected();
 
 private:
     const QString STATUS_TOPIC = "status";
@@ -47,6 +49,8 @@ private:
     void publishOnlineStatus();
     void setupMQTTClient();
     void publishToTopic(const QString& topic, const QVariant& value);
+    void publishMomentaryButtonPress(const QString& topic);
+    void publishDefaultZwiftControllerStates();
     void connectToHost();
     QString getUserNickname() const;
     QString getBaseTopic() const;
@@ -82,7 +86,7 @@ private:
     QString m_username;
     QString m_password;
     QString m_userNickname;
-    bluetoothdevice* m_device;
+    QPointer<bluetoothdevice> m_device;
     bluetooth* m_manager;
 };
 
