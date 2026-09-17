@@ -19,6 +19,10 @@
 
 using namespace std::chrono_literals;
 
+bool ftmsrower::usesJorotoStrokeCountCadence(const QString &deviceName) {
+    return deviceName.trimmed().startsWith(QStringLiteral("JOROTO-MR280PRO"), Qt::CaseInsensitive);
+}
+
 ftmsrower::ftmsrower(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
@@ -368,21 +372,34 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     index += 2;
 
     if (!Flags.moreData) {
+        const double reportedCadence = ((uint8_t)newValue.at(index)) / cadence_divider;
 
-        if (lastStroke.secsTo(now) > 3) {
+        StrokesCount =
+            (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
+
+        const bool strokeCountChanged = lastStrokesCount != StrokesCount.value();
+        if (JOROTO_MR280PRO) {
+            const qint64 nowMs = now.toMSecsSinceEpoch();
+            Cadence = jorotoCadence.update(static_cast<quint16>(StrokesCount.value()), nowMs, reportedCadence);
+            if (jorotoCadence.isStale(nowMs)) {
+                qDebug() << "Resetting JOROTO cadence!";
+                Cadence = 0;
+                m_watt = 0;
+                Speed = 0;
+            } else if (strokeCountChanged) {
+                lastStroke = now;
+            }
+        } else if (lastStroke.secsTo(now) > 3) {
             qDebug() << "Resetting cadence!";
             Cadence = 0;
             m_watt = 0;
             Speed = 0;
         } else {
-            Cadence = ((uint8_t)newValue.at(index)) / cadence_divider;
+            Cadence = reportedCadence;
         }
         emit debug(QStringLiteral("Current Stroke Rate: ") + QString::number(Cadence.value()));
 
-        StrokesCount =
-            (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
-
-        if (lastStrokesCount != StrokesCount.value()) {
+        if (!JOROTO_MR280PRO && strokeCountChanged) {
             lastStroke = now;
         }
         lastStrokesCount = StrokesCount.value();
@@ -898,6 +915,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             Resistance = 9;
             emit resistanceRead(Resistance.value());
             qDebug() << "MRK-R26 found! using SPM-based power with manual resistance 1-18, default 9";
+        } else if (deviceName.startsWith(QStringLiteral("JOROTO-MR280PRO"))) {
+            JOROTO_MR280PRO = true;
+            qDebug() << "JOROTO-MR280PRO found! using Stroke Count cadence";
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";

@@ -27,6 +27,7 @@
 #include <QString>
 
 #include "rower.h"
+#include "devices/ftmsrower/ftmsrowercadence.h"
 #include "virtualdevices/virtualbike.h"
 #include "virtualdevices/virtualrower.h"
 
@@ -39,6 +40,7 @@ class ftmsrower : public rower {
   public:
     ftmsrower(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    static bool usesJorotoStrokeCountCadence(const QString &deviceName);
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -84,8 +86,10 @@ class ftmsrower : public rower {
     bool ROWER = false;
     bool MRK_R06 = false;
     bool MRK_R11S = false;
+    bool JOROTO_MR280PRO = false;
     QDateTime lastStroke = QDateTime::currentDateTime();
     double lastStrokesCount = 0;
+    ftmsrowerCadenceCalculator jorotoCadence;
     
     // PM5 specific variables
     uint8_t pm5RowState = 0;
