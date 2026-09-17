@@ -188,10 +188,11 @@ bool DaumUSB::initializeProgram0() {
 }
 
 bool DaumUSB::initializeGearAdjustment() {
-    // Ergo48 sends Set_Gang 14 once after starting its smart workout. The
-    // following Run_Daten responses then contain the physical jog-dial gear
-    // changes. This is an initialization command, not a per-change command.
-    constexpr uint8_t initialGear = 14;
+    // Ergo48 arms the jog-dial with one Set_Gang after starting its smart
+    // workout. Use the configured minimum gear as the safe QZ baseline; the
+    // following Run_Daten responses contain the physical jog-dial changes.
+    // This is an initialization command, not a per-change command.
+    constexpr uint8_t initialGear = 1;
     const char request[3] = {
         static_cast<char>(0x53),
         static_cast<char>(cockpitAddress),

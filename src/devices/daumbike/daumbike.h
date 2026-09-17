@@ -40,6 +40,7 @@ class daumbike : public bike {
 
   protected:
     bool supportsNativeInclination() const override { return false; }
+    bool applyGearModifier() const override { return false; }
 
   private:
     resistance_t max_resistance = 800;
