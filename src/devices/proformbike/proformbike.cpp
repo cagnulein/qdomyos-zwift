@@ -29,7 +29,7 @@ proformbike::proformbike(bool noWriteResistance, bool noHeartService, int8_t bik
     refresh->start(200ms);
 }
 
-void proformbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+void proformbike::writeCharacteristic(const uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                       bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
