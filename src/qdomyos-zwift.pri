@@ -859,6 +859,7 @@ devices/soleelliptical/soleelliptical.h \
 devices/solef80treadmill/solef80treadmill.h \
 devices/spirittreadmill/spirittreadmill.h \
 devices/sportsplusbike/sportsplusbike.h \
+devices/sportsplusbike/carefitnessparser.h \
 devices/sportstechbike/sportstechbike.h \
 devices/strydrunpowersensor/strydrunpowersensor.h \
 devices/tacxneo2/tacxneo2.h \
