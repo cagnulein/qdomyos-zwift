@@ -216,6 +216,7 @@ class ftmsbike : public bike {
     bool ZIPRO_RAVE = false;
     bool SPEEDRACEX = false;
     bool USDC_D700 = false;
+    bool WLT_BK = false;
     bool TOPUTURE_TEB5 = false;
     bool SMARTBIKE_3DIGIT = false;
     bool TX_500MB_IRON = false;
