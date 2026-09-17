@@ -43,12 +43,15 @@ Yes. If the Bluetooth device is fundamentally being detected as an external powe
 
 1. Select the device as the **Power Sensor** in QZ.
 2. Enable **Power Sensor as a Bike**.
-3. Confirm that power and the available sensor metrics are updating on the QZ main screen before opening the downstream training app.
-4. Then pair the virtual QZ bike/trainer in the training app instead of pairing the physical power sensor directly there.
+3. If the same physical device is also selected under **Bike Options > FTMS Bike**, set **FTMS Bike** to **Disabled** so QZ does not also initialize it through the FTMS-bike path.
+4. Confirm that power and the available sensor metrics are updating on the QZ main screen before opening the downstream training app.
+5. Then pair the virtual QZ bike/trainer in the training app instead of pairing the physical power sensor directly there.
 
 The `power_sensor_as_bike` option is part of QZ's current device-discovery configuration and changes how a selected power sensor is treated by QZ. This is useful for setups where the physical device provides usable cycling power data but is not otherwise selected as QZ's primary bike.
 
-In a confirmed support case, QZ could see the physical trainer/power source but was not exposing the expected bike data path until **Power Sensor as a Bike** was enabled; after enabling it, the setup began working.
+If a trainer or smart roller suddenly applies unexpectedly high physical resistance as soon as QZ connects, check this configuration before changing resistance mappings. Do not configure the same device simultaneously as an FTMS Bike and as a Power Sensor used as a bike. Keep it selected as the **Power Sensor**, enable **Power Sensor as a Bike**, disable **FTMS Bike**, and restart QZ. In a confirmed support case with smart rollers, this removed the unexpected resistance applied at connection time.
+
+In another confirmed support case, QZ could see the physical trainer/power source but was not exposing the expected bike data path until **Power Sensor as a Bike** was enabled; after enabling it, the setup began working.
 
 ## Can I use an Apple Watch for treadmill cadence while taking heart rate from a chest strap?
 
@@ -114,7 +117,7 @@ The RENPHO physical knob can also be used first to tune and test the virtual gea
 
 *Screenshots courtesy of Colby Brannon, shared with permission.*
 
-If using a Bluetooth media/volume remote instead, QZ handles volume-up and volume-down key events as gear controls when the corresponding option is enabled. On Android, the system volume overlay may still briefly appear when those keys are pressed; that does not prevent QZ from using the key presses for gear changes.
+If using a Bluetooth media/volume remote instead, QZ handles volume-up and volume-down key events as gear controls when the corresponding option is enabled. On Android, the system volume overlay may still briefly appear when those keys are pressed; that does not prevent QZ from using the key presses as gear changes.
 
 ## How do I follow Peloton resistance targets when my bike uses a different resistance scale?
 
