@@ -19,6 +19,12 @@
 #include "zwift-api/zwift_messages.pb.h"
 #endif
 
+enum class treadmill_pid_hr_mode : int8_t {
+    Default = -1,
+    Speed = 0,
+    Inclination = 1
+};
+
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);
@@ -52,6 +58,7 @@ class trainrow {
     int8_t zoneHR = -1;
     int16_t HRmin = -1;
     int16_t HRmax = -1;
+    treadmill_pid_hr_mode pidHrMode = treadmill_pid_hr_mode::Default;
     int16_t HRabove = -1;
     int16_t HRbelow = -1;
     double maxSpeed = -1;
@@ -129,6 +136,9 @@ class trainprogram : public QObject {
     static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
     static int firstBlockingTransitionRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
     static bool isBlockingTransitionRow(const trainrow &row);
+    static QString pidHrModeToString(treadmill_pid_hr_mode mode);
+    static treadmill_pid_hr_mode pidHrModeFromString(const QString &value);
+    static treadmill_pid_hr_mode effectivePidHrMode(const trainrow &row, treadmill_pid_hr_mode globalMode);
     bool powerzoneWorkout() {
         foreach(trainrow r, rows) {
             if(r.power != -1) return true;

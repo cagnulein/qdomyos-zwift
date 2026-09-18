@@ -115,6 +115,7 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" zoneHR = %1").arg(zoneHR);
     rv += QStringLiteral(" HRmin = %1").arg(HRmin);
     rv += QStringLiteral(" HRmax = %1").arg(HRmax);
+    rv += QStringLiteral(" pidHrMode = %1").arg(trainprogram::pidHrModeToString(pidHrMode));
     rv += QStringLiteral(" HRabove = %1").arg(HRabove);
     rv += QStringLiteral(" HRbelow = %1").arg(HRbelow);
     rv += QStringLiteral(" maxSpeed = %1").arg(maxSpeed);
@@ -130,6 +131,31 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" rampElapsed = %1").arg(rampElapsed.toString());
     rv += QStringLiteral(" rampDuration = %1").arg(rampDuration.toString());
     return rv;
+}
+
+QString trainprogram::pidHrModeToString(treadmill_pid_hr_mode mode) {
+    switch (mode) {
+    case treadmill_pid_hr_mode::Speed:
+        return QStringLiteral("speed");
+    case treadmill_pid_hr_mode::Inclination:
+        return QStringLiteral("inclination");
+    case treadmill_pid_hr_mode::Default:
+    default:
+        return QStringLiteral("default");
+    }
+}
+
+treadmill_pid_hr_mode trainprogram::pidHrModeFromString(const QString &value) {
+    const QString normalized = value.trimmed().toLower();
+    if (normalized == QStringLiteral("speed"))
+        return treadmill_pid_hr_mode::Speed;
+    if (normalized == QStringLiteral("inclination"))
+        return treadmill_pid_hr_mode::Inclination;
+    return treadmill_pid_hr_mode::Default;
+}
+
+treadmill_pid_hr_mode trainprogram::effectivePidHrMode(const trainrow &row, treadmill_pid_hr_mode globalMode) {
+    return row.pidHrMode == treadmill_pid_hr_mode::Default ? globalMode : row.pidHrMode;
 }
 
 void trainprogram::applySpeedFilter() {
@@ -1856,6 +1882,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows,
             if (row.HRmax >= 0) {
                 stream.writeAttribute(QStringLiteral("hrmax"), QString::number(row.HRmax));
             }
+            if (row.pidHrMode != treadmill_pid_hr_mode::Default) {
+                stream.writeAttribute(QStringLiteral("pidhrmode"), pidHrModeToString(row.pidHrMode));
+            }
             if (row.HRabove >= 0) {
                 stream.writeAttribute(QStringLiteral("hrabove"), QString::number(row.HRabove));
             }
@@ -2072,6 +2101,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             }
             if (atts.hasAttribute(QStringLiteral("hrmax"))) {
                 row.HRmax = atts.value(QStringLiteral("hrmax")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("pidhrmode"))) {
+                row.pidHrMode = pidHrModeFromString(atts.value(QStringLiteral("pidhrmode")).toString());
             }
             if (atts.hasAttribute(QStringLiteral("hrabove"))) {
                 row.HRabove = atts.value(QStringLiteral("hrabove")).toInt();

@@ -35,6 +35,11 @@
         { key: 'powerfrom', labelKey: 'workoutEditor.powerRampFrom', label: 'Ramp From', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 100 },
         { key: 'powerto', labelKey: 'workoutEditor.powerRampTo', label: 'Ramp To', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 200 },
         { key: 'forcespeed', labelKey: 'workoutEditor.forceSpeed', label: 'Force Speed', type: 'bool', group: 'basic', devices: ['treadmill'], linkedTo: 'speed' },
+        { key: 'pidHRMode', labelKey: 'workoutEditor.pidHrMode', label: 'HR PID actuator', type: 'select', options: [
+            { value: 'default', label: 'Default' },
+            { value: 'speed', label: 'Speed' },
+            { value: 'inclination', label: 'Inclination' }
+        ], group: 'advanced', devices: ['treadmill'], defaultValue: 'default', noToggle: true },
         { key: 'fanspeed', labelKey: 'workoutEditor.fan', label: 'Fan', type: 'number', min: 0, max: 8, group: 'advanced', devices: 'all', defaultValue: 0 },
         { key: 'requested_peloton_resistance', labelKey: 'workoutEditor.pelotonResistance', label: 'Peloton Res.', type: 'number', min: -1, max: 100, group: 'advanced', devices: ['bike'] },
         { key: 'loopTimeHR', labelKey: 'workoutEditor.hrLoop', label: 'HR Loop (s)', type: 'number', min: 1, max: 60, group: 'advanced', devices: 'all' },
@@ -613,8 +618,13 @@
                     out['__enabled_' + def.key] = true;
                 }
             } else {
-                // Field not present in saved workout, mark as disabled
-                out['__enabled_' + def.key] = false;
+                // Field not present in saved workout, mark it disabled unless it is a non-toggle selector.
+                if (def.key === 'pidHRMode') {
+                    out[def.key] = def.defaultValue;
+                    out['__enabled_' + def.key] = true;
+                } else {
+                    out['__enabled_' + def.key] = false;
+                }
             }
         });
         // FTP% ramp (from backend that collapsed the rows)
@@ -745,6 +755,8 @@
             base.__enabled_speed = true;
             base.inclination = 1.0;
             base.__enabled_inclination = true;
+            base.pidHRMode = 'default';
+            base.__enabled_pidHRMode = true;
             base.__enabled_duration = true;
             base.__enabled_distance = false;
             break;
@@ -898,10 +910,12 @@
                     sel.className = 'field-input field-select';
                     (field.options || []).forEach(opt => {
                         const option = document.createElement('option');
-                        option.value = opt;
-                        option.textContent = opt;
+                        const optValue = typeof opt === 'object' ? opt.value : opt;
+                        const optLabel = typeof opt === 'object' ? opt.label : opt;
+                        option.value = optValue;
+                        option.textContent = optLabel;
                         const currentVal = String(row[field.key] !== undefined ? row[field.key] : (field.defaultValue !== undefined ? field.defaultValue : ''));
-                        if (currentVal === opt) {
+                        if (currentVal === String(optValue)) {
                             option.selected = true;
                         }
                         sel.appendChild(option);

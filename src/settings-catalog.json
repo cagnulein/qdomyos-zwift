@@ -2413,6 +2413,26 @@
       "restartRequired": false
     },
     {
+      "key": "treadmill_pid_heart_control",
+      "name": "Treadmill PID HR actuator",
+      "description": "Select whether treadmill heart-rate PID control adjusts speed or inclination. Speed is the default.",
+      "parent": "Training Program Options",
+      "type": "string",
+      "qmlType": "string",
+      "control": "select",
+      "visible": true,
+      "defaultValue": "Speed",
+      "defaultExpression": "\"Speed\"",
+      "options": {
+        "source": "inline",
+        "values": [
+          "Speed",
+          "Inclination"
+        ]
+      },
+      "restartRequired": false
+    },
+    {
       "key": "pacef_1mile",
       "name": "1 mile pace (total time)",
       "description": "Enter your 1 mile time goal, click OK. This setting will be used when you’re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.",

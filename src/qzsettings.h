@@ -669,6 +669,8 @@ class QZSettings {
 
     static const QString treadmill_pid_heart_zone;
     static const QString default_treadmill_pid_heart_zone;
+    static const QString treadmill_pid_heart_control;
+    static const QString default_treadmill_pid_heart_control;
     /**
      *@brief 1 mile time goal, for a training program with the speed control.
      */
