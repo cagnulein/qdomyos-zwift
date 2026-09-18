@@ -109,8 +109,7 @@ ScrollView {
         property int  tile_steering_angle_order: 30
         property bool tile_pid_hr_enabled: false
         property int  tile_pid_hr_order: 31
-        property bool tile_target_hr_enabled: false
-        property int  tile_target_hr_order: 80
+
         property bool tile_ext_incline_enabled: false
         property int  tile_ext_incline_order: 32
         property bool tile_cadence_color_enabled: false
@@ -369,6 +368,8 @@ ScrollView {
         property string shortcut_start_stop: ""            
         property bool tile_watt_color_enabled: true
         property bool tile_pace_color_enabled: true
+        property bool tile_target_hr_enabled: false
+        property int  tile_target_hr_order: 80
     }
 
 
