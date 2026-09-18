@@ -466,6 +466,7 @@
 		87A0D7522A3A4518005147F2 /* fakerower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0D7502A3A4517005147F2 /* fakerower.cpp */; };
 		87A0D7542A3A4547005147F2 /* moc_fakerower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0D7532A3A4547005147F2 /* moc_fakerower.cpp */; };
 		87A18F072660D5C1002D7C96 /* ftmsrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A18F052660D5C0002D7C96 /* ftmsrower.cpp */; };
+		87A18F0A2600D5C1002D7C96 /* ftmsrowercadence.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A18F0B2600D5C1002D7C96 /* ftmsrowercadence.cpp */; };
 		87A18F092660D5D9002D7C96 /* moc_ftmsrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A18F082660D5D9002D7C96 /* moc_ftmsrower.cpp */; };
 		87A2E0222B2B053E00E6168F /* swiftDebug.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A2E0212B2B053E00E6168F /* swiftDebug.mm */; };
 		87A33F1A2D611D8400BFFF29 /* moc_logwriter.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A33F192D611D8400BFFF29 /* moc_logwriter.cpp */; };
@@ -1559,6 +1560,8 @@
 		87A0D7532A3A4547005147F2 /* moc_fakerower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fakerower.cpp; sourceTree = "<group>"; };
 		87A18F052660D5C0002D7C96 /* ftmsrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ftmsrower.cpp; path = ../src/devices/ftmsrower/ftmsrower.cpp; sourceTree = "<group>"; };
 		87A18F062660D5C1002D7C96 /* ftmsrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftmsrower.h; path = ../src/devices/ftmsrower/ftmsrower.h; sourceTree = "<group>"; };
+		87A18F0B2600D5C1002D7C96 /* ftmsrowercadence.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ftmsrowercadence.cpp; path = ../src/devices/ftmsrower/ftmsrowercadence.cpp; sourceTree = "<group>"; };
+		87A18F0C2600D5D9002D7C96 /* ftmsrowercadence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftmsrowercadence.h; path = ../src/devices/ftmsrower/ftmsrowercadence.h; sourceTree = "<group>"; };
 		87A18F082660D5D9002D7C96 /* moc_ftmsrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_ftmsrower.cpp; sourceTree = "<group>"; };
 		87A2E0202B2B024200E6168F /* swiftDebug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = swiftDebug.h; path = ../src/ios/swiftDebug.h; sourceTree = "<group>"; };
 		87A2E0212B2B053E00E6168F /* swiftDebug.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = swiftDebug.mm; path = ../src/ios/swiftDebug.mm; sourceTree = "<group>"; };
@@ -2843,6 +2846,8 @@
 				87083D9426678EFA0072410D /* zwiftworkout.h */,
 				87A18F052660D5C0002D7C96 /* ftmsrower.cpp */,
 				87A18F062660D5C1002D7C96 /* ftmsrower.h */,
+				87A18F0B2600D5C1002D7C96 /* ftmsrowercadence.cpp */,
+				87A18F0C2600D5D9002D7C96 /* ftmsrowercadence.h */,
 				871B9FD1265E6A8800DB41F4 /* powerzonepack.cpp */,
 				871B9FD0265E6A8800DB41F4 /* powerzonepack.h */,
 				87A3BC202656429400D302E3 /* echelonrower.cpp */,
@@ -3943,6 +3948,7 @@
 				878D83762A1F33D900D7F004 /* moc_bkoolbike.cpp in Compile Sources */,
 				E7F190E59DC975BA4CA65F0C /* fit_crc.cpp in Compile Sources */,
 				87A18F092660D5D9002D7C96 /* moc_ftmsrower.cpp in Compile Sources */,
+				87A18F0A2600D5C1002D7C96 /* ftmsrowercadence.cpp in Compile Sources */,
 				DA1DC0B761BD7A3004BCF43D /* fit_date_time.cpp in Compile Sources */,
 				873D3C4D2C296B3800770CB9 /* jumprope.cpp in Compile Sources */,
 				87E1CA7D2B8DF04900E3C414 /* moc_trxappgateusbelliptical.cpp in Compile Sources */,
