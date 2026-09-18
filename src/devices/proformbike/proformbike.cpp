@@ -219,7 +219,10 @@ void proformbike::forceResistance(resistance_t requestResistance) {
             {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01, 0x04, 0xff, 0x20, 0x00, 0x36, 0x00, 0x00, 0x00, 0x00, 0x00},
             {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01, 0x04, 0xff, 0x26, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00},
         };
+        const uint8_t gxLeResistanceRequest[] = {0xfe, 0x02, 0x0d, 0x02};
         if (requestResistance >= 1 && requestResistance <= 10) {
+            writeCharacteristic((uint8_t *)gxLeResistanceRequest, sizeof(gxLeResistanceRequest),
+                                QStringLiteral("resrequest"), false, false);
             writeCharacteristic((uint8_t *)res[requestResistance - 1], sizeof(res[requestResistance - 1]),
                                 QStringLiteral("resistance") + QString::number(requestResistance), false, true);
         }
