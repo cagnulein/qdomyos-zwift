@@ -41,6 +41,7 @@ class ftmsrower : public rower {
     ftmsrower(bool noWriteResistance, bool noHeartService);
     bool connected() override;
     static bool usesJorotoStrokeCountCadence(const QString &deviceName);
+    bool usesJorotoDirectDistance() const { return JOROTO_MR280PRO; }
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -87,6 +88,8 @@ class ftmsrower : public rower {
     bool MRK_R06 = false;
     bool MRK_R11S = false;
     bool JOROTO_MR280PRO = false;
+    int jorotoPlausiblePaceSamples = 0;
+    bool jorotoPaceReady = false;
     QDateTime lastStroke = QDateTime::currentDateTime();
     double lastStrokesCount = 0;
     ftmsrowerCadenceCalculator jorotoCadence;

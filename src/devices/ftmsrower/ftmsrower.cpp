@@ -465,8 +465,22 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
-        // Always handle invalid pace values to prevent division by zero
-        if(instantPace == 0 || instantPace == 65535) {
+        // JOROTO-MR280PRO emits short pace values (69-85) for a few seconds
+        // at startup/resume. They produce impossible speed/power spikes.
+        // Keep this filter model-specific; other FTMS rowers retain the
+        // existing parser behavior.
+        const bool jorotoPacePlausible = instantPace >= 100 && instantPace <= 600;
+        if (JOROTO_MR280PRO && !jorotoPacePlausible) {
+            jorotoPlausiblePaceSamples = 0;
+            jorotoPaceReady = false;
+            Speed = 0;
+            m_watt = 0;
+        } else if (JOROTO_MR280PRO && !jorotoPaceReady) {
+            ++jorotoPlausiblePaceSamples;
+            if (jorotoPlausiblePaceSamples >= 3)
+                jorotoPaceReady = true;
+            Speed = jorotoPaceReady ? (60.0 / instantPace) * 30.0 : 0;
+        } else if(instantPace == 0 || instantPace == 65535) {
             Speed = 0;
         } else {
             if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
@@ -489,7 +503,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         double watt =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
-        if (!mrkR26) {
+        if (!mrkR26 && (!JOROTO_MR280PRO || jorotoPaceReady)) {
             if (WDK_PACE_POWER && instantPace > 0 && instantPace != 65535 && Cadence.value() > 0) {
                 m_watt = rower::calculateWattsFromPace(instantPace);
             } else if (!filterWattNull || watt != 0) {

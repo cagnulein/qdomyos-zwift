@@ -1,6 +1,7 @@
 #include "devices/ftmsrower/ftmsrowercadence.h"
 
 #include <QtGlobal>
+#include <algorithm>
 
 double ftmsrowerCadenceCalculator::update(quint16 strokeCount, qint64 timestampMs, double reportedCadence) {
     Q_UNUSED(reportedCadence);
@@ -48,12 +49,26 @@ double ftmsrowerCadenceCalculator::update(quint16 strokeCount, qint64 timestampM
         m_samples.removeFirst();
     }
 
+    // Wait for four complete stroke intervals before publishing a value. The
+    // JOROTO occasionally reports a short/long pair for one real interval.
+    if (m_samples.size() < 5) {
+        return m_cadence;
+    }
+
     const sample first = m_samples.first();
     const quint16 totalStrokeDelta = static_cast<quint16>(strokeCount - first.strokeCount);
     const qint64 totalElapsedMs = timestampMs - first.timestampMs;
     if (totalStrokeDelta > 0 && totalElapsedMs > 0) {
-        m_cadence = (static_cast<double>(totalStrokeDelta) * 60000.0) /
-                    static_cast<double>(totalElapsedMs);
+        const double windowCadence = (static_cast<double>(totalStrokeDelta) * 60000.0) /
+                                     static_cast<double>(totalElapsedMs);
+        m_recentCadences.append(windowCadence);
+        while (m_recentCadences.size() > 3) {
+            m_recentCadences.removeFirst();
+        }
+
+        QList<double> sortedCadences = m_recentCadences;
+        std::sort(sortedCadences.begin(), sortedCadences.end());
+        m_cadence = sortedCadences.at(sortedCadences.size() / 2);
         m_recentIntervalMs = elapsedMs / strokeDelta;
         m_lastStrokeTimestampMs = timestampMs;
     }
@@ -72,6 +87,7 @@ bool ftmsrowerCadenceCalculator::isStale(qint64 timestampMs) const {
 
 void ftmsrowerCadenceCalculator::reset() {
     m_samples.clear();
+    m_recentCadences.clear();
     m_cadence = 0;
     m_hasStroke = false;
     m_lastStrokeTimestampMs = -1;

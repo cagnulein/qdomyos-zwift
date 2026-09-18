@@ -21,13 +21,16 @@ TEST(FtmsRowerCadenceTest, DoesNotUseReportedCadenceDuringStartup) {
     EXPECT_DOUBLE_EQ(calculator.update(101, 3000, 22), 0);
 }
 
-TEST(FtmsRowerCadenceTest, CalculatesCadenceOnlyAfterTwoRealStrokeIncrements) {
+TEST(FtmsRowerCadenceTest, CalculatesCadenceOnlyAfterFourRealStrokeIntervals) {
     ftmsrowerCadenceCalculator calculator;
 
     calculator.update(100, 0, 22);
     calculator.update(101, 3000, 22);
+    calculator.update(102, 6000, 22);
+    calculator.update(103, 9000, 22);
 
-    EXPECT_NEAR(calculator.update(102, 6000, 22), 20, 0.001);
+    EXPECT_DOUBLE_EQ(calculator.cadence(), 0);
+    EXPECT_NEAR(calculator.update(104, 12000, 22), 20, 0.001);
 }
 
 TEST(FtmsRowerCadenceTest, RollingWindowSmoothsCadenceFromStrokeCount) {
@@ -37,6 +40,23 @@ TEST(FtmsRowerCadenceTest, RollingWindowSmoothsCadenceFromStrokeCount) {
     calculator.update(101, 3000, 22);
     calculator.update(102, 6000, 22);
     calculator.update(103, 9000, 44);
+    calculator.update(104, 12000, 22);
+    calculator.update(105, 15000, 22);
+
+    EXPECT_NEAR(calculator.cadence(), 20, 0.001);
+}
+
+TEST(FtmsRowerCadenceTest, MedianRejectsOneJorotoTimingSpike) {
+    ftmsrowerCadenceCalculator calculator;
+
+    calculator.update(100, 0, 22);
+    calculator.update(101, 3000, 22);
+    calculator.update(102, 6000, 22);
+    calculator.update(103, 9000, 22);
+    calculator.update(104, 12000, 22);
+    calculator.update(105, 13000, 22);
+    calculator.update(106, 18000, 22);
+    calculator.update(107, 21000, 22);
 
     EXPECT_NEAR(calculator.cadence(), 20, 0.001);
 }
@@ -47,11 +67,15 @@ TEST(FtmsRowerCadenceTest, StalePauseResetsHistoryBeforeResume) {
     calculator.update(100, 0, 22);
     calculator.update(101, 3000, 22);
     calculator.update(102, 6000, 22);
-    ASSERT_TRUE(calculator.isStale(12001));
+    calculator.update(103, 9000, 22);
+    calculator.update(104, 12000, 22);
+    ASSERT_TRUE(calculator.isStale(18001));
 
-    EXPECT_DOUBLE_EQ(calculator.update(102, 12001, 22), 0);
-    EXPECT_DOUBLE_EQ(calculator.update(103, 15001, 22), 0);
-    EXPECT_NEAR(calculator.update(104, 18001, 22), 20, 0.001);
+    EXPECT_DOUBLE_EQ(calculator.update(104, 18001, 22), 0);
+    EXPECT_DOUBLE_EQ(calculator.update(105, 21001, 22), 0);
+    EXPECT_DOUBLE_EQ(calculator.update(106, 24001, 22), 0);
+    EXPECT_DOUBLE_EQ(calculator.update(107, 27001, 22), 0);
+    EXPECT_NEAR(calculator.update(108, 30001, 22), 20, 0.001);
 }
 
 TEST(FtmsRowerCadenceTest, SlowRowingGetsAWindowBasedTimeout) {
@@ -61,5 +85,5 @@ TEST(FtmsRowerCadenceTest, SlowRowingGetsAWindowBasedTimeout) {
     calculator.update(101, 4000, 15);
 
     EXPECT_FALSE(calculator.isStale(7000));
-    EXPECT_TRUE(calculator.isStale(12001));
+    EXPECT_TRUE(calculator.isStale(14001));
 }
