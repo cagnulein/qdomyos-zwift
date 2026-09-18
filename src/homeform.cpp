@@ -11244,76 +11244,76 @@ double homeform::heartRateMax() {
     return maxHeartRate;
 }
 
-int homeform::targetHeartRate() {
+bool homeform::heartRateTargetRange(int &min, int &max) {
     QSettings settings;
-    if (trainProgram && trainProgram->isStarted()) {
-        trainrow row = trainProgram->currentRow();
-        if (row.HRmax > 0)
-            return row.HRmax;
-        if (row.zoneHR > 0) {
-            double zoneMax = 100.0;
-            switch (row.zoneHR) {
-            case 1:
-                zoneMax = settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble();
-                break;
-            case 2:
-                zoneMax = settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble();
-                break;
-            case 3:
-                zoneMax = settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble();
-                break;
-            case 4:
-                zoneMax = settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble();
-                break;
-            default:
-                break;
-            }
-            return qRound(heartRateMax() * zoneMax / 100.0);
-        }
-    }
-    int target = settings.value(QZSettings::treadmill_pid_heart_max, QZSettings::default_treadmill_pid_heart_max).toInt();
-    if (target > 0)
-        return target;
 
-    QString zoneSetting = settings.value(QZSettings::treadmill_pid_heart_zone,
-                                          QZSettings::default_treadmill_pid_heart_zone)
-                              .toString();
-    bool ok = false;
-    int zone = zoneSetting.toInt(&ok);
-    if (ok && zone >= 1 && zone <= 5) {
-        double zoneMax = 100.0;
+    const auto zoneRange = [this, &settings](int zone, int &rangeMin, int &rangeMax) {
+        if (zone < 1 || zone > 5)
+            return false;
+
+        double lowerPercent = 0.0;
+        double upperPercent = 100.0;
         switch (zone) {
         case 1:
-            zoneMax = settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble();
+            upperPercent = settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble();
             break;
         case 2:
-            zoneMax = settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble();
+            lowerPercent = settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble();
+            upperPercent = settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble();
             break;
         case 3:
-            zoneMax = settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble();
+            lowerPercent = settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble();
+            upperPercent = settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble();
             break;
         case 4:
-            zoneMax = settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble();
+            lowerPercent = settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble();
+            upperPercent = settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble();
             break;
-        default:
+        case 5:
+            lowerPercent = settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble();
             break;
         }
-        return qRound(heartRateMax() * zoneMax / 100.0);
+
+        const double maxHeartRate = heartRateMax();
+        rangeMin = qMax(1, qRound(maxHeartRate * lowerPercent / 100.0));
+        rangeMax = qRound(maxHeartRate * upperPercent / 100.0);
+        if (zone < 5)
+            rangeMax--;
+        return rangeMax >= rangeMin;
+    };
+
+    if (trainProgram && trainProgram->isStarted()) {
+        const trainrow row = trainProgram->currentRow();
+        if (row.HRmin > 0 && row.HRmax > 0) {
+            min = row.HRmin;
+            max = row.HRmax;
+            return true;
+        }
+        return row.zoneHR > 0 && zoneRange(row.zoneHR, min, max);
     }
-    return 0;
+
+    min = settings.value(QZSettings::treadmill_pid_heart_min, QZSettings::default_treadmill_pid_heart_min).toInt();
+    max = settings.value(QZSettings::treadmill_pid_heart_max, QZSettings::default_treadmill_pid_heart_max).toInt();
+    if (min > 0 && max > 0)
+        return true;
+
+    const QString zoneSetting = settings.value(QZSettings::treadmill_pid_heart_zone,
+                                                QZSettings::default_treadmill_pid_heart_zone)
+                                    .toString();
+    bool ok = false;
+    const int zone = zoneSetting.toInt(&ok);
+    return ok && zoneRange(zone, min, max);
 }
 
 void homeform::adjustTargetHeartRate(int delta) {
     QSettings settings;
-    int target = targetHeartRate();
-    if (target <= 0)
+    int min = 0;
+    int max = 0;
+    if (!heartRateTargetRange(min, max))
         return;
 
-    target = qMax(1, target + delta);
-    int offset = qMax(0, settings.value(QZSettings::treadmill_pid_heart_target_offset,
-                                        QZSettings::default_treadmill_pid_heart_target_offset)
-                           .toInt());
-    int min = qMax(1, target - offset);
+    const int target = qMax(1, max + delta);
+    min = qMax(1, min + delta);
 
     // A manual target uses the explicit HR range path instead of the zone path.
     settings.setValue(QZSettings::treadmill_pid_heart_zone, QStringLiteral("Disabled"));
@@ -11329,19 +11329,16 @@ void homeform::adjustTargetHeartRate(int delta) {
 }
 
 void homeform::updateTargetHeartRateTile() {
-    int target = targetHeartRate();
-    if (target <= 0) {
+    int min = 0;
+    int target = 0;
+    if (!heartRateTargetRange(min, target)) {
         targetHR->setValue(QStringLiteral("--"));
         targetHR->setSecondLine(QString());
         return;
     }
 
-    QSettings settings;
-    int offset = qMax(0, settings.value(QZSettings::treadmill_pid_heart_target_offset,
-                                        QZSettings::default_treadmill_pid_heart_target_offset)
-                           .toInt());
     targetHR->setValue(QString::number(target));
-    targetHR->setSecondLine(QString::number(qMax(1, target - offset)) + QStringLiteral("-") + QString::number(target));
+    targetHR->setSecondLine(QString::number(min) + QStringLiteral("-") + QString::number(target));
 }
 
 void homeform::clearFiles() {

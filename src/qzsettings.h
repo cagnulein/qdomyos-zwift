@@ -1992,9 +1992,6 @@ class QZSettings {
     static const QString treadmill_pid_heart_max;
     static constexpr int default_treadmill_pid_heart_max = 0;
 
-    static const QString treadmill_pid_heart_target_offset;
-    static constexpr int default_treadmill_pid_heart_target_offset = 5;
-
     static const QString nordictrack_elliptical_c7_5;
     static constexpr bool default_nordictrack_elliptical_c7_5 = false;
 

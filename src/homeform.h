@@ -1121,7 +1121,7 @@ public:
     void ten_hz();
     void checkClipboardForWorkout();
     double heartRateMax();
-    int targetHeartRate();
+    bool heartRateTargetRange(int &min, int &max);
     void adjustTargetHeartRate(int delta);
     void updateTargetHeartRateTile();
     void backup();

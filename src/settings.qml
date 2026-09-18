@@ -464,9 +464,6 @@ import AndroidStatusBar 1.0
             property int  tile_steering_angle_order: 30
             property bool tile_pid_hr_enabled: false
             property int  tile_pid_hr_order: 31
-            property bool tile_target_hr_enabled: false
-            property int  tile_target_hr_order: 80
-
             property real heart_rate_zone1: 70.0
             property real heart_rate_zone2: 80.0
             property real heart_rate_zone3: 90.0
@@ -1027,8 +1024,6 @@ import AndroidStatusBar 1.0
             // from version 2.12.64
             property int treadmill_pid_heart_min: 0
             property int treadmill_pid_heart_max: 0
-            property int treadmill_pid_heart_target_offset: 5
-
             // from version 2.12.65
             property bool nordictrack_elliptical_c7_5: false
 
@@ -1755,6 +1750,8 @@ import AndroidStatusBar 1.0
             property bool custom_inclination_resistance_table_enabled: false
             property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
             property real power_sensor_speed_correction_threshold: 20.0
+            property bool tile_target_hr_enabled: false
+            property int  tile_target_hr_order: 80
         }
 
 
@@ -9194,27 +9191,6 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_pid_heart_max = treadmillPidHRmaxTextField.text ; toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            text: qsTr("PID HR minimum offset:")
-                            Layout.fillWidth: true
-                        }
-                        TextField {
-                            id: treadmillPidHRTargetOffsetTextField
-                            text: settings.treadmill_pid_heart_target_offset
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_pid_heart_target_offset = treadmillPidHRTargetOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
