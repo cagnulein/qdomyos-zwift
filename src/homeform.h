@@ -918,6 +918,7 @@ public:
     DataObject *targetMets;
     DataObject *steeringAngle;
     DataObject *pidHR;
+    DataObject *targetHR;
     DataObject *extIncline;
     DataObject *instantaneousStrideLengthCM;
     DataObject *groundContactMS;
@@ -1120,6 +1121,9 @@ public:
     void ten_hz();
     void checkClipboardForWorkout();
     double heartRateMax();
+    int targetHeartRate();
+    void adjustTargetHeartRate(int delta);
+    void updateTargetHeartRateTile();
     void backup();
     bool getDevice();
     bool getLap();

@@ -125,6 +125,7 @@ class trainprogram : public QObject {
     bool adjustResistanceOffsetForTrainingProgram(int32_t delta);
     int32_t resistanceOffsetForTrainingProgram() const { return trainingProgramResistanceOffset; }
     bool overrideZoneHRForCurrentRow(uint8_t zone);
+    bool overrideHeartRateTargetForCurrentRow(int min, int max);
     bool advanceLapButtonStep();
     static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
     static int firstBlockingTransitionRow(const QList<trainrow> &rows, int currentStep, int candidateStep);

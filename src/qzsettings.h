@@ -640,6 +640,12 @@ class QZSettings {
     static const QString tile_pid_hr_order;
     static constexpr int default_tile_pid_hr_order = 31;
 
+    static const QString tile_target_hr_enabled;
+    static constexpr bool default_tile_target_hr_enabled = false;
+
+    static const QString tile_target_hr_order;
+    static constexpr int default_tile_target_hr_order = 80;
+
     static const QString heart_rate_zone1;
     static constexpr float default_heart_rate_zone1 = 70.0;
 
@@ -1985,6 +1991,9 @@ class QZSettings {
 
     static const QString treadmill_pid_heart_max;
     static constexpr int default_treadmill_pid_heart_max = 0;
+
+    static const QString treadmill_pid_heart_target_offset;
+    static constexpr int default_treadmill_pid_heart_target_offset = 5;
 
     static const QString nordictrack_elliptical_c7_5;
     static constexpr bool default_nordictrack_elliptical_c7_5 = false;

@@ -222,6 +222,8 @@ const QString QZSettings::tile_steering_angle_enabled = QStringLiteral("tile_ste
 const QString QZSettings::tile_steering_angle_order = QStringLiteral("tile_steering_angle_order");
 const QString QZSettings::tile_pid_hr_enabled = QStringLiteral("tile_pid_hr_enabled");
 const QString QZSettings::tile_pid_hr_order = QStringLiteral("tile_pid_hr_order");
+const QString QZSettings::tile_target_hr_enabled = QStringLiteral("tile_target_hr_enabled");
+const QString QZSettings::tile_target_hr_order = QStringLiteral("tile_target_hr_order");
 const QString QZSettings::heart_rate_zone1 = QStringLiteral("heart_rate_zone1");
 const QString QZSettings::heart_rate_zone2 = QStringLiteral("heart_rate_zone2");
 const QString QZSettings::heart_rate_zone3 = QStringLiteral("heart_rate_zone3");
@@ -718,6 +720,7 @@ const QString QZSettings::horizon_treadmill_7_0_at_24 = QStringLiteral("horizon_
 const QString QZSettings::treadmill_direct_distance = QStringLiteral("treadmill_direct_distance");
 const QString QZSettings::treadmill_pid_heart_min = QStringLiteral("treadmill_pid_heart_min");
 const QString QZSettings::treadmill_pid_heart_max = QStringLiteral("treadmill_pid_heart_max");
+const QString QZSettings::treadmill_pid_heart_target_offset = QStringLiteral("treadmill_pid_heart_target_offset");
 const QString QZSettings::nordictrack_elliptical_c7_5 = QStringLiteral("nordictrack_elliptical_c7_5");
 const QString QZSettings::renpho_bike_double_resistance = QStringLiteral("renpho_bike_double_resistance");
 const QString QZSettings::nordictrack_incline_trainer_x7i = QStringLiteral("nordictrack_incline_trainer_x7i");
@@ -1286,7 +1289,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1006;
+const uint32_t allSettingsCount = 1009;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1459,6 +1462,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_steering_angle_order, QZSettings::default_tile_steering_angle_order},
     {QZSettings::tile_pid_hr_enabled, QZSettings::default_tile_pid_hr_enabled},
     {QZSettings::tile_pid_hr_order, QZSettings::default_tile_pid_hr_order},
+    {QZSettings::tile_target_hr_enabled, QZSettings::default_tile_target_hr_enabled},
+    {QZSettings::tile_target_hr_order, QZSettings::default_tile_target_hr_order},
     {QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1},
     {QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2},
     {QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3},
@@ -1879,6 +1884,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance},
     {QZSettings::treadmill_pid_heart_min, QZSettings::default_treadmill_pid_heart_min},
     {QZSettings::treadmill_pid_heart_max, QZSettings::default_treadmill_pid_heart_max},
+    {QZSettings::treadmill_pid_heart_target_offset, QZSettings::default_treadmill_pid_heart_target_offset},
     {QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5},
     {QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance},
     {QZSettings::nordictrack_incline_trainer_x7i, QZSettings::default_nordictrack_incline_trainer_x7i},
