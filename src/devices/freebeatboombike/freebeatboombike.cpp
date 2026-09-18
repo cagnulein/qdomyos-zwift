@@ -9,6 +9,8 @@
 
 using namespace std::chrono_literals;
 
+constexpr resistance_t freebeatboombike::maxResistance;
+
 namespace {
 constexpr uint8_t syncByte = 0x55;
 constexpr uint8_t dataTypes[] = {0x15, 0x03, 0x25};
@@ -53,6 +55,10 @@ bool freebeatboombike::parseTelemetry(const QByteArray &packet, Telemetry *telem
     // The Boom Bike's miles ratio is required by the device's calibration.
     telemetry->speed = telemetry->rpm * M_PI * wheelDiameter * 2.0 * wheelMultiplier * 3.6 * 0.62137 / 60.0;
     return true;
+}
+
+double freebeatboombike::distanceIncrement(double speedKmh, qint64 elapsedMsecs) {
+    return speedKmh * static_cast<double>(elapsedMsecs) / 3600000.0;
 }
 
 QByteArray freebeatboombike::queryCommand() {
@@ -126,13 +132,31 @@ void freebeatboombike::innerWriteResistance() {
     requestResistance = -1;
 }
 
-void freebeatboombike::updateTelemetry(const Telemetry &telemetry) {
-    const QDateTime now = QDateTime::currentDateTime();
-    if (!firstCharacteristicChanged) {
-        Distance += telemetry.speed * lastRefreshCharacteristicChanged.msecsTo(now) / 3600000.0;
+void freebeatboombike::createVirtualBike() {
+    if (hasVirtualDevice()) {
+        return;
     }
 
+    QSettings settings;
+    if (!settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool()) {
+        return;
+    }
+
+    emit debug(QStringLiteral("creating virtual bike interface..."));
+    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+    connect(virtualBike, &virtualbike::changeInclination, this, &freebeatboombike::changeInclination);
+    setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+}
+
+void freebeatboombike::updateTelemetry(const Telemetry &telemetry) {
+    const QDateTime now = QDateTime::currentDateTime();
+    const qint64 elapsedMsecs = lastRefreshCharacteristicChanged.msecsTo(now);
+
     Speed = telemetry.speed;
+    if (!firstCharacteristicChanged) {
+        Distance += distanceIncrement(Speed.value(), elapsedMsecs);
+    }
+
     Cadence = telemetry.rpm;
     Resistance = telemetry.resistance;
     m_pelotonResistance = telemetry.resistance;
@@ -181,6 +205,8 @@ void freebeatboombike::update() {
     if (m_control->state() != QLowEnergyController::DiscoveredState || !initDone) {
         return;
     }
+
+    createVirtualBike();
 
     // The official Boom Bike app polls with MACHINE_QUERY every ~150 ms;
     // enabling the repeat-stream command alone only returns a status frame.
