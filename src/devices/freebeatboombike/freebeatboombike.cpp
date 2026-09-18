@@ -9,6 +9,8 @@
 
 using namespace std::chrono_literals;
 
+constexpr resistance_t freebeatboombike::maxResistance;
+
 namespace {
 constexpr uint8_t syncByte = 0x55;
 constexpr uint8_t dataTypes[] = {0x15, 0x03, 0x25};
