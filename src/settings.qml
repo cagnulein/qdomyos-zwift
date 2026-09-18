@@ -477,7 +477,6 @@ import AndroidStatusBar 1.0
             property real peloton_offset: 0
 
             property string treadmill_pid_heart_zone: "Disabled"
-            property string treadmill_pid_heart_control: "Speed"
             property real pacef_1mile: 250
             property real pacef_5km: 300
             property real pacef_10km: 320
@@ -1753,6 +1752,7 @@ import AndroidStatusBar 1.0
             property bool custom_inclination_resistance_table_enabled: false
             property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
             property real power_sensor_speed_correction_threshold: 20.0
+            property string treadmill_pid_heart_control: "Speed"
         }
 
 
