@@ -511,7 +511,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
                     m_watt = watt;
             }
         }
-    } else if(!mrkR26 && !PM5 && Flags.instantPace) {
+    } else if(!mrkR26 && !PM5 && Flags.instantPace && (!JOROTO_MR280PRO || jorotoPaceReady)) {
         qDebug() << "rower doesn't send wattage, let's calculate it...";
         if(instantPace > 0 && instantPace != 65535) {
             double estimatedWatt = rower::calculateWattsFromPace(instantPace);
