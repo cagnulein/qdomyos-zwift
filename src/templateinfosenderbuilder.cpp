@@ -92,6 +92,7 @@ QString openEndedRowLabel(const trainrow &row) {
     item[QStringLiteral("zoneHR")] = row.zoneHR;                                                            \
     item[QStringLiteral("HRmin")] = row.HRmin;                                                              \
     item[QStringLiteral("HRmax")] = row.HRmax;                                                              \
+    item[QStringLiteral("pidHRMode")] = trainprogram::pidHrModeToString(row.pidHrMode);\
     item[QStringLiteral("HRabove")] = row.HRabove;                                                          \
     item[QStringLiteral("HRbelow")] = row.HRbelow;                                                          \
     item[QStringLiteral("latitude")] = row.latitude;                                                        \
@@ -1201,6 +1202,9 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             }
             if (row.contains(QStringLiteral("HRmax"))) {
                 tR.HRmax = row[QStringLiteral("HRmax")].toInt();
+            }
+            if (row.contains(QStringLiteral("pidHRMode"))) {
+                tR.pidHrMode = trainprogram::pidHrModeFromString(row[QStringLiteral("pidHRMode")].toString());
             }
             if (row.contains(QStringLiteral("HRabove"))) {
                 tR.HRabove = row[QStringLiteral("HRabove")].toInt();

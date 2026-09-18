@@ -7956,22 +7956,25 @@ void homeform::update() {
                     if (!recentSpeedChange) {
                     if (bluetoothManager->device()->deviceType() == TREADMILL) {
 
-                        const double step = 0.2;
-                        double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
-                        if (zone < ((uint8_t)currentHRZone) && currentSpeed > minSpeed) {
-                            double newSpeed = std::max(currentSpeed - step, minSpeed);
-                            ((treadmill *)bluetoothManager->device())
-                                ->changeSpeedAndInclination(
-                                    newSpeed,
-                                    ((treadmill *)bluetoothManager->device())->currentInclination().value());
-                            pid_heart_zone_small_inc_counter = 0;
-                        } else if (zone > ((uint8_t)currentHRZone) && currentSpeed < maxSpeed) {
-                            double newSpeed = std::min(currentSpeed + step, maxSpeed);
-                            ((treadmill *)bluetoothManager->device())
-                                ->changeSpeedAndInclination(
-                                    newSpeed,
-                                    ((treadmill *)bluetoothManager->device())->currentInclination().value());
-                            pid_heart_zone_small_inc_counter = 0;
+                        const double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                        const treadmill_pid_hr_mode globalPidMode = trainprogram::pidHrModeFromString(
+                            settings.value(QZSettings::treadmill_pid_heart_control,
+                                           QZSettings::default_treadmill_pid_heart_control)
+                                .toString());
+                        const treadmill_pid_hr_mode pidMode =
+                            trainProgram ? trainprogram::effectivePidHrMode(trainProgram->currentRow(), globalPidMode)
+                                         : globalPidMode;
+                        const bool useInclinationPid =
+                            pidMode == treadmill_pid_hr_mode::Inclination &&
+                            ((treadmill *)bluetoothManager->device())->canHandleInclineChange();
+                        if (zone < ((uint8_t)currentHRZone) && (useInclinationPid || currentSpeed > minSpeed)) {
+                            if (adjustTreadmillPidHeartRate(false, minSpeed, maxSpeed, QStringLiteral("zone below target"))) {
+                                pid_heart_zone_small_inc_counter = 0;
+                            }
+                        } else if (zone > ((uint8_t)currentHRZone) && (useInclinationPid || currentSpeed < maxSpeed)) {
+                            if (adjustTreadmillPidHeartRate(true, minSpeed, maxSpeed, QStringLiteral("zone above target"))) {
+                                pid_heart_zone_small_inc_counter = 0;
+                            }
                         } else if (trainprogram_pid_pushy) {
                             double pushyZoneLimit = (double)zone + trainprogram_pid_hr_pushy_zone_limit;
                             // Slowdown threshold is symmetric: midpoint between pushyZoneLimit and zone top
@@ -7994,22 +7997,17 @@ void homeform::update() {
                                 }
                             }
                             double distanceToNextZone = ((double)zone + 1.0) - pushyHRZone;
-                            if (pushyHRZone > pushySlowdownThreshold && currentSpeed > minSpeed) {
-                                double newSpeed = std::max(currentSpeed - step, minSpeed);
-                                ((treadmill *)bluetoothManager->device())
-                                    ->changeSpeedAndInclination(
-                                        newSpeed,
-                                        ((treadmill *)bluetoothManager->device())->currentInclination().value());
-                                pid_heart_zone_small_inc_counter = 0;
-                            } else if (pushyHRZone < pushyZoneLimit && distanceToNextZone > 0.0 && currentSpeed < maxSpeed) {
+                            if (pushyHRZone > pushySlowdownThreshold && (useInclinationPid || currentSpeed > minSpeed)) {
+                                if (adjustTreadmillPidHeartRate(false, minSpeed, maxSpeed, QStringLiteral("pushy slowdown"))) {
+                                    pid_heart_zone_small_inc_counter = 0;
+                                }
+                            } else if (pushyHRZone < pushyZoneLimit && distanceToNextZone > 0.0 &&
+                                       (useInclinationPid || currentSpeed < maxSpeed)) {
                                 pid_heart_zone_small_inc_counter++;
                                 if (pid_heart_zone_small_inc_counter > (10 * distanceToNextZone)) {
-                                    double newSpeed = std::min(currentSpeed + step, maxSpeed);
-                                    ((treadmill *)bluetoothManager->device())
-                                        ->changeSpeedAndInclination(
-                                            newSpeed,
-                                            ((treadmill *)bluetoothManager->device())->currentInclination().value());
-                                    pid_heart_zone_small_inc_counter = 0;
+                                    if (adjustTreadmillPidHeartRate(true, minSpeed, maxSpeed, QStringLiteral("pushy increase"))) {
+                                        pid_heart_zone_small_inc_counter = 0;
+                                    }
                                 }
                             } else {
                                 pid_heart_zone_small_inc_counter++;
@@ -8165,46 +8163,41 @@ void homeform::update() {
                     if (!recentSpeedChange) {
                     if (bluetoothManager->device()->deviceType() == TREADMILL) {
 
-                        const double step = 0.2;
-                        double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                        const double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                        const treadmill_pid_hr_mode globalPidMode = trainprogram::pidHrModeFromString(
+                            settings.value(QZSettings::treadmill_pid_heart_control,
+                                           QZSettings::default_treadmill_pid_heart_control)
+                                .toString());
+                        const treadmill_pid_hr_mode pidMode =
+                            trainProgram ? trainprogram::effectivePidHrMode(trainProgram->currentRow(), globalPidMode)
+                                         : globalPidMode;
+                        const bool useInclinationPid =
+                            pidMode == treadmill_pid_hr_mode::Inclination &&
+                            ((treadmill *)bluetoothManager->device())->canHandleInclineChange();
                         qDebug() << QStringLiteral("TREADMILL PID HR - currentSpeed:") << currentSpeed
                                  << QStringLiteral("minSpeed:") << minSpeed << QStringLiteral("maxSpeed:") << maxSpeed;
 
                         if (hrmax < bluetoothManager->device()->currentHeart().average20s() &&
-                            currentSpeed > minSpeed) {
-                            double newSpeed = std::max(currentSpeed - step, minSpeed);
-                            qDebug() << QStringLiteral("TREADMILL PID HR - HR > HRmax, DECREASING speed from")
-                                     << currentSpeed << QStringLiteral("to") << newSpeed;
-                            ((treadmill *)bluetoothManager->device())
-                                ->changeSpeedAndInclination(
-                                    newSpeed,
-                                    ((treadmill *)bluetoothManager->device())->currentInclination().value());
-                            pid_heart_zone_small_inc_counter = 0;
-                        } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
-                                   currentSpeed < maxSpeed) {
-                            double newSpeed = std::min(currentSpeed + step, maxSpeed);
-                            qDebug() << QStringLiteral("TREADMILL PID HR - HR < HRmin, INCREASING speed from")
-                                     << currentSpeed << QStringLiteral("to") << newSpeed;
-                            ((treadmill *)bluetoothManager->device())
-                                ->changeSpeedAndInclination(
-
-                                    newSpeed,
-                                    ((treadmill *)bluetoothManager->device())->currentInclination().value());
-                            pid_heart_zone_small_inc_counter = 0;
-                        } else if (currentSpeed < maxSpeed &&
-                                   hrmax >= bluetoothManager->device()->currentHeart().average20s() && trainprogram_pid_pushy) {
-                            qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY mode, counter:") << pid_heart_zone_small_inc_counter
-                                     << QStringLiteral("threshold:") << (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()));
-                            pid_heart_zone_small_inc_counter++;
-                            if (pid_heart_zone_small_inc_counter > (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()))) {
-                                double newSpeed = std::min(currentSpeed + step, maxSpeed);
-                                qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY triggered, INCREASING speed from")
-                                         << currentSpeed << QStringLiteral("to") << newSpeed;
-                                ((treadmill *)bluetoothManager->device())
-                                    ->changeSpeedAndInclination(
-                                        newSpeed,
-                                        ((treadmill *)bluetoothManager->device())->currentInclination().value());
+                            (useInclinationPid || currentSpeed > minSpeed)) {
+                            if (adjustTreadmillPidHeartRate(false, minSpeed, maxSpeed, QStringLiteral("HR above maximum"))) {
                                 pid_heart_zone_small_inc_counter = 0;
+                            }
+                        } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
+                                   (useInclinationPid || currentSpeed < maxSpeed)) {
+                            if (adjustTreadmillPidHeartRate(true, minSpeed, maxSpeed, QStringLiteral("HR below minimum"))) {
+                                pid_heart_zone_small_inc_counter = 0;
+                            }
+                        } else if ((useInclinationPid || currentSpeed < maxSpeed) &&
+                                   hrmax >= bluetoothManager->device()->currentHeart().average20s() && trainprogram_pid_pushy) {
+                            const double hrDistance = fabs(hrmax - bluetoothManager->device()->currentHeart().average20s());
+                            const double threshold = hrDistance > 0.0 ? (30.0 / hrDistance) : 30.0;
+                            qDebug() << QStringLiteral("TREADMILL PID HR - PUSHY mode, counter:") << pid_heart_zone_small_inc_counter
+                                     << QStringLiteral("threshold:") << threshold;
+                            pid_heart_zone_small_inc_counter++;
+                            if (pid_heart_zone_small_inc_counter > threshold) {
+                                if (adjustTreadmillPidHeartRate(true, minSpeed, maxSpeed, QStringLiteral("pushy increase"))) {
+                                    pid_heart_zone_small_inc_counter = 0;
+                                }
                             }
                         } else {
                             qDebug() << QStringLiteral("TREADMILL PID HR - No action taken (in zone or at limits)");
@@ -11185,6 +11178,64 @@ void homeform::restart() {
 #if !defined(Q_OS_DARWIN) && !defined(Q_OS_IOS) && !defined(Q_OS_WINRT)
     QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
 #endif
+}
+
+bool homeform::adjustTreadmillPidHeartRate(bool increaseLoad, double minSpeed, double maxSpeed,
+                                             const QString &reason) {
+    if (!bluetoothManager || !bluetoothManager->device() ||
+        bluetoothManager->device()->deviceType() != TREADMILL) {
+        return false;
+    }
+
+    QSettings settings;
+    treadmill *device = static_cast<treadmill *>(bluetoothManager->device());
+    treadmill_pid_hr_mode globalMode = trainprogram::pidHrModeFromString(
+        settings.value(QZSettings::treadmill_pid_heart_control,
+                       QZSettings::default_treadmill_pid_heart_control)
+            .toString());
+    treadmill_pid_hr_mode mode = globalMode;
+    if (trainProgram) {
+        mode = trainprogram::effectivePidHrMode(trainProgram->currentRow(), globalMode);
+    }
+
+    if (mode == treadmill_pid_hr_mode::Inclination && device->canHandleInclineChange()) {
+        const double minInclination =
+            settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
+        const double maxInclination =
+            settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
+        const double currentInclination = device->currentInclination().value();
+        const double step = device->minStepInclination();
+        const double newInclination = increaseLoad
+                                          ? std::min(currentInclination + step, maxInclination)
+                                          : std::max(currentInclination - step, minInclination);
+        if (qFuzzyCompare(currentInclination + 1.0, newInclination + 1.0)) {
+            qDebug() << QStringLiteral("TREADMILL PID HR - inclination at limit") << currentInclination
+                     << QStringLiteral("reason:") << reason;
+            return false;
+        }
+        qDebug() << QStringLiteral("TREADMILL PID HR - actuator: inclination, reason:") << reason
+                 << QStringLiteral("from") << currentInclination << QStringLiteral("to") << newInclination;
+        device->changeInclination(newInclination, newInclination);
+        return true;
+    }
+
+    if (mode == treadmill_pid_hr_mode::Inclination) {
+        qWarning() << QStringLiteral("TREADMILL PID HR - inclination requested but unsupported; falling back to speed");
+    }
+
+    const double currentSpeed = device->currentSpeed().value();
+    const double step = 0.2;
+    const double newSpeed = increaseLoad ? std::min(currentSpeed + step, maxSpeed)
+                                         : std::max(currentSpeed - step, minSpeed);
+    if (qFuzzyCompare(currentSpeed + 1.0, newSpeed + 1.0)) {
+        qDebug() << QStringLiteral("TREADMILL PID HR - speed at limit") << currentSpeed
+                 << QStringLiteral("reason:") << reason;
+        return false;
+    }
+    qDebug() << QStringLiteral("TREADMILL PID HR - actuator: speed, reason:") << reason
+             << QStringLiteral("from") << currentSpeed << QStringLiteral("to") << newSpeed;
+    device->changeSpeedAndInclination(newSpeed, device->currentInclination().value());
+    return true;
 }
 
 double homeform::heartRateMax() {

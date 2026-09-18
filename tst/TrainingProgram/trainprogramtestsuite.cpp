@@ -48,3 +48,22 @@ void TrainProgramTestSuite::test_heartRateThresholdBarrierBlocksSkippedZeroDurat
     EXPECT_EQ(trainprogram::firstBlockingTransitionRow(rows, 0, 2), 1)
         << "A zero-duration heart-rate threshold row must block the transition to the later timed row.";
 }
+
+void TrainProgramTestSuite::test_pidHrModeRoundTripsKnownValues() {
+    EXPECT_EQ(trainprogram::pidHrModeFromString(QStringLiteral("default")), treadmill_pid_hr_mode::Default);
+    EXPECT_EQ(trainprogram::pidHrModeFromString(QStringLiteral("speed")), treadmill_pid_hr_mode::Speed);
+    EXPECT_EQ(trainprogram::pidHrModeFromString(QStringLiteral("inclination")), treadmill_pid_hr_mode::Inclination);
+    EXPECT_EQ(trainprogram::pidHrModeToString(treadmill_pid_hr_mode::Inclination), QStringLiteral("inclination"));
+}
+
+void TrainProgramTestSuite::test_pidHrModeWorkoutOverrideTakesPrecedence() {
+    trainrow row;
+    row.pidHrMode = treadmill_pid_hr_mode::Inclination;
+
+    EXPECT_EQ(trainprogram::effectivePidHrMode(row, treadmill_pid_hr_mode::Speed),
+              treadmill_pid_hr_mode::Inclination);
+
+    row.pidHrMode = treadmill_pid_hr_mode::Default;
+    EXPECT_EQ(trainprogram::effectivePidHrMode(row, treadmill_pid_hr_mode::Inclination),
+              treadmill_pid_hr_mode::Inclination);
+}
