@@ -2701,7 +2701,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-smoke-test]
+    needs: [window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-smoke-test]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
