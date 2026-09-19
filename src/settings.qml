@@ -22,6 +22,11 @@ import AndroidStatusBar 1.0
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane
+        // The Duo scene is extended below the safe area so QZ can paint the
+        // background there. Keep the last settings row above the home
+        // indicator by adding the same amount to the scrollable content.
+        bottomPadding: (ApplicationWindow.window && ApplicationWindow.window.isIPhoneDuoDisplay()) ? 34 : 0
+        contentHeight: Math.max(column1.implicitHeight + bottomPadding, availableHeight)
 
         signal peloton_connect_clicked()
         signal intervalsicu_connect_clicked()
@@ -1837,7 +1842,7 @@ import AndroidStatusBar 1.0
         ColumnLayout {
             id: column1
             spacing: 0
-            anchors.fill: parent
+            width: settingsPane.availableWidth
 
             RowLayout {
                 id: settingsSearchBar
