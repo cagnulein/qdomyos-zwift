@@ -37,6 +37,7 @@ SOURCES += \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
+        Devices/TestFtmsRowerCadence.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests
@@ -72,6 +73,7 @@ HEADERS += \
     Devices/TestRenphoBikeKnobGears.h \
     Devices/TestNordictrackEllipticalS700Parser.h \
     Devices/TestXcxBikeParser.h \
+    Devices/TestFtmsRowerCadence.h \
     Devices/TestOctaneTreadmillZR8.h \
     Devices/TestSunnyfitStepper.h \
     Erg/ergtabletestsuite.h \

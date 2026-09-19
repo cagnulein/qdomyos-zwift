@@ -19,6 +19,10 @@
 
 using namespace std::chrono_literals;
 
+bool ftmsrower::usesJorotoStrokeCountCadence(const QString &deviceName) {
+    return deviceName.trimmed().startsWith(QStringLiteral("JOROTO-MR280PRO"), Qt::CaseInsensitive);
+}
+
 ftmsrower::ftmsrower(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
@@ -368,21 +372,35 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     index += 2;
 
     if (!Flags.moreData) {
+        const double reportedCadence = ((uint8_t)newValue.at(index)) / cadence_divider;
 
-        if (lastStroke.secsTo(now) > 3) {
+        StrokesCount =
+            (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
+
+        const bool strokeCountChanged = lastStrokesCount != StrokesCount.value();
+        if (JOROTO_MR280PRO) {
+            const qint64 nowMs = now.toMSecsSinceEpoch();
+            const bool jorotoStale = jorotoCadence.isStale(nowMs);
+            Cadence = jorotoCadence.update(static_cast<quint16>(StrokesCount.value()), nowMs, reportedCadence);
+            if (jorotoStale) {
+                qDebug() << "Resetting JOROTO cadence!";
+                Cadence = 0;
+                m_watt = 0;
+                Speed = 0;
+            } else if (strokeCountChanged) {
+                lastStroke = now;
+            }
+        } else if (lastStroke.secsTo(now) > 3) {
             qDebug() << "Resetting cadence!";
             Cadence = 0;
             m_watt = 0;
             Speed = 0;
         } else {
-            Cadence = ((uint8_t)newValue.at(index)) / cadence_divider;
+            Cadence = reportedCadence;
         }
         emit debug(QStringLiteral("Current Stroke Rate: ") + QString::number(Cadence.value()));
 
-        StrokesCount =
-            (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
-
-        if (lastStrokesCount != StrokesCount.value()) {
+        if (!JOROTO_MR280PRO && strokeCountChanged) {
             lastStroke = now;
         }
         lastStrokesCount = StrokesCount.value();
@@ -447,8 +465,22 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
-        // Always handle invalid pace values to prevent division by zero
-        if(instantPace == 0 || instantPace == 65535) {
+        // JOROTO-MR280PRO emits short pace values (69-85) for a few seconds
+        // at startup/resume. They produce impossible speed/power spikes.
+        // Keep this filter model-specific; other FTMS rowers retain the
+        // existing parser behavior.
+        const bool jorotoPacePlausible = instantPace >= 100 && instantPace <= 600;
+        if (JOROTO_MR280PRO && !jorotoPacePlausible) {
+            jorotoPlausiblePaceSamples = 0;
+            jorotoPaceReady = false;
+            Speed = 0;
+            m_watt = 0;
+        } else if (JOROTO_MR280PRO && !jorotoPaceReady) {
+            ++jorotoPlausiblePaceSamples;
+            if (jorotoPlausiblePaceSamples >= 3)
+                jorotoPaceReady = true;
+            Speed = jorotoPaceReady ? (60.0 / instantPace) * 30.0 : 0;
+        } else if(instantPace == 0 || instantPace == 65535) {
             Speed = 0;
         } else {
             if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
@@ -471,7 +503,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         double watt =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
-        if (!mrkR26) {
+        if (!mrkR26 && (!JOROTO_MR280PRO || jorotoPaceReady)) {
             if (WDK_PACE_POWER && instantPace > 0 && instantPace != 65535 && Cadence.value() > 0) {
                 m_watt = rower::calculateWattsFromPace(instantPace);
             } else if (!filterWattNull || watt != 0) {
@@ -479,7 +511,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
                     m_watt = watt;
             }
         }
-    } else if(!mrkR26 && !PM5 && Flags.instantPace) {
+    } else if(!mrkR26 && !PM5 && Flags.instantPace && (!JOROTO_MR280PRO || jorotoPaceReady)) {
         qDebug() << "rower doesn't send wattage, let's calculate it...";
         if(instantPace > 0 && instantPace != 65535) {
             double estimatedWatt = rower::calculateWattsFromPace(instantPace);
@@ -898,6 +930,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             Resistance = 9;
             emit resistanceRead(Resistance.value());
             qDebug() << "MRK-R26 found! using SPM-based power with manual resistance 1-18, default 9";
+        } else if (deviceName.startsWith(QStringLiteral("JOROTO-MR280PRO"))) {
+            JOROTO_MR280PRO = true;
+            qDebug() << "JOROTO-MR280PRO found! using Stroke Count cadence";
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";
