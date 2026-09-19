@@ -3024,6 +3024,9 @@ class QZSettings {
     static const QString proform_bike_325_csx_PFEX439210INT_0;
     static constexpr bool default_proform_bike_325_csx_PFEX439210INT_0 = false;
 
+    static const QString nordictrack_gx_le;
+    static constexpr bool default_nordictrack_gx_le = false;
+
     static const QString nordictrack_vr21;
     static constexpr bool default_nordictrack_vr21 = false;
 
