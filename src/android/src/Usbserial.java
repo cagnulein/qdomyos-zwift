@@ -78,10 +78,22 @@ public class Usbserial {
     }
 
     public static void open(Context context, int baudRate, String devicePath) {
-        if (devicePath != null && (devicePath.startsWith("/dev/") || devicePath.equalsIgnoreCase("auto"))) {
-            openLocalSerial(devicePath, baudRate);
+        String selector = devicePath == null ? "" : devicePath.trim();
+        if (!selector.isEmpty() && (selector.startsWith("/dev/") || selector.equalsIgnoreCase("auto"))) {
+            openLocalSerial(selector, baudRate);
             return;
         }
+
+        // Android does not expose Windows-style COM port names. Keep COM1,
+        // COM2, ... as compatibility aliases for the USB-adapter scan, so a
+        // setting copied from Windows still selects the FTDI/USB path.
+        if (!selector.isEmpty() && !selector.equalsIgnoreCase("usb") &&
+                !selector.matches("(?i)COM[0-9]+")) {
+            QLog.d("QZ", "UsbSerial unsupported Android selector: " + selector);
+            return;
+        }
+        if (selector.matches("(?i)COM[0-9]+"))
+            QLog.d("QZ", "UsbSerial " + selector + " is an Android USB-adapter alias");
 
         QLog.d("QZ","UsbSerial open with baud rate: " + baudRate);
         localSerialMode = false;
