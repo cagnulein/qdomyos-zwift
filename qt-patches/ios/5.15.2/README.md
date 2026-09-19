@@ -17,6 +17,22 @@ Build the plugin with `tools/build_qios_uiscene.sh`. Set `BUILD_CONFIG=debug`
 to create the debug variant. The script defaults to the local Qt 5.15.2 iOS
 installation and the patched source directory used during development.
 
+To keep the original Qt source tree untouched, point `QTBASE_SOURCE_DIR` at a
+clean Qt source tree and set `APPLY_PATCHES=1`. The script copies that tree to
+a temporary overlay, applies both repository patches there, and builds from
+the overlay:
+
+```sh
+QTBASE_SOURCE_DIR=/path/to/qt-everywhere-src-5.15.2 \
+APPLY_PATCHES=1 BUILD_CONFIG=debug \
+tools/build_qios_uiscene.sh
+```
+
+The overlay is temporary; only the resulting archive is copied to `binary/`.
+The QZ Xcode target must still link that produced archive because adding the
+Qt platform source files directly to the QZ target would create duplicate
+plugin symbols.
+
 The resulting QPA archives are also versioned under `binary/` as
 `libqios.a` and `libqios_debug.a`. Xcode Cloud normally gets the release
 `libqios.a` from the Qt iOS27 package; keeping both archives here makes the

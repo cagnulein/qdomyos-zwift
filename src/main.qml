@@ -52,6 +52,27 @@ ApplicationWindow {
                AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
     }
 
+    function getContentBottomMargin() {
+        // On iPhone Duo the scene includes a bottom safe-area strip. Let the
+        // QML background paint through it, while keeping interactive tiles
+        // constrained by their existing layout.
+        if (isIPhoneDuoDisplay()) return -34;
+        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0;
+    }
+
+    function isIPhoneDuoDisplay() {
+        if (Qt.platform.os !== "ios") return false;
+
+        // iPhone Duo exposes different logical sizes when open and closed.
+        // Keep this deliberately narrow so iPhones with Dynamic Island and
+        // iPads never use this inset.
+        var longSide = Math.max(Screen.width, Screen.height);
+        var shortSide = Math.min(Screen.width, Screen.height);
+        return (longSide >= 1400 && longSide <= 1450 && shortSide >= 980 && shortSide <= 1020) ||
+               (longSide >= 650 && longSide <= 700 && shortSide >= 450 && shortSide <= 500) ||
+               (longSide >= 930 && longSide <= 970 && shortSide >= 650 && shortSide <= 690);
+    }
+
     function getLeftPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
@@ -59,6 +80,7 @@ ApplicationWindow {
     }
     
     function getRightPadding() {
+        if (isIPhoneDuoDisplay()) return 90;
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
                AndroidStatusBar.rightInset : 0;
@@ -1499,7 +1521,7 @@ ApplicationWindow {
             id: stackView
             initialItem: "Home.qml"
             anchors.fill: parent
-            anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
+            anchors.bottomMargin: getContentBottomMargin()
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
             focus: true

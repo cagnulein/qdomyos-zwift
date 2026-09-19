@@ -366,7 +366,7 @@ diff --git a/src/plugins/platforms/ios/qiosviewcontroller.mm b/src/plugins/platf
  @property (nonatomic, assign) QPointer<QT_PREPEND_NAMESPACE(QIOSScreen)> platformScreen;
  @property (nonatomic, assign) BOOL changingOrientation;
  @end
-@@ -122,17 +123,10 @@
+@@ -122,17 +123,17 @@
  {
      Q_UNUSED(subview);
  
@@ -385,6 +385,13 @@ diff --git a/src/plugins/platforms/ios/qiosviewcontroller.mm b/src/plugins/platf
 +    if (uiWindow && uiWindow.hidden) {
 +        // Show the scene-owned UIWindow the first time a QWindow is mapped.
          uiWindow.hidden = NO;
++        if ([subview isKindOfClass:[QUIView class]]) {
++            QUIView *view = static_cast<QUIView *>(subview);
++            dispatch_async(dispatch_get_main_queue(), ^{
++                if (view.window == uiWindow)
++                    [view sendUpdatedExposeEvent];
++            });
++        }
      }
  }
 @@ -254,9 +248,10 @@
@@ -429,6 +436,11 @@ diff --git a/src/plugins/platforms/ios/qiosviewcontroller.mm b/src/plugins/platf
 diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios/qioswindow.mm
 --- a/src/plugins/platforms/ios/qioswindow.mm
 +++ b/src/plugins/platforms/ios/qioswindow.mm
+@@ -58,3 +58,4 @@
+ #include <QtDebug>
++#include <QtCore/QPointer>
+
+ QT_BEGIN_NAMESPACE
 @@ -242,5 +242,8 @@
  bool QIOSWindow::isExposed() const
  {
@@ -440,7 +452,7 @@ diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios
 +        && m_view.window.rootViewController.view.window == m_view.window
 +        && [m_view isDescendantOfView:m_view.window.rootViewController.view];
  }
-@@ -265,15 +265,40 @@
+@@ -265,15 +265,68 @@
          // in applyGeometry(), as we don't want to artificially limit window
          // placement "outside" of the screen bounds if that's what the user wants.
  
@@ -464,8 +476,23 @@ diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios
 +            if (m_view.window) {
 +                UIScreen *uiScreen = m_view.window.windowScene.screen;
 +                UIEdgeInsets safeAreaInsets = m_view.window.safeAreaInsets;
++                const CGSize screenBounds = uiScreen ? uiScreen.bounds.size : CGSizeZero;
++                const CGFloat screenLongSide = MAX(screenBounds.width, screenBounds.height);
++                const CGFloat screenShortSide = MIN(screenBounds.width, screenBounds.height);
++                const BOOL isIPhoneDuo =
++                    m_view.window.windowScene.traitCollection.userInterfaceIdiom == UIUserInterfaceIdiomPhone
++                    && ((screenLongSide >= 1400 && screenLongSide <= 1450
++                         && screenShortSide >= 980 && screenShortSide <= 1020)
++                        || (screenLongSide >= 650 && screenLongSide <= 700
++                            && screenShortSide >= 450 && screenShortSide <= 500)
++                        || (screenLongSide >= 930 && screenLongSide <= 970
++                            && screenShortSide >= 650 && screenShortSide <= 690));
++                const BOOL isIPhoneDuoInnerDisplay =
++                    isIPhoneDuo
++                    && m_view.window.windowScene.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular;
 +                if (uiScreen) {
-+                    if (m_view.window.bounds.size.width == uiScreen.bounds.size.width)
++                    if (!isIPhoneDuoInnerDisplay
++                        && m_view.window.bounds.size.width == uiScreen.bounds.size.width)
 +                        maximizedGeometry.adjust(safeAreaInsets.left, 0,
 +                            -safeAreaInsets.right, 0);
 +                    if (m_view.window.bounds.size.height == uiScreen.bounds.size.height)
@@ -473,8 +500,21 @@ diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios
 +                            0, -safeAreaInsets.bottom);
 +                }
 +
-+                fullscreenGeometry = fullscreenGeometry.intersected(uiWindowBounds);
-+                maximizedGeometry = maximizedGeometry.intersected(uiWindowBounds);
++                // Keep the Duo scene width (the right system rail stays
++                // outside QZ) but let full-screen content reach the
++                // bottom of the physical display.
++                if (isIPhoneDuo && !uiWindowBounds.isEmpty()) {
++                    fullscreenGeometry.setX(uiWindowBounds.x());
++                    fullscreenGeometry.setY(uiWindowBounds.y());
++                    fullscreenGeometry.setWidth(uiWindowBounds.width());
++                    fullscreenGeometry.setHeight(uiWindowBounds.height() + safeAreaInsets.bottom);
++                    maximizedGeometry = fullscreenGeometry;
++                }
++
++                if (!isIPhoneDuo) {
++                    fullscreenGeometry = fullscreenGeometry.intersected(uiWindowBounds);
++                    maximizedGeometry = maximizedGeometry.intersected(uiWindowBounds);
++                }
 +            }
  
 -        if (state & Qt::WindowFullScreen)
@@ -489,7 +529,7 @@ diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios
      } else {
          applyGeometry(m_normalGeometry);
      }
-@@ -282,8 +291,9 @@
+@@ -282,8 +291,16 @@
  void QIOSWindow::setParent(const QPlatformWindow *parentWindow)
  {
      UIView *parentView = parentWindow ? reinterpret_cast<UIView *>(parentWindow->winId())
@@ -499,6 +539,13 @@ diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios
 -    [parentView addSubview:m_view];
 +    if (parentView)
 +        [parentView addSubview:m_view];
++    else if (!parentWindow) {
++        QPointer<QIOSWindow> window = this;
++        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 50 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
++            if (window && !window->m_view.superview)
++                window->setParent(nullptr);
++        });
++    }
  }
  
 @@ -290,10 +290,15 @@
