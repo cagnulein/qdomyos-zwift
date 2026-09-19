@@ -297,12 +297,12 @@ HomeForm {
         id: gridView
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
+        onWidthChanged: forceLayout()
+        onCellWidthChanged: forceLayout()
         Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
-        Screen.onPrimaryOrientationChanged:{
-            if(OS_VERSION === "Android")
+        Screen.onPrimaryOrientationChanged: {
+            if (OS_VERSION === "Android")
                 gridView.leftMargin = (Screen.width % cellWidth) / 2;
-            else
-                gridView.leftMargin = (parent.width % cellWidth) / 2;
         }
 
         Accessible.ignored: true
