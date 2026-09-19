@@ -78,6 +78,12 @@ void trxappgateusbtreadmill::forceIncline(double requestIncline) {
         write[7] = write[4] + 0x92;
 
         writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+    } else if (treadmill_type == TYPE::FLOW_FITNESS) {
+        uint8_t write[] = {0xf0, 0xac, 0x2e, 0xd3, 0x01, 0x64, 0x64, 0x66};
+        write[4] = (requestIncline + 1);
+        write[7] = write[4] + 0x65;
+
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
     } else if (!reebok_fr30_treadmill) {
         uint8_t write[] = {0xf0, 0xac, 0x01, 0xd3, 0x03, 0x64, 0x64, 0x3b};
         write[4] = (requestIncline + 1);
@@ -128,7 +134,10 @@ void trxappgateusbtreadmill::update() {
         }
 
         bool toorx30 = settings.value(QZSettings::toorx_3_0, QZSettings::default_toorx_3_0).toBool();
-        if (treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::REEBOK_2) {
+        if (treadmill_type == TYPE::FLOW_FITNESS) {
+            const uint8_t noOpData[] = {0xf0, 0xa2, 0x2e, 0xd3, 0x93};
+            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+        } else if (treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::REEBOK_2) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x32, 0xd3, 0x97};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (treadmill_type == TYPE::DKN_2) {
@@ -244,6 +253,15 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
         return;
     }
 
+    FlowFitnessMetrics flowFitnessMetrics;
+    if (treadmill_type == TYPE::FLOW_FITNESS) {
+        flowFitnessMetrics = flowFitnessMetricsFromPacket(lastPacket);
+        if (!flowFitnessMetrics.valid) {
+            lastPacket.clear();
+            return;
+        }
+    }
+
     if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
         if (lastPacket.at(15) == 0x03 && lastPacket.at(16) == 0x02 && readyToStart == false) {
             readyToStart = true;
@@ -256,10 +274,21 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
         }
     }
 
-    double speed = GetSpeedFromPacket(lastPacket);
-    double incline = GetInclinationFromPacket(lastPacket);
-    double kcal = GetKcalFromPacket(lastPacket);
-    double distance = GetDistanceFromPacket(lastPacket);
+    double speed = 0.0;
+    double incline = 0.0;
+    double kcal = 0.0;
+    double distance = 0.0;
+    if (treadmill_type == TYPE::FLOW_FITNESS) {
+        speed = flowFitnessMetrics.speed;
+        incline = flowFitnessMetrics.inclination;
+        kcal = flowFitnessMetrics.kcal;
+        distance = flowFitnessMetrics.distance;
+    } else {
+        speed = GetSpeedFromPacket(lastPacket);
+        incline = GetInclinationFromPacket(lastPacket);
+        kcal = GetKcalFromPacket(lastPacket);
+        distance = GetDistanceFromPacket(lastPacket);
+    }
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -270,7 +299,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             update_hr_from_external();
         } else if (heartRateBeltName == bluetoothDevice.name()) {
-            Heart = GetHeartFromPacket(lastPacket);
+            Heart = treadmill_type == TYPE::FLOW_FITNESS ? flowFitnessMetrics.heart : GetHeartFromPacket(lastPacket);
         }
     }
     FanSpeed = 0;
@@ -314,35 +343,57 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     lastPacket.clear();
 }
 
+trxappgateusbtreadmill::FlowFitnessMetrics trxappgateusbtreadmill::flowFitnessMetricsFromPacket(const QByteArray &packet) {
+    FlowFitnessMetrics metrics;
+    if (packet.size() != 19 || static_cast<uint8_t>(packet.at(0)) != 0xf0 ||
+        static_cast<uint8_t>(packet.at(1)) != 0xb0 || static_cast<uint8_t>(packet.at(2)) != 0x2e ||
+        static_cast<uint8_t>(packet.at(3)) != 0xd3) {
+        return metrics;
+    }
+
+    metrics.elapsed = GetElapsedFromPacket(packet);
+    metrics.speed = GetSpeedFromPacket(packet);
+    metrics.inclination = GetInclinationFromPacket(packet);
+    metrics.kcal = GetKcalFromPacket(packet);
+    metrics.distance = GetDistanceFromPacket(packet);
+    metrics.heart = GetHeartFromPacket(packet);
+    metrics.valid = true;
+    return metrics;
+}
+
 uint16_t trxappgateusbtreadmill::GetElapsedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(4) - 1);
-    convertedData += ((packet.at(5) - 1) * 60);
+    uint16_t convertedData = (static_cast<uint8_t>(packet.at(4)) - 1);
+    convertedData += ((static_cast<uint8_t>(packet.at(5)) - 1) * 60);
     return convertedData;
 }
 
 double trxappgateusbtreadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (uint16_t)((packet.at(13) - 1)) + (((uint16_t)((uint8_t)packet.at(12) - 1)) * 100);
+    uint16_t convertedData = (static_cast<uint8_t>(packet.at(13)) - 1) +
+                             ((static_cast<uint16_t>(static_cast<uint8_t>(packet.at(12))) - 1) * 100);
     double data = (double)(convertedData) / 10.0f;
     return data;
 }
 
 double trxappgateusbtreadmill::GetKcalFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = ((packet.at(8) - 1) << 8) | (packet.at(9) - 1);
+    uint16_t convertedData = ((static_cast<uint16_t>(static_cast<uint8_t>(packet.at(8))) - 1) << 8) |
+                             (static_cast<uint8_t>(packet.at(9)) - 1);
     return (double)(convertedData);
 }
 
 double trxappgateusbtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = ((packet.at(6) - 1) * 100) + (packet.at(7) - 1);
+    uint16_t convertedData = ((static_cast<uint16_t>(static_cast<uint8_t>(packet.at(6))) - 1) * 100) +
+                             (static_cast<uint8_t>(packet.at(7)) - 1);
     double data = ((double)(convertedData)) / 100.0f;
     return data;
 }
 
 uint16_t trxappgateusbtreadmill::GetHeartFromPacket(const QByteArray &packet) {
-    return ((uint16_t)((uint8_t)packet.at(10) - 1) * 100) + ((uint16_t)((uint8_t)packet.at(11)) - 1);
+    return (static_cast<uint16_t>(static_cast<uint8_t>(packet.at(10)) - 1) * 100) +
+           (static_cast<uint16_t>(static_cast<uint8_t>(packet.at(11))) - 1);
 }
 
 double trxappgateusbtreadmill::GetInclinationFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = packet.at(14);
+    uint16_t convertedData = static_cast<uint8_t>(packet.at(14));
     double data = (convertedData - 1);
     if (data < 0) {
         return 0;
@@ -366,7 +417,20 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
         settings.value(QZSettings::jtx_fitness_sprint_treadmill, QZSettings::default_jtx_fitness_sprint_treadmill)
             .toBool();
 
-    if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_3) {
+    if (treadmill_type == TYPE::FLOW_FITNESS) {
+        // Flow Fitness Runner DTM2000i frames observed in the HCI capture.
+        const uint8_t initData1[] = {0xf0, 0xa0, 0x02, 0x02, 0x94};
+        const uint8_t initData2[] = {0xf0, 0xa0, 0x2e, 0xd3, 0x91};
+        const uint8_t initData3[] = {0xf0, 0xa5, 0x2e, 0xd3, 0x04, 0x9a};
+        const uint8_t initData4[] = {0xf0, 0xa1, 0x2e, 0xd3, 0x92};
+        const uint8_t initData5[] = {0xf0, 0xac, 0x2e, 0xd3, 0x01, 0x64, 0x64, 0x66};
+
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+    } else if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_3) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x02, 0x02, 0x94};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x01, 0xd3, 0x64};
         const uint8_t initData3[] = {0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d};
@@ -598,7 +662,8 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
         QString uuidNotify = QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb");
         QString uuidNotify2 = QStringLiteral("49535343-ACA3-481C-91EC-D85E28A60318");
 
-        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::DKN_2 || treadmill_type == TYPE::DKN_3) {
+        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::DKN_2 ||
+            treadmill_type == TYPE::DKN_3 || treadmill_type == TYPE::FLOW_FITNESS) {
             uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
             uuidNotify = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
         }
@@ -671,7 +736,8 @@ void trxappgateusbtreadmill::serviceScanDone(void) {
     qDebug() << QStringLiteral("serviceScanDone") << treadmill_type;
 
     QString uuid = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
-    if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::DKN_2) {
+    if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::DKN_2 ||
+        treadmill_type == TYPE::FLOW_FITNESS) {
         uuid = QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455");
     }
 
@@ -742,8 +808,12 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
 
     bool dkn_endurun_treadmill =
         settings.value(QZSettings::dkn_endurun_treadmill, QZSettings::default_dkn_endurun_treadmill).toBool();
+    const bool flowFitnessDevice =
+        settings.value(QZSettings::flow_fitness_runner_dtm2000i, QZSettings::default_flow_fitness_runner_dtm2000i).toBool() &&
+        device.serviceUuids().contains(QBluetoothUuid(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455")));
 
-    if (device.name().startsWith(QStringLiteral("TOORX")) || device.name().startsWith(QStringLiteral("V-RUN")) ||
+    if (flowFitnessDevice ||
+        device.name().startsWith(QStringLiteral("TOORX")) || device.name().startsWith(QStringLiteral("V-RUN")) ||
         device.name().startsWith(QStringLiteral("FS-")) ||
         device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
         device.name().toUpper().startsWith(QStringLiteral("I-RUNNING")) ||
@@ -755,7 +825,9 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().toUpper().startsWith(QStringLiteral("XT900")) ||
         device.name().toUpper().startsWith(QStringLiteral("ADIDAS ")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
-        if (dkn_endurun_treadmill) {
+        if (flowFitnessDevice) {
+            treadmill_type = TYPE::FLOW_FITNESS;
+        } else if (dkn_endurun_treadmill) {
             treadmill_type = TYPE::DKN;
         } else if (device.name().toUpper().startsWith(QStringLiteral("DKN RUN"))) {
             treadmill_type = TYPE::DKN_2;

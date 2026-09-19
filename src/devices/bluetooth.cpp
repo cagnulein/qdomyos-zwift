@@ -566,6 +566,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool toorx_ftms = settings.value(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms).toBool();
     bool toorx_ftms_treadmill =
         settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
+    bool flow_fitness_runner_dtm2000i =
+        settings.value(QZSettings::flow_fitness_runner_dtm2000i, QZSettings::default_flow_fitness_runner_dtm2000i).toBool();
     bool toorx_bike = (settings.value(QZSettings::toorx_bike, QZSettings::default_toorx_bike).toBool() ||
                        settings.value(QZSettings::jll_IC400_bike, QZSettings::default_jll_IC400_bike).toBool() ||
                        settings.value(QZSettings::fytter_ri08_bike, QZSettings::default_fytter_ri08_bike).toBool() ||
@@ -1550,7 +1552,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         !(b.name().toUpper().startsWith(QStringLiteral("TRUE 1000")))) ||
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULT TREADMILL ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("WDWAY")) && b.name().length() == 8) || // WdWay179
-                        (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && !gem_module_inclination && !deviceHasService(b, QBluetoothUuid((quint16)0x1814)) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) &&
+                        (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) &&
+                         !deviceHasService(b, QBluetoothUuid(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"))) &&
+                         !gem_module_inclination && !deviceHasService(b, QBluetoothUuid((quint16)0x1814)) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) &&
                        !trueTreadmill && ftms_treadmill.contains(QZSettings::default_ftms_treadmill) && !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2833,7 +2837,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (upperDeviceName.startsWith(QStringLiteral("I-RUNNING"))) ||
                         (upperDeviceName.startsWith(QStringLiteral("DKN RUN"))) ||
                         (upperDeviceName.startsWith(QStringLiteral("ADIDAS "))) ||
-                        (upperDeviceName.startsWith(QStringLiteral("REEBOK")))) &&
+                        (upperDeviceName.startsWith(QStringLiteral("REEBOK"))) ||
+                        (flow_fitness_runner_dtm2000i &&
+                         deviceHasService(b, QBluetoothUuid(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"))))) &&
                        !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) &&
                            ftms_bike.contains(QZSettings::default_ftms_bike) &&
                        filter) {
