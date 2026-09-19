@@ -164,6 +164,7 @@ zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
 devices/kettlerusbbike/KettlerUSB.cpp \
 devices/daumbike/DaumUSB.cpp \
+devices/daumbike/daumbluetoothbike.cpp \
 devices/freebeatbike/FreebeatUSB.cpp \
 PathController.cpp \
 characteristics/characteristicnotifier2a53.cpp \
@@ -484,6 +485,7 @@ devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
 devices/kettlerusbbike/KettlerUSB.h \
 devices/daumbike/DaumUSB.h \
+devices/daumbike/daumbluetoothbike.h \
 devices/freebeatbike/FreebeatUSB.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \

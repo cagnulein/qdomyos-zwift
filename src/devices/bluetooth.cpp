@@ -2752,7 +2752,21 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 mcfBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(mcfBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) && !iconsole && trx_route_key) {
+#ifndef Q_OS_IOS
+            } else if (daumbluetoothbike::matchesBluetoothName(b.name()) && !daumBluetoothBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                daumBluetoothBike =
+                    new daumbluetoothbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(daumBluetoothBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(daumBluetoothBike, &daumbluetoothbike::debug, this, &bluetooth::debug);
+                daumBluetoothBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(daumBluetoothBike);
+            }
+#endif
+            else if (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) && !iconsole && trx_route_key) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 iconsole = new iconsolebike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -4388,6 +4402,10 @@ void bluetooth::restart() {
         delete daumBike;
         daumBike = nullptr;
     }
+    if (daumBluetoothBike) {
+        delete daumBluetoothBike;
+        daumBluetoothBike = nullptr;
+    }
     if (freebeatBike) {
 
         delete freebeatBike;
@@ -4775,6 +4793,8 @@ bluetoothdevice *bluetooth::device() {
         return kettlerUsbBike;
     } else if (daumBike) {
         return daumBike;
+    } else if (daumBluetoothBike) {
+        return daumBluetoothBike;
     } else if (freebeatBike) {
         return freebeatBike;
     } else if (csafeRower) {
