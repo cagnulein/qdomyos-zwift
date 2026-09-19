@@ -30,19 +30,31 @@
 class trxappgateusbtreadmill : public treadmill {
     Q_OBJECT
   public:
+    struct FlowFitnessMetrics {
+        bool valid = false;
+        double speed = 0.0;
+        double inclination = 0.0;
+        double kcal = 0.0;
+        double distance = 0.0;
+        uint16_t heart = 0;
+        uint16_t elapsed = 0;
+    };
+
     trxappgateusbtreadmill();
     bool connected() override;
 
     double minStepInclination() override;
     bool canHandleSpeedChange() override { return false; }
 
+    static FlowFitnessMetrics flowFitnessMetricsFromPacket(const QByteArray &packet);
+
   private:
-    double GetSpeedFromPacket(const QByteArray &packet);
-    double GetInclinationFromPacket(const QByteArray &packet);
-    double GetKcalFromPacket(const QByteArray &packet);
-    double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t GetHeartFromPacket(const QByteArray &packet);
-    uint16_t GetElapsedFromPacket(const QByteArray &packet);
+    static double GetSpeedFromPacket(const QByteArray &packet);
+    static double GetInclinationFromPacket(const QByteArray &packet);
+    static double GetKcalFromPacket(const QByteArray &packet);
+    static double GetDistanceFromPacket(const QByteArray &packet);
+    static uint16_t GetHeartFromPacket(const QByteArray &packet);
+    static uint16_t GetElapsedFromPacket(const QByteArray &packet);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     void updateDisplay(uint16_t elapsed);
@@ -68,7 +80,7 @@ class trxappgateusbtreadmill : public treadmill {
     bool initRequest = false;
     bool readyToStart = false;
 
-    typedef enum TYPE { TRXAPPGATE = 0, IRUNNING = 1, REEBOK = 2, DKN = 3, DKN_2 = 4, IRUNNING_2 = 5, ADIDAS = 6, REEBOK_2 = 7, DKN_3 = 8 } TYPE;
+    typedef enum TYPE { TRXAPPGATE = 0, IRUNNING = 1, REEBOK = 2, DKN = 3, DKN_2 = 4, IRUNNING_2 = 5, ADIDAS = 6, REEBOK_2 = 7, DKN_3 = 8, FLOW_FITNESS = 9 } TYPE;
     TYPE treadmill_type = TRXAPPGATE;
 
   signals:
