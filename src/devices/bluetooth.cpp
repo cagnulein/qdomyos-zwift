@@ -2701,7 +2701,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 crossRope->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(crossRope);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("NAUTILUS T")) && !nautilusTreadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS T")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("SCHWINN T")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("SCHWINN 570T"))) &&
+                       !nautilusTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 nautilusTreadmill = new nautilustreadmill(this->pollDeviceTime, noConsole, noHeartService);
