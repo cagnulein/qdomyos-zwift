@@ -49,6 +49,11 @@ double ftmsrowerCadenceCalculator::update(quint16 strokeCount, qint64 timestampM
         m_samples.removeFirst();
     }
 
+    // Keep stale detection anchored to every real stroke, including while the
+    // four-interval warm-up window is still being collected.
+    m_recentIntervalMs = elapsedMs / strokeDelta;
+    m_lastStrokeTimestampMs = timestampMs;
+
     // Wait for four complete stroke intervals before publishing a value. The
     // JOROTO occasionally reports a short/long pair for one real interval.
     if (m_samples.size() < 5) {
@@ -69,8 +74,6 @@ double ftmsrowerCadenceCalculator::update(quint16 strokeCount, qint64 timestampM
         QList<double> sortedCadences = m_recentCadences;
         std::sort(sortedCadences.begin(), sortedCadences.end());
         m_cadence = sortedCadences.at(sortedCadences.size() / 2);
-        m_recentIntervalMs = elapsedMs / strokeDelta;
-        m_lastStrokeTimestampMs = timestampMs;
     }
 
     return m_cadence;
