@@ -520,7 +520,7 @@ diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios
 diff --git a/src/plugins/platforms/ios/qioscontext.mm b/src/plugins/platforms/ios/qioscontext.mm
 --- a/src/plugins/platforms/ios/qioscontext.mm
 +++ b/src/plugins/platforms/ios/qioscontext.mm
-@@ -138,7 +138,14 @@
+@@ -138,7 +138,15 @@
  bool QIOSContext::makeCurrent(QPlatformSurface *surface)
  {
      Q_ASSERT_IS_GL_SURFACE(surface);
@@ -529,7 +529,8 @@ diff --git a/src/plugins/platforms/ios/qioscontext.mm b/src/plugins/platforms/io
 +    // to the scene-owned UIWindow. Do not touch CAEAGLLayer until UIKit has
 +    // completed that attachment; the expose event from QUIView::didMoveToWindow
 +    // will make the scene renderable again.
-+    if (!static_cast<QIOSWindow *>(surface)->isExposed())
++    if (surface->surface()->surfaceClass() == QSurface::Window
++        && !static_cast<QIOSWindow *>(surface)->isExposed())
 +        return false;
 +
      if (!verifyGraphicsHardwareAvailability())
