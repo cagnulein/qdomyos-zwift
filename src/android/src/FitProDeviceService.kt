@@ -340,17 +340,37 @@ object FitProDeviceService {
             }
         }
 
-        val usbInterface: UsbInterface = device.getInterface(0)
+        val interfaces = (0 until device.interfaceCount).map { device.getInterface(it) }
+        val usbInterface = interfaces.firstOrNull {
+            it.interfaceClass == UsbConstants.USB_CLASS_HID
+        } ?: interfaces.firstOrNull {
+            it.interfaceClass == UsbConstants.USB_CLASS_VENDOR_SPEC && it.hasInAndOutEndpoints()
+        } ?: run {
+            QLog.e(
+                TAG,
+                "No HID or vendor-specific FitPro data interface; interfaces=" +
+                    interfaces.joinToString { it.describe() },
+            )
+            return null
+        }
+
         var inEndpoint: UsbEndpoint? = null
         var outEndpoint: UsbEndpoint? = null
         for (i in 0 until usbInterface.endpointCount) {
             val ep = usbInterface.getEndpoint(i)
-            if (ep.direction == UsbConstants.USB_DIR_IN) inEndpoint = ep else outEndpoint = ep
+            if (ep.direction == UsbConstants.USB_DIR_IN) inEndpoint = ep
+            else if (ep.direction == UsbConstants.USB_DIR_OUT) outEndpoint = ep
         }
         if (inEndpoint == null || outEndpoint == null) {
-            QLog.e(TAG, "FitPro device missing bulk IN/OUT endpoints")
+            QLog.e(TAG, "FitPro device missing IN/OUT endpoints on ${usbInterface.describe()}")
             return null
         }
+
+        QLog.i(
+            TAG,
+            "Using ${usbInterface.describe()}, IN=0x${inEndpoint.address.toString(16)}, " +
+                "OUT=0x${outEndpoint.address.toString(16)}",
+        )
 
         val connection: UsbDeviceConnection = usbManager.openDevice(device) ?: run {
             QLog.e(TAG, "Failed to open FitPro USB device")
@@ -360,6 +380,34 @@ object FitProDeviceService {
         val transport = UsbHidTransport(connection, usbInterface, inEndpoint, outEndpoint, logger)
         transport.open()
         return Pair(transport, device.productId)
+    }
+
+    private fun UsbInterface.hasInAndOutEndpoints(): Boolean {
+        val endpoints = (0 until endpointCount).map { getEndpoint(it) }
+        return endpoints.any { it.direction == UsbConstants.USB_DIR_IN } &&
+            endpoints.any { it.direction == UsbConstants.USB_DIR_OUT }
+    }
+
+    private fun UsbInterface.describe(): String {
+        val endpoints = (0 until endpointCount).joinToString(", ") { index ->
+            val ep = getEndpoint(index)
+            val direction = if (ep.direction == UsbConstants.USB_DIR_IN) "in" else "out"
+            val type = when (ep.type) {
+                UsbConstants.USB_ENDPOINT_XFER_CONTROL -> "ctrl"
+                UsbConstants.USB_ENDPOINT_XFER_ISOC -> "iso"
+                UsbConstants.USB_ENDPOINT_XFER_BULK -> "bulk"
+                UsbConstants.USB_ENDPOINT_XFER_INT -> "int"
+                else -> "type${ep.type}"
+            }
+            "0x%02x/%s/%s/%d".format(ep.address, direction, type, ep.maxPacketSize)
+        }
+        return "if=%d cls=%02x/%02x/%02x eps=[%s]".format(
+            id,
+            interfaceClass,
+            interfaceSubclass,
+            interfaceProtocol,
+            endpoints,
+        )
     }
 
     private suspend fun requestUsbPermission(
