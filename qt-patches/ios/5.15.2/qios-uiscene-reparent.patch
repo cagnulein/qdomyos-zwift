@@ -1,0 +1,22 @@
+diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios/qioswindow.mm
+--- a/src/plugins/platforms/ios/qioswindow.mm
++++ b/src/plugins/platforms/ios/qioswindow.mm
+@@ -48,5 +48,6 @@
+ #endif
+ 
+ #include <QtDebug>
++#include <QtCore/QPointer>
+ 
+ QT_BEGIN_NAMESPACE
+@@ -309,4 +310,11 @@
+ 
+     if (parentView)
+         [parentView addSubview:m_view];
++    else if (!parentWindow) {
++        QPointer<QIOSWindow> window = this;
++        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 50 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
++            if (window && !window->m_view.superview)
++                window->setParent(nullptr);
++        });
++    }
+ }

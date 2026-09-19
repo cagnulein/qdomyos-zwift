@@ -1,0 +1,21 @@
+diff --git a/src/plugins/platforms/ios/qiosviewcontroller.mm b/src/plugins/platforms/ios/qiosviewcontroller.mm
+--- a/src/plugins/platforms/ios/qiosviewcontroller.mm
++++ b/src/plugins/platforms/ios/qiosviewcontroller.mm
+@@ -435,8 +435,17 @@
+ - (void)viewWillLayoutSubviews
+ {
+     if (!QCoreApplication::instance())
+         return;
+ 
+     if (self.platformScreen)
+         self.platformScreen->updateProperties();
++
++    // UIScene can change size without recreating the Qt window. Re-apply the
++    // top-level window state so QWindow geometry follows the scene bounds.
++    for (auto *window : qGuiApp->topLevelWindows()) {
++        if (window->screen()->handle() != self.platformScreen)
++            continue;
++        if (auto *platformWindow = window->handle())
++            platformWindow->setWindowState(window->windowStates());
++    }
+ }
