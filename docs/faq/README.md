@@ -10,6 +10,7 @@ This directory contains practical QZ frequently asked questions, organized by ca
 - [Integrations and authentication](integrations.md)
 - [NordicTrack / ProForm iFIT consoles](nordictrack-ifit.md)
 - [Rowing](rowing.md)
+- [Training app connections](training-apps.md)
 - [Training programs](training-programs.md)
 - [Treadmill troubleshooting](treadmill-troubleshooting.md)
 - [Zwift and virtual gearing](zwift.md)
