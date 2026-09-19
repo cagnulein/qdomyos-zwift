@@ -640,6 +640,12 @@ class QZSettings {
     static const QString tile_pid_hr_order;
     static constexpr int default_tile_pid_hr_order = 31;
 
+    static const QString tile_target_hr_enabled;
+    static constexpr bool default_tile_target_hr_enabled = false;
+
+    static const QString tile_target_hr_order;
+    static constexpr int default_tile_target_hr_order = 80;
+
     static const QString heart_rate_zone1;
     static constexpr float default_heart_rate_zone1 = 70.0;
 
