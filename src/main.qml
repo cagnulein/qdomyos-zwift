@@ -31,6 +31,12 @@ ApplicationWindow {
     
     // Helper functions for cleaner padding calculations
     function getTopPadding() {
+        // The closed Duo exposes its camera cutout on the top edge in the
+        // normal portrait orientation. Keep the header and page content below
+        // it; this is intentionally limited to the Duo geometry.
+        if (isIPhoneDuoDisplay() && Screen.orientation === Qt.PortraitOrientation)
+            return 34;
+
         // Add padding for iPadOS multi-window mode (Stage Manager, Split View, Slide Over)
         // to avoid overlap with window control buttons (red/yellow/green)
         // Check both the native detection and window size comparison for reactivity
