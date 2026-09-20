@@ -2,7 +2,16 @@
 
 This directory contains the Qt 5.15.2 iOS backports required by the Xcode 27
 SDK when running the iPad target on macOS. It changes only Qt's platform
-plugins; QDomyos-Zwift sources and `Info.plist` are unchanged.
+plugins in the historical backport path; the current QZ integration is kept
+in a project-level Objective-C++ overlay.
+
+The current QZ application uses the UIScene compatibility overlay in
+`src/ios/ios_app_delegate.mm`; the `libqios*.a` archives kept in `binary/` are
+unmodified Qt archives. The source patches below are retained as historical
+rebuild references and are not part of the normal QZ build.
+
+The QtBluetooth archives remain the existing Xcode 27-compatible package
+component and are intentionally unchanged in this overlay migration.
 
 The source patch is based on Qt's UIScene work in commit
 `76ebf51bc08f6af624a8540e7af88b9129b22ae1`.
