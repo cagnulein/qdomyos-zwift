@@ -11,6 +11,7 @@ public:
     void test_heartRateThresholdBarrierBlocksSkippedZeroDurationRow();
     void test_pidHrModeRoundTripsKnownValues();
     void test_pidHrModeWorkoutOverrideTakesPrecedence();
+    void test_pidHrModeAndMaxInclinationRoundTripThroughXml();
 };
 
 TEST_F(TrainProgramTestSuite, LapButtonBarrierBlocksSkippedZeroDurationRow) {
@@ -35,6 +36,10 @@ TEST_F(TrainProgramTestSuite, PidHrModeRoundTripsKnownValues) {
 
 TEST_F(TrainProgramTestSuite, PidHrModeWorkoutOverrideTakesPrecedence) {
     this->test_pidHrModeWorkoutOverrideTakesPrecedence();
+}
+
+TEST_F(TrainProgramTestSuite, PidHrModeAndMaxInclinationRoundTripThroughXml) {
+    this->test_pidHrModeAndMaxInclinationRoundTripThroughXml();
 }
 
 #endif // TRAINPROGRAMTESTSUITE_H

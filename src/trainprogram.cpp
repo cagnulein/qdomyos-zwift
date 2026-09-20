@@ -120,6 +120,7 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" HRbelow = %1").arg(HRbelow);
     rv += QStringLiteral(" maxSpeed = %1").arg(maxSpeed);
     rv += QStringLiteral(" minSpeed = %1").arg(minSpeed);
+    rv += QStringLiteral(" maxInclination = %1").arg(maxInclination);
     rv += QStringLiteral(" maxResistance = %1").arg(maxResistance);
     rv += QStringLiteral(" power = %1").arg(power);
     rv += QStringLiteral(" mets = %1").arg(mets);
@@ -1870,6 +1871,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows,
             if (row.maxSpeed >= 0) {
                 stream.writeAttribute(QStringLiteral("maxspeed"), QString::number(row.maxSpeed));
             }
+            if (row.maxInclination >= 0) {
+                stream.writeAttribute(QStringLiteral("maxinclination"), QString::number(row.maxInclination));
+            }
             if (row.maxResistance >= 0) {
                 stream.writeAttribute(QStringLiteral("maxresistance"), QString::number(row.maxResistance));
             }
@@ -2089,6 +2093,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename, BLUETOOTH_TYPE de
             }
             if (atts.hasAttribute(QStringLiteral("maxspeed"))) {
                 row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toDouble();
+            }
+            if (atts.hasAttribute(QStringLiteral("maxinclination"))) {
+                row.maxInclination = atts.value(QStringLiteral("maxinclination")).toDouble();
             }
             if (atts.hasAttribute(QStringLiteral("maxresistance"))) {
                 row.maxResistance = atts.value(QStringLiteral("maxresistance")).toInt();

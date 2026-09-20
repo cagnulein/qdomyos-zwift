@@ -63,6 +63,7 @@ class trainrow {
     int16_t HRbelow = -1;
     double maxSpeed = -1;
     double minSpeed = -1;
+    double maxInclination = -1;
     int8_t maxResistance = -1;
     int32_t power = -1;
     bool rampIsFtpFraction = false;

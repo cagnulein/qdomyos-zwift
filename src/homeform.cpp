@@ -11201,8 +11201,12 @@ bool homeform::adjustTreadmillPidHeartRate(bool increaseLoad, double minSpeed, d
     if (mode == treadmill_pid_hr_mode::Inclination && device->canHandleInclineChange()) {
         const double minInclination =
             settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
-        const double maxInclination =
+        double maxInclination =
             settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
+        if (trainProgram && trainProgram->currentRow().maxInclination >= 0) {
+            maxInclination = trainProgram->currentRow().maxInclination;
+        }
+        maxInclination = std::max(maxInclination, minInclination);
         const double currentInclination = device->currentInclination().value();
         const double step = device->minStepInclination();
         const double newInclination = increaseLoad

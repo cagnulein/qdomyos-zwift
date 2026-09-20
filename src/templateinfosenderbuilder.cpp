@@ -67,6 +67,7 @@ QString openEndedRowLabel(const trainrow &row) {
     item[QStringLiteral("speed")] = row.speed;                                                              \
     item[QStringLiteral("minSpeed")] = row.minSpeed;                                                        \
     item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
+    item[QStringLiteral("maxInclination")] = row.maxInclination; \
     item[QStringLiteral("fanspeed")] = row.fanspeed;                                                        \
     if (row.inclination >= -50) {\
         item[QStringLiteral("inclination")] = row.inclination;\
@@ -1145,6 +1146,9 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             }
             if (row.contains(QStringLiteral("maxSpeed"))) {
                 tR.maxSpeed = row[QStringLiteral("maxSpeed")].toDouble();
+            }
+            if (row.contains(QStringLiteral("maxInclination"))) {
+                tR.maxInclination = row[QStringLiteral("maxInclination")].toDouble();
             }
             if (row.contains(QStringLiteral("fanspeed"))) {
                 tR.fanspeed = row[QStringLiteral("fanspeed")].toInt();

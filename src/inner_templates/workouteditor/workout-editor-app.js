@@ -48,6 +48,7 @@
         { key: 'HRmax', labelKey: 'workoutEditor.hrMax', label: 'HR Max', type: 'number', min: -1, max: 240, group: 'advanced', devices: 'all' },
         { key: 'minSpeed', labelKey: 'workoutEditor.minSpeed', label: 'Min Speed', type: 'number', unitKey: 'speed', group: 'advanced', devices: ['treadmill', 'bike'] },
         { key: 'maxSpeed', labelKey: 'workoutEditor.maxSpeed', label: 'Max Speed', type: 'number', unitKey: 'speed', group: 'advanced', devices: ['treadmill', 'bike'] },
+        { key: 'maxInclination', labelKey: 'workoutEditor.maxInclination', label: 'Max Incline', type: 'number', unitSuffix: '%', step: 0.5, min: -10, max: 40, group: 'advanced', devices: ['treadmill'] },
         { key: 'maxResistance', labelKey: 'workoutEditor.maxResistance', label: 'Max Resistance', type: 'number', min: -1, max: 100, group: 'advanced', devices: ['bike', 'elliptical'] },
         { key: 'mets', label: 'METS', type: 'number', min: -1, max: 40, group: 'advanced', devices: 'all' }
     ];
@@ -88,6 +89,7 @@
         HRmax: -1,
         minSpeed: -1,
         maxSpeed: -1,
+        maxInclination: -1,
         maxResistance: -1,
         mets: -1
     };
@@ -922,6 +924,7 @@
                     });
                     sel.addEventListener('change', () => {
                         row[field.key] = sel.value;
+                        row['__enabled_' + field.key] = true;
                         renderIntervals();
                     });
                     fieldWrap.appendChild(sel);
@@ -1366,8 +1369,8 @@
                     return;
                 }
 
-                // Skip disabled fields
-                const isEnabled = interval['__enabled_' + field.key] !== false;
+                // Non-toggle selectors such as PID HR mode are always saved.
+                const isEnabled = field.noToggle || interval['__enabled_' + field.key] !== false;
                 if (!isEnabled) {
                     return;
                 }
