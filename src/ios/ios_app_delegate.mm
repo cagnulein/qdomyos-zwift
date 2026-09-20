@@ -4,12 +4,50 @@
 #import "UIKit/UIKit.h"
 #import <objc/runtime.h>
 #include <QGuiApplication>
+#include <QQmlPropertyMap>
+#include <QtQml/qqml.h>
 #include <QScreen>
 #include <QWindow>
 #include <QtMath>
 
+#if __has_include(<UIKit/UIHingeInteraction.h>)
+#import <UIKit/UIHingeInteraction.h>
+#define QZ_HAS_UIHINGE 1
+#endif
+
 static BOOL qz_desktopManagerOverlayInstalled = NO;
 static UIWindow *qz_sceneWindow = nil;
+static QQmlPropertyMap qz_iosLayout;
+
+#if QZ_HAS_UIHINGE
+static UIHingeInteraction *qz_hingeInteraction = nil;
+static __unsafe_unretained UIWindow *qz_hingeWindow = nil;
+static BOOL qz_hingeStateKnown = NO;
+static BOOL qz_hingeIsDuo = NO;
+#endif
+
+static BOOL qz_layoutMetricsLogged = NO;
+
+static void qz_updateIOSLayoutMetrics(UIWindow *window);
+
+static void qz_registerIOSLayout(void)
+{
+    qz_iosLayout.insert(QStringLiteral("isIPhoneDuo"), false);
+    qz_iosLayout.insert(QStringLiteral("leftInset"), 0.0);
+    qz_iosLayout.insert(QStringLiteral("topInset"), 0.0);
+    qz_iosLayout.insert(QStringLiteral("rightInset"), 0.0);
+    qz_iosLayout.insert(QStringLiteral("bottomInset"), 0.0);
+    qz_iosLayout.insert(QStringLiteral("hingeAvailable"), false);
+    qz_iosLayout.insert(QStringLiteral("hingeStatus"), 0);
+    qz_iosLayout.insert(QStringLiteral("hingeAngle"), 0.0);
+    qz_iosLayout.insert(QStringLiteral("safeFrameX"), 0.0);
+    qz_iosLayout.insert(QStringLiteral("safeFrameY"), 0.0);
+    qz_iosLayout.insert(QStringLiteral("safeFrameWidth"), 0.0);
+    qz_iosLayout.insert(QStringLiteral("safeFrameHeight"), 0.0);
+    qmlRegisterSingletonInstance("AndroidStatusBar", 1, 0, "IOSLayout", &qz_iosLayout);
+}
+
+Q_COREAPP_STARTUP_FUNCTION(qz_registerIOSLayout)
 
 static void qz_installDesktopManagerOverlay(void);
 
@@ -18,6 +56,14 @@ static BOOL qz_isIPhoneDuoWindow(UIWindow *window)
     if (!window || UI_USER_INTERFACE_IDIOM() != UIUserInterfaceIdiomPhone)
         return NO;
 
+#if QZ_HAS_UIHINGE
+    if (qz_hingeStateKnown)
+        return qz_hingeIsDuo;
+#endif
+
+    // Compatibility fallback for the simulator/runtime combinations that do
+    // not deliver UIHingeInteraction updates. All production iPhone Duo
+    // decisions switch to UIHinge as soon as UIKit reports its state.
     const CGFloat longSide = MAX(window.bounds.size.width, window.bounds.size.height);
     const CGFloat shortSide = MIN(window.bounds.size.width, window.bounds.size.height);
     return (longSide >= 1400 && longSide <= 1450 && shortSide >= 980 && shortSide <= 1020) ||
@@ -30,6 +76,101 @@ static BOOL qz_isStandardIPhoneWindow(UIWindow *window)
 {
     return window && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone &&
            !qz_isIPhoneDuoWindow(window);
+}
+
+#if QZ_HAS_UIHINGE
+static void qz_installHingeInteraction(UIWindow *window)
+{
+    if (!window || !window.rootViewController.view)
+        return;
+
+    if (@available(iOS 27.1, *)) {
+        if (qz_hingeWindow == window && qz_hingeInteraction)
+            return;
+
+        if (qz_hingeInteraction && qz_hingeWindow)
+            [qz_hingeWindow.rootViewController.view removeInteraction:qz_hingeInteraction];
+
+        qz_hingeStateKnown = NO;
+        qz_hingeIsDuo = NO;
+
+        qz_hingeInteraction = [[UIHingeInteraction alloc]
+            initWithUpdateHandler:^(UIHingeInteraction *interaction, UIHingeInteractionUpdate *update) {
+                Q_UNUSED(interaction)
+
+                UIHinge *hinge = update.hinge;
+                qz_hingeStateKnown = YES;
+                qz_hingeIsDuo = hinge != nil;
+                qz_iosLayout.insert(QStringLiteral("hingeAvailable"), hinge != nil);
+                qz_iosLayout.insert(QStringLiteral("hingeStatus"), hinge ? QVariant(static_cast<int>(hinge.status)) : QVariant(0));
+                qz_iosLayout.insert(QStringLiteral("hingeAngle"), hinge ? QVariant(hinge.angle) : QVariant(0.0));
+
+                UIWindow *updatedWindow = qz_hingeWindow;
+                qz_updateIOSLayoutMetrics(updatedWindow);
+                NSLog(@"QZ UIHinge: available=%@ status=%ld angle=%0.4f safeArea=(%0.1f,%0.1f,%0.1f,%0.1f)",
+                      hinge ? @"YES" : @"NO",
+                      hinge ? (long)hinge.status : 0L,
+                      hinge ? hinge.angle : 0.0,
+                      updatedWindow.rootViewController.view.safeAreaInsets.top,
+                      updatedWindow.rootViewController.view.safeAreaInsets.left,
+                      updatedWindow.rootViewController.view.safeAreaInsets.bottom,
+                      updatedWindow.rootViewController.view.safeAreaInsets.right);
+            }];
+        qz_hingeWindow = window;
+        [window.rootViewController.view addInteraction:qz_hingeInteraction];
+    }
+}
+#else
+static void qz_installHingeInteraction(UIWindow *window)
+{
+    Q_UNUSED(window)
+}
+#endif
+
+static void qz_updateIOSLayoutMetrics(UIWindow *window)
+{
+    if (!window || !window.rootViewController.view)
+        return;
+
+    UIView *rootView = window.rootViewController.view;
+    const UIEdgeInsets safeInsets = rootView.safeAreaInsets;
+    const CGRect safeFrame = rootView.safeAreaLayoutGuide.layoutFrame;
+
+#if QZ_HAS_UIHINGE
+    const BOOL isDuo = qz_hingeStateKnown ? qz_hingeIsDuo : qz_isIPhoneDuoWindow(window);
+#else
+    const BOOL isDuo = qz_isIPhoneDuoWindow(window);
+#endif
+
+    qz_iosLayout.insert(QStringLiteral("isIPhoneDuo"), isDuo);
+    qz_iosLayout.insert(QStringLiteral("leftInset"), safeInsets.left);
+    qz_iosLayout.insert(QStringLiteral("topInset"), safeInsets.top);
+    qz_iosLayout.insert(QStringLiteral("rightInset"), safeInsets.right);
+    qz_iosLayout.insert(QStringLiteral("bottomInset"), safeInsets.bottom);
+    qz_iosLayout.insert(QStringLiteral("safeFrameX"), safeFrame.origin.x);
+    qz_iosLayout.insert(QStringLiteral("safeFrameY"), safeFrame.origin.y);
+    qz_iosLayout.insert(QStringLiteral("safeFrameWidth"), safeFrame.size.width);
+    qz_iosLayout.insert(QStringLiteral("safeFrameHeight"), safeFrame.size.height);
+
+#if QZ_HAS_UIHINGE
+    const BOOL hingeKnown = qz_hingeStateKnown;
+#else
+    const BOOL hingeKnown = NO;
+#endif
+    if (!qz_layoutMetricsLogged || hingeKnown) {
+        NSLog(@"QZ UIKit layout: duo=%@ hingeKnown=%@ safeArea=(%0.1f,%0.1f,%0.1f,%0.1f) safeFrame=(%0.1f,%0.1f,%0.1f,%0.1f)",
+              isDuo ? @"YES" : @"NO",
+              hingeKnown ? @"YES" : @"NO",
+              safeInsets.top,
+              safeInsets.left,
+              safeInsets.bottom,
+              safeInsets.right,
+              safeFrame.origin.x,
+              safeFrame.origin.y,
+              safeFrame.size.width,
+              safeFrame.size.height);
+        qz_layoutMetricsLogged = YES;
+    }
 }
 
 static void qz_layoutQtViews(UIView *container)
@@ -239,6 +380,8 @@ static UIWindow *qz_existingQtWindowForScreen(void *platformScreen)
     qz_sceneWindow = qtWindow;
     qz_sceneWindow.windowScene = windowScene;
     qz_sceneWindow.hidden = NO;
+    qz_installHingeInteraction(qz_sceneWindow);
+    qz_updateIOSLayoutMetrics(qz_sceneWindow);
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone &&
         !qz_isIPhoneDuoWindow(qz_sceneWindow)) {
         qz_sceneWindow.rootViewController.view.backgroundColor = UIColor.blackColor;
@@ -364,6 +507,8 @@ static UIWindow *qz_existingQtWindowForScreen(void *platformScreen)
     }
     [self.view layoutIfNeeded];
     qz_layoutQtViews(self.view);
+    qz_installHingeInteraction(self.view.window);
+    qz_updateIOSLayoutMetrics(self.view.window);
     if (!standardIPhone)
         qz_sendUpdatedExposeEvent(self.view);
     updatingGeometry = NO;
@@ -385,12 +530,8 @@ static UIWindow *qz_existingQtWindowForScreen(void *platformScreen)
 #include "lockscreen.h"
 #include "authutils.h"
 
-// Qt defines QIOSApplicationDelegate internally as a UIResponder-backed
-// UIApplicationDelegate.  Keep the local declaration aligned with that shape
-// so category methods can legally forward unhandled events to super.
-@interface QIOSApplicationDelegate : UIResponder <UIApplicationDelegate, IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDelegate>
-@end
-
+// QIOSApplicationDelegate is declared above as the Qt delegate class.  Add
+// the QZ-specific protocols on the category without redeclaring the class.
 @interface QIOSApplicationDelegate (QZApplicationDelegate) <IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDelegate>
 @end
 
