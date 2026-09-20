@@ -54,27 +54,26 @@ double ftmsrowerCadenceCalculator::update(quint16 strokeCount, qint64 timestampM
     m_recentIntervalMs = elapsedMs / strokeDelta;
     m_lastStrokeTimestampMs = timestampMs;
 
+    // Filter individual stroke intervals before deriving cadence. This avoids
+    // letting one short JOROTO interval contaminate overlapping windows.
+    m_recentIntervalsMs.append(m_recentIntervalMs);
+    while (m_recentIntervalsMs.size() > 7) {
+        m_recentIntervalsMs.removeFirst();
+    }
+
     // Wait for four complete stroke intervals before publishing a value. The
     // JOROTO occasionally reports a short/long pair for one real interval.
-    if (m_samples.size() < 5) {
+    if (m_recentIntervalsMs.size() < 4) {
         return m_cadence;
     }
 
-    const sample first = m_samples.first();
-    const quint16 totalStrokeDelta = static_cast<quint16>(strokeCount - first.strokeCount);
-    const qint64 totalElapsedMs = timestampMs - first.timestampMs;
-    if (totalStrokeDelta > 0 && totalElapsedMs > 0) {
-        const double windowCadence = (static_cast<double>(totalStrokeDelta) * 60000.0) /
-                                     static_cast<double>(totalElapsedMs);
-        m_recentCadences.append(windowCadence);
-        while (m_recentCadences.size() > 3) {
-            m_recentCadences.removeFirst();
-        }
-
-        QList<double> sortedCadences = m_recentCadences;
-        std::sort(sortedCadences.begin(), sortedCadences.end());
-        m_cadence = sortedCadences.at(sortedCadences.size() / 2);
-    }
+    QList<qint64> sortedIntervals = m_recentIntervalsMs;
+    std::sort(sortedIntervals.begin(), sortedIntervals.end());
+    const int middle = sortedIntervals.size() / 2;
+    const double medianIntervalMs = sortedIntervals.size() % 2 == 0
+        ? (static_cast<double>(sortedIntervals.at(middle - 1)) + sortedIntervals.at(middle)) / 2.0
+        : static_cast<double>(sortedIntervals.at(middle));
+    m_cadence = 60000.0 / medianIntervalMs;
 
     return m_cadence;
 }
@@ -90,7 +89,7 @@ bool ftmsrowerCadenceCalculator::isStale(qint64 timestampMs) const {
 
 void ftmsrowerCadenceCalculator::reset() {
     m_samples.clear();
-    m_recentCadences.clear();
+    m_recentIntervalsMs.clear();
     m_cadence = 0;
     m_hasStroke = false;
     m_lastStrokeTimestampMs = -1;

@@ -80,6 +80,23 @@ TEST(FtmsRowerCadenceTest, MedianRejectsOneJorotoTimingSpike) {
     EXPECT_NEAR(calculator.cadence(), 20, 0.001);
 }
 
+TEST(FtmsRowerCadenceTest, MedianUsesIndividualIntervalsNotOverlappingWindows) {
+    ftmsrowerCadenceCalculator calculator;
+
+    calculator.update(100, 0, 22);
+    calculator.update(101, 3121, 22);
+    calculator.update(102, 4081, 22);
+    calculator.update(103, 6241, 22);
+    calculator.update(104, 8041, 22);
+    calculator.update(105, 10082, 22);
+    calculator.update(106, 11041, 22);
+    calculator.update(107, 14041, 22);
+    calculator.update(108, 17161, 22);
+
+    // The seven latest individual intervals have a median of about 2.041 s.
+    EXPECT_NEAR(calculator.cadence(), 60000.0 / 2041.0, 0.001);
+}
+
 TEST(FtmsRowerCadenceTest, StalePauseResetsHistoryBeforeResume) {
     ftmsrowerCadenceCalculator calculator;
 
