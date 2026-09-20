@@ -1,9 +1,0 @@
-diff --git a/src/plugins/platforms/ios/qiosapplicationdelegate.mm b/src/plugins/platforms/ios/qiosapplicationdelegate.mm
---- a/src/plugins/platforms/ios/qiosapplicationdelegate.mm
-+++ b/src/plugins/platforms/ios/qiosapplicationdelegate.mm
-@@ -89,4 +89,5 @@
- 
-     self.window.rootViewController = [[[QIOSViewController alloc]
-         initWithWindow:self.window andScreen:screen] autorelease];
-+    [self.window makeKeyAndVisible];
- }

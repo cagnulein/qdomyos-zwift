@@ -31,8 +31,6 @@ if [[ "$APPLY_PATCHES" == "1" ]]; then
     cp -R "$QTBASE_SOURCE_DIR"/. "$SOURCE_OVERLAY_DIR"/
     patch --batch --forward --silent -p1 -d "$SOURCE_OVERLAY_DIR" \
         < "$PROJECT_ROOT/qt-patches/ios/5.15.2/qios-uiscene.patch"
-    patch --batch --forward --silent -p1 -d "$SOURCE_OVERLAY_DIR" \
-        < "$PROJECT_ROOT/qt-patches/ios/5.15.2/qios-uiscene-layout.patch"
     QTBASE_SOURCE_DIR="$SOURCE_OVERLAY_DIR"
     echo "Building from temporary Qt source overlay: $SOURCE_OVERLAY_DIR"
 fi

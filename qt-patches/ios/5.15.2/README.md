@@ -28,8 +28,8 @@ installation and the patched source directory used during development.
 
 To keep the original Qt source tree untouched, point `QTBASE_SOURCE_DIR` at a
 clean Qt source tree and set `APPLY_PATCHES=1`. The script copies that tree to
-a temporary overlay, applies both repository patches there, and builds from
-the overlay:
+a temporary overlay, applies the repository patch there, and builds from the
+overlay:
 
 ```sh
 QTBASE_SOURCE_DIR=/path/to/qt-everywhere-src-5.15.2 \
