@@ -118,6 +118,7 @@ class ftmsbike : public bike {
     void forceInclination(double requestInclination);
     void sendZwiftPlayInclination(double inclination);
     uint16_t wattsFromResistance(double resistance);
+    bool isManualResistanceBike() const;
 
     QTimer *refresh;
     
@@ -159,6 +160,8 @@ class ftmsbike : public bike {
 
     bool powerForced = false;
     resistance_t m_lastErgResistance = 0;
+    resistance_t m_pendingErgResistance = -1;
+    QDateTime m_pendingErgResistanceTime;
     bool manualResistancePowerAdjustmentActive = false;
     bool manualResistancePowerAdjustmentToastShown = false;
     resistance_t manualResistanceTarget = 1;
@@ -206,6 +209,7 @@ class ftmsbike : public bike {
     bool MRK_S28 = false;
     bool MRK_S36C = false;
     bool HAMMER = false;
+    bool H9115 = false;
     bool YPBM = false;
     bool SPORT01 = false;
     bool FS_YK = false;
@@ -213,9 +217,12 @@ class ftmsbike : public bike {
     bool ZIPRO_RAVE = false;
     bool SPEEDRACEX = false;
     bool USDC_D700 = false;
+    bool WLT_BK = false;
     bool TOPUTURE_TEB5 = false;
     bool SMARTBIKE_3DIGIT = false;
+    bool TX_500MB_IRON = false;
     bool MOK_FITNESS = false;
+    bool TUNTURI_E50_168 = false;
 
     uint8_t secondsToResetTimer = 5;
 

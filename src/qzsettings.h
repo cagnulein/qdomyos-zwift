@@ -1032,6 +1032,9 @@ class QZSettings {
     static const QString power_sensor_as_treadmill;
     static constexpr bool default_power_sensor_as_treadmill = false;
 
+    static const QString power_sensor_speed_correction_threshold;
+    static constexpr double default_power_sensor_speed_correction_threshold = 20.0;
+
     static const QString power_sensor_speed_inclination_coeff_a;
     static constexpr double default_power_sensor_speed_inclination_coeff_a = 0.0;
 
@@ -1992,6 +1995,9 @@ class QZSettings {
     static const QString nordictrack_incline_trainer_x7i;
     static constexpr bool default_nordictrack_incline_trainer_x7i = false;
 
+    static const QString nordictrack_incline_trainer_x7i_ntl15010_0;
+    static constexpr bool default_nordictrack_incline_trainer_x7i_ntl15010_0 = false;
+
     static const QString strava_auth_external_webbrowser;
     static constexpr bool default_strava_auth_external_webbrowser = false;
 
@@ -2340,6 +2346,9 @@ class QZSettings {
     static const QString proform_treadmill_8_7;
     static constexpr bool default_proform_treadmill_8_7 = false;
 
+    static const QString virtual_device_tacx;
+    static constexpr bool default_virtual_device_tacx = false;
+    
     static const QString proform_bike_325_csx;
     static constexpr bool default_proform_bike_325_csx = false;
 
@@ -3288,6 +3297,14 @@ class QZSettings {
     static constexpr bool default_horizon_treadmill_omega_z = false;
 
     /**
+     * @brief NordicTrack Elliptical Spacesaver S700: uses its own BLE telemetry/control quirks
+     * (speed packet marker and resistance byte mapping differ from the other NordicTrack elliptical
+     * profiles), so it is gated behind its own setting to avoid affecting other models.
+     */
+    static const QString nordictrack_elliptical_s700;
+    static constexpr bool default_nordictrack_elliptical_s700 = false;
+    
+    /**
      * @brief Per-button gear mapping for Zwift Play/Ride controllers.
      * Values follow MyWhoosh::Action: 0 = Disabled, 1 = Gear Up, 2 = Gear Down.
      */
@@ -3310,6 +3327,8 @@ class QZSettings {
 
     static const QString ios_background_keepalive;
     static constexpr bool default_ios_background_keepalive = true;
+    static const QString renpho_bike_knob_gears;
+    static constexpr bool default_renpho_bike_knob_gears = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

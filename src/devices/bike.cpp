@@ -219,6 +219,22 @@ void bike::setGears(double gears) {
     }
     qDebug() << "setGears" << gears;
 
+    virtualbike *virtualBike = VirtualBike();
+    const qint64 lastFtmsFrame = virtualBike ? virtualBike->whenLastFTMSFrameReceived() : 0;
+    const bool externalControllerActive =
+        lastFtmsFrame > 0 && QDateTime::currentMSecsSinceEpoch() <= lastFtmsFrame + 2000;
+    if (!externalControllerActive && RequestedPower.value() > 0 && homeform::singleton()) {
+        if (gears > m_gears) {
+            qDebug() << "Standalone ERG: translating gear up to target power jog";
+            homeform::singleton()->keyboardPlus(QStringLiteral("target_power"));
+            return;
+        } else if (gears < m_gears) {
+            qDebug() << "Standalone ERG: translating gear down to target power jog";
+            homeform::singleton()->keyboardMinus(QStringLiteral("target_power"));
+            return;
+        }
+    }
+
     // Gear boundary handling with smart clamping logic:
     // - If we're trying to set a gear outside valid range AND we're already at a valid gear,
     //   reject the change (normal case: user at gear 1 tries to go to 0.5, should fail)
@@ -694,7 +710,7 @@ void bike::updateSlopeTargetPower(bool force) {
     // Apply gear offset to grade (0.5 scaling factor)
     double grade = m_currentSlopePercent + (gearsModifier() / 2.0);
 
-    // Get current speed (with fallback to cadence-based estimation)
+    // Get current speed for slope calculations with fallback to cadence-based estimation
     double speedKmh = getCurrentSpeedForSlope();
 
     // Compute required power using physics model

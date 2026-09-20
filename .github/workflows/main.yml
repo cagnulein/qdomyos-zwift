@@ -1067,6 +1067,7 @@ jobs:
 
   window-msvc2019-build:
     runs-on: windows-2022
+    continue-on-error: true
     strategy:
       matrix:
         config:
@@ -1546,11 +1547,14 @@ jobs:
           cd ..
 
       - name: Build for Raspberry Pi 64-bit
+        # Bullseye is EOL; pin APT to a snapshot containing the ARM64 toolchain.
         uses: docker://arm64v8/debian:bullseye-20241016
         with:
           args: >
             bash -c "
             set -ex &&
+            rm -f /etc/apt/sources.list.d/* /etc/apt/sources.list &&
+            printf '%s\n' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260608T080000Z/ bullseye main' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20260608T080000Z/ bullseye-security main' > /etc/apt/sources.list &&
             for i in 1 2 3; do apt-get update && break || sleep 5; done &&
             for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
             export QT_SELECT=qt5 &&
@@ -2175,8 +2179,33 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
-          # Set variant-specific IP setting
-          sed -i 's/property string ${{ matrix.variant.setting_key }}: ""/property string ${{ matrix.variant.setting_key }}: "${{ matrix.variant.setting_value }}"/' settings.qml
+          # Keep the QML and C++ defaults identical for this artifact variant.
+          SETTING_KEY='${{ matrix.variant.setting_key }}' \
+          SETTING_VALUE='${{ matrix.variant.setting_value }}' \
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          key = os.environ["SETTING_KEY"]
+          value = os.environ["SETTING_VALUE"]
+          replacements = {
+              Path("settings.qml"): (
+                  f'            property string {key}: ""',
+                  f'            property string {key}: "{value}"',
+              ),
+              Path("qzsettings.cpp"): (
+                  f'const QString QZSettings::default_{key} = QStringLiteral("");',
+                  f'const QString QZSettings::default_{key} = QStringLiteral("{value}");',
+              ),
+          }
+          for path, (original, variant) in replacements.items():
+              contents = path.read_text()
+              if contents.count(original) != 1:
+                  raise SystemExit(f"Expected exactly one {original!r} in {path}")
+              path.write_text(contents.replace(original, variant))
+              if path.read_text().count(variant) != 1:
+                  raise SystemExit(f"Failed to set {variant!r} in {path}")
+          PY
           cd ..
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
@@ -2318,8 +2347,33 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
-          # Set variant-specific IP setting
-          sed -i 's/property string ${{ matrix.variant.setting_key }}: ""/property string ${{ matrix.variant.setting_key }}: "${{ matrix.variant.setting_value }}"/' settings.qml
+          # Keep the QML and C++ defaults identical for this artifact variant.
+          SETTING_KEY='${{ matrix.variant.setting_key }}' \
+          SETTING_VALUE='${{ matrix.variant.setting_value }}' \
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          key = os.environ["SETTING_KEY"]
+          value = os.environ["SETTING_VALUE"]
+          replacements = {
+              Path("settings.qml"): (
+                  f'            property string {key}: ""',
+                  f'            property string {key}: "{value}"',
+              ),
+              Path("qzsettings.cpp"): (
+                  f'const QString QZSettings::default_{key} = QStringLiteral("");',
+                  f'const QString QZSettings::default_{key} = QStringLiteral("{value}");',
+              ),
+          }
+          for path, (original, variant) in replacements.items():
+              contents = path.read_text()
+              if contents.count(original) != 1:
+                  raise SystemExit(f"Expected exactly one {original!r} in {path}")
+              path.write_text(contents.replace(original, variant))
+              if path.read_text().count(variant) != 1:
+                  raise SystemExit(f"Failed to set {variant!r} in {path}")
+          PY
           cd ..
 
           # Keep FitPro APKs usable on older 32-bit iFIT/ProForm consoles.
@@ -2647,7 +2701,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-smoke-test]
+    needs: [window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

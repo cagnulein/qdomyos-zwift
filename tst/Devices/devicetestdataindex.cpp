@@ -387,12 +387,26 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
         ->configureSettingsWith( QZSettings::fitplus_bike);
 
+    // VirtuFit Etappe 2.0i
+    RegisterNewDeviceTestData(DeviceIndex::FitPlusVirtufitEtappeX100)
+        ->expectDevice<fitplusbike>()
+        ->acceptDeviceName("X100-", DeviceNameComparison::StartsWith);
+
+
+    // FitPlus Rower - Merach R28
+    // Reproduces the support case from matthieu.f.graveleau@gmail.com:
+    // debug-Wed_Sep_9_22_16_00_2026.log.txt reported MRK-R28-6B51.
+    RegisterNewDeviceTestData(DeviceIndex::FitPlusRower_MRK_R28)
+        ->expectDevice<fitplusrower>()
+        ->acceptDeviceName("MRK-R28-6B51", DeviceNameComparison::Exact);
 
     // FitPlus MRK
     RegisterNewDeviceTestData(DeviceIndex::FitPlusBike_MRK_NoSettings)
         ->expectDevice<fitplusbike>()
         ->acceptDeviceName("MRK-", DeviceNameComparison::StartsWith)
+        ->rejectDeviceName("MRK-R28-", DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding<ftmsbike>()
+        ->excluding<fitplusrower>()
         ->excluding<snodebike>();
 
     // FitShow FS
@@ -457,6 +471,13 @@ void DeviceTestDataIndex::Initialize() {
         // SW, 14 characters total
         ->acceptDeviceName("SW345678901234", DeviceNameComparison::Exact)
         ->acceptDeviceName("SWFOURTEENCHAR", DeviceNameComparison::Exact)
+
+        // FitShow SW fingerprint: 15 characters with '-' at index 10
+        ->acceptDeviceName("SW5731CAXI-0061", DeviceNameComparison::Exact)
+        ->acceptDeviceName("SW12345678-1234", DeviceNameComparison::Exact)
+        ->rejectDeviceName("SW5731CAXI0-061", DeviceNameComparison::Exact)
+        ->rejectDeviceName("SW5731CAXI-006", DeviceNameComparison::Exact)
+
         ->acceptDeviceName("WINFITA", DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceName("NOBLEPRO CONNECT", DeviceNameComparison::StartsWithIgnoreCase)
 
@@ -587,6 +608,7 @@ void DeviceTestDataIndex::Initialize() {
         "MRK-S38-",
         "SMB1",
         "UBIKE FTMS",
+        "TX-500MB IRON",
         "INRIDE"
     };
     RegisterNewDeviceTestData(DeviceIndex::FTMSBike)
@@ -657,6 +679,12 @@ void DeviceTestDataIndex::Initialize() {
                             DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding(ftmsBikeConfigureExclusions)
         ->configureSettingsWith(QBluetoothUuid((quint16)0x1826));
+
+    // FTMS Bike Horizon 5.0R
+    RegisterNewDeviceTestData(DeviceIndex::FTMSBikeHorizon5R)
+        ->expectDevice<ftmsbike>()
+        ->acceptDeviceName("JFBK5.0R", DeviceNameComparison::IgnoreCase)
+        ->excluding(ftmsBikeConfigureExclusions);
 
     // FTMS Rower
     RegisterNewDeviceTestData(DeviceIndex::FTMSRower)
@@ -1173,7 +1201,7 @@ void DeviceTestDataIndex::Initialize() {
     // Stages Bike
     RegisterNewDeviceTestData(DeviceIndex::StagesBike)
         ->expectDevice<stagesbike>()        
-        ->acceptDeviceNames({"STAGES ", "TACX SATORI", "RACER S", "ELITETRAINER"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"STAGES ", "TACX SATORI", "RACER S", "ELITETRAINER", "MISURO B+"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceNames({"QD","DFC", "KU"}, DeviceNameComparison::IgnoreCase)
         ->excluding(stagesBikeExclusions);
 
@@ -1400,6 +1428,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::TrxAppGateUSBEllipticalIConsole)
         ->expectDevice<trxappgateusbelliptical>()
         ->acceptDeviceName("I-CONSOLE+", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("TOORX", DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding(toorxAppGateUSBBikeExclusions)
         ->configureSettingsWith([trxAppGateUSBEllipticalSettingsApplicator](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) -> void
                                 {
@@ -1447,6 +1476,11 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::UltrasportBike)
         ->expectDevice<ultrasportbike>()
         ->acceptDeviceName("X-BIKE", DeviceNameComparison::StartsWithIgnoreCase);
+
+    // XCX Bike (proprietary FFF6 telemetry; explicitly not generic FTMS)
+    RegisterNewDeviceTestData(DeviceIndex::XcxBike)
+        ->expectDevice<xcxbike>()
+        ->acceptDeviceName("XCX-001048", DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Wahoo KICKR CORE
