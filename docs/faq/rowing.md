@@ -16,6 +16,19 @@ If Bluetooth discovery is unreliable with both apps on the same device, running 
 
 This setup was explicitly confirmed working in a support case where the original rower could not provide usable data to the training app.
 
+## MyWhoosh does not see or use QZ's virtual rower correctly. What should I try?
+
+For MyWhoosh, enable both QZ's **Virtual Rower** and **PM5** emulation, then connect MyWhoosh to the virtual rower advertised by QZ.
+
+1. Enable **Virtual Rower** in QZ.
+2. Enable the **PM5** compatibility option for the virtual rower.
+3. Restart the virtual connection if necessary.
+4. In MyWhoosh, select the QZ/PM5 rower as the rowing device.
+
+If discovery is unreliable with QZ and MyWhoosh on the same device, run them on separate devices and let MyWhoosh connect over Bluetooth to the device running QZ.
+
+This differs from apps such as EXR or Kinomap, where standard FTMS rowing may be preferable. In a confirmed support case with a Domyos rower, enabling both Virtual Rower and PM5 emulation and connecting MyWhoosh from a second Android tablet made the setup work correctly.
+
 ## EXR connects to QZ as a PM5 but does not receive usable rowing data or disconnects. What should I try?
 
 If you are bridging a non-Concept2 rower through QZ to EXR, use QZ's standard virtual FTMS rower rather than PM5 emulation:
