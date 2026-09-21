@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1002,
+  "settingCount": 1003,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -406,6 +406,10 @@
         {
           "label": "NordicTrack Series 7",
           "sets": "nordictrack_series_7"
+        },
+        {
+          "label": "Nordictrack T Series 8",
+          "sets": "nordictrack_tseries8_treadmill"
         },
         {
           "label": "Proform Trainer 9.0 (PFTL69921-INT.4)",
@@ -15851,6 +15855,21 @@
       "defaultExpression": "\"0|4\\n1|6\\n2|8\\n3|10\\n4|11\\n5|11.5\\n6|12\\n8|13\\n10|14\\n12|15\\n15|16\"",
       "options": null,
       "restartRequired": true
+    },
+    {
+      "key": "nordictrack_tseries8_treadmill",
+      "name": "Nordictrack T Series 8",
+      "description": null,
+      "parent": "Proform/Nordictrack Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "virtualOption",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "virtualParent": "nordictrack_treadmill_model",
+      "restartRequired": true
     }
   ],
   "legacyHierarchy": {
@@ -16639,6 +16658,7 @@
       "nordictrack_s30_treadmill": "proformTreadmillAccordion",
       "nordictrack_se7i": "proformEllipticalAccordion",
       "nordictrack_series_7": "proformTreadmillAccordion",
+      "nordictrack_tseries8_treadmill": "proformTreadmillAccordion",
       "nordictrack_t65s_83_treadmill": "proformTreadmillAccordion",
       "nordictrack_t65s_treadmill": "proformTreadmillAccordion",
       "nordictrack_t65s_treadmill_81_miles": "proformTreadmillAccordion",
@@ -17236,6 +17256,7 @@
       "nordictrack_s30_treadmill": "settings.qml",
       "nordictrack_se7i": "settings.qml",
       "nordictrack_series_7": "settings.qml",
+      "nordictrack_tseries8_treadmill": "settings.qml",
       "nordictrack_t65s_83_treadmill": "settings.qml",
       "nordictrack_t65s_treadmill": "settings.qml",
       "nordictrack_t65s_treadmill_81_miles": "settings.qml",
@@ -18204,6 +18225,7 @@
       "nordictrack_s30_treadmill": 11227,
       "nordictrack_se7i": 13210,
       "nordictrack_series_7": 11264,
+      "nordictrack_tseries8_treadmill": 1755,
       "nordictrack_t65s_83_treadmill": 11224,
       "nordictrack_t65s_treadmill": 11223,
       "nordictrack_t65s_treadmill_81_miles": 11258,

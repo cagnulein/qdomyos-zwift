@@ -793,6 +793,8 @@ class QZSettings {
     static constexpr bool default_proform_treadmill_995i = false;
     static const QString nordictrack_series_7;
     static constexpr bool default_nordictrack_series_7 = false;
+    static const QString nordictrack_tseries8_treadmill;
+    static constexpr bool default_nordictrack_tseries8_treadmill = false;
     static const QString nordictrack_se7i;
     static constexpr bool default_nordictrack_se7i = false;
     static const QString proform_treadmill_sport_3_0;

@@ -1752,6 +1752,7 @@ import AndroidStatusBar 1.0
             property bool custom_inclination_resistance_table_enabled: false
             property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
             property real power_sensor_speed_correction_threshold: 20.0
+            property bool nordictrack_tseries8_treadmill: false
         }
 
 
@@ -10456,6 +10457,7 @@ import AndroidStatusBar 1.0
                                     "Proform Carbon TLS",
                                     "Proform 995i",
                                     "NordicTrack Series 7",
+                                    "Nordictrack T Series 8",
                                     "Proform Trainer 9.0 (PFTL69921-INT.4)",
                                     "Proform Sport 3.0",
                                     "ProForm Carbon TLX PFTL90924C.7",
@@ -10536,15 +10538,16 @@ import AndroidStatusBar 1.0
                                                     settings.proform_treadmill_carbon_tls ? 52 :
                                                     settings.proform_treadmill_995i ? 53 :
                                                     settings.nordictrack_series_7 ? 54 :
-                                                    settings.proform_trainer_9_0 ? 55 :
-                                                    settings.proform_treadmill_sport_3_0 ? 56 :
-                                                    settings.proform_carbon_tlx_treadmill ? 57 :
-                                                    settings.proform_trainer_8_0_pftl59721_int_0 ? 58 :
-                                                    settings.proform_carbon_tl_PFTL59723_6 ? 59 :
-                                                    settings.proform_carbon_tlx_v84_314_treadmill ? 60 :
-                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 61 :
-                                                    settings.proform_treadmill_105_cst ? 62 :
-                                                    settings.nordictrack_incline_trainer_x7i_ntl15010_0 ? 63 : 0;
+                                                    settings.nordictrack_tseries8_treadmill ? 55 :
+                                                    settings.proform_trainer_9_0 ? 56 :
+                                                    settings.proform_treadmill_sport_3_0 ? 57 :
+                                                    settings.proform_carbon_tlx_treadmill ? 58 :
+                                                    settings.proform_trainer_8_0_pftl59721_int_0 ? 59 :
+                                                    settings.proform_carbon_tl_PFTL59723_6 ? 60 :
+                                                    settings.proform_carbon_tlx_v84_314_treadmill ? 61 :
+                                                    settings.proform_treadmill_cst_505_pftl59420_0 ? 62 :
+                                                    settings.proform_treadmill_105_cst ? 63 :
+                                                    settings.nordictrack_incline_trainer_x7i_ntl15010_0 ? 64 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -10613,6 +10616,7 @@ import AndroidStatusBar 1.0
                                     settings.proform_treadmill_carbon_tls = false;
                                     settings.proform_treadmill_995i = false;
                                     settings.nordictrack_series_7 = false;
+                                    settings.nordictrack_tseries8_treadmill = false;
                                     settings.proform_trainer_9_0 = false;
                                     settings.proform_treadmill_sport_3_0 = false;
                                     settings.proform_carbon_tlx_treadmill = false;
@@ -10679,15 +10683,16 @@ import AndroidStatusBar 1.0
                                         case 52: settings.proform_treadmill_carbon_tls = true; break;
                                         case 53: settings.proform_treadmill_995i = true; break;
                                         case 54: settings.nordictrack_series_7 = true; break;
-                                        case 55: settings.proform_trainer_9_0 = true; break;
-                                        case 56: settings.proform_treadmill_sport_3_0 = true; break;
-                                        case 57: settings.proform_carbon_tlx_treadmill = true; break;
-                                        case 58: settings.proform_trainer_8_0_pftl59721_int_0 = true; break;
-                                        case 59: settings.proform_carbon_tl_PFTL59723_6 = true; break;
-                                        case 60: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
-                                        case 61: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
-                                        case 62: settings.proform_treadmill_105_cst = true; break;
-                                        case 63: settings.nordictrack_incline_trainer_x7i_ntl15010_0 = true; break;
+                                        case 55: settings.nordictrack_tseries8_treadmill = true; break;
+                                        case 56: settings.proform_trainer_9_0 = true; break;
+                                        case 57: settings.proform_treadmill_sport_3_0 = true; break;
+                                        case 58: settings.proform_carbon_tlx_treadmill = true; break;
+                                        case 59: settings.proform_trainer_8_0_pftl59721_int_0 = true; break;
+                                        case 60: settings.proform_carbon_tl_PFTL59723_6 = true; break;
+                                        case 61: settings.proform_carbon_tlx_v84_314_treadmill = true; break;
+                                        case 62: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
+                                        case 63: settings.proform_treadmill_105_cst = true; break;
+                                        case 64: settings.nordictrack_incline_trainer_x7i_ntl15010_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
