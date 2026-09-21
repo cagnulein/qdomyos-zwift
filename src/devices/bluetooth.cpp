@@ -2839,7 +2839,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (upperDeviceName.startsWith(QStringLiteral("ADIDAS "))) ||
                         (upperDeviceName.startsWith(QStringLiteral("REEBOK"))) ||
                         (flow_fitness_runner_dtm2000i &&
-                         deviceHasService(b, QBluetoothUuid(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"))))) &&
+                         upperDeviceName.startsWith(QStringLiteral("TREADMILL")))) &&
                        !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) &&
                            ftms_bike.contains(QZSettings::default_ftms_bike) &&
                        filter) {
