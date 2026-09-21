@@ -273,6 +273,7 @@ const QString QZSettings::nordictrack_treadmill_commercial_le = QStringLiteral("
 const QString QZSettings::proform_treadmill_carbon_tls = QStringLiteral("proform_treadmill_carbon_tls");
 const QString QZSettings::proform_treadmill_995i = QStringLiteral("proform_treadmill_995i");
 const QString QZSettings::nordictrack_series_7 = QStringLiteral("nordictrack_series_7");
+const QString QZSettings::nordictrack_tseries8_treadmill = QStringLiteral("nordictrack_tseries8_treadmill");
 const QString QZSettings::nordictrack_se7i = QStringLiteral("nordictrack_se7i");
 const QString QZSettings::proform_treadmill_sport_3_0 = QStringLiteral("proform_treadmill_sport_3_0");
 const QString QZSettings::toorx_3_0 = QStringLiteral("toorx_3_0");
@@ -1286,7 +1287,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1006;
+const uint32_t allSettingsCount = 1007;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2213,6 +2214,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::kingsmith_r2_enable_hw_buttons, QZSettings::default_kingsmith_r2_enable_hw_buttons},
     {QZSettings::toorxtreadmill_discovery_completed, QZSettings::default_toorxtreadmill_discovery_completed},
     {QZSettings::proform_treadmill_sport_3_0, QZSettings::default_proform_treadmill_sport_3_0},
+    {QZSettings::nordictrack_tseries8_treadmill, QZSettings::default_nordictrack_tseries8_treadmill},
     {QZSettings::garmin_oauth1_token, QZSettings::default_garmin_oauth1_token},
     {QZSettings::garmin_oauth1_token_secret, QZSettings::default_garmin_oauth1_token_secret},
     {QZSettings::mywhoosh_link_enabled, QZSettings::default_mywhoosh_link_enabled},
