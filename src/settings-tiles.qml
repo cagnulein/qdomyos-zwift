@@ -109,6 +109,7 @@ ScrollView {
         property int  tile_steering_angle_order: 30
         property bool tile_pid_hr_enabled: false
         property int  tile_pid_hr_order: 31
+
         property bool tile_ext_incline_enabled: false
         property int  tile_ext_incline_order: 32
         property bool tile_cadence_color_enabled: false
@@ -367,6 +368,8 @@ ScrollView {
         property string shortcut_start_stop: ""            
         property bool tile_watt_color_enabled: true
         property bool tile_pace_color_enabled: true
+        property bool tile_target_hr_enabled: false
+        property int  tile_target_hr_order: 80
     }
 
 
@@ -2423,6 +2426,51 @@ ScrollView {
 
         Label {
             text: qsTr("Use this tile to display the target heart rate zone in which you’ve chosen to work out in Settings > Training Program Options.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: Qt.application.font.pixelSize - 2
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: targetHrAccordion
+            title: qsTr("Target HR")
+            linkedBoolSetting: "tile_target_hr_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelTargetHrOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: targetHrOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_target_hr_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: displayText = targetHrOrderTextField.currentValue
+                }
+                Button {
+                    text: qsTr("OK")
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {
+                        settings.tile_target_hr_order = targetHrOrderTextField.displayText
+                        toast.show(qsTr("Setting saved!"))
+                    }
+                }
+            }
+        }
+
+        Label {
+            text: qsTr("Use + and - on this tile to adjust the PID target HR during a workout. The minimum is calculated from the target and the configured HR offset.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2

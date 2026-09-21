@@ -1339,6 +1339,19 @@ bool trainprogram::overrideZoneHRForCurrentRow(uint8_t zone) {
     return false;
 }
 
+bool trainprogram::overrideHeartRateTargetForCurrentRow(int min, int max) {
+    if (started && currentStep < rows.length() &&
+        (currentRow().zoneHR != -1 || currentRow().HRmin > 0 || currentRow().HRmax > 0)) {
+        qDebug() << "overriding HR target from" << rows.at(currentStep).HRmin << rows.at(currentStep).HRmax
+                 << "to" << min << max;
+        rows[currentStep].zoneHR = -1;
+        rows[currentStep].HRmin = min;
+        rows[currentStep].HRmax = max;
+        return true;
+    }
+    return false;
+}
+
 bool trainprogram::adjustPowerOffsetForTrainingProgram(int32_t delta) {
     if (!started || currentStep >= rows.length() || currentRow().power == -1 || loadedRows.length() != rows.length()) {
         return false;

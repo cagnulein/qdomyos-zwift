@@ -658,6 +658,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                          QStringLiteral("0"), false, QStringLiteral("hrv"), 48, labelFontSize);
     pidHR = new DataObject(tr("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
+    targetHR = new DataObject(tr("Target HR"), QStringLiteral("icons/icons/heart_red.png"),
+                              QStringLiteral("0"), true, QStringLiteral("target_hr"), 48, labelFontSize);
     extIncline = new DataObject(tr("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
                                 QStringLiteral("0.0"), true, QStringLiteral("external_inclination"), 48, labelFontSize);
     instantaneousStrideLengthCM =
@@ -2349,6 +2351,12 @@ void homeform::sortTiles() {
                 dataList.append(pidHR);
             }
 
+            if (settings.value(QZSettings::tile_target_hr_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_target_hr_order, 80).toInt() == i) {
+                targetHR->setGridId(i);
+                dataList.append(targetHR);
+            }
+
             if (settings.value(QZSettings::tile_instantaneous_stride_length_enabled, false).toBool() &&
                 settings.value(QZSettings::tile_instantaneous_stride_length_order, 32).toInt() == i) {
                 instantaneousStrideLengthCM->setGridId(i);
@@ -2742,6 +2750,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_pid_hr_order, 31).toInt() == i) {
                 pidHR->setGridId(i);
                 dataList.append(pidHR);
+            }
+
+            if (settings.value(QZSettings::tile_target_hr_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_target_hr_order, 80).toInt() == i) {
+                targetHR->setGridId(i);
+                dataList.append(targetHR);
             }
 
             if (settings.value(QZSettings::tile_instantaneous_stride_length_enabled, false).toBool() &&
@@ -3171,6 +3185,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_pid_hr_order, 31).toInt() == i) {
                 pidHR->setGridId(i);
                 dataList.append(pidHR);
+            }
+
+            if (settings.value(QZSettings::tile_target_hr_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_target_hr_order, 80).toInt() == i) {
+                targetHR->setGridId(i);
+                dataList.append(targetHR);
             }
 
             if (settings.value(QZSettings::tile_ext_incline_enabled, false).toBool() &&
@@ -3648,6 +3668,12 @@ void homeform::sortTiles() {
                 dataList.append(pidHR);
             }
 
+            if (settings.value(QZSettings::tile_target_hr_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_target_hr_order, 80).toInt() == i) {
+                targetHR->setGridId(i);
+                dataList.append(targetHR);
+            }
+
             if (settings.value(QZSettings::tile_target_zone_enabled, false).toBool() &&
                 settings.value(QZSettings::tile_target_zone_order, 24).toInt() == i) {
                 target_zone->setGridId(i);
@@ -4028,6 +4054,12 @@ void homeform::sortTiles() {
                 dataList.append(pidHR);
             }
 
+            if (settings.value(QZSettings::tile_target_hr_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_target_hr_order, 80).toInt() == i) {
+                targetHR->setGridId(i);
+                dataList.append(targetHR);
+            }
+
             if (settings.value(QZSettings::tile_target_zone_enabled, false).toBool() &&
                 settings.value(QZSettings::tile_target_zone_order, 24).toInt() == i) {
                 target_zone->setGridId(i);
@@ -4343,6 +4375,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_pid_hr_order, 31).toInt() == i) {
                 pidHR->setGridId(i);
                 dataList.append(pidHR);
+            }
+
+            if (settings.value(QZSettings::tile_target_hr_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_target_hr_order, 80).toInt() == i) {
+                targetHR->setGridId(i);
+                dataList.append(targetHR);
             }
 
             if (settings.value(QZSettings::tile_target_cadence_enabled, false).toBool() &&
@@ -5311,6 +5349,8 @@ void homeform::Plus(const QString &name) {
                                         ((bike *)bluetoothManager->device())->currentInclination().value() + step);
             }
         }
+    } else if (name.contains(QStringLiteral("target_hr"))) {
+        adjustTargetHeartRate(1);
     } else if (name.contains(QStringLiteral("pid_hr"))) {
         if (bluetoothManager->device()) {
             QSettings settings;
@@ -5624,6 +5664,8 @@ void homeform::Minus(const QString &name) {
                                         ((bike *)bluetoothManager->device())->currentInclination().value() - step);
             }
         }
+    } else if (name.contains(QStringLiteral("target_hr"))) {
+        adjustTargetHeartRate(-1);
     } else if (name.contains(QStringLiteral("pid_hr"))) {
         if (bluetoothManager->device()) {
             QSettings settings;
@@ -7604,6 +7646,7 @@ void homeform::update() {
         }
         pidHR->setValue(QString::number(treadmill_pid_heart_zone));
         pidHR->setSecondLine(QString::number(hrCurrentZoneRangeMin) + "-" + QString::number(hrCurrentZoneRangeMax));
+        updateTargetHeartRateTile();
         switch (treadmill_pid_heart_zone) {
         case 5:
             pidHR->setValueFontColor(QStringLiteral("red"));
@@ -11199,6 +11242,103 @@ double homeform::heartRateMax() {
         maxHeartRate = 190.0;
     }
     return maxHeartRate;
+}
+
+bool homeform::heartRateTargetRange(int &min, int &max) {
+    QSettings settings;
+
+    const auto zoneRange = [this, &settings](int zone, int &rangeMin, int &rangeMax) {
+        if (zone < 1 || zone > 5)
+            return false;
+
+        double lowerPercent = 0.0;
+        double upperPercent = 100.0;
+        switch (zone) {
+        case 1:
+            upperPercent = settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble();
+            break;
+        case 2:
+            lowerPercent = settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble();
+            upperPercent = settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble();
+            break;
+        case 3:
+            lowerPercent = settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble();
+            upperPercent = settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble();
+            break;
+        case 4:
+            lowerPercent = settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble();
+            upperPercent = settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble();
+            break;
+        case 5:
+            lowerPercent = settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble();
+            break;
+        }
+
+        const double maxHeartRate = heartRateMax();
+        rangeMin = qMax(1, qRound(maxHeartRate * lowerPercent / 100.0));
+        rangeMax = qRound(maxHeartRate * upperPercent / 100.0);
+        if (zone < 5)
+            rangeMax--;
+        return rangeMax >= rangeMin;
+    };
+
+    if (trainProgram && trainProgram->isStarted()) {
+        const trainrow row = trainProgram->currentRow();
+        if (row.HRmin > 0 && row.HRmax > 0) {
+            min = row.HRmin;
+            max = row.HRmax;
+            return true;
+        }
+        return row.zoneHR > 0 && zoneRange(row.zoneHR, min, max);
+    }
+
+    min = settings.value(QZSettings::treadmill_pid_heart_min, QZSettings::default_treadmill_pid_heart_min).toInt();
+    max = settings.value(QZSettings::treadmill_pid_heart_max, QZSettings::default_treadmill_pid_heart_max).toInt();
+    if (min > 0 && max > 0)
+        return true;
+
+    const QString zoneSetting = settings.value(QZSettings::treadmill_pid_heart_zone,
+                                                QZSettings::default_treadmill_pid_heart_zone)
+                                    .toString();
+    bool ok = false;
+    const int zone = zoneSetting.toInt(&ok);
+    return ok && zoneRange(zone, min, max);
+}
+
+void homeform::adjustTargetHeartRate(int delta) {
+    QSettings settings;
+    int min = 0;
+    int max = 0;
+    if (!heartRateTargetRange(min, max))
+        return;
+
+    const int target = qMax(1, max + delta);
+    min = qMax(1, min + delta);
+
+    // A manual target uses the explicit HR range path instead of the zone path.
+    settings.setValue(QZSettings::treadmill_pid_heart_zone, QStringLiteral("Disabled"));
+
+    if (trainProgram && trainProgram->isStarted() && trainProgram->overrideHeartRateTargetForCurrentRow(min, target)) {
+        updateTargetHeartRateTile();
+        return;
+    }
+
+    settings.setValue(QZSettings::treadmill_pid_heart_min, min);
+    settings.setValue(QZSettings::treadmill_pid_heart_max, target);
+    updateTargetHeartRateTile();
+}
+
+void homeform::updateTargetHeartRateTile() {
+    int min = 0;
+    int target = 0;
+    if (!heartRateTargetRange(min, target)) {
+        targetHR->setValue(QStringLiteral("--"));
+        targetHR->setSecondLine(QString());
+        return;
+    }
+
+    targetHR->setValue(QString::number(target));
+    targetHR->setSecondLine(QString::number(min) + QStringLiteral("-") + QString::number(target));
 }
 
 void homeform::clearFiles() {
