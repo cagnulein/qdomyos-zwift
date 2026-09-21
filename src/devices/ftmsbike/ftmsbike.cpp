@@ -794,6 +794,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 domyosResistanceRetryAfter = now;
             }
         }
+
+        if (bluetoothDevice.name().toUpper().startsWith("ICONSOLE+") &&
+            responseCode == FTMS_RESPONSE_CODE && requestCode == FTMS_SET_TARGET_POWER &&
+            resultCode == FTMS_CONTROL_NOT_PERMITTED) {
+            qDebug() << QStringLiteral("iConsole+ rejected FTMS target power - switching to resistance ERG emulation");
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+        }
     }
     
     if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")) && newValue.at(0) == 0x03) {
@@ -2300,9 +2308,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             WLT_BK = true;
             max_resistance = 24;
         } else if (device.name().toUpper().startsWith("ICONSOLE+")) {
-            qDebug() << QStringLiteral("iConsole+ found as FTMS bike - ERG not supported");
-            resistance_lvl_mode = true;
-            ergModeSupported = false;
+            qDebug() << QStringLiteral("iConsole+ found as FTMS bike - probing native ERG support");
+            resistance_lvl_mode = false;
+            ergModeSupported = true;
             max_resistance = 24;
         } else if (device.name().compare(QStringLiteral("Tunturi E50-168"), Qt::CaseInsensitive) == 0) {
             qDebug() << QStringLiteral("Tunturi E50-168 found - enabling direct resistance and distance workaround");
