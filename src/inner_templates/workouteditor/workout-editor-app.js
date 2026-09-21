@@ -35,6 +35,11 @@
         { key: 'powerfrom', labelKey: 'workoutEditor.powerRampFrom', label: 'Ramp From', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 100 },
         { key: 'powerto', labelKey: 'workoutEditor.powerRampTo', label: 'Ramp To', type: 'number', min: 0, max: 2000, group: 'advanced', devices: ['bike', 'rower'], defaultValue: 200 },
         { key: 'forcespeed', labelKey: 'workoutEditor.forceSpeed', label: 'Force Speed', type: 'bool', group: 'basic', devices: ['treadmill'], linkedTo: 'speed' },
+        { key: 'pidHRMode', labelKey: 'workoutEditor.pidHrMode', label: 'HR PID actuator', type: 'select', options: [
+            { value: 'default', label: 'Default' },
+            { value: 'speed', label: 'Speed' },
+            { value: 'inclination', label: 'Inclination' }
+        ], group: 'advanced', devices: ['treadmill'], defaultValue: 'default', noToggle: true },
         { key: 'fanspeed', labelKey: 'workoutEditor.fan', label: 'Fan', type: 'number', min: 0, max: 8, group: 'advanced', devices: 'all', defaultValue: 0 },
         { key: 'requested_peloton_resistance', labelKey: 'workoutEditor.pelotonResistance', label: 'Peloton Res.', type: 'number', min: -1, max: 100, group: 'advanced', devices: ['bike'] },
         { key: 'loopTimeHR', labelKey: 'workoutEditor.hrLoop', label: 'HR Loop (s)', type: 'number', min: 1, max: 60, group: 'advanced', devices: 'all' },
@@ -43,6 +48,7 @@
         { key: 'HRmax', labelKey: 'workoutEditor.hrMax', label: 'HR Max', type: 'number', min: -1, max: 240, group: 'advanced', devices: 'all' },
         { key: 'minSpeed', labelKey: 'workoutEditor.minSpeed', label: 'Min Speed', type: 'number', unitKey: 'speed', group: 'advanced', devices: ['treadmill', 'bike'] },
         { key: 'maxSpeed', labelKey: 'workoutEditor.maxSpeed', label: 'Max Speed', type: 'number', unitKey: 'speed', group: 'advanced', devices: ['treadmill', 'bike'] },
+        { key: 'maxInclination', labelKey: 'workoutEditor.maxInclination', label: 'Max Incline', type: 'number', unitSuffix: '%', step: 0.5, min: -10, max: 40, group: 'advanced', devices: ['treadmill'] },
         { key: 'maxResistance', labelKey: 'workoutEditor.maxResistance', label: 'Max Resistance', type: 'number', min: -1, max: 100, group: 'advanced', devices: ['bike', 'elliptical'] },
         { key: 'mets', label: 'METS', type: 'number', min: -1, max: 40, group: 'advanced', devices: 'all' }
     ];
@@ -83,6 +89,7 @@
         HRmax: -1,
         minSpeed: -1,
         maxSpeed: -1,
+        maxInclination: -1,
         maxResistance: -1,
         mets: -1
     };
@@ -613,8 +620,13 @@
                     out['__enabled_' + def.key] = true;
                 }
             } else {
-                // Field not present in saved workout, mark as disabled
-                out['__enabled_' + def.key] = false;
+                // Field not present in saved workout, mark it disabled unless it is a non-toggle selector.
+                if (def.key === 'pidHRMode') {
+                    out[def.key] = def.defaultValue;
+                    out['__enabled_' + def.key] = true;
+                } else {
+                    out['__enabled_' + def.key] = false;
+                }
             }
         });
         // FTP% ramp (from backend that collapsed the rows)
@@ -745,6 +757,8 @@
             base.__enabled_speed = true;
             base.inclination = 1.0;
             base.__enabled_inclination = true;
+            base.pidHRMode = 'default';
+            base.__enabled_pidHRMode = true;
             base.__enabled_duration = true;
             base.__enabled_distance = false;
             break;
@@ -898,16 +912,19 @@
                     sel.className = 'field-input field-select';
                     (field.options || []).forEach(opt => {
                         const option = document.createElement('option');
-                        option.value = opt;
-                        option.textContent = opt;
+                        const optValue = typeof opt === 'object' ? opt.value : opt;
+                        const optLabel = typeof opt === 'object' ? opt.label : opt;
+                        option.value = optValue;
+                        option.textContent = optLabel;
                         const currentVal = String(row[field.key] !== undefined ? row[field.key] : (field.defaultValue !== undefined ? field.defaultValue : ''));
-                        if (currentVal === opt) {
+                        if (currentVal === String(optValue)) {
                             option.selected = true;
                         }
                         sel.appendChild(option);
                     });
                     sel.addEventListener('change', () => {
                         row[field.key] = sel.value;
+                        row['__enabled_' + field.key] = true;
                         renderIntervals();
                     });
                     fieldWrap.appendChild(sel);
@@ -1352,8 +1369,8 @@
                     return;
                 }
 
-                // Skip disabled fields
-                const isEnabled = interval['__enabled_' + field.key] !== false;
+                // Non-toggle selectors such as PID HR mode are always saved.
+                const isEnabled = field.noToggle || interval['__enabled_' + field.key] !== false;
                 if (!isEnabled) {
                     return;
                 }

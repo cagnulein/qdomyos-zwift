@@ -70,6 +70,7 @@ const WebTranslationEntry entries[] = {
     {"workoutEditor.hrMax", QT_TRANSLATE_NOOP("WebTranslations", "HR Max")},
     {"workoutEditor.minSpeed", QT_TRANSLATE_NOOP("WebTranslations", "Min Speed")},
     {"workoutEditor.maxSpeed", QT_TRANSLATE_NOOP("WebTranslations", "Max Speed")},
+    {"workoutEditor.maxInclination", QT_TRANSLATE_NOOP("WebTranslations", "Max Incline")},
     {"workoutEditor.maxResistance", QT_TRANSLATE_NOOP("WebTranslations", "Max Resistance")},
     {"workoutEditor.ramp", QT_TRANSLATE_NOOP("WebTranslations", "Ramp")},
     {"workoutEditor.strokeRate", QT_TRANSLATE_NOOP("WebTranslations", "Stroke Rate")},
