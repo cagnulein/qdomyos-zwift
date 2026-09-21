@@ -6748,7 +6748,6 @@ import AndroidStatusBar 1.0
                         }
                         Layout.fillWidth: true
                         onClicked: {
-                            stackView.push("WebPelotonAuth.qml")
                             peloton_connect_clicked()
                         }
                     }
