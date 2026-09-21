@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1002,
+  "settingCount": 1003,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -175,6 +175,10 @@
         {
           "label": "NordicTrack VR21",
           "sets": "nordictrack_vr21"
+        },
+        {
+          "label": "NordicTrack GX LE",
+          "sets": "nordictrack_gx_le"
         }
       ],
       "restartRequired": true
@@ -13240,6 +13244,21 @@
       "restartRequired": true
     },
     {
+      "key": "nordictrack_gx_le",
+      "name": "NordicTrack GX LE",
+      "description": null,
+      "parent": "Proform/Norditrack Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "virtualOption",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "virtualParent": "nordictrack_bike_model",
+      "restartRequired": true
+    },
+    {
       "key": "gymstick_gx6_0_elliptical",
       "name": "Gymstick GX6.0",
       "description": null,
@@ -16651,6 +16670,7 @@
       "nordictrack_treadmill_x14i": "proformTreadmillAccordion",
       "nordictrack_tseries5_treadmill": "proformTreadmillAccordion",
       "nordictrack_vr21": "proformBikeAccordion",
+      "nordictrack_gx_le": "proformBikeAccordion",
       "nordictrack_x22i": "proformTreadmillAccordion",
       "nordictrackadbbike_resistance": "proformBikeAccordion",
       "norditrack_s25_treadmill": "proformTreadmillAccordion",
@@ -17248,6 +17268,7 @@
       "nordictrack_treadmill_x14i": "settings.qml",
       "nordictrack_tseries5_treadmill": "settings.qml",
       "nordictrack_vr21": "settings.qml",
+      "nordictrack_gx_le": "settings.qml",
       "nordictrack_x22i": "settings.qml",
       "nordictrackadbbike_resistance": "settings.qml",
       "norditrack_s25_treadmill": "settings.qml",
@@ -18216,6 +18237,7 @@
       "nordictrack_treadmill_x14i": 11235,
       "nordictrack_tseries5_treadmill": 11250,
       "nordictrack_vr21": 6116,
+      "nordictrack_gx_le": 6117,
       "nordictrack_x22i": 11214,
       "nordictrackadbbike_resistance": 6292,
       "norditrack_s25_treadmill": 11211,
