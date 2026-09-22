@@ -273,6 +273,8 @@ mywhooshlink.cpp \
 garminconnect.cpp \
 devices/horizongr7bike/horizongr7bike.cpp \
 devices/horizontreadmill/horizontreadmill.cpp \
+devices/horizonprotocol/horizonprofile.cpp \
+devices/horizonelliptical/horizonelliptical.cpp \
 devices/iconceptbike/iconceptbike.cpp \
 devices/inspirebike/inspirebike.cpp \
 keepawakehelper.cpp \
@@ -805,6 +807,8 @@ homeform.h \
 mywhooshlink.h \
 garminconnect.h \
 devices/horizontreadmill/horizontreadmill.h \
+devices/horizonprotocol/horizonprofile.h \
+devices/horizonelliptical/horizonelliptical.h \
 devices/inspirebike/inspirebike.h \
 ios/lockscreen.h \
 keepawakehelper.h \
