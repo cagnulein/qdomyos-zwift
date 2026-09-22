@@ -809,8 +809,7 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
     bool dkn_endurun_treadmill =
         settings.value(QZSettings::dkn_endurun_treadmill, QZSettings::default_dkn_endurun_treadmill).toBool();
     const bool flowFitnessDevice =
-        settings.value(QZSettings::flow_fitness_runner_dtm2000i, QZSettings::default_flow_fitness_runner_dtm2000i).toBool() &&
-        device.serviceUuids().contains(QBluetoothUuid(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455")));
+        settings.value(QZSettings::flow_fitness_runner_dtm2000i, QZSettings::default_flow_fitness_runner_dtm2000i).toBool();
 
     if (flowFitnessDevice ||
         device.name().startsWith(QStringLiteral("TOORX")) || device.name().startsWith(QStringLiteral("V-RUN")) ||
