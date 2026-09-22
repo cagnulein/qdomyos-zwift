@@ -5,6 +5,16 @@
 
 #include "devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h"
 
+TEST(TrxAppGateUsTreadmillParserTest, BuildsCapturedFlowFitnessStartCommand) {
+    EXPECT_EQ(trxappgateusbtreadmill::flowFitnessStartPacket(),
+              QByteArray::fromHex("f0a52ed30298"));
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, BuildsCapturedFlowFitnessStopCommand) {
+    EXPECT_EQ(trxappgateusbtreadmill::flowFitnessStopPacket(),
+              QByteArray::fromHex("f0a52ed3049a"));
+}
+
 TEST(TrxAppGateUsTreadmillParserTest, ParsesFlowFitnessMetrics) {
     const QByteArray packet = QByteArray::fromHex("f0b02ed3020304330319024c01180404030101");
 

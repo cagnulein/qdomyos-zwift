@@ -23,6 +23,14 @@ trxappgateusbtreadmill::trxappgateusbtreadmill() {
     refresh->start(200ms);
 }
 
+QByteArray trxappgateusbtreadmill::flowFitnessStartPacket() {
+    return QByteArray::fromHex("f0a52ed30298");
+}
+
+QByteArray trxappgateusbtreadmill::flowFitnessStopPacket() {
+    return QByteArray::fromHex("f0a52ed3049a");
+}
+
 void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                                  bool wait_for_response) {
     QEventLoop loop;
@@ -176,7 +184,11 @@ void trxappgateusbtreadmill::update() {
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             // btinit(true);
-            if (treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::REEBOK_2) {
+            if (treadmill_type == TYPE::FLOW_FITNESS) {
+                QByteArray startTape = flowFitnessStartPacket();
+                writeCharacteristic(reinterpret_cast<uint8_t *>(startTape.data()),
+                                    static_cast<uint8_t>(startTape.size()), QStringLiteral("startTape"), false, true);
+            } else if (treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::REEBOK_2) {
                 const uint8_t startTape[] = {0xf0, 0xa5, 0x32, 0xd3, 0x02, 0x9c};
                 writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
             } else if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_2 || toorx30 == false) {
@@ -198,7 +210,11 @@ void trxappgateusbtreadmill::update() {
             emit debug(QStringLiteral("stopping..."));
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
 
-            if (treadmill_type == TYPE::ADIDAS) {
+            if (treadmill_type == TYPE::FLOW_FITNESS) {
+                QByteArray stopTape = flowFitnessStopPacket();
+                writeCharacteristic(reinterpret_cast<uint8_t *>(stopTape.data()),
+                                    static_cast<uint8_t>(stopTape.size()), QStringLiteral("stopTape"), false, true);
+            } else if (treadmill_type == TYPE::ADIDAS) {
                 const uint8_t stopTape[] = {0xf0, 0xa5, 0x5b, 0xd3, 0x04, 0xc7};
                 writeCharacteristic((uint8_t *)stopTape, sizeof(stopTape), QStringLiteral("stopTape"), false, true);
             }

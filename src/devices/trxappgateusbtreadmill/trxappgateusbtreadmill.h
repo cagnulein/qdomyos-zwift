@@ -46,6 +46,8 @@ class trxappgateusbtreadmill : public treadmill {
     double minStepInclination() override;
     bool canHandleSpeedChange() override { return false; }
 
+    static QByteArray flowFitnessStartPacket();
+    static QByteArray flowFitnessStopPacket();
     static FlowFitnessMetrics flowFitnessMetricsFromPacket(const QByteArray &packet);
 
   private:
