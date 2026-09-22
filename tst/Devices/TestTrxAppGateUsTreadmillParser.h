@@ -19,6 +19,29 @@ TEST(TrxAppGateUsTreadmillParserTest, ParsesFlowFitnessMetrics) {
     EXPECT_EQ(metrics.elapsed, 121);
 }
 
+TEST(TrxAppGateUsTreadmillParserTest, ParsesRuntimeFlowFitnessTelemetryFrame) {
+    // Captured from the Android debug log: telemetry is f0 b2, not f0 b0.
+    const QByteArray packet = QByteArray::fromHex("f0b22ed30101010101010101010101010102b2");
+
+    const auto metrics = trxappgateusbtreadmill::flowFitnessMetricsFromPacket(packet);
+
+    ASSERT_TRUE(metrics.valid);
+    EXPECT_DOUBLE_EQ(metrics.speed, 0.0);
+    EXPECT_DOUBLE_EQ(metrics.inclination, 0.0);
+    EXPECT_DOUBLE_EQ(metrics.kcal, 0.0);
+    EXPECT_DOUBLE_EQ(metrics.distance, 0.0);
+    EXPECT_EQ(metrics.heart, 0);
+    EXPECT_EQ(metrics.elapsed, 0);
+}
+
+TEST(TrxAppGateUsTreadmillParserTest, RejectsFlowFitnessAcknowledgement) {
+    const QByteArray packet = QByteArray::fromHex("f0b02ed3a1");
+
+    const auto metrics = trxappgateusbtreadmill::flowFitnessMetricsFromPacket(packet);
+
+    EXPECT_FALSE(metrics.valid);
+}
+
 TEST(TrxAppGateUsTreadmillParserTest, RejectsShortFlowFitnessPacket) {
     const QByteArray packet = QByteArray::fromHex("f0b02ed3020304330319024c011804040301");
 

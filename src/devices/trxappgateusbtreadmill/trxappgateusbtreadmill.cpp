@@ -345,9 +345,12 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 
 trxappgateusbtreadmill::FlowFitnessMetrics trxappgateusbtreadmill::flowFitnessMetricsFromPacket(const QByteArray &packet) {
     FlowFitnessMetrics metrics;
+    // The complete Flow Fitness telemetry record is 19 bytes. The second byte
+    // is not stable across captures (b0 was used by the original fixture,
+    // while the Android runtime sends b2); short b0 ACKs are excluded by the
+    // length check above.
     if (packet.size() != 19 || static_cast<uint8_t>(packet.at(0)) != 0xf0 ||
-        static_cast<uint8_t>(packet.at(1)) != 0xb0 || static_cast<uint8_t>(packet.at(2)) != 0x2e ||
-        static_cast<uint8_t>(packet.at(3)) != 0xd3) {
+        static_cast<uint8_t>(packet.at(2)) != 0x2e || static_cast<uint8_t>(packet.at(3)) != 0xd3) {
         return metrics;
     }
 
