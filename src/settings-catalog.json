@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1002,
+  "settingCount": 1003,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -15849,6 +15849,20 @@
       "visible": true,
       "defaultValue": "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16",
       "defaultExpression": "\"0|4\\n1|6\\n2|8\\n3|10\\n4|11\\n5|11.5\\n6|12\\n8|13\\n10|14\\n12|15\\n15|16\"",
+      "options": null,
+      "restartRequired": true
+    },
+    {
+      "key": "life_fitness_elliptical",
+      "name": "Life Fitness is an Elliptical",
+      "description": "When on, any Life Fitness FTMS machine (name LF followed by hex) is treated as an elliptical / cross trainer instead of a treadmill, so you do not have to set the FTMS Elliptical field to each machine name. Leave off if you use a Life Fitness treadmill.",
+      "parent": "Elliptical Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
       "options": null,
       "restartRequired": true
     }
