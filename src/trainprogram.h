@@ -122,6 +122,8 @@ class trainprogram : public QObject {
     double medianInclination(int step);
     bool adjustPowerOffsetForTrainingProgram(int32_t delta);
     int32_t powerOffsetForTrainingProgram() const { return trainingProgramPowerOffset; }
+    bool adjustResistanceOffsetForTrainingProgram(int32_t delta);
+    int32_t resistanceOffsetForTrainingProgram() const { return trainingProgramResistanceOffset; }
     bool overrideZoneHRForCurrentRow(uint8_t zone);
     bool advanceLapButtonStep();
     static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
@@ -216,6 +218,7 @@ private slots:
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
     int32_t trainingProgramPowerOffset = 0;
+    int32_t trainingProgramResistanceOffset = 0;
     int lastLapButtonToastStep = -1;
     int lastLapButtonToastTick = -30;
     

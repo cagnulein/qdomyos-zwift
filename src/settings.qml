@@ -1478,9 +1478,6 @@ import AndroidStatusBar 1.0
             property bool tile_hr_time_in_zone_individual_mode: false
             property bool wahoo_without_wheel_diameter: false
 
-            property bool nordictrackadbbike_gear_resistance_mode: false
-            property int nordictrackadbbike_gear_debounce_ms: 100
-
             // 2.20.3
             property bool technogym_group_cycle: false
             property int ant_bike_device_number: 0
@@ -1623,9 +1620,6 @@ import AndroidStatusBar 1.0
             property real cscbike_custom_resistance_level_2: 15
             property real cscbike_custom_watt_2: 300
             property bool applewatch_as_treadmill_speed: false
-
-            property bool grupetto_disclaimer_shown: false
-            property bool ios_heart_companion: false
             property bool gears_custom_table_enabled: false
             property string gears_custom_table: "1|1\n2|2\n3|3\n4|4\n5|5\n6|6\n7|7\n8|8\n9|9\n10|10\n11|11\n12|12\n13|13\n14|14\n15|15\n16|16\n17|17\n18|18\n19|19\n20|20\n21|21\n22|22\n23|23\n24|24"                        
             property bool proform_treadmill_cst_505_pftl59420_0: false
@@ -1750,6 +1744,10 @@ import AndroidStatusBar 1.0
             property bool nordictrack_incline_trainer_x7i_ntl15010_0: false
             property bool custom_inclination_resistance_table_enabled: false
             property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
+            property bool nordictrackadbbike_gear_resistance_mode: false
+            property int nordictrackadbbike_gear_debounce_ms: 100
+            property bool grupetto_disclaimer_shown: false
+            property bool ios_heart_companion: false
         }
 
 

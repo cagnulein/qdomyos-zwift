@@ -15,6 +15,8 @@
 #include <QHttpMultiPart>
 #include <QMap>
 
+#include "profiletokenstore.h"
+
 /**
  * @brief GarminConnect class handles authentication and file upload to Garmin Connect
  *
@@ -255,6 +257,8 @@ private:
     void loadTokensFromSettings();
     void saveTokensToSettings();
     void clearTokens();
+    QString currentUserIdFromSettings() const;
+    void mirrorTokensToBaseSettings(QSettings &settings) const;
 
     QNetworkReply* makeRequest(const QString &url, const QByteArray &data,
                                const QString &contentType, const QList<QNetworkCookie> &cookies = QList<QNetworkCookie>());

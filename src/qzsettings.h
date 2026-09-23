@@ -82,6 +82,8 @@ class QZSettings {
     static const QString strava_expires;
     static const QString default_strava_expires;
 
+    static const QString strava_current_user_id;
+    static const QString default_strava_current_user_id;
     static const QString garmin_email;
     static const QString default_garmin_email;
 

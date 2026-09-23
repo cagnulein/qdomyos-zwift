@@ -46,6 +46,11 @@ public:
 
     bool bindSocket(QUdpSocket &socket, const QHostAddress &address);
 
+    // Send a multicast datagram once per usable interface instead of letting
+    // the routing table pick a single one. See the comment on the definition.
+    void writeToAllInterfaces(QUdpSocket &socket, const QByteArray &packet,
+                              const QHostAddress &group, quint16 port);
+
     QTimer timer;
     QUdpSocket ipv4Socket;
     QUdpSocket ipv6Socket;
