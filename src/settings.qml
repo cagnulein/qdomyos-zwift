@@ -36,6 +36,7 @@ import AndroidStatusBar 1.0
         property bool settingsSearchVisible: false
         property bool settingsSearchActive: false
         property bool settingsSearchPending: false
+        property string initialProfileSettingsSnapshot: ""
 
         function showSettingsSearch() {
             settingsSearchVisible = true
@@ -57,6 +58,29 @@ import AndroidStatusBar 1.0
         function openGarminSection() {
             garminOptionsAccordion.isOpen = true
             scrollTimer.start()
+        }
+
+        function profileSettingsSnapshot() {
+            var values = []
+            for (var key in settings) {
+                var value = settings[key]
+                if (typeof value === "boolean" || typeof value === "number" || typeof value === "string")
+                    values.push(key + "=" + String(value))
+            }
+            values.sort()
+            return values.join("\n")
+        }
+
+        function profileSaveReminderNeeded() {
+            return settings.profile_name.length > 0 &&
+                   settings.profile_name !== "default" &&
+                   initialProfileSettingsSnapshot.length > 0 &&
+                   initialProfileSettingsSnapshot !== profileSettingsSnapshot()
+        }
+
+        Component.onCompleted: {
+            initialProfileSettingsSnapshot = profileSettingsSnapshot()
+            window.settings_restart_to_apply = false
         }
 
         // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
@@ -1752,6 +1776,7 @@ import AndroidStatusBar 1.0
             property bool custom_inclination_resistance_table_enabled: false
             property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
             property real power_sensor_speed_correction_threshold: 20.0
+            property bool flow_fitness_runner_dtm2000i: false
             property bool ios_background_keepalive: true            
         }
 
@@ -1788,10 +1813,6 @@ import AndroidStatusBar 1.0
         function timeToPaceSeconds(text) {
             var pieces = text.split(":")
             return (parseInt(pieces[0]) * 3600) + (parseInt(pieces[1]) * 60) + parseInt(pieces[2])
-        }
-
-        Component.onCompleted: {
-            window.settings_restart_to_apply = false;
         }
 
         property var appLanguageOptions: [
@@ -6749,7 +6770,6 @@ import AndroidStatusBar 1.0
                         }
                         Layout.fillWidth: true
                         onClicked: {
-                            stackView.push("WebPelotonAuth.qml")
                             peloton_connect_clicked()
                         }
                     }
@@ -11915,6 +11935,21 @@ import AndroidStatusBar 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.jtx_fitness_sprint_treadmill = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: flowFitnessRunnerDtm2000iDelegate
+                        text: qsTr("Flow Fitness Runner DTM2000i")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.flow_fitness_runner_dtm2000i
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.flow_fitness_runner_dtm2000i = checked; window.settings_restart_to_apply = true; }
                     }
 
                     IndicatorOnlySwitch {

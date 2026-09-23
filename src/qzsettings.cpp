@@ -278,6 +278,7 @@ const QString QZSettings::proform_treadmill_sport_3_0 = QStringLiteral("proform_
 const QString QZSettings::toorx_3_0 = QStringLiteral("toorx_3_0");
 const QString QZSettings::toorx_65s_evo = QStringLiteral("toorx_65s_evo");
 const QString QZSettings::jtx_fitness_sprint_treadmill = QStringLiteral("jtx_fitness_sprint_treadmill");
+const QString QZSettings::flow_fitness_runner_dtm2000i = QStringLiteral("flow_fitness_runner_dtm2000i");
 const QString QZSettings::dkn_endurun_treadmill = QStringLiteral("dkn_endurun_treadmill");
 const QString QZSettings::trx_route_key = QStringLiteral("trx_route_key");
 const QString QZSettings::bh_spada_2 = QStringLiteral("bh_spada_2");
@@ -1509,6 +1510,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::toorx_3_0, QZSettings::default_toorx_3_0},
     {QZSettings::toorx_65s_evo, QZSettings::default_toorx_65s_evo},
     {QZSettings::jtx_fitness_sprint_treadmill, QZSettings::default_jtx_fitness_sprint_treadmill},
+    {QZSettings::flow_fitness_runner_dtm2000i, QZSettings::default_flow_fitness_runner_dtm2000i},
     {QZSettings::dkn_endurun_treadmill, QZSettings::default_dkn_endurun_treadmill},
     {QZSettings::trx_route_key, QZSettings::default_trx_route_key},
     {QZSettings::bh_spada_2, QZSettings::default_bh_spada_2},

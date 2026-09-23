@@ -2867,6 +2867,20 @@
       "restartRequired": true
     },
     {
+      "key": "flow_fitness_runner_dtm2000i",
+      "name": "Flow Fitness Runner DTM2000i",
+      "description": null,
+      "parent": "Toorx/iConsole Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": true
+    },
+    {
       "key": "dkn_endurun_treadmill",
       "name": "DKN Endurn Treadmill",
       "description": null,

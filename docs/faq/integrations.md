@@ -66,6 +66,20 @@ For example, with a smart treadmill, Apple Watch, and a Bluetooth heart-rate str
 
 You do not need to pair the chest strap separately to QZ for this setup. QZ's current treadmill code includes Apple Watch cadence handling, and its external heart-rate path explicitly supports Apple Watch heart-rate data.
 
+## Can QZ bridge a trainer and heart rate to Zwift on Apple TV over Wi-Fi so Bluetooth remains available for Zwift Click?
+
+Yes. QZ supports the Wahoo DIRCON-compatible Wi-Fi virtual-trainer path. This can be useful on Apple TV when you want Zwift to receive the trainer data and heart rate through QZ over the local network while keeping Apple TV's Bluetooth connection available for a Zwift Click controller.
+
+A typical setup is:
+
+1. Connect the physical trainer and heart-rate sensor to QZ.
+2. Enable QZ's **Wahoo DIRCON / Wi-Fi** compatibility option.
+3. Make sure the device running QZ and the Apple TV are on the same local network.
+4. In Zwift on Apple TV, select the virtual QZ/Wahoo trainer exposed over Wi-Fi for the trainer connection and use the heart-rate data forwarded by QZ.
+5. Pair the Zwift Click controller directly to Zwift on the Apple TV over Bluetooth.
+
+This avoids using separate Apple TV Bluetooth connections for both the physical trainer and heart-rate sensor. QZ's current virtual-bike implementation includes DIRCON support, and the project documents DIRCON as a Wi-Fi-only path for sending QZ data to Zwift.
+
 ## Can I use Zwift Ride virtual gears with Kinomap through QZ?
 
 Yes. QZ can use the Zwift Ride controllers for shifting while Kinomap connects to QZ as the virtual trainer.
