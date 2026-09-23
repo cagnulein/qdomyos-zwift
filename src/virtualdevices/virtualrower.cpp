@@ -322,6 +322,15 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QByteArray reply;
     QSettings settings;
+    if (characteristic.uuid().toUInt16() == 0x2AD9 && !newValue.isEmpty() &&
+        newValue.at(0) == FTMS_SET_TARGET_POWER) {
+        settings.setValue(QZSettings::zwift_erg, true);
+    } else if (characteristic.uuid().toUInt16() == 0x2AD9 && !newValue.isEmpty() &&
+               (newValue.at(0) == FTMS_SET_TARGET_INCLINATION ||
+                newValue.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL ||
+                newValue.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS)) {
+        settings.setValue(QZSettings::zwift_erg, false);
+    }
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
                     QStringLiteral(" ") + newValue.toHex(' ');

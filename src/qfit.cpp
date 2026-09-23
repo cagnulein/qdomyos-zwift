@@ -18,6 +18,7 @@
 #include "fit_developer_field.hpp"
 #include "fit_mesg_broadcaster.hpp"
 #include "fit_timestamp_correlation_mesg.hpp"
+#include "fit_zones_target_mesg.hpp"
 
 #ifdef _WIN32
 #include <io.h>
@@ -111,6 +112,16 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     }
     fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
 
+    // Compute user physiology once — shared by userMesg, zones_target, and training effect.
+    bool user_max_hr_override = settings.value(QZSettings::heart_max_override_enable,
+                                               QZSettings::default_heart_max_override_enable).toBool();
+    uint8_t user_max_hr = user_max_hr_override
+        ? (uint8_t)settings.value(QZSettings::heart_max_override_value,
+                                  QZSettings::default_heart_max_override_value).toUInt()
+        : (uint8_t)(220 - settings.value(QZSettings::age, QZSettings::default_age).toUInt());
+    uint8_t user_resting_hr = settings.value(QZSettings::heart_rate_resting,
+                                             QZSettings::default_heart_rate_resting).toUInt();
+
     fit::UserProfileMesg userMesg;
     userMesg.SetWeight(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat());
     userMesg.SetAge(settings.value(QZSettings::age, QZSettings::default_age).toUInt());
@@ -118,6 +129,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
                                                                                                    : FIT_GENDER_FEMALE);
     userMesg.SetFriendlyName(
         settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString().toStdWString());
+    userMesg.SetHeight(settings.value(QZSettings::height, QZSettings::default_height).toFloat() / 100.0f);
+    userMesg.SetDefaultMaxHeartRate(user_max_hr);
+    userMesg.SetRestingHeartRate(user_resting_hr);
 
     fit::FileCreatorMesg fileCreatorMesg;
     if(fit_file_garmin_device_training_effect) {
@@ -169,10 +183,14 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     double watt_sum = 0;
     int watt_count = 0;
 
-    // Variables for jump rope cadence
+    // Cadence, power, and speed summaries (all device types)
     double cadence_sum = 0;
     int cadence_count = 0;
     uint8_t max_cadence = 0;
+    uint16_t max_watt = 0;
+    uint32_t total_work_joules = 0;
+    double max_speed_ms = 0;
+    std::vector<double> np_power_samples;
 
     // Variables for core temperature summaries used by Garmin Connect.
     double core_temp_sum = 0;
@@ -217,20 +235,28 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             }
         }
 
-        // Collect power data for TSS calculation
+        // Collect power data for TSS / NP / session stats
         if (session.at(i).watt > 0) {
             watt_sum += session.at(i).watt;
             watt_count++;
+            if ((uint16_t)session.at(i).watt > max_watt)
+                max_watt = (uint16_t)session.at(i).watt;
+            total_work_joules += (uint32_t)session.at(i).watt;
         }
+        np_power_samples.push_back(session.at(i).watt > 0 ? session.at(i).watt : 0.0);
 
-        // Collect cadence data for jump rope
-        if (type == JUMPROPE && session.at(i).cadence > 0) {
+        // Collect cadence data (all device types)
+        if (session.at(i).cadence > 0) {
             cadence_sum += session.at(i).cadence;
             cadence_count++;
-            if (session.at(i).cadence > max_cadence) {
+            if (session.at(i).cadence > max_cadence)
                 max_cadence = session.at(i).cadence;
-            }
         }
+
+        // Max speed (m/s — session.speed is in km/h)
+        double speed_ms = session.at(i).speed / 3.6;
+        if (speed_ms > max_speed_ms)
+            max_speed_ms = speed_ms;
 
         if (session.at(i).coreTemp > 0) {
             double coreTemp = session.at(i).coreTemp;
@@ -250,56 +276,22 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         qDebug() << "average speed from the fit file" << speed_avg;
     }
 
-    // Calculate training load: TSS for cycling with power, TRIMP otherwise
+    // Training load remains TRIMP-first for Garmin load/Training Effect compatibility.
+    // IF/TSS are calculated separately from Normalized Power below.
     float training_load = 0.0f;
-    float tss = 0.0f;  // Training Stress Score (for cycling with power)
+    float tss = 0.0f;
+    float intensity_factor = 0.0f;
+    float ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toFloat();
     uint32_t duration_seconds = session.last().elapsedTime;
     bool has_tss = false;
 
-    // For cycling with power data, calculate TSS (Training Stress Score)
-    if (type == BIKE && watt_count > 0) {
-        double avg_watt = watt_sum / watt_count;
-        float ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toFloat();
-
-        if (ftp > 0 && avg_watt > 0) {
-            // TSS formula: (duration_seconds × average_power × IF) / (FTP × 36)
-            // where IF (Intensity Factor) = average_power / FTP
-            double intensity_factor = avg_watt / ftp;
-            tss = (duration_seconds * avg_watt * intensity_factor) / (ftp * 36.0);
-            training_load = tss;  // Use TSS as training load in the worst scenario
-            has_tss = true;
-
-            qDebug() << "Training Load (TSS) calculated:" << tss
-                     << "Duration:" << (duration_seconds / 60) << "min"
-                     << "Avg Power:" << avg_watt << "W"
-                     << "FTP:" << ftp << "W"
-                     << "IF:" << intensity_factor;
-        }
-    }
-
     // Always calculate TRIMP if we have HR data (fallback or additional metric)
-    if (hr_count > 0) {
+    if (hr_count > 0 && user_max_hr > user_resting_hr) {
         double avg_hr = hr_sum / hr_count;
         uint32_t duration_minutes = duration_seconds / 60;
 
-        // Get max HR: use override if enabled, otherwise calculate from age
-        bool max_hr_override_enabled = settings.value(QZSettings::heart_max_override_enable,
-                                                       QZSettings::default_heart_max_override_enable).toBool();
-        uint8_t max_hr;
-        if (max_hr_override_enabled) {
-            max_hr = settings.value(QZSettings::heart_max_override_value,
-                                   QZSettings::default_heart_max_override_value).toUInt();
-        } else {
-            uint8_t user_age = settings.value(QZSettings::age, QZSettings::default_age).toUInt();
-            max_hr = 220 - user_age;
-        }
-
-        // Get resting HR from settings
-        uint8_t resting_hr = settings.value(QZSettings::heart_rate_resting,
-                                            QZSettings::default_heart_rate_resting).toUInt();
-
         // Bannister's TRIMP formula: D * HR_ratio * exp(b * HR_ratio)
-        // where HR_ratio = (avg_hr - resting_hr) / (max_hr - resting_hr)
+        // where HR_ratio = (HR - resting_hr) / (max_hr - resting_hr)
         //
         // COEFFICIENT SELECTION:
         // Standard Bannister formula uses b = 1.92 (men) and b = 1.67 (women)
@@ -307,28 +299,172 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         // to match Garmin's training load calculations more closely.
         // We use b = 1.67 for everyone to ensure compatibility with Garmin Connect's
         // acute training load and training status features.
-        double hr_ratio = 0;
-        if (max_hr > resting_hr) {
-            hr_ratio = (avg_hr - resting_hr) / (double)(max_hr - resting_hr);
+        //
+        // INTEGRATION, NOT A SINGLE AVERAGE:
+        // exp() is convex, so applying the formula once to the *session average* HR
+        // (as opposed to integrating it sample by sample) systematically underestimates
+        // the true load for any workout with HR variability (intervals, surges, sprints):
+        // by Jensen's inequality, avg(exp(b*x)) >= exp(b*avg(x)). A steady Zone 2 ride and
+        // an interval session with the same average HR would otherwise score identically,
+        // even though the interval session carries more real physiological strain — this
+        // is also how a real Garmin device computes it, accumulating load minute by minute.
+        double b = 1.67;
+        double integrated_trimp = 0.0;
+        uint32_t prev_elapsed = session.at(firstRealIndex).elapsedTime;
+        for (int i = firstRealIndex; i < session.length(); i++) {
+            if (session.at(i).heart == 0)
+                continue;
+
+            uint32_t elapsed = session.at(i).elapsedTime;
+            double delta_seconds = (elapsed > prev_elapsed) ? (double)(elapsed - prev_elapsed) : 1.0;
+            if (delta_seconds > 30.0) // guard against pauses/reconnects: cap a single gap
+                delta_seconds = 30.0;
+            prev_elapsed = elapsed;
+
+            double hr_ratio_i = (session.at(i).heart - user_resting_hr) / (double)(user_max_hr - user_resting_hr);
+            if (hr_ratio_i <= 0)
+                continue;
+            if (hr_ratio_i > 1.5) // guard against sensor spikes/HR above configured max
+                hr_ratio_i = 1.5;
+
+            integrated_trimp += (delta_seconds / 60.0) * hr_ratio_i * std::exp(b * hr_ratio_i);
         }
 
-        // Use coefficient 1.67 (matches Garmin implementation)
-        double b = 1.67;
-
-        // Calculate TRIMP
-        if (hr_ratio > 0 && hr_ratio < 2.0) {  // Sanity check
-            training_load = duration_minutes * hr_ratio * std::exp(b * hr_ratio);
+        if (integrated_trimp > 0) {
+            training_load = (float)integrated_trimp;
             qDebug() << "Training Load (TRIMP) calculated:" << training_load
                      << "Duration:" << duration_minutes << "min"
                      << "Avg HR:" << avg_hr
-                     << "Max HR:" << max_hr << (max_hr_override_enabled ? "(override)" : "(calculated)")
-                     << "Resting HR:" << resting_hr;
+                     << "Max HR:" << user_max_hr << (user_max_hr_override ? "(override)" : "(calculated)")
+                     << "Resting HR:" << user_resting_hr;
         }
+    }
+
+    // Normalized Power: use complete 30-s rolling windows only, then
+    // fourth-power mean and fourth root. This is the value used by IF/TSS.
+    uint16_t normalized_power = 0;
+    if (np_power_samples.size() >= 30) {
+        std::vector<double> rolling30;
+        rolling30.reserve(np_power_samples.size() - 29);
+        for (size_t idx = 29; idx < np_power_samples.size(); idx++) {
+            double sum = 0;
+            for (size_t j = idx - 29; j <= idx; j++)
+                sum += np_power_samples[j];
+            rolling30.push_back(sum / 30.0);
+        }
+        double sum4 = 0;
+        for (double v : rolling30)
+            sum4 += std::pow(v, 4.0);
+        normalized_power = (uint16_t)std::pow(sum4 / rolling30.size(), 0.25);
+    }
+
+    // TSS was originally added in January 2026 before qfit had a Normalized Power
+    // calculation, so it used average power as an approximation. NP was added later
+    // for Garmin Endurance Score support; use it now for the canonical IF/TSS formulas.
+    if (type == BIKE && ftp > 0 && normalized_power > 0) {
+        intensity_factor = normalized_power / ftp;
+        tss = (duration_seconds * normalized_power * intensity_factor) / (ftp * 36.0f);
+        has_tss = true;
+        if (training_load == 0.0f)
+            training_load = tss;
+
+        qDebug() << "TSS calculated from Normalized Power:" << tss
+                 << "Duration:" << (duration_seconds / 60) << "min"
+                 << "NP:" << normalized_power << "W"
+                 << "FTP:" << ftp << "W"
+                 << "IF:" << intensity_factor;
+    }
+
+    // Training Effect (aerobic + anaerobic) from HR zones and power
+    float aerobic_te = 0.0f;
+    float anaerobic_te = 0.0f;
+    if (hr_count > 0 && user_max_hr > user_resting_hr) {
+        float zone1_pct = settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toFloat();
+        float zone2_pct = settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toFloat();
+        float zone3_pct = settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toFloat();
+        float zone4_pct = settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toFloat();
+        double z1 = zone1_pct / 100.0 * user_max_hr;
+        double z2 = zone2_pct / 100.0 * user_max_hr;
+        double z3 = zone3_pct / 100.0 * user_max_hr;
+        double z4 = zone4_pct / 100.0 * user_max_hr;
+
+        double time_in_zone[5] = {0, 0, 0, 0, 0};
+        for (int i = firstRealIndex; i < session.length(); i++) {
+            double hr = session.at(i).heart;
+            if (hr <= 0) continue;
+            if (hr < z1)      time_in_zone[0] += 1.0;
+            else if (hr < z2) time_in_zone[1] += 1.0;
+            else if (hr < z3) time_in_zone[2] += 1.0;
+            else if (hr < z4) time_in_zone[3] += 1.0;
+            else              time_in_zone[4] += 1.0;
+        }
+
+        // Aerobic TE: prefer the accumulated TRIMP load already calculated above.
+        // Garmin Training Effect accumulates during the activity, so a duration-normalized
+        // zone average underestimates steady aerobic workouts.
+        const double zone_weights[5] = {0.2, 0.5, 1.0, 1.5, 2.0};
+        double weighted = 0;
+        for (int z = 0; z < 5; z++)
+            weighted += (time_in_zone[z] / 60.0) * zone_weights[z];
+        double dur_min = duration_seconds / 60.0;
+        if (dur_min > 0) {
+            if (training_load > 0) {
+                aerobic_te = std::min(5.0f,
+                                       (float)(5.0 * (1.0 - std::exp(-training_load / 90.0))));
+            } else {
+                aerobic_te = std::min(5.0f, (float)((weighted / dur_min) * 2.0));
+            }
+            qDebug() << "Aerobic TE:" << aerobic_te
+                     << "Z1-Z5 min:" << time_in_zone[0]/60 << time_in_zone[1]/60
+                     << time_in_zone[2]/60 << time_in_zone[3]/60 << time_in_zone[4]/60;
+        }
+
+        // Anaerobic TE: from power if available, else from time in Z4+Z5
+        if (watt_count > 0) {
+            float ftp_for_te = settings.value(QZSettings::ftp, QZSettings::default_ftp).toFloat();
+            if (ftp_for_te > 0) {
+                double threshold_w = ftp_for_te * 1.05;
+                double time_above = 0, intensity_above = 0;
+                for (int i = firstRealIndex; i < session.length(); i++) {
+                    if (session.at(i).watt > threshold_w) {
+                        time_above += 1.0;
+                        intensity_above += session.at(i).watt / threshold_w;
+                    }
+                }
+                if (time_above > 0 && dur_min > 0) {
+                    double pct = (time_above / duration_seconds) * 100.0;
+                    anaerobic_te = std::min(5.0f, (float)((pct / 20.0) * (intensity_above / time_above)));
+                }
+            }
+        } else {
+            double high_intensity = time_in_zone[3] + time_in_zone[4];
+            if (high_intensity > 0 && dur_min > 0) {
+                double pct = (high_intensity / duration_seconds) * 100.0;
+                anaerobic_te = std::min(5.0f, (float)((pct / 25.0) * 2.0));
+                if (time_in_zone[4] > time_in_zone[3])
+                    anaerobic_te = std::min(5.0f, anaerobic_te * 1.3f);
+            }
+        }
+        qDebug() << "Anaerobic TE:" << anaerobic_te;
     }
 
     encode.Open(file);
     encode.Write(fileIdMesg);
     encode.Write(userMesg);
+
+    // zones_target: gives Garmin Connect the user's FTP and HR zones for load calculations
+    {
+        fit::ZonesTargetMesg zonesTargetMesg;
+        zonesTargetMesg.SetMaxHeartRate(user_max_hr);
+        float zone3_pct = settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toFloat();
+        zonesTargetMesg.SetThresholdHeartRate((uint8_t)(zone3_pct / 100.0f * user_max_hr));
+        uint16_t ftp_target = (uint16_t)settings.value(QZSettings::ftp, QZSettings::default_ftp).toFloat();
+        if (ftp_target > 0)
+            zonesTargetMesg.SetFunctionalThresholdPower(ftp_target);
+        zonesTargetMesg.SetHrCalcType(FIT_HR_ZONE_CALC_PERCENT_MAX_HR);
+        zonesTargetMesg.SetPwrCalcType(FIT_PWR_ZONE_CALC_PERCENT_FTP);
+        encode.Write(zonesTargetMesg);
+    }
 
     // Declare developer field descriptions (but don't write them yet)
     fit::FieldDescriptionMesg activityTitle;
@@ -431,20 +567,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     if (workoutFeel >= 0)
         sessionMesg.SetWorkoutFeel(static_cast<FIT_UINT8>(workoutFeel));
 
-    // Set training load in FIT file
-    // Always set training_load_peak (Garmin uses this for acute training load)
-    // COMMENTED OUT: Garmin Connect doesn't properly reflect these values
-    // Moving to developer data message instead
+    // Keep training_load_peak disabled: #4200/#4202 showed that Garmin Connect did
+    // not reflect this field reliably. TSS/IF/FTP below are independent cycling stats.
     if (training_load > 0) {
-        //sessionMesg.SetTrainingLoadPeak(training_load);
-        qDebug() << "Training load will be stored in developer data:" << training_load;
-    }
-
-    // For cycling with power, also set training_stress_score (TSS)
-    // COMMENTED OUT: Moving to developer data message
-    if (has_tss) {
-        //sessionMesg.SetTrainingStressScore(tss);
-        qDebug() << "TSS will be stored in developer data:" << tss;
+        qDebug() << "Training load remains calculated but training_load_peak is not written:" << training_load;
     }
 
     const FIT_SPORT treadmill_activity_sport =
@@ -521,6 +647,41 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     if (overrideSport != FIT_SPORT_INVALID) {
         sessionMesg.SetSport(overrideSport);
         qDebug() << "overriding FIT sport to" << overrideSport << "keeping subsport from device type";
+    }
+
+    // Session statistics derived from record data
+    if (hr_count > 0) {
+        sessionMesg.SetAvgHeartRate((uint8_t)(hr_sum / hr_count));
+        sessionMesg.SetMaxHeartRate(max_hr);
+        sessionMesg.SetMinHeartRate(min_hr);
+    }
+    if (cadence_count > 0 && type != ROWING) {
+        sessionMesg.SetAvgCadence((uint8_t)(cadence_sum / cadence_count));
+        sessionMesg.SetMaxCadence(max_cadence);
+    }
+    if (watt_count > 0) {
+        sessionMesg.SetAvgPower((uint16_t)(watt_sum / watt_count));
+        sessionMesg.SetMaxPower(max_watt);
+        if (normalized_power > 0)
+            sessionMesg.SetNormalizedPower(normalized_power);
+        if (total_work_joules > 0)
+            sessionMesg.SetTotalWork(total_work_joules);
+    }
+    if (type == BIKE && ftp > 0) {
+        sessionMesg.SetThresholdPower((uint16_t)ftp);
+        if (has_tss) {
+            sessionMesg.SetIntensityFactor(intensity_factor);
+            sessionMesg.SetTrainingStressScore(tss);
+            qDebug() << "Writing cycling stats to FIT: FTP" << ftp
+                     << "IF" << intensity_factor << "TSS" << tss;
+        }
+    }
+    if (max_speed_ms > 0) {
+        sessionMesg.SetEnhancedMaxSpeed((float)max_speed_ms);
+    }
+    if (aerobic_te > 0) {
+        sessionMesg.SetTotalTrainingEffect(aerobic_te);
+        sessionMesg.SetTotalAnaerobicTrainingEffect(anaerobic_te);
     }
 
     fit::DeveloperDataIdMesg devIdMesg;
@@ -733,10 +894,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     // System Timestamp: Same as timestamp (session start)
     timestampCorrelationMesg.SetSystemTimestamp(sessionStartTimestamp);
 
-    // Local Timestamp: User's local time at session start
-    // Convert the local time to FIT format
-    fit::DateTime localDateTime((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
-    timestampCorrelationMesg.SetLocalTimestamp(localDateTime.GetTimeStamp());
+    // Local Timestamp: session start expressed in the user's local wall-clock time.
+    // Per the FIT spec, local_timestamp = timestamp + UTC offset, so consumers can
+    // derive the offset as (local_timestamp - timestamp).
+    qint64 utcOffsetSeconds = session.at(firstRealIndex).time.offsetFromUtc();
+    timestampCorrelationMesg.SetLocalTimestamp(sessionStartTimestamp + utcOffsetSeconds);
 
     encode.Write(timestampCorrelationMesg);
 
@@ -887,7 +1049,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             newRecord.SetStanceTime(sl.groundContactMS);
         }
 
-               // Add custom developer fields for temperature data
+        // Add custom developer fields for temperature data
         if (sl.coreTemp) {
             fit::DeveloperField coreTemperatureField(coreTemperatureFieldDesc, coreDevIdMesg);
             coreTemperatureField.SetFLOAT32Value((float)sl.coreTemp);
@@ -920,8 +1082,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             newRecord.AddDeveloperField(heatStrainIndexField);
         }
 
-               // if a gps track contains a point without the gps information, it has to be discarded, otherwise the database
-               // structure is corrupted and 2 tracks are saved in the FIT file causing mapping issue.
+        // if a gps track contains a point without the gps information, it has to be discarded, otherwise the database
+        // structure is corrupted and 2 tracks are saved in the FIT file causing mapping issue.
         if (!sl.coordinate.isValid() && gps_data) {
             continue;
         }
@@ -934,9 +1096,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
             newRecord.SetAltitude(sl.elevationGain);
         }
 
-               // using just the start point as reference in order to avoid pause time
-               // strava ignore the elapsed field
-               // this workaround could leads an accuracy issue.
+        // using just the start point as reference in order to avoid pause time
+        // strava ignore the elapsed field
+        // this workaround could leads an accuracy issue.
         newRecord.SetTimestamp(date.GetTimeStamp() + i);
 
         if (sl.coreTemp > 0) {

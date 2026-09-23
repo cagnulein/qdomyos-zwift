@@ -346,8 +346,14 @@ QT_USE_NAMESPACE
 - (void)retrievePeripheralAndConnect
 {
     Q_ASSERT_X(manager, Q_FUNC_INFO, "invalid central manager (nil)");
-    Q_ASSERT_X(managerState == OSXBluetooth::CentralManagerIdle,
-               Q_FUNC_INFO, "invalid state");
+
+    // CoreBluetooth can deliver a duplicate connect request while a previous
+    // request is still in progress (notably in the iOS-on-macOS environment).
+    // Treat it as a no-op instead of aborting in a debug build.
+    if (managerState != OSXBluetooth::CentralManagerIdle) {
+        qCWarning(QT_BT_OSX) << "Ignoring peripheral retrieval while the central manager is busy";
+        return;
+    }
 
     if ([self isConnected]) {
         qCDebug(QT_BT_OSX) << "already connected";

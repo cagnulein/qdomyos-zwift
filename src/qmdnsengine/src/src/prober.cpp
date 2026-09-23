@@ -86,10 +86,25 @@ void ProberPrivate::onMessageReceived(const Message &message)
     }
     const auto records = message.records();
     for (const Record &record : records) {
-        if (record.name() == proposedRecord.name() && record.type() == proposedRecord.type()) {
-            ++suffix;
-            assertRecord();
+        if (record.name() != proposedRecord.name() || record.type() != proposedRecord.type()) {
+            continue;
         }
+
+        // RFC 6762 8.2: a record identical to the one we are about to claim is
+        // not a conflict. Our own announcements always come back to us -
+        // multicast loops back to the sending host, and any other responder
+        // sharing UDP 5353 (Bonjour's mDNSResponder, for one) relays them as
+        // well - so counting them as a competitor makes the service rename
+        // itself against itself on every probe, without end.
+        if (record == proposedRecord) {
+            continue;
+        }
+
+        // One rename per conflicting message. Continuing the loop would bump
+        // the suffix once per matching record in the same response.
+        ++suffix;
+        assertRecord();
+        return;
     }
 }
 

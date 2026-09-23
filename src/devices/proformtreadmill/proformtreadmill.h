@@ -87,6 +87,7 @@ class proformtreadmill : public treadmill {
     bool norditrack_s25_treadmill = false;
     bool nordictrack_t65s_83_treadmill = false;
     bool nordictrack_incline_trainer_x7i = false;
+    bool nordictrack_incline_trainer_x7i_ntl15010_0 = false;
     bool proform_treadmill_z1300i = false;
     bool proform_pro_1000_treadmill = false;
     bool nordictrack_s20_treadmill = false;

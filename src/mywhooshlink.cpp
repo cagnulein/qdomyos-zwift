@@ -444,11 +444,13 @@ void MyWhooshLink::sendAction(Action action, bool keyDown) {
     }
 }
 
-void MyWhooshLink::sendSteering(int value) {
-    QList<QPair<quint8, quint8>> actions;
-    actions.append(qMakePair(ButtonSteerLeft, static_cast<quint8>(value < 0 ? 0x01 : 0x00)));
-    actions.append(qMakePair(ButtonSteerRight, static_cast<quint8>(value > 0 ? 0x01 : 0x00)));
-    sendButtonStateMessage(actions);
+void MyWhooshLink::sendSteering(Action direction, bool keyDown) {
+    // Send a single button/state pair, exactly like the regular button-mapped
+    // path does. Packing both steer buttons into one message (SteerLeft first,
+    // SteerRight second) made right-paddle steering silently do nothing,
+    // because a right press was encoded as "SteerLeft released, SteerRight
+    // pressed" and only the leading pair took effect. See qdomyos-zwift#4717.
+    sendAction(direction, keyDown);
 }
 
 void MyWhooshLink::cycleCameraAngle() {
@@ -552,10 +554,10 @@ void MyWhooshLink::handleLeftPower(bool pressed) {
 void MyWhooshLink::handleLeftPaddle(int value) {
     if (value < 0 && !leftPaddlePressed) {
         leftPaddlePressed = true;
-        sendSteering(-1);
+        sendSteering(SteerLeft, true);
     } else if (value >= 0 && leftPaddlePressed) {
         leftPaddlePressed = false;
-        sendSteering(0);
+        sendSteering(SteerLeft, false);
     }
 }
 
@@ -586,10 +588,10 @@ void MyWhooshLink::handleRightPower(bool pressed) {
 void MyWhooshLink::handleRightPaddle(int value) {
     if (value > 0 && !rightPaddlePressed) {
         rightPaddlePressed = true;
-        sendSteering(1);
+        sendSteering(SteerRight, true);
     } else if (value <= 0 && rightPaddlePressed) {
         rightPaddlePressed = false;
-        sendSteering(0);
+        sendSteering(SteerRight, false);
     }
 }
 
