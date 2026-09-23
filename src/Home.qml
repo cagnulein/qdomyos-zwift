@@ -295,7 +295,7 @@ HomeForm {
         width: OS_VERSION === "Android"
                ? parent.width
                : Math.max(cellWidth, Math.floor(parent.width / cellWidth) * cellWidth)
-        leftMargin: OS_VERSION === "Android" ? (Screen.width % cellWidth) / 2 : 0
+        leftMargin: { if(OS_VERSION === "Android") (Screen.width % cellWidth) / 2; else if (OS_VERSION === "iOS") 0; else (parent.width % cellWidth) / 2; }
         anchors.topMargin: (!window.lockTiles ? rootItem.topBarHeight + 30 : 0)
         interactive: !window.lockTiles
         id: gridView
