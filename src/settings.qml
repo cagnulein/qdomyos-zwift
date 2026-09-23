@@ -36,6 +36,7 @@ import AndroidStatusBar 1.0
         property bool settingsSearchVisible: false
         property bool settingsSearchActive: false
         property bool settingsSearchPending: false
+        property string initialProfileSettingsSnapshot: ""
 
         function showSettingsSearch() {
             settingsSearchVisible = true
@@ -57,6 +58,29 @@ import AndroidStatusBar 1.0
         function openGarminSection() {
             garminOptionsAccordion.isOpen = true
             scrollTimer.start()
+        }
+
+        function profileSettingsSnapshot() {
+            var values = []
+            for (var key in settings) {
+                var value = settings[key]
+                if (typeof value === "boolean" || typeof value === "number" || typeof value === "string")
+                    values.push(key + "=" + String(value))
+            }
+            values.sort()
+            return values.join("\n")
+        }
+
+        function profileSaveReminderNeeded() {
+            return settings.profile_name.length > 0 &&
+                   settings.profile_name !== "default" &&
+                   initialProfileSettingsSnapshot.length > 0 &&
+                   initialProfileSettingsSnapshot !== profileSettingsSnapshot()
+        }
+
+        Component.onCompleted: {
+            initialProfileSettingsSnapshot = profileSettingsSnapshot()
+            window.settings_restart_to_apply = false
         }
 
         // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
@@ -1787,10 +1811,6 @@ import AndroidStatusBar 1.0
         function timeToPaceSeconds(text) {
             var pieces = text.split(":")
             return (parseInt(pieces[0]) * 3600) + (parseInt(pieces[1]) * 60) + parseInt(pieces[2])
-        }
-
-        Component.onCompleted: {
-            window.settings_restart_to_apply = false;
         }
 
         property var appLanguageOptions: [

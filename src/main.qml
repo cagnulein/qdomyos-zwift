@@ -952,6 +952,12 @@ ApplicationWindow {
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
+                    var remindToSaveProfile = headerToolbar.settingsPageActive &&
+                            stackView.currentItem &&
+                            typeof stackView.currentItem.profileSaveReminderNeeded === "function" &&
+                            stackView.currentItem.profileSaveReminderNeeded()
+                    var activeProfileName = settings.profile_name
+
                     if(window.settings_restart_to_apply === true) {
                         window.settings_restart_to_apply = false;
                         popupRestartApp.visible = true;
@@ -961,6 +967,9 @@ ApplicationWindow {
                     toolButtonLoadSettings.visible = false;
                     toolButtonSaveSettings.visible = false;
                     rootItem.sortTiles()
+                    if (remindToSaveProfile) {
+                        toast.show(qsTr("Remember to save profile \"%1\" if you want to keep these changes in this profile.").arg(activeProfileName))
+                    }
                 } else {
                     drawer.open()
                 }
@@ -1203,17 +1212,6 @@ ApplicationWindow {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;                        
                         stackView.push("settings.qml")
-                        stackView.currentItem.peloton_connect_clicked.connect(function() {
-                            if (rootItem.isPelotonLoggedIn()) {
-                                pelotonLogoutConfirm.visible = true
-                            } else {
-                                stackView.push("WebPelotonAuth.qml")
-                                stackView.currentItem.goBack.connect(function() {
-                                    stackView.pop();
-                                })
-                                peloton_connect_clicked()
-                            }
-                         });
                          drawer.close()
                     }
                 }
@@ -1447,19 +1445,6 @@ ApplicationWindow {
                             if (stackView.currentItem.openGarminSection) {
                                 stackView.currentItem.openGarminSection()
                             }
-                            if (stackView.currentItem.peloton_connect_clicked) {
-                                stackView.currentItem.peloton_connect_clicked.connect(function() {
-                                    if (rootItem.isPelotonLoggedIn()) {
-                                        pelotonLogoutConfirm.visible = true
-                                    } else {
-                                        stackView.push("WebPelotonAuth.qml")
-                                        stackView.currentItem.goBack.connect(function() {
-                                            stackView.pop();
-                                        })
-                                        peloton_connect_clicked()
-                                    }
-                                });
-                            }
                         }
                         drawer.close()
                     }
@@ -1519,6 +1504,21 @@ ApplicationWindow {
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
             focus: true
+            Connections {
+                target: stackView.currentItem
+                ignoreUnknownSignals: true
+                function onPeloton_connect_clicked() {
+                    if (rootItem.isPelotonLoggedIn()) {
+                        pelotonLogoutConfirm.visible = true
+                    } else {
+                        stackView.push("WebPelotonAuth.qml")
+                        stackView.currentItem.goBack.connect(function() {
+                            stackView.pop();
+                        })
+                        peloton_connect_clicked()
+                    }
+                }
+            }
             Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
             Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
             Keys.onPressed: (event)=> {
