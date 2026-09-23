@@ -32,6 +32,14 @@ static void qz_updateIOSLayoutMetrics(UIWindow *window);
 
 static void qz_registerIOSLayout(void)
 {
+    // Qt 5.15 uses the threaded scene-graph loop on iOS.  With the iOS 27
+    // UIKit scene lifecycle, resizing the CAEAGLLayer during scene/layout
+    // transitions can then happen from QSGRenderThread and leave QML black.
+    // Keep the workaround in the application overlay so the Qt SDK remains
+    // untouched; the basic loop renders on the UIKit/main thread.
+    if (@available(iOS 27.0, *))
+        qputenv("QSG_RENDER_LOOP", "basic");
+
     qz_iosLayout.insert(QStringLiteral("isIPhoneDuo"), false);
     qz_iosLayout.insert(QStringLiteral("leftInset"), 0.0);
     qz_iosLayout.insert(QStringLiteral("topInset"), 0.0);
@@ -226,8 +234,7 @@ static void qz_desktopManagerDidAddSubview(id managerView, SEL selector, UIView 
         // same Qt window to its UIWindowScene.
         window.hidden = NO;
         qz_layoutQtViews(window.rootViewController.view);
-        if (!qz_isStandardIPhoneWindow(window))
-            qz_sendUpdatedExposeEvent(subview);
+        qz_sendUpdatedExposeEvent(subview);
         return;
     }
 
@@ -238,8 +245,7 @@ static void qz_desktopManagerDidAddSubview(id managerView, SEL selector, UIView 
     if (qz_sceneWindow && qz_sceneWindow.windowScene) {
         qz_sceneWindow.hidden = NO;
         qz_layoutQtViews(qz_sceneWindow.rootViewController.view);
-        if (!qz_isStandardIPhoneWindow(qz_sceneWindow))
-            qz_sendUpdatedExposeEvent(subview);
+        qz_sendUpdatedExposeEvent(subview);
         return;
     }
 
@@ -404,8 +410,7 @@ static UIWindow *qz_existingQtWindowForScreen(void *platformScreen)
     [qz_sceneWindow.rootViewController.view setNeedsLayout];
     [qz_sceneWindow.rootViewController.view layoutIfNeeded];
     qz_layoutQtViews(qz_sceneWindow.rootViewController.view);
-    if (!qz_isStandardIPhoneWindow(qz_sceneWindow))
-        qz_sendUpdatedExposeEvent(qz_sceneWindow.rootViewController.view);
+    qz_sendUpdatedExposeEvent(qz_sceneWindow.rootViewController.view);
 }
 
 @end
@@ -509,8 +514,7 @@ static UIWindow *qz_existingQtWindowForScreen(void *platformScreen)
     qz_layoutQtViews(self.view);
     qz_installHingeInteraction(self.view.window);
     qz_updateIOSLayoutMetrics(self.view.window);
-    if (!standardIPhone)
-        qz_sendUpdatedExposeEvent(self.view);
+    qz_sendUpdatedExposeEvent(self.view);
     updatingGeometry = NO;
 }
 
