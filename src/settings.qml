@@ -5693,6 +5693,41 @@ import AndroidStatusBar 1.0
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
                             }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Resistance Polling Delay:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: daumResistanceDelayTextField
+                                    text: settings.inclination_delay_seconds
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.inclination_delay_seconds = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: qsTr("OK")
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.inclination_delay_seconds = daumResistanceDelayTextField.text; toast.show(qsTr("Setting saved!")); }
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Uses the Inclination Delay setting to limit how often QZ sends Daum resistance and power updates. Default: 0 seconds.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
                         }
                     }
 

@@ -100,24 +100,36 @@ void daumbike::forceResistance(double requestResistance) {
 }
 
 void daumbike::innerWriteResistance() {
+    QSettings settings;
+    const double resistanceDelaySeconds =
+        settings.value(QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds)
+            .toDouble();
+    const QDateTime now = QDateTime::currentDateTime();
+    const bool resistanceDelayElapsed =
+        !lastResistanceChanged.isValid() || resistanceDelaySeconds <= 0.0 ||
+        (lastResistanceChanged.msecsTo(now) >= qRound64(resistanceDelaySeconds * 1000.0));
+
     if (requestResistance != -1) {
         if (requestResistance > max_resistance)
             requestResistance = max_resistance;
         else if (requestResistance < min_resistance)
             requestResistance = min_resistance;
 
-        if (requestResistance != currentResistance().value()) {
+        if (resistanceDelayElapsed && requestResistance != currentResistance().value()) {
             emit debug(QStringLiteral("writing Daum power target ") + QString::number(requestResistance));
             if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                 (requestPower == 0 || requestPower == -1)) {
                 forceResistance(requestResistance);
+                lastResistanceChanged = now;
             }
         }
-        requestResistance = -1;
+        if (resistanceDelayElapsed)
+            requestResistance = -1;
     }
 
-    if (requestPower > 0) {
+    if (requestPower > 0 && resistanceDelayElapsed) {
         forceResistance(requestPower);
+        lastResistanceChanged = now;
         qDebug() << "Daum setting power" << requestPower;
     }
 

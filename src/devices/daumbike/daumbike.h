@@ -57,6 +57,7 @@ class daumbike : public bike {
     double bikeResistanceGain = 1.0;
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastResistanceChanged;
     uint8_t firstStateChanged = 0;
     bool initDone = false;
     bool initRequest = false;
