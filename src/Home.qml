@@ -302,14 +302,20 @@ HomeForm {
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
         function updateGridLayout() {
-            forceLayout();
+            if (OS_VERSION !== "Android")
+                forceLayout();
         }
-        onWidthChanged: updateGridLayout()
-        onHeightChanged: updateGridLayout()
-        onCellWidthChanged: updateGridLayout()
+        onWidthChanged: if (OS_VERSION !== "Android") updateGridLayout()
+        onHeightChanged: if (OS_VERSION !== "Android") updateGridLayout()
+        onCellWidthChanged: if (OS_VERSION !== "Android") updateGridLayout()
         Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
-        Screen.onOrientationChanged: updateGridLayout()
-        Screen.onPrimaryOrientationChanged: updateGridLayout()
+        Screen.onOrientationChanged: if (OS_VERSION !== "Android") updateGridLayout()
+        Screen.onPrimaryOrientationChanged: {
+            if (OS_VERSION === "Android")
+                gridView.leftMargin = (Screen.width % cellWidth) / 2;
+            else
+                updateGridLayout();
+        }
 
         Accessible.ignored: true
 

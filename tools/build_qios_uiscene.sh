@@ -11,28 +11,17 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 QT_IOS_DIR="${QT_IOS_DIR:-/Users/cagnulein/Qt/5.15.2/ios}"
 QTBASE_SOURCE_DIR="${QTBASE_SOURCE_DIR:-/tmp/qtbase-source-5.15.2-qz-backport}"
-APPLY_PATCHES="${APPLY_PATCHES:-0}"
 BUILD_CONFIG="${BUILD_CONFIG:-release}"
 OUTPUT_DIR="${OUTPUT_DIR:-$PROJECT_ROOT/qt-patches/ios/5.15.2/binary}"
 BUILD_DIR="$(mktemp -d /tmp/qz-qios-build.XXXXXX)"
-SOURCE_OVERLAY_DIR=""
 
 if [[ ! -x "$QT_IOS_DIR/bin/qmake" ]]; then
     echo "qmake not found in $QT_IOS_DIR" >&2
     exit 1
 fi
 if [[ ! -f "$QTBASE_SOURCE_DIR/src/plugins/platforms/ios/qiosapplicationdelegate.mm" ]]; then
-    echo "Qt base source not found in $QTBASE_SOURCE_DIR" >&2
+    echo "Patched qtbase source not found in $QTBASE_SOURCE_DIR" >&2
     exit 1
-fi
-
-if [[ "$APPLY_PATCHES" == "1" ]]; then
-    SOURCE_OVERLAY_DIR="$(mktemp -d /tmp/qz-qtbase-overlay.XXXXXX)"
-    cp -R "$QTBASE_SOURCE_DIR"/. "$SOURCE_OVERLAY_DIR"/
-    patch --batch --forward --silent -p1 -d "$SOURCE_OVERLAY_DIR" \
-        < "$PROJECT_ROOT/qt-patches/ios/5.15.2/qios-uiscene.patch"
-    QTBASE_SOURCE_DIR="$SOURCE_OVERLAY_DIR"
-    echo "Building from temporary Qt source overlay: $SOURCE_OVERLAY_DIR"
 fi
 
 case "$BUILD_CONFIG" in

@@ -5,7 +5,7 @@
 diff --git a/src/plugins/platforms/ios/qiosapplicationdelegate.mm b/src/plugins/platforms/ios/qiosapplicationdelegate.mm
 --- a/src/plugins/platforms/ios/qiosapplicationdelegate.mm
 +++ b/src/plugins/platforms/ios/qiosapplicationdelegate.mm
-@@ -39,17 +39,101 @@
+@@ -39,17 +39,99 @@
  
  #include "qiosapplicationdelegate.h"
  
@@ -66,7 +66,6 @@ diff --git a/src/plugins/platforms/ios/qiosapplicationdelegate.mm b/src/plugins/
 +    if (!qGuiApp)
 +        return;
 +
-+
 +    QIOSScreen *screen = nullptr;
 +    for (QScreen *qScreen : qGuiApp->screens()) {
 +        QIOSScreen *platformScreen = static_cast<QIOSScreen *>(qScreen->handle());
@@ -85,7 +84,6 @@ diff --git a/src/plugins/platforms/ios/qiosapplicationdelegate.mm b/src/plugins/
 +
 +    self.window.rootViewController = [[[QIOSViewController alloc]
 +        initWithWindow:self.window andScreen:screen] autorelease];
-+    [self.window makeKeyAndVisible];
 +}
 +
 +- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
@@ -123,7 +121,7 @@ diff --git a/src/plugins/platforms/ios/qiosglobal.h b/src/plugins/platforms/ios/
  
  #if !defined(QT_NO_DEBUG)
  #define qImDebug \
-@@ -69,8 +70,9 @@
+@@ -69,6 +70,7 @@
  #endif
  
  int infoPlistValue(NSString* key, int defaultValue);
@@ -144,7 +142,7 @@ diff --git a/src/plugins/platforms/ios/qiosglobal.mm b/src/plugins/platforms/ios
  
  bool isQtApplication()
  {
-@@ -121,6 +122,50 @@
+@@ -121,6 +122,37 @@
      return value ? [value intValue] : defaultValue;
  }
  
@@ -153,23 +151,16 @@ diff --git a/src/plugins/platforms/ios/qiosglobal.mm b/src/plugins/platforms/ios
 +    Q_ASSERT(screen);
 +
 +    const auto *iosScreen = static_cast<const QIOSScreen *>(screen);
-+    UIView *fallbackRootView = nil;
 +    for (UIScene *scene in [qt_apple_sharedApplication().connectedScenes allObjects]) {
 +        if (![scene isKindOfClass:UIWindowScene.class])
 +            continue;
 +
 +        UIWindowScene *windowScene = static_cast<UIWindowScene *>(scene);
-+        // iOS 27 can expose a different UIScreen instance to Qt; keep looking
-+        // for the scene-owned Qt window and use it as a fallback below.
++        if (windowScene.screen != iosScreen->uiScreen())
++            continue;
 +
 +        UIWindow *uiWindow = nil;
-+        id sceneDelegate = windowScene.delegate;
-+        if ([sceneDelegate respondsToSelector:@selector(window)]) {
-+            UIWindow *delegateWindow = [sceneDelegate window];
-+            if ([delegateWindow isKindOfClass:[QUIWindow class]])
-+                uiWindow = delegateWindow;
-+        }
-+        if (!uiWindow && [windowScene.keyWindow isKindOfClass:[QUIWindow class]])
++        if ([windowScene.keyWindow isKindOfClass:[QUIWindow class]])
 +            uiWindow = windowScene.keyWindow;
 +        if (!uiWindow) {
 +            for (UIWindow *window in windowScene.windows) {
@@ -179,26 +170,27 @@ diff --git a/src/plugins/platforms/ios/qiosglobal.mm b/src/plugins/platforms/ios
 +                }
 +            }
 +        }
-+        if (!uiWindow)
-+            continue;
-+        UIView *rootView = uiWindow.rootViewController.view;
-+        if (windowScene.screen == iosScreen->uiScreen())
-+            return rootView;
-+        if (!fallbackRootView)
-+            fallbackRootView = rootView;
 +
++        return uiWindow ? uiWindow.rootViewController.view : nil;
 +    }
 +
-+    return fallbackRootView;
++    return nullptr;
 +}
 +
  QT_END_NAMESPACE
  
  // -------------------------------------------------------------------------
+@@ -188,4 +220,3 @@
+ UIResponder *FirstResponderCandidate::s_firstResponderCandidate = 0;
+ 
+ QT_END_NAMESPACE
+-
+
+
 diff --git a/src/plugins/platforms/ios/qiosscreen.h b/src/plugins/platforms/ios/qiosscreen.h
 --- a/src/plugins/platforms/ios/qiosscreen.h
 +++ b/src/plugins/platforms/ios/qiosscreen.h
-@@ -88,9 +88,8 @@
+@@ -88,7 +88,6 @@
      void deliverUpdateRequests() const;
  
      UIScreen *m_uiScreen;
@@ -331,7 +323,7 @@ diff --git a/src/plugins/platforms/ios/qiosscreen.mm b/src/plugins/platforms/ios
  
      UIImage *screenshot = UIGraphicsGetImageFromCurrentImageContext();
      UIGraphicsEndImageContext();
-@@ -571,9 +534,10 @@
+@@ -571,7 +534,8 @@
  
  UIWindow *QIOSScreen::uiWindow() const
  {
@@ -355,6 +347,13 @@ diff --git a/src/plugins/platforms/ios/qiosviewcontroller.h b/src/plugins/platfo
  - (void)updateProperties;
  
  #ifndef Q_OS_TVOS
+@@ -61,4 +61,3 @@
+ #endif
+ 
+ @end
+-
+
+
 diff --git a/src/plugins/platforms/ios/qiosviewcontroller.mm b/src/plugins/platforms/ios/qiosviewcontroller.mm
 --- a/src/plugins/platforms/ios/qiosviewcontroller.mm
 +++ b/src/plugins/platforms/ios/qiosviewcontroller.mm
@@ -366,7 +365,7 @@ diff --git a/src/plugins/platforms/ios/qiosviewcontroller.mm b/src/plugins/platf
  @property (nonatomic, assign) QPointer<QT_PREPEND_NAMESPACE(QIOSScreen)> platformScreen;
  @property (nonatomic, assign) BOOL changingOrientation;
  @end
-@@ -122,17 +123,17 @@
+@@ -122,17 +123,10 @@
  {
      Q_UNUSED(subview);
  
@@ -385,13 +384,6 @@ diff --git a/src/plugins/platforms/ios/qiosviewcontroller.mm b/src/plugins/platf
 +    if (uiWindow && uiWindow.hidden) {
 +        // Show the scene-owned UIWindow the first time a QWindow is mapped.
          uiWindow.hidden = NO;
-+        if ([subview isKindOfClass:[QUIView class]]) {
-+            QUIView *view = static_cast<QUIView *>(subview);
-+            dispatch_async(dispatch_get_main_queue(), ^{
-+                if (view.window == uiWindow)
-+                    [view sendUpdatedExposeEvent];
-+            });
-+        }
      }
  }
 @@ -254,9 +248,10 @@
@@ -406,7 +398,7 @@ diff --git a/src/plugins/platforms/ios/qiosviewcontroller.mm b/src/plugins/platf
          self.platformScreen = screen;
  
          self.changingOrientation = NO;
-@@ -318,6 +313,26 @@
+@@ -318,6 +313,15 @@
              name:UIApplicationDidChangeStatusBarOrientationNotification
              object:qt_apple_sharedApplication()];
  #endif
@@ -419,40 +411,20 @@ diff --git a/src/plugins/platforms/ios/qiosviewcontroller.mm b/src/plugins/platf
 +        if (auto *platformWindow = window->handle())
 +            platformWindow->setParent(nullptr);
 +    }
-+
-+    // The scene may have been connected after the Qt window was created.
-+    // Re-apply the window state now that the view has a real UIWindow parent,
-+    // so fullscreen geometry and exposure are recalculated from scene bounds.
-+    for (auto *window : qGuiApp->topLevelWindows()) {
-+        if (window->screen()->handle() != self.platformScreen)
-+            continue;
-+        if (auto *platformWindow = window->handle())
-+            platformWindow->setWindowState(window->windowStates());
-+    }
-+    [self.view setNeedsLayout];
  }
  
  - (void)viewDidUnload
+@@ -524,4 +528,3 @@
+ }
+ 
+ @end
+-
+
+
 diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios/qioswindow.mm
 --- a/src/plugins/platforms/ios/qioswindow.mm
 +++ b/src/plugins/platforms/ios/qioswindow.mm
-@@ -58,3 +58,4 @@
- #include <QtDebug>
-+#include <QtCore/QPointer>
-
- QT_BEGIN_NAMESPACE
-@@ -242,5 +242,8 @@
- bool QIOSWindow::isExposed() const
- {
--    return qApp->applicationState() != Qt::ApplicationSuspended
--        && window()->isVisible() && !window()->geometry().isEmpty();
-+    return qApp->applicationState() != Qt::ApplicationSuspended
-+        && window()->isVisible() && !window()->geometry().isEmpty()
-+        && m_view.window && m_view.window.rootViewController
-+        && m_view.window.rootViewController.view.window == m_view.window
-+        && [m_view isDescendantOfView:m_view.window.rootViewController.view];
- }
-@@ -265,15 +265,68 @@
+@@ -265,15 +265,35 @@
          // in applyGeometry(), as we don't want to artificially limit window
          // placement "outside" of the screen bounds if that's what the user wants.
  
@@ -466,33 +438,13 @@ diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios
 +            // The scene UIWindow is the authoritative coordinate space.
 +            applyGeometry(uiWindowBounds);
 +        } else {
-+            // On iPhone Duo, Qt's UIScreen can describe one panel while the
-+            // scene-owned UIWindow spans the open device. Use the scene window
-+            // as the authoritative geometry whenever it is available.
-+            QRect fullscreenGeometry = uiWindowBounds.isEmpty()
-+                ? screen()->geometry() : uiWindowBounds;
-+            QRect maximizedGeometry = uiWindowBounds.isEmpty()
-+                ? screen()->availableGeometry() : uiWindowBounds;
++            QRect fullscreenGeometry = screen()->geometry();
++            QRect maximizedGeometry = screen()->availableGeometry();
 +            if (m_view.window) {
 +                UIScreen *uiScreen = m_view.window.windowScene.screen;
 +                UIEdgeInsets safeAreaInsets = m_view.window.safeAreaInsets;
-+                const CGSize screenBounds = uiScreen ? uiScreen.bounds.size : CGSizeZero;
-+                const CGFloat screenLongSide = MAX(screenBounds.width, screenBounds.height);
-+                const CGFloat screenShortSide = MIN(screenBounds.width, screenBounds.height);
-+                const BOOL isIPhoneDuo =
-+                    m_view.window.windowScene.traitCollection.userInterfaceIdiom == UIUserInterfaceIdiomPhone
-+                    && ((screenLongSide >= 1400 && screenLongSide <= 1450
-+                         && screenShortSide >= 980 && screenShortSide <= 1020)
-+                        || (screenLongSide >= 650 && screenLongSide <= 700
-+                            && screenShortSide >= 450 && screenShortSide <= 500)
-+                        || (screenLongSide >= 930 && screenLongSide <= 970
-+                            && screenShortSide >= 650 && screenShortSide <= 690));
-+                const BOOL isIPhoneDuoInnerDisplay =
-+                    isIPhoneDuo
-+                    && m_view.window.windowScene.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular;
 +                if (uiScreen) {
-+                    if (!isIPhoneDuoInnerDisplay
-+                        && m_view.window.bounds.size.width == uiScreen.bounds.size.width)
++                    if (m_view.window.bounds.size.width == uiScreen.bounds.size.width)
 +                        maximizedGeometry.adjust(safeAreaInsets.left, 0,
 +                            -safeAreaInsets.right, 0);
 +                    if (m_view.window.bounds.size.height == uiScreen.bounds.size.height)
@@ -500,21 +452,8 @@ diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios
 +                            0, -safeAreaInsets.bottom);
 +                }
 +
-+                // Keep the Duo scene width (the right system rail stays
-+                // outside QZ) but let full-screen content reach the
-+                // bottom of the physical display.
-+                if (isIPhoneDuo && !uiWindowBounds.isEmpty()) {
-+                    fullscreenGeometry.setX(uiWindowBounds.x());
-+                    fullscreenGeometry.setY(uiWindowBounds.y());
-+                    fullscreenGeometry.setWidth(uiWindowBounds.width());
-+                    fullscreenGeometry.setHeight(uiWindowBounds.height() + safeAreaInsets.bottom);
-+                    maximizedGeometry = fullscreenGeometry;
-+                }
-+
-+                if (!isIPhoneDuo) {
-+                    fullscreenGeometry = fullscreenGeometry.intersected(uiWindowBounds);
-+                    maximizedGeometry = maximizedGeometry.intersected(uiWindowBounds);
-+                }
++                fullscreenGeometry = fullscreenGeometry.intersected(uiWindowBounds);
++                maximizedGeometry = maximizedGeometry.intersected(uiWindowBounds);
 +            }
  
 -        if (state & Qt::WindowFullScreen)
@@ -529,26 +468,19 @@ diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios
      } else {
          applyGeometry(m_normalGeometry);
      }
-@@ -282,8 +291,16 @@
+@@ -282,8 +291,9 @@
  void QIOSWindow::setParent(const QPlatformWindow *parentWindow)
  {
      UIView *parentView = parentWindow ? reinterpret_cast<UIView *>(parentWindow->winId())
 -        : isQtApplication() ? static_cast<QIOSScreen *>(screen())->uiWindow().rootViewController.view : 0;
-+        : rootViewForScreen(screen());
-
++        : isQtApplication() ? rootViewForScreen(screen()) : 0;
+ 
 -    [parentView addSubview:m_view];
 +    if (parentView)
 +        [parentView addSubview:m_view];
-+    else if (!parentWindow) {
-+        QPointer<QIOSWindow> window = this;
-+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 50 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
-+            if (window && !window->m_view.superview)
-+                window->setParent(nullptr);
-+        });
-+    }
  }
  
-@@ -290,10 +290,15 @@
+@@ -290,9 +290,14 @@
  void QIOSWindow::requestActivateWindow()
  {
      // Note that several windows can be active at the same time if they exist in the same
@@ -561,46 +493,5 @@ diff --git a/src/plugins/platforms/ios/qioswindow.mm b/src/plugins/platforms/ios
 +    // Activation is retried when the view is attached to the scene-owned window.
 +    if (!m_view.window)
 +        return;
-+
++ 
      Q_ASSERT(m_view.window);
-
-diff --git a/src/plugins/platforms/ios/qioscontext.mm b/src/plugins/platforms/ios/qioscontext.mm
---- a/src/plugins/platforms/ios/qioscontext.mm
-+++ b/src/plugins/platforms/ios/qioscontext.mm
-@@ -138,7 +138,15 @@
- bool QIOSContext::makeCurrent(QPlatformSurface *surface)
- {
-     Q_ASSERT_IS_GL_SURFACE(surface);
- 
-+    // QSG may start its render thread before UIScene has attached the Qt view
-+    // to the scene-owned UIWindow. Do not touch CAEAGLLayer until UIKit has
-+    // completed that attachment; the expose event from QUIView::didMoveToWindow
-+    // will make the scene renderable again.
-+    if (surface->surface()->surfaceClass() == QSurface::Window
-+        && !static_cast<QIOSWindow *>(surface)->isExposed())
-+        return false;
-+
-     if (!verifyGraphicsHardwareAvailability())
-         return false;
-
-diff --git a/src/plugins/platforms/ios/quiview.mm b/src/plugins/platforms/ios/quiview.mm
---- a/src/plugins/platforms/ios/quiview.mm
-+++ b/src/plugins/platforms/ios/quiview.mm
-@@ -230,3 +230,17 @@
- }
- 
-+- (void)didMoveToWindow
-+{
-+    [super didMoveToWindow];
-+
-+    // A QWindow can be created before UIScene attaches its view hierarchy.
-+    // Re-emit exposure after attachment so QSG retries rendering now that
-+    // CAEAGLLayer has a real scene-owned UIWindow.
-+    if (self.window && self.platformWindow) {
-+        [self setNeedsLayout];
-+        [self setNeedsDisplay];
-+        [self sendUpdatedExposeEvent];
-+    }
-+}
-+
- - (void)displayLayer:(CALayer *)layer
