@@ -163,6 +163,7 @@ devices/ziprotreadmill/ziprotreadmill.cpp \
 zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
 devices/kettlerusbbike/KettlerUSB.cpp \
+devices/daumbike/DaumUSB.cpp \
 devices/freebeatbike/FreebeatUSB.cpp \
 devices/freebeatboombike/freebeatboombike.cpp \
 PathController.cpp \
@@ -175,6 +176,7 @@ characteristics/characteristicwriteprocessor.cpp \
 characteristics/characteristicwriteprocessore005.cpp \
 devices/computrainerbike/computrainerbike.cpp \
 devices/kettlerusbbike/kettlerusbbike.cpp \
+devices/daumbike/daumbike.cpp \
 devices/freebeatbike/freebeatbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
@@ -482,6 +484,7 @@ devices/ypooelliptical/ypooelliptical.h \
 devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
 devices/kettlerusbbike/KettlerUSB.h \
+devices/daumbike/DaumUSB.h \
 devices/freebeatbike/FreebeatUSB.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
@@ -492,6 +495,7 @@ characteristics/characteristicnotifier2ad9.h \
 characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
 devices/kettlerusbbike/kettlerusbbike.h \
+devices/daumbike/daumbike.h \
 devices/freebeatbike/freebeatbike.h \
 devices/freebeatboombike/freebeatboombike.h \
 definitions.h \

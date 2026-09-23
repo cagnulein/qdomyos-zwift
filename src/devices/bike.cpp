@@ -58,8 +58,9 @@ void bike::changeResistance(resistance_t resistance) {
     qDebug() << QStringLiteral("bike::changeResistance") << autoResistanceEnable << resistance;
 
     lastRawRequestedResistanceValue = resistance;
+    const double gearModifier = applyGearModifier() ? gearsModifier() : 0.0;
     if (autoResistanceEnable) {
-        double v = (resistance * m_difficult) + gearsModifier();
+        double v = (resistance * m_difficult) + gearModifier;
         if ((double)v > zwift_erg_resistance_up) {
             qDebug() << "zwift_erg_resistance_up filter enabled!";
             v = (resistance_t)zwift_erg_resistance_up;
@@ -70,7 +71,7 @@ void bike::changeResistance(resistance_t resistance) {
         requestResistance = v;
         emit resistanceChanged(requestResistance);
     }
-    RequestedResistance = resistance * m_difficult + gearsModifier();
+    RequestedResistance = resistance * m_difficult + gearModifier;
 }
 
 void bike::changeInclination(double grade, double percentage) {
@@ -707,8 +708,11 @@ void bike::updateSlopeTargetPower(bool force) {
         return;
     }
 
-    // Apply gear offset to grade (0.5 scaling factor)
-    double grade = m_currentSlopePercent + (gearsModifier() / 2.0);
+    // Apply virtual gear offset to grade (0.5 scaling factor). Physical
+    // gearboxes already apply their ratio mechanically and must not be
+    // counted a second time in the software physics model.
+    const double gearModifier = applyGearModifier() ? gearsModifier() : 0.0;
+    double grade = m_currentSlopePercent + (gearModifier / 2.0);
 
     // Get current speed for slope calculations with fallback to cadence-based estimation
     double speedKmh = getCurrentSpeedForSlope();
