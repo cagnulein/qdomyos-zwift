@@ -1215,7 +1215,15 @@ ApplicationWindow {
                         toolButtonSaveSettings.visible = true;                        
                         stackView.push("settings.qml")
                         stackView.currentItem.peloton_connect_clicked.connect(function() {
-                            peloton_connect_clicked()
+                            if (rootItem.isPelotonLoggedIn()) {
+                                pelotonLogoutConfirm.visible = true
+                            } else {
+                                stackView.push("WebPelotonAuth.qml")
+                                stackView.currentItem.goBack.connect(function() {
+                                    stackView.pop();
+                                })
+                                peloton_connect_clicked()
+                            }
                          });
                          drawer.close()
                     }
@@ -1379,7 +1387,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.21.5"
+                    text: "version 2.22.0"
                     width: parent.width
                 }
 
@@ -1452,7 +1460,15 @@ ApplicationWindow {
                             }
                             if (stackView.currentItem.peloton_connect_clicked) {
                                 stackView.currentItem.peloton_connect_clicked.connect(function() {
-                                    peloton_connect_clicked()
+                                    if (rootItem.isPelotonLoggedIn()) {
+                                        pelotonLogoutConfirm.visible = true
+                                    } else {
+                                        stackView.push("WebPelotonAuth.qml")
+                                        stackView.currentItem.goBack.connect(function() {
+                                            stackView.pop();
+                                        })
+                                        peloton_connect_clicked()
+                                    }
                                 });
                             }
                         }

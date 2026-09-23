@@ -163,6 +163,8 @@ devices/ziprotreadmill/ziprotreadmill.cpp \
 zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
 devices/kettlerusbbike/KettlerUSB.cpp \
+devices/freebeatbike/FreebeatUSB.cpp \
+devices/freebeatboombike/freebeatboombike.cpp \
 PathController.cpp \
 characteristics/characteristicnotifier2a53.cpp \
 characteristics/characteristicnotifier2a5b.cpp \
@@ -173,6 +175,7 @@ characteristics/characteristicwriteprocessor.cpp \
 characteristics/characteristicwriteprocessore005.cpp \
 devices/computrainerbike/computrainerbike.cpp \
 devices/kettlerusbbike/kettlerusbbike.cpp \
+devices/freebeatbike/freebeatbike.cpp \
 devices/fakeelliptical/fakeelliptical.cpp \
 devices/faketreadmill/faketreadmill.cpp \
 devices/lifefitnesstreadmill/lifefitnesstreadmill.cpp \
@@ -233,6 +236,7 @@ devices/fakebike/fakebike.cpp \
 filedownloader.cpp \
 devices/fitmetria_fanfit/fitmetria_fanfit.cpp \
 devices/fitplusbike/fitplusbike.cpp \
+devices/fitplusrower/fitplusrower.cpp \
 devices/fitshowtreadmill/fitshowtreadmill.cpp \
 fit-sdk/fit.cpp \
 fit-sdk/fit_accumulated_field.cpp \
@@ -265,6 +269,7 @@ gpx.cpp \
 devices/heartratebelt/heartratebelt.cpp \
 homefitnessbuddy.cpp \
 homeform.cpp \
+mywhooshlink.cpp \
 garminconnect.cpp \
 devices/horizongr7bike/horizongr7bike.cpp \
 devices/horizontreadmill/horizontreadmill.cpp \
@@ -300,6 +305,7 @@ simplecrypt.cpp \
 devices/skandikawiribike/skandikawiribike.cpp \
 devices/smartrowrower/smartrowrower.cpp \
 devices/smartspin2k/smartspin2k.cpp \
+devices/waterrowerusb/waterrowerusb.cpp \
 smtpclient/src/emailaddress.cpp \
 smtpclient/src/mimeattachment.cpp \
 smtpclient/src/mimecontentformatter.cpp \
@@ -328,12 +334,14 @@ templateinfosender.cpp \
 templateinfosenderbuilder.cpp \
 webtranslation.cpp \
 devices/stagesbike/stagesbike.cpp \
+devices/kettlerc12bike/kettlerc12bike.cpp \
 devices/toorxtreadmill/toorxtreadmill.cpp \
 devices/iconsolebike/iconsolebike.cpp \
 devices/treadmill.cpp \
 devices/truetreadmill/truetreadmill.cpp \
 devices/trxappgateusbbike/trxappgateusbbike.cpp \
 devices/ultrasportbike/ultrasportbike.cpp \
+devices/xcxbike/xcxbike.cpp \
 virtualdevices/virtualrower.cpp \
 devices/wahookickrsnapbike/wahookickrsnapbike.cpp \
 devices/yesoulbike/yesoulbike.cpp \
@@ -474,6 +482,7 @@ devices/ypooelliptical/ypooelliptical.h \
 devices/ziprotreadmill/ziprotreadmill.h \
 devices/computrainerbike/Computrainer.h \
 devices/kettlerusbbike/KettlerUSB.h \
+devices/freebeatbike/FreebeatUSB.h \
 PathController.h \
 characteristics/characteristicnotifier2a53.h \
 characteristics/characteristicnotifier2a5b.h \
@@ -483,6 +492,8 @@ characteristics/characteristicnotifier2ad9.h \
 characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
 devices/kettlerusbbike/kettlerusbbike.h \
+devices/freebeatbike/freebeatbike.h \
+devices/freebeatboombike/freebeatboombike.h \
 definitions.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \
@@ -558,6 +569,7 @@ devices/fakebike/fakebike.h \
 filedownloader.h \
 devices/fitmetria_fanfit/fitmetria_fanfit.h \
 devices/fitplusbike/fitplusbike.h \
+devices/fitplusrower/fitplusrower.h \
 devices/ftmsrower/ftmsrower.h \
 homefitnessbuddy.h \
 devices/horizongr7bike/horizongr7bike.h \
@@ -786,9 +798,11 @@ fit-sdk/fit_zones_target_mesg.hpp \
 fit-sdk/fit_zones_target_mesg_listener.hpp \
 devices/flywheelbike/flywheelbike.h \
 devices/ftmsbike/ftmsbike.h \
+devices/ftmsbike/horizon5r_defaults.h \
 devices/ftmsbike/speedracex_defaults.h \
 devices/heartratebelt/heartratebelt.h \
 homeform.h \
+mywhooshlink.h \
 garminconnect.h \
 devices/horizontreadmill/horizontreadmill.h \
 devices/inspirebike/inspirebike.h \
@@ -824,6 +838,7 @@ simplecrypt.h \
 devices/skandikawiribike/skandikawiribike.h \
 devices/smartrowrower/smartrowrower.h \
 devices/smartspin2k/smartspin2k.h \
+devices/waterrowerusb/waterrowerusb.h \
 smtpclient/src/SmtpMime \
 smtpclient/src/emailaddress.h \
 smtpclient/src/mimeattachment.h \
@@ -854,6 +869,7 @@ templateinfosender.h \
 templateinfosenderbuilder.h \
 webtranslation.h \
 devices/stagesbike/stagesbike.h \
+devices/kettlerc12bike/kettlerc12bike.h \
 devices/toorxtreadmill/toorxtreadmill.h \
 devices/iconsolebike/iconsolebike.h \
 gpx.h \
@@ -864,6 +880,7 @@ devices/truetreadmill/truetreadmill.h \
 devices/trxappgateusbbike/trxappgateusbbike.h \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h \
 devices/ultrasportbike/ultrasportbike.h \
+devices/xcxbike/xcxbike.h \
 virtualdevices/virtualbike.h \
 virtualdevices/virtualrower.h \
 virtualdevices/virtualtreadmill.h \
@@ -1066,4 +1083,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.21.5
+VERSION = 2.22.0

@@ -1982,6 +1982,55 @@ static double garminSpeedFromPaceSetting(const QString &settingKey, double defau
     return 3600.0 / paceSecPerKm;
 }
 
+// Applies Garmin's SECONDARY step target (e.g. a heart-rate or cadence target riding
+// alongside a primary power/cadence target) to the XML attribute string. Garmin exposes
+// primary and secondary targets independently on the same step (see issue #4805), so this
+// must run in addition to, not instead of, the primary targetType handling below.
+static void appendGarminSecondaryTarget(QString &attrs, const QJsonObject &step) {
+    QString secondaryTargetTypeKey;
+    if (step["secondaryTargetType"].isObject() && !step["secondaryTargetType"].isNull()) {
+        secondaryTargetTypeKey = step["secondaryTargetType"].toObject()["workoutTargetTypeKey"].toString();
+    }
+    if (secondaryTargetTypeKey.isEmpty()) {
+        return;
+    }
+
+    const bool hasSecondaryOne =
+        step.contains("secondaryTargetValueOne") && !step["secondaryTargetValueOne"].isNull();
+    const bool hasSecondaryTwo =
+        step.contains("secondaryTargetValueTwo") && !step["secondaryTargetValueTwo"].isNull();
+    const double secondaryOne = step["secondaryTargetValueOne"].toDouble();
+    const double secondaryTwo = step["secondaryTargetValueTwo"].toDouble();
+
+    if (secondaryTargetTypeKey == "heart.rate.zone") {
+        const int secondaryZoneNumber = step["secondaryZoneNumber"].toInt();
+        int hrMin = hasSecondaryOne ? static_cast<int>(secondaryOne) : 0;
+        int hrMax = hasSecondaryTwo ? static_cast<int>(secondaryTwo) : 0;
+        // Garmin may express the secondary HR target purely as a zone index, with no
+        // explicit bpm bounds (secondaryTargetValueOne/Two both null).
+        if (secondaryZoneNumber > 0) attrs += QString(" zonehr=\"%1\"").arg(secondaryZoneNumber);
+        if (hrMin > 0) attrs += QString(" hrmin=\"%1\"").arg(hrMin);
+        if (hrMax > 0) attrs += QString(" hrmax=\"%1\"").arg(hrMax);
+        const int loopTimeHr = trainrow().loopTimeHR;
+        attrs += QString(" looptimehr=\"%1\"").arg(loopTimeHr);
+    } else if (secondaryTargetTypeKey.contains("cadence", Qt::CaseInsensitive)) {
+        const double low = (hasSecondaryOne && secondaryOne > 0) ? secondaryOne : 0.0;
+        const double high = (hasSecondaryTwo && secondaryTwo > 0) ? secondaryTwo : 0.0;
+        if (low > 0.0 && high > 0.0) {
+            const int lowerCadence = qRound(qMin(low, high));
+            const int upperCadence = qRound(qMax(low, high));
+            attrs += QString(" lower_cadence=\"%1\"").arg(lowerCadence);
+            attrs += QString(" upper_cadence=\"%1\"").arg(upperCadence);
+            attrs += QString(" cadence=\"%1\"").arg(qRound((lowerCadence + upperCadence) / 2.0));
+        } else {
+            const double single = (low > 0.0) ? low : high;
+            if (single > 0.0) {
+                attrs += QString(" cadence=\"%1\"").arg(qRound(single));
+            }
+        }
+    }
+}
+
 static void appendGarminStep(QString &xml, const QJsonObject &step, int indent,
                              const QMap<int, double> &powerCurve) {
     QString pad(indent * 4, QChar(' '));
@@ -2077,6 +2126,21 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent,
         if (power > 0) {
             attrs += QString(" power=\"%1\"").arg(power);
         }
+    } else if (targetTypeKey.contains("cadence", Qt::CaseInsensitive)) {
+        const double low = (hasTargetOne && targetOne > 0) ? targetOne : 0.0;
+        const double high = (hasTargetTwo && targetTwo > 0) ? targetTwo : 0.0;
+        if (low > 0.0 && high > 0.0) {
+            const int lowerCadence = qRound(qMin(low, high));
+            const int upperCadence = qRound(qMax(low, high));
+            attrs += QString(" lower_cadence=\"%1\"").arg(lowerCadence);
+            attrs += QString(" upper_cadence=\"%1\"").arg(upperCadence);
+            attrs += QString(" cadence=\"%1\"").arg(qRound((lowerCadence + upperCadence) / 2.0));
+        } else {
+            const double single = (low > 0.0) ? low : high;
+            if (single > 0.0) {
+                attrs += QString(" cadence=\"%1\"").arg(qRound(single));
+            }
+        }
     } else if (targetTypeKey.contains("pace", Qt::CaseInsensitive) ||
                targetTypeKey.contains("speed", Qt::CaseInsensitive)) {
         const double first = (hasTargetOne && targetOne > 0.0) ? targetOne : 0.0;
@@ -2119,6 +2183,7 @@ static void appendGarminStep(QString &xml, const QJsonObject &step, int indent,
             attrs += QStringLiteral(" forcespeed=\"1\"");
         }
     }
+    appendGarminSecondaryTarget(attrs, step);
     if (waitForLap) {
         QString message = step["description"].toString().trimmed();
         if (message.isEmpty()) {
