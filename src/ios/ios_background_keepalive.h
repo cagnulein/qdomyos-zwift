@@ -4,6 +4,7 @@
 /**
  * @brief Keeps the app running while the screen is off / the app is in background.
  *
+ * This helper is opt-in through the iOS Background Keep Alive experimental setting.
  * The `bluetooth-central` background mode alone is not enough: iOS suspends the
  * process a few seconds after the screen goes off and only resumes it for short
  * windows when a BLE notification arrives.  While suspended every QTimer stops,
