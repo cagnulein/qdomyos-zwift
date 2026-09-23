@@ -4007,15 +4007,16 @@
     {
       "key": "ios_background_keepalive",
       "name": "iOS Background Keep Alive",
-      "description": "iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don't freeze. It uses a silent audio track mixed with your music, so nothing you're listening to is interrupted. Turn it off only if you don't need to train with the screen locked. Default is on.",
+      "description": "iOS only. Keeps QZ running when the screen is off or QZ is in background, so that the Bluetooth connections and the session timers don't freeze. It uses a silent audio track mixed with your music, so nothing you're listening to is interrupted. Enable it if you need to train with the screen locked or with QZ in background. Default is off.",
       "parent": "Experimental Features",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
       "visible": true,
-      "defaultValue": true,
-      "defaultExpression": "true",
-      "options": null
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
     },
     {
       "key": "applewatch_fakedevice",

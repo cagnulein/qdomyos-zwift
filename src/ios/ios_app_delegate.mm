@@ -71,13 +71,6 @@
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     qDebug() << "QZ iOS launch";
 
-    // when CoreBluetooth state restoration is in place iOS can relaunch us in
-    // background to deliver a BLE event: useful to know it while reading a log
-    NSArray *restoredCentrals = [launchOptions objectForKey:UIApplicationLaunchOptionsBluetoothCentralsKey];
-    if (restoredCentrals.count > 0) {
-        qDebug() << "QZ iOS launch: relaunched by CoreBluetooth for" << (int)restoredCentrals.count << "central(s)";
-    }
-
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
     [center requestAuthorizationWithOptions:UNAuthorizationOptionBadge
       completionHandler:^(BOOL granted, NSError *error){

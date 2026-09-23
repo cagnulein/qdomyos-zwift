@@ -3329,7 +3329,7 @@ class QZSettings {
     static constexpr int default_zwiftplay_gear_rb = 0; // Disabled
 
     static const QString ios_background_keepalive;
-    static constexpr bool default_ios_background_keepalive = true;
+    static constexpr bool default_ios_background_keepalive = false;
     static const QString renpho_bike_knob_gears;
     static constexpr bool default_renpho_bike_knob_gears = false;
 
