@@ -313,8 +313,10 @@ HomeForm {
         Screen.onPrimaryOrientationChanged: {
             if (OS_VERSION === "Android")
                 gridView.leftMargin = (Screen.width % cellWidth) / 2;
-            else
+            else if (OS_VERSION === "iOS")
                 updateGridLayout();
+            else
+                gridView.leftMargin = (parent.width % cellWidth) / 2;
         }
 
         Accessible.ignored: true
