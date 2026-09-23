@@ -1,0 +1,37 @@
+name: PR 4770 catalog count fix
+
+on:
+  push:
+    branches:
+      - codex/ios-background-central-homeform
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/ios-background-central-homeform
+      - name: Fix settings catalog count
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src/settings-catalog.json')
+          text = p.read_text(encoding='utf-8')
+          old = '"settingCount": 1003'
+          new = '"settingCount": 1004'
+          if text.count(old) != 1:
+              raise RuntimeError(f'Expected exactly one {old!r}, found {text.count(old)}')
+          p.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+          git rm .github/workflows/pr4770-fix-count.yml
+          git add src/settings-catalog.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Fix settings catalog count"
+          git push origin HEAD:codex/ios-background-central-homeform
