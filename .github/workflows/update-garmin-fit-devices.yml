@@ -16,6 +16,11 @@ jobs:
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Re-runs otherwise stay pinned to the original workflow run SHA.
+          # Resolving the branch name makes a re-run use its current HEAD while
+          # still preserving the branch selected for workflow_dispatch.
+          ref: ${{ github.ref_name }}
       - name: Report updater revision
         run: |
           echo "Repository revision: $(git rev-parse HEAD)"

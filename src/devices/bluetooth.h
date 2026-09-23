@@ -29,6 +29,7 @@
 #include "devices/bhfitnesselliptical/bhfitnesselliptical.h"
 #include "devices/bkoolbike/bkoolbike.h"
 #include "devices/bluetoothdevice.h"
+#include "devices/freebeatboombike/freebeatboombike.h"
 #include "devices/bowflext216treadmill/bowflext216treadmill.h"
 #include "devices/bowflextreadmill/bowflextreadmill.h"
 #include "devices/chronobike/chronobike.h"
@@ -64,6 +65,7 @@
 #include "devices/faketreadmill/faketreadmill.h"
 #include "devices/fitmetria_fanfit/fitmetria_fanfit.h"
 #include "devices/fitplusbike/fitplusbike.h"
+#include "devices/fitplusrower/fitplusrower.h"
 
 #include "devices/fitshowtreadmill/fitshowtreadmill.h"
 #include "devices/flywheelbike/flywheelbike.h"
@@ -203,6 +205,7 @@ class bluetooth : public QObject, public SignalHandler {
     crossrope *crossRope = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
     focustreadmill *focusTreadmill = nullptr;
+    freebeatboombike *freebeatBoomBike = nullptr;
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
     kettlerusbbike *kettlerUsbBike = nullptr;
@@ -282,6 +285,7 @@ class bluetooth : public QObject, public SignalHandler {
     schwinn170bike *schwinn170Bike = nullptr;
     chronobike *chronoBike = nullptr;
     fitplusbike *fitPlusBike = nullptr;
+    fitplusrower *fitPlusRower = nullptr;
     echelonrower *echelonRower = nullptr;
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;

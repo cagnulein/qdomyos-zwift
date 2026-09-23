@@ -76,6 +76,7 @@ DEFINE_DEVICE(FakeElliptical, "Fake Elliptical");
 DEFINE_DEVICE(FakeRower, "Fake Rower");
 DEFINE_DEVICE(FakeTreadmill, "Fake Treadmill");
 DEFINE_DEVICE(FitPlusBike_MRK_NoSettings, "FitPlus Bike (MRK, no settings)");
+DEFINE_DEVICE(FitPlusRower_MRK_R28, "FitPlus Rower (Merach R28)");
 DEFINE_DEVICE(FitPlusF5, "FitPlus F5");
 DEFINE_DEVICE(FitPlusVirtufitEtappeX100, "FitPlus VirtuFit Etappe 2.0i (X100)");
 DEFINE_DEVICE(FitShowBF, "FitShow BF");
