@@ -116,9 +116,10 @@ jobs:
           project = Path("build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj")
           project_lines = project.read_text(encoding="utf-8").splitlines(keepends=True)
           filtered = [line for line in project_lines if "ios_bluetooth_background.mm" not in line]
-          if len(project_lines) - len(filtered) != 3:
+          removed = len(project_lines) - len(filtered)
+          if removed != 4:
               raise RuntimeError(
-                  f"Expected 3 ios_bluetooth_background.mm project entries, removed {len(project_lines) - len(filtered)}"
+                  f"Expected 4 ios_bluetooth_background.mm project entries, removed {removed}"
               )
           project.write_text("".join(filtered), encoding="utf-8")
 
