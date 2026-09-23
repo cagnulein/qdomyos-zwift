@@ -49,6 +49,7 @@ class trxappgateusbtreadmill : public treadmill {
     static QByteArray flowFitnessStartPacket();
     static QByteArray flowFitnessStopPacket();
     static FlowFitnessMetrics flowFitnessMetricsFromPacket(const QByteArray &packet);
+    static bool isFlowFitnessDeviceName(const QString &deviceName);
 
   private:
     static double GetSpeedFromPacket(const QByteArray &packet);
