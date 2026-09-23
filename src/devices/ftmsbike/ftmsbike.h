@@ -73,6 +73,7 @@ class ftmsbike : public bike {
   public:
     ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     ~ftmsbike();
+    static bool parseFsIb50Resistance(const QByteArray &packet, resistance_t *resistance);
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
@@ -212,6 +213,7 @@ class ftmsbike : public bike {
     bool YPBM = false;
     bool SPORT01 = false;
     bool FS_YK = false;
+    bool FS_IB50 = false;
     bool S18 = false;
     bool ZIPRO_RAVE = false;
     bool SPEEDRACEX = false;

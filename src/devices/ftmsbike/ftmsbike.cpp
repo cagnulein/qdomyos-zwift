@@ -42,6 +42,12 @@ bool isSmartBikeThreeDigitName(const QString &name) {
 
     return true;
 }
+
+const QBluetoothUuid fsIb50Fff1Uuid(QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb"));
+
+quint8 byteAt(const QByteArray &packet, int offset) {
+    return static_cast<quint8>(packet.at(offset));
+}
 }
 
 ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
@@ -68,6 +74,16 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResis
 
     wheelCircumference::GearTable g;
     g.printTable();
+}
+
+bool ftmsbike::parseFsIb50Resistance(const QByteArray &packet, resistance_t *resistance) {
+    if (!resistance || packet.size() != 15 || byteAt(packet, 0) != 0x02 || byteAt(packet, 1) != 0x42 ||
+        byteAt(packet, 2) != 0x02 || byteAt(packet, 5) > 32) {
+        return false;
+    }
+
+    *resistance = static_cast<resistance_t>(byteAt(packet, 5));
+    return true;
 }
 
 void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -749,7 +765,22 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     lastPacket = newValue;
 
-    if (DU30_bike && characteristic.uuid() == QBluetoothUuid(QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb")) && newValue.length() >= 14) {
+    if (FS_IB50 && characteristic.uuid() == fsIb50Fff1Uuid) {
+        resistance_t fsIb50Resistance = 0;
+        if (!parseFsIb50Resistance(newValue, &fsIb50Resistance)) {
+            qDebug() << QStringLiteral("FS-IB50 unexpected FFF1 packet") << newValue.size() << newValue.toHex(' ');
+            return;
+        }
+        resistance_received = true;
+        native_resistance_received = true;
+        calculatedResistanceFallbackSince = QDateTime();
+        Resistance = fsIb50Resistance;
+        emit resistanceRead(Resistance.value());
+        emit debug(QStringLiteral("Current Resistance (FS-IB50 FFF1): ") + QString::number(Resistance.value()));
+        return;
+    }
+
+    if (DU30_bike && characteristic.uuid() == fsIb50Fff1Uuid && newValue.length() >= 14) {
         resistance_received = true;
         native_resistance_received = true;
         calculatedResistanceFallbackSince = QDateTime();
@@ -968,7 +999,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 if(BIKE_)
                     d = d / 10.0;
                 // for this bike, i will use the resistance that I set directly because the bike sends a different ratio.
-                if(!SL010 && !TITAN_7000 && !SPORT01 && !TOPUTURE_TEB5 && !FS_YK && !isManualResistanceBike()) {
+                if(!SL010 && !TITAN_7000 && !SPORT01 && !TOPUTURE_TEB5 && !FS_YK && !FS_IB50 && !isManualResistanceBike()) {
                     Resistance = d;
                     native_resistance_received = true;
                     calculatedResistanceFallbackSince = QDateTime();
@@ -1011,7 +1042,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     m_pelotonResistance = res;
                 }
 
-                if (!resistance_received && !DU30_bike && !SL010 && !FS_YK && !isManualResistanceBike() &&
+                if (!resistance_received && !DU30_bike && !SL010 && !FS_YK && !FS_IB50 && !isManualResistanceBike() &&
                     shouldUseCalculatedResistanceFallback(now)) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
@@ -1314,7 +1345,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
                 qDebug() << QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value());
 
-                if (!FS_YK && !isManualResistanceBike()) {
+                if (!FS_YK && !FS_IB50 && !isManualResistanceBike()) {
                     if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
                             .toBool())
                         Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
@@ -1469,7 +1500,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (!ensureBytesAvailable(2, QStringLiteral("resistance")))
                 return;
 
-            if(!TITAN_7000 && !FS_YK && !isManualResistanceBike()) {
+            if(!TITAN_7000 && !FS_YK && !FS_IB50 && !isManualResistanceBike()) {
                 Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                        (uint16_t)((uint8_t)newValue.at(index))));
                 emit resistanceRead(Resistance.value());
@@ -1514,7 +1545,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     m_pelotonResistance = res;
                 }
 
-                if (!FS_YK && !isManualResistanceBike() && shouldUseCalculatedResistanceFallback(now)) {
+                if (!FS_YK && !FS_IB50 && !isManualResistanceBike() && shouldUseCalculatedResistanceFallback(now)) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
                     emit debug(QStringLiteral("Current Resistance (calculated fallback): ") +
@@ -2269,6 +2300,10 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
             ergModeSupported = false; // this bike doesn't have ERG mode natively
             max_resistance = 24;
+        } else if (device.name().compare(QStringLiteral("FS-IB50"), Qt::CaseInsensitive) == 0) {
+            qDebug() << QStringLiteral("FS-IB50 found");
+            FS_IB50 = true;
+            max_resistance = 32;
         } else if(device.name().compare(QStringLiteral("S18"), Qt::CaseInsensitive) == 0) {
             qDebug() << QStringLiteral("S18 found");
             S18 = true;
