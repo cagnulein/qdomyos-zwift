@@ -31,6 +31,26 @@ QByteArray trxappgateusbtreadmill::flowFitnessStopPacket() {
     return QByteArray::fromHex("f0a52ed3049a");
 }
 
+bool trxappgateusbtreadmill::isFlowFitnessDeviceName(const QString &deviceName) {
+    const QString prefix = QStringLiteral("TREADMILL");
+    const QString upperName = deviceName.toUpper();
+    if (!upperName.startsWith(prefix)) {
+        return false;
+    }
+
+    const QString suffix = upperName.mid(prefix.length());
+    if (suffix.isEmpty()) {
+        return false;
+    }
+
+    for (const QChar c : suffix) {
+        if (!c.isDigit()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                                  bool wait_for_response) {
     QEventLoop loop;
@@ -252,12 +272,35 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 
     qDebug() << "actual lastPacket" << lastPacket.toHex(' ');
 
-    // Focus Fitness Senator 54 iplus #1790
-    if((newValue.length() < 18 && lastPacket.length() > 2 && (((uint8_t)lastPacket.at(0)) != 0xf0 || ((uint8_t)lastPacket.at(1)) != 0xb2)) || lastPacket.length() > 19) {
-        if(lastPacket.length() == 3 && ((uint8_t)lastPacket.at(1)) == 0xf0 && ((uint8_t)lastPacket.at(2)) == 0xb2) {
+    const bool isFlowFitness = treadmill_type == TYPE::FLOW_FITNESS;
+    const auto isTelemetryFrameType = [isFlowFitness](uint8_t frameType) {
+        return frameType == 0xb2 || (isFlowFitness && frameType == 0xb0);
+    };
+
+    // Flow Fitness emits this five-byte ACK between commands. Do not keep it in
+    // the reassembly buffer or it would be prepended to the next telemetry frame.
+    if (isFlowFitness && lastPacket.length() == 5 &&
+        static_cast<uint8_t>(lastPacket.at(0)) == 0xf0 &&
+        static_cast<uint8_t>(lastPacket.at(1)) == 0xb0 &&
+        static_cast<uint8_t>(lastPacket.at(2)) == 0x2e &&
+        static_cast<uint8_t>(lastPacket.at(3)) == 0xd3 &&
+        static_cast<uint8_t>(lastPacket.at(4)) == 0xa1) {
+        lastPacket.clear();
+        return;
+    }
+
+    // Focus Fitness Senator 54 iplus #1790. Flow Fitness can also send complete
+    // telemetry with frame type b0, so allow both b0 and b2 to be reassembled.
+    const bool fragmentableTelemetry =
+        lastPacket.length() > 1 && static_cast<uint8_t>(lastPacket.at(0)) == 0xf0 &&
+        isTelemetryFrameType(static_cast<uint8_t>(lastPacket.at(1)));
+    if ((newValue.length() < 18 && lastPacket.length() > 2 && !fragmentableTelemetry) || lastPacket.length() > 19) {
+        if (lastPacket.length() == 3 && static_cast<uint8_t>(lastPacket.at(1)) == 0xf0 &&
+            isTelemetryFrameType(static_cast<uint8_t>(lastPacket.at(2)))) {
+            const char frameType = lastPacket.at(2);
             lastPacket.clear();
-            lastPacket.append(0xf0);
-            lastPacket.append(0xb2);
+            lastPacket.append(static_cast<char>(0xf0));
+            lastPacket.append(frameType);
             return;
         }
         lastPacket.clear();
@@ -283,7 +326,8 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
             readyToStart = true;
             requestStart = 1;
         }
-    } else if (treadmill_type != TYPE::REEBOK && treadmill_type != TYPE::REEBOK_2 && treadmill_type != TYPE::DKN && treadmill_type != TYPE::DKN_2) {
+    } else if (treadmill_type != TYPE::REEBOK && treadmill_type != TYPE::REEBOK_2 && treadmill_type != TYPE::DKN &&
+               treadmill_type != TYPE::DKN_2 && treadmill_type != TYPE::FLOW_FITNESS) {
         if (lastPacket.at(16) == 0x04 && lastPacket.at(17) == 0x03 && readyToStart == false) {
             readyToStart = true;
             requestStart = 1;
@@ -361,11 +405,10 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 
 trxappgateusbtreadmill::FlowFitnessMetrics trxappgateusbtreadmill::flowFitnessMetricsFromPacket(const QByteArray &packet) {
     FlowFitnessMetrics metrics;
-    // The complete Flow Fitness telemetry record is 19 bytes. The second byte
-    // is not stable across captures (b0 was used by the original fixture,
-    // while the Android runtime sends b2); short b0 ACKs are excluded by the
-    // length check above.
+    // The complete Flow Fitness telemetry record is 19 bytes. Captures use b0
+    // and b2 telemetry frame types; other response types are command replies.
     if (packet.size() != 19 || static_cast<uint8_t>(packet.at(0)) != 0xf0 ||
+        (static_cast<uint8_t>(packet.at(1)) != 0xb0 && static_cast<uint8_t>(packet.at(1)) != 0xb2) ||
         static_cast<uint8_t>(packet.at(2)) != 0x2e || static_cast<uint8_t>(packet.at(3)) != 0xd3) {
         return metrics;
     }
@@ -827,8 +870,9 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
 
     bool dkn_endurun_treadmill =
         settings.value(QZSettings::dkn_endurun_treadmill, QZSettings::default_dkn_endurun_treadmill).toBool();
-    const bool flowFitnessDevice =
+    const bool flowFitnessEnabled =
         settings.value(QZSettings::flow_fitness_runner_dtm2000i, QZSettings::default_flow_fitness_runner_dtm2000i).toBool();
+    const bool flowFitnessDevice = flowFitnessEnabled && isFlowFitnessDeviceName(device.name());
 
     if (flowFitnessDevice ||
         device.name().startsWith(QStringLiteral("TOORX")) || device.name().startsWith(QStringLiteral("V-RUN")) ||
