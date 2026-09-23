@@ -1553,7 +1553,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULT TREADMILL ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("WDWAY")) && b.name().length() == 8) || // WdWay179
                         (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) &&
-                         !flow_fitness_runner_dtm2000i &&
+                         !(flow_fitness_runner_dtm2000i &&
+                         trxappgateusbtreadmill::isFlowFitnessDeviceName(b.name())) &&
                          !gem_module_inclination && !deviceHasService(b, QBluetoothUuid((quint16)0x1814)) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) &&
                        !trueTreadmill && ftms_treadmill.contains(QZSettings::default_ftms_treadmill) && !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2839,7 +2840,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (upperDeviceName.startsWith(QStringLiteral("ADIDAS "))) ||
                         (upperDeviceName.startsWith(QStringLiteral("REEBOK"))) ||
                         (flow_fitness_runner_dtm2000i &&
-                         upperDeviceName.startsWith(QStringLiteral("TREADMILL")))) &&
+                         trxappgateusbtreadmill::isFlowFitnessDeviceName(deviceName))) &&
                        !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) &&
                            ftms_bike.contains(QZSettings::default_ftms_bike) &&
                        filter) {
