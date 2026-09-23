@@ -19,11 +19,16 @@ class MainController: WKInterfaceController {
     @IBOutlet weak var startButton: WKInterfaceButton!
     @IBOutlet weak var cmbSports: WKInterfacePicker!
     static var start: Bool! = false
+    private static weak var activeController: MainController?
+    private static var autoSyncActive = false
+    private static var syncedWorkoutState = 3
+    private var syncTimer: Timer?
     let pedometer = CMPedometer()
     var sport: Int = 0
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
+        MainController.activeController = self
         let sports: [WKPickerItem] = [WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem()]
         sports[0].title = "Bike"
         sports[1].title = "Run"
@@ -33,9 +38,18 @@ class MainController: WKInterfaceController {
         cmbSports.setItems(sports)
         sport = UserDefaults.standard.value(forKey: "sport") as? Int ?? 0
         cmbSports.setSelectedItemIndex(sport)
+
+        WatchKitConnection.shared.delegate = self
+        WatchKitConnection.shared.startSession()
+        syncTimer?.invalidate()
+        syncTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(syncWithQZ), userInfo: nil, repeats: true)
         
         // Configure interface objects here.
         print("AWAKE")
+    }
+
+    @objc private func syncWithQZ() {
+        WatchKitConnection.shared.sendMessage(message: ["ping": "0" as AnyObject])
     }
     
     @IBAction func changeSport(_ value: Int) {
@@ -47,6 +61,9 @@ class MainController: WKInterfaceController {
     override func willActivate() {
         // This method is called when watch view controller is about to be visible to user
         super.willActivate()
+        MainController.activeController = self
+        WatchKitConnection.shared.delegate = self
+        WatchKitConnection.shared.startSession()
         print("WILL ACTIVE")
         WorkoutTracking.shared.fetchStepCounts()
         if CMPedometer.isStepCountingAvailable() {
@@ -65,6 +82,90 @@ class MainController: WKInterfaceController {
         super.didDeactivate()
         print("DID DEACTIVE")
     }
+
+    private func beginWorkout(_ selectedSport: Int) {
+        guard !MainController.start else { return }
+        sport = selectedSport
+        cmbSports.setSelectedItemIndex(selectedSport)
+        MainController.start = true
+        startButton.setTitle("Stop")
+        cmbSports.setEnabled(false)
+        cmbSports.setHidden(true)
+        WorkoutTracking.authorizeHealthKit()
+        WorkoutTracking.shared.setSport(selectedSport)
+        WorkoutTracking.shared.delegate = self
+        WatchKitConnection.shared.delegate = self
+        WatchKitConnection.shared.startSession()
+        WorkoutTracking.shared.startWorkOut()
+    }
+
+    private func endWorkout() {
+        guard MainController.start else { return }
+        MainController.start = false
+        startButton.setTitle("Start")
+        cmbSports.setEnabled(true)
+        cmbSports.setHidden(false)
+        WorkoutTracking.shared.stopWorkOut()
+    }
+
+    private static func watchSport(for deviceType: Int) -> Int {
+        switch deviceType {
+        case 1: // treadmill -> running
+            return 1
+        case 2: // bike
+            return 0
+        case 3: // rower
+            return 4
+        case 4: // elliptical
+            return 3
+        default:
+            return 0
+        }
+    }
+
+    static func syncWorkoutState(_ workoutState: Int, deviceType: Int) {
+        DispatchQueue.main.async {
+            guard let controller = MainController.activeController else { return }
+
+            switch workoutState {
+            case 0: // STARTED
+                MainController.autoSyncActive = true
+                if !MainController.start && WatchKitConnection.speed > 0 {
+                    controller.beginWorkout(MainController.watchSport(for: deviceType))
+                }
+                if MainController.start {
+                    MainController.syncedWorkoutState = 0
+                }
+
+            case 1: // PAUSED
+                MainController.autoSyncActive = true
+                if MainController.start && MainController.syncedWorkoutState != 1 {
+                    WorkoutTracking.shared.workoutSession?.pause()
+                }
+                MainController.syncedWorkoutState = 1
+
+            case 2: // RESUMED
+                MainController.autoSyncActive = true
+                if !MainController.start && WatchKitConnection.speed > 0 {
+                    controller.beginWorkout(MainController.watchSport(for: deviceType))
+                }
+                if MainController.start && MainController.syncedWorkoutState != 2 {
+                    WorkoutTracking.shared.workoutSession?.resume()
+                }
+                MainController.syncedWorkoutState = 2
+
+            case 3: // STOPPED
+                if MainController.autoSyncActive {
+                    controller.endWorkout()
+                    MainController.autoSyncActive = false
+                }
+                MainController.syncedWorkoutState = 3
+
+            default:
+                break
+            }
+        }
+    }
 }
 
 extension MainController {
@@ -75,27 +176,13 @@ extension MainController {
             let workoutName = ["Bike", "Run", "Walk", "Elliptical", "Rowing"][selectedSport]
             let startAction = WKAlertAction(title: "Start", style: .default) { [weak self] in
                 guard let self = self else { return }
-                MainController.start = true
-                self.startButton.setTitle("Stop")
-                self.cmbSports.setEnabled(false)
-                self.cmbSports.setHidden(true)
-                WorkoutTracking.authorizeHealthKit()
-                WorkoutTracking.shared.setSport(selectedSport)
-                WorkoutTracking.shared.startWorkOut()
-                WorkoutTracking.shared.delegate = self
-
-                WatchKitConnection.shared.delegate = self
-                WatchKitConnection.shared.startSession()
+                self.beginWorkout(selectedSport)
             }
             let cancelAction = WKAlertAction(title: "Cancel", style: .cancel) {}
             presentAlert(withTitle: "Start Workout", message: "Start \(workoutName) workout?", preferredStyle: .alert, actions: [cancelAction, startAction])
         }
         else {
-            MainController.start = false
-            startButton.setTitle("Start")
-            cmbSports.setEnabled(true)
-            cmbSports.setHidden(false)
-            WorkoutTracking.shared.stopWorkOut()
+            endWorkout()
         }
     }
 }

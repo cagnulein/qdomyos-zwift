@@ -32,6 +32,8 @@ class WatchKitConnection: NSObject {
     static var cadence = 0.0
     static var steps = 0
     static var elevationGain = 0.0
+    static var workoutState = 3
+    static var workoutType = 0
     
     private override init() {
         super.init()
@@ -163,6 +165,8 @@ extension WatchKitConnection: WCSessionDelegate {
         replyValues["speed"] = WatchKitConnection.speed
         replyValues["steps"] = Double(WatchKitConnection.steps)
         replyValues["elevationGain"] = WatchKitConnection.elevationGain
+        replyValues["workout_state"] = Double(WatchKitConnection.workoutState)
+        replyValues["workout_type"] = Double(WatchKitConnection.workoutType)
 
         SwiftDebug.qtDebug(replyValues.debugDescription)
 

@@ -144,6 +144,30 @@ var pedometer = CMPedometer()
         WatchKitConnection.elevationGain = elevationGain;
     }
 
+    @objc public func setWorkoutType(workoutType: Int) -> Void
+    {
+        WatchKitConnection.workoutType = workoutType
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        Server.server?.send(createString(sender: sender))
+    }
+
+    @objc public func setWorkoutState(workoutState: Int) -> Void
+    {
+        WatchKitConnection.workoutState = workoutState
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        Server.server?.send(createString(sender: sender))
+    }
+
     @objc public func setHeartRate(heartRate: Int) -> Void
     {
         if #available(iOS 17.0, *) {
@@ -152,7 +176,7 @@ var pedometer = CMPedometer()
     }
     
     func createString(sender: String) -> String {
-        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#TOTALKCAL=\(WatchKitConnection.totalKcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO=\(WatchKitConnection.distance)#";
+        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#TOTALKCAL=\(WatchKitConnection.totalKcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO=\(WatchKitConnection.distance)#TYP=\(WatchKitConnection.workoutType)#STA=\(WatchKitConnection.workoutState)#";
     }
     
     @objc func updateHeartRate() {
