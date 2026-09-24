@@ -38,6 +38,7 @@ SOURCES += \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
+        Devices/TestCareFitnessParser.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests
