@@ -16,6 +16,7 @@ SOURCES += \
         Devices/bluetoothdevicetestsuite.cpp \
         Devices/bluetoothsignalreceiver.cpp \
         Devices/devicediscoveryinfo.cpp \
+        Devices/dirconloopbacktestsuite.cpp \
         Devices/deviceindex.cpp \
         Devices/devicenamepatterngroup.cpp \
         Devices/devicetestdataindex.cpp \
@@ -63,6 +64,7 @@ HEADERS += \
     Devices/bluetoothdevicetestsuite.h \
     Devices/bluetoothsignalreceiver.h \
     Devices/devicediscoveryinfo.h \
+    Devices/dirconloopbacktestsuite.h \
     Devices/deviceindex.h \
     Devices/devicenamepatterngroup.h \
     Devices/devicetestdataindex.h \
