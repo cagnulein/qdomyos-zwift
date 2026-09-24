@@ -86,6 +86,27 @@ bool ftmsbike::parseFsIb50Resistance(const QByteArray &packet, resistance_t *res
     return true;
 }
 
+bool ftmsbike::fsIb50ResistanceGearDelta(resistance_t previousResistance, resistance_t currentResistance,
+                                         qint64 msecsSinceInclinationCommand, resistance_t *delta) {
+    if (!delta) {
+        return false;
+    }
+
+    *delta = 0;
+    if (previousResistance < 0 || previousResistance > 32 || currentResistance < 0 || currentResistance > 32 ||
+        previousResistance == currentResistance) {
+        return false;
+    }
+
+    constexpr qint64 inclinationHysteresisMs = 2000;
+    if (msecsSinceInclinationCommand >= 0 && msecsSinceInclinationCommand < inclinationHysteresisMs) {
+        return false;
+    }
+
+    *delta = currentResistance - previousResistance;
+    return true;
+}
+
 void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
     QSettings settings;
@@ -412,6 +433,10 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 }
 
 void ftmsbike::forceInclination(double requestInclination) {
+    if (FS_IB50) {
+        lastFsIb50InclinationCommand = QDateTime::currentDateTime();
+    }
+
     // FTMS SET_INDOOR_BIKE_SIMULATION_PARAMS command
     // Byte 0: OpCode
     // Byte 1-2: Wind Speed (sint16, 0.001 m/s)
@@ -771,6 +796,17 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             qDebug() << QStringLiteral("FS-IB50 unexpected FFF1 packet") << newValue.size() << newValue.toHex(' ');
             return;
         }
+
+        const qint64 msecsSinceInclinationCommand =
+            lastFsIb50InclinationCommand.isValid() ? lastFsIb50InclinationCommand.msecsTo(now) : -1;
+        resistance_t gearDelta = 0;
+        if (fsIb50ResistanceGearDelta(lastFsIb50Resistance, fsIb50Resistance, msecsSinceInclinationCommand, &gearDelta)) {
+            qDebug() << QStringLiteral("FS-IB50 physical gear change") << lastFsIb50Resistance << fsIb50Resistance
+                     << "delta" << gearDelta << "since inclination" << msecsSinceInclinationCommand;
+            lastRawRequestedResistanceValue = -1;
+            setGears(gears() + gearDelta);
+        }
+        lastFsIb50Resistance = fsIb50Resistance;
         resistance_received = true;
         native_resistance_received = true;
         calculatedResistanceFallbackSince = QDateTime();
@@ -2024,6 +2060,9 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             qDebug() << "applying gears mod" << gears() << gearsZwiftRatio() << power;
         }*/
 
+        if (FS_IB50 && !b.isEmpty() && b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+            lastFsIb50InclinationCommand = QDateTime::currentDateTime();
+        }
         writeCharacteristic((uint8_t*)b.data(), b.length(), "injectWrite ", false, true);
     }
 }
@@ -2115,6 +2154,8 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        lastFsIb50Resistance = -1;
+        lastFsIb50InclinationCommand = QDateTime();
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
             max_resistance = 16;

@@ -34,3 +34,27 @@ TEST(FtmsBikeParserTest, RejectsNonFsIb50Packets) {
     EXPECT_FALSE(ftmsbike::parseFsIb50Resistance(
         QByteArray::fromHex("02 42 02 47 07 1e 34 00 00 00 00 00 00 00 00"), nullptr));
 }
+
+TEST(FtmsBikeParserTest, IgnoresResistanceChangesDuringInclinationHysteresis) {
+    resistance_t delta = 0;
+
+    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(14, 24, 1999, &delta));
+    EXPECT_EQ(0, delta);
+}
+
+TEST(FtmsBikeParserTest, ConvertsResistanceChangesOutsideInclinationHysteresisToGearDelta) {
+    resistance_t delta = 0;
+
+    EXPECT_TRUE(ftmsbike::fsIb50ResistanceGearDelta(14, 24, 2000, &delta));
+    EXPECT_EQ(10, delta);
+    EXPECT_TRUE(ftmsbike::fsIb50ResistanceGearDelta(24, 14, -1, &delta));
+    EXPECT_EQ(-10, delta);
+}
+
+TEST(FtmsBikeParserTest, DoesNotCreateGearDeltaFromAnUninitializedOrUnchangedBaseline) {
+    resistance_t delta = 0;
+
+    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(-1, 14, -1, &delta));
+    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(14, 14, -1, &delta));
+    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(14, 24, 2000, nullptr));
+}
