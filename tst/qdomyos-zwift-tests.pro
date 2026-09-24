@@ -31,6 +31,7 @@ SOURCES += \
         Devices/TestSchwinn411510EParser.cpp \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
+        Devices/TestNautilusTreadmillParser.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
         Devices/TestKeepBikeParser.cpp \
@@ -68,6 +69,7 @@ HEADERS += \
     Devices/devicetestdataindex.h \
     Devices/TestSchwinn411510EParser.h \
     Devices/TestApexBikeParser.h \
+    Devices/TestNautilusTreadmillParser.h \
     Devices/TestTrxAppGateUsBellipticalParser.h \
     Devices/TestTrxAppGateUsTreadmillParser.h \
     Devices/TestKeepBikeParser.h \

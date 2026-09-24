@@ -906,7 +906,9 @@ void DeviceTestDataIndex::Initialize() {
     // Nautilus Treadmill
     RegisterNewDeviceTestData(DeviceIndex::NautilusTreadmill)
         ->expectDevice<nautilustreadmill>()
-        ->acceptDeviceName("NAUTILUS T", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceName("NAUTILUS T", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("SCHWINN T", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("SCHWINN 570T", DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Norditrack Elliptical
