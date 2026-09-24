@@ -830,8 +830,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     }
                 }
             }
+            bool earlyDeviceHandled = false;
             if (deviceName.startsWith(QStringLiteral("M3")) && !m3iBike && filter) {
-
+                earlyDeviceHandled = true;
                 if (m3ibike::isCorrectUnit(b)) {
                     this->setLastBluetoothDevice(b);
                     this->stopDiscovery();
@@ -847,7 +848,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         emit searchingStop();
                     this->signalBluetoothDeviceConnected(m3iBike);
                 }
-            } else if (fake_bike && !fakeBike) {
+            } else if (upperDeviceName.startsWith(QStringLiteral("FEAQ51A_")) && !freebeatBoomBike && filter) {
+                earlyDeviceHandled = true;
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                freebeatBoomBike =
+                    new freebeatboombike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(freebeatBoomBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(freebeatBoomBike, &freebeatboombike::debug, this, &bluetooth::debug);
+                freebeatBoomBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(freebeatBoomBike);
+            }
+            if (earlyDeviceHandled) {
+                continue;
+            }
+            if (fake_bike && !fakeBike) {
                 this->stopDiscovery();
                 fakeBike = new fakebike(noWriteResistance, noHeartService, false);
                 emit deviceConnected(b);
@@ -2427,17 +2444,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(bkoolBike, &bkoolbike::debug, this, &bluetooth::debug);
                 bkoolBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(bkoolBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("FEAQ51A_")) && !freebeatBoomBike && filter) {
-                this->setLastBluetoothDevice(b);
-                this->stopDiscovery();
-                freebeatBoomBike =
-                    new freebeatboombike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                emit deviceConnected(b);
-                connect(freebeatBoomBike, &bluetoothdevice::connectedAndDiscovered, this,
-                        &bluetooth::connectedAndDiscovered);
-                connect(freebeatBoomBike, &freebeatboombike::debug, this, &bluetooth::debug);
-                freebeatBoomBike->deviceDiscovered(b);
-                this->signalBluetoothDeviceConnected(freebeatBoomBike);
             } else if (b.name().toUpper().startsWith(QStringLiteral("MEPANEL")) && !mepanelBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
