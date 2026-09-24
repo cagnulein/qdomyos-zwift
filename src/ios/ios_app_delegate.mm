@@ -28,10 +28,90 @@ static BOOL qz_hingeIsDuo = NO;
 
 static BOOL qz_layoutMetricsLogged = NO;
 
+static BOOL qz_isIOSAppOnMac(void)
+{
+    if (@available(iOS 14.0, *))
+        return NSProcessInfo.processInfo.isiOSAppOnMac;
+
+    return NO;
+}
+
+// Qt 5.15's iOS platform plugin still obtains the initial screen geometry
+// through UIScreen.applicationFrame. On iOS 27 this accessor goes through the
+// removed focus-system compatibility path and aborts Designed for iPad apps
+// before QApplication can create the QML scene. Keep the workaround here,
+// alongside the other application-level UIKit overlays, so the Qt SDK remains
+// unchanged.
+static CGRect (*qz_originalUIScreenApplicationFrame)(id, SEL) = nullptr;
+static CGRect (*qz_originalQtApplicationFrame)(id, SEL) = nullptr;
+
+static CGRect qz_applicationFrameOverlay(UIScreen *screen, SEL selector)
+{
+    if (@available(iOS 27.0, *) && qz_isIOSAppOnMac())
+        return screen.bounds;
+
+    return qz_originalUIScreenApplicationFrame
+        ? qz_originalUIScreenApplicationFrame(screen, selector)
+        : screen.bounds;
+}
+
+static CGRect qz_qtApplicationFrameOverlay(UIScreen *screen, SEL selector)
+{
+    if (@available(iOS 27.0, *) && qz_isIOSAppOnMac())
+        return screen.bounds;
+
+    return qz_originalQtApplicationFrame
+        ? qz_originalQtApplicationFrame(screen, selector)
+        : screen.bounds;
+}
+
+static void qz_installUIScreenApplicationFrameOverlay(void)
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Class screenClass = [UIScreen class];
+
+        Method applicationFrame = class_getInstanceMethod(screenClass, @selector(applicationFrame));
+        if (applicationFrame) {
+            qz_originalUIScreenApplicationFrame =
+                reinterpret_cast<CGRect (*)(id, SEL)>(method_getImplementation(applicationFrame));
+            method_setImplementation(applicationFrame, reinterpret_cast<IMP>(qz_applicationFrameOverlay));
+        }
+
+        // Qt adds this compatibility selector in its iOS platform plugin.
+        // Patch it directly when it is already present; the public selector
+        // above is also patched because qt_applicationFrame delegates to it.
+        SEL qtSelector = NSSelectorFromString(@"qt_applicationFrame");
+        Method qtApplicationFrame = class_getInstanceMethod(screenClass, qtSelector);
+        if (qtApplicationFrame) {
+            qz_originalQtApplicationFrame =
+                reinterpret_cast<CGRect (*)(id, SEL)>(method_getImplementation(qtApplicationFrame));
+            method_setImplementation(qtApplicationFrame, reinterpret_cast<IMP>(qz_qtApplicationFrameOverlay));
+        }
+    });
+}
+
+@interface QZUIScreenApplicationFrameOverlay : NSObject
+@end
+
+@implementation QZUIScreenApplicationFrameOverlay
+
++ (void)load
+{
+    // +load runs before Qt creates QIOSIntegration/QIOSScreen.
+    qz_installUIScreenApplicationFrameOverlay();
+}
+
+@end
+
 static void qz_updateIOSLayoutMetrics(UIWindow *window);
 
 static void qz_registerIOSLayout(void)
 {
+    // Keep this second installation point for builds where Qt's private
+    // qt_applicationFrame category is loaded after Objective-C +load.
+    qz_installUIScreenApplicationFrameOverlay();
+
     // Qt 5.15 uses the threaded scene-graph loop on iOS.  With the iOS 27
     // UIKit scene lifecycle, resizing the CAEAGLLayer during scene/layout
     // transitions can then happen from QSGRenderThread and leave QML black.
