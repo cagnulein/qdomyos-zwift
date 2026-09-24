@@ -8196,7 +8196,6 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Submit")
                                     Layout.fillWidth: true
                                     highlighted: true
-                                    enabled: mfaCodeTextField.text.length > 0
                                     onClicked: {
                                         rootItem.garmin_submit_mfa_code(mfaCodeTextField.text);
                                         mfaCodeTextField.text = "";
