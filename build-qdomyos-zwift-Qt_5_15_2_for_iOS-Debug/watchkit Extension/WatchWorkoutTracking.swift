@@ -15,11 +15,12 @@ protocol WorkoutTrackingDelegate: class {
     func didReceiveHealthKitStepCadence(_ stepCadence: Double)
     func didReceiveHealthKitDistanceCycling(_ distanceCycling: Double)
     func didReceiveHealthKitActiveEnergyBurned(_ activeEnergyBurned: Double)
+    func didSaveHealthKitWorkout(_ success: Bool, error: String?)
 }
 
 protocol WorkoutTrackingProtocol {
-    static func authorizeHealthKit()
-    func startWorkOut()
+    static func authorizeHealthKit(completion: @escaping (Bool) -> Void)
+    func startWorkOut() -> Bool
     func stopWorkOut()
     func fetchStepCounts()
 }
@@ -120,7 +121,7 @@ extension WorkoutTracking {
         self.sport = sport
     }
     
-    private func configWorkout() {
+    private func configWorkout() -> Bool {
         var activityType = HKWorkoutActivityType.cycling
         if self.sport == 1 {
             activityType = HKWorkoutActivityType.running
@@ -139,19 +140,30 @@ extension WorkoutTracking {
             workoutSession = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
             workoutBuilder = workoutSession?.associatedWorkoutBuilder()
         } catch {
-            return
+            print("WatchWorkoutTracking: unable to create workout session: \(error.localizedDescription)")
+            return false
+        }
+
+        guard let workoutSession = workoutSession, let workoutBuilder = workoutBuilder else {
+            return false
         }
         
         workoutSession.delegate = self
         workoutBuilder.delegate = self
         
         workoutBuilder.dataSource = HKLiveWorkoutDataSource(healthStore: healthStore, workoutConfiguration: configuration)
+        return true
     }
 }
 
 extension WorkoutTracking: WorkoutTrackingProtocol {
-    static func authorizeHealthKit() {
-        if HKHealthStore.isHealthDataAvailable() {
+    static func authorizeHealthKit(completion: @escaping (Bool) -> Void) {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            print("HealthKit not available")
+            completion(false)
+            return
+        }
+
             let infoToRead = Set([
                 HKSampleType.quantityType(forIdentifier: .stepCount)!,
                 HKSampleType.quantityType(forIdentifier: .heartRate)!,
@@ -224,13 +236,18 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 } else if let error = error {
                     print(error)
                 }
+                completion(success && error == nil)
             }
-        } else {
-            print("HealthKit not avaiable")
-        }
     }
     
-    func startWorkOut() {
+    func startWorkOut() -> Bool {
+        guard HKHealthStore.isHealthDataAvailable(), configWorkout(),
+              let workoutSession = workoutSession,
+              let workoutBuilder = workoutBuilder else {
+            print("WatchWorkoutTracking: HealthKit is not ready to start a workout")
+            return false
+        }
+
         WorkoutTracking.lastDateMetric = Date()
         // Reset flights climbed and elevation gain for new workout
         WorkoutTracking.flightsClimbed = 0
@@ -238,9 +255,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.totalKcal = 0
         WatchKitConnection.totalKcal = 0
         print("Start workout")
-        configWorkout()
-        workoutSession.startActivity(with: Date())
-        workoutBuilder.beginCollection(withStart: Date()) { (success, error) in
+        let startDate = Date()
+        workoutSession.startActivity(with: startDate)
+        workoutBuilder.beginCollection(withStart: startDate) { (success, error) in
             print(success)
             if let error = error {
                 print(error)
@@ -250,6 +267,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 self.workoutBuilder.dataSource?.enableCollection(for: HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)!, predicate: nil)
             }
         }
+        return true
     }
     
     func stopWorkOut() {
@@ -335,6 +353,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         print(error)
                     }
                     self.workoutBuilder.finishWorkout{ (workout, error) in
+                        self.delegate?.didSaveHealthKitWorkout(workout != nil && error == nil, error: error?.localizedDescription)
                         if let error = error {
                             print(error)
                         }
@@ -401,6 +420,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                          print(error)
                      }
                      self.workoutBuilder.finishWorkout{ (workout, error) in
+                         self.delegate?.didSaveHealthKitWorkout(workout != nil && error == nil, error: error?.localizedDescription)
                          if let error = error {
                              print(error)
                          }
@@ -478,6 +498,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
 
                     // Finish the workout and save metrics
                     self.workoutBuilder.finishWorkout { (workout, error) in
+                        self.delegate?.didSaveHealthKitWorkout(workout != nil && error == nil, error: error?.localizedDescription)
                         if let error = error {
                             print(error)
                         }

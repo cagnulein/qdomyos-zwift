@@ -85,6 +85,7 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
             print(result)
             if let dDistance = WatchKitConnection.doubleValue(result["distance"]) {
                 WatchKitConnection.distance = dDistance
+                WorkoutTracking.distance = dDistance
             }
             if let dKcal = WatchKitConnection.doubleValue(result["kcal"]) {
                 WatchKitConnection.kcal = dKcal
@@ -100,16 +101,20 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
             }
             if let dSpeed = WatchKitConnection.doubleValue(result["speed"]) {
                 WatchKitConnection.speed = dSpeed
+                WorkoutTracking.speed = dSpeed
             }
             if let dPower = WatchKitConnection.doubleValue(result["power"]) {
                 WatchKitConnection.power = dPower
+                WorkoutTracking.power = dPower
             }
             if let dCadence = WatchKitConnection.doubleValue(result["cadence"]) {
                 WatchKitConnection.cadence = dCadence
+                WorkoutTracking.cadence = dCadence
             }
             if let stepsDouble = WatchKitConnection.doubleValue(result["steps"]) {
                 let iSteps = Int(stepsDouble)
                 WatchKitConnection.steps = iSteps
+                WorkoutTracking.steps = iSteps
             }
             if let elevationGainDouble = WatchKitConnection.doubleValue(result["elevationGain"]) {
                 WatchKitConnection.elevationGain = elevationGainDouble
