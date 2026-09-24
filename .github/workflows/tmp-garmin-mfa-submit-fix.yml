@@ -1,0 +1,38 @@
+name: Temporary Garmin MFA Submit Fix
+
+on:
+  push:
+    branches:
+      - fix/garmin-mfa-submit-always-enabled
+
+permissions:
+  contents: write
+
+jobs:
+  apply-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/garmin-mfa-submit-always-enabled
+
+      - name: Keep Garmin MFA Submit enabled
+        shell: bash
+        run: |
+          set -euo pipefail
+          count=$(grep -c 'enabled: mfaCodeTextField\.text\.length > 0' src/settings.qml || true)
+          if [ "$count" -eq 0 ]; then
+            echo "Target line already removed."
+            exit 0
+          fi
+          if [ "$count" -ne 1 ]; then
+            echo "Expected exactly one target line, found $count"
+            exit 1
+          fi
+          sed -i '/enabled: mfaCodeTextField\.text\.length > 0/d' src/settings.qml
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/settings.qml
+          git commit -m "Keep Garmin MFA submit button enabled"
+          git push origin HEAD:fix/garmin-mfa-submit-always-enabled
