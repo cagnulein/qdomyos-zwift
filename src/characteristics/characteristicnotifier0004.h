@@ -7,7 +7,6 @@
 
 class CharacteristicNotifier0004 : public CharacteristicNotifier {
     Q_OBJECT
-    bluetoothdevice* Bike = nullptr;    
     QList<QByteArray> answerList;
 
 public:

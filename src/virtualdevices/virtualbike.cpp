@@ -53,7 +53,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     if (existingDirconManager) {
         attachDirconManager(existingDirconManager);
     } else if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
-        attachDirconManager(new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this));
+        // Borrowed, not owned: the endpoint has process lifetime so that a client
+        // holding a cached discovery record always finds someone listening.
+        attachDirconManager(DirconManager::shared(Bike, bikeResistanceOffset, bikeResistanceGain));
     }
     if (!settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool())
         return;
@@ -774,6 +776,18 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 virtualbike::~virtualbike() {
     bikeTimer.stop();
 
+    // The manager outlives this virtual device. If nothing detached it, there is no
+    // successor taking over, and our device is on its way out too - ~bluetoothdevice()
+    // deletes its virtual device - so drop the binding before it dangles. A bridge
+    // switch calls detachDirconManager() first, so dirconManager is already null here
+    // and the incoming virtual device keeps the endpoint bound. The device check
+    // guards the case where a successor has already rebound it to something else.
+    if (dirconManager && dirconManager->device() == Bike) {
+        qDebug() << "virtualbike: releasing the shared Dircon device binding";
+        dirconManager->setDevice(nullptr);
+    }
+    dirconManager = nullptr;
+
 #ifdef Q_OS_ANDROID
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "stopAdvertising",
                                               "(Landroid/content/Context;)V",
@@ -795,7 +809,10 @@ void virtualbike::attachDirconManager(DirconManager *manager) {
     }
 
     dirconManager = manager;
-    dirconManager->setParent(this);
+    // Deliberately not re-parented. The manager is owned by the application object;
+    // adopting it here would put it back under bluetoothdevice::setVirtualDevice(),
+    // which deletes the outgoing virtual device and would take the listener and the
+    // mDNS advertisement down with it on the next bridge switch.
     connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
             SIGNAL(changeInclination(double, double)));
     connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
@@ -810,7 +827,9 @@ DirconManager *virtualbike::detachDirconManager() {
     }
 
     disconnect(dirconManager, nullptr, this, nullptr);
-    dirconManager->setParent(nullptr);
+    // No re-parenting to undo - see attachDirconManager(). Handing the pointer back
+    // is what stops ~virtualbike() from releasing the device binding out from under
+    // the virtual device that is about to take over.
     auto preservedDirconManager = dirconManager;
     dirconManager = nullptr;
     return preservedDirconManager;

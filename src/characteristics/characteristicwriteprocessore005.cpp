@@ -12,6 +12,10 @@ CharacteristicWriteProcessorE005::CharacteristicWriteProcessorE005(double bikeRe
     : CharacteristicWriteProcessor(bikeResistanceGain, bikeResistanceOffset, bike, parent) {}
 
 int CharacteristicWriteProcessorE005::writeProcess(quint16 uuid, const QByteArray &data, QByteArray &reply) {
+    if (!Bike) {
+        qDebug() << "CharacteristicWriteProcessorE005: write with no device attached, ignoring";
+        return CP_INVALID;
+    }
     if (data.size()) {
         BLUETOOTH_TYPE dt = Bike->deviceType();
         if (dt == BIKE) {

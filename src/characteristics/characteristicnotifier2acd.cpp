@@ -4,7 +4,7 @@
 #include <QTime> // Include QTime for Bike->elapsedTime()
 
 CharacteristicNotifier2ACD::CharacteristicNotifier2ACD(bluetoothdevice *Bike, QObject *parent)
-    : CharacteristicNotifier(0x2acd, parent), Bike(Bike) {}
+    : CharacteristicNotifier(0x2acd, Bike, parent) {}
 
 int CharacteristicNotifier2ACD::notify(QByteArray &value) {
     BLUETOOTH_TYPE dt = Bike->deviceType();

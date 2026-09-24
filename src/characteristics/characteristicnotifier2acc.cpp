@@ -3,7 +3,7 @@
 #include <qmath.h>
 
 CharacteristicNotifier2ACC::CharacteristicNotifier2ACC(bluetoothdevice *Bike, QObject *parent)
-    : CharacteristicNotifier(0x2ACC, parent), Bike(Bike) {}
+    : CharacteristicNotifier(0x2ACC, Bike, parent) {}
 
 int CharacteristicNotifier2ACC::notify(QByteArray &value) {
     value.append((char)0x83); // average speed, cadence and resistance level supported
