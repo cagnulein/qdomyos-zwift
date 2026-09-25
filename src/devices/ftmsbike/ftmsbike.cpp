@@ -87,7 +87,8 @@ bool ftmsbike::parseFsIb50Resistance(const QByteArray &packet, resistance_t *res
 }
 
 bool ftmsbike::fsIb50ResistanceGearDelta(resistance_t previousResistance, resistance_t currentResistance,
-                                         qint64 msecsSinceInclinationCommand, resistance_t *delta) {
+                                         qint64 msecsSinceInclinationCommand, bool gpxWorkoutActive,
+                                         resistance_t *delta) {
     if (!delta) {
         return false;
     }
@@ -99,12 +100,22 @@ bool ftmsbike::fsIb50ResistanceGearDelta(resistance_t previousResistance, resist
     }
 
     constexpr qint64 inclinationHysteresisMs = 2000;
-    if (msecsSinceInclinationCommand >= 0 && msecsSinceInclinationCommand < inclinationHysteresisMs) {
+    // A GPX workout continuously drives inclination. The FS-IB50 can report
+    // the resulting resistance several seconds after the command, so this
+    // telemetry must not be reclassified as a physical paddle change.
+    if (gpxWorkoutActive ||
+        (msecsSinceInclinationCommand >= 0 && msecsSinceInclinationCommand < inclinationHysteresisMs)) {
         return false;
     }
 
     *delta = currentResistance - previousResistance;
     return true;
+}
+
+void ftmsbike::workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state) {
+    bluetoothdevice::workoutEventStateChanged(state);
+    fsIb50GpxWorkoutActive = !gpxFileName.isEmpty() &&
+                             (state == bluetoothdevice::STARTED || state == bluetoothdevice::RESUMED);
 }
 
 bool ftmsbike::resistanceWriteRequired(bool isFsIb50, bool physicalGearChangePending,
@@ -807,7 +818,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         const qint64 msecsSinceInclinationCommand =
             lastFsIb50InclinationCommand.isValid() ? lastFsIb50InclinationCommand.msecsTo(now) : -1;
         resistance_t gearDelta = 0;
-        if (fsIb50ResistanceGearDelta(lastFsIb50Resistance, fsIb50Resistance, msecsSinceInclinationCommand, &gearDelta)) {
+        if (fsIb50ResistanceGearDelta(lastFsIb50Resistance, fsIb50Resistance, msecsSinceInclinationCommand,
+                                      fsIb50GpxWorkoutActive, &gearDelta)) {
             qDebug() << QStringLiteral("FS-IB50 physical gear change") << lastFsIb50Resistance << fsIb50Resistance
                      << "delta" << gearDelta << "since inclination" << msecsSinceInclinationCommand;
             lastRawRequestedResistanceValue = -1;
