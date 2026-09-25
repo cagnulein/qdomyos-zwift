@@ -783,6 +783,19 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<keepbike>()
         ->acceptDeviceName("KEEP_BIKE_", DeviceNameComparison::StartsWithIgnoreCase);
 
+    // Kettler Classic / MyHomeFIT RFCOMM
+    RegisterNewDeviceTestData(DeviceIndex::KettlerClassicBike)
+        ->expectDevice<kettlerclassicbike>()
+        ->acceptDeviceName("RACER S", DeviceNameComparison::Exact)
+        ->configureSettingsWith([](const DeviceDiscoveryInfo &info, bool enable,
+                                   std::vector<DeviceDiscoveryInfo> &configurations) {
+            DeviceDiscoveryInfo config(info);
+            config.DeviceInfo()->setCoreConfigurations(
+                enable ? QBluetoothDeviceInfo::BaseRateCoreConfiguration
+                       : QBluetoothDeviceInfo::LowEnergyCoreConfiguration);
+            configurations.push_back(config);
+        });
+
 
     // Kingsmith R1 Pro Treadmill
     RegisterNewDeviceTestData(DeviceIndex::KingsmithR1ProTreadmill)

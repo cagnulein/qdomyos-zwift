@@ -98,6 +98,7 @@ public:
     DEFINE_DEVICE(HorizonTreadmill, "Horizon Treadmill");
     DEFINE_DEVICE(InspireBike, "Inspire Bike");
     DEFINE_DEVICE(KeepBike, "Keep Bike");
+    DEFINE_DEVICE(KettlerClassicBike, "Kettler Classic Bike");
     DEFINE_DEVICE(KingsmithR1ProTreadmill, "Kingsmith R1 Pro Treadmill");
     DEFINE_DEVICE(KingsmithR2Treadmill, "Kingsmith R2 Treadmill");
     DEFINE_DEVICE(LifeFitnessTreadmill, "Life Fitness Treadmill");

@@ -313,24 +313,13 @@ void bluetooth::startDiscovery() {
         return;
 
 #ifndef Q_OS_IOS
-    QSettings settings;
-    bool technogym_myrun_treadmill_experimental = settings
-                                                      .value(QZSettings::technogym_myrun_treadmill_experimental,
-                                                             QZSettings::default_technogym_myrun_treadmill_experimental)
-                                                      .toBool();
-    bool trx_route_key = settings.value(QZSettings::trx_route_key, QZSettings::default_trx_route_key).toBool();
-    bool bh_spada_2 = settings.value(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2).toBool();
-    bool iconcept_elliptical =
-        settings.value(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical).toBool();
-
-    if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental && !iconcept_elliptical) {
-#endif
-        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-#ifndef Q_OS_IOS
-    } else {
-        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
-                              QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-    }
+    // Kettler Classic and the existing RFCOMM profiles require Classic
+    // discovery. Keep the shared scan enabled so a Classic-only bike is not
+    // invisible merely because no BLE-only option is enabled.
+    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
+                          QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+#else
+    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 #endif
 }
 
@@ -2133,7 +2122,29 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(kettlerC12Bike, &kettlerc12bike::debug, this, &bluetooth::debug);
                 kettlerC12Bike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(kettlerC12Bike);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
+            }
+#ifndef Q_OS_IOS
+            else if (b.name() == QStringLiteral("RACER S") &&
+                     (b.coreConfigurations() & QBluetoothDeviceInfo::BaseRateCoreConfiguration) &&
+                     !kettlerClassicBike && filter) {
+                // MyHomeFIT's Kettler Classic connector uses BR/EDR SPP.
+                // The BaseRate check keeps the existing BLE Stages "RACER S"
+                // route below from being shadowed by this branch.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kettlerClassicBike = new kettlerclassicbike(noWriteResistance, noHeartService, testResistance,
+                                                            bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(kettlerClassicBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(kettlerClassicBike, &kettlerclassicbike::debug, this, &bluetooth::debug);
+                connect(kettlerClassicBike, &kettlerclassicbike::disconnected, this, &bluetooth::restart,
+                        Qt::QueuedConnection);
+                kettlerClassicBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kettlerClassicBike);
+            }
+#endif
+            else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
                         (b.name().toUpper().startsWith("TACX SATORI")) ||
                         (b.name().toUpper().startsWith("RACER S")) ||
                         ((b.name().toUpper().startsWith("KU")) && b.name().length() == 2) ||
@@ -4112,6 +4123,10 @@ void bluetooth::restart() {
 
         stagesBike = nullptr;
     }
+    if (kettlerClassicBike) {
+        delete kettlerClassicBike;
+        kettlerClassicBike = nullptr;
+    }
     if (toorx) {
 
         delete toorx;
@@ -4609,6 +4624,8 @@ bluetoothdevice *bluetooth::device() {
         return cycleopsphantomBike;
     } else if (stagesBike) {
         return stagesBike;
+    } else if (kettlerClassicBike) {
+        return kettlerClassicBike;
     } else if (toorx) {
         return toorx;
     } else if (iconsole) {
