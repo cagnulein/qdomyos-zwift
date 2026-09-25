@@ -348,6 +348,7 @@ void lockscreen::workoutTrackingUpdate(double speed, unsigned short cadence, uns
     if(h != nil) {
         [h setWorkoutTypeWithWorkoutType:deviceType];
         [h setWorkoutStateWithWorkoutState:workoutState];
+        [h setSpeedWithSpeed:speed];
     }
 
     if(workoutTracking != nil && !appleWatchAppInstalled())
