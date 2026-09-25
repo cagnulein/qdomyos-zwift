@@ -16,7 +16,6 @@
 		0870834790CEDE2D52551A52 /* CoreBluetooth.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 71E5705044D6C31AB87AEB17 /* CoreBluetooth.framework */; };
 		0CE02722F00CAD43741297B5 /* CoreGraphics.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 6AE3EC31EE5BB1FCEE84137C /* CoreGraphics.framework */; };
 		0F974CB18B3E792B42270F19 /* FitDecode.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = FE506AC7CF7E6DE1931BFB55 /* FitDecode.mm */; settings = {ATTRIBUTES = (); }; };
-		2D4684BF88B9B0456A50B3F0 /* qdomyoszwift_plugin_import_simulator.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8DD3B05CF7374DC62BC3BA4A /* qdomyoszwift_plugin_import_simulator.cpp */; settings = {ATTRIBUTES = (); }; };
 		133CA0345CD2BFB03079A655 /* qmlfolderlistmodelplugin in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 4D77E0181941BE76CD4887BD /* qmlfolderlistmodelplugin */; };
 		140BAAA8823E05940EF35A38 /* moc_treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = CA44C08759DF30D7DC9CA598 /* moc_treadmill.cpp */; settings = {ATTRIBUTES = (); }; };
 		15364689D2AB5A30E87A689F /* Security.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 205259EEEE2BADA5E64741E3 /* Security.framework */; };
@@ -279,8 +278,6 @@
 		87433F2127D8B722003D1672 /* simplecrypt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87433F2027D8B722003D1672 /* simplecrypt.cpp */; };
 		87440FBD2640291700E4DC0B /* fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBC2640291700E4DC0B /* fitplusbike.cpp */; };
 		87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */; };
-		87F000012F00000000000006 /* freebeatboombike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000009 /* freebeatboombike.cpp */; };
-		87F000012F00000000000007 /* moc_freebeatboombike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F0000000000000A /* moc_freebeatboombike.cpp */; };
 		87F000012F00000000000001 /* fitplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000004 /* fitplusrower.cpp */; };
 		87F000012F00000000000002 /* moc_fitplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000005 /* moc_fitplusrower.cpp */; };
 		8745B2762AFCB4A300991A39 /* android in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8745B2752AFCB4A300991A39 /* android */; };
@@ -328,7 +325,6 @@
 		8768C8C52BBC11C80099DBE1 /* OVERVIEW.TXT in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8768C8AE2BBC11C70099DBE1 /* OVERVIEW.TXT */; };
 		8768C8C62BBC11C80099DBE1 /* AdbClient.m in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C8B12BBC11C70099DBE1 /* AdbClient.m */; };
 		8768C8C72BBC11C80099DBE1 /* adb_auth_host.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C8B22BBC11C70099DBE1 /* adb_auth_host.c */; };
-		A8768C8D2BBC11C80099DBE1 /* adb_auth_host_simulator.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = A8768C8E2BBC11C70099DBE1 /* adb_auth_host_simulator.c */; };
 		8768C8C82BBC11C80099DBE1 /* commandline.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C8B32BBC11C70099DBE1 /* commandline.c */; };
 		8768C8C92BBC11C80099DBE1 /* adb_client.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C8B42BBC11C70099DBE1 /* adb_client.c */; };
 		8768C8CA2BBC11C80099DBE1 /* sockets.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C8B52BBC11C80099DBE1 /* sockets.c */; };
@@ -803,7 +799,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		008F20821C7E4D5F7DB55754 /* qmldbg_messages */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_messages; path = "$(QZ_QT_ROOT)/plugins/qmltooling/libqmldbg_messages$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		008F20821C7E4D5F7DB55754 /* qmldbg_messages */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_messages; path = "$(QZ_QT_IOS_ROOT)/plugins/qmltooling/libqmldbg_messages$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		00A66E87B971A9455AEB1889 /* fit_field_definition.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_field_definition.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_field_definition.hpp"; sourceTree = "<absolute>"; };
 		00FB26C33AA756668FB601BC /* virtualbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = virtualbike.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/virtualdevices/virtualbike.cpp"; sourceTree = "<absolute>"; };
 		00FFE5A43EB1EC67C4880C7C /* fit_segment_file_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_file_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_segment_file_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -812,14 +808,14 @@
 		03A09C02430210620F4E2535 /* fit_length_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_length_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_length_mesg.hpp"; sourceTree = "<absolute>"; };
 		040B10E2EF2CEF79F2205FE2 /* qdomyoszwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = qdomyoszwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		04BA913AA397245DFE470F0A /* fit_buffer_encode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_buffer_encode.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_buffer_encode.hpp"; sourceTree = "<absolute>"; };
-		04C46A9C2C431CD47F412DEC /* qicns */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qicns; path = "$(QZ_QT_ROOT)/plugins/imageformats/libqicns$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		04C46A9C2C431CD47F412DEC /* qicns */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qicns; path = "$(QZ_QT_IOS_ROOT)/plugins/imageformats/libqicns$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		0536AB7B4EA34BA5058C4232 /* fit_segment_point_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_point_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_segment_point_mesg.hpp"; sourceTree = "<absolute>"; };
 		05E49719C55F36AF26811317 /* echelonconnectsport.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = echelonconnectsport.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/devices/echelonconnectsport/echelonconnectsport.cpp"; sourceTree = "<absolute>"; };
 		065DDC58C9522E1543A947AA /* moc_homeform.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_homeform.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_homeform.cpp"; sourceTree = "<absolute>"; };
-		069A8AD683D05D500F8DEC03 /* Qt5QuickControls2 */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5QuickControls2; path = "$(QZ_QT_ROOT)/lib/libQt5QuickControls2$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		069A8AD683D05D500F8DEC03 /* Qt5QuickControls2 */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5QuickControls2; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5QuickControls2$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		06BE5EDC8785D846B747D8E0 /* fit.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit.hpp"; sourceTree = "<absolute>"; };
 		0704892AB1DE33A40735790C /* fit_accumulated_field.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_accumulated_field.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_accumulated_field.hpp"; sourceTree = "<absolute>"; };
-		0843667DD0EDF81D0590FC92 /* dialogsprivateplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = dialogsprivateplugin; path = "$(QZ_QT_ROOT)/qml/QtQuick/Dialogs/Private/libdialogsprivateplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		0843667DD0EDF81D0590FC92 /* dialogsprivateplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = dialogsprivateplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs/Private/libdialogsprivateplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		0A9EC1FC3849D0A2C3CA27CE /* signalhandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = signalhandler.h; path = "/Users/cagnulein/qdomyos-zwift/src/signalhandler.h"; sourceTree = "<absolute>"; };
 		0B00B1D2C98836C311CD929F /* FitMesg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FitMesg.h; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/FitMesg.h"; sourceTree = "<absolute>"; };
 		0C44F737E8A1E47FAFD2CA80 /* fit_ant_tx_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_tx_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ant_tx_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -828,18 +824,18 @@
 		0E54D576FF30E5D766DB7E68 /* homeform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = homeform.h; path = "/Users/cagnulein/qdomyos-zwift/src/homeform.h"; sourceTree = "<absolute>"; };
 		101034AAD8EFB3F400299EC9 /* fit_video_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_video_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_video_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		117D1FC4DDE73408BFF87152 /* fit_gps_metadata_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_gps_metadata_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_gps_metadata_mesg.hpp"; sourceTree = "<absolute>"; };
-		135A80908694E5CEEC1AB964 /* qtquickcontrols2imaginestyleplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrols2imaginestyleplugin; path = "$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/Imagine/libqtquickcontrols2imaginestyleplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		135A80908694E5CEEC1AB964 /* qtquickcontrols2imaginestyleplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrols2imaginestyleplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Imagine/libqtquickcontrols2imaginestyleplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		14A867C612ED3AF57E1F65E1 /* fit_mesg_with_event_broadcaster.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_with_event_broadcaster.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg_with_event_broadcaster.hpp"; sourceTree = "<absolute>"; };
 		15148D7FB624FDD11E0BA6DD /* fit_monitoring_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_monitoring_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_monitoring_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		1667B2FAB36080B6C86C00BC /* qgif */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qgif; path = "$(QZ_QT_ROOT)/plugins/imageformats/libqgif$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		169F79461D55CD592CA4B29F /* qtposition_positionpoll */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtposition_positionpoll; path = "$(QZ_QT_ROOT)/plugins/position/libqtposition_positionpoll$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		1667B2FAB36080B6C86C00BC /* qgif */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qgif; path = "$(QZ_QT_IOS_ROOT)/plugins/imageformats/libqgif$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		169F79461D55CD592CA4B29F /* qtposition_positionpoll */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtposition_positionpoll; path = "$(QZ_QT_IOS_ROOT)/plugins/position/libqtposition_positionpoll$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		16DCD13B4B3702FA6ED703EC /* fit_software_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_software_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_software_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		1827547F95745BC4D6C2727F /* fit_mesg_with_event_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_with_event_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg_with_event_listener.hpp"; sourceTree = "<absolute>"; };
 		185CC485873E3D5F2F64BF88 /* fit_dive_settings_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_settings_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_settings_mesg.hpp"; sourceTree = "<absolute>"; };
-		19AC644219C28E685A67AA13 /* qmldbg_preview */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_preview; path = "$(QZ_QT_ROOT)/plugins/qmltooling/libqmldbg_preview$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		19AC644219C28E685A67AA13 /* qmldbg_preview */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_preview; path = "$(QZ_QT_IOS_ROOT)/plugins/qmltooling/libqmldbg_preview$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		1A6BA62A2B82EB1C0DFB5CB9 /* qfit.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qfit.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/qfit.cpp"; sourceTree = "<absolute>"; };
 		1AAAC7848769891E5EC471CE /* fit_buffered_record_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_buffered_record_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_buffered_record_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		1ACEA3D73A1E87FCFD9CCB05 /* modelsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = modelsplugin; path = "$(QZ_QT_ROOT)/qml/QtQml/Models.2/libmodelsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		1ACEA3D73A1E87FCFD9CCB05 /* modelsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = modelsplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQml/Models.2/libmodelsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		1B2543FCC48E9436F21C4F63 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = /System/Library/Frameworks/Metal.framework; sourceTree = "<absolute>"; };
 		1B96B43BE93B05F81BBF0CCF /* moc_bluetoothdevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_bluetoothdevice.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_bluetoothdevice.cpp"; sourceTree = "<absolute>"; };
 		1C4AD3809DA5653F548BD9E9 /* toorxtreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = toorxtreadmill.h; path = "/Users/cagnulein/qdomyos-zwift/src/devices/toorxtreadmill/toorxtreadmill.h"; sourceTree = "<absolute>"; };
@@ -849,7 +845,7 @@
 		1FC21BB8B130AE413ABBCB9F /* fit_date_time.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_date_time.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_date_time.hpp"; sourceTree = "<absolute>"; };
 		204289430D44465946C7A2EA /* fit_video_clip_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_video_clip_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_video_clip_mesg.hpp"; sourceTree = "<absolute>"; };
 		205259EEEE2BADA5E64741E3 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
-		2090C25BBD5440DC0779CD08 /* Qt5ClipboardSupport */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5ClipboardSupport; path = "$(QZ_QT_ROOT)/lib/libQt5ClipboardSupport$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		2090C25BBD5440DC0779CD08 /* Qt5ClipboardSupport */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5ClipboardSupport; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5ClipboardSupport$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		241BF4B9EC0E0052B02DC250 /* fit_lap_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_lap_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_lap_mesg.hpp"; sourceTree = "<absolute>"; };
 		24568621B9F9DEB322DAA4C4 /* fit_mesg_with_event_broadcaster.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_mesg_with_event_broadcaster.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg_with_event_broadcaster.cpp"; sourceTree = "<absolute>"; };
 		2493D7182DEEF39053B2DB9F /* fit_dive_alarm_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_alarm_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_alarm_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -863,7 +859,7 @@
 		2C74C087B513071B0EBA6BDD /* fit_speed_zone_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_speed_zone_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_speed_zone_mesg.hpp"; sourceTree = "<absolute>"; };
 		2CB37BB3C0F7FC83AB283C79 /* moc_domyostreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_domyostreadmill.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_domyostreadmill.cpp"; sourceTree = "<absolute>"; };
 		2CD2AC95573B9196A11D8B5D /* fit_weather_conditions_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_weather_conditions_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_weather_conditions_mesg.hpp"; sourceTree = "<absolute>"; };
-		2D4A13931169E5681CE465F0 /* Qt5NetworkAuth */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5NetworkAuth; path = "$(QZ_QT_ROOT)/lib/libQt5NetworkAuth$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		2D4A13931169E5681CE465F0 /* Qt5NetworkAuth */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5NetworkAuth; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5NetworkAuth$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		2E6B7E1FF5E6A5461E7B7C44 /* fit_dive_summary_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_summary_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_summary_mesg.hpp"; sourceTree = "<absolute>"; };
 		2E99CE78422C13B5E8F1EB53 /* qfit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qfit.h; path = "/Users/cagnulein/qdomyos-zwift/src/qfit.h"; sourceTree = "<absolute>"; };
 		2E9A703E620AD39818182E87 /* FitField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FitField.h; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/FitField.h"; sourceTree = "<absolute>"; };
@@ -871,7 +867,7 @@
 		2F875FD21B3CE91076B48D2D /* domyostreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = domyostreadmill.h; path = "/Users/cagnulein/qdomyos-zwift/src/devices/domyostreadmill/domyostreadmill.h"; sourceTree = "<absolute>"; };
 		302316BD81D103EDFB1BBFF4 /* fit_event_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_event_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_event_mesg.hpp"; sourceTree = "<absolute>"; };
 		306373050762B159D8FBFD7A /* fit_timestamp_correlation_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_timestamp_correlation_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_timestamp_correlation_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		307B2F8E9A717B514EA118E0 /* qquicklayoutsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qquicklayoutsplugin; path = "$(QZ_QT_ROOT)/qml/QtQuick/Layouts/libqquicklayoutsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		307B2F8E9A717B514EA118E0 /* qquicklayoutsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qquicklayoutsplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick/Layouts/libqquicklayoutsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		3088C65BF5992B009FFC93B5 /* virtualtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = virtualtreadmill.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/virtualdevices/virtualtreadmill.cpp"; sourceTree = "<absolute>"; };
 		310AB027BBBCDE72251E1C01 /* qdomyoszwift_qml_plugin_import.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qdomyoszwift_qml_plugin_import.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_qml_plugin_import.cpp"; sourceTree = "<absolute>"; };
 		312916F66E95C74844AAD1A0 /* fit_segment_leaderboard_entry_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_leaderboard_entry_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_segment_leaderboard_entry_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -880,20 +876,20 @@
 		333DBB8CBD805C83589F1491 /* fit_gps_metadata_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_gps_metadata_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_gps_metadata_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		341BDF9D6DB8211DE6C975B9 /* fit_set_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_set_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_set_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		3427833FFD001B59545D14B0 /* gpx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = gpx.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/gpx.cpp"; sourceTree = "<absolute>"; };
-		344F66310C19536DB4886D8F /* qtpcre2 */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtpcre2; path = "$(QZ_QT_ROOT)/lib/libqtpcre2$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		344F66310C19536DB4886D8F /* qtpcre2 */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtpcre2; path = "$(QZ_QT_IOS_ROOT)/lib/libqtpcre2$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		3486021539E7698F1162C086 /* fit_mesg_broadcaster.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_broadcaster.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg_broadcaster.hpp"; sourceTree = "<absolute>"; };
 		35777185ADBC4A7A18525562 /* fit_user_profile_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_user_profile_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_user_profile_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		35E903698E72424585D33829 /* virtualtreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = virtualtreadmill.h; path = "/Users/cagnulein/qdomyos-zwift/src/virtualdevices/virtualtreadmill.h"; sourceTree = "<absolute>"; };
 		35F5C0867B2C81E7F0DB71EE /* moc_toorxtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_toorxtreadmill.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_toorxtreadmill.cpp"; sourceTree = "<absolute>"; };
 		3753039C93CD7D4769118D7B /* moc_trxappgateusbtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_trxappgateusbtreadmill.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_trxappgateusbtreadmill.cpp"; sourceTree = "<absolute>"; };
-		3786EF67BA4E4308F21A5657 /* Qt5PacketProtocol */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5PacketProtocol; path = "$(QZ_QT_ROOT)/lib/libQt5PacketProtocol$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		3786EF67BA4E4308F21A5657 /* Qt5PacketProtocol */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5PacketProtocol; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5PacketProtocol$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		3A8EF9C62A8D4790CBB89CEA /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = /System/Library/Frameworks/ImageIO.framework; sourceTree = "<absolute>"; };
 		3C173A119F9809FDF828CF39 /* fit_camera_event_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_camera_event_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_camera_event_mesg.hpp"; sourceTree = "<absolute>"; };
 		3C44131FDCFEF4396B9EA2BA /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = /System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<absolute>"; };
 		3D1C10AEF4ACB41B8AAA14CC /* fit_developer_field_description_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_developer_field_description_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_developer_field_description_listener.hpp"; sourceTree = "<absolute>"; };
 		3ECE7C0AE35A853E30203668 /* fit_accelerometer_data_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_accelerometer_data_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_accelerometer_data_mesg.hpp"; sourceTree = "<absolute>"; };
-		3F0A8F2C74AB4315543BEE28 /* qmldbg_profiler */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_profiler; path = "$(QZ_QT_ROOT)/plugins/qmltooling/libqmldbg_profiler$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		40CAD50AA01A6BE35F8601A5 /* qtiff */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtiff; path = "$(QZ_QT_ROOT)/plugins/imageformats/libqtiff$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		3F0A8F2C74AB4315543BEE28 /* qmldbg_profiler */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_profiler; path = "$(QZ_QT_IOS_ROOT)/plugins/qmltooling/libqmldbg_profiler$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		40CAD50AA01A6BE35F8601A5 /* qtiff */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtiff; path = "$(QZ_QT_IOS_ROOT)/plugins/imageformats/libqtiff$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		415F1B1F4DDA94A9F2D91814 /* fit_protocol_validator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_protocol_validator.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_protocol_validator.hpp"; sourceTree = "<absolute>"; };
 		42C97553CD7E951C38EB8FA0 /* lockscreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lockscreen.h; path = "/Users/cagnulein/qdomyos-zwift/src/ios/lockscreen.h"; sourceTree = "<absolute>"; };
 		437D460977197971C01BFDB7 /* fit_length_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_length_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_length_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -906,7 +902,7 @@
 		470916AF85F9DFC17F22F475 /* fit_exd_data_concept_configuration_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_exd_data_concept_configuration_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_exd_data_concept_configuration_mesg.hpp"; sourceTree = "<absolute>"; };
 		47781FA2D15F1A571CAA5F7C /* fit_zones_target_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_zones_target_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_zones_target_mesg.hpp"; sourceTree = "<absolute>"; };
 		47EE6598F3E62A8A44426497 /* fit_accelerometer_data_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_accelerometer_data_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_accelerometer_data_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		481A55073CF86828646C558B /* Qt5Core */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Core; path = "$(QZ_QT_ROOT)/lib/libQt5Core$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		481A55073CF86828646C558B /* Qt5Core */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Core; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Core$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		4820A6CE9EED8109189EB2E7 /* bluetoothdevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = bluetoothdevice.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/devices/bluetoothdevice.cpp"; sourceTree = "<absolute>"; };
 		488243DD156BC975CEAC66A7 /* FitField.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = FitField.mm; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/FitField.mm"; sourceTree = "<absolute>"; };
 		48C79275AE824799BF80117F /* fit_hrm_profile_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_hrm_profile_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_hrm_profile_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -914,9 +910,9 @@
 		4A1BB35E9D7BEF96579901DC /* fit_one_d_sensor_calibration_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_one_d_sensor_calibration_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_one_d_sensor_calibration_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		4AE201B0B85F8BECFDB492E8 /* fit_date_time.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_date_time.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_date_time.cpp"; sourceTree = "<absolute>"; };
 		4D765E1B1EA6C757220C63E7 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
-		4D77E0181941BE76CD4887BD /* qmlfolderlistmodelplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmlfolderlistmodelplugin; path = "$(QZ_QT_ROOT)/qml/Qt/labs/folderlistmodel/libqmlfolderlistmodelplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		4D77E0181941BE76CD4887BD /* qmlfolderlistmodelplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmlfolderlistmodelplugin; path = "$(QZ_QT_IOS_ROOT)/qml/Qt/labs/folderlistmodel/libqmlfolderlistmodelplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		4E8BF6E829503621164522E2 /* fit_training_file_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_training_file_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_training_file_mesg.hpp"; sourceTree = "<absolute>"; };
-		4F48E2BF0905317DC033D84D /* qt_clipper */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qt_clipper; path = "$(QZ_QT_ROOT)/lib/libqt_clipper$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		4F48E2BF0905317DC033D84D /* qt_clipper */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qt_clipper; path = "$(QZ_QT_IOS_ROOT)/lib/libqt_clipper$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		4F510B3391654B045E790D97 /* fit_device_settings_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_device_settings_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_device_settings_mesg.hpp"; sourceTree = "<absolute>"; };
 		4FBC30C2488948BCE656477C /* moc_domyosbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_domyosbike.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_domyosbike.cpp"; sourceTree = "<absolute>"; };
 		5123CC6EDD24F89621C7C9DA /* fit_climb_pro_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_climb_pro_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_climb_pro_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -925,7 +921,7 @@
 		52CEECC02EB33B92FA6793DC /* fit_sport_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_sport_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_sport_mesg.hpp"; sourceTree = "<absolute>"; };
 		5316C24095FFE9C3C9ECA922 /* bike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = bike.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/devices/bike.cpp"; sourceTree = "<absolute>"; };
 		53805E9A66055D7ED2ED6959 /* fit_exd_screen_configuration_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_exd_screen_configuration_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_exd_screen_configuration_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		53AA2A31E70D31F208CB1D15 /* qtga */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtga; path = "$(QZ_QT_ROOT)/plugins/imageformats/libqtga$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		53AA2A31E70D31F208CB1D15 /* qtga */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtga; path = "$(QZ_QT_IOS_ROOT)/plugins/imageformats/libqtga$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		5409E3B9F811B3B2B9964442 /* fit_hrv_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_hrv_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_hrv_mesg.hpp"; sourceTree = "<absolute>"; };
 		548398712B200A84CACE92A5 /* fit_course_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_course_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_course_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		54AFE6C84DD10072A76EE795 /* FitDeveloperField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FitDeveloperField.h; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/FitDeveloperField.h"; sourceTree = "<absolute>"; };
@@ -933,9 +929,9 @@
 		56952BC25C864534C7D7C4A8 /* fit_weight_scale_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_weight_scale_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_weight_scale_mesg.hpp"; sourceTree = "<absolute>"; };
 		57F8383CFDE2C020054BD233 /* fit_mesg_broadcast_plugin.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_broadcast_plugin.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg_broadcast_plugin.hpp"; sourceTree = "<absolute>"; };
 		57FA65C41805382B87D31F07 /* qdomyos-zwift.pro */ = {isa = PBXFileReference; lastKnownFileType = text; name = "qdomyos-zwift.pro"; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyos-zwift.pro"; sourceTree = "<absolute>"; };
-		5965BA830A5CEBFA0BC03A96 /* qt_clip2tri */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qt_clip2tri; path = "$(QZ_QT_ROOT)/lib/libqt_clip2tri$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		5A35A53F4283AAEC1F4A2289 /* Qt5QmlWorkerScript */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5QmlWorkerScript; path = "$(QZ_QT_ROOT)/lib/libQt5QmlWorkerScript$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		5AA7BF1E976AAE59041E7EC9 /* qico */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qico; path = "$(QZ_QT_ROOT)/plugins/imageformats/libqico$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		5965BA830A5CEBFA0BC03A96 /* qt_clip2tri */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qt_clip2tri; path = "$(QZ_QT_IOS_ROOT)/lib/libqt_clip2tri$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		5A35A53F4283AAEC1F4A2289 /* Qt5QmlWorkerScript */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5QmlWorkerScript; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5QmlWorkerScript$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		5AA7BF1E976AAE59041E7EC9 /* qico */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qico; path = "$(QZ_QT_IOS_ROOT)/plugins/imageformats/libqico$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		5B8C5726FE30428AAA7B1D16 /* fit_field_description_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_field_description_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_field_description_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		5BA187433338DC4902F65CE4 /* fit_set_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_set_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_set_mesg.hpp"; sourceTree = "<absolute>"; };
 		5D672DB6EE178B1BB8691F8D /* fit_segment_id_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_id_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_segment_id_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -944,7 +940,7 @@
 		5E9DF3A81EDCB228156802BD /* fit_cadence_zone_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_cadence_zone_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_cadence_zone_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		5EBA5A78CF2C9A588D805BBF /* fit_ant_rx_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_rx_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ant_rx_mesg.hpp"; sourceTree = "<absolute>"; };
 		5F6F0F8A34AB642D64B6C3FC /* fit_ant_channel_id_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_channel_id_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ant_channel_id_mesg.hpp"; sourceTree = "<absolute>"; };
-		6076C9F486BA48C6C79D8DB5 /* Qt5Positioning */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Positioning; path = "$(QZ_QT_ROOT)/lib/libQt5Positioning$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		6076C9F486BA48C6C79D8DB5 /* Qt5Positioning */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Positioning; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Positioning$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		626841C21285814EFA763C1C /* moc_trainprogram.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_trainprogram.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_trainprogram.cpp"; sourceTree = "<absolute>"; };
 		62E1529D03222FC716FC4088 /* fit_file_creator_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_file_creator_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_file_creator_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		62F3A15FBE822E95A2062EE6 /* fit_device_settings_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_device_settings_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_device_settings_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -954,11 +950,11 @@
 		6468C663675D98ED91FE1B68 /* fit_mesg_definition.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_definition.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg_definition.hpp"; sourceTree = "<absolute>"; };
 		64C020685F488C8FD55A9A41 /* fit_buffered_mesg_broadcaster.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_buffered_mesg_broadcaster.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_buffered_mesg_broadcaster.cpp"; sourceTree = "<absolute>"; };
 		66675BC7F6B17B0B2434A1F4 /* fit_mesg_definition.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_mesg_definition.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg_definition.cpp"; sourceTree = "<absolute>"; };
-		67533650BD0A45B5BCE1A8C7 /* qtquickcontrols2plugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrols2plugin; path = "$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/libqtquickcontrols2plugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		67E53FD43BE69489B0434897 /* qmldbg_inspector */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_inspector; path = "$(QZ_QT_ROOT)/plugins/qmltooling/libqmldbg_inspector$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		67533650BD0A45B5BCE1A8C7 /* qtquickcontrols2plugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrols2plugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/libqtquickcontrols2plugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		67E53FD43BE69489B0434897 /* qmldbg_inspector */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_inspector; path = "$(QZ_QT_IOS_ROOT)/plugins/qmltooling/libqmldbg_inspector$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		68418A2D51B69FC30BF5A41C /* virtualbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = virtualbike.h; path = "/Users/cagnulein/qdomyos-zwift/src/virtualdevices/virtualbike.h"; sourceTree = "<absolute>"; };
 		6868E40D2FA50923FAFB4420 /* fit_event_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_event_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_event_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		68EB28D7D813667CFB43E541 /* windowplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = windowplugin; path = "$(QZ_QT_ROOT)/qml/QtQuick/Window.2/libwindowplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		68EB28D7D813667CFB43E541 /* windowplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = windowplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick/Window.2/libwindowplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		698885E01BE828C9D48D57CD /* fit_slave_device_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_slave_device_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_slave_device_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		69CA1A70FAE7AA256DDF329A /* fit_gyroscope_data_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_gyroscope_data_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_gyroscope_data_mesg.hpp"; sourceTree = "<absolute>"; };
 		6A35F214F001025127B67D8B /* fit_field_base.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_field_base.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_field_base.hpp"; sourceTree = "<absolute>"; };
@@ -970,7 +966,7 @@
 		6D5B30258D7BDC5B2BDE802C /* fit_accumulator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_accumulator.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_accumulator.hpp"; sourceTree = "<absolute>"; };
 		6DE6790646303C53B78AAC19 /* fit_aviation_attitude_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_aviation_attitude_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_aviation_attitude_mesg.hpp"; sourceTree = "<absolute>"; };
 		6EE3BFFC16D697805D28E5F2 /* fit_watchface_settings_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_watchface_settings_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_watchface_settings_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		70550E7F4F4EEF7BDE6E55C4 /* qmldbg_nativedebugger */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_nativedebugger; path = "$(QZ_QT_ROOT)/plugins/qmltooling/libqmldbg_nativedebugger$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		70550E7F4F4EEF7BDE6E55C4 /* qmldbg_nativedebugger */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_nativedebugger; path = "$(QZ_QT_IOS_ROOT)/plugins/qmltooling/libqmldbg_nativedebugger$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		7093E0A4AF77475CAC9EFC0D /* fit_device_info_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_device_info_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_device_info_mesg.hpp"; sourceTree = "<absolute>"; };
 		70CAF81EF395190EE3093B7E /* fit_buffered_record_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_buffered_record_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_buffered_record_mesg.hpp"; sourceTree = "<absolute>"; };
 		71E5705044D6C31AB87AEB17 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = /System/Library/Frameworks/CoreBluetooth.framework; sourceTree = "<absolute>"; };
@@ -982,24 +978,24 @@
 		7695F5649C6EC70E789D1DE8 /* fit_session_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_session_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_session_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		7741BE9E4D31600C04591D53 /* fit_sdm_profile_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_sdm_profile_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_sdm_profile_mesg.hpp"; sourceTree = "<absolute>"; };
 		78B64A85CA2D2447CCAE46FB /* fit_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_unicode.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_unicode.cpp"; sourceTree = "<absolute>"; };
-		78FE5BD5B6281B7A61CCCF92 /* Qt5Quick */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Quick; path = "$(QZ_QT_ROOT)/lib/libQt5Quick$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		78FE5BD5B6281B7A61CCCF92 /* Qt5Quick */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Quick; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Quick$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		7944A61A6F17291731CE6F84 /* domyosbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = domyosbike.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/devices/domyosbike/domyosbike.cpp"; sourceTree = "<absolute>"; };
-		7A3FA4569540D446E8FA4CF2 /* Qt5QuickTemplates2 */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5QuickTemplates2; path = "$(QZ_QT_ROOT)/lib/libQt5QuickTemplates2$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		7A3FA4569540D446E8FA4CF2 /* Qt5QuickTemplates2 */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5QuickTemplates2; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5QuickTemplates2$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		7ADAEE5BCA8194CC2A85A633 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/LaunchScreen.storyboard"; sourceTree = "<absolute>"; };
-		7B244F450C6BD59DEF4FB3C5 /* qmlsettingsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmlsettingsplugin; path = "$(QZ_QT_ROOT)/qml/Qt/labs/settings/libqmlsettingsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		7B244F450C6BD59DEF4FB3C5 /* qmlsettingsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmlsettingsplugin; path = "$(QZ_QT_IOS_ROOT)/qml/Qt/labs/settings/libqmlsettingsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		7B2A802E2CCC6065718866E2 /* fit_ohr_settings_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ohr_settings_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ohr_settings_mesg.hpp"; sourceTree = "<absolute>"; };
 		7D1C99A1199AAA9B00A4F4BE /* fit_video_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_video_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_video_mesg.hpp"; sourceTree = "<absolute>"; };
 		7D7B02101166B76FD2D4F8B4 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = /System/Library/Frameworks/CoreText.framework; sourceTree = "<absolute>"; };
 		7EC00404ACD5AB0E97726B0E /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
 		7F796DD21A9DAE350B3FE615 /* fit_ant_channel_id_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_channel_id_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ant_channel_id_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		807CB8BB2924733E9CA03C99 /* qtquickcontrols2fusionstyleplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrols2fusionstyleplugin; path = "$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/Fusion/libqtquickcontrols2fusionstyleplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		807CB8BB2924733E9CA03C99 /* qtquickcontrols2fusionstyleplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrols2fusionstyleplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Fusion/libqtquickcontrols2fusionstyleplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		813F112510B981419CB367A5 /* moc_qfit.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_qfit.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_qfit.cpp"; sourceTree = "<absolute>"; };
 		817195CFDC8E8DFCA1A5AFF9 /* fit_course_point_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_course_point_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_course_point_mesg.hpp"; sourceTree = "<absolute>"; };
 		82AF77CFC5E50AC0DFE98958 /* fit_exercise_title_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_exercise_title_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_exercise_title_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		832794624AF0EDF8BA97B6EB /* fit_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg.hpp"; sourceTree = "<absolute>"; };
 		844547E10F82729ADCEB8592 /* gpx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gpx.h; path = "/Users/cagnulein/qdomyos-zwift/src/gpx.h"; sourceTree = "<absolute>"; };
 		844F0603BC6EA83EF920104F /* domyostreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = domyostreadmill.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/devices/domyostreadmill/domyostreadmill.cpp"; sourceTree = "<absolute>"; };
-		84AF4FFBA8FDC16E6A54D667 /* qmldbg_local */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_local; path = "$(QZ_QT_ROOT)/plugins/qmltooling/libqmldbg_local$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		84AF4FFBA8FDC16E6A54D667 /* qmldbg_local */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_local; path = "$(QZ_QT_IOS_ROOT)/plugins/qmltooling/libqmldbg_local$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		84F09EF77545C4D757DB6DE8 /* fit_record_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_record_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_record_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		867187CB3CB3703D1925C88A /* fit_weather_conditions_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_weather_conditions_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_weather_conditions_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		86DD72842A64993F31E31719 /* fit_ant_rx_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_rx_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ant_rx_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -1007,26 +1003,26 @@
 		8703BAE9273C67A90058E206 /* pafersbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pafersbike.cpp; path = ../src/devices/pafersbike/pafersbike.cpp; sourceTree = "<group>"; };
 		8703BAEA273C67A90058E206 /* pafersbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pafersbike.h; path = ../src/devices/pafersbike/pafersbike.h; sourceTree = "<group>"; };
 		8703BAEC273C67B50058E206 /* moc_pafersbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_pafersbike.cpp; sourceTree = "<group>"; };
-		8706138F286D8B4F00D2446E /* libQt5PositioningQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5PositioningQuick.a; path = "$(QZ_QT_ROOT)/lib/libQt5PositioningQuick.a"; sourceTree = "<group>"; };
+		8706138F286D8B4F00D2446E /* libQt5PositioningQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5PositioningQuick.a; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5PositioningQuick.a"; sourceTree = "<group>"; };
 		87061391286D8C4200D2446E /* Qt */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Qt; path = ../../Qt; sourceTree = "<group>"; };
-		87061393286D8C9900D2446E /* libdeclarative_positioning.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_positioning.a; path = "$(QZ_QT_ROOT)/qml/QtPositioning/libdeclarative_positioning.a"; sourceTree = "<group>"; };
+		87061393286D8C9900D2446E /* libdeclarative_positioning.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_positioning.a; path = "$(QZ_QT_IOS_ROOT)/qml/QtPositioning/libdeclarative_positioning.a"; sourceTree = "<group>"; };
 		87061395286D8CFE00D2446E /* PathController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PathController.cpp; path = ../src/PathController.cpp; sourceTree = "<group>"; };
 		87061396286D8CFE00D2446E /* PathController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PathController.h; path = ../src/PathController.h; sourceTree = "<group>"; };
 		87061398286D8D6500D2446E /* moc_wobjectdefs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_wobjectdefs.cpp; sourceTree = "<group>"; };
-		8706139A286D8DA200D2446E /* libdeclarative_location.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_location.a; path = "$(QZ_QT_ROOT)/qml/QtLocation/libdeclarative_location.a"; sourceTree = "<group>"; };
-		8706139C286D8E7300D2446E /* libqtgeoservices_osm.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_osm.a; path = "$(QZ_QT_ROOT)/plugins/geoservices/libqtgeoservices_osm.a"; sourceTree = "<group>"; };
-		8706139E286D8F1100D2446E /* libqtposition_positionpoll.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtposition_positionpoll.a; path = "$(QZ_QT_ROOT)/plugins/position/libqtposition_positionpoll.a"; sourceTree = "<group>"; };
-		8706139F286D8F1200D2446E /* libqtposition_cl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtposition_cl.a; path = "$(QZ_QT_ROOT)/plugins/position/libqtposition_cl.a"; sourceTree = "<group>"; };
-		870613A2286D917600D2446E /* libQt5Location.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Location.a; path = "$(QZ_QT_ROOT)/lib/libQt5Location.a"; sourceTree = "<group>"; };
-		870613A3286D917700D2446E /* libQt5Positioning.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Positioning.a; path = "$(QZ_QT_ROOT)/lib/libQt5Positioning.a"; sourceTree = "<group>"; };
-		870613AC286D969300D2446E /* libqtgeoservices_itemsoverlay.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_itemsoverlay.a; path = "$(QZ_QT_ROOT)/plugins/geoservices/libqtgeoservices_itemsoverlay.a"; sourceTree = "<group>"; };
-		870613AD286D969300D2446E /* libqtgeoservices_mapboxgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_mapboxgl.a; path = "$(QZ_QT_ROOT)/plugins/geoservices/libqtgeoservices_mapboxgl.a"; sourceTree = "<group>"; };
-		870613AE286D969400D2446E /* libqtgeoservices_esri.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_esri.a; path = "$(QZ_QT_ROOT)/plugins/geoservices/libqtgeoservices_esri.a"; sourceTree = "<group>"; };
-		870613AF286D969400D2446E /* libqtgeoservices_nokia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_nokia.a; path = "$(QZ_QT_ROOT)/plugins/geoservices/libqtgeoservices_nokia.a"; sourceTree = "<group>"; };
-		870613B0286D969500D2446E /* libqtgeoservices_mapbox.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_mapbox.a; path = "$(QZ_QT_ROOT)/plugins/geoservices/libqtgeoservices_mapbox.a"; sourceTree = "<group>"; };
-		870613B7286D973B00D2446E /* libqsqlite.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqsqlite.a; path = "$(QZ_QT_ROOT)/plugins/sqldrivers/libqsqlite.a"; sourceTree = "<group>"; };
-		870613B9286D979000D2446E /* libqmapboxgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqmapboxgl.a; path = "$(QZ_QT_ROOT)/lib/libqmapboxgl.a"; sourceTree = "<group>"; };
-		870613BB286D97D100D2446E /* libQt5Sql.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Sql.a; path = "$(QZ_QT_ROOT)/lib/libQt5Sql.a"; sourceTree = "<group>"; };
+		8706139A286D8DA200D2446E /* libdeclarative_location.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_location.a; path = "$(QZ_QT_IOS_ROOT)/qml/QtLocation/libdeclarative_location.a"; sourceTree = "<group>"; };
+		8706139C286D8E7300D2446E /* libqtgeoservices_osm.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_osm.a; path = "$(QZ_QT_IOS_ROOT)/plugins/geoservices/libqtgeoservices_osm.a"; sourceTree = "<group>"; };
+		8706139E286D8F1100D2446E /* libqtposition_positionpoll.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtposition_positionpoll.a; path = "$(QZ_QT_IOS_ROOT)/plugins/position/libqtposition_positionpoll.a"; sourceTree = "<group>"; };
+		8706139F286D8F1200D2446E /* libqtposition_cl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtposition_cl.a; path = "$(QZ_QT_IOS_ROOT)/plugins/position/libqtposition_cl.a"; sourceTree = "<group>"; };
+		870613A2286D917600D2446E /* libQt5Location.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Location.a; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Location.a"; sourceTree = "<group>"; };
+		870613A3286D917700D2446E /* libQt5Positioning.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Positioning.a; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Positioning.a"; sourceTree = "<group>"; };
+		870613AC286D969300D2446E /* libqtgeoservices_itemsoverlay.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_itemsoverlay.a; path = "$(QZ_QT_IOS_ROOT)/plugins/geoservices/libqtgeoservices_itemsoverlay.a"; sourceTree = "<group>"; };
+		870613AD286D969300D2446E /* libqtgeoservices_mapboxgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_mapboxgl.a; path = "$(QZ_QT_IOS_ROOT)/plugins/geoservices/libqtgeoservices_mapboxgl.a"; sourceTree = "<group>"; };
+		870613AE286D969400D2446E /* libqtgeoservices_esri.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_esri.a; path = "$(QZ_QT_IOS_ROOT)/plugins/geoservices/libqtgeoservices_esri.a"; sourceTree = "<group>"; };
+		870613AF286D969400D2446E /* libqtgeoservices_nokia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_nokia.a; path = "$(QZ_QT_IOS_ROOT)/plugins/geoservices/libqtgeoservices_nokia.a"; sourceTree = "<group>"; };
+		870613B0286D969500D2446E /* libqtgeoservices_mapbox.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_mapbox.a; path = "$(QZ_QT_IOS_ROOT)/plugins/geoservices/libqtgeoservices_mapbox.a"; sourceTree = "<group>"; };
+		870613B7286D973B00D2446E /* libqsqlite.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqsqlite.a; path = "$(QZ_QT_IOS_ROOT)/plugins/sqldrivers/libqsqlite.a"; sourceTree = "<group>"; };
+		870613B9286D979000D2446E /* libqmapboxgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqmapboxgl.a; path = "$(QZ_QT_IOS_ROOT)/lib/libqmapboxgl.a"; sourceTree = "<group>"; };
+		870613BB286D97D100D2446E /* libQt5Sql.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Sql.a; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Sql.a"; sourceTree = "<group>"; };
 		87083D9426678EFA0072410D /* zwiftworkout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zwiftworkout.h; path = ../src/zwiftworkout.h; sourceTree = "<group>"; };
 		87083D9526678EFA0072410D /* zwiftworkout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = zwiftworkout.cpp; path = ../src/zwiftworkout.cpp; sourceTree = "<group>"; };
 		87097D2D275EA9A20020EE6F /* sportsplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sportsplusbike.cpp; path = ../src/devices/sportsplusbike/sportsplusbike.cpp; sourceTree = "<group>"; };
@@ -1041,10 +1037,10 @@
 		8710706B29C48AEA0094D0F3 /* handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = handleurl.cpp; path = ../src/handleurl.cpp; sourceTree = "<group>"; };
 		8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_handleurl.cpp; sourceTree = "<group>"; };
 		8710707229C4A5E70094D0F3 /* GarminConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GarminConnect.swift; path = ../src/ios/GarminConnect.swift; sourceTree = "<group>"; };
-		871189122893C92F006A04D1 /* libQt5Multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Multimedia.a; path = "$(QZ_QT_ROOT)/lib/libQt5Multimedia.a"; sourceTree = "<group>"; };
-		871189142893CB51006A04D1 /* libdeclarative_multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_multimedia.a; path = "$(QZ_QT_ROOT)/qml/QtMultimedia/libdeclarative_multimedia.a"; sourceTree = "<group>"; };
-		871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaQuick.a; path = "$(QZ_QT_ROOT)/lib/libQt5MultimediaQuick.a"; sourceTree = "<group>"; };
-		871189182893CECC006A04D1 /* libqavfmediaplayer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfmediaplayer.a; path = "$(QZ_QT_ROOT)/plugins/mediaservice/libqavfmediaplayer.a"; sourceTree = "<group>"; };
+		871189122893C92F006A04D1 /* libQt5Multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Multimedia.a; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Multimedia.a"; sourceTree = "<group>"; };
+		871189142893CB51006A04D1 /* libdeclarative_multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_multimedia.a; path = "$(QZ_QT_IOS_ROOT)/qml/QtMultimedia/libdeclarative_multimedia.a"; sourceTree = "<group>"; };
+		871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaQuick.a; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5MultimediaQuick.a"; sourceTree = "<group>"; };
+		871189182893CECC006A04D1 /* libqavfmediaplayer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfmediaplayer.a; path = "$(QZ_QT_IOS_ROOT)/plugins/mediaservice/libqavfmediaplayer.a"; sourceTree = "<group>"; };
 		871235BD26B297660012D0F2 /* kingsmithr1protreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kingsmithr1protreadmill.h; path = ../src/devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h; sourceTree = "<group>"; };
 		871235BE26B297660012D0F2 /* kingsmithr1protreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kingsmithr1protreadmill.cpp; path = ../src/devices/kingsmithr1protreadmill/kingsmithr1protreadmill.cpp; sourceTree = "<group>"; };
 		871235C026B297720012D0F2 /* moc_kingsmithr1protreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_kingsmithr1protreadmill.cpp; sourceTree = "<group>"; };
@@ -1128,8 +1124,8 @@
 		872A20D828C5EC380037774D /* faketreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = faketreadmill.h; path = ../src/devices/faketreadmill/faketreadmill.h; sourceTree = "<group>"; };
 		872A20D928C5EC380037774D /* faketreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = faketreadmill.cpp; path = ../src/devices/faketreadmill/faketreadmill.cpp; sourceTree = "<group>"; };
 		872A20DB28C5F5CE0037774D /* moc_faketreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_faketreadmill.cpp; sourceTree = "<group>"; };
-		872BAB4D261750EE006A59AB /* libQt5Charts.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Charts.a; path = "$(QZ_QT_ROOT)/lib/libQt5Charts.a"; sourceTree = "<group>"; };
-		872BAB4F261751FB006A59AB /* libqtchartsqml2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtchartsqml2.a; path = "$(QZ_QT_ROOT)/qml/QtCharts/libqtchartsqml2.a"; sourceTree = "<group>"; };
+		872BAB4D261750EE006A59AB /* libQt5Charts.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Charts.a; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Charts.a"; sourceTree = "<group>"; };
+		872BAB4F261751FB006A59AB /* libqtchartsqml2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtchartsqml2.a; path = "$(QZ_QT_IOS_ROOT)/qml/QtCharts/libqtchartsqml2.a"; sourceTree = "<group>"; };
 		872DCC372A18D4A800EC9F68 /* virtualdevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = virtualdevice.h; path = ../src/virtualdevices/virtualdevice.h; sourceTree = "<group>"; };
 		872DCC382A18D4A800EC9F68 /* virtualdevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = virtualdevice.cpp; path = ../src/virtualdevices/virtualdevice.cpp; sourceTree = "<group>"; };
 		872DCC3A2A18D4C000EC9F68 /* moc_virtualdevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_virtualdevice.cpp; sourceTree = "<group>"; };
@@ -1150,7 +1146,7 @@
 		87318AAB2683799100770F13 /* echelonstride.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = echelonstride.cpp; path = ../src/devices/echelonstride/echelonstride.cpp; sourceTree = "<group>"; };
 		87318AAC2683799100770F13 /* echelonstride.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = echelonstride.h; path = ../src/devices/echelonstride/echelonstride.h; sourceTree = "<group>"; };
 		87318AAE2683799C00770F13 /* moc_echelonstride.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_echelonstride.cpp; sourceTree = "<group>"; };
-		87318AB026837AA500770F13 /* libQt5WebSockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebSockets.a; path = "$(QZ_QT_ROOT)/lib/libQt5WebSockets.a"; sourceTree = "<group>"; };
+		87318AB026837AA500770F13 /* libQt5WebSockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebSockets.a; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5WebSockets.a"; sourceTree = "<group>"; };
 		8732C17D27353463006DF424 /* iconceptbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = iconceptbike.cpp; path = ../src/devices/iconceptbike/iconceptbike.cpp; sourceTree = "<group>"; };
 		8732C17E27353464006DF424 /* iconceptbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iconceptbike.h; path = ../src/devices/iconceptbike/iconceptbike.h; sourceTree = "<group>"; };
 		8732C1802735346E006DF424 /* moc_iconceptbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_iconceptbike.cpp; sourceTree = "<group>"; };
@@ -1247,9 +1243,9 @@
 		873F022D274BE471002D0349 /* mcfbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mcfbike.cpp; path = ../src/devices/mcfbike/mcfbike.cpp; sourceTree = "<group>"; };
 		873F022E274BE471002D0349 /* mcfbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mcfbike.h; path = ../src/devices/mcfbike/mcfbike.h; sourceTree = "<group>"; };
 		873F0230274BE47D002D0349 /* moc_mcfbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_mcfbike.cpp; sourceTree = "<group>"; };
-		87420DF5269D770F000C5EC6 /* libQt5WebView.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebView.a; path = "$(QZ_QT_ROOT)/lib/libQt5WebView.a"; sourceTree = "<group>"; };
-		87420DF7269D7CE1000C5EC6 /* libqtwebview_darwin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtwebview_darwin.a; path = "$(QZ_QT_ROOT)/plugins/webview/libqtwebview_darwin.a"; sourceTree = "<group>"; };
-		87420DF9269D7F43000C5EC6 /* libdeclarative_webview.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_webview.a; path = "$(QZ_QT_ROOT)/qml/QtWebView/libdeclarative_webview.a"; sourceTree = "<group>"; };
+		87420DF5269D770F000C5EC6 /* libQt5WebView.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebView.a; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5WebView.a"; sourceTree = "<group>"; };
+		87420DF7269D7CE1000C5EC6 /* libqtwebview_darwin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtwebview_darwin.a; path = "$(QZ_QT_IOS_ROOT)/plugins/webview/libqtwebview_darwin.a"; sourceTree = "<group>"; };
+		87420DF9269D7F43000C5EC6 /* libdeclarative_webview.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_webview.a; path = "$(QZ_QT_IOS_ROOT)/qml/QtWebView/libdeclarative_webview.a"; sourceTree = "<group>"; };
 		8742C2B027C92C30007D3FA0 /* wahookickrsnapbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wahookickrsnapbike.h; path = ../src/devices/wahookickrsnapbike/wahookickrsnapbike.h; sourceTree = "<group>"; };
 		8742C2B127C92C30007D3FA0 /* wahookickrsnapbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wahookickrsnapbike.cpp; path = ../src/devices/wahookickrsnapbike/wahookickrsnapbike.cpp; sourceTree = "<group>"; };
 		8742C2B327C92C48007D3FA0 /* moc_wahookickrsnapbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_wahookickrsnapbike.cpp; sourceTree = "<group>"; };
@@ -1258,9 +1254,6 @@
 		87440FBB2640291700E4DC0B /* fitplusbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fitplusbike.h; path = ../src/devices/fitplusbike/fitplusbike.h; sourceTree = "<group>"; };
 		87440FBC2640291700E4DC0B /* fitplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fitplusbike.cpp; path = ../src/devices/fitplusbike/fitplusbike.cpp; sourceTree = "<group>"; };
 		87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitplusbike.cpp; sourceTree = "<group>"; };
-		87F000012F00000000000008 /* freebeatboombike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = freebeatboombike.h; path = ../src/devices/freebeatboombike/freebeatboombike.h; sourceTree = "<group>"; };
-		87F000012F00000000000009 /* freebeatboombike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = freebeatboombike.cpp; path = ../src/devices/freebeatboombike/freebeatboombike.cpp; sourceTree = "<group>"; };
-		87F000012F0000000000000A /* moc_freebeatboombike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_freebeatboombike.cpp; sourceTree = "<group>"; };
 		87F000012F00000000000003 /* fitplusrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fitplusrower.h; path = ../src/devices/fitplusrower/fitplusrower.h; sourceTree = "<group>"; };
 		87F000012F00000000000004 /* fitplusrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fitplusrower.cpp; path = ../src/devices/fitplusrower/fitplusrower.cpp; sourceTree = "<group>"; };
 		87F000012F00000000000005 /* moc_fitplusrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitplusrower.cpp; sourceTree = "<group>"; };
@@ -1281,7 +1274,7 @@
 		8752C0E52B15D85600C3D1A5 /* eliteariafan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eliteariafan.h; path = ../src/devices/eliteariafan/eliteariafan.h; sourceTree = "<group>"; };
 		8752C0E62B15D85600C3D1A5 /* ios_eliteariafan.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_eliteariafan.mm; path = ../src/ios/ios_eliteariafan.mm; sourceTree = "<group>"; };
 		8752C0E72B15D85600C3D1A5 /* ios_eliteariafan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ios_eliteariafan.h; path = ../src/ios/ios_eliteariafan.h; sourceTree = "<group>"; };
-		87540FAC2848FD70005E0D44 /* libqtexttospeech_speechios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtexttospeech_speechios.a; path = "$(QZ_QT_ROOT)/plugins/texttospeech/libqtexttospeech_speechios.a"; sourceTree = "<group>"; };
+		87540FAC2848FD70005E0D44 /* libqtexttospeech_speechios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtexttospeech_speechios.a; path = "$(QZ_QT_IOS_ROOT)/plugins/texttospeech/libqtexttospeech_speechios.a"; sourceTree = "<group>"; };
 		8754D24B27F786F0003D7054 /* virtualrower.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = virtualrower.swift; path = ../src/ios/virtualrower.swift; sourceTree = "<group>"; };
 		8755E5D12E4E260B006A12E4 /* fontmanager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fontmanager.h; path = ../src/fontmanager.h; sourceTree = SOURCE_ROOT; };
 		8755E5D22E4E260B006A12E4 /* fontmanager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fontmanager.cpp; path = ../src/fontmanager.cpp; sourceTree = SOURCE_ROOT; };
@@ -1341,7 +1334,6 @@
 		8768C8B02BBC11C70099DBE1 /* fdevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fdevent.h; path = ../src/ios/adb/adb/fdevent.h; sourceTree = "<group>"; };
 		8768C8B12BBC11C70099DBE1 /* AdbClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AdbClient.m; path = ../src/ios/adb/adb/AdbClient.m; sourceTree = "<group>"; };
 		8768C8B22BBC11C70099DBE1 /* adb_auth_host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = adb_auth_host.c; path = ../src/ios/adb/adb/adb_auth_host.c; sourceTree = "<group>"; };
-		A8768C8E2BBC11C70099DBE1 /* adb_auth_host_simulator.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = adb_auth_host_simulator.c; path = "/Users/cagnulein/qdomyos-zwift/qt-patches/ios/5.15.2/simulator/adb_auth_host_simulator.c"; sourceTree = "<absolute>"; };
 		8768C8B32BBC11C70099DBE1 /* commandline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = commandline.c; path = ../src/ios/adb/adb/commandline.c; sourceTree = "<group>"; };
 		8768C8B42BBC11C70099DBE1 /* adb_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = adb_client.c; path = ../src/ios/adb/adb/adb_client.c; sourceTree = "<group>"; };
 		8768C8B52BBC11C80099DBE1 /* sockets.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sockets.c; path = ../src/ios/adb/adb/sockets.c; sourceTree = "<group>"; };
@@ -1450,7 +1442,7 @@
 		877758B22C98627300BB1697 /* moc_sportstechelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportstechelliptical.cpp; sourceTree = "<group>"; };
 		877758B42C98629B00BB1697 /* sportstechelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sportstechelliptical.h; path = ../src/devices/sportstechelliptical/sportstechelliptical.h; sourceTree = "<group>"; };
 		877758B52C98629B00BB1697 /* sportstechelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sportstechelliptical.cpp; path = ../src/devices/sportstechelliptical/sportstechelliptical.cpp; sourceTree = "<group>"; };
-		877A7606269D8E0F0024DD2C /* libqtwebview_darwin_debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtwebview_darwin_debug.a; path = "$(QZ_QT_ROOT)/plugins/webview/libqtwebview_darwin_debug.a"; sourceTree = "<group>"; };
+		877A7606269D8E0F0024DD2C /* libqtwebview_darwin_debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtwebview_darwin_debug.a; path = "$(QZ_QT_IOS_ROOT)/plugins/webview/libqtwebview_darwin_debug.a"; sourceTree = "<group>"; };
 		877A7608269D8E9F0024DD2C /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		877FBA27276E684400F6C0C9 /* bowflextreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bowflextreadmill.cpp; path = ../src/devices/bowflextreadmill/bowflextreadmill.cpp; sourceTree = "<group>"; };
 		877FBA28276E684400F6C0C9 /* bowflextreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bowflextreadmill.h; path = ../src/devices/bowflextreadmill/bowflextreadmill.h; sourceTree = "<group>"; };
@@ -1462,12 +1454,12 @@
 		8781907C2615089D0085E656 /* peloton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = peloton.cpp; path = ../src/peloton.cpp; sourceTree = "<group>"; };
 		8781907D2615089D0085E656 /* peloton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = peloton.h; path = ../src/peloton.h; sourceTree = "<group>"; };
 		8781907F261508B10085E656 /* moc_peloton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_peloton.cpp; sourceTree = "<group>"; };
-		8781908126150B490085E656 /* libqtlabsplatformplugin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtlabsplatformplugin.a; path = "$(QZ_QT_ROOT)/qml/Qt/labs/platform/libqtlabsplatformplugin.a"; sourceTree = "<group>"; };
-		8781908326150C5B0085E656 /* libqtlabsplatformplugin_debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtlabsplatformplugin_debug.a; path = "$(QZ_QT_ROOT)/qml/Qt/labs/platform/libqtlabsplatformplugin_debug.a"; sourceTree = "<group>"; };
+		8781908126150B490085E656 /* libqtlabsplatformplugin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtlabsplatformplugin.a; path = "$(QZ_QT_IOS_ROOT)/qml/Qt/labs/platform/libqtlabsplatformplugin.a"; sourceTree = "<group>"; };
+		8781908326150C5B0085E656 /* libqtlabsplatformplugin_debug.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtlabsplatformplugin_debug.a; path = "$(QZ_QT_IOS_ROOT)/qml/Qt/labs/platform/libqtlabsplatformplugin_debug.a"; sourceTree = "<group>"; };
 		878225C234983ACB863D2D29 /* fit_nmea_sentence_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_nmea_sentence_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_nmea_sentence_mesg.hpp"; sourceTree = "<absolute>"; };
 		8783153A25E8D81E0007817C /* moc_sportstechbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportstechbike.cpp; sourceTree = "<group>"; };
 		87842E7E25AF88FB00321E69 /* secret.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = secret.h; path = ../src/secret.h; sourceTree = "<group>"; };
-		878521CC2E42552A00922796 /* libqtlabscalendarplugin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtlabscalendarplugin.a; path = "$(QZ_QT_ROOT)/qml/Qt/labs/calendar/libqtlabscalendarplugin.a"; sourceTree = "<group>"; };
+		878521CC2E42552A00922796 /* libqtlabscalendarplugin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtlabscalendarplugin.a; path = "$(QZ_QT_IOS_ROOT)/qml/Qt/labs/calendar/libqtlabscalendarplugin.a"; sourceTree = "<group>"; };
 		878521D12E44B26600922796 /* moc_nordictrackifitadbrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_nordictrackifitadbrower.cpp; sourceTree = "<group>"; };
 		878521D22E44B26600922796 /* nordictrackifitadbrower.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = nordictrackifitadbrower.h; path = ../src/devices/nordictrackifitadbrower/nordictrackifitadbrower.h; sourceTree = SOURCE_ROOT; };
 		878521D32E44B26600922796 /* nordictrackifitadbrower.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = nordictrackifitadbrower.cpp; path = ../src/devices/nordictrackifitadbrower/nordictrackifitadbrower.cpp; sourceTree = SOURCE_ROOT; };
@@ -1485,7 +1477,7 @@
 		87873AF22D09AADF005F86B4 /* sportsplusrower.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sportsplusrower.h; path = ../src/devices/sportsplusrower/sportsplusrower.h; sourceTree = SOURCE_ROOT; };
 		878895D92DD48AB100BF5162 /* inclinationresistancetable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = inclinationresistancetable.h; path = ../src/inclinationresistancetable.h; sourceTree = SOURCE_ROOT; };
 		878895DA2DD48AB100BF5162 /* moc_inclinationresistancetable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inclinationresistancetable.cpp; sourceTree = "<group>"; };
-		8789DCDB6A4F681A76DF3F92 /* Qt5Widgets */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Widgets; path = "$(QZ_QT_ROOT)/lib/libQt5Widgets$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		8789DCDB6A4F681A76DF3F92 /* Qt5Widgets */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Widgets; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Widgets$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		878A331725AB4FF800BD13E1 /* yesoulbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = yesoulbike.cpp; path = ../src/devices/yesoulbike/yesoulbike.cpp; sourceTree = "<group>"; };
 		878A331825AB4FF800BD13E1 /* yesoulbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = yesoulbike.h; path = ../src/devices/yesoulbike/yesoulbike.h; sourceTree = "<group>"; };
 		878A331B25AB50C200BD13E1 /* moc_yesoulbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_yesoulbike.cpp; sourceTree = "<group>"; };
@@ -1537,11 +1529,11 @@
 		879F16442847E55C00CE4945 /* proformellipticaltrainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformellipticaltrainer.cpp; path = ../src/devices/proformellipticaltrainer/proformellipticaltrainer.cpp; sourceTree = "<group>"; };
 		879F16452847E55C00CE4945 /* proformellipticaltrainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformellipticaltrainer.h; path = ../src/devices/proformellipticaltrainer/proformellipticaltrainer.h; sourceTree = "<group>"; };
 		879F16472847E57400CE4945 /* moc_proformellipticaltrainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformellipticaltrainer.cpp; sourceTree = "<group>"; };
-		879F74082893D4B5009A64C8 /* libQt5MultimediaWidgets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaWidgets.a; path = "$(QZ_QT_ROOT)/lib/libQt5MultimediaWidgets.a"; sourceTree = "<group>"; };
-		879F740A2893D4F9009A64C8 /* libqtaudio_coreaudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtaudio_coreaudio.a; path = "$(QZ_QT_ROOT)/plugins/audio/libqtaudio_coreaudio.a"; sourceTree = "<group>"; };
-		879F740B2893D4F9009A64C8 /* libqtmultimedia_m3u.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtmultimedia_m3u.a; path = "$(QZ_QT_ROOT)/plugins/playlistformats/libqtmultimedia_m3u.a"; sourceTree = "<group>"; };
-		879F740E2893D591009A64C8 /* libqtmedia_audioengine.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtmedia_audioengine.a; path = "$(QZ_QT_ROOT)/plugins/mediaservice/libqtmedia_audioengine.a"; sourceTree = "<group>"; };
-		879F74102893D5B7009A64C8 /* libqavfcamera.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfcamera.a; path = "$(QZ_QT_ROOT)/plugins/mediaservice/libqavfcamera.a"; sourceTree = "<group>"; };
+		879F74082893D4B5009A64C8 /* libQt5MultimediaWidgets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaWidgets.a; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5MultimediaWidgets.a"; sourceTree = "<group>"; };
+		879F740A2893D4F9009A64C8 /* libqtaudio_coreaudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtaudio_coreaudio.a; path = "$(QZ_QT_IOS_ROOT)/plugins/audio/libqtaudio_coreaudio.a"; sourceTree = "<group>"; };
+		879F740B2893D4F9009A64C8 /* libqtmultimedia_m3u.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtmultimedia_m3u.a; path = "$(QZ_QT_IOS_ROOT)/plugins/playlistformats/libqtmultimedia_m3u.a"; sourceTree = "<group>"; };
+		879F740E2893D591009A64C8 /* libqtmedia_audioengine.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtmedia_audioengine.a; path = "$(QZ_QT_IOS_ROOT)/plugins/mediaservice/libqtmedia_audioengine.a"; sourceTree = "<group>"; };
+		879F74102893D5B7009A64C8 /* libqavfcamera.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfcamera.a; path = "$(QZ_QT_IOS_ROOT)/plugins/mediaservice/libqavfcamera.a"; sourceTree = "<group>"; };
 		879F74122893D705009A64C8 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		879F74142893D732009A64C8 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		87A0770E29B641D500A368BF /* wahookickrheadwind.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wahookickrheadwind.h; path = ../src/devices/wahookickrheadwind/wahookickrheadwind.h; sourceTree = "<group>"; };
@@ -1611,7 +1603,7 @@
 		87BAFE492B8CAA4200065FCD /* focustreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = focustreadmill.cpp; path = ../src/devices/focustreadmill/focustreadmill.cpp; sourceTree = "<group>"; };
 		87BAFE4A2B8CAA4200065FCD /* focustreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = focustreadmill.h; path = ../src/devices/focustreadmill/focustreadmill.h; sourceTree = "<group>"; };
 		87BB1773269E983200F46A1C /* moc_webserverinfosender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_webserverinfosender.cpp; sourceTree = "<group>"; };
-		87BB1775269E987000F46A1C /* libQt5HttpServer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5HttpServer.a; path = "$(QZ_QT_ROOT)/lib/libQt5HttpServer.a"; sourceTree = "<group>"; };
+		87BB1775269E987000F46A1C /* libQt5HttpServer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5HttpServer.a; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5HttpServer.a"; sourceTree = "<group>"; };
 		87BCE6BB29F28F72001F70EB /* ypooelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ypooelliptical.h; path = ../src/devices/ypooelliptical/ypooelliptical.h; sourceTree = "<group>"; };
 		87BCE6BC29F28F72001F70EB /* ypooelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ypooelliptical.cpp; path = ../src/devices/ypooelliptical/ypooelliptical.cpp; sourceTree = "<group>"; };
 		87BCE6BE29F28F94001F70EB /* moc_ypooelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_ypooelliptical.cpp; sourceTree = "<group>"; };
@@ -1713,7 +1705,7 @@
 		87DA62A92D2305F5008ADA0F /* characteristicwriteprocessor0003.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicwriteprocessor0003.cpp; path = ../src/characteristics/characteristicwriteprocessor0003.cpp; sourceTree = SOURCE_ROOT; };
 		87DA62AD2D2426F2008ADA0F /* characteristicnotifier0004.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier0004.cpp; path = ../src/characteristics/characteristicnotifier0004.cpp; sourceTree = SOURCE_ROOT; };
 		87DA62AE2D2426F2008ADA0F /* moc_characteristicnotifier0004.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = moc_characteristicnotifier0004.cpp; sourceTree = "<group>"; };
-		87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5TextToSpeech.a; path = "$(QZ_QT_ROOT)/lib/libQt5TextToSpeech.a"; sourceTree = "<group>"; };
+		87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5TextToSpeech.a; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5TextToSpeech.a"; sourceTree = "<group>"; };
 		87DA8463284933D200B550E9 /* fakeelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fakeelliptical.h; path = ../src/devices/fakeelliptical/fakeelliptical.h; sourceTree = "<group>"; };
 		87DA8464284933D200B550E9 /* fakeelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fakeelliptical.cpp; path = ../src/devices/fakeelliptical/fakeelliptical.cpp; sourceTree = "<group>"; };
 		87DA8466284933DE00B550E9 /* moc_fakeelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fakeelliptical.cpp; sourceTree = "<group>"; };
@@ -1850,30 +1842,29 @@
 		8865E12618F8B1C6C0E68392 /* fit_magnetometer_data_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_magnetometer_data_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_magnetometer_data_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		888A6DE1E4CF07F80E80394B /* fit_climb_pro_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_climb_pro_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_climb_pro_mesg.hpp"; sourceTree = "<absolute>"; };
 		89342BA50B7537C46D310A9D /* moc_gpx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_gpx.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_gpx.cpp"; sourceTree = "<absolute>"; };
-		89A39FC11EDB19EAA47B6F76 /* qtfreetype */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtfreetype; path = "$(QZ_QT_ROOT)/lib/libqtfreetype$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		8A1522D42ABB161A9A09FF59 /* Qt5Gui */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Gui; path = "$(QZ_QT_ROOT)/lib/libQt5Gui$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		89A39FC11EDB19EAA47B6F76 /* qtfreetype */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtfreetype; path = "$(QZ_QT_IOS_ROOT)/lib/libqtfreetype$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		8A1522D42ABB161A9A09FF59 /* Qt5Gui */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Gui; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Gui$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		8A55AD20C6936E085932580C /* fit_speed_zone_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_speed_zone_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_speed_zone_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		8B0816603DB339FD29187CF0 /* trainprogram.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = trainprogram.h; path = "/Users/cagnulein/qdomyos-zwift/src/trainprogram.h"; sourceTree = "<absolute>"; };
 		8B4D3E8297D9B0A3F6D0E502 /* fit_exercise_title_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_exercise_title_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_exercise_title_mesg.hpp"; sourceTree = "<absolute>"; };
 		8D4707FE7D1DA58A70A11CF8 /* lockscreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lockscreen.h; path = "/Users/cagnulein/qdomyos-zwift/src/macos/lockscreen.h"; sourceTree = "<absolute>"; };
 		8DD3B05BF7374DC62BC3BA4A /* qdomyoszwift_plugin_import.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qdomyoszwift_plugin_import.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_plugin_import.cpp"; sourceTree = "<absolute>"; };
-		8DD3B05CF7374DC62BC3BA4A /* qdomyoszwift_plugin_import_simulator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qdomyoszwift_plugin_import_simulator.cpp; path = "/Users/cagnulein/qdomyos-zwift/qt-patches/ios/5.15.2/simulator/qdomyoszwift_plugin_import_simulator.cpp"; sourceTree = "<absolute>"; };
 		8E28393138FD66362FE1D92E /* fit_accumulator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_accumulator.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_accumulator.cpp"; sourceTree = "<absolute>"; };
 		8F482725CD95AE73BEF24D76 /* qrc_icons.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qrc_icons.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qrc_icons.cpp"; sourceTree = "<absolute>"; };
-		90C9FE418CA050D1AC2BCB2B /* qmldbg_quickprofiler */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_quickprofiler; path = "$(QZ_QT_ROOT)/plugins/qmltooling/libqmldbg_quickprofiler$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		90C9FE418CA050D1AC2BCB2B /* qmldbg_quickprofiler */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_quickprofiler; path = "$(QZ_QT_IOS_ROOT)/plugins/qmltooling/libqmldbg_quickprofiler$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		9111CC8E4164ABC7A54D0B4A /* fit_accumulated_field.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_accumulated_field.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_accumulated_field.cpp"; sourceTree = "<absolute>"; };
 		91FFA914EF163FF4E488BA7B /* fit_course_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_course_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_course_mesg.hpp"; sourceTree = "<absolute>"; };
 		9249B4886DCA2386CC690541 /* fit_dive_gas_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_gas_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_gas_mesg.hpp"; sourceTree = "<absolute>"; };
 		927C1A1F9DBC30BF1869BC30 /* fit_factory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_factory.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_factory.cpp"; sourceTree = "<absolute>"; };
-		9318CF85175B503D5FA0FF8A /* qwbmp */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qwbmp; path = "$(QZ_QT_ROOT)/plugins/imageformats/libqwbmp$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		9318CF85175B503D5FA0FF8A /* qwbmp */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qwbmp; path = "$(QZ_QT_IOS_ROOT)/plugins/imageformats/libqwbmp$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		93AB62BB0AC4F27ABB2949FF /* fit_pad_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_pad_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_pad_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		93CEBE826C346C0415AC9076 /* moc_bike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_bike.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_bike.cpp"; sourceTree = "<absolute>"; };
 		9451EBD267E776E88E3C824C /* fit_goal_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_goal_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_goal_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		949EB06B0913CAC86346EE8A /* Qt5Network */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Network; path = "$(QZ_QT_ROOT)/lib/libQt5Network$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		949EB06B0913CAC86346EE8A /* Qt5Network */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Network; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Network$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		95F1364306E2349DBB02A33F /* fit_video_title_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_video_title_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_video_title_mesg.hpp"; sourceTree = "<absolute>"; };
 		972201321262CAF9BF6BFF3E /* fit_sdm_profile_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_sdm_profile_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_sdm_profile_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		979665D469BF71FCE507F3AB /* fit_workout_session_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_workout_session_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_workout_session_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		97EFF7846289A54CEEFC5585 /* qmacheif */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmacheif; path = "$(QZ_QT_ROOT)/plugins/imageformats/libqmacheif$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		97EFF7846289A54CEEFC5585 /* qmacheif */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmacheif; path = "$(QZ_QT_IOS_ROOT)/plugins/imageformats/libqmacheif$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		987C61F086FCC7F5DC23A49C /* fit_hrv_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_hrv_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_hrv_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		98C934B805608C9765F52450 /* fit_dive_alarm_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_alarm_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_alarm_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		98EACCB9AACFA63F35D12906 /* fit_user_profile_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_user_profile_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_user_profile_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -1881,21 +1872,21 @@
 		9AAC17C5410E722893871A19 /* fit_timestamp_correlation_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_timestamp_correlation_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_timestamp_correlation_mesg.hpp"; sourceTree = "<absolute>"; };
 		9AF23152E858A0D5AEF1654D /* fit_bike_profile_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_bike_profile_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_bike_profile_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		9C042EE785E37E4C45C94A92 /* icons.qrc */ = {isa = PBXFileReference; lastKnownFileType = text; name = icons.qrc; path = "/Users/cagnulein/qdomyos-zwift/src/icons.qrc"; sourceTree = "<absolute>"; };
-		9C1607DFCA6D86481389ACD0 /* qmldbg_server */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_server; path = "$(QZ_QT_ROOT)/plugins/qmltooling/libqmldbg_server$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		9C1607DFCA6D86481389ACD0 /* qmldbg_server */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_server; path = "$(QZ_QT_IOS_ROOT)/plugins/qmltooling/libqmldbg_server$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		9C5820C2D054F5B3B6DA4797 /* fit_three_d_sensor_calibration_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_three_d_sensor_calibration_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_three_d_sensor_calibration_mesg.hpp"; sourceTree = "<absolute>"; };
 		9D38D4E171C8AB0083B37CBE /* fit_segment_leaderboard_entry_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_leaderboard_entry_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_segment_leaderboard_entry_mesg.hpp"; sourceTree = "<absolute>"; };
 		9D68BA4FF1E54C4038090962 /* fit_file_id_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_file_id_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_file_id_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		9E457469ED7F3FC06D76EE59 /* workerscriptplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = workerscriptplugin; path = "$(QZ_QT_ROOT)/qml/QtQml/WorkerScript.2/libworkerscriptplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		9E457469ED7F3FC06D76EE59 /* workerscriptplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = workerscriptplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQml/WorkerScript.2/libworkerscriptplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		9F819AC38ADC70E4DA4F7B7A /* fit_developer_field.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_developer_field.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_developer_field.hpp"; sourceTree = "<absolute>"; };
 		9FBFFD636881FF4404395749 /* fit_mesg_broadcaster.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_mesg_broadcaster.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg_broadcaster.cpp"; sourceTree = "<absolute>"; };
-		A0219283E2F99E1F6F92D138 /* qtquickcontrolsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrolsplugin; path = "$(QZ_QT_ROOT)/qml/QtQuick/Controls/libqtquickcontrolsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		A0219283E2F99E1F6F92D138 /* qtquickcontrolsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrolsplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls/libqtquickcontrolsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		A0B4F399E69F9DB33D29967A /* fit_video_title_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_video_title_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_video_title_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		A2300D212213DF815B6F81F1 /* fit_weather_alert_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_weather_alert_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_weather_alert_mesg.hpp"; sourceTree = "<absolute>"; };
-		A3B7795DDA9043207BEE4623 /* qmacjp2 */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmacjp2; path = "$(QZ_QT_ROOT)/plugins/imageformats/libqmacjp2$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		A3B7795DDA9043207BEE4623 /* qmacjp2 */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmacjp2; path = "$(QZ_QT_IOS_ROOT)/plugins/imageformats/libqmacjp2$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		A406BF2677B8A6421FC836FE /* moc_mainwindow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_mainwindow.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_mainwindow.cpp"; sourceTree = "<absolute>"; };
 		A476EBDA6D9C717A83740D5E /* fit_mesg_definition_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_definition_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg_definition_listener.hpp"; sourceTree = "<absolute>"; };
-		A4E4DB5B562076805BA75579 /* qtgraphicaleffectsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtgraphicaleffectsplugin; path = "$(QZ_QT_ROOT)/qml/QtGraphicalEffects/libqtgraphicaleffectsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		A50AE6FF3FCCB21C33FBBFA3 /* qtharfbuzz */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtharfbuzz; path = "$(QZ_QT_ROOT)/lib/libqtharfbuzz$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		A4E4DB5B562076805BA75579 /* qtgraphicaleffectsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtgraphicaleffectsplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects/libqtgraphicaleffectsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		A50AE6FF3FCCB21C33FBBFA3 /* qtharfbuzz */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtharfbuzz; path = "$(QZ_QT_IOS_ROOT)/lib/libqtharfbuzz$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		A59EA4D453581E7D5FB8C0A2 /* toorxtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = toorxtreadmill.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/devices/toorxtreadmill/toorxtreadmill.cpp"; sourceTree = "<absolute>"; };
 		A5E70F638A0465104A5E627A /* fit_training_file_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_training_file_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_training_file_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		A606E3B1B35A677B552BC3CA /* bluetoothdevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bluetoothdevice.h; path = "/Users/cagnulein/qdomyos-zwift/src/devices/bluetoothdevice.h"; sourceTree = "<absolute>"; };
@@ -1915,36 +1906,36 @@
 		AF3D02835DF1EBAAA7EDC3E1 /* sessionline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sessionline.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/sessionline.cpp"; sourceTree = "<absolute>"; };
 		B0BE11FB9531A6AD480B20E7 /* bluetooth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = bluetooth.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/devices/bluetooth.cpp"; sourceTree = "<absolute>"; };
 		B0CED98BD11B76B1058DC400 /* fit_file_creator_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_file_creator_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_file_creator_mesg.hpp"; sourceTree = "<absolute>"; };
-		B17592D78E01BCF06F1BE2CE /* qmldbg_native */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_native; path = "$(QZ_QT_ROOT)/plugins/qmltooling/libqmldbg_native$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		B17592D78E01BCF06F1BE2CE /* qmldbg_native */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_native; path = "$(QZ_QT_IOS_ROOT)/plugins/qmltooling/libqmldbg_native$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		B195F7B46E0D216CD199265D /* fit_segment_lap_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_lap_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_segment_lap_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		B234B4914CFE58EBE70865C2 /* qmldbg_tcp */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_tcp; path = "$(QZ_QT_ROOT)/plugins/qmltooling/libqmldbg_tcp$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		B234B4914CFE58EBE70865C2 /* qmldbg_tcp */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_tcp; path = "$(QZ_QT_IOS_ROOT)/plugins/qmltooling/libqmldbg_tcp$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		B242BFE36E3F15AD4EFCB61F /* fit_power_zone_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_power_zone_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_power_zone_mesg.hpp"; sourceTree = "<absolute>"; };
-		B2C2CA9FB8A3DF5607FFB9DF /* qt_poly2tri */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qt_poly2tri; path = "$(QZ_QT_ROOT)/lib/libqt_poly2tri$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		B2C2CA9FB8A3DF5607FFB9DF /* qt_poly2tri */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qt_poly2tri; path = "$(QZ_QT_IOS_ROOT)/lib/libqt_poly2tri$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		B413A3CBEE9F25FBF8B9C9C7 /* fit_mesg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_mesg.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg.cpp"; sourceTree = "<absolute>"; };
-		B42FF181BBD2D37823B24A3C /* Qt5QmlModels */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5QmlModels; path = "$(QZ_QT_ROOT)/lib/libQt5QmlModels$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		B42FF181BBD2D37823B24A3C /* Qt5QmlModels */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5QmlModels; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5QmlModels$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		B650DD80D37DFF9DCA10E9F5 /* moc_echelonconnectsport.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_echelonconnectsport.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_echelonconnectsport.cpp"; sourceTree = "<absolute>"; };
 		B70A13AEDC89A32E22E987E1 /* FitDecode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FitDecode.h; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/FitDecode.h"; sourceTree = "<absolute>"; };
-		B8C1C08433295BD55DB2D0F2 /* qtquick2plugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquick2plugin; path = "$(QZ_QT_ROOT)/qml/QtQuick.2/libqtquick2plugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		B9CCC4658EA620ABBD832E71 /* dialogplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = dialogplugin; path = "$(QZ_QT_ROOT)/qml/QtQuick/Dialogs/libdialogplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		B8C1C08433295BD55DB2D0F2 /* qtquick2plugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquick2plugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick.2/libqtquick2plugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		B9CCC4658EA620ABBD832E71 /* dialogplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = dialogplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs/libdialogplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		B9D4E71A2A2B970C0214C5FB /* fit_profile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_profile.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_profile.hpp"; sourceTree = "<absolute>"; };
 		BAB9CD7880A35468F831A8E3 /* fit_totals_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_totals_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_totals_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		BAEFF521B3994ABE2E78D2E2 /* fit_weight_scale_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_weight_scale_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_weight_scale_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		BAF1110297C7FAFB6F11953A /* fit_cadence_zone_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_cadence_zone_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_cadence_zone_mesg.hpp"; sourceTree = "<absolute>"; };
 		BBBF307E2FE441F071177CEF /* fit_sport_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_sport_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_sport_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		BC3A8C3E433A8FA00BB15F07 /* qios */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qios; path = "$(QZ_QT_ROOT)/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		BDADBFB8B26EC3CDA415285D /* qtgraphicaleffectsprivate */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtgraphicaleffectsprivate; path = "$(QZ_QT_ROOT)/qml/QtGraphicalEffects/private/libqtgraphicaleffectsprivate$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		BC3A8C3E433A8FA00BB15F07 /* qios */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qios; path = "$(QZ_QIOS_ARCHIVE)"; sourceTree = "<absolute>"; };
+		BDADBFB8B26EC3CDA415285D /* qtgraphicaleffectsprivate */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtgraphicaleffectsprivate; path = "$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects/private/libqtgraphicaleffectsprivate$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		BDCEC0D3358F9C522E0B39D3 /* lockscreen.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = lockscreen.mm; path = "/Users/cagnulein/qdomyos-zwift/src/ios/lockscreen.mm"; sourceTree = "<absolute>"; };
 		BDE58BCA9ABD5DF101B0E0FF /* fit_field_base.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_field_base.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_field_base.cpp"; sourceTree = "<absolute>"; };
 		BE9F7ACBD999C64167C2A8F7 /* fit_met_zone_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_met_zone_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_met_zone_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		BF8BB634741A846807A575CD /* fit_schedule_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_schedule_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_schedule_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		C0643B4B39AE155ECF994BAB /* moc_bluetooth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_bluetooth.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_bluetooth.cpp"; sourceTree = "<absolute>"; };
 		C065123FFACD9C049C1DFB08 /* fit_obdii_data_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_obdii_data_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_obdii_data_mesg.hpp"; sourceTree = "<absolute>"; };
-		C0DD5A6F70599F8D29D16506 /* qmldbg_debugger */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_debugger; path = "$(QZ_QT_ROOT)/plugins/qmltooling/libqmldbg_debugger$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		C0DD5A6F70599F8D29D16506 /* qmldbg_debugger */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_debugger; path = "$(QZ_QT_IOS_ROOT)/plugins/qmltooling/libqmldbg_debugger$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		C166DF92E4CB1C4CF2955F54 /* fit_buffer_encode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_buffer_encode.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_buffer_encode.cpp"; sourceTree = "<absolute>"; };
 		C232443788A73EA8BF9F751F /* fit_developer_field_description.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_developer_field_description.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_developer_field_description.hpp"; sourceTree = "<absolute>"; };
 		C2DCA4E24E73E10BF19F146B /* fit_software_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_software_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_software_mesg.hpp"; sourceTree = "<absolute>"; };
 		C4172B908B41C3EE3EEB98CD /* fit_segment_lap_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_lap_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_segment_lap_mesg.hpp"; sourceTree = "<absolute>"; };
-		C6011F04E7EDAE1BCCD3E292 /* qtposition_cl */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtposition_cl; path = "$(QZ_QT_ROOT)/plugins/position/libqtposition_cl$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		C6011F04E7EDAE1BCCD3E292 /* qtposition_cl */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtposition_cl; path = "$(QZ_QT_IOS_ROOT)/plugins/position/libqtposition_cl$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		C64688EED1A9C48051426FD0 /* fit_hr_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_hr_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_hr_mesg.hpp"; sourceTree = "<absolute>"; };
 		C68636FC896EE1FBC6EF7DEC /* fit_blood_pressure_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_blood_pressure_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_blood_pressure_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		C6C43A7A65ED8071348F5A4E /* fit_encode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_encode.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_encode.cpp"; sourceTree = "<absolute>"; };
@@ -1953,7 +1944,7 @@
 		C844746963EDB427F8421941 /* fit_memo_glob_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_memo_glob_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_memo_glob_mesg.hpp"; sourceTree = "<absolute>"; };
 		C8C06A457EDC9CEAA9A93891 /* signalhandler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = signalhandler.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/signalhandler.cpp"; sourceTree = "<absolute>"; };
 		C8CE72E7B224D8B886614E3F /* domyosbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = domyosbike.h; path = "/Users/cagnulein/qdomyos-zwift/src/devices/domyosbike/domyosbike.h"; sourceTree = "<absolute>"; };
-		C92901A50585DAC2A5D43A2F /* qtquicktemplates2plugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquicktemplates2plugin; path = "$(QZ_QT_ROOT)/qml/QtQuick/Templates.2/libqtquicktemplates2plugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		C92901A50585DAC2A5D43A2F /* qtquicktemplates2plugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquicktemplates2plugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick/Templates.2/libqtquicktemplates2plugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		CA35DDC56ACD982A52226071 /* fit_developer_field_description.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_developer_field_description.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_developer_field_description.cpp"; sourceTree = "<absolute>"; };
 		CA44C08759DF30D7DC9CA598 /* moc_treadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_treadmill.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_treadmill.cpp"; sourceTree = "<absolute>"; };
 		CA5B0D4B40EE98D248687FC4 /* fit_buffered_record_mesg_broadcaster.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_buffered_record_mesg_broadcaster.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_buffered_record_mesg_broadcaster.cpp"; sourceTree = "<absolute>"; };
@@ -1972,9 +1963,9 @@
 		D1C9B603026AB12395E6AC08 /* bike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bike.h; path = "/Users/cagnulein/qdomyos-zwift/src/devices/bike.h"; sourceTree = "<absolute>"; };
 		D28BB313D740AB36C8A57B2A /* fit_slave_device_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_slave_device_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_slave_device_mesg.hpp"; sourceTree = "<absolute>"; };
 		D39E5F932A559993FEFB6FA2 /* fit_dive_settings_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_settings_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_settings_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		D53B44F1A36DBDF71393476C /* Qt5Bluetooth */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Bluetooth; path = "$(QZ_QT_ROOT)/lib/libQt5Bluetooth$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		D53B44F1A36DBDF71393476C /* Qt5Bluetooth */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Bluetooth; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Bluetooth$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		D6203CEA0357B972E6CA8F14 /* fit_activity_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_activity_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_activity_mesg.hpp"; sourceTree = "<absolute>"; };
-		D6E2D5FA8D8FB69B3EF9EC23 /* qtquickcontrols2universalstyleplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrols2universalstyleplugin; path = "$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/Universal/libqtquickcontrols2universalstyleplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		D6E2D5FA8D8FB69B3EF9EC23 /* qtquickcontrols2universalstyleplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrols2universalstyleplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Universal/libqtquickcontrols2universalstyleplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		D715A336A73F92FF7840FC8D /* fit_capabilities_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_capabilities_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_capabilities_mesg.hpp"; sourceTree = "<absolute>"; };
 		D729C949911424C2B076B6D5 /* fit_totals_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_totals_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_totals_mesg.hpp"; sourceTree = "<absolute>"; };
 		D74777895495FC2ACC65D2E1 /* fit_magnetometer_data_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_magnetometer_data_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_magnetometer_data_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -1982,14 +1973,14 @@
 		D861199E7B3AF6A9807E8183 /* fit_device_info_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_device_info_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_device_info_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		D87A433B34AB3CF698433104 /* fit_workout_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_workout_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_workout_mesg.hpp"; sourceTree = "<absolute>"; };
 		D8946F0AC74D2A64CFE1B341 /* fit_mesg_capabilities_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_capabilities_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg_capabilities_mesg.hpp"; sourceTree = "<absolute>"; };
-		D9138949E6E9FBB803204F0A /* qtlibpng */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtlibpng; path = "$(QZ_QT_ROOT)/lib/libqtlibpng$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		D9138949E6E9FBB803204F0A /* qtlibpng */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtlibpng; path = "$(QZ_QT_IOS_ROOT)/lib/libqtlibpng$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		D9351243669C23205F386CE1 /* fit_power_zone_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_power_zone_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_power_zone_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		D95B4E8B3F1AEB4D59A86FDE /* echelonconnectsport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = echelonconnectsport.h; path = "/Users/cagnulein/qdomyos-zwift/src/devices/echelonconnectsport/echelonconnectsport.h"; sourceTree = "<absolute>"; };
-		DA39C782450459CE876C7BB0 /* Qt5GraphicsSupport */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5GraphicsSupport; path = "$(QZ_QT_ROOT)/lib/libQt5GraphicsSupport$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		DA39C782450459CE876C7BB0 /* Qt5GraphicsSupport */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5GraphicsSupport; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5GraphicsSupport$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		DA62E7E176F8188DADBD1310 /* moc_virtualtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_virtualtreadmill.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_virtualtreadmill.cpp"; sourceTree = "<absolute>"; };
 		DCC868EE625793828AA48429 /* fit_hr_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_hr_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_hr_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		DCCCA1B5E2A006C74BEFA2AD /* sessionline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sessionline.h; path = "/Users/cagnulein/qdomyos-zwift/src/sessionline.h"; sourceTree = "<absolute>"; };
-		DCE85394048F261FAFEB8D22 /* Qt5Qml */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Qml; path = "$(QZ_QT_ROOT)/lib/libQt5Qml$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		DCE85394048F261FAFEB8D22 /* Qt5Qml */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Qml; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Qml$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		DE606F27929E48257858E3FE /* fit_mesg_with_event.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_with_event.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_mesg_with_event.hpp"; sourceTree = "<absolute>"; };
 		DE705A0CE85F2684E5B87639 /* treadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = treadmill.h; path = "/Users/cagnulein/qdomyos-zwift/src/devices/treadmill/treadmill.h"; sourceTree = "<absolute>"; };
 		DEBF0D8A499A60123F8BC482 /* keepawakehelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = keepawakehelper.h; path = "/Users/cagnulein/qdomyos-zwift/src/keepawakehelper.h"; sourceTree = "<absolute>"; };
@@ -1998,19 +1989,19 @@
 		E14DDD77D8D15343FCD06014 /* fit_nmea_sentence_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_nmea_sentence_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_nmea_sentence_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		E1BCBD0B82BBD27DE2102D7F /* FitEncode.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = FitEncode.mm; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/FitEncode.mm"; sourceTree = "<absolute>"; };
 		E1E3725B4629373C20F5C42F /* FitEncode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FitEncode.h; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/FitEncode.h"; sourceTree = "<absolute>"; };
-		E218CFDEBE52D198C97C360F /* Qt5FontDatabaseSupport */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5FontDatabaseSupport; path = "$(QZ_QT_ROOT)/lib/libQt5FontDatabaseSupport$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		E5A6F5635251CDA5B88F68BD /* qwebp */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qwebp; path = "$(QZ_QT_ROOT)/plugins/imageformats/libqwebp$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		E5D143E91F080437ABFA1E6F /* qtquickcontrols2materialstyleplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrols2materialstyleplugin; path = "$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/Material/libqtquickcontrols2materialstyleplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		E218CFDEBE52D198C97C360F /* Qt5FontDatabaseSupport */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5FontDatabaseSupport; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5FontDatabaseSupport$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		E5A6F5635251CDA5B88F68BD /* qwebp */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qwebp; path = "$(QZ_QT_IOS_ROOT)/plugins/imageformats/libqwebp$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		E5D143E91F080437ABFA1E6F /* qtquickcontrols2materialstyleplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrols2materialstyleplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Material/libqtquickcontrols2materialstyleplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		E73A8390D59E9D9DA0EFE2F9 /* fit_video_description_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_video_description_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_video_description_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		E7AB8973B285F5BE73AFC986 /* fit_obdii_data_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_obdii_data_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_obdii_data_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		E8B34F142455293F9490F665 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
 		E98059EC419843AC99CB67DC /* fit_session_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_session_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_session_mesg.hpp"; sourceTree = "<absolute>"; };
-		EAD1A43E10DA864FEDCC44B2 /* qgenericbearer */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qgenericbearer; path = "$(QZ_QT_ROOT)/plugins/bearer/libqgenericbearer$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		EAD1A43E10DA864FEDCC44B2 /* qgenericbearer */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qgenericbearer; path = "$(QZ_QT_IOS_ROOT)/plugins/bearer/libqgenericbearer$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		EBA7D3602F7B52A639B71072 /* fit_workout_step_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_workout_step_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_workout_step_mesg.hpp"; sourceTree = "<absolute>"; };
-		EC284D172E51EBBACD838A40 /* qmlplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmlplugin; path = "$(QZ_QT_ROOT)/qml/QtQml/libqmlplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		EC284D172E51EBBACD838A40 /* qmlplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmlplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQml/libqmlplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		ECDC1DEC1EFADCBE48005887 /* fit_camera_event_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_camera_event_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_camera_event_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		EE1C9DADE4347A926B026574 /* widgetsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = widgetsplugin; path = "$(QZ_QT_ROOT)/qml/QtQuick/PrivateWidgets/libwidgetsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		EEAF419252E924461C832253 /* Qt5Xml */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Xml; path = "$(QZ_QT_ROOT)/lib/libQt5Xml$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		EE1C9DADE4347A926B026574 /* widgetsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = widgetsplugin; path = "$(QZ_QT_IOS_ROOT)/qml/QtQuick/PrivateWidgets/libwidgetsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		EEAF419252E924461C832253 /* Qt5Xml */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Xml; path = "$(QZ_QT_IOS_ROOT)/lib/libQt5Xml$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		F0037505674C49C45594B144 /* fit_schedule_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_schedule_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_schedule_mesg.hpp"; sourceTree = "<absolute>"; };
 		F01E20E169E36DD89A22DA25 /* fit_zones_target_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_zones_target_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_zones_target_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		F1258BF0439627ACBCBEB926 /* treadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = treadmill.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/devices/treadmill.cpp"; sourceTree = "<absolute>"; };
@@ -2020,7 +2011,7 @@
 		F1FF0B7FA312D6CABD501205 /* fit_video_frame_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_video_frame_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_video_frame_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		F21213E1557D542A5833B7C4 /* mainwindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mainwindow.h; path = "/Users/cagnulein/qdomyos-zwift/src/mainwindow.h"; sourceTree = "<absolute>"; };
 		F291D2A65EBED1D41CE3A6E4 /* FitDeveloperField.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = FitDeveloperField.mm; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/FitDeveloperField.mm"; sourceTree = "<absolute>"; };
-		F2D2AC7BC610D06D226CEC34 /* qjpeg */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qjpeg; path = "$(QZ_QT_ROOT)/plugins/imageformats/libqjpeg$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
+		F2D2AC7BC610D06D226CEC34 /* qjpeg */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qjpeg; path = "$(QZ_QT_IOS_ROOT)/plugins/imageformats/libqjpeg$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		F34B9C4429B8A4C4AB280EA9 /* fit_segment_file_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_file_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_segment_file_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		F3B0A31277FCD46877B1C226 /* FitFieldDefinition.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = FitFieldDefinition.mm; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/FitFieldDefinition.mm"; sourceTree = "<absolute>"; };
 		F6549F48587D80D5A8731CC9 /* fit_ant_tx_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_tx_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ant_tx_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -2082,7 +2073,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				878521CD2E42552A00922796 /* libqtlabscalendarplugin.a in Link Binary With Libraries */,
-				8768C9282BBC13220099DBE1 /* libcrypto.a in Link Binary With Libraries */,
 				87FA94672B6B89FD00B6AB9A /* SwiftUI.framework in Link Binary With Libraries */,
 				879F74112893D5B8009A64C8 /* libqavfcamera.a in Link Binary With Libraries */,
 				879F740F2893D592009A64C8 /* libqtmedia_audioengine.a in Link Binary With Libraries */,
@@ -2354,7 +2344,6 @@
 				87A3BC24265642A200D302E3 /* moc_rower.cpp */,
 				8780D948264FB8B800192D41 /* moc_smartspin2k.cpp */,
 				87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */,
-				87F000012F0000000000000A /* moc_freebeatboombike.cpp */,
 				87F000012F00000000000005 /* moc_fitplusrower.cpp */,
 				875F69BA26342E9A0009FD78 /* moc_spirittreadmill.cpp */,
 				8718CBAA263063CE004BF4EE /* moc_soleelliptical.cpp */,
@@ -2398,7 +2387,6 @@
 				87CC3B9C25A08812001EC5A8 /* moc_elliptical.cpp */,
 				873063BF259DF2C500DA0F44 /* moc_heartratebelt.cpp */,
 				8DD3B05BF7374DC62BC3BA4A /* qdomyoszwift_plugin_import.cpp */,
-				8DD3B05CF7374DC62BC3BA4A /* qdomyoszwift_plugin_import_simulator.cpp */,
 				310AB027BBBCDE72251E1C01 /* qdomyoszwift_qml_plugin_import.cpp */,
 				8F482725CD95AE73BEF24D76 /* qrc_icons.cpp */,
 				49789298954386B0E136DA23 /* qrc_qml.cpp */,
@@ -2853,8 +2841,6 @@
 				8780D945264FB8AB00192D41 /* smartspin2k.h */,
 				87440FBC2640291700E4DC0B /* fitplusbike.cpp */,
 				87440FBB2640291700E4DC0B /* fitplusbike.h */,
-				87F000012F00000000000009 /* freebeatboombike.cpp */,
-				87F000012F00000000000008 /* freebeatboombike.h */,
 				87F000012F00000000000004 /* fitplusrower.cpp */,
 				87F000012F00000000000003 /* fitplusrower.h */,
 				875F69B826342E8D0009FD78 /* spirittreadmill.cpp */,
@@ -3050,7 +3036,6 @@
 			children = (
 				8768C9292BBC32AE0099DBE1 /* adb_auth.h */,
 				8768C8B22BBC11C70099DBE1 /* adb_auth_host.c */,
-				A8768C8E2BBC11C70099DBE1 /* adb_auth_host_simulator.c */,
 				8768C8B42BBC11C70099DBE1 /* adb_client.c */,
 				8768C8A32BBC11C70099DBE1 /* adb_client.h */,
 				8768C8AB2BBC11C70099DBE1 /* adb_trace.h */,
@@ -3859,7 +3844,6 @@
 				87B617F225F260150094A1CB /* moc_fitshowtreadmill.cpp in Compile Sources */,
 				87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */,
 				87F000012F00000000000001 /* fitplusrower.cpp in Compile Sources */,
-				87F000012F00000000000006 /* freebeatboombike.cpp in Compile Sources */,
 				8556B13A3D02D52A21FC5E3E /* bluetooth.cpp in Compile Sources */,
 				87586A4125B8340E00A243C4 /* proformbike.cpp in Compile Sources */,
 				87C5F0C126285E5F0067A1B5 /* mimeattachment.cpp in Compile Sources */,
@@ -4195,7 +4179,6 @@
 				0F974CB18B3E792B42270F19 /* FitDecode.mm in Compile Sources */,
 				87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */,
 				87F000012F00000000000002 /* moc_fitplusrower.cpp in Compile Sources */,
-				87F000012F00000000000007 /* moc_freebeatboombike.cpp in Compile Sources */,
 				8768C8CA2BBC11C80099DBE1 /* sockets.c in Compile Sources */,
 				87B617EC25F25FED0094A1CB /* screencapture.cpp in Compile Sources */,
 				8755E5D42E4E260B006A12E4 /* moc_fontmanager.cpp in Compile Sources */,
@@ -4233,14 +4216,12 @@
 				876E50F32B701C050080FAAF /* moc_zwiftPlayDevice.cpp in Compile Sources */,
 				8790FDDF277B0ABA00247550 /* nautilustreadmill.cpp in Compile Sources */,
 				2D4684BE88B9B0456A50B3F0 /* qdomyoszwift_plugin_import.cpp in Compile Sources */,
-				2D4684BF88B9B0456A50B3F0 /* qdomyoszwift_plugin_import_simulator.cpp in Compile Sources */,
 				8783153C25E8DAFD0007817C /* sportstechbike.cpp in Compile Sources */,
 				873824E527E647A8004F1B46 /* message.cpp in Compile Sources */,
 				210F6A0A7E2FA7CDD3CA0084 /* qdomyoszwift_qml_plugin_import.cpp in Compile Sources */,
 				8715A3E72C75E6C9009BAC05 /* moc_antbike.cpp in Compile Sources */,
 				87062644259480A600D06586 /* APIFetcher.swift in Compile Sources */,
 				8768C8C72BBC11C80099DBE1 /* adb_auth_host.c in Compile Sources */,
-				A8768C8D2BBC11C80099DBE1 /* adb_auth_host_simulator.c in Compile Sources */,
 				87F02E4029178524000DB52C /* octaneelliptical.cpp in Compile Sources */,
 				878531682711A3EC004B153D /* moc_activiotreadmill.cpp in Compile Sources */,
 				87C5F0D626285E7E0067A1B5 /* moc_emailaddress.cpp in Compile Sources */,
@@ -4443,54 +4424,54 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					"$(QZ_QT_IOS_ROOT)/mkspecs/common/uikit",
 					"../src/fit-sdk",
-					../../Qt/5.15.2/ios/include,
-					../../Qt/5.15.2/ios/include/QtWidgets,
-					../../Qt/5.15.2/ios/include/QtQuick,
-					../../Qt/5.15.2/ios/include/QtGui,
-					../../Qt/5.15.2/ios/include/QtBluetooth,
-					../../Qt/5.15.2/ios/include/QtXml,
-					../../Qt/5.15.2/ios/include/QtPositioning,
-					../../Qt/5.15.2/ios/include/QtQmlModels,
-					../../Qt/5.15.2/ios/include/QtQml,
-					../../Qt/5.15.2/ios/include/QtNetwork,
-					../../Qt/5.15.2/ios/include/QtCore,
+					"$(QZ_QT_IOS_ROOT)/include",
+					"$(QZ_QT_IOS_ROOT)/include/QtWidgets",
+					"$(QZ_QT_IOS_ROOT)/include/QtQuick",
+					"$(QZ_QT_IOS_ROOT)/include/QtGui",
+					"$(QZ_QT_IOS_ROOT)/include/QtBluetooth",
+					"$(QZ_QT_IOS_ROOT)/include/QtXml",
+					"$(QZ_QT_IOS_ROOT)/include/QtPositioning",
+					"$(QZ_QT_IOS_ROOT)/include/QtQmlModels",
+					"$(QZ_QT_IOS_ROOT)/include/QtQml",
+					"$(QZ_QT_IOS_ROOT)/include/QtNetwork",
+					"$(QZ_QT_IOS_ROOT)/include/QtCore",
 					.,
-					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
+					"$(QZ_QT_IOS_ROOT)/mkspecs/macx-ios-clang",
 				);
 				INFOPLIST_FILE = ../src/ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LDPLUSPLUS = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++";
 				LIBRARY_SEARCH_PATHS = (
-					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
+					"$(QZ_QT_IOS_ROOT)/plugins/platforms",
 					/System/Library/Frameworks/,
-					/Users/cagnulein/Qt/5.15.2/ios/lib,
-					/Users/cagnulein/Qt/5.15.2/ios/plugins/imageformats,
-					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
-					/Users/cagnulein/Qt/5.15.2/ios/lib,
-					/Users/cagnulein/Qt/5.15.2/ios/plugins/qmltooling,
-					/Users/cagnulein/Qt/5.15.2/ios/plugins/bearer,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects/private,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml/Models.2,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml/WorkerScript.2,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Dialogs,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/folderlistmodel,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/settings,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Dialogs/Private,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/PrivateWidgets,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Layouts,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Window.2,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick.2,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Templates.2,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Material,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Fusion,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Universal,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Imagine,
+					"$(QZ_QT_IOS_ROOT)/lib",
+					"$(QZ_QT_IOS_ROOT)/plugins/imageformats",
+					"$(QZ_QT_IOS_ROOT)/plugins/position",
+					"$(QZ_QT_IOS_ROOT)/lib",
+					"$(QZ_QT_IOS_ROOT)/plugins/qmltooling",
+					"$(QZ_QT_IOS_ROOT)/plugins/bearer",
+					"$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects/private",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQml/Models.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQml/WorkerScript.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs",
+					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/folderlistmodel",
+					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/settings",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs/Private",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/PrivateWidgets",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQml",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Layouts",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Window.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Templates.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Material",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Fusion",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Universal",
+					"$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Imagine",
 				);
 				OTHER_CFLAGS = (
 					"-pipe",
@@ -4543,12 +4524,12 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
-					"-Wl,-force_load,/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
+					"-Wl,-force_load,$(QZ_QIOS_ARCHIVE)",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
+					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
 					"-framework",
 					AssetsLibrary,
-					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
+					"-L$(QZ_QT_IOS_ROOT)/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -4600,54 +4581,54 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					"$(QZ_QT_IOS_ROOT)/mkspecs/common/uikit",
 					"../src/fit-sdk",
-					../../Qt/5.15.2/ios/include,
-					../../Qt/5.15.2/ios/include/QtWidgets,
-					../../Qt/5.15.2/ios/include/QtQuick,
-					../../Qt/5.15.2/ios/include/QtGui,
-					../../Qt/5.15.2/ios/include/QtBluetooth,
-					../../Qt/5.15.2/ios/include/QtXml,
-					../../Qt/5.15.2/ios/include/QtPositioning,
-					../../Qt/5.15.2/ios/include/QtQmlModels,
-					../../Qt/5.15.2/ios/include/QtQml,
-					../../Qt/5.15.2/ios/include/QtNetwork,
-					../../Qt/5.15.2/ios/include/QtCore,
+					"$(QZ_QT_IOS_ROOT)/include",
+					"$(QZ_QT_IOS_ROOT)/include/QtWidgets",
+					"$(QZ_QT_IOS_ROOT)/include/QtQuick",
+					"$(QZ_QT_IOS_ROOT)/include/QtGui",
+					"$(QZ_QT_IOS_ROOT)/include/QtBluetooth",
+					"$(QZ_QT_IOS_ROOT)/include/QtXml",
+					"$(QZ_QT_IOS_ROOT)/include/QtPositioning",
+					"$(QZ_QT_IOS_ROOT)/include/QtQmlModels",
+					"$(QZ_QT_IOS_ROOT)/include/QtQml",
+					"$(QZ_QT_IOS_ROOT)/include/QtNetwork",
+					"$(QZ_QT_IOS_ROOT)/include/QtCore",
 					.,
-					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
+					"$(QZ_QT_IOS_ROOT)/mkspecs/macx-ios-clang",
 				);
 				INFOPLIST_FILE = ../src/ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LDPLUSPLUS = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++";
 				LIBRARY_SEARCH_PATHS = (
-					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
+					"$(QZ_QT_IOS_ROOT)/plugins/platforms",
 					/System/Library/Frameworks/,
-					/Users/cagnulein/Qt/5.15.2/ios/lib,
-					/Users/cagnulein/Qt/5.15.2/ios/plugins/imageformats,
-					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
-					/Users/cagnulein/Qt/5.15.2/ios/lib,
-					/Users/cagnulein/Qt/5.15.2/ios/plugins/qmltooling,
-					/Users/cagnulein/Qt/5.15.2/ios/plugins/bearer,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects/private,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml/Models.2,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml/WorkerScript.2,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Dialogs,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/folderlistmodel,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/settings,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Dialogs/Private,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/PrivateWidgets,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Layouts,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Window.2,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick.2,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Templates.2,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Material,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Fusion,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Universal,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects,
-					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Imagine,
+					"$(QZ_QT_IOS_ROOT)/lib",
+					"$(QZ_QT_IOS_ROOT)/plugins/imageformats",
+					"$(QZ_QT_IOS_ROOT)/plugins/position",
+					"$(QZ_QT_IOS_ROOT)/lib",
+					"$(QZ_QT_IOS_ROOT)/plugins/qmltooling",
+					"$(QZ_QT_IOS_ROOT)/plugins/bearer",
+					"$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects/private",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQml/Models.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQml/WorkerScript.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs",
+					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/folderlistmodel",
+					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/settings",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs/Private",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/PrivateWidgets",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQml",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Layouts",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Window.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Templates.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Material",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Fusion",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Universal",
+					"$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Imagine",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
@@ -4701,12 +4682,12 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
-					"-Wl,-force_load,/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
+					"-Wl,-force_load,$(QZ_QIOS_ARCHIVE)",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
+					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
 					"-framework",
 					AssetsLibrary,
-					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
+					"-L$(QZ_QT_IOS_ROOT)/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -4737,7 +4718,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				"ARCHS[sdk=iphoneos*]" = arm64;
-				"ARCHS[sdk=iphonesimulator*]" = arm64;
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
@@ -4746,88 +4727,86 @@
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = "ADB_HOST=1";
-				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphoneos*]" = "adb_auth_host_simulator.c qdomyoszwift_plugin_import_simulator.cpp";
-				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphonesimulator*]" = "adb_auth_host.c qdomyoszwift_plugin_import.cpp";
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					"$(QZ_QT_IOS_ROOT)/mkspecs/common/uikit",
 					"../src/fit-sdk",
-					../../Qt/5.15.2/ios/include,
-					../../Qt/5.15.2/ios/include/QtWidgets,
-					../../Qt/5.15.2/ios/include/QtQuick,
-					../../Qt/5.15.2/ios/include/QtGui,
-					../../Qt/5.15.2/ios/include/QtBluetooth,
-					../../Qt/5.15.2/ios/include/QtXml,
-					../../Qt/5.15.2/ios/include/QtPositioning,
-					../../Qt/5.15.2/ios/include/QtQmlModels,
-					../../Qt/5.15.2/ios/include/QtQml,
-					../../Qt/5.15.2/ios/include/QtCharts,
-					../../Qt/5.15.2/ios/include/QtNetwork,
-					../../Qt/5.15.2/ios/include/QtCore,
+					"$(QZ_QT_IOS_ROOT)/include",
+					"$(QZ_QT_IOS_ROOT)/include/QtWidgets",
+					"$(QZ_QT_IOS_ROOT)/include/QtQuick",
+					"$(QZ_QT_IOS_ROOT)/include/QtGui",
+					"$(QZ_QT_IOS_ROOT)/include/QtBluetooth",
+					"$(QZ_QT_IOS_ROOT)/include/QtXml",
+					"$(QZ_QT_IOS_ROOT)/include/QtPositioning",
+					"$(QZ_QT_IOS_ROOT)/include/QtQmlModels",
+					"$(QZ_QT_IOS_ROOT)/include/QtQml",
+					"$(QZ_QT_IOS_ROOT)/include/QtCharts",
+					"$(QZ_QT_IOS_ROOT)/include/QtNetwork",
+					"$(QZ_QT_IOS_ROOT)/include/QtCore",
 					.,
-					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
-					../../Qt/5.15.2/ios/include/QtNetworkAuth,
-					../../Qt/5.15.2/ios/include/QtHttpServer,
+					"$(QZ_QT_IOS_ROOT)/mkspecs/macx-ios-clang",
+					"$(QZ_QT_IOS_ROOT)/include/QtNetworkAuth",
+					"$(QZ_QT_IOS_ROOT)/include/QtHttpServer",
 					../src/qmdnsengine/src/include,
 					../src/purchasing/inapp,
 					../src/purchasing/qmltypes,
 					../src/purchasing/ios,
-					../../Qt/5.15.2/ios/include/QtTextToSpeech,
-					../../Qt/5.15.2/ios/include/QtMultimedia,
+					"$(QZ_QT_IOS_ROOT)/include/QtTextToSpeech",
+					"$(QZ_QT_IOS_ROOT)/include/QtMultimedia",
 					../src/devices,
 					../src/ios/adb/include,
-					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/private,
-					../../Qt/5.15.2/ios/include/QtCore/5.15.2,
-					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/,
-					../../Qt/5.15.2/ios/include/QtSql,
+					"$(QZ_QT_IOS_ROOT)/include/QtCore/5.15.2/QtCore/private",
+					"$(QZ_QT_IOS_ROOT)/include/QtCore/5.15.2",
+					"$(QZ_QT_IOS_ROOT)/include/QtCore/5.15.2/QtCore/",
+					"$(QZ_QT_IOS_ROOT)/include/QtSql",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LIBRARY_SEARCH_PATHS = (
-					"$(QZ_QT_ROOT)/plugins/platforms",
+					"$(QZ_QT_IOS_ROOT)/plugins/platforms",
 					/System/Library/Frameworks/,
-					"$(QZ_QT_ROOT)/lib",
-					"$(QZ_QT_ROOT)/plugins/imageformats",
-					"$(QZ_QT_ROOT)/plugins/position",
-					"$(QZ_QT_ROOT)/lib",
-					"$(QZ_QT_ROOT)/plugins/qmltooling",
-					"$(QZ_QT_ROOT)/plugins/bearer",
-					"$(QZ_QT_ROOT)/qml/QtGraphicalEffects/private",
-					"$(QZ_QT_ROOT)/qml/QtQml/Models.2",
-					"$(QZ_QT_ROOT)/qml/QtQml/WorkerScript.2",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Dialogs",
-					"$(QZ_QT_ROOT)/qml/Qt/labs/folderlistmodel",
-					"$(QZ_QT_ROOT)/qml/Qt/labs/platform",
-					"$(QZ_QT_ROOT)/qml/Qt/labs/settings",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Dialogs/Private",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Controls",
-					"$(QZ_QT_ROOT)/qml/QtQuick/PrivateWidgets",
-					"$(QZ_QT_ROOT)/qml/QtQml",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Layouts",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Window.2",
-					"$(QZ_QT_ROOT)/qml/QtQuick.2",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Templates.2",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Controls.2",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/Material",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/Fusion",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/Universal",
-					"$(QZ_QT_ROOT)/qml/QtGraphicalEffects",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/Imagine",
-					"$(QZ_QT_ROOT)/qml/QtCharts",
-					"$(QZ_QT_ROOT)/plugins/webview",
-					"$(QZ_QT_ROOT)/qml/QtWebView",
-					"$(QZ_QT_ROOT)/plugins/texttospeech",
-					"$(QZ_QT_ROOT)/qml/QtPositioning",
-					"$(QZ_QT_ROOT)/qml/QtLocation",
-					"$(QZ_QT_ROOT)/plugins/geoservices",
-					"$(QZ_QT_ROOT)/plugins/position",
-					"$(QZ_QT_ROOT)/plugins/sqldrivers",
-					"$(QZ_QT_ROOT)/qml/QtMultimedia",
-					"$(QZ_QT_ROOT)/plugins/mediaservice",
-					"$(QZ_QT_ROOT)/plugins/playlistformats",
-					"$(QZ_QT_ROOT)/plugins/audio",
+					"$(QZ_QT_IOS_ROOT)/lib",
+					"$(QZ_QT_IOS_ROOT)/plugins/imageformats",
+					"$(QZ_QT_IOS_ROOT)/plugins/position",
+					"$(QZ_QT_IOS_ROOT)/lib",
+					"$(QZ_QT_IOS_ROOT)/plugins/qmltooling",
+					"$(QZ_QT_IOS_ROOT)/plugins/bearer",
+					"$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects/private",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQml/Models.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQml/WorkerScript.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs",
+					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/folderlistmodel",
+					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/platform",
+					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/settings",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs/Private",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/PrivateWidgets",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQml",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Layouts",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Window.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Templates.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Material",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Fusion",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Universal",
+					"$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Imagine",
+					"$(QZ_QT_IOS_ROOT)/qml/QtCharts",
+					"$(QZ_QT_IOS_ROOT)/plugins/webview",
+					"$(QZ_QT_IOS_ROOT)/qml/QtWebView",
+					"$(QZ_QT_IOS_ROOT)/plugins/texttospeech",
+					"$(QZ_QT_IOS_ROOT)/qml/QtPositioning",
+					"$(QZ_QT_IOS_ROOT)/qml/QtLocation",
+					"$(QZ_QT_IOS_ROOT)/plugins/geoservices",
+					"$(QZ_QT_IOS_ROOT)/plugins/position",
+					"$(QZ_QT_IOS_ROOT)/plugins/sqldrivers",
+					"$(QZ_QT_IOS_ROOT)/qml/QtMultimedia",
+					"$(QZ_QT_IOS_ROOT)/plugins/mediaservice",
+					"$(QZ_QT_IOS_ROOT)/plugins/playlistformats",
+					"$(QZ_QT_IOS_ROOT)/plugins/audio",
 					"/Users/cagnulein/qdomyos-zwift/src/ios/adb",
-					"$(QZ_QT_ROOT)/qml/Qt/labs/calendar",
+					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/calendar",
 				);
 				MARKETING_VERSION = 2.22;
 				OTHER_CFLAGS = (
@@ -4897,12 +4876,12 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
-					"-Wl,-force_load,$(QZ_QT_ROOT)/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
+					"-Wl,-force_load,$(QZ_QIOS_ARCHIVE)",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L$(QZ_QT_ROOT)/plugins/platforms",
+					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
 					"-framework",
 					AssetsLibrary,
-					"-L$(QZ_QT_ROOT)/lib",
+					"-L$(QZ_QT_IOS_ROOT)/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -4915,8 +4894,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
-				"QZ_QT_ROOT[sdk=iphoneos*]" = "/Users/cagnulein/Qt/5.15.2/ios";
-				"QZ_QT_ROOT[sdk=iphonesimulator*]" = "/Users/cagnulein/Qt/5.15.2/ios-simulator-arm64";
 				QMAKE_FULL_VERSION = 1.7.0;
 				"QMAKE_MAC_SDK_PATH[sdk=iphoneos*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.2.sdk;
 				"QMAKE_MAC_SDK_PATH[sdk=iphonesimulator*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.2.sdk;
@@ -4925,6 +4902,15 @@
 				QMAKE_PKGINFO_TYPEINFO = "????";
 				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = "";
+				QZ_QT_IOS_ROOT = /Users/cagnulein/Qt/5.15.2/ios;
+				"QZ_QT_IOS_ROOT[sdk=iphonesimulator*]" = /Users/cagnulein/Qt/5.15.2/ios-simulator-arm64;
+				QZ_QIOS_ARCHIVE = "$(SRCROOT)/../qt-patches/ios/5.15.2/binary/libqios.a";
+				"QZ_QIOS_ARCHIVE[sdk=iphonesimulator*]" = "$(QZ_QT_IOS_ROOT)/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a";
+				QZ_OPENSSL_CRYPTO_ARCHIVE = "$(SRCROOT)/../src/ios/adb/libcrypto.a";
+				"QZ_OPENSSL_CRYPTO_ARCHIVE[sdk=iphonesimulator*]" = "$(SRCROOT)/ios-simulator-libs/libcrypto.a";
+				"INFOPLIST_FILE[sdk=iphonesimulator*]" = "$(SRCROOT)/Info-Simulator.plist";
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = "$(inherited) -Wl,-force_load,$(QZ_OPENSSL_CRYPTO_ARCHIVE)";
+				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited) -Wl,-force_load,$(QZ_OPENSSL_CRYPTO_ARCHIVE)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -4944,7 +4930,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				"ARCHS[sdk=iphoneos*]" = arm64;
-				"ARCHS[sdk=iphonesimulator*]" = arm64;
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
@@ -4955,88 +4941,86 @@
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "ADB_HOST=1";
-				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphoneos*]" = "adb_auth_host_simulator.c qdomyoszwift_plugin_import_simulator.cpp";
-				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphonesimulator*]" = "adb_auth_host.c qdomyoszwift_plugin_import.cpp";
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					"$(QZ_QT_IOS_ROOT)/mkspecs/common/uikit",
 					"../src/fit-sdk",
-					../../Qt/5.15.2/ios/include,
-					../../Qt/5.15.2/ios/include/QtWidgets,
-					../../Qt/5.15.2/ios/include/QtQuick,
-					../../Qt/5.15.2/ios/include/QtGui,
-					../../Qt/5.15.2/ios/include/QtBluetooth,
-					../../Qt/5.15.2/ios/include/QtXml,
-					../../Qt/5.15.2/ios/include/QtPositioning,
-					../../Qt/5.15.2/ios/include/QtQmlModels,
-					../../Qt/5.15.2/ios/include/QtQml,
-					../../Qt/5.15.2/ios/include/QtCharts,
-					../../Qt/5.15.2/ios/include/QtNetwork,
-					../../Qt/5.15.2/ios/include/QtCore,
+					"$(QZ_QT_IOS_ROOT)/include",
+					"$(QZ_QT_IOS_ROOT)/include/QtWidgets",
+					"$(QZ_QT_IOS_ROOT)/include/QtQuick",
+					"$(QZ_QT_IOS_ROOT)/include/QtGui",
+					"$(QZ_QT_IOS_ROOT)/include/QtBluetooth",
+					"$(QZ_QT_IOS_ROOT)/include/QtXml",
+					"$(QZ_QT_IOS_ROOT)/include/QtPositioning",
+					"$(QZ_QT_IOS_ROOT)/include/QtQmlModels",
+					"$(QZ_QT_IOS_ROOT)/include/QtQml",
+					"$(QZ_QT_IOS_ROOT)/include/QtCharts",
+					"$(QZ_QT_IOS_ROOT)/include/QtNetwork",
+					"$(QZ_QT_IOS_ROOT)/include/QtCore",
 					.,
-					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
-					../../Qt/5.15.2/ios/include/QtNetworkAuth,
-					../../Qt/5.15.2/ios/include/QtHttpServer,
+					"$(QZ_QT_IOS_ROOT)/mkspecs/macx-ios-clang",
+					"$(QZ_QT_IOS_ROOT)/include/QtNetworkAuth",
+					"$(QZ_QT_IOS_ROOT)/include/QtHttpServer",
 					../src/qmdnsengine/src/include,
 					../src/purchasing/inapp,
 					../src/purchasing/qmltypes,
 					../src/purchasing/ios,
-					../../Qt/5.15.2/ios/include/QtTextToSpeech,
-					../../Qt/5.15.2/ios/include/QtMultimedia,
+					"$(QZ_QT_IOS_ROOT)/include/QtTextToSpeech",
+					"$(QZ_QT_IOS_ROOT)/include/QtMultimedia",
 					../src/devices,
 					../src/ios/adb/include,
-					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/private,
-					../../Qt/5.15.2/ios/include/QtCore/5.15.2,
-					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/,
-					../../Qt/5.15.2/ios/include/QtSql,
+					"$(QZ_QT_IOS_ROOT)/include/QtCore/5.15.2/QtCore/private",
+					"$(QZ_QT_IOS_ROOT)/include/QtCore/5.15.2",
+					"$(QZ_QT_IOS_ROOT)/include/QtCore/5.15.2/QtCore/",
+					"$(QZ_QT_IOS_ROOT)/include/QtSql",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LIBRARY_SEARCH_PATHS = (
-					"$(QZ_QT_ROOT)/plugins/platforms",
+					"$(QZ_QT_IOS_ROOT)/plugins/platforms",
 					/System/Library/Frameworks/,
-					"$(QZ_QT_ROOT)/lib",
-					"$(QZ_QT_ROOT)/plugins/imageformats",
-					"$(QZ_QT_ROOT)/plugins/position",
-					"$(QZ_QT_ROOT)/lib",
-					"$(QZ_QT_ROOT)/plugins/qmltooling",
-					"$(QZ_QT_ROOT)/plugins/bearer",
-					"$(QZ_QT_ROOT)/qml/QtGraphicalEffects/private",
-					"$(QZ_QT_ROOT)/qml/QtQml/Models.2",
-					"$(QZ_QT_ROOT)/qml/QtQml/WorkerScript.2",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Dialogs",
-					"$(QZ_QT_ROOT)/qml/Qt/labs/folderlistmodel",
-					"$(QZ_QT_ROOT)/qml/Qt/labs/platform",
-					"$(QZ_QT_ROOT)/qml/Qt/labs/settings",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Dialogs/Private",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Controls",
-					"$(QZ_QT_ROOT)/qml/QtQuick/PrivateWidgets",
-					"$(QZ_QT_ROOT)/qml/QtQml",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Layouts",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Window.2",
-					"$(QZ_QT_ROOT)/qml/QtQuick.2",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Templates.2",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Controls.2",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/Material",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/Fusion",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/Universal",
-					"$(QZ_QT_ROOT)/qml/QtGraphicalEffects",
-					"$(QZ_QT_ROOT)/qml/QtQuick/Controls.2/Imagine",
-					"$(QZ_QT_ROOT)/qml/QtCharts",
-					"$(QZ_QT_ROOT)/plugins/webview",
-					"$(QZ_QT_ROOT)/qml/QtWebView",
-					"$(QZ_QT_ROOT)/plugins/texttospeech",
-					"$(QZ_QT_ROOT)/qml/QtPositioning",
-					"$(QZ_QT_ROOT)/qml/QtLocation",
-					"$(QZ_QT_ROOT)/plugins/geoservices",
-					"$(QZ_QT_ROOT)/plugins/position",
-					"$(QZ_QT_ROOT)/plugins/sqldrivers",
-					"$(QZ_QT_ROOT)/qml/QtMultimedia",
-					"$(QZ_QT_ROOT)/plugins/mediaservice",
-					"$(QZ_QT_ROOT)/plugins/playlistformats",
-					"$(QZ_QT_ROOT)/plugins/audio",
+					"$(QZ_QT_IOS_ROOT)/lib",
+					"$(QZ_QT_IOS_ROOT)/plugins/imageformats",
+					"$(QZ_QT_IOS_ROOT)/plugins/position",
+					"$(QZ_QT_IOS_ROOT)/lib",
+					"$(QZ_QT_IOS_ROOT)/plugins/qmltooling",
+					"$(QZ_QT_IOS_ROOT)/plugins/bearer",
+					"$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects/private",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQml/Models.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQml/WorkerScript.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs",
+					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/folderlistmodel",
+					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/platform",
+					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/settings",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs/Private",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/PrivateWidgets",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQml",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Layouts",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Window.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Templates.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Material",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Fusion",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Universal",
+					"$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects",
+					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Imagine",
+					"$(QZ_QT_IOS_ROOT)/qml/QtCharts",
+					"$(QZ_QT_IOS_ROOT)/plugins/webview",
+					"$(QZ_QT_IOS_ROOT)/qml/QtWebView",
+					"$(QZ_QT_IOS_ROOT)/plugins/texttospeech",
+					"$(QZ_QT_IOS_ROOT)/qml/QtPositioning",
+					"$(QZ_QT_IOS_ROOT)/qml/QtLocation",
+					"$(QZ_QT_IOS_ROOT)/plugins/geoservices",
+					"$(QZ_QT_IOS_ROOT)/plugins/position",
+					"$(QZ_QT_IOS_ROOT)/plugins/sqldrivers",
+					"$(QZ_QT_IOS_ROOT)/qml/QtMultimedia",
+					"$(QZ_QT_IOS_ROOT)/plugins/mediaservice",
+					"$(QZ_QT_IOS_ROOT)/plugins/playlistformats",
+					"$(QZ_QT_IOS_ROOT)/plugins/audio",
 					"/Users/cagnulein/qdomyos-zwift/src/ios/adb",
-					"$(QZ_QT_ROOT)/qml/Qt/labs/calendar",
+					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/calendar",
 				);
 				MARKETING_VERSION = 2.22;
 				ONLY_ACTIVE_ARCH = YES;
@@ -5107,12 +5091,12 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
-					"-Wl,-force_load,$(QZ_QT_ROOT)/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
+					"-Wl,-force_load,$(QZ_QIOS_ARCHIVE)",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L$(QZ_QT_ROOT)/plugins/platforms",
+					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
 					"-framework",
 					AssetsLibrary,
-					"-L$(QZ_QT_ROOT)/lib",
+					"-L$(QZ_QT_IOS_ROOT)/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -5125,8 +5109,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
-				"QZ_QT_ROOT[sdk=iphoneos*]" = "/Users/cagnulein/Qt/5.15.2/ios";
-				"QZ_QT_ROOT[sdk=iphonesimulator*]" = "/Users/cagnulein/Qt/5.15.2/ios-simulator-arm64";
 				QMAKE_FULL_VERSION = 1.7.0;
 				"QMAKE_MAC_SDK_PATH[sdk=iphoneos*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.2.sdk;
 				"QMAKE_MAC_SDK_PATH[sdk=iphonesimulator*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.2.sdk;
@@ -5135,6 +5117,15 @@
 				QMAKE_PKGINFO_TYPEINFO = "????";
 				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = _debug;
+				QZ_QT_IOS_ROOT = /Users/cagnulein/Qt/5.15.2/ios;
+				"QZ_QT_IOS_ROOT[sdk=iphonesimulator*]" = /Users/cagnulein/Qt/5.15.2/ios-simulator-arm64;
+				QZ_QIOS_ARCHIVE = "$(SRCROOT)/../qt-patches/ios/5.15.2/binary/libqios.a";
+				"QZ_QIOS_ARCHIVE[sdk=iphonesimulator*]" = "$(QZ_QT_IOS_ROOT)/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a";
+				QZ_OPENSSL_CRYPTO_ARCHIVE = "$(SRCROOT)/../src/ios/adb/libcrypto.a";
+				"QZ_OPENSSL_CRYPTO_ARCHIVE[sdk=iphonesimulator*]" = "$(SRCROOT)/ios-simulator-libs/libcrypto.a";
+				"INFOPLIST_FILE[sdk=iphonesimulator*]" = "$(SRCROOT)/Info-Simulator.plist";
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = "$(inherited) -Wl,-force_load,$(QZ_OPENSSL_CRYPTO_ARCHIVE)";
+				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited) -Wl,-force_load,$(QZ_OPENSSL_CRYPTO_ARCHIVE)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -5223,8 +5214,8 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
+					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
+					"-L$(QZ_QT_IOS_ROOT)/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -5315,8 +5306,8 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
+					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
+					"-L$(QZ_QT_IOS_ROOT)/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -5401,22 +5392,22 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					"$(QZ_QT_IOS_ROOT)/mkspecs/common/uikit",
 					"../src/fit-sdk",
-					../../Qt/5.15.2/ios/include,
-					../../Qt/5.15.2/ios/include/QtWidgets,
-					../../Qt/5.15.2/ios/include/QtQuick,
-					../../Qt/5.15.2/ios/include/QtGui,
-					../../Qt/5.15.2/ios/include/QtBluetooth,
-					../../Qt/5.15.2/ios/include/QtXml,
-					../../Qt/5.15.2/ios/include/QtPositioning,
-					../../Qt/5.15.2/ios/include/QtQmlModels,
-					../../Qt/5.15.2/ios/include/QtQml,
-					../../Qt/5.15.2/ios/include/QtNetwork,
-					../../Qt/5.15.2/ios/include/QtCore,
+					"$(QZ_QT_IOS_ROOT)/include",
+					"$(QZ_QT_IOS_ROOT)/include/QtWidgets",
+					"$(QZ_QT_IOS_ROOT)/include/QtQuick",
+					"$(QZ_QT_IOS_ROOT)/include/QtGui",
+					"$(QZ_QT_IOS_ROOT)/include/QtBluetooth",
+					"$(QZ_QT_IOS_ROOT)/include/QtXml",
+					"$(QZ_QT_IOS_ROOT)/include/QtPositioning",
+					"$(QZ_QT_IOS_ROOT)/include/QtQmlModels",
+					"$(QZ_QT_IOS_ROOT)/include/QtQml",
+					"$(QZ_QT_IOS_ROOT)/include/QtNetwork",
+					"$(QZ_QT_IOS_ROOT)/include/QtCore",
 					.,
-					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
-					../../Qt/5.15.2/ios/include/QtMultimedia,
+					"$(QZ_QT_IOS_ROOT)/mkspecs/macx-ios-clang",
+					"$(QZ_QT_IOS_ROOT)/include/QtMultimedia",
 				);
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5431,8 +5422,8 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
+					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
+					"-L$(QZ_QT_IOS_ROOT)/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -5513,22 +5504,22 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					"$(QZ_QT_IOS_ROOT)/mkspecs/common/uikit",
 					"../src/fit-sdk",
-					../../Qt/5.15.2/ios/include,
-					../../Qt/5.15.2/ios/include/QtWidgets,
-					../../Qt/5.15.2/ios/include/QtQuick,
-					../../Qt/5.15.2/ios/include/QtGui,
-					../../Qt/5.15.2/ios/include/QtBluetooth,
-					../../Qt/5.15.2/ios/include/QtXml,
-					../../Qt/5.15.2/ios/include/QtPositioning,
-					../../Qt/5.15.2/ios/include/QtQmlModels,
-					../../Qt/5.15.2/ios/include/QtQml,
-					../../Qt/5.15.2/ios/include/QtNetwork,
-					../../Qt/5.15.2/ios/include/QtCore,
+					"$(QZ_QT_IOS_ROOT)/include",
+					"$(QZ_QT_IOS_ROOT)/include/QtWidgets",
+					"$(QZ_QT_IOS_ROOT)/include/QtQuick",
+					"$(QZ_QT_IOS_ROOT)/include/QtGui",
+					"$(QZ_QT_IOS_ROOT)/include/QtBluetooth",
+					"$(QZ_QT_IOS_ROOT)/include/QtXml",
+					"$(QZ_QT_IOS_ROOT)/include/QtPositioning",
+					"$(QZ_QT_IOS_ROOT)/include/QtQmlModels",
+					"$(QZ_QT_IOS_ROOT)/include/QtQml",
+					"$(QZ_QT_IOS_ROOT)/include/QtNetwork",
+					"$(QZ_QT_IOS_ROOT)/include/QtCore",
 					.,
-					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
-					../../Qt/5.15.2/ios/include/QtMultimedia,
+					"$(QZ_QT_IOS_ROOT)/mkspecs/macx-ios-clang",
+					"$(QZ_QT_IOS_ROOT)/include/QtMultimedia",
 				);
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5543,8 +5534,8 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
+					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
+					"-L$(QZ_QT_IOS_ROOT)/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -5571,8 +5562,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				"ARCHS[sdk=iphonesimulator*]" = arm64;
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				ARCHS = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -5663,8 +5656,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				"ARCHS[sdk=iphonesimulator*]" = arm64;
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				ARCHS = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
