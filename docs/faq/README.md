@@ -8,6 +8,7 @@ This directory contains practical QZ frequently asked questions, organized by ca
 - [Bike and trainer troubleshooting](bike-troubleshooting.md)
 - [Device compatibility](device-compatibility.md)
 - [Integrations and authentication](integrations.md)
+- [iOS](ios.md)
 - [MyWhoosh](mywhoosh.md)
 - [NordicTrack / ProForm iFIT consoles](nordictrack-ifit.md)
 - [Rowing](rowing.md)
