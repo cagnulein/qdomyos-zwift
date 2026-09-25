@@ -344,6 +344,7 @@ devices/ultrasportbike/ultrasportbike.cpp \
 devices/xcxbike/xcxbike.cpp \
 virtualdevices/virtualrower.cpp \
 devices/wahookickrsnapbike/wahookickrsnapbike.cpp \
+devices/wahookickruntreadmill/wahookickruntreadmill.cpp \
 devices/yesoulbike/yesoulbike.cpp \
 trainprogram.cpp \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.cpp \
@@ -886,6 +887,7 @@ virtualdevices/virtualrower.h \
 virtualdevices/virtualtreadmill.h \
 devices/domyosbike/domyosbike.h \
 devices/wahookickrsnapbike/wahookickrsnapbike.h \
+devices/wahookickruntreadmill/wahookickruntreadmill.h \
 wobjectdefs.h \
 wobjectimpl.h \
 devices/yesoulbike/yesoulbike.h \
