@@ -58,3 +58,15 @@ TEST(FtmsBikeParserTest, DoesNotCreateGearDeltaFromAnUninitializedOrUnchangedBas
     EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(14, 14, -1, &delta));
     EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(14, 24, 2000, nullptr));
 }
+
+TEST(FtmsBikeParserTest, DoesNotWriteResistanceForAnFsIb50PhysicalGearChange) {
+    EXPECT_FALSE(ftmsbike::resistanceWriteRequired(true, true, -1, true));
+}
+
+TEST(FtmsBikeParserTest, KeepsExplicitResistanceRequestsWhenAnFsIb50GearChanges) {
+    EXPECT_TRUE(ftmsbike::resistanceWriteRequired(true, true, 8, true));
+}
+
+TEST(FtmsBikeParserTest, WritesResistanceForNonFsIb50GearChanges) {
+    EXPECT_TRUE(ftmsbike::resistanceWriteRequired(false, false, -1, true));
+}

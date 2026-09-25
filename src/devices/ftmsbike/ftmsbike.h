@@ -76,6 +76,8 @@ class ftmsbike : public bike {
     static bool parseFsIb50Resistance(const QByteArray &packet, resistance_t *resistance);
     static bool fsIb50ResistanceGearDelta(resistance_t previousResistance, resistance_t currentResistance,
                                            qint64 msecsSinceInclinationCommand, resistance_t *delta);
+    static bool resistanceWriteRequired(bool isFsIb50, bool physicalGearChangePending,
+                                        resistance_t requestedResistance, bool gearChanged);
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
@@ -175,6 +177,7 @@ class ftmsbike : public bike {
     QDateTime calculatedResistanceFallbackSince;
     resistance_t lastFsIb50Resistance = -1;
     QDateTime lastFsIb50InclinationCommand;
+    bool fsIb50PhysicalGearChangePending = false;
     inclinationResistanceTable _inclinationResistanceTable;
 
     // D500V2 workaround: track if we're awaiting start simulation command after request control

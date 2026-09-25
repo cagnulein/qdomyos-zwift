@@ -107,6 +107,11 @@ bool ftmsbike::fsIb50ResistanceGearDelta(resistance_t previousResistance, resist
     return true;
 }
 
+bool ftmsbike::resistanceWriteRequired(bool isFsIb50, bool physicalGearChangePending,
+                                       resistance_t requestedResistance, bool gearChanged) {
+    return requestedResistance != -1 || (gearChanged && (!isFsIb50 || !physicalGearChangePending));
+}
+
 void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
     QSettings settings;
@@ -534,7 +539,8 @@ void ftmsbike::update() {
         auto virtualBike = this->VirtualBike();        
         bool gears_zwift_ratio = settings.value(QZSettings::gears_zwift_ratio, QZSettings::default_gears_zwift_ratio).toBool();
 
-        if (requestResistance != -1 || lastGearValue != gears()) {
+        const bool gearChanged = lastGearValue != gears();
+        if (resistanceWriteRequired(FS_IB50, fsIb50PhysicalGearChangePending, requestResistance, gearChanged)) {
             bool deferResistanceRequest = false;
             if (requestResistance > 100) {
                 requestResistance = 100;
@@ -666,6 +672,7 @@ void ftmsbike::update() {
         }
 
         lastGearValue = gears();
+        fsIb50PhysicalGearChangePending = false;
 
         // Power request routing logic:
         // 1. No virtualBike: route directly to bike
@@ -804,6 +811,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             qDebug() << QStringLiteral("FS-IB50 physical gear change") << lastFsIb50Resistance << fsIb50Resistance
                      << "delta" << gearDelta << "since inclination" << msecsSinceInclinationCommand;
             lastRawRequestedResistanceValue = -1;
+            fsIb50PhysicalGearChangePending = true;
             setGears(gears() + gearDelta);
         }
         lastFsIb50Resistance = fsIb50Resistance;
