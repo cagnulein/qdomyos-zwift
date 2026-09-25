@@ -237,6 +237,10 @@ int trainprogram::firstBlockingTransitionRow(const QList<trainrow> &rows, int cu
     return -1;
 }
 
+bool trainprogram::shouldSendGpxInclination(double lastSentInclination, double nextInclination, double filter) {
+    return filter <= 0.0 || qAbs(nextInclination - lastSentInclination) >= filter;
+}
+
 uint32_t trainprogram::calculateTimeForRow(int32_t row) {
     if (row >= rows.length())
         return 0;
@@ -1225,6 +1229,16 @@ void trainprogram::scheduler() {
                     inc = weightedInclination(currentStep);
                 }
 
+                const double inclinationFilter =
+                    settings.value(QZSettings::trainprogram_inclination_filter,
+                                   QZSettings::default_trainprogram_inclination_filter)
+                        .toDouble();
+                if (!shouldSendGpxInclination(bluetoothManager->device()->currentInclination().value(), inc,
+                                               inclinationFilter)) {
+                    qDebug() << QStringLiteral("trainprogram filtering gps inclination") << inc
+                             << bluetoothManager->device()->currentInclination().value() << inclinationFilter;
+                } else {
+
                 // Only convert inclination to resistance for bikes WITHOUT hardware inclination support
                 if (bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) {
                     double bikeResistanceOffset =
@@ -1250,6 +1264,7 @@ void trainprogram::scheduler() {
                     emit changeNextInclination300Meters(avgInclinationNext300Meters());
                 else
                     emit changeNextInclination300Meters(inclinationNext300Meters());
+                }
 
                 double ratioDistance = 0.0;
                 double distanceRow = rows.at(currentStep).distance;
@@ -1499,9 +1514,20 @@ void trainprogram::applyCurrentStepSettings() {
                 inc = rows.at(currentStep).inclination;
             }
             qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
-            setErgMode(false);
-            emit changeInclination(inc, inc);
-            emit changeNextInclination300Meters(avgInclinationNext300Meters());
+            const bool isGpx = !isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude);
+            const double inclinationFilter =
+                settings.value(QZSettings::trainprogram_inclination_filter,
+                               QZSettings::default_trainprogram_inclination_filter)
+                    .toDouble();
+            if (!isGpx || shouldSendGpxInclination(bluetoothManager->device()->currentInclination().value(), inc,
+                                                   inclinationFilter)) {
+                setErgMode(false);
+                emit changeInclination(inc, inc);
+                emit changeNextInclination300Meters(avgInclinationNext300Meters());
+            } else {
+                qDebug() << QStringLiteral("trainprogram filtering gps inclination") << inc
+                         << bluetoothManager->device()->currentInclination().value() << inclinationFilter;
+            }
         }
         if (rows.at(currentStep).power != -1) {
             qDebug() << QStringLiteral("trainprogram change power ") +
@@ -1566,6 +1592,18 @@ void trainprogram::applyCurrentStepSettings() {
             (bluetoothManager->device()->deviceType() == BIKE ||
              bluetoothManager->device()->deviceType() == ELLIPTICAL)) {
             double inc = rows.at(currentStep).inclination;
+            const bool isGpx = !isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude);
+            const double inclinationFilter =
+                settings.value(QZSettings::trainprogram_inclination_filter,
+                               QZSettings::default_trainprogram_inclination_filter)
+                    .toDouble();
+            const bool sendInclination =
+                !isGpx || shouldSendGpxInclination(bluetoothManager->device()->currentInclination().value(), inc,
+                                                   inclinationFilter);
+            if (!sendInclination) {
+                qDebug() << QStringLiteral("trainprogram filtering gps inclination") << inc
+                         << bluetoothManager->device()->currentInclination().value() << inclinationFilter;
+            }
             bool isElliptical = bluetoothManager->device()->deviceType() == ELLIPTICAL;
             bool ellipticalInclinationByHardware =
                 isElliptical ? ((elliptical *)bluetoothManager->device())->inclinationAvailableByHardware()
@@ -1581,9 +1619,10 @@ void trainprogram::applyCurrentStepSettings() {
                               "inclinationAvailableByHardware=false";
             }
 
-            if ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) ||
-                (isElliptical && rows.at(currentStep).resistance == -1 &&
-                 (!ellipticalInclinationByHardware || ellipticalInclinationSeparatedFromResistance))) {
+            if (sendInclination &&
+                ((bluetoothManager->device()->deviceType() == BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableBySoftware()) ||
+                 (isElliptical && rows.at(currentStep).resistance == -1 &&
+                  (!ellipticalInclinationByHardware || ellipticalInclinationSeparatedFromResistance)))) {
                 double bikeResistanceOffset =
                     settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
                 double bikeResistanceGain =
@@ -1593,11 +1632,11 @@ void trainprogram::applyCurrentStepSettings() {
                                                              bikeResistanceOffset + 1);
             }
 
-            if (bluetoothManager->device()->deviceType() == BIKE)
+            if (sendInclination && bluetoothManager->device()->deviceType() == BIKE)
                 bluetoothManager->device()->setInclination(inc);
 
-            if (bluetoothManager->device()->deviceType() == BIKE ||
-                (isElliptical && ellipticalInclinationByHardware)) {
+            if (sendInclination && (bluetoothManager->device()->deviceType() == BIKE ||
+                                    (isElliptical && ellipticalInclinationByHardware))) {
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
                 setErgMode(false);
                 emit changeInclination(inc, inc);

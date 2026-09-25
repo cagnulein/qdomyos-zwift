@@ -927,6 +927,9 @@ class QZSettings {
     static const QString trainprogram_incline_max;
     static constexpr float default_trainprogram_incline_max = 15;
 
+    static const QString trainprogram_inclination_filter;
+    static constexpr float default_trainprogram_inclination_filter = 0.0;
+
     static const QString trainprogram_resistance_min;
     static constexpr float default_trainprogram_resistance_min = 1;
 

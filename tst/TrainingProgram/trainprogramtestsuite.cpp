@@ -48,3 +48,15 @@ void TrainProgramTestSuite::test_heartRateThresholdBarrierBlocksSkippedZeroDurat
     EXPECT_EQ(trainprogram::firstBlockingTransitionRow(rows, 0, 2), 1)
         << "A zero-duration heart-rate threshold row must block the transition to the later timed row.";
 }
+
+void TrainProgramTestSuite::test_gpxInclinationFilterIsDisabledAtZero() {
+    EXPECT_TRUE(trainprogram::shouldSendGpxInclination(1.0, 1.0, 0.0));
+}
+
+void TrainProgramTestSuite::test_gpxInclinationFilterSuppressesSmallChanges() {
+    EXPECT_FALSE(trainprogram::shouldSendGpxInclination(1.0, 1.49, 0.5));
+}
+
+void TrainProgramTestSuite::test_gpxInclinationFilterAllowsThresholdChanges() {
+    EXPECT_TRUE(trainprogram::shouldSendGpxInclination(1.0, 1.5, 0.5));
+}

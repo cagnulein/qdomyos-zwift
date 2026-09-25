@@ -1753,6 +1753,7 @@ import AndroidStatusBar 1.0
             property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
             property real power_sensor_speed_correction_threshold: 20.0
             property string daum_serialport: ""
+            property real trainprogram_inclination_filter: 0.0
 
         }
 
@@ -9904,6 +9905,43 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTrainProgramInclinationFilter
+                            text: qsTr("Inclination Filter (%):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: trainProgramInclinationFilterTextField
+                            text: settings.trainprogram_inclination_filter
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.trainprogram_inclination_filter = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTrainProgramInclinationFilter
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.trainprogram_inclination_filter = trainProgramInclinationFilterTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("For GPX workouts, ignore inclination changes smaller than this value and send a new inclination command only when the change from the last sent value reaches the configured threshold. Default: 0 (disabled).")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {

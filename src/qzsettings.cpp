@@ -318,6 +318,7 @@ const QString QZSettings::trainprogram_speed_min = QStringLiteral("trainprogram_
 const QString QZSettings::trainprogram_speed_max = QStringLiteral("trainprogram_speed_max");
 const QString QZSettings::trainprogram_incline_min = QStringLiteral("trainprogram_incline_min");
 const QString QZSettings::trainprogram_incline_max = QStringLiteral("trainprogram_incline_max");
+const QString QZSettings::trainprogram_inclination_filter = QStringLiteral("trainprogram_inclination_filter");
 const QString QZSettings::trainprogram_resistance_min = QStringLiteral("trainprogram_resistance_min");
 const QString QZSettings::trainprogram_resistance_max = QStringLiteral("trainprogram_resistance_max");
 const QString QZSettings::watt_offset = QStringLiteral("watt_offset");
@@ -1288,7 +1289,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1006;
+const uint32_t allSettingsCount = 1007;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1550,6 +1551,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::trainprogram_speed_max, QZSettings::default_trainprogram_speed_max},
     {QZSettings::trainprogram_incline_min, QZSettings::default_trainprogram_incline_min},
     {QZSettings::trainprogram_incline_max, QZSettings::default_trainprogram_incline_max},
+    {QZSettings::trainprogram_inclination_filter, QZSettings::default_trainprogram_inclination_filter},
     {QZSettings::trainprogram_resistance_min, QZSettings::default_trainprogram_resistance_min},
     {QZSettings::trainprogram_resistance_max, QZSettings::default_trainprogram_resistance_max},
     {QZSettings::watt_offset, QZSettings::default_watt_offset},
