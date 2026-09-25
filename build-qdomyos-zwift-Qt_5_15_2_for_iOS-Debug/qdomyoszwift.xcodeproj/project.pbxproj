@@ -279,6 +279,8 @@
 		87433F2127D8B722003D1672 /* simplecrypt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87433F2027D8B722003D1672 /* simplecrypt.cpp */; };
 		87440FBD2640291700E4DC0B /* fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBC2640291700E4DC0B /* fitplusbike.cpp */; };
 		87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */; };
+		CA6F83698EA1420883B66D30 /* wahookickruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = F186284DBE074F048023A0B2 /* wahookickruntreadmill.cpp */; };
+		E4AE028BD772470A848883BB /* moc_wahookickruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 2E4E2A795251497E819A6AC1 /* moc_wahookickruntreadmill.cpp */; };
 		87F000012F00000000000006 /* freebeatboombike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000009 /* freebeatboombike.cpp */; };
 		87F000012F00000000000007 /* moc_freebeatboombike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F0000000000000A /* moc_freebeatboombike.cpp */; };
 		87F000012F00000000000001 /* fitplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000004 /* fitplusrower.cpp */; };
@@ -1258,6 +1260,9 @@
 		87440FBB2640291700E4DC0B /* fitplusbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fitplusbike.h; path = ../src/devices/fitplusbike/fitplusbike.h; sourceTree = "<group>"; };
 		87440FBC2640291700E4DC0B /* fitplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fitplusbike.cpp; path = ../src/devices/fitplusbike/fitplusbike.cpp; sourceTree = "<group>"; };
 		87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitplusbike.cpp; sourceTree = "<group>"; };
+		A0A2DB30850549AE8E4BA57B /* wahookickruntreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wahookickruntreadmill.h; path = ../src/devices/wahookickruntreadmill/wahookickruntreadmill.h; sourceTree = "<group>"; };
+		F186284DBE074F048023A0B2 /* wahookickruntreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wahookickruntreadmill.cpp; path = ../src/devices/wahookickruntreadmill/wahookickruntreadmill.cpp; sourceTree = "<group>"; };
+		2E4E2A795251497E819A6AC1 /* moc_wahookickruntreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_wahookickruntreadmill.cpp; sourceTree = "<group>"; };
 		87F000012F00000000000008 /* freebeatboombike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = freebeatboombike.h; path = ../src/devices/freebeatboombike/freebeatboombike.h; sourceTree = "<group>"; };
 		87F000012F00000000000009 /* freebeatboombike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = freebeatboombike.cpp; path = ../src/devices/freebeatboombike/freebeatboombike.cpp; sourceTree = "<group>"; };
 		87F000012F0000000000000A /* moc_freebeatboombike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_freebeatboombike.cpp; sourceTree = "<group>"; };
@@ -2356,6 +2361,7 @@
 				87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */,
 				87F000012F0000000000000A /* moc_freebeatboombike.cpp */,
 				87F000012F00000000000005 /* moc_fitplusrower.cpp */,
+				2E4E2A795251497E819A6AC1 /* moc_wahookickruntreadmill.cpp */,
 				875F69BA26342E9A0009FD78 /* moc_spirittreadmill.cpp */,
 				8718CBAA263063CE004BF4EE /* moc_soleelliptical.cpp */,
 				8718CBA8263063CD004BF4EE /* moc_tcpclientinfosender.cpp */,
@@ -2857,6 +2863,8 @@
 				87F000012F00000000000008 /* freebeatboombike.h */,
 				87F000012F00000000000004 /* fitplusrower.cpp */,
 				87F000012F00000000000003 /* fitplusrower.h */,
+				F186284DBE074F048023A0B2 /* wahookickruntreadmill.cpp */,
+				A0A2DB30850549AE8E4BA57B /* wahookickruntreadmill.h */,
 				875F69B826342E8D0009FD78 /* spirittreadmill.cpp */,
 				875F69B726342E8D0009FD78 /* spirittreadmill.h */,
 				8718CB9A263063BC004BF4EE /* soleelliptical.cpp */,
@@ -3860,6 +3868,7 @@
 				87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */,
 				87F000012F00000000000001 /* fitplusrower.cpp in Compile Sources */,
 				87F000012F00000000000006 /* freebeatboombike.cpp in Compile Sources */,
+				CA6F83698EA1420883B66D30 /* wahookickruntreadmill.cpp in Compile Sources */,
 				8556B13A3D02D52A21FC5E3E /* bluetooth.cpp in Compile Sources */,
 				87586A4125B8340E00A243C4 /* proformbike.cpp in Compile Sources */,
 				87C5F0C126285E5F0067A1B5 /* mimeattachment.cpp in Compile Sources */,
@@ -4196,6 +4205,7 @@
 				87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */,
 				87F000012F00000000000002 /* moc_fitplusrower.cpp in Compile Sources */,
 				87F000012F00000000000007 /* moc_freebeatboombike.cpp in Compile Sources */,
+				E4AE028BD772470A848883BB /* moc_wahookickruntreadmill.cpp in Compile Sources */,
 				8768C8CA2BBC11C80099DBE1 /* sockets.c in Compile Sources */,
 				87B617EC25F25FED0094A1CB /* screencapture.cpp in Compile Sources */,
 				8755E5D42E4E260B006A12E4 /* moc_fontmanager.cpp in Compile Sources */,
