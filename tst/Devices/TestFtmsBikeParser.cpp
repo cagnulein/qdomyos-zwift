@@ -66,6 +66,20 @@ TEST(FtmsBikeParserTest, IgnoresResistanceChangesWhileInclinationMetricIsActive)
     EXPECT_EQ(0, delta);
 }
 
+TEST(FtmsBikeParserTest, DoesNotSendAnFsIb50GearChangeBeforeTheNextInclination) {
+    EXPECT_FALSE(ftmsbike::shouldSendGearOnlyInclination(true, false, true, true));
+}
+
+TEST(FtmsBikeParserTest, SendsGearOnlyInclinationForOtherBikes) {
+    EXPECT_TRUE(ftmsbike::shouldSendGearOnlyInclination(false, false, true, true));
+}
+
+TEST(FtmsBikeParserTest, DoesNotSendGearOnlyInclinationWithoutAChangedGearOrPreviousInclination) {
+    EXPECT_FALSE(ftmsbike::shouldSendGearOnlyInclination(false, false, false, true));
+    EXPECT_FALSE(ftmsbike::shouldSendGearOnlyInclination(false, false, true, false));
+    EXPECT_FALSE(ftmsbike::shouldSendGearOnlyInclination(false, true, true, true));
+}
+
 TEST(FtmsBikeParserTest, DoesNotWriteResistanceForAnFsIb50PhysicalGearChange) {
     EXPECT_FALSE(ftmsbike::resistanceWriteRequired(true, true, -1, true));
 }
