@@ -57,6 +57,11 @@ HomeForm {
 
             property bool pageLoaded: false
 
+            Rectangle {
+                anchors.fill: parent
+                color: settings.theme_background_color
+            }
+
             Settings {
                 id: dashboardQSettings
             }
@@ -81,7 +86,7 @@ HomeForm {
             WebView {
                 id: dashboardWebView
                 anchors.fill: parent
-                visible: parent.pageLoaded
+                visible: parent.pageLoaded && !window.sideBarVisible
                 onLoadingChanged: {
                     if (loadRequest.status === WebView.LoadSucceededStatus) {
                         parent.pageLoaded = true
