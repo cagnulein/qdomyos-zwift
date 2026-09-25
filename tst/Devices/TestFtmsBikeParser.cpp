@@ -38,31 +38,31 @@ TEST(FtmsBikeParserTest, RejectsNonFsIb50Packets) {
 TEST(FtmsBikeParserTest, IgnoresResistanceChangesDuringInclinationHysteresis) {
     resistance_t delta = 0;
 
-    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(14, 24, 1999, false, &delta));
+    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(14, 24, 1999, -1, &delta));
     EXPECT_EQ(0, delta);
 }
 
 TEST(FtmsBikeParserTest, ConvertsResistanceChangesOutsideInclinationHysteresisToGearDelta) {
     resistance_t delta = 0;
 
-    EXPECT_TRUE(ftmsbike::fsIb50ResistanceGearDelta(14, 24, 2000, false, &delta));
+    EXPECT_TRUE(ftmsbike::fsIb50ResistanceGearDelta(14, 24, 2000, -1, &delta));
     EXPECT_EQ(10, delta);
-    EXPECT_TRUE(ftmsbike::fsIb50ResistanceGearDelta(24, 14, -1, false, &delta));
+    EXPECT_TRUE(ftmsbike::fsIb50ResistanceGearDelta(24, 14, -1, -1, &delta));
     EXPECT_EQ(-10, delta);
 }
 
 TEST(FtmsBikeParserTest, DoesNotCreateGearDeltaFromAnUninitializedOrUnchangedBaseline) {
     resistance_t delta = 0;
 
-    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(-1, 14, -1, false, &delta));
-    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(14, 14, -1, false, &delta));
-    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(14, 24, 2000, false, nullptr));
+    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(-1, 14, -1, -1, &delta));
+    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(14, 14, -1, -1, &delta));
+    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(14, 24, 2000, -1, nullptr));
 }
 
-TEST(FtmsBikeParserTest, IgnoresResistanceChangesDuringActiveGpxWorkout) {
+TEST(FtmsBikeParserTest, IgnoresResistanceChangesWhileInclinationMetricIsActive) {
     resistance_t delta = 0;
 
-    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(1, 3, 3553, true, &delta));
+    EXPECT_FALSE(ftmsbike::fsIb50ResistanceGearDelta(1, 3, 3553, 500, &delta));
     EXPECT_EQ(0, delta);
 }
 
