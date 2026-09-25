@@ -258,12 +258,69 @@ ApplicationWindow {
         id: toast
     }
 
+    property bool lapPromptVisible: false
+    property string lapPromptText: ""
+
+    function isLapPromptMessage(message) {
+        var lowerMessage = message.toLowerCase()
+        return (lowerMessage.indexOf("press") >= 0 && lowerMessage.indexOf("lap") >= 0) ||
+               (lowerMessage.indexOf("lap") >= 0 && lowerMessage.indexOf("continue") >= 0 &&
+                lowerMessage.indexOf("received") < 0)
+    }
+
+    Rectangle {
+        id: lapPromptOverlay
+        z: Infinity
+        visible: window.lapPromptVisible
+        anchors.centerIn: parent
+        width: Math.min(parent.width - 32, 520)
+        height: Math.max(96, lapPromptLabel.implicitHeight + 44)
+        radius: 8
+        color: "#9C27B0"
+        border.color: "white"
+        border.width: 3
+        opacity: visible ? 1 : 0
+
+        Label {
+            id: lapPromptLabel
+            anchors.fill: parent
+            anchors.margins: 16
+            text: window.lapPromptText
+            color: "white"
+            font.bold: true
+            font.pixelSize: 26
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            wrapMode: Text.WordWrap
+        }
+
+        SequentialAnimation on scale {
+            running: lapPromptOverlay.visible
+            loops: Animation.Infinite
+            NumberAnimation { from: 1.0; to: 1.05; duration: 450; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 1.05; to: 1.0; duration: 450; easing.type: Easing.InOutQuad }
+        }
+    }
+
+    Timer {
+        id: lapPromptAutoClose
+        interval: 15000
+        repeat: false
+        onTriggered: window.lapPromptVisible = false
+    }
+
     Timer {
         interval: 1
         repeat: false
         running: (rootItem.toastRequested !== "")
         onTriggered: {
-            toast.show(rootItem.toastRequested);
+            if (window.isLapPromptMessage(rootItem.toastRequested)) {
+                window.lapPromptText = rootItem.toastRequested;
+                window.lapPromptVisible = true;
+                lapPromptAutoClose.restart();
+            } else {
+                toast.show(rootItem.toastRequested);
+            }
             rootItem.toastRequested = "";
         }
     }
@@ -730,6 +787,15 @@ ApplicationWindow {
     }
 
     MessageDialog {
+        text: "Garmin FTP Update"
+        informativeText: rootItem.garminFtpPromptMessage
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.garmin_accept_ftp_update(); }
+        onNoClicked: { rootItem.garmin_dismiss_ftp_update(); }
+        visible: rootItem.garminFtpPromptRequested
+    }
+
+    MessageDialog {
         text: "Clipboard Workout"
         informativeText: "Workout found in clipboard:\n" + rootItem.clipboardWorkoutPromptName +
                          "\n\nDo you want to open the workout preview?"
@@ -887,6 +953,12 @@ ApplicationWindow {
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
+                    var remindToSaveProfile = headerToolbar.settingsPageActive &&
+                            stackView.currentItem &&
+                            typeof stackView.currentItem.profileSaveReminderNeeded === "function" &&
+                            stackView.currentItem.profileSaveReminderNeeded()
+                    var activeProfileName = settings.profile_name
+
                     if(window.settings_restart_to_apply === true) {
                         window.settings_restart_to_apply = false;
                         popupRestartApp.visible = true;
@@ -896,6 +968,9 @@ ApplicationWindow {
                     toolButtonLoadSettings.visible = false;
                     toolButtonSaveSettings.visible = false;
                     rootItem.sortTiles()
+                    if (remindToSaveProfile) {
+                        toast.show(qsTr("Remember to save profile \"%1\" if you want to keep these changes in this profile.").arg(activeProfileName))
+                    }
                 } else {
                     drawer.open()
                 }
@@ -1140,9 +1215,6 @@ ApplicationWindow {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;                        
                         stackView.push("settings.qml")
-                        stackView.currentItem.peloton_connect_clicked.connect(function() {
-                            peloton_connect_clicked()
-                         });
                          drawer.close()
                     }
                 }
@@ -1305,7 +1377,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.21.5"
+                    text: "version 2.22.0"
                     width: parent.width
                 }
 
@@ -1376,11 +1448,6 @@ ApplicationWindow {
                             if (stackView.currentItem.openGarminSection) {
                                 stackView.currentItem.openGarminSection()
                             }
-                            if (stackView.currentItem.peloton_connect_clicked) {
-                                stackView.currentItem.peloton_connect_clicked.connect(function() {
-                                    peloton_connect_clicked()
-                                });
-                            }
                         }
                         drawer.close()
                     }
@@ -1440,6 +1507,21 @@ ApplicationWindow {
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
             focus: true
+            Connections {
+                target: stackView.currentItem
+                ignoreUnknownSignals: true
+                function onPeloton_connect_clicked() {
+                    if (rootItem.isPelotonLoggedIn()) {
+                        pelotonLogoutConfirm.visible = true
+                    } else {
+                        stackView.push("WebPelotonAuth.qml")
+                        stackView.currentItem.goBack.connect(function() {
+                            stackView.pop();
+                        })
+                        peloton_connect_clicked()
+                    }
+                }
+            }
             Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
             Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
             Keys.onPressed: (event)=> {

@@ -97,6 +97,10 @@ class Connection {
                         let kcal : String = message.slice(from: "KCAL=", to: "#") ?? ""
                         WatchKitConnection.kcal = (Double(kcal) ?? WatchKitConnection.kcal)
                     }
+                    if sender?.contains("PAD") ?? false && message.contains("TOTALKCAL=") {
+                        let totalKcal : String = message.slice(from: "TOTALKCAL=", to: "#") ?? ""
+                        WatchKitConnection.totalKcal = (Double(totalKcal) ?? WatchKitConnection.totalKcal)
+                    }
                     if sender?.contains("PAD") ?? false && message.contains("ODO=") {
                         let odo : String = message.slice(from: "ODO=", to: "#") ?? ""
                         WatchKitConnection.distance = (Double(odo) ?? WatchKitConnection.distance)

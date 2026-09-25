@@ -37,6 +37,7 @@ class HealthConnectHelper {
         private const val HEALTH_CONNECT_PROVIDER = "com.google.android.apps.healthdata"
         private const val PREFS_NAME = "qz_health_connect"
         private const val PREF_PERMISSION_PROMPT_PENDING = "permission_prompt_pending_v2"
+        private const val MIN_HRV_RMSSD_MILLIS = 1.0
 
         private var initialized = false
 
@@ -310,7 +311,7 @@ class HealthConnectHelper {
                         stepsCadenceSamples += StepsCadenceRecord.Sample(time = time, rate = cadence)
                     }
                 }
-                if (hasHrv && hrv > 0.0) {
+                if (hasHrv && hrv >= MIN_HRV_RMSSD_MILLIS) {
                     hrvRecords += HeartRateVariabilityRmssdRecord(
                         time = time,
                         zoneOffset = zoneOffset,

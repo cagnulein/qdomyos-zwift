@@ -15,6 +15,15 @@ ColumnLayout {
     property url selectedWorkoutUrl: ""
     property url initialWorkoutUrl: ""
 
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "training") {
+                trainprogram_open_clicked(localUrl)
+            }
+        }
+    }
+
     function openWorkoutPreview(fileUrl) {
         if (!fileUrl || fileUrl.toString() === "") {
             return
@@ -59,6 +68,7 @@ ColumnLayout {
             FileDialog {
                 title: "Please choose a file"
                 folder: shortcuts.home
+                nameFilters: ["Training programs (*.xml *.zwo)", "All files (*)"]
                 visible: true
                 onAccepted: {
                     console.log("You chose: " + fileUrl)
@@ -371,8 +381,11 @@ ColumnLayout {
             text: "Other folders"
             onClicked: {
                 console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-                // Create a fresh FileDialog instance
-                fileDialogLoader.active = true
+                if (Qt.platform.os === "android") {
+                    rootItem.openAndroidDocumentPicker("training")
+                } else {
+                    fileDialogLoader.active = true
+                }
             }
         }
         anchors {
