@@ -159,6 +159,11 @@ var pedometer = CMPedometer()
     @objc public func setWorkoutState(workoutState: Int) -> Void
     {
         WatchKitConnection.workoutState = workoutState
+        if workoutState == 3 {
+            w.resetWorkout()
+        } else if workoutState == 0 || workoutState == 2 {
+            w.startWatchApp(deviceType: WatchKitConnection.workoutType)
+        }
         var sender: String
         if UIDevice.current.userInterfaceIdiom == .pad {
             sender = "PAD"

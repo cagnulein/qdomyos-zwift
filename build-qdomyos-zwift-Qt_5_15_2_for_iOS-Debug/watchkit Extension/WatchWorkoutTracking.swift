@@ -121,7 +121,7 @@ extension WorkoutTracking {
         self.sport = sport
     }
     
-    private func configWorkout() -> Bool {
+    private func configWorkout(_ workoutConfiguration: HKWorkoutConfiguration? = nil) -> Bool {
         var activityType = HKWorkoutActivityType.cycling
         if self.sport == 1 {
             activityType = HKWorkoutActivityType.running
@@ -133,8 +133,13 @@ extension WorkoutTracking {
             activityType = HKWorkoutActivityType.rowing
         }
         
-        configuration.activityType = activityType
-        configuration.locationType = .indoor
+        if let workoutConfiguration = workoutConfiguration {
+            configuration.activityType = workoutConfiguration.activityType
+            configuration.locationType = workoutConfiguration.locationType
+        } else {
+            configuration.activityType = activityType
+            configuration.locationType = .indoor
+        }
         
         do {
             workoutSession = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
@@ -241,7 +246,11 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     }
     
     func startWorkOut() -> Bool {
-        guard HKHealthStore.isHealthDataAvailable(), configWorkout(),
+        startWorkOut(configuration: nil)
+    }
+
+    func startWorkOut(configuration: HKWorkoutConfiguration?) -> Bool {
+        guard HKHealthStore.isHealthDataAvailable(), configWorkout(configuration),
               let workoutSession = workoutSession,
               let workoutBuilder = workoutBuilder else {
             print("WatchWorkoutTracking: HealthKit is not ready to start a workout")
@@ -256,7 +265,11 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WatchKitConnection.totalKcal = 0
         print("Start workout")
         let startDate = Date()
-        workoutSession.startActivity(with: startDate)
+        if configuration != nil {
+            healthStore.start(workoutSession)
+        } else {
+            workoutSession.startActivity(with: startDate)
+        }
         workoutBuilder.beginCollection(withStart: startDate) { (success, error) in
             print(success)
             if let error = error {
@@ -357,11 +370,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         if let error = error {
                             print(error)
                         }
-                        workout?.setValue(quantityMiles, forKey: "totalDistance")
-                        // Set total energy burned on the workout
-                        let totalEnergy = WorkoutTracking.totalKcal > 0 ? WorkoutTracking.totalKcal : activeEnergyBurned
-                        let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
-                        workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
+                        // HealthKit derives workout totals from the samples added to the builder.
                     }
                 }
             }
@@ -424,11 +433,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                          if let error = error {
                              print(error)
                          }
-                         workout?.setValue(quantityMiles, forKey: "totalDistance")
-                         // Set total energy burned on the workout
-                         let totalEnergy = WorkoutTracking.totalKcal > 0 ? WorkoutTracking.totalKcal : activeEnergyBurned
-                         let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
-                         workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
+                         // HealthKit derives workout totals from the samples added to the builder.
                      }
                  }
              }
@@ -502,12 +507,8 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         if let error = error {
                             print(error)
                         }
-                        workout?.setValue(stepsQuantity, forKey: "totalSteps")
-                        workout?.setValue(quantityMiles, forKey: "totalDistance")
-                        // Set total energy burned on the workout
-                        let totalEnergy = WorkoutTracking.totalKcal > 0 ? WorkoutTracking.totalKcal : activeEnergyBurned
-                        let totalEnergyQuantity = HKQuantity(unit: unit, doubleValue: totalEnergy)
-                        workout?.setValue(totalEnergyQuantity, forKey: "totalEnergyBurned")
+                        // HealthKit derives steps, distance, and energy totals from the samples
+                        // added to the builder above.
 
                         // Reset flights climbed and elevation gain for next workout
                         WorkoutTracking.flightsClimbed = 0
@@ -698,10 +699,8 @@ extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {
 
 extension WorkoutTracking: HKWorkoutSessionDelegate {
     func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
-        
     }
-    
+
     func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
-        
     }
 }

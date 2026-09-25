@@ -9,16 +9,7 @@ import UIKit
 import HealthKit
 import WatchConnectivity
 
-class watchAppStart: NSObject, WCSessionDelegate {
-    func sessionDidBecomeInactive(_ session: WCSession) {
-        
-    }
-    
-    func sessionDidDeactivate(_ session: WCSession) {
-        
-    }
-    
-    
+class watchAppStart: NSObject {
     // MARK: - IB Outlets
   
     @IBOutlet weak var statusLabel: UILabel!
@@ -27,11 +18,7 @@ class watchAppStart: NSObject, WCSessionDelegate {
     //var workout: Workout?
     var workoutConfiguration: HKWorkoutConfiguration!
     private let healthStore = HKHealthStore()
-    private var wcSessionActivationCompletion: ((WCSession) -> Void)?
-    private var watchConnectivitySession: WCSession?
-    private var stateDate: Date?
-    
-    
+    private var watchAppLaunchRequested = false
     
     // MARK: - UIViewController
     /*
@@ -45,41 +32,39 @@ class watchAppStart: NSObject, WCSessionDelegate {
     }*/
     
     // MARK: - Convenience
-    public func startWatchApp() {
-        
+    public func startWatchApp(deviceType: Int) {
+        guard !watchAppLaunchRequested,
+              WCSession.isSupported(),
+              WCSession.default.activationState == .activated,
+              WCSession.default.isPaired,
+              WCSession.default.isWatchAppInstalled else { return }
+
         workoutConfiguration = HKWorkoutConfiguration()
-        workoutConfiguration.activityType = .cycling
+        switch deviceType {
+        case 1: // treadmill
+            workoutConfiguration.activityType = .running
+        case 2: // bike
+            workoutConfiguration.activityType = .cycling
+        case 3: // rower
+            workoutConfiguration.activityType = .rowing
+        case 4: // elliptical
+            workoutConfiguration.activityType = .elliptical
+        default:
+            workoutConfiguration.activityType = .other
+        }
         workoutConfiguration.locationType = .indoor
-        
-        guard let workoutConfiguration = workoutConfiguration else { return }
-        
-        getActiveWCSession { wcSession in
-            if wcSession.activationState == .activated && wcSession.isWatchAppInstalled {
-                self.healthStore.startWatchApp(with: workoutConfiguration) { (success, error) in
-                    if !success {
-                        print("starting watch app failed with error: \(String(describing: error))")
-                    }
-                }
+
+        watchAppLaunchRequested = true
+        healthStore.startWatchApp(with: workoutConfiguration) { [weak self] (success, error) in
+            if !success {
+                self?.watchAppLaunchRequested = false
+                print("starting watch app failed with error: \(String(describing: error))")
             }
         }
     }
-    
-    private func getActiveWCSession(completion: @escaping (WCSession) -> Void) {
-        guard WCSession.isSupported() else {
-            // ... Alert the user that their iOS device does not support watch connectivity
-            fatalError("watch connectivity session not supported")
-        }
-        
-        let wcSession = WCSession.default
-        wcSession.delegate = self
-        
-        switch wcSession.activationState {
-        case .activated:
-            completion(wcSession)
-        case .inactive, .notActivated:
-            wcSession.activate()
-            wcSessionActivationCompletion = completion
-        }
+
+    public func resetWorkout() {
+        watchAppLaunchRequested = false
     }
     /*
     private func updateSessionState(_ state: String) {
@@ -92,13 +77,4 @@ class watchAppStart: NSObject, WCSessionDelegate {
         }
     }*/
     
-    // MARK: - WCSessionDelegate
-    
-    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        if activationState == .activated, let activationCompletion = wcSessionActivationCompletion {
-            activationCompletion(session)
-            wcSessionActivationCompletion = nil
-        }
-    }
 }
-

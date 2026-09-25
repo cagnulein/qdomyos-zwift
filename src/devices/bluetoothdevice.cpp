@@ -12,7 +12,7 @@
 #include "ios/lockscreen.h"
 #endif
 
-bluetoothdevice::bluetoothdevice() : lastState(STOPPED) {}
+bluetoothdevice::bluetoothdevice() : lastState(STARTED) {}
 
 bluetoothdevice::~bluetoothdevice() {
     if(this->virtualDevice) {

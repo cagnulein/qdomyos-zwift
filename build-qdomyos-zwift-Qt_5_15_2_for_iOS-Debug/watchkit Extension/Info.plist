@@ -53,6 +53,8 @@
 	<string>access to heartbeat in order to show it in the application</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>access to heartbeat in order to show it in the application</string>
+	<key>WKExtensionDelegateClassName</key>
+	<string>$(PRODUCT_MODULE_NAME).ExtensionDelegate</string>
 	<key>UIBackgroundModes</key>
 	<array/>
 	<key>WKBackgroundModes</key>
