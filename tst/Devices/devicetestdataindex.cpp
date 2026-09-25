@@ -793,6 +793,7 @@ void DeviceTestDataIndex::Initialize() {
             config.DeviceInfo()->setCoreConfigurations(
                 enable ? QBluetoothDeviceInfo::BaseRateCoreConfiguration
                        : QBluetoothDeviceInfo::LowEnergyCoreConfiguration);
+            config.setValue(QZSettings::bh_spada_2, enable);
             configurations.push_back(config);
         });
 

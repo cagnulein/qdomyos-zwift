@@ -582,6 +582,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool snode_bike = settings.value(QZSettings::snode_bike, QZSettings::default_snode_bike).toBool();
     bool fitplus_bike = settings.value(QZSettings::fitplus_bike, QZSettings::default_fitplus_bike).toBool() ||
                         settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+    bool bh_spada_2 = settings.value(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2).toBool();
     bool csc_as_bike =
         settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
     bool csc_as_treadmill =
@@ -2157,7 +2158,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif
             else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
                         (b.name().toUpper().startsWith("TACX SATORI")) ||
-                        (b.name().toUpper().startsWith("RACER S")) ||
+                        (b.name().toUpper().startsWith("RACER S") && !bh_spada_2) ||
                         ((b.name().toUpper().startsWith("KU")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith("ELITETRAINER")) ||
                         (b.name().toUpper().startsWith("MISURO B+")) ||

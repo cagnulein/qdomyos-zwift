@@ -12,6 +12,7 @@ void InitializeTrackedSettings()
 
     trackedSettings.insert(QZSettings::antbike, QZSettings::default_antbike);
     trackedSettings.insert(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice);
+    trackedSettings.insert(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2);
     trackedSettings.insert(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike);
     trackedSettings.insert(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name);
     trackedSettings.insert(QZSettings::csafe_rower, QZSettings::default_csafe_rower);
