@@ -185,6 +185,9 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     # 4. Fix sourceTree for relative src paths (must be <group> not <absolute>)
     sed -i '' 's|path = "\.\./src/\([^"]*\)"; sourceTree = "<absolute>";|path = "../src/\1"; sourceTree = "<group>";|g' qdomyoszwift.xcodeproj/project.pbxproj
 
+    # Point the shared Qt root at the SDK downloaded by the Cloud workflow.
+    sed -i '' 's|QZ_QT_IOS_ROOT = /Users/cagnulein/Qt/5.15.2/ios;|QZ_QT_IOS_ROOT = /tmp/Qt-5.15.2/ios;|g' qdomyoszwift.xcodeproj/project.pbxproj
+
     echo "Fixed all paths in project file"
 
     # CRITICAL: Change scheme to Release configuration
@@ -214,9 +217,11 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     echo "Replaced all _debug library references with release versions"
 
     # The UIScene delegate is registered through Objective-C runtime metadata.
-    # Force-load the patched QPA so the linker cannot dead-strip it.
-    QIOS_FORCE_LOAD_FLAG="-Wl,-force_load,/tmp/Qt-5.15.2/ios/plugins/platforms/libqios.a"
-    if ! grep -Fq "$QIOS_FORCE_LOAD_FLAG" qdomyoszwift.xcodeproj/project.pbxproj; then
+    # Force-load the repository QPA archive, which is hash-identical to the
+    # archive in the Xcode Cloud Qt package.
+    QIOS_FORCE_LOAD_MARKER='-Wl,-force_load,$(QZ_QIOS_ARCHIVE)'
+    QIOS_FORCE_LOAD_FLAG='-Wl,-force_load,$(SRCROOT)/../qt-patches/ios/5.15.2/binary/libqios.a'
+    if ! grep -Fq "$QIOS_FORCE_LOAD_MARKER" qdomyoszwift.xcodeproj/project.pbxproj; then
         awk -v flag="$QIOS_FORCE_LOAD_FLAG" '
             { print }
             /"-Wl,-e,_qt_main_wrapper",/ {
@@ -224,7 +229,7 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
             }
         ' qdomyoszwift.xcodeproj/project.pbxproj > qdomyoszwift.xcodeproj/project.pbxproj.qz_tmp
         mv qdomyoszwift.xcodeproj/project.pbxproj.qz_tmp qdomyoszwift.xcodeproj/project.pbxproj
-        echo "Added force-load for the patched qios plugin"
+        echo "Added force-load for the Xcode Cloud qios plugin"
     fi
 
     # Add ALL necessary Qt library search paths

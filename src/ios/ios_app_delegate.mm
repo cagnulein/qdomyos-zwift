@@ -2,6 +2,7 @@
 // Keep the UIScene bridge outside that guard: it is an overlay for the Qt
 // platform plugin and must be present in the final application binary.
 #import "UIKit/UIKit.h"
+#import <TargetConditionals.h>
 #import <objc/runtime.h>
 #include <QGuiApplication>
 #include <QQmlPropertyMap>
@@ -16,7 +17,6 @@
 #endif
 
 static BOOL qz_desktopManagerOverlayInstalled = NO;
-static UIWindow *qz_sceneWindow = nil;
 static QQmlPropertyMap qz_iosLayout;
 
 #if QZ_HAS_UIHINGE
@@ -303,36 +303,70 @@ static void qz_sendUpdatedExposeEvent(UIView *view)
         qz_sendUpdatedExposeEvent(subview);
 }
 
+static UIWindowScene *qz_foregroundWindowScene(void)
+{
+    if (@available(iOS 13.0, *)) {
+        UIWindowScene *fallbackScene = nil;
+        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+            if (![scene isKindOfClass:[UIWindowScene class]])
+                continue;
+            if (scene.activationState == UISceneActivationStateForegroundActive)
+                return (UIWindowScene *)scene;
+            if (!fallbackScene)
+                fallbackScene = (UIWindowScene *)scene;
+        }
+        return fallbackScene;
+    }
+    return nil;
+}
+
 static void qz_desktopManagerDidAddSubview(id managerView, SEL selector, UIView *subview)
 {
-    Q_UNUSED(subview)
-
     UIWindow *window = [managerView window];
+    if (!window && qz_isIOSAppOnMac()) {
+        // QIOSDesktopManagerView is not in a UIWindow while Qt is bringing up
+        // its scene. Qt tracks that window on the manager's view controller.
+        SEL controllerSelector = NSSelectorFromString(@"qtViewController");
+        id viewController = [managerView respondsToSelector:controllerSelector]
+            ? [managerView performSelector:controllerSelector]
+            : nil;
+        SEL windowSelector = NSSelectorFromString(@"window");
+        if ([viewController respondsToSelector:windowSelector])
+            window = [viewController performSelector:windowSelector];
+    }
+
+    if (qz_isIOSAppOnMac() && window && !window.windowScene) {
+        UIWindowScene *scene = qz_foregroundWindowScene();
+        if (scene) {
+            // Designed for iPad on macOS has a UIKit scene but Qt 5.15 still
+            // creates its UIWindow through the pre-scene desktop manager.
+            // Attach that same Qt window to the already active scene.
+            window.windowScene = scene;
+            window.hidden = NO;
+            qz_installHingeInteraction(window);
+            qz_updateIOSLayoutMetrics(window);
+            [window makeKeyAndVisible];
+            [window.rootViewController.view setNeedsLayout];
+            [window.rootViewController.view layoutIfNeeded];
+            qz_layoutQtViews(window.rootViewController.view);
+            qz_sendUpdatedExposeEvent(window.rootViewController.view);
+        }
+    }
+
     if (window && window.windowScene) {
-        // Qt 5.15 uses UIWindow.screen here. With UIScene lifecycle enabled,
-        // iOS 27 rejects that path; the scene delegate already attached the
-        // same Qt window to its UIWindowScene.
+        // Qt's UIScene backport owns the scene window. This overlay only
+        // applies QZ layout and hinge metrics to that window.
         window.hidden = NO;
+        qz_installHingeInteraction(window);
+        qz_updateIOSLayoutMetrics(window);
         qz_layoutQtViews(window.rootViewController.view);
         qz_sendUpdatedExposeEvent(subview);
         return;
     }
 
-    // During the first subview insertion UIKit may not have populated
-    // managerView.window yet. If the scene delegate already connected Qt's
-    // UIWindow, keep using that scene-owned window and never fall through to
-    // Qt 5.15's deprecated UIWindow.screen assignment.
-    if (qz_sceneWindow && qz_sceneWindow.windowScene) {
-        qz_sceneWindow.hidden = NO;
-        qz_layoutQtViews(qz_sceneWindow.rootViewController.view);
-        qz_sendUpdatedExposeEvent(subview);
-        return;
-    }
-
-    // The subview has already been inserted. Do not call Qt 5.15's original
-    // implementation here: its only remaining action is UIWindow.screen =,
-    // which iOS 27 rejects for scene-based applications. The scene delegate
-    // attaches and shows the same UIWindow once the scene is ready.
+    // If the scene is not connected yet, Qt's scene delegate will reparent
+    // the pending QWindow when its scene-owned window becomes available.
+    Q_UNUSED(subview)
     Q_UNUSED(selector)
 }
 
@@ -365,7 +399,7 @@ static void qz_installDesktopManagerOverlay(void)
 @interface QIOSViewController : UIViewController
 @end
 
-@interface QZWindowSceneDelegate : UIResponder <UIWindowSceneDelegate>
+@interface QZSimulatorWindowSceneDelegate : UIResponder <UIWindowSceneDelegate>
 @property(nonatomic, retain) UIWindow *window;
 @end
 
@@ -375,34 +409,24 @@ static void *qz_screenForWindowScene(UIWindowScene *windowScene)
         return nullptr;
 
     const CGSize sceneBounds = windowScene.coordinateSpace.bounds.size;
-    void *matchingScreen = nullptr;
     for (QScreen *screen : qGuiApp->screens()) {
         if (!screen || !screen->handle())
             continue;
 
         const QSize screenSize = screen->geometry().size();
-        const BOOL sameSize = qRound(sceneBounds.width) == screenSize.width() &&
-                              qRound(sceneBounds.height) == screenSize.height();
-        const BOOL rotatedSize = qRound(sceneBounds.width) == screenSize.height() &&
-                                 qRound(sceneBounds.height) == screenSize.width();
-        if (sameSize || rotatedSize) {
-            matchingScreen = screen->handle();
-            break;
-        }
+        if ((qRound(sceneBounds.width) == screenSize.width() &&
+             qRound(sceneBounds.height) == screenSize.height()) ||
+            (qRound(sceneBounds.width) == screenSize.height() &&
+             qRound(sceneBounds.height) == screenSize.width()))
+            return screen->handle();
     }
-
-    // Avoid calling private QIOSScreen methods here: the device and simulator
-    // archives have different private implementations. Matching the scene
-    // coordinate size keeps the correct QScreen stable on dual-display iPhone.
-    if (matchingScreen)
-        return matchingScreen;
 
     return qGuiApp->screens().size() == 1 && qGuiApp->screens().first()
         ? qGuiApp->screens().first()->handle()
         : nullptr;
 }
 
-static UIWindow *qz_existingQtWindowForScreen(void *platformScreen)
+static UIWindow *qz_qtWindowForScreen(void *platformScreen)
 {
     if (!qGuiApp || !platformScreen)
         return nil;
@@ -418,7 +442,6 @@ static UIWindow *qz_existingQtWindowForScreen(void *platformScreen)
 
         if (window->screen() && window->screen()->handle() == platformScreen)
             return view.window;
-
         if (!fallbackWindow)
             fallbackWindow = view.window;
     }
@@ -426,32 +449,17 @@ static UIWindow *qz_existingQtWindowForScreen(void *platformScreen)
     return fallbackWindow;
 }
 
-@implementation QZWindowSceneDelegate
+@implementation QZSimulatorWindowSceneDelegate
 
 - (void)scene:(UIScene *)scene
     willConnectToSession:(UISceneSession *)session
              options:(UISceneConnectionOptions *)connectionOptions
 {
-    Q_UNUSED(session)
-    Q_UNUSED(connectionOptions)
-
     if (![scene isKindOfClass:[UIWindowScene class]])
         return;
 
-    UIWindowScene *windowScene = static_cast<UIWindowScene *>(scene);
-    void *platformScreen = qz_screenForWindowScene(windowScene);
-    if (!platformScreen) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 50 * NSEC_PER_MSEC),
-                       dispatch_get_main_queue(), ^{
-            [self scene:scene willConnectToSession:session options:connectionOptions];
-        });
-        return;
-    }
-
-    // Qt 5.15 has already created the UIWindow and attached the QQuick view
-    // to it. Reuse that exact window; creating a second UIWindow leaves the
-    // scene black because Qt continues rendering into its original one.
-    UIWindow *qtWindow = qz_existingQtWindowForScreen(platformScreen);
+    void *platformScreen = qz_screenForWindowScene((UIWindowScene *)scene);
+    UIWindow *qtWindow = qz_qtWindowForScreen(platformScreen);
     if (!qtWindow) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 50 * NSEC_PER_MSEC),
                        dispatch_get_main_queue(), ^{
@@ -460,56 +468,27 @@ static UIWindow *qz_existingQtWindowForScreen(void *platformScreen)
         return;
     }
 
-    // Qt owns this UIWindow. Keep the scene delegate's property empty: on
-    // iOS 27 retaining the pre-scene Qt window here can race its native
-    // teardown and crash in objc_retain before QML is shown.
-    qz_sceneWindow = qtWindow;
-    qz_sceneWindow.windowScene = windowScene;
-    qz_sceneWindow.hidden = NO;
-    qz_installHingeInteraction(qz_sceneWindow);
-    qz_updateIOSLayoutMetrics(qz_sceneWindow);
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone &&
-        !qz_isIPhoneDuoWindow(qz_sceneWindow)) {
-        qz_sceneWindow.rootViewController.view.backgroundColor = UIColor.blackColor;
-    }
+    // Attach Qt's existing window to UIKit's scene; never create a second
+    // window or alter the device/Cloud Qt archive.
+    qtWindow.windowScene = (UIWindowScene *)scene;
+    qtWindow.hidden = NO;
+    qz_installHingeInteraction(qtWindow);
+    qz_updateIOSLayoutMetrics(qtWindow);
 
-    // The Qt window may have been created before UIKit connected the scene.
-    // Detach its platform view from the pre-scene desktop manager and apply
-    // the already requested state again, matching the upstream Qt scene fix.
     for (QWindow *window : qGuiApp->topLevelWindows()) {
-        if (!window || !window->handle() || !window->screen()
-            || window->screen()->handle() != platformScreen)
+        if (!window || !window->handle() || !window->screen() ||
+            window->screen()->handle() != platformScreen)
             continue;
-
         window->setParent(nullptr);
         window->setWindowStates(window->windowStates());
     }
 
     qz_installDesktopManagerOverlay();
-    [qz_sceneWindow makeKeyAndVisible];
-    [qz_sceneWindow.rootViewController.view setNeedsLayout];
-    [qz_sceneWindow.rootViewController.view layoutIfNeeded];
-    qz_layoutQtViews(qz_sceneWindow.rootViewController.view);
-    qz_sendUpdatedExposeEvent(qz_sceneWindow.rootViewController.view);
-}
-
-@end
-
-@interface QIOSApplicationDelegate (QZSceneLifecycle)
-@end
-
-@implementation QIOSApplicationDelegate (QZSceneLifecycle)
-
-- (UISceneConfiguration *)application:(UIApplication *)application
-    configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession
-                                  options:(UISceneConnectionOptions *)options
-{
-    Q_UNUSED(application)
-    Q_UNUSED(options)
-
-    UISceneConfiguration *configuration = connectingSceneSession.configuration;
-    configuration.delegateClass = [QZWindowSceneDelegate class];
-    return configuration;
+    [qtWindow makeKeyAndVisible];
+    [qtWindow.rootViewController.view setNeedsLayout];
+    [qtWindow.rootViewController.view layoutIfNeeded];
+    qz_layoutQtViews(qtWindow.rootViewController.view);
+    qz_sendUpdatedExposeEvent(qtWindow.rootViewController.view);
 }
 
 @end
@@ -671,6 +650,7 @@ static UIWindow *qz_existingQtWindowForScreen(void *platformScreen)
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     qDebug() << "QZ iOS launch";
+#if !TARGET_OS_SIMULATOR
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
     [center requestAuthorizationWithOptions:UNAuthorizationOptionBadge
       completionHandler:^(BOOL granted, NSError *error){
@@ -678,6 +658,7 @@ static UIWindow *qz_existingQtWindowForScreen(void *platformScreen)
               [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
           };
       }];
+#endif
 		if (@available(iOS 13.0, *)) {
 	    [self setupDynamicQuickActions];
 		}

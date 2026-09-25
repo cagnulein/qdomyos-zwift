@@ -99,8 +99,6 @@
 				<dict>
 					<key>UISceneConfigurationName</key>
 					<string>Default Configuration</string>
-					<key>UISceneDelegateClassName</key>
-					<string>QZWindowSceneDelegate</string>
 				</dict>
 			</array>
 		</dict>
