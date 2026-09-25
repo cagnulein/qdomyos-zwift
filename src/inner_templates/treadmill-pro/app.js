@@ -121,7 +121,7 @@ function drawSparkline(targetSpeed) {
 // ── Send command ──────────────────────────────────────────────────────────────
 function sendCmd(cmd) {
   if (ws && ws.readyState === WebSocket.OPEN)
-    ws.send(JSON.stringify({ msg: 'cmd', content: { command: cmd } }));
+    ws.send(JSON.stringify({ msg: cmd, content: {} }));
 }
 
 function togglePause() {

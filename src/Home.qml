@@ -48,7 +48,6 @@ HomeForm {
     Loader {
         id: customDashboardLoader
         active: settings.ui_custom_dashboard_enabled
-        visible: !window.sideBarVisible
         anchors.fill: parent
         anchors.topMargin: 0
         z: 10
@@ -66,13 +65,16 @@ HomeForm {
                 id: dashboardPortPoller
                 interval: 500
                 repeat: true
-                running: !parent.pageLoaded
+                running: true
                 onTriggered: {
                     var p = dashboardQSettings.value("template_inner_QZWS_port", 0)
                     if (!p) return
-                    var target = "http://localhost:" + p + "/" + settings.ui_custom_dashboard_name + "/index.html"
-                    if (dashboardWebView.url !== target)
+                    var dashboardName = settings.ui_custom_dashboard_name || "bike-pro"
+                    var target = "http://localhost:" + p + "/" + dashboardName + "/index.html"
+                    if (dashboardWebView.url.toString() !== target) {
+                        parent.pageLoaded = false
                         dashboardWebView.url = target
+                    }
                 }
             }
 
@@ -85,7 +87,6 @@ HomeForm {
                         parent.pageLoaded = true
                         dashboardBusy.visible = false
                         dashboardBusy.running = false
-                        dashboardPortPoller.stop()
                     } else if (loadRequest.status === WebView.LoadFailedStatus) {
                         parent.pageLoaded = false
                         dashboardBusy.visible = true

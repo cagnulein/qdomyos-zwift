@@ -6725,7 +6725,9 @@ import AndroidStatusBar 1.0
                                         return
                                     }
                                 }
-                                currentIndex = 0
+                                currentIndex = dashboards.length > 0 ? 0 : -1
+                                if (dashboards.length > 0)
+                                    settings.ui_custom_dashboard_name = dashboards[0]
                             }
                         }
                         Button {
