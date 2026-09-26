@@ -60,6 +60,7 @@ class echelonconnectsport : public bike {
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
     uint16_t watts() override;
+    bool transparentVirtualEchelonBridgeEnabled() const;
 
     QTimer *refresh;
 
