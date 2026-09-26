@@ -82,3 +82,14 @@ Yes. For Echelon bikes that require the manufacturer's initialization before the
 The unlock step may need to be repeated after the bike is power-cycled. In a confirmed support case with an Echelon EX-7s, this two-device sequence reliably unlocked the bike and QZ then operated normally.
 
 If QZ already connects to and initializes your bike directly, this workaround is unnecessary.
+
+## My ProForm TDF bike used to connect over Wi-Fi, but QZ suddenly stays on Connecting. What should I check?
+
+QZ's Wi-Fi connection to a ProForm TDF bike uses the bike's configured IP address. If the router assigns the bike a different address through DHCP, QZ can keep trying the old address and no longer connect even though nothing changed in QZ.
+
+1. Check the bike's current IP address on the bike or in your router's connected-device list.
+2. Compare it with the **TDF IP** value configured in QZ and update QZ if the address has changed.
+3. Restart QZ and reconnect.
+4. To prevent the problem from recurring, reserve a fixed DHCP address for the bike in your router, or otherwise configure the router so the bike always receives the same IP.
+
+In a confirmed support case, the bike's IP address had changed; updating the address restored the QZ connection immediately.
