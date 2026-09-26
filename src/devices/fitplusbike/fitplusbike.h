@@ -41,6 +41,7 @@ class fitplusbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool connected() override;
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    static double pelotonResistanceFromBikeLevel(double resistance, double maxResistance, double gain, double offset);
 
   private:
     resistance_t max_resistance = 24;
