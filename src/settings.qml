@@ -3558,7 +3558,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_up
                                     onActivated: { settings.mywhoosh_link_left_up = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3570,7 +3570,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_down
                                     onActivated: { settings.mywhoosh_link_left_down = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3582,7 +3582,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_left
                                     onActivated: { settings.mywhoosh_link_left_left = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3594,7 +3594,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_right
                                     onActivated: { settings.mywhoosh_link_left_right = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3606,7 +3606,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_shoulder
                                     onActivated: { settings.mywhoosh_link_left_shoulder = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3618,7 +3618,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_power
                                     onActivated: { settings.mywhoosh_link_left_power = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3638,7 +3638,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_y
                                     onActivated: { settings.mywhoosh_link_right_y = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3650,7 +3650,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_a
                                     onActivated: { settings.mywhoosh_link_right_a = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3662,7 +3662,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_b
                                     onActivated: { settings.mywhoosh_link_right_b = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3674,7 +3674,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_z
                                     onActivated: { settings.mywhoosh_link_right_z = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3686,7 +3686,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_shoulder
                                     onActivated: { settings.mywhoosh_link_right_shoulder = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3698,7 +3698,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_power
                                     onActivated: { settings.mywhoosh_link_right_power = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -15343,7 +15343,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_ls1
                                     onActivated: settings.zwiftplay_gear_ls1 = currentIndex
                                 }
@@ -15355,7 +15355,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_ls2
                                     onActivated: settings.zwiftplay_gear_ls2 = currentIndex
                                 }
@@ -15367,7 +15367,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rs1
                                     onActivated: settings.zwiftplay_gear_rs1 = currentIndex
                                 }
@@ -15379,7 +15379,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rs2
                                     onActivated: settings.zwiftplay_gear_rs2 = currentIndex
                                 }
@@ -15391,7 +15391,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_paddle_left
                                     onActivated: settings.zwiftplay_gear_paddle_left = currentIndex
                                 }
@@ -15403,7 +15403,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_paddle_right
                                     onActivated: settings.zwiftplay_gear_paddle_right = currentIndex
                                 }
@@ -15415,7 +15415,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_lb
                                     onActivated: settings.zwiftplay_gear_lb = currentIndex
                                 }
@@ -15427,7 +15427,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rb
                                     onActivated: settings.zwiftplay_gear_rb = currentIndex
                                 }
