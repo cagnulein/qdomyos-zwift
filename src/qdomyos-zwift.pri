@@ -884,6 +884,7 @@ devices/ultrasportbike/ultrasportbike.h \
 devices/xcxbike/xcxbike.h \
 virtualdevices/virtualbike.h \
 virtualdevices/virtualrower.h \
+virtualdevices/virtualrowercadence.h \
 virtualdevices/virtualtreadmill.h \
 devices/domyosbike/domyosbike.h \
 devices/wahookickrsnapbike/wahookickrsnapbike.h \
