@@ -13,6 +13,10 @@
 
 static LiveActivityBridge* _liveActivityManager = nil;
 
+// minimum delay between two Live Activity updates while the app is in background,
+// must stay well below the inactivity timeout of LiveActivityBridge.swift
+static const NSTimeInterval QZLiveActivityBackgroundInterval = 5.0;
+
 static bool liveActivitiesSupportedOnCurrentRuntime() {
     if (!@available(iOS 16.1, *)) {
         qDebug() << "Live Activities require iOS 16.1 or later";
@@ -55,6 +59,23 @@ void ios_liveactivity::updateLiveActivity(double speed, double cadence, double p
                                           int compactTrailingValue) {
     if (!liveActivitiesSupportedOnCurrentRuntime()) {
         return;
+    }
+
+    // ActivityKit gives the app a limited budget of Live Activity updates while
+    // it is not in foreground: pushing one update per second burns it in a few
+    // minutes, after which iOS silently stops applying the new content and the
+    // Live Activity freezes (and is then rendered as "stale").  Slow down to one
+    // update every 5 seconds while we are in background / screen off.
+    static NSTimeInterval lastBackgroundUpdate = 0;
+    if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
+        const NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+        if (lastBackgroundUpdate != 0 && (now - lastBackgroundUpdate) < QZLiveActivityBackgroundInterval) {
+            return;
+        }
+        lastBackgroundUpdate = now;
+    } else {
+        // back in foreground: let the next background update go through at once
+        lastBackgroundUpdate = 0;
     }
 
     if (_liveActivityManager != nil) {

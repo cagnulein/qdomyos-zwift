@@ -1135,6 +1135,7 @@ const QString QZSettings::zwiftplay_gear_paddle_right = QStringLiteral("zwiftpla
 const QString QZSettings::zwiftplay_gear_lb = QStringLiteral("zwiftplay_gear_lb");
 const QString QZSettings::zwiftplay_gear_rb = QStringLiteral("zwiftplay_gear_rb");
 
+const QString QZSettings::ios_background_keepalive = QStringLiteral("ios_background_keepalive");
 const QString QZSettings::renpho_bike_knob_gears = QStringLiteral("renpho_bike_knob_gears");
 
 // MyWhoosh Link settings
@@ -1287,7 +1288,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1007;
+const uint32_t allSettingsCount = 1008;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2319,6 +2320,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwiftplay_gear_lb, QZSettings::default_zwiftplay_gear_lb},
     {QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb},
     {QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport},
+    {QZSettings::ios_background_keepalive, QZSettings::default_ios_background_keepalive},
     {QZSettings::renpho_bike_knob_gears, QZSettings::default_renpho_bike_knob_gears},
 };
 
