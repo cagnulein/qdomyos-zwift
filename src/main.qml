@@ -1107,6 +1107,11 @@ ApplicationWindow {
 
         ToolButton {
             function loadMaps() {
+                if(stackView.currentItem === googleMapUI.item) {
+                    console.log("map is already open, closing it");
+                    stackView.pop();
+                    return;
+                }
                 if(rootItem.currentCoordinateValid) {
                     console.log("coordinate is valid for map");
                     if(googleMapUI.status === Loader.Ready)
@@ -1123,7 +1128,7 @@ ApplicationWindow {
             onClicked: { loadMaps(); }
             anchors.right: toolButtonChart.left
             visible: rootItem.mapsVisible
-        }      
+        }
 
         ToolButton {
             function loadVideo() {
@@ -1169,7 +1174,13 @@ ApplicationWindow {
 
         Label {
             text: stackView.currentItem.title
-            anchors.centerIn: parent
+            anchors.left: toolButton.right
+            anchors.right: toolButtonAutoResistance.left
+            anchors.leftMargin: 8
+            anchors.rightMargin: 8
+            anchors.verticalCenter: parent.verticalCenter
+            horizontalAlignment: Text.AlignHCenter
+            elide: Text.ElideRight
         }
     }
 
