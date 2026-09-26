@@ -1026,6 +1026,10 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().startsWith(QStringLiteral("MRK-"))) {
             qDebug() << QStringLiteral("merach_MRK workaround enabled!");
             merach_MRK = true;
+            if (device.name().startsWith(QStringLiteral("MRK-S29M-"))) {
+                max_resistance = 16;
+                qDebug() << QStringLiteral("MRK-S29M max resistance set to 16");
+            }
         } else if (device.name().startsWith(QStringLiteral("X100-"))) {
             qDebug() << QStringLiteral("VirtuFit Etappe 2.0i workaround enabled!");
             virtufitEtappe = true;
