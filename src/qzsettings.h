@@ -2001,6 +2001,9 @@ class QZSettings {
     static const QString nordictrack_incline_trainer_x7i_ntl15010_0;
     static constexpr bool default_nordictrack_incline_trainer_x7i_ntl15010_0 = false;
 
+    static const QString nordictrack_incline_trainer_x7i_netl18716_0;
+    static constexpr bool default_nordictrack_incline_trainer_x7i_netl18716_0 = false;
+
     static const QString strava_auth_external_webbrowser;
     static constexpr bool default_strava_auth_external_webbrowser = false;
 
