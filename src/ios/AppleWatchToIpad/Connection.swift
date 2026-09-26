@@ -79,7 +79,7 @@ class Connection {
     }
 
     func receiveMessage() {
-        connection.receive(minimumIncompleteLength: 1, maximumLength: 100) { data, _, _, _ in
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 256) { data, _, _, _ in
             if let data = data,
                let message = String(data: data, encoding: .utf8) {
                 self.SwiftDebug.qtDebug("Connection receiveMessage message: \(message)")
@@ -116,6 +116,14 @@ class Connection {
                     if sender?.contains("PAD") ?? false && message.contains("PWR=") {
                         let pwr : String = message.slice(from: "PWR=", to: "#") ?? ""
                         WatchKitConnection.power = (Double(pwr) ?? WatchKitConnection.power)
+                    }
+                    if sender?.contains("PAD") ?? false && message.contains("TYP=") {
+                        let type : String = message.slice(from: "TYP=", to: "#") ?? ""
+                        WatchKitConnection.workoutType = (Int(type) ?? WatchKitConnection.workoutType)
+                    }
+                    if sender?.contains("PAD") ?? false && message.contains("STA=") {
+                        let state : String = message.slice(from: "STA=", to: "#") ?? ""
+                        WatchKitConnection.workoutState = (Int(state) ?? WatchKitConnection.workoutState)
                     }
 				}
             }

@@ -16,37 +16,46 @@ class MainController: WKInterfaceController {
     @IBOutlet weak var caloriesLabel: WKInterfaceLabel!
     @IBOutlet weak var distanceLabel: WKInterfaceLabel!
     @IBOutlet weak var heartRateLabel: WKInterfaceLabel!
-    @IBOutlet weak var startButton: WKInterfaceButton!
-    @IBOutlet weak var cmbSports: WKInterfacePicker!
-    static var start: Bool! = false
+    private static var workoutIsActive = false
+    private static var workoutIsStarting = false
+    private static weak var activeController: MainController?
+    private static var autoSyncActive = false
+    private static var syncedWorkoutState = 3
+    private var syncTimer: Timer?
     let pedometer = CMPedometer()
-    var sport: Int = 0
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
-        let sports: [WKPickerItem] = [WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem()]
-        sports[0].title = "Bike"
-        sports[1].title = "Run"
-        sports[2].title = "Walk"
-        sports[3].title = "Elliptical"
-        sports[4].title = "Rowing"
-        cmbSports.setItems(sports)
-        sport = UserDefaults.standard.value(forKey: "sport") as? Int ?? 0
-        cmbSports.setSelectedItemIndex(sport)
+        MainController.activeController = self
+        userNameLabel.setText("Waiting for QZ")
+        if MainController.workoutIsActive {
+            WorkoutTracking.shared.delegate = self
+            userNameLabel.setText("Workout active")
+        }
+
+        WatchKitConnection.shared.delegate = self
+        WatchKitConnection.shared.startSession()
+        syncTimer?.invalidate()
+        syncTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(syncWithQZ), userInfo: nil, repeats: true)
         
         // Configure interface objects here.
         print("AWAKE")
     }
-    
-    @IBAction func changeSport(_ value: Int) {
-        sport = value
-        UserDefaults.standard.set(value, forKey: "sport")
-        UserDefaults.standard.synchronize()
+
+    @objc private func syncWithQZ() {
+        WatchKitConnection.shared.sendMessage(message: ["ping": "0" as AnyObject])
     }
     
     override func willActivate() {
         // This method is called when watch view controller is about to be visible to user
         super.willActivate()
+        MainController.activeController = self
+        WatchKitConnection.shared.delegate = self
+        WatchKitConnection.shared.startSession()
+        if MainController.workoutIsActive {
+            WorkoutTracking.shared.delegate = self
+            userNameLabel.setText("Workout active")
+        }
         print("WILL ACTIVE")
         WorkoutTracking.shared.fetchStepCounts()
         if CMPedometer.isStepCountingAvailable() {
@@ -65,37 +74,89 @@ class MainController: WKInterfaceController {
         super.didDeactivate()
         print("DID DEACTIVE")
     }
-}
 
-extension MainController {
-    
-    @IBAction func startWorkout() {
-        if(!MainController.start){
-            let selectedSport = sport
-            let workoutName = ["Bike", "Run", "Walk", "Elliptical", "Rowing"][selectedSport]
-            let startAction = WKAlertAction(title: "Start", style: .default) { [weak self] in
-                guard let self = self else { return }
-                MainController.start = true
-                self.startButton.setTitle("Stop")
-                self.cmbSports.setEnabled(false)
-                self.cmbSports.setHidden(true)
-                WorkoutTracking.authorizeHealthKit()
-                WorkoutTracking.shared.setSport(selectedSport)
-                WorkoutTracking.shared.startWorkOut()
-                WorkoutTracking.shared.delegate = self
+    private func endWorkout() {
+        guard MainController.workoutIsActive else { return }
+        MainController.workoutIsActive = false
+        userNameLabel.setText("Saving workout…")
+        WorkoutTracking.shared.stopWorkOut()
+    }
 
-                WatchKitConnection.shared.delegate = self
-                WatchKitConnection.shared.startSession()
-            }
-            let cancelAction = WKAlertAction(title: "Cancel", style: .cancel) {}
-            presentAlert(withTitle: "Start Workout", message: "Start \(workoutName) workout?", preferredStyle: .alert, actions: [cancelAction, startAction])
+    static func handleHealthKitWorkout(_ configuration: HKWorkoutConfiguration) {
+        let sport: Int
+        switch configuration.activityType {
+        case .running, .walking:
+            sport = 1
+        case .cycling:
+            sport = 0
+        case .rowing:
+            sport = 4
+        case .elliptical:
+            sport = 3
+        default:
+            sport = 0
         }
-        else {
-            MainController.start = false
-            startButton.setTitle("Start")
-            cmbSports.setEnabled(true)
-            cmbSports.setHidden(false)
-            WorkoutTracking.shared.stopWorkOut()
+
+        MainController.autoSyncActive = true
+        guard !MainController.workoutIsActive, !MainController.workoutIsStarting,
+              WorkoutTracking.shared.workoutSession?.state != .running else { return }
+
+        // HealthKit delivers this callback while the Watch app may still be in the
+        // background. Start the supplied workout session synchronously here so the
+        // system doesn't discard the iPhone-initiated workout request.
+        MainController.workoutIsStarting = true
+        WorkoutTracking.shared.setSport(sport)
+        WorkoutTracking.shared.delegate = MainController.activeController
+        WatchKitConnection.shared.startSession()
+        if WorkoutTracking.shared.startWorkOut(configuration: configuration) {
+            MainController.workoutIsActive = true
+            MainController.workoutIsStarting = false
+            MainController.syncedWorkoutState = WatchKitConnection.workoutState
+            MainController.activeController?.userNameLabel.setText("Workout active")
+        } else {
+            MainController.workoutIsStarting = false
+            MainController.autoSyncActive = false
+            MainController.syncedWorkoutState = 3
+            MainController.activeController?.userNameLabel.setText("Workout unavailable")
+        }
+    }
+
+    static func syncWorkoutState(_ workoutState: Int, deviceType: Int) {
+        DispatchQueue.main.async {
+            guard let controller = MainController.activeController else { return }
+
+            switch workoutState {
+            case 0: // STARTED
+                MainController.autoSyncActive = true
+                MainController.syncedWorkoutState = 0
+
+            case 1: // PAUSED
+                MainController.autoSyncActive = true
+                if MainController.workoutIsActive && MainController.syncedWorkoutState != 1,
+                   WorkoutTracking.shared.workoutSession?.state == .running {
+                    WorkoutTracking.shared.workoutSession?.pause()
+                }
+                MainController.syncedWorkoutState = 1
+
+            case 2: // RESUMED
+                MainController.autoSyncActive = true
+                if MainController.workoutIsActive && MainController.syncedWorkoutState != 2,
+                   WorkoutTracking.shared.workoutSession?.state == .paused {
+                    WorkoutTracking.shared.workoutSession?.resume()
+                }
+                MainController.syncedWorkoutState = 2
+
+            case 3: // STOPPED
+                MainController.workoutIsStarting = false
+                if MainController.autoSyncActive {
+                    controller.endWorkout()
+                    MainController.autoSyncActive = false
+                }
+                MainController.syncedWorkoutState = 3
+
+            default:
+                break
+            }
         }
     }
 }
@@ -108,26 +169,38 @@ extension MainController: WorkoutTrackingDelegate {
     func didReceiveHealthKitActiveEnergyBurned(_ activeEnergyBurned: Double) {
         
     }
+
+    func didSaveHealthKitWorkout(_ success: Bool, error: String?) {
+        DispatchQueue.main.async {
+            if success {
+                self.userNameLabel.setText("Workout saved")
+            } else {
+                self.userNameLabel.setText("Save failed")
+                WatchKitConnection.shared.sendDebug("HealthKit workout save failed: \(error ?? "unknown error")")
+            }
+        }
+    }
     
     func didReceiveHealthKitHeartRate(_ heartRate: Double) {
-        heartRateLabel.setText("\(heartRate) BPM")
-        WatchKitConnection.shared.sendMessage(message: ["heartRate":
-            "\(heartRate)" as AnyObject])
-        WorkoutTracking.distance = WatchKitConnection.distance
-        WorkoutTracking.kcal = WatchKitConnection.kcal
-        WorkoutTracking.totalKcal = WatchKitConnection.totalKcal
-        WorkoutTracking.speed = WatchKitConnection.speed
-        WorkoutTracking.power = WatchKitConnection.power
-        WorkoutTracking.cadence = WatchKitConnection.cadence
-        WorkoutTracking.steps = WatchKitConnection.steps
-                
-        if Locale.current.measurementSystem != "Metric" {
-            self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance * 0.621371)) mi")
-        } else {
-            self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance)) km")
+        DispatchQueue.main.async {
+            self.heartRateLabel.setText("\(heartRate) BPM")
+            WatchKitConnection.shared.sendMessage(message: ["heartRate":
+                "\(heartRate)" as AnyObject])
+            WorkoutTracking.distance = WatchKitConnection.distance
+            WorkoutTracking.kcal = WatchKitConnection.kcal
+            WorkoutTracking.totalKcal = WatchKitConnection.totalKcal
+            WorkoutTracking.speed = WatchKitConnection.speed
+            WorkoutTracking.power = WatchKitConnection.power
+            WorkoutTracking.cadence = WatchKitConnection.cadence
+            WorkoutTracking.steps = WatchKitConnection.steps
+
+            if Locale.current.measurementSystem != "Metric" {
+                self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance * 0.621371)) mi")
+            } else {
+                self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance)) km")
+            }
+            self.caloriesLabel.setText("KCal \(Int(WorkoutTracking.kcal))")
         }
-        self.caloriesLabel.setText("KCal \(Int(WorkoutTracking.kcal))")
-        //WorkoutTracking.cadenceSteps = pedometer.
     }
     
     func didReceiveHealthKitStepCounts(_ stepCounts: Double) {
