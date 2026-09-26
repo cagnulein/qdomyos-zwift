@@ -80,6 +80,15 @@ TEST(FtmsBikeParserTest, DoesNotSendGearOnlyInclinationWithoutAChangedGearOrPrev
     EXPECT_FALSE(ftmsbike::shouldSendGearOnlyInclination(false, true, true, true));
 }
 
+TEST(FtmsBikeParserTest, AppliesGearGainToFsIb50PhysicalGearDelta) {
+    EXPECT_DOUBLE_EQ(0.05, ftmsbike::applyFsIb50GearGain(1, 0.05));
+    EXPECT_DOUBLE_EQ(-0.2, ftmsbike::applyFsIb50GearGain(-4, 0.05));
+}
+
+TEST(FtmsBikeParserTest, KeepsFullFsIb50GearDeltaWithDefaultGain) {
+    EXPECT_DOUBLE_EQ(5.0, ftmsbike::applyFsIb50GearGain(5, 1.0));
+}
+
 TEST(FtmsBikeParserTest, DoesNotWriteResistanceForAnFsIb50PhysicalGearChange) {
     EXPECT_FALSE(ftmsbike::resistanceWriteRequired(true, true, -1, true));
 }

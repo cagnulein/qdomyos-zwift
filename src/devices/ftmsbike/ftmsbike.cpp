@@ -123,6 +123,10 @@ bool ftmsbike::shouldSendGearOnlyInclination(bool isFsIb50, bool hasInclinationR
     return !isFsIb50 && !hasInclinationRequest && gearChanged && hasLastRequestedInclination;
 }
 
+double ftmsbike::applyFsIb50GearGain(resistance_t gearDelta, double gearsGain) {
+    return static_cast<double>(gearDelta) * gearsGain;
+}
+
 void ftmsbike::writeCharacteristicZwiftPlay(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
     QSettings settings;
@@ -836,7 +840,12 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                      << "delta" << gearDelta << "since inclination" << msecsSinceInclinationCommand;
             lastRawRequestedResistanceValue = -1;
             fsIb50PhysicalGearChangePending = true;
-            setGears(gears() + gearDelta);
+            const double gearsGain =
+                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble();
+            const double scaledGearDelta = applyFsIb50GearGain(gearDelta, gearsGain);
+            qDebug() << QStringLiteral("FS-IB50 scaled physical gear change") << scaledGearDelta
+                     << "gain" << gearsGain;
+            setGears(gears() + scaledGearDelta);
         }
         lastFsIb50Resistance = fsIb50Resistance;
         resistance_received = true;
