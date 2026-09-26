@@ -10,6 +10,15 @@ Page {
     property int currentStep: 0
     property var selectedOptions: ({})
 
+    // Called by main.qml on the Android back button: go back one wizard step
+    function handleBack() {
+        if (stackViewLocal.depth > 1) {
+            stackViewLocal.pop()
+            return true
+        }
+        return false
+    }
+
     // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
     function stripRssi(deviceName) {
         return deviceName.replace(/ \(\d+%\)$/, "")
