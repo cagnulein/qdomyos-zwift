@@ -1777,6 +1777,7 @@ import AndroidStatusBar 1.0
             property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
             property real power_sensor_speed_correction_threshold: 20.0
             property bool flow_fitness_runner_dtm2000i: false
+            property bool nordictrack_incline_trainer_x7i_netl18716_0: false
         }
 
 
@@ -10484,6 +10485,7 @@ import AndroidStatusBar 1.0
                                     "ProForm CST 505 PFTL59420.0",
                                     "ProForm 105 CST",
                                     "Nordictrack Incline Trainer X7i NTL15010.0",
+                                    "Nordictrack Incline Trainer X7i NETL18716.0",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -10563,7 +10565,8 @@ import AndroidStatusBar 1.0
                                                     settings.proform_carbon_tlx_v84_314_treadmill ? 60 :
                                                     settings.proform_treadmill_cst_505_pftl59420_0 ? 61 :
                                                     settings.proform_treadmill_105_cst ? 62 :
-                                                    settings.nordictrack_incline_trainer_x7i_ntl15010_0 ? 63 : 0;
+                                                    settings.nordictrack_incline_trainer_x7i_ntl15010_0 ? 63 :
+                                                    settings.nordictrack_incline_trainer_x7i_netl18716_0 ? 64 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -10641,6 +10644,7 @@ import AndroidStatusBar 1.0
                                     settings.proform_treadmill_cst_505_pftl59420_0 = false;
                                     settings.proform_treadmill_105_cst = false;
                                     settings.nordictrack_incline_trainer_x7i_ntl15010_0 = false;
+                                    settings.nordictrack_incline_trainer_x7i_netl18716_0 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -10707,6 +10711,7 @@ import AndroidStatusBar 1.0
                                         case 61: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
                                         case 62: settings.proform_treadmill_105_cst = true; break;
                                         case 63: settings.nordictrack_incline_trainer_x7i_ntl15010_0 = true; break;
+                                        case 64: settings.nordictrack_incline_trainer_x7i_netl18716_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
