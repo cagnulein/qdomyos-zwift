@@ -615,9 +615,10 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             requestResistanceCompleted = true;
             Resistance = res;
             emit resistanceRead(Resistance.value());
-            if (merach_MRK || sportstech_sx600) {
-                // if we change this, also change the wattsFromResistance function. We can create a standard function in
-                // order to have all the costants in one place (I WANT MORE TIME!!!)
+            if (sportstech_sx600) {
+                // Sportstech SX600 does not expose a Peloton-compatible resistance level;
+                // estimate it from power and cadence instead.
+                // If this is changed, also change the wattsFromResistance function.
                 double ac = 0.01243107769;
                 double bc = 1.145964912;
                 double cc = -23.50977444;
@@ -635,6 +636,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                     settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
             } else {
+                // Merach MRK sends its native resistance level in the packet.
                 m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
             }
 
@@ -745,10 +747,17 @@ resistance_t fitplusbike::pelotonToBikeResistance(int pelotonResistance) {
     return (adjustedPelotonResistance * max_resistance) / 100;
 }
 
+double fitplusbike::pelotonResistanceFromBikeLevel(double resistance, double maxResistance, double gain, double offset) {
+    return (((resistance * 100) / maxResistance) * gain) + offset;
+}
+
 double fitplusbike::bikeResistanceToPeloton(double resistance) {
     QSettings settings;
-    return (((resistance * 100) / max_resistance) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-           settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+    return pelotonResistanceFromBikeLevel(
+        resistance,
+        max_resistance,
+        settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble(),
+        settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble());
 }
 
 void fitplusbike::btinit() {
@@ -1017,6 +1026,10 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().startsWith(QStringLiteral("MRK-"))) {
             qDebug() << QStringLiteral("merach_MRK workaround enabled!");
             merach_MRK = true;
+            if (device.name().startsWith(QStringLiteral("MRK-S29M-"))) {
+                max_resistance = 16;
+                qDebug() << QStringLiteral("MRK-S29M max resistance set to 16");
+            }
         } else if (device.name().startsWith(QStringLiteral("X100-"))) {
             qDebug() << QStringLiteral("VirtuFit Etappe 2.0i workaround enabled!");
             virtufitEtappe = true;
