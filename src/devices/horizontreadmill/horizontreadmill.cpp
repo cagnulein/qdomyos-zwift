@@ -88,6 +88,18 @@ void horizontreadmill::waitForAPacket() {
 }
 
 void horizontreadmill::btinit() {
+    if (btinitRunning)
+        return;
+    btinitRunning = true;
+    initRequest = false;
+
+    // Each profile group below retries via "goto initN" when the machine does not acknowledge it.
+    // That retry was unbounded: if a machine stops acknowledging, btinit() re-sends the same group
+    // forever. Captured in the field at 468 writes/sec - 33,494 writes in 71s, 876 repeats of a
+    // single group - until the link collapsed. Cap the retries and carry on instead.
+    int initRetry[9] = {0};
+    const int INIT_MAX_RETRY = 3;
+
     QSettings settings;
     QStringList horizon_treadmill_profile_users;
     horizon_treadmill_profile_users.append(
@@ -294,13 +306,15 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
-            if (!initPacketRecv) {
+            if (!initPacketRecv && ++initRetry[1] <= INIT_MAX_RETRY) {
                 if(gattFTMSService && homeform::singleton()) {
                     homeform::singleton()->setToastRequested("Enable the 'Force Using FTMS' setting under the Settings->Treadmill Options->Horizon Treadmill options and restart the app");
                 }
                 qDebug() << "init 1 not received";
                 waitForAPacket();
                 goto init1;
+            } else if (!initPacketRecv) {
+                qDebug() << "init 1 not acknowledged after" << INIT_MAX_RETRY << "attempts, continuing";
             }
 
             if(homeform::singleton()) {
@@ -387,10 +401,12 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
-            if (!initPacketRecv) {
-                qDebug() << "init 2 not received";
+            if (!initPacketRecv && ++initRetry[2] <= INIT_MAX_RETRY) {
+                qDebug() << "init 2 not received, retry" << initRetry[2];
                 waitForAPacket();
                 goto init2;
+            } else if (!initPacketRecv) {
+                qDebug() << "init 2 not acknowledged after" << INIT_MAX_RETRY << "attempts, continuing";
             }
 
             if(homeform::singleton()) {
@@ -477,10 +493,12 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
-            if (!initPacketRecv) {
-                qDebug() << "init 3 not received";
+            if (!initPacketRecv && ++initRetry[3] <= INIT_MAX_RETRY) {
+                qDebug() << "init 3 not received, retry" << initRetry[3];
                 waitForAPacket();
                 goto init3;
+            } else if (!initPacketRecv) {
+                qDebug() << "init 3 not acknowledged after" << INIT_MAX_RETRY << "attempts, continuing";
             }
 
             if(homeform::singleton()) {
@@ -567,10 +585,12 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
-            if (!initPacketRecv) {
-                qDebug() << "init 4 not received";
+            if (!initPacketRecv && ++initRetry[4] <= INIT_MAX_RETRY) {
+                qDebug() << "init 4 not received, retry" << initRetry[4];
                 waitForAPacket();
                 goto init4;
+            } else if (!initPacketRecv) {
+                qDebug() << "init 4 not acknowledged after" << INIT_MAX_RETRY << "attempts, continuing";
             }
 
             if(homeform::singleton()) {
@@ -657,10 +677,12 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
-            if (!initPacketRecv) {
-                qDebug() << "init 5 not received";
+            if (!initPacketRecv && ++initRetry[5] <= INIT_MAX_RETRY) {
+                qDebug() << "init 5 not received, retry" << initRetry[5];
                 waitForAPacket();
                 goto init5;
+            } else if (!initPacketRecv) {
+                qDebug() << "init 5 not acknowledged after" << INIT_MAX_RETRY << "attempts, continuing";
             }
 
             if(homeform::singleton()) {
@@ -747,10 +769,12 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
-            if (!initPacketRecv) {
-                qDebug() << "init 6 not received";
+            if (!initPacketRecv && ++initRetry[6] <= INIT_MAX_RETRY) {
+                qDebug() << "init 6 not received, retry" << initRetry[6];
                 waitForAPacket();
                 goto init6;
+            } else if (!initPacketRecv) {
+                qDebug() << "init 6 not acknowledged after" << INIT_MAX_RETRY << "attempts, continuing";
             }
 
             if(homeform::singleton()) {
@@ -837,10 +861,12 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
-            if (!initPacketRecv) {
-                qDebug() << "init 7 not received";
+            if (!initPacketRecv && ++initRetry[7] <= INIT_MAX_RETRY) {
+                qDebug() << "init 7 not received, retry" << initRetry[7];
                 waitForAPacket();
                 goto init7;
+            } else if (!initPacketRecv) {
+                qDebug() << "init 7 not acknowledged after" << INIT_MAX_RETRY << "attempts, continuing";
             }
 
             if(homeform::singleton()) {
@@ -867,10 +893,12 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData4, sizeof(initData4),
                                 QStringLiteral("init"), false, true);
 
-            if (!initPacketRecv) {
-                qDebug() << "init 8 not received";
+            if (!initPacketRecv && ++initRetry[8] <= INIT_MAX_RETRY) {
+                qDebug() << "init 8 not received, retry" << initRetry[8];
                 waitForAPacket();
                 goto init8;
+            } else if (!initPacketRecv) {
+                qDebug() << "init 8 not acknowledged after" << INIT_MAX_RETRY << "attempts, continuing";
             }
 
             if(homeform::singleton()) {
@@ -904,6 +932,7 @@ void horizontreadmill::btinit() {
     }
 
     initDone = true;
+    btinitRunning = false;
 }
 
 float horizontreadmill::float_one_point_round(float value) { return ((float)((int)(value * 10))) / 10; }
@@ -2842,11 +2871,30 @@ bool horizontreadmill::connected() {
 
 void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << QStringLiteral("trying to connect back again...");
-
+    if (state == QLowEnergyController::ConnectedState) {
+        reconnectAttempts = 0;   // link is up again; forget the backoff
+    } else if (state == QLowEnergyController::UnconnectedState && m_control) {
         initDone = false;
-        m_control->connectToDevice();
+
+        // Reconnecting immediately, on a controller that was never closed, makes Android answer
+        // every subsequent attempt with GATT error 133. Captured on a Unihertz Jelly 2: one good
+        // connection, a single drop, then 38 consecutive 133s at ~2/sec that never recovered for
+        // the rest of the session. The same machine held a link for 75s+ from a Linux host with no
+        // errors, so the peripheral was fine - the retry storm was exhausting the local stack.
+        //
+        // Close the GATT client first, then back off 1,2,4,8,16s between attempts.
+        m_control->disconnectFromDevice();
+
+        const int delay = 1000 * (1 << qMin(reconnectAttempts, 4));
+        reconnectAttempts++;
+        qDebug() << QStringLiteral("reconnect attempt") << reconnectAttempts
+                 << QStringLiteral("in") << delay << QStringLiteral("ms");
+        QTimer::singleShot(delay, this, [this]() {
+            if (m_control && m_control->state() == QLowEnergyController::UnconnectedState) {
+                qDebug() << QStringLiteral("trying to connect back again...");
+                m_control->connectToDevice();
+            }
+        });
     }
 }
 
