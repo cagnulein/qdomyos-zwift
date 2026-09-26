@@ -398,6 +398,8 @@ ApplicationWindow {
     // On Android an unhandled back key closes the window, which quits the app.
     // (Keys.onBackPressed cannot be attached to ApplicationWindow: it is not an Item.)
     // Popups and the drawer close themselves on back before this is reached.
+    // Android 16+ with targetSdk 36 no longer sends the back key to the app unless
+    // AndroidManifest.xml sets android:enableOnBackInvokedCallback="false".
     onClosing: {
         if (OS_VERSION !== "Android") {
             return
@@ -411,7 +413,7 @@ ApplicationWindow {
         }
         close.accepted = false
         backToExitTimer.start()
-        toast.show(qsTr("Press back again to exit"))
+        toast.show(qsTr("Press back again to exit"), backToExitTimer.interval)
     }
 
     Timer {
