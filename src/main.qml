@@ -1029,7 +1029,7 @@ ApplicationWindow {
                  anchors.horizontalCenter: parent.horizontalCenter
              Label {
                  anchors.horizontalCenter: parent.horizontalCenter
-                 text: qsTr("Auto Resistance " + (rootItem.autoResistance?"enabled":"disabled"))
+                 text: rootItem.autoResistance ? qsTr("Auto Resistance enabled") : qsTr("Auto Resistance disabled")
                 }
              }
         }

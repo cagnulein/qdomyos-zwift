@@ -13544,7 +13544,7 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        text: qsTr("You can trigger auto laps in the FIT file based on distance. Unit: "+ (settings.miles_unit?"Mi":"KM") +" Default: 0 (disabled).")
+                        text: qsTr("You can trigger auto laps in the FIT file based on distance. Unit: %1 Default: 0 (disabled).").arg(settings.miles_unit ? "Mi" : "KM")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
