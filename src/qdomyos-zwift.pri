@@ -274,6 +274,8 @@ garminconnect.cpp \
 devices/horizongr7bike/horizongr7bike.cpp \
 devices/horizontreadmill/horizontreadmill.cpp \
 devices/iconceptbike/iconceptbike.cpp \
+devices/kettlerclassicbike/kettlerclassicbike.cpp \
+devices/kettlerclassicbike/kettlerclassicprotocol.cpp \
 devices/inspirebike/inspirebike.cpp \
 keepawakehelper.cpp \
 devices/keepbike/keepbike.cpp \
@@ -575,6 +577,8 @@ devices/ftmsrower/ftmsrower.h \
 homefitnessbuddy.h \
 devices/horizongr7bike/horizongr7bike.h \
 devices/iconceptbike/iconceptbike.h \
+devices/kettlerclassicbike/kettlerclassicbike.h \
+devices/kettlerclassicbike/kettlerclassicprotocol.h \
 devices/keepbike/keepbike.h \
 devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h \
 devices/kingsmithr2treadmill/kingsmithr2treadmill.h \

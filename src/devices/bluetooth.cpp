@@ -582,6 +582,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool snode_bike = settings.value(QZSettings::snode_bike, QZSettings::default_snode_bike).toBool();
     bool fitplus_bike = settings.value(QZSettings::fitplus_bike, QZSettings::default_fitplus_bike).toBool() ||
                         settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+    bool bh_spada_2 = settings.value(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2).toBool();
     bool csc_as_bike =
         settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
     bool csc_as_treadmill =
@@ -2149,9 +2150,31 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(kettlerC12Bike, &kettlerc12bike::debug, this, &bluetooth::debug);
                 kettlerC12Bike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(kettlerC12Bike);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
+            }
+#ifndef Q_OS_IOS
+            else if (b.name() == QStringLiteral("RACER S") &&
+                     (b.coreConfigurations() & QBluetoothDeviceInfo::BaseRateCoreConfiguration) &&
+                     !kettlerClassicBike && filter) {
+                // MyHomeFIT's Kettler Classic connector uses BR/EDR SPP.
+                // The BaseRate check keeps the existing BLE Stages "RACER S"
+                // route below from being shadowed by this branch.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kettlerClassicBike = new kettlerclassicbike(noWriteResistance, noHeartService, testResistance,
+                                                            bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(kettlerClassicBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(kettlerClassicBike, &kettlerclassicbike::debug, this, &bluetooth::debug);
+                connect(kettlerClassicBike, &kettlerclassicbike::disconnected, this, &bluetooth::restart,
+                        Qt::QueuedConnection);
+                kettlerClassicBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kettlerClassicBike);
+            }
+#endif
+            else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
                         (b.name().toUpper().startsWith("TACX SATORI")) ||
-                        (b.name().toUpper().startsWith("RACER S")) ||
+                        (b.name().toUpper().startsWith("RACER S") && !bh_spada_2) ||
                         ((b.name().toUpper().startsWith("KU")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith("ELITETRAINER")) ||
                         (b.name().toUpper().startsWith("MISURO B+")) ||
@@ -4133,6 +4156,10 @@ void bluetooth::restart() {
 
         stagesBike = nullptr;
     }
+    if (kettlerClassicBike) {
+        delete kettlerClassicBike;
+        kettlerClassicBike = nullptr;
+    }
     if (toorx) {
 
         delete toorx;
@@ -4630,6 +4657,8 @@ bluetoothdevice *bluetooth::device() {
         return cycleopsphantomBike;
     } else if (stagesBike) {
         return stagesBike;
+    } else if (kettlerClassicBike) {
+        return kettlerClassicBike;
     } else if (toorx) {
         return toorx;
     } else if (iconsole) {
