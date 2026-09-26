@@ -744,6 +744,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                                                       "(Landroid/content/Context;Ljava/lang/String;)V",
                                                       QtAndroid::androidContext().object(),
                                                       QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+        } else if (ifit) {
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                      "startAdvertisingIfit",
+                                                      "(Landroid/content/Context;)V",
+                                                      QtAndroid::androidContext().object());
         } else {
             leController->startAdvertising(pars, advertisingData, advertisingData);
         }
@@ -1918,6 +1923,11 @@ void virtualbike::reconnect() {
                                                   "(Landroid/content/Context;Ljava/lang/String;)V",
                                                   QtAndroid::androidContext().object(),
                                                   QAndroidJniObject::fromString(echelonAdvertisingName).object<jstring>());
+    } else if (ifit) {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser",
+                                                  "startAdvertisingIfit",
+                                                  "(Landroid/content/Context;)V",
+                                                  QtAndroid::androidContext().object());
     } else {
         leController->startAdvertising(pars, advertisingData, advertisingData);
     }
