@@ -597,12 +597,34 @@ void proformtreadmill::update() {
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
                 if (requestStart != -1) {
                     emit debug(QStringLiteral("starting..."));
+
+                    uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
+                    uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
+                                        0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
+                    uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0x6c, 0x20, 0x58, 0x02, 0x01,
+                                        0xb4, 0x00, 0x58, 0x02, 0x00, 0x94, 0x00, 0x00, 0x00, 0x00};
+                    uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
+                    uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
+                                        0x03, 0x10, 0xc8, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xfa, 0x00};
+                    writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
+                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
+                    writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
+                    writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
+                    writeCharacteristic(start5, sizeof(start5), QStringLiteral("start5"), false, true);
+
                     requestStart = -1;
                     emit tapeStarted();
                 }
-                if (requestStop != -1) {
+                if (requestStop != -1 || requestPause != -1) {
+                    uint8_t stop1[] = {0xfe, 0x02, 0x0f, 0x02};
+                    uint8_t stop2[] = {0xff, 0x0f, 0x02, 0x04, 0x02, 0x0b, 0x04, 0x0b, 0x02, 0x02,
+                                       0x02, 0x10, 0x00, 0x00, 0x01, 0x00, 0x26, 0x00, 0x00, 0x00};
+                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop1"));
+                    writeCharacteristic(stop2, sizeof(stop2), QStringLiteral("stop2"));
+
                     emit debug(QStringLiteral("stopping..."));
                     requestStop = -1;
+                    requestPause = -1;
                 }
                 break;
             }
