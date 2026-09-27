@@ -32,12 +32,17 @@ trxappgateusbbike::trxappgateusbbike(bool noWriteResistance, bool noHeartService
 }
 
 void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                            bool wait_for_response) {
+                                            bool wait_for_response, const QByteArray &response_prefix) {
     QEventLoop loop;
     QTimer timeout;
 
     if (wait_for_response) {
-        connect(this, &trxappgateusbbike::packetReceived, &loop, &QEventLoop::quit);
+        connect(this, &trxappgateusbbike::packetReceived, &loop,
+                [&loop, response_prefix](const QByteArray &packet) {
+                    if (response_prefix.isEmpty() || packet.startsWith(response_prefix)) {
+                        loop.quit();
+                    }
+                });
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
@@ -230,7 +235,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    emit packetReceived();
+    emit packetReceived(newValue);
 
     qDebug() << newValue.toHex(' ') << bike_type;
 
@@ -582,12 +587,24 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
-    } else if (bike_type == TYPE::DKN_MOTION || bike_type == TYPE::DKN_MOTION_2) {
+    } else if (bike_type == TYPE::DKN_MOTION_2) {
+        const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
+        const uint8_t initData2[] = {0xf0, 0xa3, 0x02, 0x01, 0x01, 0x97};
+        const uint8_t vescapeInitData[] = {0xf0, 0xa4, 0x02, 0x01, 0x01, 0x01, 0x01, 0x01,
+                                           0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xa1};
+        const uint8_t initData3[] = {0xf0, 0xa5, 0x02, 0x01, 0x02, 0x9a};
+        const QByteArray vescapeB0 = QByteArray::fromHex("f0b0");
+
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("Vescape handshake"), false, true,
+                            vescapeB0);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("Vescape init"), false, false);
+        writeCharacteristic((uint8_t *)vescapeInitData, sizeof(vescapeInitData), QStringLiteral("Vescape init"), false,
+                            false);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("Vescape init"), false, false);
+    } else if (bike_type == TYPE::DKN_MOTION) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x02, 0x01, 0x93};
         const uint8_t initData3[] = {0xf0, 0xa3, 0x02, 0x01, 0x01, 0x97};
-        const uint8_t vescapeInitData[] = {0xf0, 0xa4, 0x02, 0x01, 0x01, 0x01, 0x01, 0x01,
-                                           0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xa1};
         const uint8_t initData4[] = {0xf0, 0xa5, 0x02, 0x01, 0x02, 0x9a};
         const uint8_t initData5[] = {0x40, 0x00, 0x9a, 0x46, 0x20};
         const uint8_t initData6[] = {0xf0, 0xa6, 0x02, 0x01, 0x02, 0x9b};
@@ -598,9 +615,6 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, false);
-        if (bike_type == TYPE::DKN_MOTION_2) {
-            writeCharacteristic((uint8_t *)vescapeInitData, sizeof(vescapeInitData), QStringLiteral("init"), false, false);
-        }
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, false);
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, false);
         writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
