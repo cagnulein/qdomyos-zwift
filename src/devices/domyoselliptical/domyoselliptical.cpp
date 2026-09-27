@@ -569,7 +569,7 @@ void domyoselliptical::serviceScanDone(void) {
         settings.setValue(QZSettings::domyos_elliptical_fmts, true);
 
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("Domyos Elliptial it's a FTMS. Restart QZ to apply the fix, thanks.");
+            homeform::singleton()->setToastRequested(QObject::tr("Domyos Elliptial it's a FTMS. Restart QZ to apply the fix, thanks."));
         return;
     }
     gattCommunicationChannelService->discoverDetails();

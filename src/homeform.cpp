@@ -880,8 +880,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);
     connect(bluetoothManager, &bluetooth::manualDeviceNotFound, this, [this](const QString &name) {
         setToastRequested(
-            QStringLiteral("QZ is looking for %1. Please wake it up or change this device under the Manual Device "
-                           "setting in Advanced Settings.")
+            QObject::tr("QZ is looking for %1. Please wake it up or change this device under the Manual Device "
+                        "setting in Advanced Settings.")
                 .arg(name));
     });
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
@@ -1079,7 +1079,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     QRegularExpression regex("^[A-Za-z0-9 ]+$");
     if(bluetoothName.length() > 9 || !regex.match(bluetoothName).hasMatch()) {
-        setToastRequested("Bluetooth name too long, change it to a 4 letters one in the android settings and use only A-Z or 0-9 characters");
+        setToastRequested(QObject::tr("Bluetooth name too long, change it to a 4 letters one in the android settings and use only A-Z or 0-9 characters"));
     }
     
     // Android 14 restrics access to /Android/data folder
@@ -1571,7 +1571,7 @@ void homeform::pelotonLoginState(bool ok) {
     m_pelotonLoginState = (ok ? 1 : 0);
     emit pelotonLoginChanged(m_pelotonLoginState);
     if (!ok) {
-        setToastRequested("Peloton Login Error!");        
+        setToastRequested(QObject::tr("Peloton Login Error!"));        
     }
 }
 
@@ -1580,7 +1580,7 @@ void homeform::zwiftLoginState(bool ok) {
     m_zwiftLoginState = (ok ? 1 : 0);
     emit zwiftLoginChanged(m_zwiftLoginState);
     if (!ok) {
-        setToastRequested("Zwift Login Error!");
+        setToastRequested(QObject::tr("Zwift Login Error!"));
     }
 }
 
@@ -1623,10 +1623,10 @@ void homeform::pelotonWorkoutStarted(const QString &name, const QString &instruc
         int timer = 0;        
 
         if(peloton_auto_start_with_intro) {
-            setToastRequested(QStringLiteral("Peloton workout auto started! It will start automatically after the intro! ") + name + QStringLiteral(" - ") + instructor);
+            setToastRequested(QObject::tr("Peloton workout auto started! It will start automatically after the intro! %1 - %2").arg(name, instructor));
             timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + (peloton_start_offset + 4);  // + 64; // // 4 average time to buffer and 60 to the intro
         } else {
-            setToastRequested(QStringLiteral("Peloton workout auto started skipping the intro! ") + name + QStringLiteral(" - ") + instructor);
+            setToastRequested(QObject::tr("Peloton workout auto started skipping the intro! %1 - %2").arg(name, instructor));
             timer = (pelotonHandler->start_time - QDateTime::currentSecsSinceEpoch()) + 6;  // 6 average time to push skip intro and wait the 3 seconds of the intro
         }
         if(timer <= 0) {
@@ -8344,7 +8344,7 @@ void homeform::update() {
                     settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble()) {
                         qDebug() << QStringLiteral("Autolap based on distance");
                         Lap();
-                        setToastRequested("AutoLap " + QString::number(settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble(), 'f', 1));
+                        setToastRequested(QObject::tr("AutoLap %1").arg(QString::number(settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble(), 'f', 1)));
                 }
             }
 
@@ -9655,7 +9655,7 @@ void homeform::strava_refreshtoken() {
     // oops, no dice
     if (reply->error() != 0) {
         qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
-        setToastRequested("Strava Auth Failed!");
+        setToastRequested(QObject::tr("Strava Auth Failed!"));
         return;
     }
 
@@ -9678,7 +9678,7 @@ void homeform::strava_refreshtoken() {
     settings.setValue(QZSettings::strava_refreshtoken, refresh_token);
     settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
 
-    setToastRequested("Strava Login OK!");
+    setToastRequested(QObject::tr("Strava Login OK!"));
 }
 
 bool homeform::strava_upload_file(const QByteArray &data, const QString &remotename) {
@@ -9820,9 +9820,9 @@ void homeform::errorOccurredUploadStrava(QNetworkReply::NetworkError code) {
             qDebug() << "JSON error message:" << jsonResponse.toJson();
         }
         
-        setToastRequested("Strava Upload Failed: " + replyStrava->errorString());        
+        setToastRequested(QObject::tr("Strava Upload Failed: %1").arg(replyStrava->errorString()));        
     } else {
-        setToastRequested("Strava Upload Failed");
+        setToastRequested(QObject::tr("Strava Upload Failed"));
     }
 }
 
@@ -9837,7 +9837,7 @@ void homeform::writeFileCompleted() {
 
     qDebug() << "reply:" << response;
 
-    setToastRequested("Strava Upload Completed!");
+    setToastRequested(QObject::tr("Strava Upload Completed!"));
 }
 
 void homeform::onStravaGranted() {
@@ -10032,7 +10032,7 @@ void homeform::garmin_connect_login() {
     QString password = settings.value(QZSettings::garmin_password, QZSettings::default_garmin_password).toString();
 
     if (email.isEmpty() || password.isEmpty()) {
-        setToastRequested("Garmin credentials not configured. Please set email and password in settings.");
+        setToastRequested(QObject::tr("Garmin credentials not configured. Please set email and password in settings."));
         return;
     }
 
@@ -10042,20 +10042,20 @@ void homeform::garmin_connect_login() {
 
         // Connect signals
         connect(garminConnect, &GarminConnect::authenticated, this, [this]() {
-            setToastRequested("Garmin Connect: Authentication successful!");
+            setToastRequested(QObject::tr("Garmin Connect: Authentication successful!"));
             garminConnect->checkFtpUpdates();
         });
 
         connect(garminConnect, &GarminConnect::authenticationFailed, this, [this](const QString &error) {
-            setToastRequested("Garmin Connect Login Failed: " + error);
+            setToastRequested(QObject::tr("Garmin Connect Login Failed: %1").arg(error));
         });
 
         connect(garminConnect, &GarminConnect::uploadSucceeded, this, [this]() {
-            setToastRequested("Garmin Connect: Upload successful!");
+            setToastRequested(QObject::tr("Garmin Connect: Upload successful!"));
         });
 
         connect(garminConnect, &GarminConnect::uploadFailed, this, [this](const QString &error) {
-            setToastRequested("Garmin Connect Upload Failed: " + error);
+            setToastRequested(QObject::tr("Garmin Connect Upload Failed: %1").arg(error));
         });
 
         connect(garminConnect, &GarminConnect::mfaRequired, this, [this]() {
@@ -10065,7 +10065,7 @@ void homeform::garmin_connect_login() {
 
         connect(garminConnect, &GarminConnect::workoutDownloaded, this,
                 [this](const QString &filename, const QString &workoutName) {
-                    setToastRequested(QString("Garmin workout saved: %1").arg(workoutName));
+                    setToastRequested(QObject::tr("Garmin workout saved: %1").arg(workoutName));
                     QString workoutDate;
                     const QString baseName = QFileInfo(filename).completeBaseName();
                     const int separatorPos = baseName.indexOf(QStringLiteral(" - "));
@@ -10099,7 +10099,7 @@ void homeform::garmin_connect_login() {
     // tryRefreshToken() handles all cases: valid tokens, expired access_token, etc.
     if (garminConnect->tryRefreshToken()) {
         qDebug() << "Garmin Connect: Token refresh successful, authenticated";
-        setToastRequested("Garmin Connect: Authenticated!");
+        setToastRequested(QObject::tr("Garmin Connect: Authenticated!"));
         emit garminConnect->authenticated();
         return;
     }
@@ -10107,7 +10107,7 @@ void homeform::garmin_connect_login() {
     // If already authenticated (refresh was skipped or not needed)
     if (garminConnect->isAuthenticated()) {
         qDebug() << "Garmin Connect: Already authenticated";
-        setToastRequested("Garmin Connect: Authenticated!");
+        setToastRequested(QObject::tr("Garmin Connect: Authenticated!"));
         emit garminConnect->authenticated();
         return;
     }
@@ -10119,7 +10119,7 @@ void homeform::garmin_connect_login() {
         qDebug() << "Garmin login failed:" << garminConnect->lastError();
         // Only show error toast if it's not MFA required (MFA has its own dialog)
         if (!garminConnect->lastError().contains("MFA", Qt::CaseInsensitive)) {
-            setToastRequested("Garmin Connect: Login failed - " + garminConnect->lastError());
+            setToastRequested(QObject::tr("Garmin Connect: Login failed - %1").arg(garminConnect->lastError()));
         }
     }
 }
@@ -10128,12 +10128,12 @@ void homeform::garmin_submit_mfa_code(const QString &mfaCode) {
     qDebug() << "Garmin MFA code submission requested";
 
     if (!garminConnect) {
-        setToastRequested("Garmin Connect not initialized");
+        setToastRequested(QObject::tr("Garmin Connect not initialized"));
         return;
     }
 
     if (mfaCode.isEmpty()) {
-        setToastRequested("Please enter a valid MFA code");
+        setToastRequested(QObject::tr("Please enter a valid MFA code"));
         return;
     }
 
@@ -10142,7 +10142,7 @@ void homeform::garmin_submit_mfa_code(const QString &mfaCode) {
 
     // Submit MFA code to continue authentication (no need to restart login flow)
     // Note: This is async - results will be signaled via authenticated() or authenticationFailed()
-    setToastRequested("Submitting MFA code...");
+    setToastRequested(QObject::tr("Submitting MFA code..."));
     garminConnect->submitMfaCode(mfaCode);
 }
 
@@ -10185,17 +10185,17 @@ void homeform::garmin_start_downloaded_workout() {
     showNextGarminWorkoutPrompt();
 
     if (workoutFile.isEmpty()) {
-        setToastRequested("No Garmin workout file available");
+        setToastRequested(QObject::tr("No Garmin workout file available"));
         return;
     }
 
     if (!startTrainingProgramFromFile(workoutFile)) {
-        setToastRequested(QString("Failed to load Garmin workout: %1").arg(workoutName));
+        setToastRequested(QObject::tr("Failed to load Garmin workout: %1").arg(workoutName));
         return;
     }
 
     trainprogram_autostart_requested();
-    setToastRequested(QString("Starting Garmin workout: %1").arg(workoutName));
+    setToastRequested(QObject::tr("Starting Garmin workout: %1").arg(workoutName));
 }
 
 void homeform::garmin_dismiss_downloaded_workout_prompt() {
@@ -10275,11 +10275,11 @@ void homeform::garmin_accept_ftp_update() {
 
     if (m_pendingGarminCyclingFtp > 0) {
         settings.setValue(QZSettings::ftp, m_pendingGarminCyclingFtp);
-        updated << QStringLiteral("cycling FTP");
+        updated << QObject::tr("cycling FTP");
     }
     if (m_pendingGarminRunningFtp > 0) {
         settings.setValue(QZSettings::ftp_run, m_pendingGarminRunningFtp);
-        updated << QStringLiteral("running FTP");
+        updated << QObject::tr("running FTP");
     }
 
     markPendingGarminFtpSeen();
@@ -10292,7 +10292,7 @@ void homeform::garmin_accept_ftp_update() {
     setGarminFtpPromptRequested(false);
 
     if (!updated.isEmpty()) {
-        setToastRequested(QStringLiteral("Updated Garmin %1").arg(updated.join(QStringLiteral(" and "))));
+        setToastRequested(QObject::tr("Updated Garmin %1").arg(updated.join(QObject::tr(" and "))));
     }
 }
 
@@ -10311,7 +10311,7 @@ void homeform::echelon_switch_to_classic_bridge() {
     setEchelonBridgeSwitchPromptRequested(false);
 
     if (!bluetoothManager || !bluetoothManager->device()) {
-        setToastRequested(QStringLiteral("No active Echelon device found"));
+        setToastRequested(QObject::tr("No active Echelon device found"));
         return;
     }
 
@@ -10325,7 +10325,7 @@ void homeform::echelon_switch_to_classic_bridge() {
         return;
     }
 
-    setToastRequested(QStringLiteral("The connected device is neither an Echelon Connect Sport nor a fakebike"));
+    setToastRequested(QObject::tr("The connected device is neither an Echelon Connect Sport nor a fakebike"));
 }
 
 void homeform::echelon_dismiss_bridge_switch_prompt() {
@@ -10336,7 +10336,7 @@ void homeform::echelon_enable_virtual_bridge() {
     setEchelonEnablePromptRequested(false);
 
     if (!bluetoothManager || !bluetoothManager->device()) {
-        setToastRequested(QStringLiteral("No active Echelon device found"));
+        setToastRequested(QObject::tr("No active Echelon device found"));
         return;
     }
 
@@ -10345,7 +10345,7 @@ void homeform::echelon_enable_virtual_bridge() {
         return;
     }
 
-    setToastRequested(QStringLiteral("The connected device is not an Echelon Connect Sport"));
+    setToastRequested(QObject::tr("The connected device is not an Echelon Connect Sport"));
 }
 
 void homeform::echelon_dismiss_enable_prompt() {
@@ -10390,7 +10390,7 @@ bool homeform::isIntervalsICUUploadConfigured() {
 void homeform::uploadHistoricalWorkoutToStrava(const QString &filePath) {
     QFile f(filePath);
     if (!f.open(QFile::OpenModeFlag::ReadOnly)) {
-        setToastRequested("Strava: unable to open FIT file");
+        setToastRequested(QObject::tr("Strava: unable to open FIT file"));
         return;
     }
 
@@ -10399,12 +10399,12 @@ void homeform::uploadHistoricalWorkoutToStrava(const QString &filePath) {
 
 void homeform::uploadHistoricalWorkoutToGarmin(const QString &filePath) {
     if (filePath.isEmpty() || !QFile::exists(filePath)) {
-        setToastRequested("Garmin: FIT file not found");
+        setToastRequested(QObject::tr("Garmin: FIT file not found"));
         return;
     }
 
     if (!isGarminUploadConfigured()) {
-        setToastRequested("Garmin is not configured");
+        setToastRequested(QObject::tr("Garmin is not configured"));
         return;
     }
 
@@ -10413,20 +10413,20 @@ void homeform::uploadHistoricalWorkoutToGarmin(const QString &filePath) {
     }
 
     if (!garminConnect || !garminConnect->isAuthenticated()) {
-        setToastRequested("Garmin: Not authenticated. Please login first.");
+        setToastRequested(QObject::tr("Garmin: Not authenticated. Please login first."));
         return;
     }
 
-    setToastRequested("Uploading to Garmin Connect...");
+    setToastRequested(QObject::tr("Uploading to Garmin Connect..."));
     if (!garminConnect->uploadFitFile(filePath)) {
-        setToastRequested("Garmin: Upload failed - " + garminConnect->lastError());
+        setToastRequested(QObject::tr("Garmin: Upload failed - %1").arg(garminConnect->lastError()));
     }
 }
 
 void homeform::uploadHistoricalWorkoutToIntervalsICU(const QString &filePath) {
     QFile f(filePath);
     if (!f.open(QFile::OpenModeFlag::ReadOnly)) {
-        setToastRequested("Intervals.icu: unable to open FIT file");
+        setToastRequested(QObject::tr("Intervals.icu: unable to open FIT file"));
         return;
     }
 
@@ -10536,21 +10536,21 @@ void homeform::garmin_upload_file_prepare() {
 
     // Final check before upload
     if (!garminConnect || !garminConnect->isAuthenticated()) {
-        setToastRequested("Garmin: Not authenticated. Please login first.");
+        setToastRequested(QObject::tr("Garmin: Not authenticated. Please login first."));
         return;
     }
 
     // Upload to Garmin Connect using new uploadFitFile method
     qDebug() << "Garmin: Starting upload of" << lastFitFileSaved;
-    setToastRequested("Uploading to Garmin Connect...");
+    setToastRequested(QObject::tr("Uploading to Garmin Connect..."));
 
     bool success = garminConnect->uploadFitFile(lastFitFileSaved);
     if (success) {
         qDebug() << "Garmin: Upload successful";
-        setToastRequested("Garmin: Upload successful!");
+        setToastRequested(QObject::tr("Garmin: Upload successful!"));
     } else {
         qDebug() << "Garmin: Upload failed:" << garminConnect->lastError();
-        setToastRequested("Garmin: Upload failed - " + garminConnect->lastError());
+        setToastRequested(QObject::tr("Garmin: Upload failed - %1").arg(garminConnect->lastError()));
     }
 }
 
@@ -10560,7 +10560,7 @@ void homeform::garmin_download_todays_workout() {
         return;
     }
     QString trainingDir = getWritableAppDir() + QStringLiteral("training");
-    setToastRequested("Downloading Garmin daily workout...");
+    setToastRequested(QObject::tr("Downloading Garmin daily workout..."));
     garminConnect->downloadTodaysWorkout(trainingDir);
 }
 
@@ -11535,7 +11535,7 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
                 qDebug() << "Intervals.icu: Error string:" << reply->errorString();
                 qDebug() << "Intervals.icu: HTTP status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
                 qDebug() << "Intervals.icu: Error response body:" << QString::fromUtf8(response);
-                setToastRequested("Intervals.icu: Authentication failed");
+                setToastRequested(QObject::tr("Intervals.icu: Authentication failed"));
                 reply->deleteLater();
                 return;
             }
@@ -11575,11 +11575,11 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
                     qDebug() << "Intervals.icu: Authentication completed successfully";
                 } else {
                     qDebug() << "Intervals.icu: No access_token in response";
-                    setToastRequested("Intervals.icu: Authentication failed");
+                    setToastRequested(QObject::tr("Intervals.icu: Authentication failed"));
                 }
             } else {
                 qDebug() << "Intervals.icu: Token exchange failed with status" << statusCode;
-                setToastRequested(QString("Intervals.icu: Error %1").arg(statusCode));
+                setToastRequested(QObject::tr("Intervals.icu: Error %1").arg(statusCode));
             }
 
             reply->deleteLater();
@@ -11590,7 +11590,7 @@ void homeform::callbackReceivedIntervalsICU(const QVariantMap &values) {
         QString error = values.value("error").toString();
         QString errorDesc = values.value("error_description").toString();
         qDebug() << "Intervals.icu: OAuth error occurred";
-        setToastRequested("Intervals.icu error: " + error);
+        setToastRequested(QObject::tr("Intervals.icu error: %1").arg(error));
     }
 }
 
@@ -11694,13 +11694,13 @@ bool homeform::intervalsicu_upload_file(const QByteArray &data, const QString &r
 
     if (token.isEmpty()) {
         qDebug() << "Intervals.icu: No access token available";
-        setToastRequested("Intervals.icu: Not authenticated");
+        setToastRequested(QObject::tr("Intervals.icu: Not authenticated"));
         return false;
     }
 
     if (athleteId.isEmpty()) {
         qDebug() << "Intervals.icu: No athlete ID available";
-        setToastRequested("Intervals.icu: No athlete ID configured");
+        setToastRequested(QObject::tr("Intervals.icu: No athlete ID configured"));
         return false;
     }
 
@@ -11801,9 +11801,9 @@ void homeform::writeFileCompletedIntervalsICU() {
 
     int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     if (statusCode >= 200 && statusCode < 300) {
-        setToastRequested("Intervals.icu upload successful!");
+        setToastRequested(QObject::tr("Intervals.icu upload successful!"));
     } else {
-        QString errorMsg = QString("Intervals.icu upload failed (HTTP %1)").arg(statusCode);
+        QString errorMsg = QObject::tr("Intervals.icu upload failed (HTTP %1)").arg(statusCode);
         qDebug() << errorMsg << response;
         setToastRequested(errorMsg);
     }
@@ -11819,9 +11819,9 @@ void homeform::errorOccurredUploadIntervalsICU(QNetworkReply::NetworkError code)
         qDebug() << "Error string:" << replyIntervalsICU->errorString();
         qDebug() << "HTTP status code:" << replyIntervalsICU->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-        setToastRequested("Intervals.icu upload failed: " + replyIntervalsICU->errorString());
+        setToastRequested(QObject::tr("Intervals.icu upload failed: %1").arg(replyIntervalsICU->errorString()));
     } else {
-        setToastRequested("Intervals.icu upload failed");
+        setToastRequested(QObject::tr("Intervals.icu upload failed"));
     }
 }
 
@@ -11836,7 +11836,7 @@ void homeform::intervalsicu_download_todays_workout() {
 
     if (athleteId.isEmpty()) {
         qDebug() << "Intervals.icu: No athlete ID configured";
-        setToastRequested("Intervals.icu: Configure athlete ID first");
+        setToastRequested(QObject::tr("Intervals.icu: Configure athlete ID first"));
         return;
     }
 
@@ -11857,7 +11857,7 @@ void homeform::intervalsicu_download_todays_workout() {
     QString token = settings.value(QZSettings::intervalsicu_accesstoken).toString();
     if (token.isEmpty()) {
         qDebug() << "Intervals.icu: No access token available";
-        setToastRequested("Intervals.icu: Please authenticate first");
+        setToastRequested(QObject::tr("Intervals.icu: Please authenticate first"));
         return;
     }
     request.setRawHeader("Authorization", QString("Bearer %1").arg(token).toUtf8());
@@ -11874,7 +11874,7 @@ void homeform::intervalsicu_download_todays_workout() {
     });
 
     qDebug() << "Intervals.icu: Requesting workouts for" << today;
-    setToastRequested("Downloading workout from Intervals.icu...");
+    setToastRequested(QObject::tr("Downloading workout from Intervals.icu..."));
 }
 
 void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
@@ -11884,9 +11884,9 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
     qDebug() << "Intervals.icu: Download response status:" << statusCode;
 
     if (statusCode != 200) {
-        QString errorMsg = QString("Failed to get workouts (HTTP %1)").arg(statusCode);
+        QString errorMsg = QObject::tr("Failed to get workouts (HTTP %1)").arg(statusCode);
         qDebug() << "Intervals.icu:" << errorMsg;
-        setToastRequested("Intervals.icu: " + errorMsg);
+        setToastRequested(QObject::tr("Intervals.icu: %1").arg(errorMsg));
         reply->deleteLater();
         return;
     }
@@ -11895,7 +11895,7 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
     if (!jsonDoc.isArray()) {
         qDebug() << "Intervals.icu: Invalid response format";
-        setToastRequested("Intervals.icu: Invalid response");
+        setToastRequested(QObject::tr("Intervals.icu: Invalid response"));
         reply->deleteLater();
         return;
     }
@@ -11903,7 +11903,7 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
     QJsonArray events = jsonDoc.array();
     if (events.isEmpty()) {
         qDebug() << "Intervals.icu: No workouts planned for today";
-        setToastRequested("No workouts planned for today on Intervals.icu");
+        setToastRequested(QObject::tr("No workouts planned for today on Intervals.icu"));
         reply->deleteLater();
         return;
     }
@@ -11973,10 +11973,10 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
                     file.write(zwoContent);
                     file.close();
                     qDebug() << "Intervals.icu: Workout saved to" << filename;
-                    setToastRequested(QString("Workout saved: %1").arg(safeName));
+                    setToastRequested(QObject::tr("Workout saved: %1").arg(safeName));
                 } else {
                     qDebug() << "Intervals.icu: Failed to save workout to" << filename;
-                    setToastRequested("Failed to save workout file");
+                    setToastRequested(QObject::tr("Failed to save workout file"));
                 }
             } else {
                 qDebug() << "Intervals.icu: Failed to download workout" << eventId << "- HTTP" << statusCode;

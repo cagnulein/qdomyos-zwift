@@ -612,7 +612,7 @@ void trainprogram::pelotonOCRcomputeTime(QString t) {
         qDebug() << QStringLiteral("PELOTON OCR: SKIPPING INTRO, restarting training program");
         if (!pelotonOCRcomputeTime_intro) {
             pelotonOCRcomputeTime_intro = true;
-            emit toastRequest("Peloton Syncing! Skipping intro...");
+            emit toastRequest(QObject::tr("Peloton Syncing! Skipping intro..."));
         }
         restart();
     } else if (match.hasMatch()) {
@@ -629,7 +629,7 @@ void trainprogram::pelotonOCRcomputeTime(QString t) {
             qDebug() << QStringLiteral("PELOTON OCR SYNCING!");
             if (!pelotonOCRcomputeTime_syncing) {
                 pelotonOCRcomputeTime_syncing = true;
-                emit toastRequest("Peloton Syncing!");
+                emit toastRequest(QObject::tr("Peloton Syncing!"));
             }
             // applying the differences
             if (ocrRemaining > currentRemaining)
@@ -1098,7 +1098,7 @@ void trainprogram::scheduler() {
                      << "current heart" << bluetoothManager->device()->currentHeart().value()
                      << "above" << rows.at(currentStep).HRabove
                      << "below" << rows.at(currentStep).HRbelow;
-            advanceBlockingStep(QStringLiteral("Heart rate target reached. Continuing workout."));
+            advanceBlockingStep(QObject::tr("Heart rate target reached. Continuing workout."));
         } else {
             if (lastLapButtonToastStep != currentStep || ticks - lastLapButtonToastTick >= 30) {
                 const QString message = currentHeartRateEndConditionMessage();
@@ -1401,15 +1401,15 @@ bool trainprogram::currentHeartRateEndConditionSatisfied() const {
 
 QString trainprogram::currentHeartRateEndConditionMessage() const {
     if (currentStep >= rows.length())
-        return QStringLiteral("Waiting for heart rate target");
+        return QObject::tr("Waiting for heart rate target");
 
     const trainrow &row = rows.at(currentStep);
     if (row.HRabove > 0)
-        return QStringLiteral("Ride until heart rate is above %1 bpm").arg(row.HRabove);
+        return QObject::tr("Ride until heart rate is above %1 bpm").arg(row.HRabove);
     if (row.HRbelow > 0)
-        return QStringLiteral("Ride until heart rate is below %1 bpm").arg(row.HRbelow);
+        return QObject::tr("Ride until heart rate is below %1 bpm").arg(row.HRbelow);
 
-    return QStringLiteral("Waiting for heart rate target");
+    return QObject::tr("Waiting for heart rate target");
 }
 
 bool trainprogram::advanceBlockingStep(const QString &toastMessage) {
@@ -1456,7 +1456,7 @@ bool trainprogram::advanceLapButtonStep() {
     }
 
     qDebug() << "Lap button step completed" << currentStep;
-    return advanceBlockingStep(QStringLiteral("Lap received. Continuing workout."));
+    return advanceBlockingStep(QObject::tr("Lap received. Continuing workout."));
 }
 
 void trainprogram::increaseElapsedTime(int32_t i) {

@@ -926,7 +926,7 @@ void peloton::login_onfinish(QNetworkReply *reply) {
 
         peloton_credentials_wrong = true;
         qDebug() << QStringLiteral("invalid peloton credentials during login ") << status;
-        homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
         emit loginState(false);
         return;
     }
@@ -947,7 +947,7 @@ void peloton::login_onfinish(QNetworkReply *reply) {
             tempRefreshToken.clear();
             qDebug() << "Assigned temporary tokens to new user:" << user_id;
             if(homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Welcome " + document[QStringLiteral("username")].toString());
+                homeform::singleton()->setToastRequested(QObject::tr("Welcome %1").arg(document[QStringLiteral("username")].toString()));
             }
         } else {
             settings.setValue(getPelotonSettingKey(QZSettings::peloton_refreshtoken, user_id), settings.value(QZSettings::peloton_refreshtoken, QZSettings::default_peloton_refreshtoken).toString());
@@ -1101,7 +1101,7 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
         return;
     } else if (workout.isNull() && workout_retry_count >= 3) {
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("Error: Failed to load workout data after 3 attempts");
+            homeform::singleton()->setToastRequested(QObject::tr("Error: Failed to load workout data after 3 attempts"));
     }
     workout_retry_count = 0;
 
@@ -2562,7 +2562,7 @@ void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
 #if !defined(Q_OS_ANDROID)
         if (!ensureDesktopRelayServer()) {
             if (homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Peloton desktop relay failed!");
+                homeform::singleton()->setToastRequested(QObject::tr("Peloton desktop relay failed!"));
             }
             return;
         }
@@ -2696,7 +2696,7 @@ void peloton::handleOAuthCallbackUrl(const QUrl &url) {
     if (!pelotonPendingState.isEmpty() && state != pelotonPendingState) {
         qDebug() << "Peloton OAuth callback state mismatch" << "received=XXXX expected=XXXX";
         if (homeform::singleton()) {
-            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+            homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
         }
         return;
     }
@@ -2837,7 +2837,7 @@ bool peloton::exchangeAuthorizationCode(const QString &code) {
 
     if (reply->error() != QNetworkReply::NoError) {
         if (homeform::singleton()) {
-            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+            homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
         }
         qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
         return false;
@@ -2856,7 +2856,7 @@ bool peloton::exchangeAuthorizationCode(const QString &code) {
 
     if (tempAccessToken.isEmpty()) {
         if (homeform::singleton()) {
-            homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+            homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
         }
         return false;
     }
@@ -2886,7 +2886,7 @@ void peloton::completeOAuthLogin() {
 #endif
     if(homeform::singleton()) {
         homeform::singleton()->setPelotonPopupVisible(true);
-        homeform::singleton()->setToastRequested("Peloton Login OK!");
+        homeform::singleton()->setToastRequested(QObject::tr("Peloton Login OK!"));
     }
 
     if(!timer->isActive()) {
@@ -3063,7 +3063,7 @@ void peloton::peloton_refreshtoken() {
 
     // oops, no dice
     if (reply->error() != 0) {
-        homeform::singleton()->setToastRequested("Peloton Auth Failed!");
+        homeform::singleton()->setToastRequested(QObject::tr("Peloton Auth Failed!"));
         qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
         return;
     }
@@ -3088,7 +3088,7 @@ void peloton::peloton_refreshtoken() {
     tempRefreshToken = refresh_token;
     tempExpiresAt = QDateTime::currentDateTime();
     
-    homeform::singleton()->setToastRequested("Peloton Login OK!");
+    homeform::singleton()->setToastRequested(QObject::tr("Peloton Login OK!"));
     
 }
 

@@ -176,8 +176,8 @@ void proformtreadmill::update() {
 
             if (homeform::singleton()) {
                 homeform::singleton()->setToastRequested(
-                    QStringLiteral("Starting treadmill before applying requested speed ") +
-                    QString::number(cachedSpeedRequest, 'f', 1));
+                    QObject::tr("Starting treadmill before applying requested speed %1")
+                        .arg(QString::number(cachedSpeedRequest, 'f', 1)));
             }
         }
 
@@ -188,8 +188,8 @@ void proformtreadmill::update() {
 
                 if (homeform::singleton()) {
                     homeform::singleton()->setToastRequested(
-                        QStringLiteral("Applying cached speed request ") +
-                        QString::number(cachedSpeedRequest, 'f', 1));
+                        QObject::tr("Applying cached speed request %1")
+                            .arg(QString::number(cachedSpeedRequest, 'f', 1)));
                 }
             }
             cachedSpeedRequest = -1;
