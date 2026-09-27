@@ -99,6 +99,12 @@ void daumbike::forceResistance(double requestResistance) {
     qDebug() << "daumbike power target" << requestResistance;
 }
 
+bool daumbike::shouldWriteResistanceToDaum(bool hasVirtualBike, bool virtualFtmsConnected,
+                                           double requestPower) {
+    return (requestPower == 0 || requestPower == -1) &&
+           (!hasVirtualBike || !virtualFtmsConnected || requestPower == 0);
+}
+
 void daumbike::innerWriteResistance() {
     QSettings settings;
     const double resistanceDelaySeconds =
@@ -117,8 +123,8 @@ void daumbike::innerWriteResistance() {
 
         if (resistanceDelayElapsed && requestResistance != currentResistance().value()) {
             emit debug(QStringLiteral("writing Daum power target ") + QString::number(requestResistance));
-            if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
-                (requestPower == 0 || requestPower == -1)) {
+            if (shouldWriteResistanceToDaum(virtualBike != nullptr,
+                                            virtualBike && virtualBike->ftmsDeviceConnected(), requestPower)) {
                 forceResistance(requestResistance);
                 lastResistanceChanged = now;
             }

@@ -37,6 +37,8 @@ class daumbike : public bike {
 
     void changeInclination(double grade, double percentage) override;
     void forceInclination(double inclination);
+    static bool shouldWriteResistanceToDaum(bool hasVirtualBike, bool virtualFtmsConnected,
+                                            double requestPower);
 
   protected:
     bool supportsNativeInclination() const override { return false; }

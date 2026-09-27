@@ -1,6 +1,7 @@
 #include "TestFtmsBikeParser.h"
 
 #include "devices/ftmsbike/ftmsbike.h"
+#include "devices/daumbike/daumbike.h"
 
 TEST(FtmsBikeParserTest, DecodesFsIb50Resistance) {
     resistance_t resistance = -1;
@@ -87,6 +88,19 @@ TEST(FtmsBikeParserTest, AppliesGearGainToFsIb50PhysicalGearDelta) {
 
 TEST(FtmsBikeParserTest, KeepsFullFsIb50GearDeltaWithDefaultGain) {
     EXPECT_DOUBLE_EQ(5.0, ftmsbike::applyFsIb50GearGain(5, 1.0));
+}
+
+TEST(DaumBikeControlTest, AllowsZeroPowerFallbackWithConnectedVirtualFtmsBike) {
+    EXPECT_TRUE(daumbike::shouldWriteResistanceToDaum(true, true, 0));
+}
+
+TEST(DaumBikeControlTest, KeepsOrdinaryPendingResistanceBlockedWithConnectedVirtualFtmsBike) {
+    EXPECT_FALSE(daumbike::shouldWriteResistanceToDaum(true, true, -1));
+}
+
+TEST(DaumBikeControlTest, AllowsDaumResistanceWithoutVirtualFtmsOwnership) {
+    EXPECT_TRUE(daumbike::shouldWriteResistanceToDaum(false, false, -1));
+    EXPECT_TRUE(daumbike::shouldWriteResistanceToDaum(true, false, -1));
 }
 
 TEST(FtmsBikeParserTest, DoesNotWriteResistanceForAnFsIb50PhysicalGearChange) {
