@@ -70,6 +70,7 @@ ColumnLayout {
             Row
             {
                 spacing: 5
+                leftPadding: window.contentSideMargin
                 Text
                 {
                     text:"Filter"
@@ -127,6 +128,7 @@ ColumnLayout {
                         z: 1
                         Item {
                             id: root
+                            x: window.contentSideMargin
                             property alias text: fileTextBox.text
                             property int spacing: 30
                             width: fileTextBox.width + spacing
@@ -209,6 +211,8 @@ ColumnLayout {
             Layout.fillHeight: true
             Layout.minimumWidth: 100
             Layout.preferredWidth: 200
+            // Padding, not a margin: the content moves in, the scroll bar stays at the edge
+            rightPadding: window.contentSideMargin
 
             Row {
                 id: row
