@@ -3384,7 +3384,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelBikeWeight
-                            text: qsTr("Bike Weight") + "(" + ((settings.miles_unit && !settings.weight_kg_unit)?"lbs":"kg") + ")"
+                            text: qsTr("Bike Weight (%1)").arg((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg")
                             Layout.fillWidth: true
                         }
                         TextField {
