@@ -765,10 +765,24 @@ ApplicationWindow {
         visible: false
     }
 
+    // a device changed a setting on its own (auto-detection): name the change, then the usual restart question
+    MessageDialog {
+        id: popupRestartAppDetected
+        text: ""
+        informativeText: qsTr("In order to apply the changes you need to restart the app.\nDo you want to do it now?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: Qt.callLater(Qt.quit)
+        onNoClicked: this.visible = false;
+        visible: false
+    }
+
     Connections {
         target: rootItem
         ignoreUnknownSignals: true
-        function onRestartToApplyRequested() { popupRestartApp.visible = true; }
+        function onRestartToApplyRequested(message) {
+            popupRestartAppDetected.text = message;
+            popupRestartAppDetected.visible = true;
+        }
     }
 
     MessageDialog {

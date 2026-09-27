@@ -580,11 +580,8 @@ class homeform : public QObject {
     void setVideoRate(double rate);
     void setMapsVisible(bool value);
     void setToastRequested(QString value) { m_toastRequested = value; emit toastRequestedChanged(value); }
-    // a device changed a setting that only takes effect after a restart: show why and offer to restart now
-    void requestRestartToApply(QString message) {
-        setToastRequested(message);
-        emit restartToApplyRequested();
-    }
+    // a device changed a setting that only takes effect after a restart: say what changed and offer to restart now
+    void requestRestartToApply(QString message) { emit restartToApplyRequested(message); }
     void setStravaUploadRequested(bool value) {
         m_stravaUploadRequested = value;
     }
@@ -1290,7 +1287,7 @@ public:
     void changePelotonAskStart(bool value);
     void changePelotonProvider(QString value);
     void toastRequestedChanged(QString value);
-    void restartToApplyRequested();
+    void restartToApplyRequested(QString message);
     void stravaUploadRequestedChanged(bool value);
     void garminMfaRequestedChanged(bool value);
     void garminWorkoutPromptRequestedChanged(bool value);
