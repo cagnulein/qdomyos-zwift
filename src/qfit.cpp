@@ -841,8 +841,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
     activityMesg.SetType(FIT_ACTIVITY_MANUAL);
     activityMesg.SetEvent(FIT_EVENT_WORKOUT);
     activityMesg.SetEventType(FIT_EVENT_TYPE_START);
-    activityMesg.SetLocalTimestamp(fit::DateTime((time_t)session.last().time.toSecsSinceEpoch())
-                                       .GetTimeStamp()); // seconds since 00:00 Dec d31 1989 in local time zone
+    // Per the FIT spec, local_timestamp = timestamp + UTC offset (same instant as timestamp above)
+    activityMesg.SetLocalTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L +
+                                   session.at(firstRealIndex).time.offsetFromUtc());
     activityMesg.SetEvent(FIT_EVENT_ACTIVITY);
     activityMesg.SetEventType(FIT_EVENT_TYPE_STOP);
 
