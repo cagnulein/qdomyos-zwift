@@ -6298,9 +6298,9 @@ void homeform::update() {
         emit currentSpeedChanged(bluetoothManager->device()->currentSpeed().value());
         speed->setValue(QString::number(bluetoothManager->device()->currentSpeed().value() * unit_conversion, 'f', 1));
         speed->setSecondLine(
-            QStringLiteral("AVG: ") +
+            QObject::tr("AVG: ") +
             QString::number((bluetoothManager->device())->currentSpeed().average() * unit_conversion, 'f', 1) +
-            QStringLiteral(" MAX: ") +
+            QObject::tr(" MAX: ") +
             QString::number((bluetoothManager->device())->currentSpeed().max() * unit_conversion, 'f', 1));
         // Heart rate display - show as percentage if enabled
         if (settings.value(QZSettings::tile_heart_show_as_percent, QZSettings::default_tile_heart_show_as_percent).toBool()) {
@@ -6312,7 +6312,7 @@ void homeform::update() {
             heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));
         }
         hrv->setValue(QString::number(bluetoothManager->device()->currentHRV().value(), 'f', 2));
-        hrv->setSecondLine(QStringLiteral("AVG: ") +
+        hrv->setSecondLine(QObject::tr("AVG: ") +
                           QString::number(bluetoothManager->device()->currentHRV().average(), 'f', 2));
       
 
@@ -6471,16 +6471,16 @@ void homeform::update() {
         }
         mets->setValue(QString::number(bluetoothManager->device()->currentMETS().value(), 'f', 1));
         mets->setSecondLine(
-            QStringLiteral("AVG: ") + QString::number(bluetoothManager->device()->currentMETS().average(), 'f', 1) +
-            QStringLiteral("MAX: ") + QString::number(bluetoothManager->device()->currentMETS().max(), 'f', 1));
+            QObject::tr("AVG: ") + QString::number(bluetoothManager->device()->currentMETS().average(), 'f', 1) +
+            QObject::tr(" MAX: ") + QString::number(bluetoothManager->device()->currentMETS().max(), 'f', 1));
         lapElapsed->setValue(bluetoothManager->device()->lapElapsedTime().toString(QStringLiteral("h:mm:ss")));
         lapElapsed->setSecondLine(QString::number(bluetoothManager->device()->lapOdometer() * unit_conversion, 'f', 2));
         avgWatt->setValue(QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0));
         avgWattLap->setValue(QString::number(bluetoothManager->device()->wattsMetric().lapAverage(), 'f', 0));
         wattKg->setValue(QString::number(bluetoothManager->device()->wattKg().value(), 'f', 1));
         wattKg->setSecondLine(
-            QStringLiteral("AVG: ") + QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1) +
-            QStringLiteral("MAX: ") + QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1));
+            QObject::tr("AVG: ") + QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1) +
+            QObject::tr(" MAX: ") + QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1));
         QLocale locale = QLocale::system();
 
         // Format the time based on the locale
@@ -6506,9 +6506,9 @@ void homeform::update() {
         cadence = bluetoothManager->device()->currentCadence().value();
         this->cadence->setValue(QString::number(cadence));
         this->cadence->setSecondLine(
-            QStringLiteral("AVG: ") +
+            QObject::tr("AVG: ") +
             QString::number(((bike *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
-            QStringLiteral(" MAX: ") +
+            QObject::tr(" MAX: ") +
             QString::number(((bike *)bluetoothManager->device())->currentCadence().max(), 'f', 0));
 
 
@@ -6571,14 +6571,14 @@ void homeform::update() {
             else
                 this->pace->setValue("N/A");
             this->pace->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 ((treadmill *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 ((treadmill *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setValue(
                 ((treadmill *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setSecondLine(
-                QStringLiteral("MAX: ") +
+                QObject::tr("MAX: ") +
                 ((treadmill *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             const double adjustedSpeed =
                 ((treadmill *)bluetoothManager->device())->gradeAdjustedSpeed(
@@ -6604,9 +6604,9 @@ void homeform::update() {
             }
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
 
             this->stepCount->setValue(QString::number(
@@ -6615,24 +6615,24 @@ void homeform::update() {
 
             this->instantaneousStrideLengthCM->setValue(QString::number(strideLength, 'f', 0));
             this->instantaneousStrideLengthCM->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentStrideLength().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentStrideLength().max(), 'f', 0));
 
             this->groundContactMS->setValue(QString::number(groundContact, 'f', 0));
             this->groundContactMS->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentGroundContact().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentGroundContact().max(), 'f', 0));
 
             this->verticalOscillationMM->setValue(QString::number(verticalOscillation, 'f', 0));
             this->verticalOscillationMM->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentVerticalOscillation().average(), 'f',
                                 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentVerticalOscillation().max(), 'f', 0));
 
             // if there is no training program, the color is based on presets
@@ -6771,20 +6771,20 @@ void homeform::update() {
             else
                 this->pace->setValue("N/A");
             this->pace->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 ((stairclimber *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 ((stairclimber *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setValue(
                 ((stairclimber *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setSecondLine(
-                QStringLiteral("MAX: ") +
+                QObject::tr("MAX: ") +
                 ((stairclimber *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((stairclimber *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
 
             this->stepCount->setValue(QString::number(
@@ -6872,9 +6872,9 @@ void homeform::update() {
                 inclination = ((bike *)bluetoothManager->device())->currentInclination().value();
                 this->inclination->setValue(QString::number(inclination, 'f', 1));
                 this->inclination->setSecondLine(
-                    QStringLiteral("AVG: ") +
+                    QObject::tr("AVG: ") +
                     QString::number(((bike *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
-                    QStringLiteral(" MAX: ") +
+                    QObject::tr(" MAX: ") +
                     QString::number(((bike *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
             }
             if (bluetoothManager->externalInclination())
@@ -6930,14 +6930,14 @@ void homeform::update() {
             updateGearsValue();
 
             this->resistance->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((bike *)bluetoothManager->device())->currentResistance().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((bike *)bluetoothManager->device())->currentResistance().max(), 'f', 0));
             this->peloton_resistance->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((bike *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((bike *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
             if (trainProgram && trainProgram->isStarted() && trainProgram->resistanceOffsetForTrainingProgram() != 0) {
                 this->target_resistance->setSecondLine(
@@ -6986,14 +6986,14 @@ void homeform::update() {
 
             this->pace->setValue(((rower *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
             this->pace->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 ((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setValue(
                 ((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setSecondLine(
-                QStringLiteral("MAX: ") +
+                QObject::tr("MAX: ") +
                 ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->target_pace->setValue(
                 ((rower *)bluetoothManager->device())->lastRequestedPace().toString(QStringLiteral("m:ss")));
@@ -7082,14 +7082,14 @@ void homeform::update() {
             this->resistance->setValue(QString::number(resistance, 'f', 0));
 
             this->resistance->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentResistance().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentResistance().max(), 'f', 0));
             this->peloton_resistance->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((rower *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((rower *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
             this->target_resistance->setSecondLine(
                 QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
@@ -7101,9 +7101,9 @@ void homeform::update() {
                             .toDouble(),
                     'f', 0));
             this->strokesLength->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().max(), 'f', 1));
 
             // if there is no training program, the color is based on presets
@@ -7152,14 +7152,14 @@ void homeform::update() {
                 else
                     this->pace->setValue("N/A");
                 this->pace->setSecondLine(
-                    QStringLiteral("AVG: ") +
+                    QObject::tr("AVG: ") +
                     ((jumprope *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                    QStringLiteral(" MAX: ") +
+                    QObject::tr(" MAX: ") +
                     ((jumprope *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
                 this->avg_pace->setValue(
                     ((jumprope *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
                 this->avg_pace->setSecondLine(
-                    QStringLiteral("MAX: ") +
+                    QObject::tr("MAX: ") +
                     ((jumprope *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
                 this->inclination->setValue(QString::number(inclination, 'f', 0));
                 this->inclination->setSecondLine("");
@@ -7177,14 +7177,14 @@ void homeform::update() {
             else
                 this->pace->setValue("N/A");
             this->pace->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 ((elliptical *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 ((elliptical *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setValue(
                 ((elliptical *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")));
             this->avg_pace->setSecondLine(
-                QStringLiteral("MAX: ") +
+                QObject::tr("MAX: ") +
                 ((elliptical *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((elliptical *)bluetoothManager->device())->currentResistance().value();
@@ -7196,9 +7196,9 @@ void homeform::update() {
                 ((elliptical *)bluetoothManager->device())->lastRequestedPelotonResistance().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
             this->peloton_resistance->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
             this->target_resistance->setSecondLine(
                 QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
@@ -7212,9 +7212,9 @@ void homeform::update() {
             inclination = ((elliptical *)bluetoothManager->device())->currentInclination().value();
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
-                QStringLiteral("AVG: ") +
+                QObject::tr("AVG: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
-                QStringLiteral(" MAX: ") +
+                QObject::tr(" MAX: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
 
             this->gears->setValue(QString::number(((elliptical *)bluetoothManager->device())->gears()));
@@ -7259,8 +7259,8 @@ void homeform::update() {
         }
 
         watt->setSecondLine(
-            QStringLiteral("AVG: ") + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) +
-            QStringLiteral(" MAX: ") + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
+            QObject::tr("AVG: ") + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) +
+            QObject::tr(" MAX: ") + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
 
         if (trainProgram) {
             int8_t lower_requested_peloton_resistance = trainProgram->currentRow().lower_requested_peloton_resistance;
@@ -7280,7 +7280,7 @@ void homeform::update() {
             if (lower_requested_peloton_resistance != -1) {
                 this->target_peloton_resistance->setSecondLine(
                     QStringLiteral("MIN: ") + QString::number(lower_requested_peloton_resistance, 'f', 0) +
-                    QStringLiteral(" MAX: ") + QString::number(upper_requested_peloton_resistance, 'f', 0));
+                    QObject::tr(" MAX: ") + QString::number(upper_requested_peloton_resistance, 'f', 0));
             } else {
                 this->target_peloton_resistance->setSecondLine(QLatin1String(""));
             }
@@ -7307,7 +7307,7 @@ void homeform::update() {
             int16_t upper_cadence = trainProgram->currentRow().upper_cadence;
             if (lower_cadence != -1) {
                 this->target_cadence->setSecondLine(QStringLiteral("MIN: ") + QString::number(lower_cadence, 'f', 0) +
-                                                    QStringLiteral(" MAX: ") + QString::number(upper_cadence, 'f', 0));
+                                                    QObject::tr(" MAX: ") + QString::number(upper_cadence, 'f', 0));
             } else {
                 this->target_cadence->setSecondLine(QLatin1String(""));
             }
@@ -7633,14 +7633,14 @@ void homeform::update() {
             double maxHR = heartRateMax();
             double avgHRPercent = ((bluetoothManager->device())->currentHeart().average() / maxHR) * 100.0;
             double maxHRPercent = ((bluetoothManager->device())->currentHeart().max() / maxHR) * 100.0;
-            heart->setSecondLine(Z + QStringLiteral(" AVG: ") +
+            heart->setSecondLine(Z + QObject::tr(" AVG: ") +
                                  QString::number(avgHRPercent, 'f', 0) + "%" +
-                                 QStringLiteral(" MAX: ") +
+                                 QObject::tr(" MAX: ") +
                                  QString::number(maxHRPercent, 'f', 0) + "%");
         } else {
-            heart->setSecondLine(Z + QStringLiteral(" AVG: ") +
+            heart->setSecondLine(Z + QObject::tr(" AVG: ") +
                                  QString::number((bluetoothManager->device())->currentHeart().average(), 'f', 0) +
-                                 QStringLiteral(" MAX: ") +
+                                 QObject::tr(" MAX: ") +
                                  QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
         }
 
