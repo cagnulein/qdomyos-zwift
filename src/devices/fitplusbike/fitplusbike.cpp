@@ -675,7 +675,8 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 qDebug() << QStringLiteral("Virtufit Etappe data layout detected, setting enabled");
                 if (homeform::singleton())
                     homeform::singleton()->requestRestartToApply(
-                        "Virtufit Etappe data format detected: \"Virtufit Etappe 2.0 Bike\" has been enabled in the settings");
+                        "QZ has detected the data format of this bike and enabled \"Virtufit Etappe 2.0 Bike\" in the "
+                        "settings. QZ must be restarted to read the bike data.");
             }
             return;
         }

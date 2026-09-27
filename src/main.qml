@@ -765,11 +765,11 @@ ApplicationWindow {
         visible: false
     }
 
-    // a device changed a setting on its own (auto-detection): name the change, then the usual restart question
+    // a device changed a setting on its own (auto-detection): the message says what QZ found and why it must restart
     MessageDialog {
         id: popupRestartAppDetected
         text: ""
-        informativeText: qsTr("In order to apply the changes you need to restart the app.\nDo you want to do it now?")
+        informativeText: qsTr("Restart now?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
