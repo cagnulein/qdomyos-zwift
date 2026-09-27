@@ -184,6 +184,7 @@ public class CustomQtActivity extends QtActivity {
                 // after the layout pass completes, then send corrected values so QML
                 // topPadding is not double-counted.
                 final int fTop = top, fBottom = bottom, fLeft = left, fRight = right;
+                final int fWT = waterfallTop, fWB = waterfallBottom, fWL = waterfallLeft, fWR = waterfallRight;
                 final float fDensity = density;
                 v.post(() -> {
                     int surfaceYPx = findQtSurfaceYOffset(v);
@@ -193,7 +194,7 @@ public class CustomQtActivity extends QtActivity {
                         Log.d(TAG, "adjustedTop=" + adjustedTop);
                         if (adjustedTop != fTop) {
                             try {
-                                onInsetsChanged(adjustedTop, fBottom, fLeft, fRight);
+                                onInsetsChanged(adjustedTop, fBottom, fLeft, fRight, fWT, fWB, fWL, fWR);
                             } catch (UnsatisfiedLinkError ignored) {}
                         }
                     }
