@@ -1781,6 +1781,7 @@ import AndroidStatusBar 1.0
             property real power_sensor_speed_correction_threshold: 20.0
             property bool flow_fitness_runner_dtm2000i: false
             property bool nordictrack_incline_trainer_x7i_netl18716_0: false
+            property bool android_landscape_cutout_margin: true
         }
 
 
@@ -6188,6 +6189,36 @@ import AndroidStatusBar 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.top_bar_enabled = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    IndicatorOnlySwitch {
+                        id: landscapeCutoutMarginDelegate
+                        text: qsTr("Keep Content Clear of the Camera Cutout")
+                        visible: Qt.platform.os === "android"
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.android_landscape_cutout_margin
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.android_landscape_cutout_margin = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.")
+                        visible: Qt.platform.os === "android"
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {

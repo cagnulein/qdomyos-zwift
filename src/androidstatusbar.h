@@ -11,6 +11,9 @@ class AndroidStatusBar : public QObject
     Q_PROPERTY(int navigationBarHeight READ navigationBarHeight NOTIFY insetsChanged)
     Q_PROPERTY(int leftInset READ leftInset NOTIFY insetsChanged)
     Q_PROPERTY(int rightInset READ rightInset NOTIFY insetsChanged)
+    // Left and right insets of the system bars alone, without the display cutout
+    Q_PROPERTY(int systemBarLeftInset READ systemBarLeftInset NOTIFY insetsChanged)
+    Q_PROPERTY(int systemBarRightInset READ systemBarRightInset NOTIFY insetsChanged)
     Q_PROPERTY(int waterfallTopInset READ waterfallTopInset NOTIFY insetsChanged)
     Q_PROPERTY(int waterfallBottomInset READ waterfallBottomInset NOTIFY insetsChanged)
     Q_PROPERTY(int waterfallLeftInset READ waterfallLeftInset NOTIFY insetsChanged)
@@ -28,6 +31,8 @@ public:
     int navigationBarHeight() const { return m_bottom; }
     int leftInset() const { return m_left; }
     int rightInset() const { return m_right; }
+    int systemBarLeftInset() const { return m_systemBarLeft; }
+    int systemBarRightInset() const { return m_systemBarRight; }
     int waterfallTopInset() const { return m_waterfallTop; }
     int waterfallBottomInset() const { return m_waterfallBottom; }
     int waterfallLeftInset() const { return m_waterfallLeft; }
@@ -38,6 +43,7 @@ public:
 public slots:
     void onInsetsChanged(int top, int bottom, int left, int right, int waterfallTop, int waterfallBottom,
                          int waterfallLeft, int waterfallRight);
+    void onSystemBarSideInsetsChanged(int left, int right);
 
 signals:
     void insetsChanged();
@@ -47,6 +53,8 @@ private:
     int m_bottom = 0;
     int m_left = 0;
     int m_right = 0;
+    int m_systemBarLeft = 0;
+    int m_systemBarRight = 0;
     int m_waterfallTop = 0;
     int m_waterfallBottom = 0;
     int m_waterfallLeft = 0;

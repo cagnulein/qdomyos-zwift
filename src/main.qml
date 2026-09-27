@@ -56,13 +56,13 @@ ApplicationWindow {
     function getLeftPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
-               AndroidStatusBar.leftInset : 0;
+               (settings.android_landscape_cutout_margin ? AndroidStatusBar.leftInset : AndroidStatusBar.systemBarLeftInset) : 0;
     }
 
     function getRightPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
-               AndroidStatusBar.rightInset : 0;
+               (settings.android_landscape_cutout_margin ? AndroidStatusBar.rightInset : AndroidStatusBar.systemBarRightInset) : 0;
     }
 
     // Side margin for text, after the Material 3 window margins (16 on compact windows
@@ -216,6 +216,7 @@ ApplicationWindow {
         property string shortcut_lap: ""
         property string shortcut_start_stop: ""
         property string shortcut_stop: ""
+        property bool android_landscape_cutout_margin: true
     }
 
 
