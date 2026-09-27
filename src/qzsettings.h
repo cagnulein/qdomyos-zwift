@@ -807,6 +807,9 @@ class QZSettings {
     static const QString jtx_fitness_sprint_treadmill;
     static constexpr bool default_jtx_fitness_sprint_treadmill = false;
 
+    static const QString flow_fitness_runner_dtm2000i;
+    static constexpr bool default_flow_fitness_runner_dtm2000i = false;
+
     static const QString dkn_endurun_treadmill;
     static constexpr bool default_dkn_endurun_treadmill = false;
 
@@ -1031,6 +1034,9 @@ class QZSettings {
 
     static const QString power_sensor_as_treadmill;
     static constexpr bool default_power_sensor_as_treadmill = false;
+
+    static const QString power_sensor_speed_correction_threshold;
+    static constexpr double default_power_sensor_speed_correction_threshold = 20.0;
 
     static const QString power_sensor_speed_inclination_coeff_a;
     static constexpr double default_power_sensor_speed_inclination_coeff_a = 0.0;
@@ -1994,6 +2000,9 @@ class QZSettings {
 
     static const QString nordictrack_incline_trainer_x7i_ntl15010_0;
     static constexpr bool default_nordictrack_incline_trainer_x7i_ntl15010_0 = false;
+
+    static const QString nordictrack_incline_trainer_x7i_netl18716_0;
+    static constexpr bool default_nordictrack_incline_trainer_x7i_netl18716_0 = false;
 
     static const QString strava_auth_external_webbrowser;
     static constexpr bool default_strava_auth_external_webbrowser = false;

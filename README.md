@@ -8,6 +8,8 @@ Zwift bridge for Treadmills and Bike!
 <a href="https://www.buymeacoffee.com/cagnulein" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 <a href="https://hosted.weblate.org/engage/qdomyos-zwift/" target="_blank"><img src="https://hosted.weblate.org/widget/qdomyos-zwift/svg-badge.svg" alt="Translation status" /></a>
 
+**Need help? Check the [QZ FAQ and troubleshooting guides](docs/faq/README.md).**
+
 <table>
 <tr>
   <td>
@@ -101,6 +103,16 @@ Zwift bridge for Treadmills and Bike!
 |MQTT integration|X|X|X|X||
 |OpenSoundControl integration|X|X|X|X||
 
+
+### Documentation and FAQ
+
+Need help configuring QZ, connecting your equipment, or troubleshooting a problem?
+
+- [QZ Frequently Asked Questions](docs/faq/README.md)
+- [Supported devices and applications](docs/20_supported_devices_and_applications.md)
+- [Installation guide](docs/10_Installation.md)
+
+The FAQ includes practical setup guides, common troubleshooting solutions, device-specific instructions, and integration guides for Zwift, Garmin, NordicTrack / ProForm iFIT, Rouvy, and more.
 
 ### Installation 
 

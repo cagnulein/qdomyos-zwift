@@ -4,8 +4,16 @@ This directory contains practical QZ frequently asked questions, organized by ca
 
 ## Categories
 
+- [Android](android.md)
 - [Bike and trainer troubleshooting](bike-troubleshooting.md)
+- [Device compatibility](device-compatibility.md)
 - [Integrations and authentication](integrations.md)
+- [iOS](ios.md)
+- [MyWhoosh](mywhoosh.md)
+- [NordicTrack / ProForm iFIT consoles](nordictrack-ifit.md)
+- [Rowing](rowing.md)
+- [Training programs](training-programs.md)
+- [Treadmill troubleshooting](treadmill-troubleshooting.md)
 - [Zwift and virtual gearing](zwift.md)
 
 More category files can be added when a reusable support case or capability question does not fit an existing category.

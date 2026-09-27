@@ -164,6 +164,7 @@ zwift_play/zwiftclickremote.cpp \
 devices/computrainerbike/Computrainer.cpp \
 devices/kettlerusbbike/KettlerUSB.cpp \
 devices/freebeatbike/FreebeatUSB.cpp \
+devices/freebeatboombike/freebeatboombike.cpp \
 PathController.cpp \
 characteristics/characteristicnotifier2a53.cpp \
 characteristics/characteristicnotifier2a5b.cpp \
@@ -235,6 +236,7 @@ devices/fakebike/fakebike.cpp \
 filedownloader.cpp \
 devices/fitmetria_fanfit/fitmetria_fanfit.cpp \
 devices/fitplusbike/fitplusbike.cpp \
+devices/fitplusrower/fitplusrower.cpp \
 devices/fitshowtreadmill/fitshowtreadmill.cpp \
 fit-sdk/fit.cpp \
 fit-sdk/fit_accumulated_field.cpp \
@@ -342,6 +344,7 @@ devices/ultrasportbike/ultrasportbike.cpp \
 devices/xcxbike/xcxbike.cpp \
 virtualdevices/virtualrower.cpp \
 devices/wahookickrsnapbike/wahookickrsnapbike.cpp \
+devices/wahookickruntreadmill/wahookickruntreadmill.cpp \
 devices/yesoulbike/yesoulbike.cpp \
 trainprogram.cpp \
 devices/trxappgateusbtreadmill/trxappgateusbtreadmill.cpp \
@@ -491,6 +494,7 @@ characteristics/characteristicwriteprocessore005.h \
 devices/computrainerbike/computrainerbike.h \
 devices/kettlerusbbike/kettlerusbbike.h \
 devices/freebeatbike/freebeatbike.h \
+devices/freebeatboombike/freebeatboombike.h \
 definitions.h \
 devices/fakeelliptical/fakeelliptical.h \
 devices/faketreadmill/faketreadmill.h \
@@ -566,6 +570,7 @@ devices/fakebike/fakebike.h \
 filedownloader.h \
 devices/fitmetria_fanfit/fitmetria_fanfit.h \
 devices/fitplusbike/fitplusbike.h \
+devices/fitplusrower/fitplusrower.h \
 devices/ftmsrower/ftmsrower.h \
 homefitnessbuddy.h \
 devices/horizongr7bike/horizongr7bike.h \
@@ -882,6 +887,7 @@ virtualdevices/virtualrower.h \
 virtualdevices/virtualtreadmill.h \
 devices/domyosbike/domyosbike.h \
 devices/wahookickrsnapbike/wahookickrsnapbike.h \
+devices/wahookickruntreadmill/wahookickruntreadmill.h \
 wobjectdefs.h \
 wobjectimpl.h \
 devices/yesoulbike/yesoulbike.h \

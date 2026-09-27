@@ -78,7 +78,7 @@ void ftmsrower::update() {
     }
 
     if (initRequest) {
-        if(I_ROWER || SF_RW || ROWER || MRK_R06) {
+        if(I_ROWER || SF_RW || ROWER || MRK_R06 || ICONSOLE_PLUS) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(write, sizeof(write), "start", false, true);
 
