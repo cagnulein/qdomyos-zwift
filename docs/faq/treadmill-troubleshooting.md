@@ -41,6 +41,22 @@ This setup was confirmed on a Horizon 7.4AT to correct the displayed km/h value 
 
 Because **Speed Gain** also participates in QZ's treadmill speed-control path, verify both directions after changing it: manually set a simple treadmill speed and confirm QZ displays the same value, then start a Peloton treadmill workout and confirm an automatically requested speed produces the expected treadmill speed.
 
+## Zwift incline through QZ feels about twice as steep as expected. What should I change?
+
+When QZ is using Zwift auto-inclination, the inclination received from Zwift is transformed with QZ's **Zwift Inclination Gain** and **Zwift Inclination Offset** settings. The current calculation is:
+
+`calculated inclination = raw Zwift inclination × gain + offset`
+
+If the treadmill response feels roughly twice as strong as expected, use this as a starting point:
+
+1. Set **Zwift Inclination Gain** to **0.5**.
+2. Set **Zwift Inclination Offset** to **0**.
+3. Test several climbs and descents and adjust only if your treadmill or personal preference requires it.
+
+The gain changes the scale of every grade change, while the offset shifts the whole range up or down. Do not use the offset to correct a proportional mismatch.
+
+This setup was confirmed in a Wahoo KICKR RUN support case where a gain of 0.5 produced the expected incline behavior. The same 0.5 starting value was also used successfully while validating automatic Zwift incline on another supported treadmill.
+
 ## Can Zwift automatically control both treadmill incline and speed through QZ?
 
 QZ can use the Zwift integration for **automatic inclination**. Configure your Zwift credentials in QZ and enable the Zwift auto-inclination option.
