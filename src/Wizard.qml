@@ -59,6 +59,8 @@ Page {
     component WizardButton: Button {
              property color textColor: "#800080"
              property color backgroundColor: "white"
+             // A translated label can be wider than the screen: cap the button at the layout width and wrap the text
+             Layout.maximumWidth: parent ? parent.width : implicitWidth
              background: Rectangle {
                  color: parent.backgroundColor
                  radius: 5
@@ -67,6 +69,7 @@ Page {
                  font.pixelSize: 20
                  text: parent.text
                  color: parent.textColor
+                 wrapMode: Text.WordWrap
                  horizontalAlignment: Text.AlignHCenter
                  verticalAlignment: Text.AlignVCenter
              }
