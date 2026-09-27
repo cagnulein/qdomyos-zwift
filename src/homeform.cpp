@@ -10231,7 +10231,7 @@ void homeform::handleGarminFtpValues(int cyclingFtp, const QString &cyclingCreat
         !cyclingCreateTime.isEmpty() && cyclingCreateTime != seenCyclingCreateTime) {
         m_pendingGarminCyclingFtp = cyclingFtp;
         m_pendingGarminCyclingFtpCreateTime = cyclingCreateTime;
-        updates << QStringLiteral("Cycling FTP: %1 -> %2 W").arg(currentCyclingFtp).arg(cyclingFtp);
+        updates << QObject::tr("Cycling FTP: %1 -> %2 W").arg(currentCyclingFtp).arg(cyclingFtp);
     }
 
     const int currentRunningFtp =
@@ -10243,7 +10243,7 @@ void homeform::handleGarminFtpValues(int cyclingFtp, const QString &cyclingCreat
         !runningCreateTime.isEmpty() && runningCreateTime != seenRunningCreateTime) {
         m_pendingGarminRunningFtp = runningFtp;
         m_pendingGarminRunningFtpCreateTime = runningCreateTime;
-        updates << QStringLiteral("Running FTP: %1 -> %2 W").arg(currentRunningFtp).arg(runningFtp);
+        updates << QObject::tr("Running FTP: %1 -> %2 W").arg(currentRunningFtp).arg(runningFtp);
     }
 
     if (updates.isEmpty()) {
@@ -10251,7 +10251,7 @@ void homeform::handleGarminFtpValues(int cyclingFtp, const QString &cyclingCreat
     }
 
     m_garminFtpPromptMessage =
-        QStringLiteral("Garmin Connect has newer FTP values:\n\n%1\n\nDo you want to update QZ settings?")
+        QObject::tr("Garmin Connect has newer FTP values:\n\n%1\n\nDo you want to update QZ settings?")
             .arg(updates.join(QStringLiteral("\n")));
     emit garminFtpPromptMessageChanged(m_garminFtpPromptMessage);
     setGarminFtpPromptRequested(true);

@@ -98,7 +98,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width * .5
-        text: "Restore Purchases"
+        text: qsTr("Restore Purchases")
         onClicked: {
             console.log("restoring...");
             toast.show(qsTr("Restoring..."));
