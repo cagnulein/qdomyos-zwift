@@ -674,8 +674,24 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     } else {
 
         if (newValue.length() != 14) {
+            // FitShow bikes with the Virtufit Etappe layout send 15-byte 02 42 02 frames that this branch drops:
+            // switch the setting on (like the FTMS fallback in serviceScanDone) and ask for a restart for the init.
+            // Not for the SX600 (its FFF1 frames land here when it reads data from FTMS) and not for a bike
+            // that already sent frames this branch understands.
+            if (!virtufitLayoutDetected && !sportstech_sx600 && !validFrameSeen && newValue.length() == 15 &&
+                (uint8_t)newValue.at(0) == 0x02 && (uint8_t)newValue.at(1) == 0x42 &&
+                (uint8_t)newValue.at(2) == 0x02) {
+                virtufitLayoutDetected = true;
+                settings.setValue(QZSettings::virtufit_etappe, true);
+                qDebug() << QStringLiteral("Virtufit Etappe data layout detected, setting enabled");
+                if (homeform::singleton())
+                    homeform::singleton()->requestRestartToApply(
+                        "QZ has detected the data format of this bike and enabled \"Virtufit Etappe 2.0 Bike\" in the "
+                        "settings. QZ must be restarted to read the bike data.");
+            }
             return;
         }
+        validFrameSeen = true;
 
         /*if ((uint8_t)(newValue.at(0)) != 0xf0 && (uint8_t)(newValue.at(1)) != 0xd1)
             return;*/

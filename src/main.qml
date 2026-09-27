@@ -765,6 +765,26 @@ ApplicationWindow {
         visible: false
     }
 
+    // a device changed a setting on its own (auto-detection): the message says what QZ found and why it must restart
+    MessageDialog {
+        id: popupRestartAppDetected
+        text: ""
+        informativeText: qsTr("Restart now?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: Qt.callLater(Qt.quit)
+        onNoClicked: this.visible = false;
+        visible: false
+    }
+
+    Connections {
+        target: rootItem
+        ignoreUnknownSignals: true
+        function onRestartToApplyRequested(message) {
+            popupRestartAppDetected.text = message;
+            popupRestartAppDetected.visible = true;
+        }
+    }
+
     MessageDialog {
         text: qsTr("Strava")
         informativeText: qsTr("Do you want to upload the workout to Strava?")
