@@ -418,6 +418,17 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                            settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
+    // the bike answers the 02 41 02 init request with its max resistance level in byte 3
+    // (FS-xxxxxx with 32 levels: 02 41 02 20 00 02 00 61 03)
+    if (virtufit_etappe && newValue.length() >= 9 && (uint8_t)newValue.at(0) == 0x02 &&
+        (uint8_t)newValue.at(1) == 0x41 && (uint8_t)newValue.at(2) == 0x02) {
+        uint8_t maxRes = (uint8_t)newValue.at(3);
+        if (maxRes >= 8 && maxRes <= 32) {
+            max_resistance = maxRes;
+            qDebug() << QStringLiteral("max resistance from bike: ") + QString::number(max_resistance);
+        }
+    }
+
     if (sportstech_sx600 && characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
         bool disable_hr_frommachinery =
             settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
