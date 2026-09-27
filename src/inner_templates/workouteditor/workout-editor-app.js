@@ -918,7 +918,7 @@
                     (field.options || []).forEach(opt => {
                         const option = document.createElement('option');
                         option.value = opt;
-                        option.textContent = opt;
+                        option.textContent = unitLabel(opt);
                         const currentVal = String(row[field.key] !== undefined ? row[field.key] : (field.defaultValue !== undefined ? field.defaultValue : ''));
                         if (currentVal === opt) {
                             option.selected = true;
