@@ -2673,6 +2673,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) {
             anplus_treadmill = true;
             qDebug() << QStringLiteral("ANPLUS TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("RUN BT-"))) {
+            run_bt_treadmill = true;
+            qDebug() << QStringLiteral("RUN BT- TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-")) ||
                    device.name().toUpper().startsWith(QStringLiteral("TUNTURI T90-"))) {
             tunturi_t60_treadmill = true;
@@ -3513,7 +3516,7 @@ void horizontreadmill::testProfileCRC() {
 double horizontreadmill::minStepInclination() {
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
-    if (kettler_treadmill || T01 || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT || T3G_PRO || T3G_ELITE)
+    if (kettler_treadmill || T01 || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT || T3G_PRO || T3G_ELITE || run_bt_treadmill)
         return 1.0;
     else
         return 0.5;
