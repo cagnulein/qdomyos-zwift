@@ -59,8 +59,10 @@ Page {
     component WizardButton: Button {
              property color textColor: "#800080"
              property color backgroundColor: "white"
-             // A translated label can be wider than the screen: cap the button at the layout width and wrap the text
-             Layout.maximumWidth: parent ? parent.width : implicitWidth
+             // A translated label can be wider than the screen: cap the button and wrap the text.
+             // Capped by the screen, not by parent.width: in a GridLayout the parent's width comes
+             // from the buttons themselves, and the loop squeezed them on Android
+             Layout.maximumWidth: stackViewLocal.width * 0.8
              background: Rectangle {
                  color: parent.backgroundColor
                  radius: 5
