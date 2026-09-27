@@ -481,15 +481,19 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    bool weight_kg_unit = settings.value(QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit).toBool();
     QString unit = QStringLiteral("km");
     QString meters = QStringLiteral("m");
     QString weightLossUnit = QStringLiteral("Kg");
     QString cm = QStringLiteral("cm");
     if (miles) {
         unit = QStringLiteral("mi");
-        weightLossUnit = QStringLiteral("Oz");
         meters = QStringLiteral("ft");
         cm = QStringLiteral("in");
+    }
+    // Same condition as the value in update(): with "Use kg for weight" it stays in kg
+    if (miles && !weight_kg_unit) {
+        weightLossUnit = QStringLiteral("Oz");
     }
 
 #ifdef Q_OS_ANDROID
