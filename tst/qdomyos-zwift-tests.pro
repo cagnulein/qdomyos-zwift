@@ -38,6 +38,7 @@ SOURCES += \
         Devices/TestRenphoBikeKnobGears.cpp \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
+        Devices/TestRowerTargetResistance.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
         main.cpp
 
