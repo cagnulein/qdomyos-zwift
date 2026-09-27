@@ -3331,7 +3331,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed1Value
-                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3444,7 +3444,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed2Value
-                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3557,7 +3557,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed3Value
-                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3670,7 +3670,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed4Value
-                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
@@ -3783,7 +3783,7 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed5Value
-                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }

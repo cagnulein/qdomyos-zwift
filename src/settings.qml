@@ -2590,7 +2590,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelWeight
-                            text: qsTr("Player Weight") + "(" + ((settings.miles_unit && !settings.weight_kg_unit)?"lbs":"kg") + ")"
+                            text: qsTr("Player Weight") + "(" + ((settings.miles_unit && !settings.weight_kg_unit)?qsTr("lbs"):qsTr("kg")) + ")"
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -2629,7 +2629,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelHeight
-                            text: qsTr("Player Height") + "(" + (settings.miles_unit?"ft/in":"cm") + ")"
+                            text: qsTr("Player Height") + "(" + (settings.miles_unit?qsTr("ft/in"):qsTr("cm")) + ")"
                             Layout.fillWidth: true
                         }
                         SettingsFormatField {
@@ -3807,7 +3807,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelBikeWeight
-                            text: qsTr("Bike Weight (%1)").arg((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg")
+                            text: qsTr("Bike Weight (%1)").arg((settings.miles_unit && !settings.weight_kg_unit) ? qsTr("lbs") : qsTr("kg"))
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -7448,7 +7448,7 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: qsTr("Walking Min Speed:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                            text: qsTr("Walking Min Speed:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -7483,7 +7483,7 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: qsTr("Running Min Speed:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                            text: qsTr("Running Min Speed:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10206,7 +10206,7 @@ import AndroidStatusBar 1.0
                         ValueComboBox {
                             id: treadmillPaceDefaultTextField
                             model: [ "1 mile", "5 km", "10 km","Half Marathon","Marathon", ]
-                            labels: ({ "1 mile": qsTr("1 mile"), "Half Marathon": qsTr("Half Marathon"), "Marathon": qsTr("Marathon") })
+                            labels: ({ "1 mile": qsTr("1 mile"), "5 km": qsTr("5 km"), "10 km": qsTr("10 km"), "Half Marathon": qsTr("Half Marathon"), "Marathon": qsTr("Marathon") })
                             value: settings.pace_default
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -10810,7 +10810,7 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: qsTr("Max. Speed:") + "(" + (settings.miles_unit?"mph":"km/h") + ")"
+                            text: qsTr("Max. Speed:") + "(" + (settings.miles_unit?qsTr("mph"):qsTr("km/h")) + ")"
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -10847,7 +10847,7 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: qsTr("Min. Speed:") + "(" + (settings.miles_unit?"mph":"km/h") + ")"
+                            text: qsTr("Min. Speed:") + "(" + (settings.miles_unit?qsTr("mph"):qsTr("km/h")) + ")"
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -14257,7 +14257,7 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        text: qsTr("You can trigger auto laps in the FIT file based on distance. Unit: %1 Default: 0 (disabled).").arg(settings.miles_unit ? "Mi" : "KM")
+                        text: qsTr("You can trigger auto laps in the FIT file based on distance. Unit: %1 Default: 0 (disabled).").arg(settings.miles_unit ? qsTr("Mi") : qsTr("KM"))
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

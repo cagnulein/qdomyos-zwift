@@ -482,18 +482,19 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     bool weight_kg_unit = settings.value(QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit).toBool();
-    QString unit = QStringLiteral("km");
-    QString meters = QStringLiteral("m");
-    QString weightLossUnit = QStringLiteral("Kg");
-    QString cm = QStringLiteral("cm");
+    // Units shown in the tile names; only displayed, never compared or saved
+    QString unit = tr("km");
+    QString meters = tr("m", "unit: meters");
+    QString weightLossUnit = tr("Kg");
+    QString cm = tr("cm");
     if (miles) {
-        unit = QStringLiteral("mi");
-        meters = QStringLiteral("ft");
-        cm = QStringLiteral("in");
+        unit = tr("mi");
+        meters = tr("ft");
+        cm = tr("in", "unit: inches");
     }
     // Same condition as the value in update(): with "Use kg for weight" it stays in kg
     if (miles && !weight_kg_unit) {
-        weightLossUnit = QStringLiteral("Oz");
+        weightLossUnit = tr("Oz");
     }
 
 #ifdef Q_OS_ANDROID
@@ -672,7 +673,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                               QStringLiteral("0"), true, QStringLiteral("autoVirtualShiftingSprint"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Sprint", QStringLiteral("red"));
     powerAvg = new DataObject(tr("Power Avg"), QStringLiteral("icons/icons/watt.png"),
                              QStringLiteral("0"), true, QStringLiteral("powerAvg"), 48, labelFontSize, QStringLiteral("white"), QLatin1String(""), 0, true, "Off", QStringLiteral("grey"));
-    hrv = new DataObject(QStringLiteral("HRV (ms)"), QStringLiteral("icons/icons/heart_red.png"),
+    hrv = new DataObject(tr("HRV (ms)"), QStringLiteral("icons/icons/heart_red.png"),
                          QStringLiteral("0"), false, QStringLiteral("hrv"), 48, labelFontSize);
     pidHR = new DataObject(tr("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
@@ -3591,7 +3592,7 @@ void homeform::sortTiles() {
             if (settings.value(QZSettings::tile_odometer_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_odometer_order, 0).toInt() == i) {
                 odometer->setGridId(i);
-                odometer->setName("Odometer (m)");
+                odometer->setName(tr("Odometer (m)"));
                 dataList.append(odometer);
             }
 
@@ -3712,14 +3713,14 @@ void homeform::sortTiles() {
             if (settings.value(QZSettings::tile_pace_enabled, true).toBool() &&
                 settings.value(QZSettings::tile_pace_order, 0).toInt() == i) {
                 pace->setGridId(i);
-                pace->setName("Pace (m/500m)");
+                pace->setName(tr("Pace (m/500m)"));
                 dataList.append(pace);
             }
 
             if (settings.value(QZSettings::tile_avg_pace_enabled, QZSettings::default_tile_avg_pace_enabled).toBool() &&
                 settings.value(QZSettings::tile_avg_pace_order, QZSettings::default_tile_avg_pace_order).toInt() == i) {
                 avg_pace->setGridId(i);
-                avg_pace->setName("Avg Pace (m/500m)");
+                avg_pace->setName(tr("Avg Pace (m/500m)"));
                 dataList.append(avg_pace);
             }
 
@@ -3783,7 +3784,7 @@ void homeform::sortTiles() {
             if (settings.value(QZSettings::tile_target_pace_enabled, false).toBool() &&
                 settings.value(QZSettings::tile_target_pace_order, 50).toInt() == i) {
                 target_pace->setGridId(i);
-                target_pace->setName("T.Pace(m/500m)");
+                target_pace->setName(tr("T.Pace(m/500m)"));
                 dataList.append(target_pace);
             }
 
