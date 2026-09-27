@@ -16,6 +16,10 @@
 })();
 
 (function () {
+    function t(key, fallback) {
+        return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+    }
+
     const state = {
         chart: null,
         axisTemplate: {
@@ -92,7 +96,7 @@
                         },
                         title: {
                             display: true,
-                            text: 'Time',
+                            text: t('workoutEditor.time', 'Time'),
                             color: 'rgba(255,255,255,0.75)'
                         }
                     }
@@ -162,7 +166,7 @@
         const title = document.getElementById('chartTitle');
         const meta = document.getElementById('chartMeta');
         if (title) {
-            title.textContent = payload.title || 'Workout Preview';
+            title.textContent = payload.title || t('workoutEditor.workoutPreview', 'Workout Preview');
         }
         if (meta) {
             const parts = [];
@@ -170,10 +174,10 @@
                 parts.push(payload.subtitle);
             }
             if (typeof payload.totalSeconds === 'number') {
-                parts.push('Duration ' + formatSeconds(payload.totalSeconds));
+                parts.push(t('workoutEditor.durationValue', 'Duration {value}').replace('{value}', formatSeconds(payload.totalSeconds)));
             }
             if (Array.isArray(payload.rows)) {
-                parts.push(payload.rows.length + ' intervals');
+                parts.push(t('workoutEditor.intervalsCount', '{count} intervals').replace('{count}', payload.rows.length));
             }
             meta.textContent = parts.join(' • ');
         }
@@ -207,6 +211,8 @@
         if (typeof payload.totalSeconds === 'number') {
             chart.options.scales.x.suggestedMax = payload.totalSeconds;
         }
+        // The chart is created on DOMContentLoaded, before translations arrive
+        chart.options.scales.x.title.text = t('workoutEditor.time', 'Time');
         chart.update();
         updateLegend(seriesList);
         updateMeta(payload);

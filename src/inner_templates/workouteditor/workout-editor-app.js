@@ -430,7 +430,7 @@
                         announce(t('workoutEditor.workoutEmptyCannotRead', 'Workout is empty or cannot be read'), true);
                         return;
                     }
-                    applyLoadedRows(rows, name, `Loaded ${name}`, normalizeDevice(content.device));
+                    applyLoadedRows(rows, name, t('workoutEditor.loadedName', 'Loaded {name}').replace('{name}', name), normalizeDevice(content.device));
                 })
                 .catch(err => {
                     console.error(err);
@@ -450,7 +450,7 @@
         updateChart();
         updateStatus();
         updateControls();
-        announce(message || `Loaded ${name}`);
+        announce(message || t('workoutEditor.loadedName', 'Loaded {name}').replace('{name}', name));
     }
 
     function pasteXmlFromClipboard() {
@@ -508,7 +508,7 @@
             .then(content => {
                 console.log('[deleteProgram] Delete response:', content);
                 if (content && content.success) {
-                    announce(`Deleted ${name}`);
+                    announce(t('workoutEditor.deletedName', 'Deleted {name}').replace('{name}', name));
                     // Clear the name field if it matches the deleted workout
                     if (state.lastSaved === name) {
                         state.lastSaved = '';
@@ -1067,7 +1067,7 @@
         if (key === 'name') {
             const label = target.closest('.interval-card').querySelector('.card-header-name');
             if (label) {
-                label.textContent = state.intervals[index][key] || `Interval ${index + 1}`;
+                label.textContent = state.intervals[index][key] || t('workoutEditor.intervalNumber', 'Interval {number}').replace('{number}', index + 1);
             }
         }
         updateChart();
@@ -1509,7 +1509,7 @@
         });
 
         return {
-            title: selectors.name.value.trim() || 'Untitled Workout',
+            title: selectors.name.value.trim() || t('workoutEditor.untitledWorkout', 'Untitled Workout'),
             subtitle: devicePrettyName(state.device),
             totalSeconds: cursor,
             series: series.filter(s => s.points.length),
@@ -1723,7 +1723,7 @@
             updateStatus();
             updateControls();
 
-            const message = `Block repeated ${times} times`;
+            const message = t('workoutEditor.blockRepeatedTimes', 'Block repeated {times} times').replace('{times}', times);
             announce(message);
             console.log('[repeatSelection]', message);
         } catch (error) {
