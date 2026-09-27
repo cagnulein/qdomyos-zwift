@@ -84,13 +84,14 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -150,6 +151,7 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -157,7 +159,7 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -209,6 +211,7 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -216,7 +219,7 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -270,13 +273,14 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -350,13 +354,14 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -422,13 +427,14 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -507,13 +513,14 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -579,13 +586,14 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -637,13 +645,14 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -706,13 +715,14 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -813,13 +823,14 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 24
                     width: parent.width * 0.9
 
@@ -917,13 +928,14 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -978,13 +990,14 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -1035,13 +1048,14 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -1091,6 +1105,7 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -1098,7 +1113,7 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -1166,6 +1181,7 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -1173,7 +1189,7 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -1235,6 +1251,7 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -1242,7 +1259,7 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -1361,6 +1378,7 @@ Page {
             anchors.fill: parent
             ScrollView {
                 contentWidth: availableWidth
+                topPadding: 16
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -1368,7 +1386,7 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
