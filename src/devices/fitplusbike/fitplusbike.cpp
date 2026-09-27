@@ -267,13 +267,13 @@ void fitplusbike::forceResistance(resistance_t requestResistance) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x19, 0x00, 0x58, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         } else if (requestResistance == 26) {
-            uint8_t res[] = {0x02, 0x44, 0x05, 0x1a, 0x00, 0x59, 0x03};
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1a, 0x00, 0x5b, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         } else if (requestResistance == 27) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x1b, 0x00, 0x5a, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         } else if (requestResistance == 28) {
-            uint8_t res[] = {0x02, 0x44, 0x05, 0x1c, 0x00, 0x5b, 0x03};
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1c, 0x00, 0x5d, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         } else if (requestResistance == 29) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x1d, 0x00, 0x5c, 0x03};
