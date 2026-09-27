@@ -82,24 +82,7 @@
                     }
                 },
                 scales: {
-                    x: {
-                        type: 'linear',
-                        grid: {
-                            color: 'rgba(255,255,255,0.04)'
-                        },
-                        border: {
-                            color: 'rgba(255,255,255,0.16)'
-                        },
-                        ticks: {
-                            color: 'rgba(255,255,255,0.65)',
-                            callback: (value) => formatSeconds(value)
-                        },
-                        title: {
-                            display: true,
-                            text: t('workoutEditor.time', 'Time'),
-                            color: 'rgba(255,255,255,0.75)'
-                        }
-                    }
+                    x: buildTimeAxis()
                 },
                 elements: {
                     point: {
@@ -113,6 +96,33 @@
             }
         });
         return state.chart;
+    }
+
+    // A fresh object every time: putting the chart's own (proxied) x scale back into its options
+    // recurses in Chart.js 3.4.1, and the translated title would not be picked up
+    function buildTimeAxis(suggestedMax) {
+        const axis = {
+            type: 'linear',
+            grid: {
+                color: 'rgba(255,255,255,0.04)'
+            },
+            border: {
+                color: 'rgba(255,255,255,0.16)'
+            },
+            ticks: {
+                color: 'rgba(255,255,255,0.65)',
+                callback: (value) => formatSeconds(value)
+            },
+            title: {
+                display: true,
+                text: t('workoutEditor.time', 'Time'),
+                color: 'rgba(255,255,255,0.75)'
+            }
+        };
+        if (typeof suggestedMax === 'number') {
+            axis.suggestedMax = suggestedMax;
+        }
+        return axis;
     }
 
     function buildAxes(seriesList) {
@@ -190,7 +200,7 @@
         }
         const seriesList = Array.isArray(payload.series) ? payload.series : [];
         const axes = buildAxes(seriesList);
-        chart.options.scales = Object.assign({ x: chart.options.scales.x }, axes);
+        chart.options.scales = Object.assign({ x: buildTimeAxis(payload.totalSeconds) }, axes);
         chart.data.datasets = seriesList.map((series) => {
             const color = String(series.color || '#35baf6');
             const fillColor = String(series.fillColor || color) + '33';
@@ -208,11 +218,6 @@
                 spanGaps: true
             });
         });
-        if (typeof payload.totalSeconds === 'number') {
-            chart.options.scales.x.suggestedMax = payload.totalSeconds;
-        }
-        // The chart is created on DOMContentLoaded, before translations arrive
-        chart.options.scales.x.title.text = t('workoutEditor.time', 'Time');
         chart.update();
         updateLegend(seriesList);
         updateMeta(payload);
