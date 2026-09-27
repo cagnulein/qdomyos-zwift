@@ -765,6 +765,12 @@ ApplicationWindow {
         visible: false
     }
 
+    Connections {
+        target: rootItem
+        ignoreUnknownSignals: true
+        function onRestartToApplyRequested() { popupRestartApp.visible = true; }
+    }
+
     MessageDialog {
         text: qsTr("Strava")
         informativeText: qsTr("Do you want to upload the workout to Strava?")
