@@ -291,7 +291,7 @@ import AndroidStatusBar 1.0
             }
 
             window.settings_restart_to_apply = true
-            toast.show("Setting saved!")
+            toast.show(qsTr("Setting saved!"))
         }
 
         function optionValues(entry) {
@@ -358,7 +358,7 @@ import AndroidStatusBar 1.0
                 settings[entry.options[index].sets] = true
 
             window.settings_restart_to_apply = true
-            toast.show("Setting saved!")
+            toast.show(qsTr("Setting saved!"))
         }
 
         // always add a property at the end of the file to avoid corruption of the settings when loading old versions
@@ -2028,7 +2028,7 @@ import AndroidStatusBar 1.0
                                 }
 
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     onClicked: settingsPane.setSettingValue(entry, searchSettingTextField.text)
                                 }
                             }
@@ -4946,7 +4946,7 @@ import AndroidStatusBar 1.0
 
                     AccordionElement {
                         id: snodeBikeAccordion
-                        title: "Snode Bike Options"
+                        title: qsTr("Snode Bike Options")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -5477,7 +5477,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: "TDF1 IP:"
+                                    text: qsTr("TDF1 IP:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -5501,7 +5501,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelproformTDF4IP
-                                    text: "TDF4 IP:"
+                                    text: qsTr("TDF4 IP:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -5643,7 +5643,7 @@ import AndroidStatusBar 1.0
                             spacing: 10
                             Label {
                                 id: labelKettlerUsbBaudrate
-                                text: "Baudrate:"
+                                text: qsTr("Baudrate:")
                                 Layout.fillWidth: true
                             }
                             ComboBox {
@@ -5895,7 +5895,7 @@ import AndroidStatusBar 1.0
 
                     AccordionElement {
                         id: toputureBikeAccordion
-                        title: "Toputure Bikes"
+                        title: qsTr("Toputure Bikes")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -6439,9 +6439,9 @@ import AndroidStatusBar 1.0
                             onActivated: displayText = currentValue
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ios_live_activity_compact_leading_metric = iosLiveActivityCompactLeadingMetricComboBox.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.ios_live_activity_compact_leading_metric = iosLiveActivityCompactLeadingMetricComboBox.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6460,9 +6460,9 @@ import AndroidStatusBar 1.0
                             onActivated: displayText = currentValue
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ios_live_activity_compact_trailing_metric = iosLiveActivityCompactTrailingMetricComboBox.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.ios_live_activity_compact_trailing_metric = iosLiveActivityCompactTrailingMetricComboBox.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -8074,7 +8074,7 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: "Garmin Password:"
+                            text: qsTr("Garmin Password:")
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -8101,7 +8101,7 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: "Garmin Server:"
+                            text: qsTr("Garmin Server:")
                             Layout.fillWidth: true
                         }
                         ComboBox {
@@ -9272,9 +9272,9 @@ import AndroidStatusBar 1.0
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_pid_hr_recovery_zone_limit = parseFloat(pidHrRecoveryZoneLimitTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_pid_hr_recovery_zone_limit = parseFloat(pidHrRecoveryZoneLimitTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9306,9 +9306,9 @@ import AndroidStatusBar 1.0
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_pid_hr_pushy_zone_limit = parseFloat(pidHrPushyZoneLimitTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_pid_hr_pushy_zone_limit = parseFloat(pidHrPushyZoneLimitTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9554,9 +9554,9 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             id: okTrainProgramWarmupSpeed
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_warmup_speed = timeToPaceSeconds(trainProgramWarmupSpeedTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_warmup_speed = timeToPaceSeconds(trainProgramWarmupSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9577,9 +9577,9 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             id: okTrainProgramCooldownSpeed
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_cooldown_speed = timeToPaceSeconds(trainProgramCooldownSpeedTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_cooldown_speed = timeToPaceSeconds(trainProgramCooldownSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9600,9 +9600,9 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             id: okTrainProgramRestSpeed
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_rest_speed = timeToPaceSeconds(trainProgramRestSpeedTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_rest_speed = timeToPaceSeconds(trainProgramRestSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -10724,7 +10724,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelproformtreadmillip
-                                    text: "Proform IP:"
+                                    text: qsTr("Proform IP:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -10748,7 +10748,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelnordictrack2950IP
-                                    text: "Nordictrack 2950 IP:"
+                                    text: qsTr("Nordictrack 2950 IP:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -12300,7 +12300,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: "ProForm Rower IP:"
+                                    text: qsTr("ProForm Rower IP:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -13838,9 +13838,9 @@ import AndroidStatusBar 1.0
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cscbike_custom_resistance_level_1 = cscBikeCustomResistanceLevel1TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cscbike_custom_resistance_level_1 = cscBikeCustomResistanceLevel1TextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13861,9 +13861,9 @@ import AndroidStatusBar 1.0
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cscbike_custom_watt_1 = cscBikeCustomWatt1TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cscbike_custom_watt_1 = cscBikeCustomWatt1TextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13884,9 +13884,9 @@ import AndroidStatusBar 1.0
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cscbike_custom_resistance_level_2 = cscBikeCustomResistanceLevel2TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cscbike_custom_resistance_level_2 = cscBikeCustomResistanceLevel2TextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13907,9 +13907,9 @@ import AndroidStatusBar 1.0
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cscbike_custom_watt_2 = cscBikeCustomWatt2TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cscbike_custom_watt_2 = cscBikeCustomWatt2TextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14090,9 +14090,9 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_speed_correction_threshold = powerSensorSpeedCorrectionThresholdTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_speed_correction_threshold = powerSensorSpeedCorrectionThresholdTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14205,9 +14205,9 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_speed_inclination_coeff_a = powerSensorSpeedInclinationCoeffATextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_speed_inclination_coeff_a = powerSensorSpeedInclinationCoeffATextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14226,9 +14226,9 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_speed_inclination_coeff_b = powerSensorSpeedInclinationCoeffBTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_speed_inclination_coeff_b = powerSensorSpeedInclinationCoeffBTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 

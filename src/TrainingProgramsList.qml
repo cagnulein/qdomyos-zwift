@@ -46,8 +46,8 @@ ColumnLayout {
 
     MessageDialog {
         id: deleteDialog
-        text: "Delete workout?"
-        informativeText: "This cannot be undone."
+        text: qsTr("Delete workout?")
+        informativeText: qsTr("This cannot be undone.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             if (rootItem.deleteTrainingProgramFile(selectedWorkoutUrl)) {
@@ -66,9 +66,9 @@ ColumnLayout {
         active: false
         sourceComponent: Component {
             FileDialog {
-                title: "Please choose a file"
+                title: qsTr("Please choose a file")
                 folder: shortcuts.home
-                nameFilters: ["Training programs (*.xml *.zwo)", "All files (*)"]
+                nameFilters: [qsTr("Training programs (*.xml *.zwo)"), qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     console.log("You chose: " + fileUrl)
@@ -107,7 +107,7 @@ ColumnLayout {
                 leftPadding: window.contentSideMargin
                 Text
                 {
-                    text:"Filter"
+                    text:qsTr("Filter")
                     color: "white"
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -313,7 +313,7 @@ ColumnLayout {
                         legend.visible: false
                         height: 400
                         width: parent.width
-                        title: "Power"
+                        title: qsTr("Power")
                         titleFont.pixelSize: 20
 
                         DateTimeAxis {
@@ -363,7 +363,7 @@ ColumnLayout {
 
         Button {
             Layout.fillWidth: true
-            text: "Start Workout"
+            text: qsTr("Start Workout")
             visible: selectedWorkoutUrl != ""
             onClicked: {
                 trainprogram_open_clicked(selectedWorkoutUrl)
@@ -374,7 +374,7 @@ ColumnLayout {
         Button {
             id: deleteButton
             Layout.fillWidth: true
-            text: "Delete"
+            text: qsTr("Delete")
             visible: selectedWorkoutUrl != ""
             onClicked: deleteDialog.visible = true
         }
@@ -382,7 +382,7 @@ ColumnLayout {
         Button {
             id: searchButton
             Layout.fillWidth: true
-            text: "Other folders"
+            text: qsTr("Other folders")
             onClicked: {
                 console.log("folder is " + rootItem.getWritableAppDir() + 'training')
                 if (Qt.platform.os === "android") {

@@ -813,7 +813,7 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Garmin FTP Update"
+        text: qsTr("Garmin FTP Update")
         informativeText: rootItem.garminFtpPromptMessage
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.garmin_accept_ftp_update(); }
@@ -822,9 +822,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Clipboard Workout"
-        informativeText: "Workout found in clipboard:\n" + rootItem.clipboardWorkoutPromptName +
-                         "\n\nDo you want to open the workout preview?"
+        text: qsTr("Clipboard Workout")
+        informativeText: qsTr("Workout found in clipboard:\n%1\n\nDo you want to open the workout preview?").arg(rootItem.clipboardWorkoutPromptName)
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             var workoutUrl = rootItem.clipboard_workout_url()
@@ -847,8 +846,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Clipboard Workout"
-        informativeText: "The clipboard workout has ended.\n\nDo you want to delete the file?"
+        text: qsTr("Clipboard Workout")
+        informativeText: qsTr("The clipboard workout has ended.\n\nDo you want to delete the file?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: rootItem.clipboard_delete_finished_workout()
         onNoClicked: rootItem.clipboard_keep_finished_workout()
@@ -856,8 +855,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Echelon Unlock"
-        informativeText: "The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?"
+        text: qsTr("Echelon Unlock")
+        informativeText: qsTr("The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.echelon_switch_to_classic_bridge(); }
         onNoClicked: { rootItem.echelon_dismiss_bridge_switch_prompt(); }
@@ -890,7 +889,7 @@ ApplicationWindow {
 
             Label {
                 width: parent.width
-                text: "Echelon Locked Bike"
+                text: qsTr("Echelon Locked Bike")
                 font.bold: true
                 font.pixelSize: 20
                 wrapMode: Text.WordWrap
@@ -907,10 +906,10 @@ ApplicationWindow {
                     wrapMode: TextEdit.Wrap
                     selectByMouse: true
                     text:
-                        "Your bike is locked by Echelon, but QZ can unlock it.\n\n" +
-                        "Enable Virtual Echelon in the experimental settings and restart qz, then open the official Echelon app on a separate device and connect to the bike once.\n\n" +
-                        "After initialization, return to QZ and everything will work normally.\n\n" +
-                        "You have to repeat this for each session, would you like to enable the Virtual Echelon setting now for this?"
+                        qsTr("Your bike is locked by Echelon, but QZ can unlock it.\n\n") +
+                        qsTr("Enable Virtual Echelon in the experimental settings and restart qz, then open the official Echelon app on a separate device and connect to the bike once.\n\n") +
+                        qsTr("After initialization, return to QZ and everything will work normally.\n\n") +
+                        qsTr("You have to repeat this for each session, would you like to enable the Virtual Echelon setting now for this?")
                 }
             }
 
@@ -921,12 +920,12 @@ ApplicationWindow {
                 layoutDirection: Qt.RightToLeft
 
                 Button {
-                    text: "Yes"
+                    text: qsTr("Yes")
                     onClicked: rootItem.echelon_enable_virtual_bridge()
                 }
 
                 Button {
-                    text: "No"
+                    text: qsTr("No")
                     onClicked: rootItem.echelon_dismiss_enable_prompt()
                 }
             }
@@ -1501,7 +1500,7 @@ ApplicationWindow {
 
                     FileDialog {
                         id: fileDialogGPX
-                         title: "Please choose a file"
+                         title: qsTr("Please choose a file")
                          folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
                          onAccepted: {
                              console.log("You chose: " + fileDialogGPX.fileUrl)

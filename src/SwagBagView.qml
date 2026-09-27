@@ -101,7 +101,7 @@ Item {
         text: "Restore Purchases"
         onClicked: {
             console.log("restoring...");
-            toast.show("Restoring...");
+            toast.show(qsTr("Restoring..."));
             iapStore.restorePurchases();
         }
     }
