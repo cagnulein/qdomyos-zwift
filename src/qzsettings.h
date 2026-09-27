@@ -863,6 +863,12 @@ class QZSettings {
     static const QString virtufit_etappe;
     static constexpr bool default_virtufit_etappe = false;
 
+    /**
+     *@brief Ask whether an FS- device that exposes FTMS Indoor Bike Data is a bike. Switched off when the user answers No.
+     */
+    static const QString fitshow_bike_question;
+    static constexpr bool default_fitshow_bike_question = true;
+
     static const QString flywheel_filter;
     static constexpr int default_flywheel_filter = 2;
 

@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1006,
+  "settingCount": 1007,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -15912,6 +15912,20 @@
       "defaultExpression": "true",
       "options": null,
       "restartRequired": true
+    },
+    {
+      "key": "fitshow_bike_question",
+      "name": "Ask if a FitShow (FS-) device is a bike",
+      "description": "QZ opens FS- devices as treadmills unless \"Fit Plus Bike\" is on. When an FS- device also reports bike data, QZ asks whether it is a bike; answering No turns this question off.",
+      "parent": "Fitplus Bike Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
+      "options": null,
+      "restartRequired": false
     }
   ],
   "legacyHierarchy": {

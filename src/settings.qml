@@ -1783,6 +1783,7 @@ import AndroidStatusBar 1.0
             property bool nordictrack_incline_trainer_x7i_netl18716_0: false
             property bool android_landscape_cutout_margin: true
             property real watt_max: 9999
+            property bool fitshow_bike_question: true
         }
 
 
@@ -5039,6 +5040,32 @@ import AndroidStatusBar 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.virtufit_etappe = checked; window.settings_restart_to_apply = true; }
+                        }
+                        IndicatorOnlySwitch {
+                            id: fitshowBikeQuestionDelegate
+                            text: qsTr("Ask if a FitShow (FS-) device is a bike")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.fitshow_bike_question
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.fitshow_bike_question = checked; }
+                        }
+                        Label {
+                            text: qsTr("QZ opens FS- devices as treadmills unless \"Fit Plus Bike\" is on. When an FS- device also reports bike data, QZ asks whether it is a bike; answering No turns this question off.")
+                            font.bold: true
+                            font.italic: true
+                            font.pixelSize: Qt.application.font.pixelSize - 2
+                            textFormat: Text.PlainText
+                            wrapMode: Text.WordWrap
+                            verticalAlignment: Text.AlignVCenter
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            color: Material.color(Material.Lime)
                         }
                         IndicatorOnlySwitch {
                             id: sportstechSx600BikeDelegate

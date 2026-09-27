@@ -785,6 +785,17 @@ ApplicationWindow {
         visible: false
     }
 
+    // an FS- device that reports bike data: ask, because some FitShow treadmills report it too
+    MessageDialog {
+        id: popupFitshowBikeQuestion
+        text: qsTr("This FitShow device also reports bike data. Is it a bike?")
+        informativeText: qsTr("Yes: QZ enables \"Fit Plus Bike\" and closes, open it again to connect to it as a bike.\nNo: QZ keeps it as a treadmill and won't ask again (the question can be turned back on in Fitplus Bike Options).")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.fitshowBikeAnswer(true); Qt.callLater(Qt.quit); }
+        onNoClicked: { rootItem.fitshowBikeAnswer(false); this.visible = false; }
+        visible: false
+    }
+
     Connections {
         target: rootItem
         ignoreUnknownSignals: true
@@ -792,6 +803,7 @@ ApplicationWindow {
             popupRestartAppDetected.text = message;
             popupRestartAppDetected.visible = true;
         }
+        function onFitshowBikeQuestionRequested() { popupFitshowBikeQuestion.visible = true; }
     }
 
     MessageDialog {
