@@ -16782,7 +16782,7 @@ import AndroidStatusBar 1.0
                             Layout.fillWidth: true
                             Layout.minimumWidth: 0
                             onClicked: {
-                                toast.show(rootItem.getProfileDir())
+                                toast.show(rootItem.getWritableAppDir())
                             }
                         }
                     }
