@@ -31,7 +31,7 @@ TEST(FtmsRowerCadenceTest, CalculatesCadenceOnlyAfterFourRealStrokeIntervals) {
 
     EXPECT_DOUBLE_EQ(calculator.cadence(), 0);
     calculator.update(104, 12000, 22);
-    EXPECT_DOUBLE_EQ(calculator.cadence(), 0);
+    EXPECT_NEAR(calculator.cadence(), 20, 0.001);
     EXPECT_NEAR(calculator.update(105, 15000, 22), 20, 0.001);
 }
 
@@ -48,7 +48,7 @@ TEST(FtmsRowerCadenceTest, WarmupStaysFreshWhileCollectingFourIntervals) {
     calculator.update(103, 9000, 22);
     EXPECT_FALSE(calculator.isStale(12000));
     calculator.update(104, 12000, 22);
-    EXPECT_DOUBLE_EQ(calculator.cadence(), 0);
+    EXPECT_NEAR(calculator.cadence(), 20, 0.001);
     EXPECT_NEAR(calculator.update(105, 15000, 22), 20, 0.001);
 }
 
@@ -65,7 +65,7 @@ TEST(FtmsRowerCadenceTest, RollingWindowSmoothsCadenceFromStrokeCount) {
     EXPECT_NEAR(calculator.cadence(), 20, 0.001);
 }
 
-TEST(FtmsRowerCadenceTest, MedianRejectsOneJorotoTimingSpike) {
+TEST(FtmsRowerCadenceTest, RollingAverageSmoothsOneJorotoTimingSpike) {
     ftmsrowerCadenceCalculator calculator;
 
     calculator.update(100, 0, 22);
@@ -80,21 +80,20 @@ TEST(FtmsRowerCadenceTest, MedianRejectsOneJorotoTimingSpike) {
     EXPECT_NEAR(calculator.cadence(), 20, 0.001);
 }
 
-TEST(FtmsRowerCadenceTest, MedianUsesIndividualIntervalsNotOverlappingWindows) {
+TEST(FtmsRowerCadenceTest, RollingAverageHandlesQuantizedIntervals) {
     ftmsrowerCadenceCalculator calculator;
 
     calculator.update(100, 0, 22);
-    calculator.update(101, 3121, 22);
-    calculator.update(102, 4081, 22);
-    calculator.update(103, 6241, 22);
-    calculator.update(104, 8041, 22);
-    calculator.update(105, 10082, 22);
-    calculator.update(106, 11041, 22);
-    calculator.update(107, 14041, 22);
-    calculator.update(108, 17161, 22);
+    calculator.update(101, 3000, 22);
+    calculator.update(102, 5040, 22);
+    calculator.update(103, 8040, 22);
+    calculator.update(104, 9960, 22);
+    calculator.update(105, 12960, 22);
+    calculator.update(106, 15000, 22);
+    calculator.update(107, 18000, 22);
 
-    // The seven latest individual intervals have a median of about 2.041 s.
-    EXPECT_NEAR(calculator.cadence(), 60000.0 / 2041.0, 0.001);
+    // The seven intervals average 2.571 s, producing about 23.33 SPM.
+    EXPECT_NEAR(calculator.cadence(), 60000.0 / (18000.0 / 7.0), 0.001);
 }
 
 TEST(FtmsRowerCadenceTest, StalePauseResetsHistoryBeforeResume) {
@@ -111,7 +110,7 @@ TEST(FtmsRowerCadenceTest, StalePauseResetsHistoryBeforeResume) {
     EXPECT_DOUBLE_EQ(calculator.update(105, 21001, 22), 0);
     EXPECT_DOUBLE_EQ(calculator.update(106, 24001, 22), 0);
     EXPECT_DOUBLE_EQ(calculator.update(107, 27001, 22), 0);
-    EXPECT_DOUBLE_EQ(calculator.update(108, 30001, 22), 0);
+    EXPECT_NEAR(calculator.update(108, 30001, 22), 20, 0.001);
     EXPECT_NEAR(calculator.update(109, 33001, 22), 20, 0.001);
 }
 

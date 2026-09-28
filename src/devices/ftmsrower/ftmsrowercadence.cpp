@@ -1,7 +1,6 @@
 #include "devices/ftmsrower/ftmsrowercadence.h"
 
 #include <QtGlobal>
-#include <algorithm>
 
 double ftmsrowerCadenceCalculator::update(quint16 strokeCount, qint64 timestampMs, double reportedCadence) {
     Q_UNUSED(reportedCadence);
@@ -54,8 +53,9 @@ double ftmsrowerCadenceCalculator::update(quint16 strokeCount, qint64 timestampM
     m_recentIntervalMs = elapsedMs / strokeDelta;
     m_lastStrokeTimestampMs = timestampMs;
 
-    // Filter individual stroke intervals before deriving cadence. This avoids
-    // letting one short JOROTO interval contaminate overlapping windows.
+    // Average individual stroke intervals before deriving cadence. This avoids
+    // the quantized 20/29 SPM jumps caused by selecting one interval as the
+    // representative value for this JOROTO model.
     m_recentIntervalsMs.append(m_recentIntervalMs);
     while (m_recentIntervalsMs.size() > 7) {
         m_recentIntervalsMs.removeFirst();
@@ -67,13 +67,13 @@ double ftmsrowerCadenceCalculator::update(quint16 strokeCount, qint64 timestampM
         return m_cadence;
     }
 
-    QList<qint64> sortedIntervals = m_recentIntervalsMs;
-    std::sort(sortedIntervals.begin(), sortedIntervals.end());
-    const int middle = sortedIntervals.size() / 2;
-    const double medianIntervalMs = sortedIntervals.size() % 2 == 0
-        ? (static_cast<double>(sortedIntervals.at(middle - 1)) + sortedIntervals.at(middle)) / 2.0
-        : static_cast<double>(sortedIntervals.at(middle));
-    m_cadence = 60000.0 / medianIntervalMs;
+    qint64 totalIntervalMs = 0;
+    for (const qint64 intervalMs : m_recentIntervalsMs) {
+        totalIntervalMs += intervalMs;
+    }
+    const double averageIntervalMs = static_cast<double>(totalIntervalMs) /
+                                     static_cast<double>(m_recentIntervalsMs.size());
+    m_cadence = 60000.0 / averageIntervalMs;
 
     return m_cadence;
 }
