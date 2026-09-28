@@ -6,7 +6,6 @@ import Qt.labs.settings 1.0
 import QtWebView 1.1
 
 ColumnLayout {
-    signal popupclose()
     id: column1
     spacing: 10
     anchors.fill: parent
@@ -25,19 +24,6 @@ ColumnLayout {
         }
     }
 
-    Button {
-        id: closeButton
-        height: 50
-        width: parent.width
-        text: "Close"
-        Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-        onClicked: {
-            popupclose();
-        }
-        anchors {
-            bottom: parent.bottom
-        }
-    }
      Component.onCompleted: {
          headerToolbar.visible = true;
      }
