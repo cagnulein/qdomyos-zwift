@@ -497,7 +497,7 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
                     descriptor.append((char)0x00);
                 }
 
-                const auto cccd = c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+                const auto cccd = c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration);
                 if (cccd.isValid()) {
                     service->writeDescriptor(cccd, descriptor);
                 }

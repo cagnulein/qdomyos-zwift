@@ -297,7 +297,8 @@ void freebeatboombike::stateChanged(QLowEnergyService::ServiceState state) {
     descriptor.append(static_cast<char>(0x01));
     descriptor.append(static_cast<char>(0x00));
     gattCommunicationChannelService->writeDescriptor(
-        gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        gattNotifyCharacteristic.descriptor(
+            QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
 }
 
 void freebeatboombike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {

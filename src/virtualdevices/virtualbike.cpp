@@ -148,7 +148,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QByteArray descriptor9;
                     descriptor9.append((char)0x03);
                     descriptor9.append((char)0x00);
-                    const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+                    const QLowEnergyDescriptorData cpClientConfig(
+                        QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                   descriptor9);
                     charDataFIT3.addDescriptor(cpClientConfig);
 
@@ -158,7 +159,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
-                    const QLowEnergyDescriptorData clientConfig4(QBluetoothUuid::ClientCharacteristicConfiguration,
+                    const QLowEnergyDescriptorData clientConfig4(
+                        QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                  descriptor);
                     charDataFIT4.addDescriptor(clientConfig4);
 
@@ -168,7 +170,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QByteArray descriptor5;
                     descriptor5.append((char)0x01);
                     descriptor5.append((char)0x00);
-                    const QLowEnergyDescriptorData clientConfig5(QBluetoothUuid::ClientCharacteristicConfiguration,
+                    const QLowEnergyDescriptorData clientConfig5(
+                        QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
                                                                  descriptor5);
                     charDataFIT5.addDescriptor(clientConfig5);
 
@@ -318,7 +321,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         
             // Create Device Information Service        
             serviceDataDIS.setType(QLowEnergyServiceData::ServiceTypePrimary);
-            serviceDataDIS.setUuid(QBluetoothUuid::DeviceInformation);
+            serviceDataDIS.setUuid(QBluetoothUuid::ServiceClassUuid::DeviceInformation);
             serviceDataDIS.addCharacteristic(manufacturerNameChar);
             serviceDataDIS.addCharacteristic(modelNumberChar);
             serviceDataDIS.addCharacteristic(serialNumberChar);

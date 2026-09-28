@@ -158,7 +158,7 @@ void xcxbike::serviceStateChanged(QLowEnergyService::ServiceState state) {
     createVirtualBike();
 
     const QLowEnergyDescriptor cccd =
-        fff6NotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+        fff6NotifyCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration);
     if (!cccd.isValid()) {
         qDebug() << QStringLiteral("XCX FFF6 CCCD not found");
         return;
