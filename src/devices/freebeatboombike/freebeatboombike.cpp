@@ -2,6 +2,7 @@
 
 #include "keepawakehelper.h"
 #include "virtualdevices/virtualbike.h"
+#include <algorithm>
 #include <QMetaEnum>
 #include <QSettings>
 #include <QtMath>
@@ -244,12 +245,12 @@ bool freebeatboombike::connected() { return initDone; }
 uint16_t freebeatboombike::watts() { return static_cast<uint16_t>(m_watt.value()); }
 
 resistance_t freebeatboombike::pelotonToBikeResistance(int pelotonResistance) {
-    return qBound<resistance_t>(1, pelotonResistance, maxResistance);
+    return static_cast<resistance_t>(std::clamp(pelotonResistance, 1, static_cast<int>(maxResistance)));
 }
 
 resistance_t freebeatboombike::resistanceFromPowerRequest(uint16_t power) {
     const double resistance = power / (80.0 * powerMultiplier / 100.0);
-    return qBound<resistance_t>(1, qRound(resistance), maxResistance);
+    return static_cast<resistance_t>(std::clamp(qRound(resistance), 1, static_cast<int>(maxResistance)));
 }
 
 void freebeatboombike::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -289,8 +290,7 @@ void freebeatboombike::stateChanged(QLowEnergyService::ServiceState state) {
             &freebeatboombike::characteristicWritten);
     connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
             &freebeatboombike::descriptorWritten);
-    connect(gattCommunicationChannelService,
-            static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+    connect(gattCommunicationChannelService, &QLowEnergyService::errorOccurred,
             this, &freebeatboombike::errorService);
 
     QByteArray descriptor;
@@ -330,9 +330,7 @@ void freebeatboombike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     connect(m_control, &QLowEnergyController::serviceDiscovered, this, &freebeatboombike::serviceDiscovered);
     connect(m_control, &QLowEnergyController::discoveryFinished, this, &freebeatboombike::serviceScanDone);
     connect(m_control, &QLowEnergyController::stateChanged, this, &freebeatboombike::controllerStateChanged);
-    connect(m_control,
-            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-            this, &freebeatboombike::error);
+    connect(m_control, &QLowEnergyController::errorOccurred, this, &freebeatboombike::error);
     connect(m_control, &QLowEnergyController::connected, this, [this]() {
         emit debug(QStringLiteral("Freebeat Boom Bike controller connected"));
         m_control->discoverServices();

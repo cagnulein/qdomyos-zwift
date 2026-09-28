@@ -317,8 +317,7 @@ void fitplusrower::stateChanged(QLowEnergyService::ServiceState state) {
             &fitplusrower::characteristicChanged);
     connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
             &fitplusrower::characteristicWritten);
-    connect(gattCommunicationChannelService,
-            static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error), this,
+    connect(gattCommunicationChannelService, &QLowEnergyService::errorOccurred, this,
             &fitplusrower::errorService);
     connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
             &fitplusrower::descriptorWritten);
@@ -410,13 +409,10 @@ void fitplusrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
     connect(m_control, &QLowEnergyController::serviceDiscovered, this, &fitplusrower::serviceDiscovered);
     connect(m_control, &QLowEnergyController::discoveryFinished, this, &fitplusrower::serviceScanDone);
-    connect(m_control,
-            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
-            &fitplusrower::error);
+    connect(m_control, &QLowEnergyController::errorOccurred, this, &fitplusrower::error);
     connect(m_control, &QLowEnergyController::stateChanged, this, &fitplusrower::controllerStateChanged);
 
-    connect(m_control,
-            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
+    connect(m_control, &QLowEnergyController::errorOccurred, this,
             [this](QLowEnergyController::Error error) {
                 Q_UNUSED(error);
                 qDebug() << QStringLiteral("Cannot connect to remote device.");

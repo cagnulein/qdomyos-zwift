@@ -281,9 +281,8 @@ void kettlerc12bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     lastPacket = newValue;
     lastRefreshCharacteristicChanged = now;
 
-    const quint16 handle = characteristic.handle();
-    qDebug() << "characteristicChanged" << characteristic.uuid() << "handle:" << QString::number(handle, 16)
-             << "value:" << newValue.toHex(' ');
+    const QBluetoothUuid uuid = characteristic.uuid();
+    qDebug() << "characteristicChanged" << uuid << "value:" << newValue.toHex(' ');
 
     if (characteristic.uuid() == CYCLING_POWER_MEASUREMENT_CHAR_UUID && newValue.length() >= 4) {
         const uint16_t flags = readUInt16LE(newValue, 0);
@@ -383,9 +382,9 @@ void kettlerc12bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
     } else if (newValue.length() >= 2) {
         const uint16_t value = readUInt16LE(newValue, 0);
-        const QBluetoothUuid uuid = characteristic.uuid();
 
-        if (uuid == KETTLER_POWER_CHAR_UUID || handle == 0x3e) {
+        // Temporarily disabled for Qt 6: the ATT-handle fallback was handle == 0x3e.
+        if (uuid == KETTLER_POWER_CHAR_UUID) {
             const bool hasRecentCyclingPower =
                 lastCyclingPower.isValid() && lastCyclingPower.msecsTo(now) < 3000;
 
@@ -393,23 +392,30 @@ void kettlerc12bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                 m_watt = value;
                 emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             }
-        } else if (uuid == KETTLER_SPEED_CHAR_UUID || handle == 0x48) {
+        // Temporarily disabled for Qt 6: the ATT-handle fallback was handle == 0x48.
+        } else if (uuid == KETTLER_SPEED_CHAR_UUID) {
             Speed = value / 10.0;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-        } else if (uuid == KETTLER_RESISTANCE_CHAR_UUID || handle == 0x38) {
+        // Temporarily disabled for Qt 6: the ATT-handle fallback was handle == 0x38.
+        } else if (uuid == KETTLER_RESISTANCE_CHAR_UUID) {
             Resistance = value;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
         } else if (uuid == QBluetoothUuid(QStringLiteral("638a1005-7bde-3e25-ffc5-9de9b2a0197a")) ||
-                   uuid == QBluetoothUuid(QStringLiteral("638a100a-7bde-3e25-ffc5-9de9b2a0197a")) ||
-                   handle == 0x4c || handle == 0x63) {
+                   uuid == QBluetoothUuid(QStringLiteral("638a100a-7bde-3e25-ffc5-9de9b2a0197a"))) {
+            // The 0x4c and 0x63 ATT-handle fallbacks are temporarily disabled for Qt 6.
             if (value <= max_resistance) {
                 Resistance = value;
                 emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
             }
+        } else if (uuid != KETTLER_DISTANCE_CHAR_UUID) {
+            qDebug() << QStringLiteral(
+                            "ERROR: Kettler C12 characteristic has no UUID mapping; Qt 6 handle fallback is disabled")
+                     << QStringLiteral("uuid:") << uuid.toString() << QStringLiteral("value:") << newValue.toHex(' ');
         }
     }
 
-    if ((characteristic.uuid() == KETTLER_DISTANCE_CHAR_UUID || handle == 0x5c) && newValue.length() >= 4) {
+    // Temporarily disabled for Qt 6: the ATT-handle fallback was handle == 0x5c.
+    if (uuid == KETTLER_DISTANCE_CHAR_UUID && newValue.length() >= 4) {
         const uint32_t distanceRaw = readUInt32LE(newValue, 0);
         Distance = distanceRaw / 1000.0;
     }
@@ -440,9 +446,8 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
                 Qt::UniqueConnection);
         connect(service, &QLowEnergyService::characteristicWritten, this, &kettlerc12bike::characteristicWritten,
                 Qt::UniqueConnection);
-        connect(service,
-                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
-                this, &kettlerc12bike::errorService, Qt::UniqueConnection);
+        connect(service, &QLowEnergyService::errorOccurred, this, &kettlerc12bike::errorService,
+                Qt::UniqueConnection);
         connect(service, &QLowEnergyService::descriptorWritten, this, &kettlerc12bike::descriptorWritten,
                 Qt::UniqueConnection);
 
@@ -450,6 +455,8 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
 
         if (customService) {
             qDebug() << QStringLiteral("Kettler C12 custom service discovered") << activeServiceUuid.toString();
+            qDebug() << QStringLiteral(
+                "ERROR: Qt 6 does not expose GATT handles; handle-based Kettler C12 metric fallbacks are disabled");
 
             gattWriteCharacteristic = QLowEnergyCharacteristic();
             gattHandshakeCharacteristic = QLowEnergyCharacteristic();
@@ -458,14 +465,12 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
         foreach (QLowEnergyCharacteristic c, service->characteristics()) {
             qDebug() << QStringLiteral("characteristic") << c.uuid()
                      << "service:" << service->serviceUuid()
-                     << "handle:" << QString::number(c.handle(), 16)
                      << "properties:" << c.properties();
 
             if (customService) {
                 if (c.uuid() == KETTLER_CONTROL_CHAR_UUID) {
                     gattWriteCharacteristic = c;
-                    qDebug() << QStringLiteral("Found Kettler control characteristic") << c.uuid()
-                             << "handle:" << QString::number(c.handle(), 16);
+                    qDebug() << QStringLiteral("Found Kettler control characteristic") << c.uuid();
                 } else if (c.uuid() == KETTLER_HANDSHAKE_CHAR_UUID) {
                     gattHandshakeCharacteristic = c;
                 } else if (c.uuid() == KETTLER_CADENCE_CHAR_UUID) {
@@ -478,15 +483,13 @@ void kettlerc12bike::stateChanged(QLowEnergyService::ServiceState state) {
                            ((c.properties() & QLowEnergyCharacteristic::Write) ||
                             (c.properties() & QLowEnergyCharacteristic::WriteNoResponse))) {
                     gattWriteCharacteristic = c;
-                    qDebug() << QStringLiteral("Using fallback write characteristic") << c.uuid()
-                             << "handle:" << QString::number(c.handle(), 16);
+                    qDebug() << QStringLiteral("Using fallback write characteristic") << c.uuid();
                 }
             }
 
             if ((c.properties() & QLowEnergyCharacteristic::Notify) ||
                 (c.properties() & QLowEnergyCharacteristic::Indicate)) {
-                qDebug() << QStringLiteral("Enabling notifications on characteristic") << c.uuid()
-                         << "handle:" << QString::number(c.handle(), 16);
+                qDebug() << QStringLiteral("Enabling notifications on characteristic") << c.uuid();
 
                 QByteArray descriptor;
                 if (c.properties() & QLowEnergyCharacteristic::Notify) {
@@ -567,14 +570,11 @@ void kettlerc12bike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &kettlerc12bike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &kettlerc12bike::serviceScanDone);
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &kettlerc12bike::error);
+        connect(m_control, &QLowEnergyController::errorOccurred, this, &kettlerc12bike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &kettlerc12bike::controllerStateChanged);
 
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, [this](QLowEnergyController::Error error) {
+        connect(m_control, &QLowEnergyController::errorOccurred, this,
+                [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
                     qDebug() << QStringLiteral("Cannot connect to remote device.");
