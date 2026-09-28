@@ -49,6 +49,7 @@ class iconceptbike : public bike {
     QBluetoothServiceDiscoveryAgent *discoveryAgent;
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
+    QByteArray socketReadBuffer;
 
     QTimer *refresh;
     bool initDone = false;

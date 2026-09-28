@@ -40,6 +40,11 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
     {
         return peripheralManager.RequestedSpeed;
     }
+
+    @objc public func lastChangeRequestedSpeed() -> UInt64
+    {
+        return peripheralManager.lastRequestedSpeed;
+    }
     
     @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, currentInclination: UInt16, currentDistance: UInt64, elapsedTimeSeconds: UInt16) -> Bool
     {
@@ -82,6 +87,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     public var CurrentDistance: UInt64! = 0
     public var ElapsedTimeSeconds: UInt16! = 0
     public var lastCurrentSlope: UInt64! = 0;
+    public var lastRequestedSpeed: UInt64! = 0;
     public var RequestedSpeed: Double! = 0
     
     public var serviceToggle: UInt8 = 0
@@ -287,6 +293,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                 let requestSpeed = Double(uspeed) / 100.0
                 
                 self.RequestedSpeed = requestSpeed
+                self.lastRequestedSpeed = UInt64(Date().timeIntervalSince1970)
                 
                 SwiftDebug.qtDebug("virtualtreadmill_zwift: new requested speed \(requestSpeed)")
           }

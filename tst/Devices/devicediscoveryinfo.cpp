@@ -29,6 +29,7 @@ void InitializeTrackedSettings()
     trackedSettings.insert(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name);
     trackedSettings.insert(QZSettings::ftms_bike, QZSettings::default_ftms_bike);
     trackedSettings.insert(QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill);
+    trackedSettings.insert(QZSettings::gymstick_gx6_0_elliptical, QZSettings::default_gymstick_gx6_0_elliptical);
     trackedSettings.insert(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s);
     trackedSettings.insert(QZSettings::horizon_treadmill_force_ftms, QZSettings::default_horizon_treadmill_force_ftms);
     trackedSettings.insert(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical);
@@ -52,6 +53,7 @@ void InitializeTrackedSettings()
     trackedSettings.insert(QZSettings::toorx_bike, QZSettings::default_toorx_bike);
     trackedSettings.insert(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms);
     trackedSettings.insert(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill);
+    trackedSettings.insert(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe);
 };
 
 static void AssertKeyIsTracked(const QString& key) {

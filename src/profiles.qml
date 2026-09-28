@@ -14,6 +14,15 @@ ColumnLayout {
 
     signal profile_open_clicked(url name)
 
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "profile") {
+                profile_open_clicked(localUrl)
+            }
+        }
+    }
+
     Settings {
         id: settings
         property string profile_name: "default"
@@ -24,7 +33,7 @@ ColumnLayout {
         active: false
         sourceComponent: Component {
             FileDialogClass.FileDialog {
-                title: "Please choose a file"
+                title: qsTr("Please choose a file")
                 folder: shortcuts.home
                 visible: true
                 onAccepted: {
@@ -46,9 +55,9 @@ ColumnLayout {
 
     MessageDialog {
         id: quitDialog
-        title: "Profile loaded"
-        text: "Would you like to quit?"
-        informativeText: "You must quit and restart for changes to take effect."
+        title: qsTr("Profile loaded")
+        text: qsTr("Would you like to quit?")
+        informativeText: qsTr("You must quit and restart for changes to take effect.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             restart()
@@ -61,8 +70,8 @@ ColumnLayout {
     MessageDialog {
         id: deleteDialog
         property string fileUrl
-        title: "Delete profile"
-        text: "Would you like to delete this profile?"
+        title: qsTr("Delete profile")
+        text: qsTr("Would you like to delete this profile?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             deleteSettings(fileUrl)
@@ -74,8 +83,8 @@ ColumnLayout {
 
     MessageDialog {
         id: saveDialog
-        title: "Profile Saved"
-        text: "Profile saved correctly!"
+        title: qsTr("Profile Saved")
+        text: qsTr("Profile saved correctly!")
         buttons: (MessageDialog.Ok)
         onOkClicked: {
             stackView.pop();
@@ -84,8 +93,8 @@ ColumnLayout {
 
     MessageDialog {
         id: restoreSettingsDialog
-        title: "New Profile"
-        text: "New Profile Created with default values. Save it with a name and restart the app to apply them."
+        title: qsTr("New Profile")
+        text: qsTr("New Profile Created with default values. Save it with a name and restart the app to apply them.")
         buttons: (MessageDialog.Ok)
         onOkClicked: {
             restoreSettingsDialog.visible = false
@@ -94,12 +103,12 @@ ColumnLayout {
 
     MessageDialog {
         id: newProfileDialog
-        title: "Save Current Profile?"
-        text: "You're creating a new profile with the default values, would you like to save the current one before?"
+        title: qsTr("Save Current Profile?")
+        text: qsTr("You're creating a new profile with the default values, would you like to save the current one before?")
         buttons: (MessageDialog.Yes | MessageDialog.No | MessageDialog.Abort)
         onYesClicked: {
-            if(profileNameTextField.text.length == 0)
-                profileNameTextField.text = "OldProfile"
+                if(profileNameTextField.text.length == 0)
+                    profileNameTextField.text = qsTr("OldProfile")
 
             saveProfile(profileNameTextField.text);
             restoreSettings()
@@ -267,8 +276,11 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            // Create a fresh FileDialog instance
-            fileDialogLoader.active = true
+            if (Qt.platform.os === "android") {
+                rootItem.openAndroidDocumentPicker("profile")
+            } else {
+                fileDialogLoader.active = true
+            }
         }
         anchors {
             bottom: parent.bottom

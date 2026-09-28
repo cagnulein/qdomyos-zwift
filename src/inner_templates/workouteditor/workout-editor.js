@@ -197,7 +197,7 @@
                 backgroundColor: fillColor,
                 unit: series.unit || '',
                 yAxisID: series.axis || 'y',
-                stepped: true,
+                stepped: series.stepped !== false,
                 borderWidth: series.lineWidth || 2,
                 fill: Boolean(series.fill),
                 tension: 0,
