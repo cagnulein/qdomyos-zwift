@@ -1,6 +1,17 @@
 #include "qzsettings.h"
 #include <QDebug>
 #include <QSettings>
+
+bool QZSettings::isSensitiveSettingKey(const QString &key) {
+    const QString normalizedKey = key.toLower();
+    return normalizedKey.contains(QStringLiteral("password")) ||
+           normalizedKey.contains(QStringLiteral("user_email")) ||
+           normalizedKey.contains(QStringLiteral("username")) ||
+           normalizedKey.contains(QStringLiteral("token")) ||
+           normalizedKey.contains(QStringLiteral("garmin_device_serial")) ||
+           normalizedKey.contains(QStringLiteral("garmin_email"));
+}
+
 const QString QZSettings::cryptoKeySettingsProfiles = QStringLiteral("cryptoKeySettingsProfiles");
 const QString QZSettings::bluetooth_no_reconnection = QStringLiteral("bluetooth_no_reconnection");
 const QString QZSettings::bike_wheel_revs = QStringLiteral("bike_wheel_revs");

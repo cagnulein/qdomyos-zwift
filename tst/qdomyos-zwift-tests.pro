@@ -24,6 +24,7 @@ SOURCES += \
         TrainingProgram/trainprogramtestsuite.cpp \
         ToolTests/qfittestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
+        ToolTests/testsettingssecuritytestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
         ToolTests/zwiftworkouttestsuite.cpp \
         Tools/testsettings.cpp \

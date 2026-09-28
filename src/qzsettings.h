@@ -9,6 +9,8 @@ class QZSettings {
     QZSettings() {}
 
   public:
+    static bool isSensitiveSettingKey(const QString &key);
+
     //--------------------------------------------------------------------------------------------
     // These are not in settings.qml
     //--------------------------------------------------------------------------------------------
