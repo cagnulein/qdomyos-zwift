@@ -22,23 +22,41 @@ ColumnLayout {
       }
     }
 
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "profile") {
+                profile_open_clicked(localUrl)
+            }
+        }
+    }
+
     Settings {
         id: settings
         property string profile_name: "default"
     }
 
-    FileDialog {
-        id: fileDialogTrainProgram
-        title: qsTr("Please choose a file")
-        currentFolder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
-        onAccepted: {
-            console.log("You chose: " + fileDialogTrainProgram.selectedFile)
-            profile_open_clicked(fileDialogTrainProgram.selectedFile)
-            fileDialogTrainProgram.close()
-        }
-        onRejected: {
-            console.log("Canceled")
-            fileDialogTrainProgram.close()
+    Loader {
+        id: fileDialogLoader
+        active: false
+        sourceComponent: Component {
+            FileDialog {
+                id: fileDialogTrainProgram
+                title: qsTr("Please choose a file")
+                currentFolder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
+                visible: true
+                onAccepted: {
+                    console.log("You chose: " + fileDialogTrainProgram.selectedFile)
+                    profile_open_clicked(fileDialogTrainProgram.selectedFile)
+                    close()
+                    fileDialogLoader.active = false
+                }
+                onRejected: {
+                    console.log("Canceled")
+                    close()
+                    fileDialogLoader.active = false
+                }
+            }
         }
     }
 
@@ -324,8 +342,11 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'training')
-            // Create a fresh FileDialog instance
-            fileDialogLoader.active = true
+            if (Qt.platform.os === "android") {
+                rootItem.openAndroidDocumentPicker("profile")
+            } else {
+                fileDialogLoader.active = true
+            }
         }
         anchors {
             bottom: parent.bottom

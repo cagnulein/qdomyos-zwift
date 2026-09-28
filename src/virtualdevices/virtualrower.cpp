@@ -322,6 +322,15 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QByteArray reply;
     QSettings settings;
+    if (characteristic.uuid().toUInt16() == 0x2AD9 && !newValue.isEmpty() &&
+        newValue.at(0) == FTMS_SET_TARGET_POWER) {
+        settings.setValue(QZSettings::zwift_erg, true);
+    } else if (characteristic.uuid().toUInt16() == 0x2AD9 && !newValue.isEmpty() &&
+               (newValue.at(0) == FTMS_SET_TARGET_INCLINATION ||
+                newValue.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL ||
+                newValue.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS)) {
+        settings.setValue(QZSettings::zwift_erg, false);
+    }
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
                     QStringLiteral(" ") + newValue.toHex(' ');
@@ -475,10 +484,15 @@ void virtualrower::rowerProvider() {
     uint32_t strokeCount = 0;
     if (Rower->deviceType() == ROWING) {
         strokeCount = ((rower *)Rower)->currentStrokesCount().value();
-    } else {
-        // For bikes/other devices, estimate strokes from cadence
-        strokeCount = (uint32_t)(Rower->currentCadence().value() * 2 * Rower->movingTime().hour() * 3600 +
-                                 Rower->movingTime().minute() * 60 + Rower->movingTime().second());
+    }
+    // If the device doesn't expose stroke count, estimate from cadence × elapsed time.
+    // MyWhoosh drives avatar arm animation from an incrementing stroke count, not stroke rate,
+    // so a perpetual zero keeps the avatar frozen even when stroke rate is non-zero.
+    if (strokeCount == 0 && Rower->currentCadence().value() > 0) {
+        double totalSeconds = Rower->movingTime().hour() * 3600.0 +
+                              Rower->movingTime().minute() * 60.0 +
+                              Rower->movingTime().second();
+        strokeCount = (uint32_t)(Rower->currentCadence().value() * totalSeconds / 60.0);
     }
 
     // Get pace based on device type

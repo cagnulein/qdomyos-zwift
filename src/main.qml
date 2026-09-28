@@ -206,7 +206,8 @@ ApplicationWindow {
         property string shortcut_preset_powerzone_7: ""
         property string shortcut_auto_resistance: ""
         property string shortcut_lap: ""
-        property string shortcut_start_stop: ""        
+        property string shortcut_start_stop: ""
+        property string shortcut_stop: ""
     }
 
 
@@ -255,12 +256,69 @@ ApplicationWindow {
         id: toast
     }
 
+    property bool lapPromptVisible: false
+    property string lapPromptText: ""
+
+    function isLapPromptMessage(message) {
+        var lowerMessage = message.toLowerCase()
+        return (lowerMessage.indexOf("press") >= 0 && lowerMessage.indexOf("lap") >= 0) ||
+               (lowerMessage.indexOf("lap") >= 0 && lowerMessage.indexOf("continue") >= 0 &&
+                lowerMessage.indexOf("received") < 0)
+    }
+
+    Rectangle {
+        id: lapPromptOverlay
+        z: Infinity
+        visible: window.lapPromptVisible
+        anchors.centerIn: parent
+        width: Math.min(parent.width - 32, 520)
+        height: Math.max(96, lapPromptLabel.implicitHeight + 44)
+        radius: 8
+        color: "#9C27B0"
+        border.color: "white"
+        border.width: 3
+        opacity: visible ? 1 : 0
+
+        Label {
+            id: lapPromptLabel
+            anchors.fill: parent
+            anchors.margins: 16
+            text: window.lapPromptText
+            color: "white"
+            font.bold: true
+            font.pixelSize: 26
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            wrapMode: Text.WordWrap
+        }
+
+        SequentialAnimation on scale {
+            running: lapPromptOverlay.visible
+            loops: Animation.Infinite
+            NumberAnimation { from: 1.0; to: 1.05; duration: 450; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 1.05; to: 1.0; duration: 450; easing.type: Easing.InOutQuad }
+        }
+    }
+
+    Timer {
+        id: lapPromptAutoClose
+        interval: 15000
+        repeat: false
+        onTriggered: window.lapPromptVisible = false
+    }
+
     Timer {
         interval: 1
         repeat: false
         running: (rootItem.toastRequested !== "")
         onTriggered: {
-            toast.show(rootItem.toastRequested);
+            if (window.isLapPromptMessage(rootItem.toastRequested)) {
+                window.lapPromptText = rootItem.toastRequested;
+                window.lapPromptVisible = true;
+                lapPromptAutoClose.restart();
+            } else {
+                toast.show(rootItem.toastRequested);
+            }
             rootItem.toastRequested = "";
         }
     }
@@ -727,6 +785,49 @@ ApplicationWindow {
     }
 
     MessageDialog {
+        text: "Garmin FTP Update"
+        informativeText: rootItem.garminFtpPromptMessage
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: { rootItem.garmin_accept_ftp_update(); }
+        onNoClicked: { rootItem.garmin_dismiss_ftp_update(); }
+        visible: rootItem.garminFtpPromptRequested
+    }
+
+    MessageDialog {
+        text: "Clipboard Workout"
+        informativeText: "Workout found in clipboard:\n" + rootItem.clipboardWorkoutPromptName +
+                         "\n\nDo you want to open the workout preview?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            var workoutUrl = rootItem.clipboard_workout_url()
+            rootItem.clipboard_accept_workout_prompt()
+            var page = CHARTJS
+                    ? stackView.push("TrainingProgramsListJS.qml", { initialWorkoutUrl: workoutUrl })
+                    : stackView.push("TrainingProgramsList.qml", { initialWorkoutUrl: workoutUrl })
+            page.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+            page.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
+            page.trainprogram_preview.connect(trainprogram_preview)
+            if (page.trainprogram_autostart_requested) {
+                page.trainprogram_autostart_requested.connect(trainprogram_autostart_requested)
+            }
+            page.trainprogram_open_clicked.connect(function(url) {
+                stackView.pop();
+            });
+        }
+        onNoClicked: { rootItem.clipboard_dismiss_workout_prompt(); }
+        visible: rootItem.clipboardWorkoutPromptRequested
+    }
+
+    MessageDialog {
+        text: "Clipboard Workout"
+        informativeText: "The clipboard workout has ended.\n\nDo you want to delete the file?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: rootItem.clipboard_delete_finished_workout()
+        onNoClicked: rootItem.clipboard_keep_finished_workout()
+        visible: rootItem.clipboardWorkoutDeletePromptRequested
+    }
+
+    MessageDialog {
         text: "Echelon Unlock"
         informativeText: "The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?"
         buttons: (MessageDialog.Yes | MessageDialog.No)
@@ -1102,7 +1203,15 @@ ApplicationWindow {
                         toolButtonSaveSettings.visible = true;                        
                         stackView.push("settings.qml")
                         stackView.currentItem.peloton_connect_clicked.connect(function() {
-                            peloton_connect_clicked()
+                            if (rootItem.isPelotonLoggedIn()) {
+                                pelotonLogoutConfirm.visible = true
+                            } else {
+                                stackView.push("WebPelotonAuth.qml")
+                                stackView.currentItem.goBack.connect(function() {
+                                    stackView.pop();
+                                })
+                                peloton_connect_clicked()
+                            }
                          });
                          drawer.close()
                     }
@@ -1269,7 +1378,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.21.2"
+                    text: "version 2.22.0"
                     width: parent.width
                 }
 
@@ -1342,7 +1451,15 @@ ApplicationWindow {
                             }
                             if (stackView.currentItem.peloton_connect_clicked) {
                                 stackView.currentItem.peloton_connect_clicked.connect(function() {
-                                    peloton_connect_clicked()
+                                    if (rootItem.isPelotonLoggedIn()) {
+                                        pelotonLogoutConfirm.visible = true
+                                    } else {
+                                        stackView.push("WebPelotonAuth.qml")
+                                        stackView.currentItem.goBack.connect(function() {
+                                            stackView.pop();
+                                        })
+                                        peloton_connect_clicked()
+                                    }
                                 });
                             }
                         }
@@ -1482,6 +1599,7 @@ ApplicationWindow {
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_auto_resistance; enabled: shortcutReady(sequence); onActivated: rootItem.setAutoResistance(!rootItem.autoResistance) }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_lap; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardLap() }
             Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_start_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStartStop() }
+            Shortcut { context: Qt.WindowShortcut; sequence: settings.shortcut_stop; enabled: shortcutReady(sequence); onActivated: rootItem.keyboardStop() }
         }
     }
 }

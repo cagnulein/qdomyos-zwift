@@ -44,15 +44,18 @@ Page {
         }
     }
 
-    function hasAnyUploadServiceConfigured() {
-        return rootItem &&
-               (rootItem.isStravaLoggedIn() ||
-                rootItem.isGarminUploadConfigured() ||
-                rootItem.isIntervalsICUUploadConfigured())
+    function hasAnyUploadServiceConfigured(workoutId) {
+        return (rootItem &&
+                (rootItem.isStravaLoggedIn() ||
+                 rootItem.isGarminUploadConfigured() ||
+                 rootItem.isIntervalsICUUploadConfigured())) ||
+               (Qt.platform.os === "ios" &&
+                workoutModel &&
+                workoutModel.canWriteAppleHealth(workoutId))
     }
 
     function openUploadMenu(delegateItem, workoutId, workoutTitle) {
-        if (!workoutModel || !hasAnyUploadServiceConfigured()) {
+        if (!workoutModel || !hasAnyUploadServiceConfigured(workoutId)) {
             return
         }
 
@@ -480,6 +483,14 @@ Page {
             text: "Upload to Intervals.icu"
             visible: rootItem && rootItem.isIntervalsICUUploadConfigured()
             onTriggered: rootItem.uploadHistoricalWorkoutToIntervalsICU(uploadMenu.filePath)
+        }
+
+        MenuItem {
+            text: "Upload to Apple Health"
+            visible: Qt.platform.os === "ios" &&
+                     workoutModel &&
+                     workoutModel.canWriteAppleHealth(uploadMenu.workoutId)
+            onTriggered: workoutModel.uploadWorkoutToAppleHealth(uploadMenu.workoutId)
         }
     }
 

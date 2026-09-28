@@ -7,6 +7,7 @@
   <script src="jquery-3.6.0.min.js"></script>
   <script src="globals.js"></script>
   <script src="main_ws_manager.js"></script>
+  <script src="../i18n/i18n.js"></script>
   <style>
     td {
       text-align: center;
@@ -67,16 +68,16 @@
 <body class="transparency" style="background-color: #000000; opacity: 0.8">
   <div class="overlay" id="overlay" hidden>
     <div class="confirm-box">
-      <h2 style="color: #FFFFFF; font-family: sans-serif">Peloton Workout in progress!</h2>
-      <p style="color: #FFFFFF; font-family: sans-serif">Do you want to follow the resistance?</p>
-      <button onclick="isConfirm(true)">Yes</button>
-      <button onclick="isConfirm(false)">No</button>
+      <h2 style="color: #FFFFFF; font-family: sans-serif" data-i18n="floating.pelotonWorkoutProgress">Peloton Workout in progress!</h2>
+      <p style="color: #FFFFFF; font-family: sans-serif" data-i18n="floating.followResistanceQuestion">Do you want to follow the resistance?</p>
+      <button onclick="isConfirm(true)" data-i18n="common.yes">Yes</button>
+      <button onclick="isConfirm(false)" data-i18n="common.no">No</button>
     </div>
   </div>
   <table id="maintable" class="metrics customfont" style="color: #FFFFFF; font-family: sans-serif; border: 0">
     <tr class="speed" sort-order="0">
       <td class="icon">🏃</td>
-      <td style="text-align: left">SPEED</td>
+      <td style="text-align: left" data-i18n="metric.speed">SPEED</td>
       <td class="speed-avg-title"><small class="non-treadmill">AVG</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
           onclick="SpeedMinus()">-</button></td>
       <td class="speed-avg"><span class="speed-avg-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">AVG</small></span></td>
@@ -87,7 +88,7 @@
     </tr>
     <tr class="inclination" sort-order="1">
       <td class="icon">📐</td>
-      <td style="text-align: left">INCLINE</td>
+      <td style="text-align: left" data-i18n="metric.incline">INCLINE</td>
       <td class="inclination-avg-title"><small class="non-treadmill">AVG</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
           onclick="InclinationMinus()">-</button></td>
       <td class="inclination-avg"><span class="inclination-avg-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">AVG</small></span></td>
@@ -98,7 +99,7 @@
     </tr>
     <tr class="pace" sort-order="2">
       <td class="icon">🏃</td>
-      <td style="text-align: left">PACE</td>
+      <td style="text-align: left" data-i18n="metric.pace">PACE</td>
       <td class="pace-avg-title"><small>AVG</small></td>
       <td class="pace-avg">00:00</td>
       <td class="pace-value values"><b>00:00</b></td>
@@ -107,12 +108,12 @@
     </tr>
     <tr class="elevation" sort-order="3">
       <td class="icon">🚵</td>
-      <td style="text-align: left">ELEV.</td>
+      <td style="text-align: left" data-i18n="metric.elevationShort">ELEV.</td>
       <td class="elevation-value values" colspan="5"><b>0.0</b></td>
     </tr>
     <tr class="cadence" sort-order="4">
       <td class="icon">🚴</td>
-      <td style="text-align: left">CADENCE</td>
+      <td style="text-align: left" data-i18n="metric.cadence">CADENCE</td>
       <td><small>AVG</small></td>
       <td class="cadence-avg">0</td>
       <td class="cadence-value values"><b>0</b></td>
@@ -121,7 +122,7 @@
     </tr>
     <tr class="heart" sort-order="5">
       <td class="icon">💓</td>
-      <td style="text-align: left">PULSE</td>
+      <td style="text-align: left" data-i18n="metric.pulse">PULSE</td>
       <td><small>AVG</small></td>
       <td class="heart-avg">0</td>
       <td class="heart-value values"><b>0</b></td>
@@ -130,7 +131,7 @@
     </tr>
     <tr class="watt" sort-order="6">
       <td class="icon">⚡</td>
-      <td style="text-align: left">POWER</td>
+      <td style="text-align: left" data-i18n="metric.power">POWER</td>
       <td><small>AVG</small></td>
       <td class="watt-avg">0</td>
       <td class="watt-value values"><span class='current-watt'><b>0</b></span><span class='watt-separator'></span><span class='target-watt'></span></td>
@@ -148,7 +149,7 @@
     </tr>
     <tr class="resistance" sort-order="8">
       <td class="icon">🆁</td>
-      <td style="text-align: left">RESISTANCE</td>
+      <td style="text-align: left" data-i18n="metric.resistance">RESISTANCE</td>
       <td class="resistance-avg-title"><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
           onclick="ResistanceMinus()">-</button></td>
       <td class="resistance-avg"><span class="resistance-avg-value">1</span><span><br><small style="font-size: 10px; color: #888;">AVG</small></span></td>
@@ -168,7 +169,7 @@
     </tr>
     <tr class="calories" sort-order="10">
       <td class="icon">🔥</td>
-      <td style="text-align: left">CALORIES</td>
+      <td style="text-align: left" data-i18n="metric.calories">CALORIES</td>
       <td class="calories-value values" colspan="5"><b>0</b></td>
     </tr>
     <tr class="jouls" sort-order="11">
@@ -178,7 +179,7 @@
     </tr>
     <tr class="distance" sort-order="12">
       <td class="icon">📏</td>
-      <td style="text-align: left">DISTANCE</td>
+      <td style="text-align: left" data-i18n="metric.distance">DISTANCE</td>
       <td class="distance-value values" colspan="5"><b>0.00</b></td>
     </tr>
     <tr class="elapsed" sort-order="13">

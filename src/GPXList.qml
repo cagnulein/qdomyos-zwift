@@ -13,18 +13,48 @@ ColumnLayout {
     signal trainprogram_open_clicked(url name)
     signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
-    FileDialog {
-        id: fileDialogTrainProgram
-        currentFolder: StandardPaths ? StandardPaths.standardLocations(StandardPaths.HomeLocation)[0] : ""
-        title: "Please choose a file"
-        onAccepted: {
-            console.log("You chose: " + fileDialogTrainProgram.selectedFile)
-            if(OS_VERSION === "Android") {
-                trainprogram_open_other_folder(fileDialogTrainProgram.selectedFile)
-            } else {
-                trainprogram_open_clicked(fileDialogTrainProgram.selectedFile)
+    property var selectedFileUrl: ""
+
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "gpx") {
+                trainprogram_open_clicked(localUrl)
             }
         }
+    }
+
+    Loader {
+        id: fileDialogLoader
+        active: false
+        sourceComponent: Component {
+            FileDialog {
+                id: fileDialog
+                title: "Please choose a file"
+                currentFolder: StandardPaths ? StandardPaths.standardLocations(StandardPaths.HomeLocation)[0] : ""
+                nameFilters: ["GPX files (*.gpx *.GPX)", "All files (*)"]
+                visible: true
+                onAccepted: {
+                    var chosenFile = fileDialog.selectedFile
+                    console.log("You chose: " + chosenFile)
+                    selectedFileUrl = chosenFile
+                    if(OS_VERSION === "Android") {
+                        trainprogram_open_other_folder(chosenFile)
+                    } else {
+                        trainprogram_open_clicked(chosenFile)
+                    }
+                    close()
+                    // Destroy and recreate the dialog for next use
+                    fileDialogLoader.active = false
+                }
+                onRejected: {
+                    console.log("Canceled")
+                    close()
+                    // Destroy the dialog
+                    fileDialogLoader.active = false
+            }
+        }
+    }
     }
 
     RowLayout{
@@ -56,7 +86,7 @@ ColumnLayout {
                            filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
                         filter+="*"
                         print(filter)
-                        folderModel.nameFilters = [filter + ".gpx"]
+                        folderModel.nameFilters = [filter + ".gpx", filter + ".GPX"]
                     }
                     id: filterField
                     onTextChanged: updateFilter()
@@ -81,7 +111,7 @@ ColumnLayout {
                 id: list
                 FolderListModel {
                     id: folderModel
-                    nameFilters: ["*.gpx"]
+                    nameFilters: ["*.gpx", "*.GPX"]
                     folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
                     showDotAndDotDot: false
                     showDirs: true
@@ -272,8 +302,11 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'gpx')
-            // Create a fresh FileDialog instance
-            fileDialogLoader.active = true
+            if (Qt.platform.os === "android") {
+                rootItem.openAndroidDocumentPicker("gpx")
+            } else {
+                fileDialogLoader.active = true
+            }
         }
         anchors {
             bottom: parent.bottom

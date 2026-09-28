@@ -138,10 +138,11 @@ bool WorkoutModel::deleteWorkout(int workoutId) {
         return false;
     }
 
-    // Optionally, you could also delete the FIT file here if desired
-    // if (!filePath.isEmpty()) {
-    //     QFile::remove(filePath);
-    // }
+    // Delete the underlying FIT file too, otherwise FitDatabaseProcessor::processDirectory()
+    // will find it unindexed on the next app start and re-insert it into the workouts table.
+    if (!filePath.isEmpty()) {
+        QFile::remove(filePath);
+    }
 
     // Refresh the model
     refresh();

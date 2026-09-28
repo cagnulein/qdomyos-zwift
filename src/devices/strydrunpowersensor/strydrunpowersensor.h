@@ -78,6 +78,14 @@ class strydrunpowersensor : public treadmill {
 
     bool FORERUNNER = false;
 
+    QLowEnergyService *strydIndoorModeService = nullptr;
+    QLowEnergyCharacteristic strydIndoorModeChar;
+    bool strydIndoorModeRequested = false;
+    bool strydIndoorModeConfirmed = false;
+    uint8_t strydIndoorModeRetries = 0;
+    QDateTime strydIndoorModeRequestedAt;
+    void requestStrydIndoorMode();
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

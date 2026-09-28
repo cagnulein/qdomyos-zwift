@@ -6,6 +6,9 @@ Zwift bridge for Treadmills and Bike!
 [<img src="docs/img/google_play.png">](https://play.google.com/store/apps/details?id=org.cagnulen.qdomyoszwift&fbclid=IwAR3CVoYb0scvGf7gb0Y20VFh5Na5fDWwe7VACk-2c45Tm0x5s8sXpIGhGyw)
 [<img src="docs/img/app_store.png">](https://apps.apple.com/app/id1543684531?fbclid=IwAR10H6y3mEgwkTlGJON3e8voYOh2wt3kLFOpFzoIXaYZ_N0y0pDvKxHMUaM)
 <a href="https://www.buymeacoffee.com/cagnulein" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+<a href="https://hosted.weblate.org/engage/qdomyos-zwift/" target="_blank"><img src="https://hosted.weblate.org/widget/qdomyos-zwift/svg-badge.svg" alt="Translation status" /></a>
+
+**Need help? Check the [QZ FAQ and troubleshooting guides](docs/faq/README.md).**
 
 <table>
 <tr>
@@ -101,6 +104,16 @@ Zwift bridge for Treadmills and Bike!
 |OpenSoundControl integration|X|X|X|X||
 
 
+### Documentation and FAQ
+
+Need help configuring QZ, connecting your equipment, or troubleshooting a problem?
+
+- [QZ Frequently Asked Questions](docs/faq/README.md)
+- [Supported devices and applications](docs/20_supported_devices_and_applications.md)
+- [Installation guide](docs/10_Installation.md)
+
+The FAQ includes practical setup guides, common troubleshooting solutions, device-specific instructions, and integration guides for Zwift, Garmin, NordicTrack / ProForm iFIT, Rouvy, and more.
+
 ### Installation 
 
   You can install it on multiple platforms.
@@ -125,6 +138,12 @@ run as
   => Treadmill Incline Reference: [What Is 10 Degrees in Incline on a Treadmill?](https://www.livestrong.com/article/422012-what-is-10-degrees-in-incline-on-a-treadmill/)
 
   => Icon Attribution: Icons used in this documentation are from [Flaticon.com](https://www.flaticon.com)
+
+### Translations
+
+  Translations are managed with [Weblate](https://weblate.org). If you'd like to help translate QZ into your language, visit the project on Weblate:
+
+  [![Translation status](https://hosted.weblate.org/widget/qdomyos-zwift/multi-auto.svg)](https://hosted.weblate.org/engage/qdomyos-zwift/)
 
 ### Blog
 

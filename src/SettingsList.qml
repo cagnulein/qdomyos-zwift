@@ -7,20 +7,39 @@ import QtQuick.Dialogs
 
 ColumnLayout {
     signal loadSettings(url name)
-    FileDialog {
-        id: fileDialogSettings
-        title: "Please choose a file"
-        // Changed from folder to currentFolder for Qt6 compatibility
-        currentFolder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
-        onAccepted: {
-            console.log("You chose: " + fileDialogSettings.selectedFile)
-            // Changed from fileUrl to selectedFile for Qt6 compatibility
-            loadSettings(fileDialogSettings.selectedFile)
-            fileDialogSettings.close()
+
+    Connections {
+        target: rootItem
+        function onAndroidDocumentPicked(kind, localUrl) {
+            if (kind === "settings") {
+                loadSettings(localUrl)
+            }
         }
-        onRejected: {
-            console.log("Canceled")
-            fileDialogSettings.close()
+    }
+
+    Loader {
+        id: fileDialogLoader
+        active: false
+        sourceComponent: Component {
+            FileDialog {
+                id: fileDialogSettings
+                title: "Please choose a file"
+                currentFolder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
+                visible: true
+                onAccepted: {
+                    console.log("You chose: " + fileDialogSettings.selectedFile)
+                    loadSettings(fileDialogSettings.selectedFile)
+                    close()
+                    // Destroy and recreate the dialog for next use
+                    fileDialogLoader.active = false
+                }
+                onRejected: {
+                    console.log("Canceled")
+                    close()
+                    // Destroy the dialog
+                    fileDialogLoader.active = false
+                }
+            }
         }
     }
 
@@ -108,8 +127,11 @@ ColumnLayout {
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'settings')
-            // Create a fresh FileDialog instance
-            fileDialogLoader.active = true
+            if (Qt.platform.os === "android") {
+                rootItem.openAndroidDocumentPicker("settings")
+            } else {
+                fileDialogLoader.active = true
+            }
         }
         anchors {
             bottom: parent.bottom

@@ -6,23 +6,21 @@
 
 #include "devices/apexbike/apexbike.h"
 
-TEST(ApexBikeWlt8266BmRegressionTest, DistanceCounterMetricsAreScopedToBluetoothNamePrefix) {
-    EXPECT_TRUE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("WLT8266BM_025B")));
-    EXPECT_TRUE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("wlt8266bm_025b")));
-    EXPECT_TRUE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("WLT8266BM_0000")));
-
-    EXPECT_FALSE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("WLT8266BM")));
-    EXPECT_FALSE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("WLT8266BM025B")));
+TEST(ApexBikeWlt8266BmRegressionTest, DistanceCounterMetricsAreDisabledForWlt8266BmBikes) {
+    EXPECT_FALSE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("WLT8266BM_025B")));
+    EXPECT_FALSE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("WLT8266BM_07E2")));
+    EXPECT_FALSE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("WLT8266BM_1234")));
+    EXPECT_FALSE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("wlt8266bm_07e2")));
     EXPECT_FALSE(apexbike::usesWlt8266bmDistanceCounterMetrics(QStringLiteral("APEX Bike")));
 }
 
-TEST(ApexBikeWlt8266BmRegressionTest, MatchingDevicesUseZeroX30PacketsForDistanceCounterMetrics) {
+TEST(ApexBikeWlt8266BmRegressionTest, Wlt8266BmPacketsDoNotUseZeroX30DistanceCounterMetrics) {
     const QByteArray movementPacket = QByteArray::fromHex("ea503000020000000082");
     const QByteArray resistancePacket = QByteArray::fromHex("ea503100001a0000009b");
 
-    EXPECT_TRUE(apexbike::isWlt8266bmDistanceCounterMetricsPacket(
+    EXPECT_FALSE(apexbike::isWlt8266bmDistanceCounterMetricsPacket(
         QStringLiteral("WLT8266BM_025B"), movementPacket));
-    EXPECT_TRUE(apexbike::isWlt8266bmDistanceCounterMetricsPacket(
+    EXPECT_FALSE(apexbike::isWlt8266bmDistanceCounterMetricsPacket(
         QStringLiteral("WLT8266BM_0000"), movementPacket));
     EXPECT_FALSE(apexbike::isWlt8266bmDistanceCounterMetricsPacket(
         QStringLiteral("WLT8266BM_025B"), resistancePacket));
