@@ -595,10 +595,22 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
     } else if (bike_type == TYPE::DKN_MOTION_2) {
+        const QByteArray vescapeB7 = QByteArray::fromHex("f0b7");
         const QByteArray vescapeB0 = QByteArray::fromHex("f0b0");
         const QByteArray vescapeA4Payload = QByteArray::fromHex("01010101010101010101");
         const auto responseByte = [](char value) {
             return static_cast<uint8_t>(static_cast<unsigned char>(value));
+        };
+        const auto validVescapeResponse = [&responseByte](const QByteArray &packet, const QByteArray &prefix,
+                                                           int expectedSize) {
+            if (packet.size() != expectedSize || !packet.startsWith(prefix)) {
+                return false;
+            }
+            uint8_t checksum = 0;
+            for (int index = 0; index < packet.size() - 1; ++index) {
+                checksum += responseByte(packet.at(index));
+            }
+            return checksum == responseByte(packet.at(packet.size() - 1));
         };
         const auto buildVescapeFrame = [](uint8_t opcode, uint8_t identifier1, uint8_t identifier2,
                                           const QByteArray &payload) {
@@ -618,14 +630,26 @@ void trxappgateusbbike::btinit(bool startTape) {
 
         lastResponsePacket.clear();
         const uint8_t handshake[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
-        writeCharacteristic((uint8_t *)handshake, sizeof(handshake), QStringLiteral("Vescape handshake"), false, true,
-                            vescapeB0);
-        if (lastResponsePacket.size() < 4 || !lastResponsePacket.startsWith(vescapeB0)) {
-            emit debug(QStringLiteral("Vescape handshake response invalid"));
+        writeCharacteristic((uint8_t *)handshake, sizeof(handshake), QStringLiteral("Vescape B7 handshake"), false, true,
+                            vescapeB7);
+        if (!validVescapeResponse(lastResponsePacket, vescapeB7, 6)) {
+            emit debug(QStringLiteral("Vescape B7 handshake response invalid"));
             return;
         }
-        vescapeIdentifier1 = responseByte(lastResponsePacket.at(2)) - 1;
-        vescapeIdentifier2 = responseByte(lastResponsePacket.at(3)) - 1;
+        vescapeIdentifier1 = responseByte(lastResponsePacket.at(2));
+        vescapeIdentifier2 = responseByte(lastResponsePacket.at(3));
+
+        QByteArray vescapeContinuation = buildVescapeFrame(0xa0, vescapeIdentifier1, vescapeIdentifier2,
+                                                           QByteArray());
+        lastResponsePacket.clear();
+        writeCharacteristic(reinterpret_cast<uint8_t *>(vescapeContinuation.data()), vescapeContinuation.size(),
+                            QStringLiteral("Vescape B0 handshake"), false, true, vescapeB0);
+        if (!validVescapeResponse(lastResponsePacket, vescapeB0, 5)) {
+            emit debug(QStringLiteral("Vescape B0 handshake response invalid"));
+            return;
+        }
+        vescapeIdentifier1 = responseByte(lastResponsePacket.at(2));
+        vescapeIdentifier2 = responseByte(lastResponsePacket.at(3));
         QByteArray vescapeA3 = buildVescapeFrame(0xa3, vescapeIdentifier1, vescapeIdentifier2,
                                                  QByteArray::fromHex("01"));
         QByteArray vescapeA4 = buildVescapeFrame(0xa4, vescapeIdentifier1, vescapeIdentifier2,
