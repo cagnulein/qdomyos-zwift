@@ -14,7 +14,6 @@
  * Parameters: jCtxObj is Context object
  */
 jobject getWifiManagerObj(JNIEnv *env, jobject jCtxObj) {
-    qDebug() << "gotWifiMangerObj ";
     // Get the value of Context.WIFI_SERVICE
     // jstring  jstr_wifi_service = env->NewStringUTF("wifi");
     jclass jCtxClz = env->FindClass("android/content/Context");
@@ -41,7 +40,6 @@ jobject getWifiManagerObj(JNIEnv *env, jobject jCtxObj) {
  * Parameters: wifiMgrObj is the WifiManager object
  */
 jobject getWifiInfoObj(JNIEnv *env, jobject wifiMgrObj) {
-    qDebug() << "getWifiInfoObj ";
     if (wifiMgrObj == NULL) {
         return NULL;
     }
@@ -83,13 +81,14 @@ char *getMacAddress(JNIEnv *env, jobject wifiInfoObj) {
  * Parameters: wifiInfoObj, WifiInfo object
  */
 int getIpAddress(JNIEnv *env, jobject wifiInfoObj) {
-    qDebug() << "getIpAddress.... ";
     if (wifiInfoObj == NULL) {
         return NULL;
     }
     jclass jclz = env->GetObjectClass(wifiInfoObj);
     jmethodID mid = env->GetMethodID(jclz, "getIpAddress", "()I");
-    return env->CallIntMethod(wifiInfoObj, mid);
+    const int ip = env->CallIntMethod(wifiInfoObj, mid);
+    env->DeleteLocalRef(jclz);
+    return ip;
 }
 #endif
 
@@ -167,7 +166,6 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
                         QHostAddress address = newEntry.ip();
                         if (address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback() &&
                             !address.isLinkLocal()) {
-                            qDebug() << "getIP" << address;
                             return address;
                         }
                     }
@@ -175,21 +173,37 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
             }
         }
     }
-#ifdef Q_OS_ANDROID
-    QAndroidJniEnvironment env;
-    jobject wifiManagerObj = getWifiManagerObj(env, QtAndroid::androidContext().object());
-    jobject wifiInfoObj = getWifiInfoObj(env, wifiManagerObj);
-    int ip = getIpAddress(env, wifiInfoObj);
-    QHostAddress qip = QHostAddress(qFromBigEndian<quint32>(ip));
-    qDebug() << "getIP from JNI" << qip;
-    // WifiInfo.getIpAddress() returns 0 on Android 10+ and on non-wifi connections
-    if (!qip.isNull() && qip != QHostAddress(QHostAddress::AnyIPv4))
-        return qip;
-#endif
     // No peer address to match against (this is how provider.cpp announces the
     // mDNS A record), so fall back to enumerating our own interfaces. Without
     // this the A record is published empty and the service is unreachable.
     const QHostAddress fallback = bestLocalIPv4();
-    qDebug() << "getIP fallback" << fallback;
-    return fallback;
+    if (!fallback.isNull()) {
+        return fallback;
+    }
+
+#ifdef Q_OS_ANDROID
+    // Keep the JNI path as a last resort. QNetworkInterface is the normal path
+    // on current Android releases and avoids a high-frequency Wi-Fi framework
+    // call from the mDNS responder.
+    QAndroidJniEnvironment env;
+    jobject wifiManagerObj = getWifiManagerObj(env, QtAndroid::androidContext().object());
+    jobject wifiInfoObj = getWifiInfoObj(env, wifiManagerObj);
+    const int ip = getIpAddress(env, wifiInfoObj);
+    const QHostAddress qip = QHostAddress(qFromBigEndian<quint32>(ip));
+
+    if (wifiInfoObj != nullptr) {
+        env->DeleteLocalRef(wifiInfoObj);
+    }
+    if (wifiManagerObj != nullptr) {
+        env->DeleteLocalRef(wifiManagerObj);
+    }
+
+    // WifiInfo.getIpAddress() returns 0 on Android 10+ and on non-wifi
+    // connections.
+    if (!qip.isNull() && qip != QHostAddress(QHostAddress::AnyIPv4)) {
+        return qip;
+    }
+#endif
+
+    return QHostAddress();
 }
