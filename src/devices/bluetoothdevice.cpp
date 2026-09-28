@@ -12,7 +12,7 @@
 #include "ios/lockscreen.h"
 #endif
 
-bluetoothdevice::bluetoothdevice() {}
+bluetoothdevice::bluetoothdevice() : lastState(STARTED) {}
 
 bluetoothdevice::~bluetoothdevice() {
     if(this->virtualDevice) {
@@ -410,8 +410,9 @@ void bluetoothdevice::update_ios_live_activity() {
         const double currentElevationGain = elevationGain().value();
         qDebug() << "Apple Health workout elevation gain:" << currentElevationGain;
         h.workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), kcal, StepCount.value(),
-                                deviceType(), odometer() * 1000.0, totalCalories().value(), currentElevationGain, useMiles,
-                                workoutHeartRate, liveActivityHeartRate, compactLeadingMetricUtf8.constData(),
+                                deviceType(), static_cast<unsigned char>(lastState), odometer() * 1000.0,
+                                totalCalories().value(), currentElevationGain, useMiles, workoutHeartRate,
+                                liveActivityHeartRate, compactLeadingMetricUtf8.constData(),
                                 metricValueForSetting(compactLeadingMetric), compactTrailingMetricUtf8.constData(),
                                 metricValueForSetting(compactTrailingMetric));
         heartRateFromHealthKit = false;

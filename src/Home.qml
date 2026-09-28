@@ -285,22 +285,43 @@ HomeForm {
     }
 
     GridView {
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.fill: parent
         cellWidth: 175 * settings.ui_zoom / 100
         cellHeight: 130 * settings.ui_zoom / 100
         focus: true
         model: appModel
-        leftMargin: { if(OS_VERSION === "Android") (Screen.width % cellWidth) / 2; else (parent.width % cellWidth) / 2; }
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: OS_VERSION === "Android"
+               ? parent.width
+               : Math.max(cellWidth, Math.floor(parent.width / cellWidth) * cellWidth)
+        leftMargin: {
+            if (OS_VERSION === "Android")
+                return (Screen.width % cellWidth) / 2;
+            else if (OS_VERSION === "iOS")
+                return 0;
+            else
+                return (parent.width % cellWidth) / 2;
+        }
         anchors.topMargin: (!window.lockTiles ? rootItem.topBarHeight + 30 : 0)
         interactive: !window.lockTiles
         id: gridView
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
+        function updateGridLayout() {
+            if (OS_VERSION === "iOS")
+                forceLayout();
+        }
+        onWidthChanged: if (OS_VERSION === "iOS") updateGridLayout()
+        onHeightChanged: if (OS_VERSION === "iOS") updateGridLayout()
+        onCellWidthChanged: if (OS_VERSION === "iOS") updateGridLayout()
         Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
-        Screen.onPrimaryOrientationChanged:{
-            if(OS_VERSION === "Android")
+        Screen.onOrientationChanged: if (OS_VERSION === "iOS") updateGridLayout()
+        Screen.onPrimaryOrientationChanged: {
+            if (OS_VERSION === "Android")
                 gridView.leftMargin = (Screen.width % cellWidth) / 2;
+            else if (OS_VERSION === "iOS")
+                updateGridLayout();
             else
                 gridView.leftMargin = (parent.width % cellWidth) / 2;
         }

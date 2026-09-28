@@ -759,8 +759,9 @@ void m3ibike::processAdvertising(const QByteArray &data) {
             const double currentElevationGain = elevationGain().value();
 
             h->workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), calories().value(),
-                                     StepCount.value(), deviceType(), odometer() * 1000.0, totalCalories().value(),
-                                     currentElevationGain, useMiles, workoutHeartRate, liveActivityHeartRate, compactLeadingMetricUtf8.constData(),
+                                     StepCount.value(), deviceType(), static_cast<unsigned char>(lastState),
+                                     odometer() * 1000.0, totalCalories().value(), currentElevationGain, useMiles,
+                                     workoutHeartRate, liveActivityHeartRate, compactLeadingMetricUtf8.constData(),
                                      metricValueForSetting(compactLeadingMetric), compactTrailingMetricUtf8.constData(),
                                      metricValueForSetting(compactTrailingMetric));
             heartRateFromHealthKit = false;

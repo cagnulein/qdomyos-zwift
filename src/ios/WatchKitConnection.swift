@@ -32,6 +32,8 @@ class WatchKitConnection: NSObject {
     static var cadence = 0.0
     static var steps = 0
     static var elevationGain = 0.0
+    static var workoutState = 3
+    static var workoutType = 0
     
     private override init() {
         super.init()
@@ -40,6 +42,19 @@ class WatchKitConnection: NSObject {
     public func heartRate() -> Int
     {
         return WatchKitConnection.currentHeartRate;
+    }
+
+    private static func doubleValue(_ value: Any?) -> Double? {
+        if let value = value as? Double {
+            return value
+        }
+        if let value = value as? NSNumber {
+            return value.doubleValue
+        }
+        if let value = value as? String {
+            return Double(value)
+        }
+        return nil
     }
 
     public func stepCadence() -> Int
@@ -140,19 +155,12 @@ extension WatchKitConnection: WCSessionDelegate {
             SwiftDebug.qtDebug("Watch debug: \(watchDebug)")
         }
         
-        if(message.keys.first?.description == "heartRate") {
-            guard let heartReate = message.values.first as? String else {
-                return
-            }
-            guard let heartReateDouble = Double(heartReate) else {
-                return
-            }
-            WatchKitConnection.currentHeartRate = Int(heartReateDouble)
-        } else if(message.keys.first?.description == "stepCadence") {
-            guard let stepCadence = message.values.first as? String else {
-                return
-            }
-            WatchKitConnection.stepCadence = Int(stepCadence) ?? 0
+        if let heartRate = Self.doubleValue(message["heartRate"]), heartRate > 0, heartRate <= 250 {
+            WatchKitConnection.currentHeartRate = Int(heartRate.rounded())
+        } else if let stepCadence = message["stepCadence"] as? String {
+            WatchKitConnection.stepCadence = Int(stepCadence) ?? WatchKitConnection.stepCadence
+        } else if let watchDebug = message["watchDebug"] as? String {
+            SwiftDebug.qtDebug("Watch debug: \(watchDebug)")
         }
         
         replyValues["distance"] = WatchKitConnection.distance
@@ -163,11 +171,11 @@ extension WatchKitConnection: WCSessionDelegate {
         replyValues["speed"] = WatchKitConnection.speed
         replyValues["steps"] = Double(WatchKitConnection.steps)
         replyValues["elevationGain"] = WatchKitConnection.elevationGain
+        replyValues["workout_state"] = Double(WatchKitConnection.workoutState)
+        replyValues["workout_type"] = Double(WatchKitConnection.workoutType)
 
         SwiftDebug.qtDebug(replyValues.debugDescription)
 
         replyHandler(replyValues)
-                
-        //LocalNotificationHelper.fireHeartRate(heartReateDouble)
     }
 }

@@ -144,6 +144,35 @@ var pedometer = CMPedometer()
         WatchKitConnection.elevationGain = elevationGain;
     }
 
+    @objc public func setWorkoutType(workoutType: Int) -> Void
+    {
+        WatchKitConnection.workoutType = workoutType
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        Server.server?.send(createString(sender: sender))
+    }
+
+    @objc public func setWorkoutState(workoutState: Int) -> Void
+    {
+        WatchKitConnection.workoutState = workoutState
+        if workoutState == 3 {
+            w.resetWorkout()
+        } else if workoutState == 0 || workoutState == 2 {
+            w.startWatchApp(deviceType: WatchKitConnection.workoutType)
+        }
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        Server.server?.send(createString(sender: sender))
+    }
+
     @objc public func setHeartRate(heartRate: Int) -> Void
     {
         if #available(iOS 17.0, *) {
@@ -152,7 +181,7 @@ var pedometer = CMPedometer()
     }
     
     func createString(sender: String) -> String {
-        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#TOTALKCAL=\(WatchKitConnection.totalKcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO=\(WatchKitConnection.distance)#";
+        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#TOTALKCAL=\(WatchKitConnection.totalKcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO=\(WatchKitConnection.distance)#TYP=\(WatchKitConnection.workoutType)#STA=\(WatchKitConnection.workoutState)#";
     }
     
     @objc func updateHeartRate() {

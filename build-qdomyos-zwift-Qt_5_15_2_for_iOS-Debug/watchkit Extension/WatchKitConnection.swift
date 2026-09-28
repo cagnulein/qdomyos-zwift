@@ -30,6 +30,8 @@ class WatchKitConnection: NSObject {
     public static var power = 0.0
     public static var steps = 0
     public static var elevationGain = 0.0
+    public static var workoutState = 3
+    public static var workoutType = 0
     weak var delegate: WatchKitConnectionDelegate?
     
     private override init() {
@@ -83,6 +85,7 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
             print(result)
             if let dDistance = WatchKitConnection.doubleValue(result["distance"]) {
                 WatchKitConnection.distance = dDistance
+                WorkoutTracking.distance = dDistance
             }
             if let dKcal = WatchKitConnection.doubleValue(result["kcal"]) {
                 WatchKitConnection.kcal = dKcal
@@ -98,16 +101,20 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
             }
             if let dSpeed = WatchKitConnection.doubleValue(result["speed"]) {
                 WatchKitConnection.speed = dSpeed
+                WorkoutTracking.speed = dSpeed
             }
             if let dPower = WatchKitConnection.doubleValue(result["power"]) {
                 WatchKitConnection.power = dPower
+                WorkoutTracking.power = dPower
             }
             if let dCadence = WatchKitConnection.doubleValue(result["cadence"]) {
                 WatchKitConnection.cadence = dCadence
+                WorkoutTracking.cadence = dCadence
             }
             if let stepsDouble = WatchKitConnection.doubleValue(result["steps"]) {
                 let iSteps = Int(stepsDouble)
                 WatchKitConnection.steps = iSteps
+                WorkoutTracking.steps = iSteps
             }
             if let elevationGainDouble = WatchKitConnection.doubleValue(result["elevationGain"]) {
                 WatchKitConnection.elevationGain = elevationGainDouble
@@ -117,7 +124,14 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
                 WorkoutTracking.elevationGain = elevationGainDouble
                 print("WatchKitConnection: Received elevation gain: \(elevationGainDouble)m, flights: \(flightsClimbed)")
             }
-            WatchKitConnection.shared.sendDebug("reply parsed local distance=\(WatchKitConnection.distance) kcal=\(WatchKitConnection.kcal) totalKcal=\(WatchKitConnection.totalKcal) speed=\(WatchKitConnection.speed) power=\(WatchKitConnection.power) cadence=\(WatchKitConnection.cadence) steps=\(WatchKitConnection.steps) elevationGain=\(WatchKitConnection.elevationGain)")
+            if let workoutStateDouble = WatchKitConnection.doubleValue(result["workout_state"]) {
+                WatchKitConnection.workoutState = Int(workoutStateDouble)
+            }
+            if let workoutTypeDouble = WatchKitConnection.doubleValue(result["workout_type"]) {
+                WatchKitConnection.workoutType = Int(workoutTypeDouble)
+            }
+            MainController.syncWorkoutState(WatchKitConnection.workoutState, deviceType: WatchKitConnection.workoutType)
+            WatchKitConnection.shared.sendDebug("reply parsed local distance=\(WatchKitConnection.distance) kcal=\(WatchKitConnection.kcal) totalKcal=\(WatchKitConnection.totalKcal) speed=\(WatchKitConnection.speed) power=\(WatchKitConnection.power) cadence=\(WatchKitConnection.cadence) steps=\(WatchKitConnection.steps) elevationGain=\(WatchKitConnection.elevationGain) workoutState=\(WatchKitConnection.workoutState) workoutType=\(WatchKitConnection.workoutType)")
         }, errorHandler: { (error) in
             print(error)
         })
