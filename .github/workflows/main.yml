@@ -1670,6 +1670,9 @@ jobs:
           docker run --rm -v ${{ github.workspace }}/bin64:/app \
             arm64v8/debian:bullseye-20241016 \
             bash -c "
+              # Bullseye is EOL; use the same dated snapshot as the ARM64 build.
+              rm -f /etc/apt/sources.list.d/* /etc/apt/sources.list &&
+              printf '%s\\n' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260608T080000Z/ bullseye main' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20260608T080000Z/ bullseye-security main' > /etc/apt/sources.list &&
               apt-get update && apt-get install -y --no-install-recommends \
                 libqt5core5a libqt5bluetooth5 libqt5charts5 libqt5widgets5 \
                 libqt5network5 libqt5websockets5 libqt5xml5 libqt5sql5 \
