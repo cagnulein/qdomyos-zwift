@@ -203,8 +203,19 @@ void bluetooth::finished() {
         // The bookkeeping below runs once, but scanning has to go on until the equipment shows up:
         // otherwise discovery stopped for good about 20 s after launch, and equipment that was
         // rebooting or still held by the previous app session was never found again.
+        // The pause grows from 3 s to 60 s and scanning gives up after 10 minutes (the device list
+        // refresh starts it again), so an app left open without equipment does not scan for hours.
         if (!device()) {
-            QTimer::singleShot(3000, this, [this]() {
+            const qint64 now = QDateTime::currentMSecsSinceEpoch();
+            if (!rescanStartedMs)
+                rescanStartedMs = now;
+            if (now - rescanStartedMs > 10 * 60 * 1000) {
+                debug(QStringLiteral("BTLE scanning stopped, no device found in 10 minutes"));
+                return;
+            }
+            const int delayMs = qMin(3000 << qMin(rescanCount, 5), 60000);
+            rescanCount++;
+            QTimer::singleShot(delayMs, this, [this]() {
                 if (!device() && discoveryAgent && !discoveryAgent->isActive()) {
                     debug(QStringLiteral("BTLE scanning again, no device found yet"));
                     startDiscovery();
@@ -3909,6 +3920,9 @@ void bluetooth::selectGymModeDevice(const QString &deviceName) {
 void bluetooth::restart() {
 
     QSettings settings;
+
+    rescanCount = 0;
+    rescanStartedMs = 0;
 
     if (onlyDiscover) {
 
