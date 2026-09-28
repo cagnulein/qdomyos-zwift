@@ -1,4 +1,5 @@
 #include "localipaddress.h"
+#include <QDebug>
 #include <QNetworkInterface>
 
 #ifdef Q_OS_ANDROID
