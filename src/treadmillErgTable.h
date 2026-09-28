@@ -153,9 +153,10 @@ class treadmillErgTable : public QObject {
         for (const QString& triple : dataList) {
             QStringList fields = triple.split("|");
             if (fields.size() == 3) {
-                float speed = fields[0].toUInt();
+                // saved with QString::number(float): "5.5", "-1.5"; toUInt() turned them into 0
+                float speed = fields[0].toFloat();
                 uint16_t wattage = fields[1].toUInt();
-                float inclination = fields[2].toUInt();
+                float inclination = fields[2].toFloat();
 
                 qDebug() << "inputs.append(treadmillDataPoint(" << speed << ", " << wattage << ", " << inclination << "));";
 
