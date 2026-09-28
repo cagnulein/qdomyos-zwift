@@ -1055,8 +1055,8 @@
       "qmlType": "string",
       "control": "text",
       "visible": true,
-      "defaultValue": "username",
-      "defaultExpression": "\"username\"",
+      "defaultValue": "password",
+      "defaultExpression": "\"password\"",
       "options": null,
       "restartRequired": false
     },

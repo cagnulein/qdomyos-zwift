@@ -408,7 +408,7 @@ import AndroidStatusBar 1.0
             property bool peloton_description_link: true
 
             property string pzp_username: "username"
-            property string pzp_password: "username"
+            property string pzp_password: "password"
 
             property bool tile_speed_enabled: true
             property int  tile_speed_order: 0
