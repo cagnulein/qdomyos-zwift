@@ -114,7 +114,8 @@ void ftmsrower::update() {
         if (requestResistance != -1) {
             const bool mrkR26 = bluetoothDevice.name().trimmed().toUpper().startsWith(QStringLiteral("MRK-R26-"));
             if (mrkR26) {
-                requestResistance = qBound<resistance_t>(1, requestResistance, 18);
+                requestResistance = qBound<resistance_t>(static_cast<resistance_t>(1), requestResistance,
+                                                         static_cast<resistance_t>(18));
             } else {
                 if (requestResistance > 100) {
                     requestResistance = 100;

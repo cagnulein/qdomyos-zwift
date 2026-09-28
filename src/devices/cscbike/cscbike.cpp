@@ -297,7 +297,8 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         return;
     }
 
-    bool cyclingPowerMeasurement = characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement;
+    bool cyclingPowerMeasurement =
+        characteristic.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement;
     if (characteristic.uuid() != QBluetoothUuid((quint16)0x2A5B) && !cyclingPowerMeasurement) {
         return;
     }
@@ -565,7 +566,7 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
                 if (c.uuid() == QBluetoothUuid((quint16)0x2A5B) ||
-                    c.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
+                    c.uuid() == QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement) {
                     qDebug() << "Cycling cadence characteristic found" << c.uuid();
                     cadenceChar = c;
                 }
