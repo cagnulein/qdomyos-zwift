@@ -14,6 +14,7 @@
  * Parameters: jCtxObj is Context object
  */
 jobject getWifiManagerObj(JNIEnv *env, jobject jCtxObj) {
+    qDebug() << "gotWifiMangerObj ";
     // Get the value of Context.WIFI_SERVICE
     // jstring  jstr_wifi_service = env->NewStringUTF("wifi");
     jclass jCtxClz = env->FindClass("android/content/Context");
@@ -40,6 +41,7 @@ jobject getWifiManagerObj(JNIEnv *env, jobject jCtxObj) {
  * Parameters: wifiMgrObj is the WifiManager object
  */
 jobject getWifiInfoObj(JNIEnv *env, jobject wifiMgrObj) {
+    qDebug() << "getWifiInfoObj ";
     if (wifiMgrObj == NULL) {
         return NULL;
     }
@@ -81,6 +83,7 @@ char *getMacAddress(JNIEnv *env, jobject wifiInfoObj) {
  * Parameters: wifiInfoObj, WifiInfo object
  */
 int getIpAddress(JNIEnv *env, jobject wifiInfoObj) {
+    qDebug() << "getIpAddress.... ";
     if (wifiInfoObj == NULL) {
         return NULL;
     }
@@ -166,6 +169,7 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
                         QHostAddress address = newEntry.ip();
                         if (address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback() &&
                             !address.isLinkLocal()) {
+                            qDebug() << "getIP" << address;
                             return address;
                         }
                     }
@@ -178,6 +182,7 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
     // this the A record is published empty and the service is unreachable.
     const QHostAddress fallback = bestLocalIPv4();
     if (!fallback.isNull()) {
+        qDebug() << "getIP fallback" << fallback;
         return fallback;
     }
 
@@ -190,6 +195,7 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
     jobject wifiInfoObj = getWifiInfoObj(env, wifiManagerObj);
     const int ip = getIpAddress(env, wifiInfoObj);
     const QHostAddress qip = QHostAddress(qFromBigEndian<quint32>(ip));
+    qDebug() << "getIP from JNI" << qip;
 
     if (wifiInfoObj != nullptr) {
         env->DeleteLocalRef(wifiInfoObj);
