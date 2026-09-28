@@ -84,6 +84,9 @@ class trxappgateusbbike : public bike {
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
+    QByteArray lastResponsePacket;
+    uint8_t vescapeIdentifier1 = 0;
+    uint8_t vescapeIdentifier2 = 0;
 
     typedef enum TYPE {
         TRXAPPGATE = 0,

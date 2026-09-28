@@ -38,8 +38,9 @@ void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 
     if (wait_for_response) {
         connect(this, &trxappgateusbbike::packetReceived, &loop,
-                [&loop, response_prefix](const QByteArray &packet) {
+                [this, &loop, response_prefix](const QByteArray &packet) {
                     if (response_prefix.isEmpty() || packet.startsWith(response_prefix)) {
+                        lastResponsePacket = packet;
                         loop.quit();
                     }
                 });
@@ -80,7 +81,8 @@ void trxappgateusbbike::forceResistance(resistance_t requestResistance) {
 
     uint8_t resistance[] = {0xf0, 0xa6, 0x01, 0x01, 0x00, 0x00};
     if (bike_type == DKN_MOTION_2) {
-        resistance[2] = 0x02;
+        resistance[2] = vescapeIdentifier1;
+        resistance[3] = vescapeIdentifier2;
     } else if (bike_type == VIRTUFIT || bike_type == VIRTUFIT_2) {
         resistance[2] = 0x1e;
     } else if (bike_type == ADIDAS_C1) {
@@ -140,8 +142,13 @@ void trxappgateusbbike::update() {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0x01, 0x94};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-        } else if (bike_type == TYPE::DKN_MOTION || bike_type == TYPE::DKN_MOTION_2) {
-
+        } else if (bike_type == TYPE::DKN_MOTION_2) {
+            uint8_t noOpData[] = {0xf0, 0xa2, vescapeIdentifier1, vescapeIdentifier2, 0x00};
+            for (uint8_t i = 0; i < sizeof(noOpData) - 1; i++) {
+                noOpData[4] += noOpData[i];
+            }
+            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+        } else if (bike_type == TYPE::DKN_MOTION) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x02, 0x01, 0x95};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (bike_type == TYPE::CASALL) {
@@ -588,19 +595,49 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
     } else if (bike_type == TYPE::DKN_MOTION_2) {
-        const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
-        const uint8_t initData2[] = {0xf0, 0xa3, 0x02, 0x01, 0x01, 0x97};
-        const uint8_t vescapeInitData[] = {0xf0, 0xa4, 0x02, 0x01, 0x01, 0x01, 0x01, 0x01,
-                                           0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xa1};
-        const uint8_t initData3[] = {0xf0, 0xa5, 0x02, 0x01, 0x02, 0x9a};
         const QByteArray vescapeB0 = QByteArray::fromHex("f0b0");
+        const QByteArray vescapeA4Payload = QByteArray::fromHex("01010101010101010101");
+        const auto responseByte = [](char value) {
+            return static_cast<uint8_t>(static_cast<unsigned char>(value));
+        };
+        const auto buildVescapeFrame = [](uint8_t opcode, uint8_t identifier1, uint8_t identifier2,
+                                          const QByteArray &payload) {
+            QByteArray frame;
+            frame.append(static_cast<char>(0xf0));
+            frame.append(static_cast<char>(opcode));
+            frame.append(static_cast<char>(identifier1));
+            frame.append(static_cast<char>(identifier2));
+            frame.append(payload);
+            uint8_t checksum = 0;
+            for (const char value : frame) {
+                checksum += static_cast<uint8_t>(static_cast<unsigned char>(value));
+            }
+            frame.append(static_cast<char>(checksum));
+            return frame;
+        };
 
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("Vescape handshake"), false, true,
+        lastResponsePacket.clear();
+        const uint8_t handshake[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
+        writeCharacteristic((uint8_t *)handshake, sizeof(handshake), QStringLiteral("Vescape handshake"), false, true,
                             vescapeB0);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("Vescape init"), false, false);
-        writeCharacteristic((uint8_t *)vescapeInitData, sizeof(vescapeInitData), QStringLiteral("Vescape init"), false,
-                            false);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("Vescape init"), false, false);
+        if (lastResponsePacket.size() < 4 || !lastResponsePacket.startsWith(vescapeB0)) {
+            emit debug(QStringLiteral("Vescape handshake response invalid"));
+            return;
+        }
+        vescapeIdentifier1 = responseByte(lastResponsePacket.at(2)) - 1;
+        vescapeIdentifier2 = responseByte(lastResponsePacket.at(3)) - 1;
+        QByteArray vescapeA3 = buildVescapeFrame(0xa3, vescapeIdentifier1, vescapeIdentifier2,
+                                                 QByteArray::fromHex("01"));
+        QByteArray vescapeA4 = buildVescapeFrame(0xa4, vescapeIdentifier1, vescapeIdentifier2,
+                                                 vescapeA4Payload);
+        QByteArray vescapeA5 = buildVescapeFrame(0xa5, vescapeIdentifier1, vescapeIdentifier2,
+                                                 QByteArray::fromHex("02"));
+        writeCharacteristic(reinterpret_cast<uint8_t *>(vescapeA3.data()), vescapeA3.size(),
+                            QStringLiteral("Vescape init"), false, false);
+        writeCharacteristic(reinterpret_cast<uint8_t *>(vescapeA4.data()), vescapeA4.size(),
+                            QStringLiteral("Vescape init"), false, false);
+        writeCharacteristic(reinterpret_cast<uint8_t *>(vescapeA5.data()), vescapeA5.size(),
+                            QStringLiteral("Vescape init"), false, false);
     } else if (bike_type == TYPE::DKN_MOTION) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x02, 0x01, 0x93};
