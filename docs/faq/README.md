@@ -11,6 +11,7 @@ This directory contains practical QZ frequently asked questions, organized by ca
 - [iOS](ios.md)
 - [MyWhoosh](mywhoosh.md)
 - [NordicTrack / ProForm iFIT consoles](nordictrack-ifit.md)
+- [Profiles](profiles.md)
 - [Rowing](rowing.md)
 - [Training programs](training-programs.md)
 - [Treadmill troubleshooting](treadmill-troubleshooting.md)
