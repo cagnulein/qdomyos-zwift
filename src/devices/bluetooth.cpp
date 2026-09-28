@@ -199,8 +199,20 @@ bluetooth::~bluetooth() {
 void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) { emit this->bluetoothDeviceConnected(b); }
 
 void bluetooth::finished() {
-    if (discoveryFinishedHandled)
+    if (discoveryFinishedHandled) {
+        // The bookkeeping below runs once, but scanning has to go on until the equipment shows up:
+        // otherwise discovery stopped for good about 20 s after launch, and equipment that was
+        // rebooting or still held by the previous app session was never found again.
+        if (!device()) {
+            QTimer::singleShot(3000, this, [this]() {
+                if (!device() && discoveryAgent && !discoveryAgent->isActive()) {
+                    debug(QStringLiteral("BTLE scanning again, no device found yet"));
+                    startDiscovery();
+                }
+            });
+        }
         return;
+    }
     discoveryFinishedHandled = true;
     discoveryTimeout.stop();
 
