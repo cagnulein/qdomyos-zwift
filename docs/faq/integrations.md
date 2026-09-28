@@ -171,6 +171,20 @@ If QZ still reports a successful Peloton login but stops recognizing an active P
 
 In a confirmed support case, signing out and back in did not restore workout detection, while changing the Peloton password did and the integration immediately started working again.
 
+## Can QZ send cadence and heart rate to Peloton?
+
+Yes, but use the **native Peloton app on iOS or Android** for this setup. QZ can expose cadence and heart-rate data through its Peloton compatibility path so that the native mobile app can receive them from QZ.
+
+The **Peloton web app in a browser does not accept this live sensor data from QZ**. If you are using Peloton in a web browser, switching QZ settings will not make cadence or heart rate appear there.
+
+For a supported bike or trainer:
+
+1. Connect the physical equipment and, if needed, the heart-rate sensor to QZ.
+2. Enable the Peloton compatibility option in QZ.
+3. Run the native Peloton app on the device that will receive the virtual sensor data and pair the QZ-exposed cadence/heart-rate devices there.
+
+This distinction is important when troubleshooting a setup that works in QZ but shows no live metrics in Peloton: first confirm whether Peloton is running as the native mobile app or in a web browser.
+
 ## Kinomap keeps reconnecting to an old device or does not use QZ correctly. What should I check?
 
 When QZ is acting as the bridge between a physical bike and Kinomap, Kinomap should connect to the **virtual device exposed by QZ**, not directly to the physical bike.

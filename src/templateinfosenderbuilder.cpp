@@ -343,10 +343,12 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInf
                 QRegularExpression regex(key.mid(1));
                 for (auto &keypresent : settings.allKeys()) {
                     QRegularExpressionMatch match = regex.match(keypresent);
-                    if (match.hasMatch()) {
+                    if (match.hasMatch() && !QZSettings::isSensitiveSettingKey(keypresent)) {
                         outObj.insert(keypresent, QJsonValue::fromVariant(settings.value(keypresent)));
                     }
                 }
+            } else if (QZSettings::isSensitiveSettingKey(key)) {
+                continue;
             } else if (settings.contains(key)) {
                 outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
             } else {
@@ -355,7 +357,9 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInf
         }
     } else {
         for (auto &key : settings.allKeys()) {
-            outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
+            if (!QZSettings::isSensitiveSettingKey(key)) {
+                outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
+            }
         }
     }
     QJsonObject main;
@@ -495,6 +499,9 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue &msgContent, Temp
     QJsonObject outObj;
     QSettings settings;
     for (auto &key : keys) {
+        if (QZSettings::isSensitiveSettingKey(key)) {
+            continue;
+        }
         val = obj[key];
         valConv = val.toVariant();
         if (settings.contains(key)) {
