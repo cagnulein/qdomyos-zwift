@@ -2222,6 +2222,19 @@ void proformtreadmill::update() {
             uint8_t workoutQuery2[] = {0xff, 0x0c, 0x02, 0x04, 0x02, 0x08, 0x05, 0x08, 0x02, 0x00,
                                        0x02, 0x00, 0x10, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+            // Captured from the NTL15010.0 NordicTrack X7i BLE session in issue #1284.
+            uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
+            uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x05, 0x1c, 0x02, 0x09,
+                                0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
+            uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xb0, 0x1d, 0x58, 0x02, 0x01,
+                                0xb4, 0x00, 0x58, 0x02, 0x00, 0xd6, 0x00, 0x00, 0x00, 0x00};
+            uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
+            uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x05, 0x0d, 0x02, 0x02,
+                                0x03, 0x10, 0xc8, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xfb, 0x00};
+            uint8_t stop1[] = {0xfe, 0x02, 0x0f, 0x02};
+            uint8_t stop2[] = {0xff, 0x0f, 0x02, 0x04, 0x02, 0x0b, 0x05, 0x0b, 0x02, 0x02,
+                               0x02, 0x10, 0x00, 0x00, 0x01, 0x00, 0x27, 0x00, 0x00, 0x00};
+
             if (counterPoll < 24) {
                 switch (counterPoll % 6) {
                 case 0:
@@ -2260,11 +2273,18 @@ void proformtreadmill::update() {
                     }
                     if (requestStart != -1) {
                         emit debug(QStringLiteral("starting..."));
+                        writeCharacteristic(start1, sizeof(start1), QStringLiteral("NTL15010 start 1/5"));
+                        writeCharacteristic(start2, sizeof(start2), QStringLiteral("NTL15010 start 2/5"));
+                        writeCharacteristic(start3, sizeof(start3), QStringLiteral("NTL15010 start 3/5"), false, true);
+                        writeCharacteristic(start4, sizeof(start4), QStringLiteral("NTL15010 start 4/5"));
+                        writeCharacteristic(start5, sizeof(start5), QStringLiteral("NTL15010 start 5/5"), false, true);
                         requestStart = -1;
                         emit tapeStarted();
                     }
                     if (requestStop != -1) {
                         emit debug(QStringLiteral("stopping..."));
+                        writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("NTL15010 stop 1/2"));
+                        writeCharacteristic(stop2, sizeof(stop2), QStringLiteral("NTL15010 stop 2/2"), false, true);
                         requestStop = -1;
                     }
                     break;
