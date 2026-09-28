@@ -197,6 +197,12 @@
     document.addEventListener('DOMContentLoaded', () => {
         cacheDom();
         bindEvents();
+        // The interval fields and the chart legend are built in JavaScript, and the translations
+        // usually arrive after the first render: rebuild them once they are here
+        document.addEventListener('qz-translations-updated', () => {
+            renderIntervals();
+            updateChart();
+        });
         bootstrap();
         if (window.QZ_OFFLINE) {
             announce(t('workoutEditor.offlineLoadSaveStartDisabled', 'Offline mode: load/save/start disabled'), true);
