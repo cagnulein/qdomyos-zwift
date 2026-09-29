@@ -35,7 +35,7 @@ jobs:
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
-          ref: 72cf2e6a70a16e5224db546d96147446aa1f3feb
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -366,7 +366,7 @@ jobs:
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
-          ref: 72cf2e6a70a16e5224db546d96147446aa1f3feb
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
       - name: Checkout googletest
         uses: actions/checkout@v4
         with:
@@ -995,7 +995,7 @@ jobs:
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
-          ref: 72cf2e6a70a16e5224db546d96147446aa1f3feb
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
       - name: Checkout googletest
         uses: actions/checkout@v4
         with:
@@ -1082,7 +1082,6 @@ jobs:
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
-          ref: 72cf2e6a70a16e5224db546d96147446aa1f3feb
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -1279,7 +1278,7 @@ jobs:
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
-          ref: 72cf2e6a70a16e5224db546d96147446aa1f3feb
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
