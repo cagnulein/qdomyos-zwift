@@ -30,9 +30,9 @@ ColumnLayout {
         sourceComponent: Component {
             FileDialog {
                 id: fileDialog
-                title: "Please choose a file"
+                title: qsTr("Please choose a file")
                 folder: shortcuts.home
-                nameFilters: ["GPX files (*.gpx *.GPX)", "All files (*)"]
+                nameFilters: [qsTr("GPX files (*.gpx *.GPX)"), qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")
@@ -70,9 +70,10 @@ ColumnLayout {
             Row
             {
                 spacing: 5
+                leftPadding: window.contentSideMargin
                 Text
                 {
-                    text:"Filter"
+                    text:qsTr("Filter")
                     color: "white"
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -127,6 +128,7 @@ ColumnLayout {
                         z: 1
                         Item {
                             id: root
+                            x: window.contentSideMargin
                             property alias text: fileTextBox.text
                             property int spacing: 30
                             width: fileTextBox.width + spacing
@@ -209,6 +211,8 @@ ColumnLayout {
             Layout.fillHeight: true
             Layout.minimumWidth: 100
             Layout.preferredWidth: 200
+            // Padding, not a margin: the content moves in, the scroll bar stays at the edge
+            rightPadding: window.contentSideMargin
 
             Row {
                 id: row
@@ -261,7 +265,7 @@ ColumnLayout {
                             elevationGain = elevationGain + (pathController.geopath.coordinateAt(i).altitude - pathController.geopath.coordinateAt(i-1).altitude)
                         lines[i] = pathController.geopath.coordinateAt(i)
                     }
-                    distance.text = "Distance " + pathController.distance.toFixed(1) + " km Elevation Gain: " + elevationGain.toFixed(1) + " meters"
+                    distance.text = qsTr("Distance %1 km Elevation Gain: %2 meters").arg(pathController.distance.toFixed(1)).arg(elevationGain.toFixed(1))
                     return lines;
                 }
 
@@ -284,7 +288,7 @@ ColumnLayout {
         id: searchButton
         height: 50
         width: parent.width
-        text: "Other folders"
+        text: qsTr("Other folders")
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'gpx')

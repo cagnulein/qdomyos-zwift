@@ -15,6 +15,20 @@ This can restore the normal bike data stream when the Garmin ANT bike option int
 
 Bike resistance and incline are different values. A Yesoul bike may report resistance without reporting a real incline value. QZ's incline tile can instead be populated by an external source such as Zwift or a GPX route. A resistance-to-incline conversion requires a specific mapping and should not be assumed from the resistance percentage alone.
 
+## Zwift auto-resistance is working, but flat resistance or gradient changes feel wrong. Which settings should I adjust?
+
+Use **Zwift Resistance Offset** to set the baseline and **Zwift Resistance Gain** to change how strongly resistance reacts to Zwift gradients. Do not use **Min. Resistance** as the flat-road baseline.
+
+For example, if a bike feels right around resistance 50 on flat ground:
+
+1. Set **Zwift Resistance Offset** to the desired flat-road baseline, such as 50.
+2. Leave **Min. Resistance** at 0 unless you intentionally want to prevent QZ from ever requesting resistance below a specific value.
+3. If climbs change resistance too little, increase **Zwift Resistance Gain**. If they change it too aggressively, reduce the gain.
+4. Leave **Zwift Workout/Erg Mode** disabled for normal free rides; enable it when using a Zwift workout that requires ERG behavior.
+5. Restart QZ after changing the configuration and test again.
+
+QZ applies a gain and offset to the grade received from the client application, so the offset changes the baseline while the gain scales the response to gradient changes. In a confirmed support case, separating the minimum-resistance limit from the Zwift offset restored the target resistance, and increasing Zwift Resistance Gain then produced the desired stronger response to climbs.
+
 ## QZ cannot connect reliably to my bike even though the bike is supported. What else should I check?
 
 Check whether another nearby phone, tablet, watch, training app, or companion app is already connecting to the bike over Bluetooth.
@@ -68,3 +82,14 @@ Yes. For Echelon bikes that require the manufacturer's initialization before the
 The unlock step may need to be repeated after the bike is power-cycled. In a confirmed support case with an Echelon EX-7s, this two-device sequence reliably unlocked the bike and QZ then operated normally.
 
 If QZ already connects to and initializes your bike directly, this workaround is unnecessary.
+
+## My ProForm TDF bike used to connect over Wi-Fi, but QZ suddenly stays on Connecting. What should I check?
+
+QZ's Wi-Fi connection to a ProForm TDF bike uses the bike's configured IP address. If the router assigns the bike a different address through DHCP, QZ can keep trying the old address and no longer connect even though nothing changed in QZ.
+
+1. Check the bike's current IP address on the bike or in your router's connected-device list.
+2. Compare it with the **TDF IP** value configured in QZ and update QZ if the address has changed.
+3. Restart QZ and reconnect.
+4. To prevent the problem from recurring, reserve a fixed DHCP address for the bike in your router, or otherwise configure the router so the bike always receives the same IP.
+
+In a confirmed support case, the bike's IP address had changed; updating the address restored the QZ connection immediately.

@@ -24,6 +24,7 @@ SOURCES += \
         TrainingProgram/trainprogramtestsuite.cpp \
         ToolTests/qfittestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
+        ToolTests/testsettingssecuritytestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
         ToolTests/zwiftworkouttestsuite.cpp \
         Tools/testsettings.cpp \
@@ -32,10 +33,13 @@ SOURCES += \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
+        Devices/TestTrxAppGateUsTreadmillParser.cpp \
         Devices/TestKeepBikeParser.cpp \
+        Devices/TestWahooKickrRunParser.cpp \
         Devices/TestRenphoBikeKnobGears.cpp \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
+        Devices/TestRowerTargetResistance.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
         Devices/TestFtmsRowerCadence.cpp \
         main.cpp
@@ -69,7 +73,9 @@ HEADERS += \
     Devices/TestSchwinn411510EParser.h \
     Devices/TestApexBikeParser.h \
     Devices/TestTrxAppGateUsBellipticalParser.h \
+    Devices/TestTrxAppGateUsTreadmillParser.h \
     Devices/TestKeepBikeParser.h \
+    Devices/TestWahooKickrRunParser.h \
     Devices/TestRenphoBikeKnobGears.h \
     Devices/TestNordictrackEllipticalS700Parser.h \
     Devices/TestXcxBikeParser.h \

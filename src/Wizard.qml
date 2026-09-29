@@ -215,7 +215,7 @@ Page {
                     }
 
                     Repeater {
-                        model: ["Bike", "Treadmill", "Rower", "Elliptical"]
+                        model: [QT_TR_NOOP("Bike"), QT_TR_NOOP("Treadmill"), QT_TR_NOOP("Rower"), QT_TR_NOOP("Elliptical")]
                         delegate: WizardButton {
                             Layout.alignment: Qt.AlignHCenter
                             text: qsTr(modelData)
@@ -288,10 +288,10 @@ Page {
                         rowSpacing: 20
                         columnSpacing: 20
                         Repeater {
-                            model: ["Peloton", "Zwift", "MyWhoosh", "Rouvy", "Kinomap", "Indievelo", "Fulgaz", "EXR", "Other app", "QZ Standalone"]
+                            model: ["Peloton", "Zwift", "MyWhoosh", "Rouvy", "Kinomap", "Indievelo", "Fulgaz", "EXR", QT_TR_NOOP("Other app"), QT_TR_NOOP("QZ Standalone")]
                             delegate: WizardButton {
                                 Layout.preferredWidth: 150
-                                text: modelData
+                                text: qsTr(modelData)
                                 onClicked: {
                                     selectedOptions.step3 = modelData
                                     if (modelData === "Peloton") {
@@ -435,16 +435,16 @@ Page {
                         color: "white"
                     }
 
-                    ComboBox {
+                    ValueComboBox {
                         id: pelotonDifficultyTextField
                         model: [ "lower", "upper", "average" ]
-                        displayText: settings.peloton_difficulty
+                        labels: ({ "lower": qsTr("lower"), "upper": qsTr("upper"), "average": qsTr("average") })
+                        value: settings.peloton_difficulty
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignHCenter
                         onActivated: {
                             console.log("combomodel activated" + pelotonDifficultyTextField.currentIndex)
-                            displayText = pelotonDifficultyTextField.currentValue
-                            settings.peloton_difficulty = pelotonDifficultyTextField.displayText;
+                            settings.peloton_difficulty = pelotonDifficultyTextField.currentValue;
                         }
                     }
 
@@ -452,7 +452,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Finish")
                         onClicked: {
-                            settings.peloton_difficulty = pelotonDifficultyTextField.displayText;
+                            settings.peloton_difficulty = pelotonDifficultyTextField.value;
                             stackViewLocal.push(finalStepComponent)
                         }
                     }
@@ -621,15 +621,16 @@ Page {
                     }
 
                     Repeater {
+                        // Untranslated keys: onClicked compares against them, so the model must not go through qsTr()
                         model: [
-                            qsTr("Auto-incline with treadmill and Zwift"),
-                            qsTr("Auto-resistance with Peloton"),
-                            qsTr("Zwift Click or Zwift Play"),
-                            qsTr("Virtual Shifting")
+                            QT_TR_NOOP("Auto-incline with treadmill and Zwift"),
+                            QT_TR_NOOP("Auto-resistance with Peloton"),
+                            QT_TR_NOOP("Zwift Click or Zwift Play"),
+                            QT_TR_NOOP("Virtual Shifting")
                         ]
                         delegate: WizardButton {
                             Layout.alignment: Qt.AlignHCenter
-                            text: modelData
+                            text: qsTr(modelData)
                             onClicked: {
                                 selectedOptions.step2Help = modelData
                                 if(modelData === "Auto-incline with treadmill and Zwift")
@@ -1052,23 +1053,23 @@ Page {
 
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: filterDeviceTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.filter_device
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.filter_device
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + filterDeviceTextField.currentIndex)
-                                displayText = filterDeviceTextField.currentValue
                             }
                         }
                     }
 
                     WizardButton {
                         id: refreshFilterDeviceButton
-                        text: "Refresh"
+                        text: qsTr("Refresh")
                         Layout.alignment: Qt.AlignHCenter
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
@@ -1081,7 +1082,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
                         onClicked: {
-                            settings.filter_device = stripRssi(filterDeviceTextField.displayText);
+                            settings.filter_device = stripRssi(filterDeviceTextField.value);
                             stackViewLocal.push(unitSelectionComponent)
                         }
                     }
@@ -1132,7 +1133,7 @@ Page {
                     ComboBox {
                         id: unitSystemComboBox
                         Layout.alignment: Qt.AlignHCenter
-                        model: ["Metric", "Imperial"]
+                        model: [qsTr("Metric"), qsTr("Imperial")]
                         currentIndex: settings.miles_unit ? 1 : 0
                     }
 
@@ -1187,7 +1188,7 @@ Page {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Weight (" + ((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg") + ")")
+                        text: qsTr("Weight (%1)").arg((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg")
                         font.pixelSize: 20
                         color: "white"
                     }
@@ -1239,11 +1240,13 @@ Page {
                         color: "white"
                     }
 
-                    ComboBox {
+                    ValueComboBox {
                         id: genderComboBox
                         Layout.alignment: Qt.AlignHCenter
                         model: ["Male", "Female"]
+                        labels: ({ "Male": qsTr("Male"), "Female": qsTr("Female") })
                         currentIndex: settings.sex === "Male" ? 0 : 1
+                        value: settings.sex === "Male" ? "Male" : "Female"
                     }
 
                     Item {
@@ -1256,7 +1259,7 @@ Page {
                         onClicked: {
                             settings.weight = weightSpinBox.realValue
                             settings.age = ageSpinBox.value
-                            settings.sex = genderComboBox.currentText
+                            settings.sex = genderComboBox.value
                             stackViewLocal.push(heartRateDeviceSelectionComponent)
                         }
                     }
@@ -1310,16 +1313,16 @@ Page {
                         spacing: 10
                         Layout.fillWidth: true
 
-                        ComboBox {
+                        ValueComboBox {
                             id: heartBeltNameTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.heart_rate_belt_name
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.heart_rate_belt_name
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
-                                displayText = heartBeltNameTextField.currentValue
                             }
                         }
                     }
@@ -1327,7 +1330,7 @@ Page {
                     WizardButton {
                         Layout.alignment: Qt.AlignHCenter
                         id: refreshHeartBeltNameButton
-                        text: "Refresh"
+                        text: qsTr("Refresh")
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
 
@@ -1397,7 +1400,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
                         onClicked: {
-                            settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.displayText);
+                            settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.value);
                             settings.garmin_companion = false
                             stackViewLocal.push(step3Component)
                         }

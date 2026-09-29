@@ -285,7 +285,7 @@ void ftmsbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
 
     if (!manualResistancePowerAdjustmentToastShown && homeform::singleton()) {
         homeform::singleton()->setToastRequested(
-            QStringLiteral("Custom CSC power table enabled: power now follows the configured resistance/watt points."));
+            QObject::tr("Custom CSC power table enabled: power now follows the configured resistance/watt points."));
         manualResistancePowerAdjustmentToastShown = true;
     }
 }
@@ -772,7 +772,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             uint8_t b = (uint8_t)newValue.at(0);
             if(b != battery_level)
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested(bluetoothDevice.name() + QStringLiteral(" Battery Level ") + QString::number(b) + " %");
+                    homeform::singleton()->setToastRequested(QObject::tr("%1 Battery Level %2 %").arg(bluetoothDevice.name(), QString::number(b)));
             battery_level = b;
         }
         return;
@@ -793,6 +793,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else if (resultCode == FTMS_SUCCESS) {
                 domyosResistanceRetryAfter = now;
             }
+        }
+
+        if (bluetoothDevice.name().toUpper().startsWith("ICONSOLE+") &&
+            responseCode == FTMS_RESPONSE_CODE && requestCode == FTMS_SET_TARGET_POWER &&
+            resultCode == FTMS_CONTROL_NOT_PERMITTED) {
+            qDebug() << QStringLiteral("iConsole+ rejected FTMS target power - switching to resistance ERG emulation");
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
         }
     }
     
@@ -1808,11 +1816,11 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     if(gattFTMSService == nullptr && DOMYOS) {
         settings.setValue(QZSettings::domyosbike_notfmts, true);
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+            homeform::singleton()->setToastRequested(QObject::tr("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks."));
     } else if(gattFTMSService == nullptr && PM5) {
         settings.setValue(QZSettings::ftms_rower, bluetoothDevice.name());
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("PM5 rower found. Restart QZ to apply the fix, thanks.");
+            homeform::singleton()->setToastRequested(QObject::tr("PM5 rower found. Restart QZ to apply the fix, thanks."));
     }
 
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
@@ -2300,9 +2308,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             WLT_BK = true;
             max_resistance = 24;
         } else if (device.name().toUpper().startsWith("ICONSOLE+")) {
-            qDebug() << QStringLiteral("iConsole+ found as FTMS bike - ERG not supported");
-            resistance_lvl_mode = true;
-            ergModeSupported = false;
+            qDebug() << QStringLiteral("iConsole+ found as FTMS bike - probing native ERG support");
+            resistance_lvl_mode = false;
+            ergModeSupported = true;
             max_resistance = 24;
         } else if (device.name().compare(QStringLiteral("Tunturi E50-168"), Qt::CaseInsensitive) == 0) {
             qDebug() << QStringLiteral("Tunturi E50-168 found - enabling direct resistance and distance workaround");

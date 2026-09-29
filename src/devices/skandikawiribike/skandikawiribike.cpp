@@ -408,7 +408,7 @@ void skandikawiribike::serviceScanDone(void) {
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     if (!gattCommunicationChannelService) {
         homeform::singleton()->setToastRequested(
-            "no service found, contact me to roberto.viola83@gmail.com!");
+            QObject::tr("no service found, contact me to roberto.viola83@gmail.com!"));
         return;
     }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &skandikawiribike::stateChanged);

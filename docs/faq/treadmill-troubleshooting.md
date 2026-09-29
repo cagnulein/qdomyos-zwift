@@ -41,6 +41,30 @@ This setup was confirmed on a Horizon 7.4AT to correct the displayed km/h value 
 
 Because **Speed Gain** also participates in QZ's treadmill speed-control path, verify both directions after changing it: manually set a simple treadmill speed and confirm QZ displays the same value, then start a Peloton treadmill workout and confirm an automatically requested speed produces the expected treadmill speed.
 
+## Zwift incline through QZ feels about twice as steep as expected. What should I change?
+
+When QZ is using Zwift auto-inclination, the inclination received from Zwift is transformed with QZ's **Zwift Inclination Gain** and **Zwift Inclination Offset** settings. The current calculation is:
+
+`calculated inclination = raw Zwift inclination × gain + offset`
+
+If the treadmill response feels roughly twice as strong as expected, use this as a starting point:
+
+1. Set **Zwift Inclination Gain** to **0.5**.
+2. Set **Zwift Inclination Offset** to **0**.
+3. Test several climbs and descents and adjust only if your treadmill or personal preference requires it.
+
+The gain changes the scale of every grade change, while the offset shifts the whole range up or down. Do not use the offset to correct a proportional mismatch.
+
+This setup was confirmed in a Wahoo KICKR RUN support case where a gain of 0.5 produced the expected incline behavior. The same 0.5 starting value was also used successfully while validating automatic Zwift incline on another supported treadmill.
+
+## My treadmill only changes incline in 1% increments. Why do 0.5% commands not work as expected?
+
+Set **Inclination Step** in QZ's advanced treadmill settings to match the smallest incline increment supported by the treadmill. For a treadmill that only accepts whole-percent changes, set **Inclination Step = 1**.
+
+QZ uses this setting to round requested incline values to a supported step before sending them to the treadmill. For example, with a 1% step, half-percent targets are rounded to whole-percent commands instead of repeatedly requesting an unsupported intermediate value.
+
+This was confirmed in a support case where treadmill incline control was working but 0.5% changes were not: the treadmill itself only adjusted in 1% intervals, so setting the QZ inclination step to 1 matched the hardware behavior.
+
 ## Can Zwift automatically control both treadmill incline and speed through QZ?
 
 QZ can use the Zwift integration for **automatic inclination**. Configure your Zwift credentials in QZ and enable the Zwift auto-inclination option.

@@ -132,6 +132,7 @@
         <file>customgears.qml</file>
         <file>custominclinationresistance.qml</file>
         <file>IndicatorOnlySwitch.qml</file>
+        <file>ValueComboBox.qml</file>
         <file>StaticAccordionElement.qml</file>
         <file>inner_templates/chartjs/dotreadmillchartlive.js</file>
         <file>inner_templates/chartjs/treadmillchartlive.htm</file>

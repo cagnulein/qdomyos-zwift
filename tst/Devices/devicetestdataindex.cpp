@@ -622,6 +622,8 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("VOLT", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("XQ0201118141", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("F","ARROW",DeviceNameComparison::IgnoreCase) // FI9110 Arrow, https://www.fitnessdigital.it/bicicletta-smart-bike-ion-fitness-arrow-connect/p/10022863/ IO Fitness Arrow
+        ->acceptDeviceName("FI9117 ION", DeviceNameComparison::IgnoreCase) // ION Fitness Tourmalet Alpine FI9117
+        ->acceptDeviceName("FI1234 ION", DeviceNameComparison::IgnoreCase) // ION Fitness model pattern, identifier excluded from routing
         ->acceptDeviceName("ICSE", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("FLX", DeviceNameComparison::StartsWithIgnoreCase, 10)
         ->acceptDeviceName("CSRB", DeviceNameComparison::StartsWithIgnoreCase, 11)

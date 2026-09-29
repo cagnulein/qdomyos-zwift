@@ -708,8 +708,7 @@ int main(int argc, char *argv[]) {
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token") && !s.contains("garmin_device_serial") && !s.contains("garmin_email")) {
-
+        if (!QZSettings::isSensitiveSettingKey(s)) {
             qDebug() << s << settings.value(s);
         }
     }
@@ -911,6 +910,35 @@ int main(int argc, char *argv[]) {
         FontManager fontManager;
         fontManager.initializeEmojiFont();
 #endif
+
+        // Standard dialog buttons (MessageDialog Yes/No/Abort...) are labelled by the Qt platform
+        // theme, and Qt's own translations are not shipped with the app. Listing the theme's
+        // strings here lets lupdate put them into our .ts files, so the app translator covers them.
+        static const char *const qtStandardButtonTexts[] = {
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "Yes"),
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "Yes to All"),
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "No"),
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "No to All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "OK"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Save"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Save All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Open"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "&Yes"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Yes to &All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "&No"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "N&o to All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Abort"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Retry"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Ignore"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Close"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Cancel"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Discard"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Help"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Apply"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Reset"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Restore Defaults"),
+        };
+        Q_UNUSED(qtStandardButtonTexts);
 
         // Load translations based on explicit app setting or system locale.
         QTranslator *translator = new QTranslator(app.data());
