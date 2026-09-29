@@ -985,9 +985,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         lapMesg.SetSport(FIT_SPORT_CYCLING);
     }
 
-    encode.Write(sessionMesg);
-    encode.Write(activityMesg);
-
     SessionLine sl;
     if (processFlag & QFIT_PROCESS_DISTANCENOISE) {
         double distanceOld = -1.0;
@@ -1185,6 +1182,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
                                         lapCoreTempMax);
     }
     encode.Write(lapMesgToWrite);
+    encode.Write(sessionMesg);
+    encode.Write(activityMesg);
 
     if (!encode.Close()) {
 
