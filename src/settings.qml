@@ -19,6 +19,9 @@ import AndroidStatusBar 1.0
                             AndroidStatusBar.waterfallLeftInset : 0
         anchors.rightMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
                              AndroidStatusBar.waterfallRightInset : 0
+        // Padding, not margins: the text moves in, the scroll bar stays at the edge
+        leftPadding: window.contentSideMargin
+        rightPadding: window.contentSideMargin
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane

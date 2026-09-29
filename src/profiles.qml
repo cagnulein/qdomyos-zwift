@@ -128,6 +128,8 @@ ColumnLayout {
 
     RowLayout {
         spacing: 10
+        Layout.leftMargin: window.contentSideMargin
+        Layout.rightMargin: window.contentSideMargin
         Label {
             id: labelProfileName
             text: qsTr("Profile name")
@@ -211,6 +213,7 @@ ColumnLayout {
                             color: Material.color(Material.Grey)
                             font.pixelSize: Qt.application.font.pixelSize * 1.6
                             text: fileName.substring(0, fileName.length-4)
+                            leftPadding: window.contentSideMargin
                         }
                         MouseArea {
                             anchors.fill: parent
