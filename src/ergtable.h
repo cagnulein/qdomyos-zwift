@@ -277,13 +277,16 @@ class ergTable : public QObject {
 
     void updateDataTable(const CadenceResistancePair& pair) {
         uint16_t medianWattage = wattageData[pair].getMedian();
-        bool changed = true;
 
         // Remove existing point if it exists
         for (int i = consolidatedData.size() - 1; i >= 0; --i) {
             if (consolidatedData[i].cadence == pair.cadence &&
                 consolidatedData[i].resistance == pair.resistance) {
-                changed = consolidatedData[i].wattage != medianWattage;
+                // This runs on every metrics update once a pair has enough samples; when the median
+                // did not move there is nothing to update, and rewriting the settings file would
+                // only cost I/O on the main thread.
+                if (consolidatedData[i].wattage == medianWattage)
+                    return;
                 consolidatedData.removeAt(i);
                 break;
             }
@@ -291,11 +294,6 @@ class ergTable : public QObject {
 
         // Add new point
         consolidatedData.append(ergDataPoint(pair.cadence, medianWattage, pair.resistance));
-
-        // This runs on every metrics update once a pair has enough samples; rewriting the settings
-        // file when the median did not move only costs I/O on the main thread.
-        if (!changed)
-            return;
 
         qDebug() << "Added/Updated point:"
                  << "C:" << pair.cadence
