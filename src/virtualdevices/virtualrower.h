@@ -55,6 +55,8 @@ class virtualrower : public virtualdevice {
     bluetoothdevice *Rower;
 
     bool pm5Mode = false;
+    double virtualRowerCadenceGain = 1.0;
+    double virtualRowerCadenceOffset = 0.0;
 
     uint16_t lastWheelTime = 0;
     uint32_t wheelRevs = 0;

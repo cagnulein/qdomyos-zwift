@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1004,
+  "settingCount": 1006,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -15884,6 +15884,34 @@
       "defaultExpression": "\"0|4\\n1|6\\n2|8\\n3|10\\n4|11\\n5|11.5\\n6|12\\n8|13\\n10|14\\n12|15\\n15|16\"",
       "options": null,
       "restartRequired": true
+    },
+    {
+      "key": "virtual_device_rower_cadence_gain",
+      "name": "Virtual Rower Cadence Gain",
+      "description": "Multiplier applied only to the stroke rate sent by the Virtual Rower. QZ's internal cadence display and workout metrics remain unchanged.",
+      "parent": "Rower Options",
+      "type": "number",
+      "qmlType": "real",
+      "control": "text",
+      "visible": true,
+      "defaultValue": 1.0,
+      "defaultExpression": "1.0",
+      "options": null,
+      "restartRequired": true
+    },
+    {
+      "key": "virtual_device_rower_cadence_offset",
+      "name": "Virtual Rower Cadence Offset",
+      "description": "Offset added after the gain to the stroke rate sent by the Virtual Rower. QZ's internal cadence display and workout metrics remain unchanged.",
+      "parent": "Rower Options",
+      "type": "number",
+      "qmlType": "real",
+      "control": "text",
+      "visible": true,
+      "defaultValue": 0.0,
+      "defaultExpression": "0.0",
+      "options": null,
+      "restartRequired": true
     }
   ],
   "legacyHierarchy": {
@@ -16392,6 +16420,13 @@
         "parent": "virtualDeviceAccordion",
         "depth": 2,
         "sourceLine": 16375
+      },
+      {
+        "key": "virtualRowerOptionsAccordion",
+        "name": "Rower Options",
+        "parent": "virtualBeviceBluetoothAccordion",
+        "depth": 3,
+        "sourceLine": 15844
       },
       {
         "key": "dirconAccordion",
@@ -16928,6 +16963,8 @@
       "virtual_device_ifit": "virtualBeviceBluetoothAccordion",
       "virtual_device_onlyheart": "virtualBeviceBluetoothAccordion",
       "virtual_device_rower": "virtualBeviceBluetoothAccordion",
+      "virtual_device_rower_cadence_gain": "virtualRowerOptionsAccordion",
+      "virtual_device_rower_cadence_offset": "virtualRowerOptionsAccordion",
       "virtual_device_rower_pm5": "virtualBeviceBluetoothAccordion",
       "virtual_device_tacx": "virtualBeviceBluetoothAccordion",
       "virtualbike_forceresistance": "virtualBeviceBluetoothAccordion",
@@ -17944,6 +17981,8 @@
       "virtual_device_ifit": "settings.qml",
       "virtual_device_onlyheart": "settings.qml",
       "virtual_device_rower": "settings.qml",
+      "virtual_device_rower_cadence_gain": "settings.qml",
+      "virtual_device_rower_cadence_offset": "settings.qml",
       "virtual_device_rower_pm5": "settings.qml",
       "virtual_device_tacx": "settings.qml",
       "virtualbike_forceresistance": "settings.qml",
@@ -18802,6 +18841,8 @@
       "virtual_device_ifit": 16589,
       "virtual_device_onlyheart": 16390,
       "virtual_device_rower": 16446,
+      "virtual_device_rower_cadence_gain": 15846,
+      "virtual_device_rower_cadence_offset": 15886,
       "virtual_device_rower_pm5": 16474,
       "virtual_device_tacx": 16616,
       "virtualbike_forceresistance": 16532,
