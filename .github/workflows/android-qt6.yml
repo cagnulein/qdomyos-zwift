@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  QT_VERSION: '6.7.3'
+  QT_VERSION: '6.8.2'
   ANDROID_PLATFORM: 'android-28'
   ANDROID_NDK_VERSION: '26.1.10909125'
   ANDROID_BUILD_TOOLS: '35.0.0'
