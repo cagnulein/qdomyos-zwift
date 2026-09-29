@@ -370,6 +370,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         cadence_divider = 1.0;
     Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
     index += 2;
+    bool jorotoStrokeCountChanged = false;
 
     if (!Flags.moreData) {
         const double reportedCadence = ((uint8_t)newValue.at(index)) / cadence_divider;
@@ -378,6 +379,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
 
         const bool strokeCountChanged = lastStrokesCount != StrokesCount.value();
+        jorotoStrokeCountChanged = strokeCountChanged;
         if (JOROTO_MR280PRO) {
             const qint64 nowMs = now.toMSecsSinceEpoch();
             const bool jorotoStale = jorotoCadence.isStale(nowMs);
@@ -476,7 +478,8 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             Speed = 0;
             m_watt = 0;
         } else if (JOROTO_MR280PRO && !jorotoPaceReady) {
-            ++jorotoPlausiblePaceSamples;
+            if (jorotoStrokeCountChanged)
+                ++jorotoPlausiblePaceSamples;
             if (jorotoPlausiblePaceSamples >= 3)
                 jorotoPaceReady = true;
             Speed = jorotoPaceReady ? (60.0 / instantPace) * 30.0 : 0;
