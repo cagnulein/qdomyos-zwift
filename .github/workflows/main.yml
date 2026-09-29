@@ -1375,6 +1375,7 @@ jobs:
             cd src
             echo "#define AISERVER" >> aiserver.h
             cd ..
+            lrelease src/qdomyos-zwift.pri
             qmake
             nmake
             cd src/debug
