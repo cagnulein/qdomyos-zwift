@@ -57,6 +57,14 @@ The gain changes the scale of every grade change, while the offset shifts the wh
 
 This setup was confirmed in a Wahoo KICKR RUN support case where a gain of 0.5 produced the expected incline behavior. The same 0.5 starting value was also used successfully while validating automatic Zwift incline on another supported treadmill.
 
+## My treadmill only changes incline in 1% increments. Why do 0.5% commands not work as expected?
+
+Set **Inclination Step** in QZ's advanced treadmill settings to match the smallest incline increment supported by the treadmill. For a treadmill that only accepts whole-percent changes, set **Inclination Step = 1**.
+
+QZ uses this setting to round requested incline values to a supported step before sending them to the treadmill. For example, with a 1% step, half-percent targets are rounded to whole-percent commands instead of repeatedly requesting an unsupported intermediate value.
+
+This was confirmed in a support case where treadmill incline control was working but 0.5% changes were not: the treadmill itself only adjusted in 1% intervals, so setting the QZ inclination step to 1 matched the hardware behavior.
+
 ## Can Zwift automatically control both treadmill incline and speed through QZ?
 
 QZ can use the Zwift integration for **automatic inclination**. Configure your Zwift credentials in QZ and enable the Zwift auto-inclination option.
