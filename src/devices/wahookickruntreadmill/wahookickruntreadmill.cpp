@@ -400,16 +400,14 @@ void wahookickruntreadmill::stateChanged(QLowEnergyService::ServiceState state) 
                 &wahookickruntreadmill::characteristicChanged);
         connect(s, &QLowEnergyService::characteristicWritten, this,
                 &wahookickruntreadmill::characteristicWritten);
-        connect(s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(
-                       &QLowEnergyService::error),
+        connect(s, &QLowEnergyService::errorOccurred,
                 this, &wahookickruntreadmill::errorService);
         connect(s, &QLowEnergyService::descriptorWritten, this,
                 &wahookickruntreadmill::descriptorWritten);
 
         const auto chars = s->characteristics();
         for (const QLowEnergyCharacteristic &c : chars) {
-            emit debug(QStringLiteral("char uuid=") + c.uuid().toString() +
-                       QStringLiteral(" handle=0x") + QString::number(c.handle(), 16));
+            emit debug(QStringLiteral("char uuid=") + c.uuid().toString());
 
             // Command characteristic: UUID a026e03e at handle 0x0023.
             // a026e002 (handle 0x0019) is the Wahoo debug/console stream — it also has
@@ -425,15 +423,13 @@ void wahookickruntreadmill::stateChanged(QLowEnergyService::ServiceState state) 
             if (c.uuid() == cmdCharUuid) {
                 gattCmdCharacteristic = c;
                 gattCmdService = s;
-                emit debug(QStringLiteral("KickRun cmd char found: handle=0x") +
-                           QString::number(c.handle(), 16));
+                emit debug(QStringLiteral("KickRun cmd char found by UUID"));
             }
 
             if (s->serviceUuid() == ftmsServiceUuid && c.uuid() == ftmsControlPointUuid) {
                 gattFTMSControlPointCharacteristic = c;
                 gattFTMSService = s;
-                emit debug(QStringLiteral("KickRun FTMS control point found: handle=0x") +
-                           QString::number(c.handle(), 16));
+                emit debug(QStringLiteral("KickRun FTMS control point found by UUID"));
             }
 
             bool hasNotify = c.properties() & QLowEnergyCharacteristic::Notify;
@@ -443,8 +439,8 @@ void wahookickruntreadmill::stateChanged(QLowEnergyService::ServiceState state) 
                 QByteArray descriptor;
                 descriptor.append((char)0x01);
                 descriptor.append((char)0x00);
-                if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                    s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
+                if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
+                    s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration),
                                        descriptor);
                     notificationsSubscribed++;
                     emit debug(QStringLiteral("subscribed notify: ") + c.uuid().toString());
@@ -453,8 +449,8 @@ void wahookickruntreadmill::stateChanged(QLowEnergyService::ServiceState state) 
                 QByteArray descriptor;
                 descriptor.append((char)0x02);
                 descriptor.append((char)0x00);
-                if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                    s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
+                if (c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration).isValid()) {
+                    s->writeDescriptor(c.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration),
                                        descriptor);
                     notificationsSubscribed++;
                     emit debug(QStringLiteral("subscribed indicate: ") + c.uuid().toString());
@@ -507,15 +503,11 @@ void wahookickruntreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
             &wahookickruntreadmill::serviceDiscovered);
     connect(m_control, &QLowEnergyController::discoveryFinished, this,
             &wahookickruntreadmill::serviceScanDone);
-    connect(m_control,
-            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(
-                &QLowEnergyController::error),
+    connect(m_control, &QLowEnergyController::errorOccurred,
             this, &wahookickruntreadmill::error);
     connect(m_control, &QLowEnergyController::stateChanged, this,
             &wahookickruntreadmill::controllerStateChanged);
-    connect(m_control,
-            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(
-                &QLowEnergyController::error),
+    connect(m_control, &QLowEnergyController::errorOccurred,
             this, [this](QLowEnergyController::Error) {
                 emit debug(QStringLiteral("Cannot connect to remote device."));
                 emit disconnected();
