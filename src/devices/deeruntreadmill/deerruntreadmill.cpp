@@ -218,6 +218,10 @@ void deerruntreadmill::changeInclinationRequested(double grade, double percentag
 }
 
 void deerruntreadmill::update() {
+
+    if (!m_control)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -309,7 +313,10 @@ void deerruntreadmill::update() {
                 requestStart = -1;
                 emit tapeStarted();
             } else if (requestStop != -1) {
-                emit debug(QStringLiteral("stopping... ") + paused);
+                emit debug(QStringLiteral("stopping... ") + QString::number(paused));
+                /*if (lastState == PAUSED) {
+                    uint8_t pause[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x07};
+                }*/
 
                 if (pitpat) {
                     uint8_t stop[] = {
@@ -525,7 +532,7 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             // Handle unlock service characteristics
             auto characteristics_list = unlock_service->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("unlock char uuid") << c.uuid() << QStringLiteral("handle") << c.handle()
+                qDebug() << QStringLiteral("unlock char uuid") << c.uuid() << QStringLiteral("handle")
                          << c.properties();
             }
 
@@ -544,7 +551,7 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         // qDebug() << gattCommunicationChannelService->characteristics();
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle()
+            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle")
                      << c.properties();
         }
 
@@ -567,9 +574,7 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 &deerruntreadmill::characteristicChanged);
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &deerruntreadmill::characteristicWritten);
-        connect(gattCommunicationChannelService,
-                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
-                this, &deerruntreadmill::errorService);
+        connect(gattCommunicationChannelService, &QLowEnergyService::errorOccurred, this, &deerruntreadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &deerruntreadmill::descriptorWritten);
 
@@ -577,7 +582,7 @@ void deerruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
-            gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            gattNotifyCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -680,14 +685,10 @@ void deerruntreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &deerruntreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &deerruntreadmill::serviceScanDone);
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &deerruntreadmill::error);
+        connect(m_control, &QLowEnergyController::errorOccurred, this, &deerruntreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &deerruntreadmill::controllerStateChanged);
 
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, [this](QLowEnergyController::Error error) {
+        connect(m_control, &QLowEnergyController::errorOccurred, this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
                     emit debug(QStringLiteral("Cannot connect to remote device."));

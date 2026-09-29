@@ -51,11 +51,11 @@
 #ifndef ANDROIDINAPPPURCHASEBACKEND_H
 #define ANDROIDINAPPPURCHASEBACKEND_H
 
-#include <QAndroidJniObject>
+#include <QJniObject>
 #include <QDateTime>
 #include <QMutex>
 #include <QSet>
-//#include <QAndroidJniObject> Qt.6
+//#include <QJniObject> Qt.6
 //#include <QJniEnvironment>
 
 #include "../inapp/inappproduct.h"
@@ -117,7 +117,7 @@ class AndroidInAppPurchaseBackend : public InAppPurchaseBackend {
     mutable QRecursiveMutex m_mutex;
     bool m_isReady;
     QList<QString> purchasedUnlockebles;
-    QAndroidJniObject m_javaObject;
+    QJniObject m_javaObject;
     QScopedPointer<AndroidInAppPurchaseBackend> d;
     QHash<QString, InAppProduct::ProductType> m_productTypeForPendingId;
     QHash<QString, PurchaseInfo> m_infoForPurchase;

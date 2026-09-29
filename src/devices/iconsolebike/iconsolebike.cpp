@@ -71,7 +71,7 @@ void iconsolebike::serviceFinished(void) {
         connect(socket, &QBluetoothSocket::connected, this,
                 QOverload<>::of(&iconsolebike::rfCommConnected));
         connect(socket, &QBluetoothSocket::disconnected, this, &iconsolebike::disconnected);
-        connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
+        connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::errorOccurred), this,
                 &iconsolebike::onSocketErrorOccurred);
 
 #ifdef Q_OS_ANDROID
@@ -81,7 +81,7 @@ void iconsolebike::serviceFinished(void) {
         emit debug(QStringLiteral("Create socket"));
         if (!found) {
             qDebug() << QStringLiteral("iconsolebike::serviceFinished, no service found, trying workaround");
-            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid(QBluetoothUuid::SerialPort));
+            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid(QBluetoothUuid::ServiceClassUuid::SerialPort));
         } else {
             socket->connectToService(serialPortService);
         }
@@ -218,7 +218,7 @@ void iconsolebike::rfCommConnected() {
 
 void iconsolebike::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
     qDebug() << QStringLiteral("iconsolebike::onSocketErrorOccurred") << error;
-    emit debug(QStringLiteral("Socket error: ") + QString::number(error));
+    emit debug(QStringLiteral("Socket error: %1").arg(static_cast<int>(error)));
 }
 
 void iconsolebike::readSocket() {

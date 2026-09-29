@@ -57,21 +57,18 @@ void toorxtreadmill::serviceFinished(void) {
     if (!socket) {
         socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
 
-        connect(socket, &QBluetoothSocket::readyRead, this, &toorxtreadmill::readSocket);
-        connect(socket, &QBluetoothSocket::connected, this,
-                QOverload<>::of(&toorxtreadmill::rfCommConnected));
-        connect(socket, &QBluetoothSocket::disconnected, this, &toorxtreadmill::disconnected);
-        connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
-                &toorxtreadmill::onSocketErrorOccurred);
+            connect(socket, &QBluetoothSocket::readyRead, this, &toorxtreadmill::readSocket);
+            connect(socket, &QBluetoothSocket::connected, this, QOverload<>::of(&toorxtreadmill::rfCommConnected));
+            connect(socket, &QBluetoothSocket::disconnected, this, &toorxtreadmill::disconnected);
+            connect(socket,
+                    QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::errorOccurred),
+                    this, &toorxtreadmill::onSocketErrorOccurred);
 
-#ifdef Q_OS_ANDROID
-        socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
-#endif
 
         emit debug(QStringLiteral("Create socket"));
         if(!found) {
             qDebug() << QStringLiteral("toorxtreadmill::serviceFinished, no service found, trying workaround");
-            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid(QBluetoothUuid::SerialPort));
+            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid(QStringLiteral("00001101-0000-1000-8000-00805f9b34fb")));
         } else {
             socket->connectToService(serialPortService);
         }
@@ -499,5 +496,5 @@ uint16_t toorxtreadmill::GetElapsedTimeFromPacket(const QByteArray &packet) {
 }
 
 void toorxtreadmill::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
-    emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
+    qDebug() << QStringLiteral("onSocketErrorOccurred ") << error;
 }

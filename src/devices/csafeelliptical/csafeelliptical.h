@@ -47,7 +47,7 @@
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
-#include <QAndroidJniObject>
+#include <QJniObject>
 #endif
 
 #include "devices/csafe/csafe.h"

@@ -2792,7 +2792,7 @@ void peloton::peloton_connect_clicked() {
 }
 
 QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl &clientIdentifierSharedKey) {
-    return [this, clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QVariantMap *parameters) {
+    return [this, clientIdentifier, clientIdentifierSharedKey](QAbstractOAuth::Stage stage, QMultiMap<QString, QVariant> *parameters) {
         if (stage == QAbstractOAuth::Stage::RequestingAuthorization) {
             parameters->insert(QStringLiteral("audience"), QStringLiteral("https://api-3p.onepeloton.com/"));
             parameters->insert(QStringLiteral("responseType"), QStringLiteral("code")); /* Request refresh token*/
@@ -2801,8 +2801,8 @@ QAbstractOAuth::ModifyParametersFunction peloton::buildModifyParametersFunction(
             parameters->insert(QStringLiteral("redirect_uri"), kPelotonRedirectUri);
             pelotonPendingState = parameters->value(QStringLiteral("state")).toString();
             QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
-            // DON'T TOUCH THIS LINE, THANKS Roberto Viola
-            (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); // NOTE: Old code replaced by
+            parameters->remove(QStringLiteral("code"));
+            parameters->insert(QStringLiteral("code"), QUrl::fromPercentEncoding(code));
         }
         if (stage == QAbstractOAuth::Stage::RequestingAccessToken) {
             parameters->insert(QStringLiteral("redirect_uri"), kPelotonRedirectUri);

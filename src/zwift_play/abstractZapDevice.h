@@ -17,6 +17,10 @@
 #include "zapConstants.h"
 #include "controllerNotification.h"
 #include "qzsettings.h"
+#ifdef Q_OS_ANDROID_ENCRYPTION
+#include <QJniObject>
+#include <QJniEnvironment>
+#endif
 
 class AbstractZapDevice: public QObject {
     Q_OBJECT
@@ -59,6 +63,23 @@ class AbstractZapDevice: public QObject {
 
 #define DEBOUNCE (!gears_volume_debouncing || risingEdge <= 0)
 
+#ifdef Q_OS_ANDROID_ENCRYPTION
+        QJniEnvironment env;
+        jbyteArray d = env->NewByteArray(bytes.length());
+        jbyte *b = env->GetByteArrayElements(d, 0);
+        for (int i = 0; i < bytes.length(); i++)
+            b[i] = bytes[i];
+        env->SetByteArrayRegion(d, 0, bytes.length(), b);
+
+        int button = QJniObject::callStaticMethod<int>(
+            "org/cagnulen/qdomyoszwift/ZapClickLayer", "processCharacteristic", "([B)I", d);
+        env->DeleteLocalRef(d);
+        if(button == 1)
+            emit plus();
+        else if(button == 2)
+            emit minus();
+        return button;
+#else
         switch(bytes[0]) {
         case 0x37:
             lastFrame = QDateTime::currentDateTime();
@@ -292,9 +313,21 @@ class AbstractZapDevice: public QObject {
             break;
         }
         return 1;
+#endif
     }
 
     QByteArray buildHandshakeStart() {
+#ifdef Q_OS_ANDROID_ENCRYPTION
+        QJniObject result =
+            QJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/ZapClickLayer", "buildHandshakeStart", "()[B");
+        if (result.isValid()) {
+            jsize length = QJniEnvironment()->GetArrayLength(result.object<jbyteArray>());
+            jbyte* bytes = QJniEnvironment()->GetByteArrayElements(result.object<jbyteArray>(), nullptr);
+            QByteArray byteArray(reinterpret_cast<char*>(bytes), length);
+            QJniEnvironment()->ReleaseByteArrayElements(result.object<jbyteArray>(), bytes, JNI_ABORT);
+            return byteArray;
+        }
+#endif
         QByteArray a;
         a.append(0x52);
         a.append(0x69);

@@ -28,7 +28,7 @@
 ******************************************************************************/
 
 #include "qmqtttopicfilter.h"
-
+#include <QStringView>
 #include <QtCore/QDebug>
 #include <QtCore/QVector>
 
@@ -234,19 +234,19 @@ bool QMqttTopicFilter::match(const QMqttTopicName &name, MatchOptions matchOptio
     }
 
     if (d->filter.endsWith(QLatin1Char('#'))) {
-        QStringRef root = d->filter.leftRef(d->filter.size() - 1);
+        QStringView root = QStringView(d->filter).left(d->filter.size() - 1);
         if (root.endsWith(QLatin1Char('/'))) // '#' also represents the parent level!
             root = root.left(root.size() - 1);
         return topic.startsWith(root);
     }
 
     if (d->filter.contains(QLatin1Char('+'))) {
-        const QVector<QStringRef> filterLevels = d->filter.splitRef(QLatin1Char('/'));
-        const QVector<QStringRef> topicLevels = topic.splitRef(QLatin1Char('/'));
+        const QVector<QStringView> filterLevels = QStringView(d->filter).split(QLatin1Char('/'));
+        const QVector<QStringView> topicLevels = QStringView(topic).split(QLatin1Char('/'));
         if (filterLevels.size() != topicLevels.size())
             return false;
         for (int i = 0; i < filterLevels.size(); ++i) {
-            const QStringRef &level = filterLevels.at(i);
+            const QStringView &level = filterLevels.at(i);
             if (level != QLatin1Char('+') && level != topicLevels.at(i))
                 return false;
         }
@@ -294,7 +294,7 @@ bool operator<(const QMqttTopicFilter &lhs, const QMqttTopicFilter &rhs) Q_DECL_
 */
 uint qHash(const QMqttTopicFilter &filter, uint seed) Q_DECL_NOTHROW
 {
-    return qHash(filter.d->filter, seed);
+    return qHash(filter.d->filter, static_cast<size_t>(seed));
 }
 
 #ifndef QT_NO_DATASTREAM

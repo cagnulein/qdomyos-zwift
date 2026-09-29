@@ -238,9 +238,7 @@ void volavabike::stateChanged(QLowEnergyService::ServiceState state) {
             this, &volavabike::characteristicChanged);
     connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten,
             this, &volavabike::characteristicWritten);
-    connect(gattCommunicationChannelService,
-            static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(
-                &QLowEnergyService::error),
+    connect(gattCommunicationChannelService, &QLowEnergyService::errorOccurred,
             this, &volavabike::errorService);
     connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten,
             this, &volavabike::descriptorWritten);
@@ -278,7 +276,7 @@ void volavabike::stateChanged(QLowEnergyService::ServiceState state) {
     descriptor.append((char)0x01);
     descriptor.append((char)0x00);
     gattCommunicationChannelService->writeDescriptor(
-        gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
+        gattNotifyCharacteristic.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration),
         descriptor);
 }
 
@@ -335,15 +333,10 @@ void volavabike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
     connect(m_control, &QLowEnergyController::serviceDiscovered, this, &volavabike::serviceDiscovered);
     connect(m_control, &QLowEnergyController::discoveryFinished, this, &volavabike::serviceScanDone);
-    connect(m_control,
-            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(
-                &QLowEnergyController::error),
-            this, &volavabike::error);
+    connect(m_control, &QLowEnergyController::errorOccurred, this, &volavabike::error);
     connect(m_control, &QLowEnergyController::stateChanged, this,
             &volavabike::controllerStateChanged);
-    connect(m_control,
-            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(
-                &QLowEnergyController::error),
+    connect(m_control, &QLowEnergyController::errorOccurred,
             this, [this](QLowEnergyController::Error error) {
                 Q_UNUSED(error);
                 Q_UNUSED(this);
