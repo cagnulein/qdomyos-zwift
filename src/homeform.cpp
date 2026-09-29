@@ -11803,9 +11803,8 @@ void homeform::writeFileCompletedIntervalsICU() {
     if (statusCode >= 200 && statusCode < 300) {
         setToastRequested(QObject::tr("Intervals.icu upload successful!"));
     } else {
-        QString errorMsg = QObject::tr("Intervals.icu upload failed (HTTP %1)").arg(statusCode);
-        qDebug() << errorMsg << response;
-        setToastRequested(errorMsg);
+        qDebug() << "Intervals.icu upload failed (HTTP" << statusCode << ")" << response;
+        setToastRequested(QObject::tr("Intervals.icu upload failed (HTTP %1)").arg(statusCode));
     }
 
     reply->deleteLater();
@@ -11884,9 +11883,9 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
     qDebug() << "Intervals.icu: Download response status:" << statusCode;
 
     if (statusCode != 200) {
-        QString errorMsg = QObject::tr("Failed to get workouts (HTTP %1)").arg(statusCode);
-        qDebug() << "Intervals.icu:" << errorMsg;
-        setToastRequested(QObject::tr("Intervals.icu: %1").arg(errorMsg));
+        qDebug() << "Intervals.icu: failed to get workouts (HTTP" << statusCode << ")";
+        setToastRequested(QObject::tr("Intervals.icu: %1")
+                              .arg(QObject::tr("Failed to get workouts (HTTP %1)").arg(statusCode)));
         reply->deleteLater();
         return;
     }
