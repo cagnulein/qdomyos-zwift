@@ -28,9 +28,10 @@ class treadmillErgTable : public QObject {
         loadSettings();
     }
 
-    ~treadmillErgTable() {
-        saveSettings();
-    }
+    // No save here: each new point is appended to the settings as soon as it is collected. Heart rate
+    // belts are treadmills too, so saving in the destructor let a copy loaded at startup overwrite
+    // the points learned during the session.
+    ~treadmillErgTable() {}
 
     void collectTreadmillData(float speed, uint16_t wattage, float inclination, bool ignoreInclinationTiming = false) {
         if(inclination != lastInclinationValue || speed != lastSpeedValue) {
