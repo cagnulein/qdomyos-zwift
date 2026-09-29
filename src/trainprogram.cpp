@@ -1106,8 +1106,7 @@ void trainprogram::scheduler() {
                          << "current heart" << bluetoothManager->device()->currentHeart().value()
                          << "target power" << rows.at(currentStep).power
                          << "above" << rows.at(currentStep).HRabove
-                         << "below" << rows.at(currentStep).HRbelow
-                         << "message" << message;
+                         << "below" << rows.at(currentStep).HRbelow;
                 emit toastRequest(message);
                 lastLapButtonToastStep = currentStep;
                 lastLapButtonToastTick = ticks;
