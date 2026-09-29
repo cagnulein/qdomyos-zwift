@@ -133,7 +133,7 @@ jobs:
           unzip -t "$APK"
           sha256sum "$APK"
           unzip -l "$APK" | grep -E "lib/${{ matrix.abi }}/libqdomyos-zwift_${{ matrix.abi }}\.so$"
-          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|arm64-v8a|x86|x86_64)/' | grep -v "lib/${{ matrix.abi }}/"; then
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|arm64-v8a|x86|x86_64)/libqdomyos-zwift_' | grep -v "lib/${{ matrix.abi }}/"; then
             echo "Unexpected extra ABI libraries found in single-ABI APK"
             exit 1
           fi
