@@ -686,8 +686,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 qDebug() << QStringLiteral("Virtufit Etappe data layout detected, setting enabled");
                 if (homeform::singleton())
                     homeform::singleton()->requestRestartToApply(
-                        "QZ has detected the data format of this bike and enabled \"Virtufit Etappe 2.0 Bike\" in the "
-                        "settings. QZ must be restarted to read the bike data.");
+                        QObject::tr("QZ has detected the data format of this bike and enabled \"Virtufit Etappe 2.0 Bike\" in the settings. QZ must be restarted to read the bike data."));
             }
             return;
         }
@@ -1019,7 +1018,7 @@ void fitplusbike::serviceScanDone(void) {
             settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
             qDebug() << "forcing FTMS bike since it has FTMS";
             if(homeform::singleton())
-                homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change!");
+                homeform::singleton()->setToastRequested(QObject::tr("FTMS bike found, restart the app to apply the change!"));
         }
     }
 }

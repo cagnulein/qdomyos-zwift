@@ -3237,7 +3237,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(heartRateBelt, &heartratebelt::rrIntervalReceived, this->device(), &bluetoothdevice::rrIntervalReceived);
                 heartRateBelt->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested(b.name() + " (HR sensor) connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("%1 (HR sensor) connected!").arg(b.name()));
                 break;
             }
         }
@@ -3325,7 +3325,7 @@ void bluetooth::connectedAndDiscovered() {
                             &bluetoothdevice::cadenceSensor);
                     cadenceSensor->deviceDiscovered(b);
                     if(homeform::singleton())
-                        homeform::singleton()->setToastRequested(b.name() + " (cadence sensor) connected!");
+                        homeform::singleton()->setToastRequested(QObject::tr("%1 (cadence sensor) connected!").arg(b.name()));
                     break;
                 }
             }
@@ -3377,7 +3377,7 @@ void bluetooth::connectedAndDiscovered() {
                 }
 
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested(b.name() + " (power sensor) connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("%1 (power sensor) connected!").arg(b.name()));
 
                 break;
             }
@@ -3441,7 +3441,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(sramAXSController, &sramaxscontroller::minus, this, &bluetooth::controllerGearDown);
                 sramAXSController->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("SRAM Connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("SRAM Connected!"));
                 break;
             }
         }
@@ -3475,7 +3475,7 @@ void bluetooth::connectedAndDiscovered() {
                             &bluetooth::controllerGearDownWithMyWhoosh);
                     zwiftClickRemote->deviceDiscovered(b);
                     if(homeform::singleton())
-                        homeform::singleton()->setToastRequested("Zwift Click Connected!");
+                        homeform::singleton()->setToastRequested(QObject::tr("Zwift Click Connected!"));
                 }
             } else if (zwiftPlayDevice.size() < 2) {
                 // v2: two devices with LEFT/RIGHT designation
@@ -3546,7 +3546,7 @@ void bluetooth::connectedAndDiscovered() {
                 }
                 zwiftPlayDevice.last()->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Zwift Click v2 Connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("Zwift Click v2 Connected!"));
             }
         }
     }
@@ -3563,7 +3563,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(thinkriderController, &thinkridercontroller::minus, this, &bluetooth::controllerGearDown);
                 thinkriderController->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Thinkrider Controller Connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("Thinkrider Controller Connected!"));
                 break;
             }
         }
@@ -3583,7 +3583,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(cycplusBC2Controller, &cycplusbc2controller::minus, this, &bluetooth::controllerGearDown);
                 cycplusBC2Controller->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("CYCPLUS BC2 Connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("CYCPLUS BC2 Connected!"));
                 break;
             }
         }
@@ -3602,7 +3602,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(eliteSquareController, &elitesquarecontroller::minus, this, &bluetooth::controllerGearDown);
                 eliteSquareController->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Elite Square Connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("Elite Square Connected!"));
                 break;
             }
         }
@@ -3700,7 +3700,7 @@ void bluetooth::connectedAndDiscovered() {
                 }
                 zwiftPlayDevice.last()->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Zwift Play/Ride Connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("Zwift Play/Ride Connected!"));
             }
         }
     }

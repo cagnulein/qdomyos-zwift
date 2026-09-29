@@ -74,7 +74,7 @@ void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &charac
             uint8_t battery = (uint8_t)newValue.at(0);
             if(battery != battery_level) {
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested(bluetoothDevice.name() + QStringLiteral(" Battery Level ") + QString::number(battery) + " %");
+                    homeform::singleton()->setToastRequested(QObject::tr("%1 Battery Level %2 %").arg(bluetoothDevice.name(), QString::number(battery)));
             }
             battery_level = battery;
             qDebug() << QStringLiteral("battery: ") << battery;
@@ -244,7 +244,7 @@ void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
 
     if(homeform::singleton())
-        homeform::singleton()->setToastRequested(device.name() + QStringLiteral(" connected!"));
+        homeform::singleton()->setToastRequested(QObject::tr("%1 connected!").arg(device.name()));
 
     // if(device.name().startsWith(heartRateBeltName))
     {

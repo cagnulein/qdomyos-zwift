@@ -155,7 +155,7 @@ ColumnLayout {
         }
         Button {
             id: saveProfileNameButton
-            text: "Save"
+            text: qsTr("Save")
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
             onClicked: {
                 console.log("folder is " + rootItem.getWritableAppDir() + 'profiles')
@@ -275,7 +275,7 @@ ColumnLayout {
         id: searchButton
         height: 50
         width: parent.width
-        text: "Other folders"
+        text: qsTr("Other folders")
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'training')

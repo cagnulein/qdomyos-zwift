@@ -285,7 +285,7 @@ void ftmsbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
 
     if (!manualResistancePowerAdjustmentToastShown && homeform::singleton()) {
         homeform::singleton()->setToastRequested(
-            QStringLiteral("Custom CSC power table enabled: power now follows the configured resistance/watt points."));
+            QObject::tr("Custom CSC power table enabled: power now follows the configured resistance/watt points."));
         manualResistancePowerAdjustmentToastShown = true;
     }
 }
@@ -772,7 +772,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             uint8_t b = (uint8_t)newValue.at(0);
             if(b != battery_level)
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested(bluetoothDevice.name() + QStringLiteral(" Battery Level ") + QString::number(b) + " %");
+                    homeform::singleton()->setToastRequested(QObject::tr("%1 Battery Level %2 %").arg(bluetoothDevice.name(), QString::number(b)));
             battery_level = b;
         }
         return;
@@ -1816,11 +1816,11 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     if(gattFTMSService == nullptr && DOMYOS) {
         settings.setValue(QZSettings::domyosbike_notfmts, true);
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+            homeform::singleton()->setToastRequested(QObject::tr("Domyos bike presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks."));
     } else if(gattFTMSService == nullptr && PM5) {
         settings.setValue(QZSettings::ftms_rower, bluetoothDevice.name());
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("PM5 rower found. Restart QZ to apply the fix, thanks.");
+            homeform::singleton()->setToastRequested(QObject::tr("PM5 rower found. Restart QZ to apply the fix, thanks."));
     }
 
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
