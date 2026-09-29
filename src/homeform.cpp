@@ -2050,6 +2050,11 @@ void homeform::onToastRequested(QString message) {
 }
 
 void homeform::onTrainingProgramIntervalTransition() {
+    // A transition may change only the incline (or use HR control without forcespeed).
+    // Start the same settling window used for explicit speed changes before the HR PID can
+    // derive a new speed from stale incline telemetry.
+    lastTrainingProgramSpeedChange = QDateTime::currentDateTime();
+
     QSettings settings;
     if (settings.value(QZSettings::trainprogram_sound_on_segment,
                        QZSettings::default_trainprogram_sound_on_segment)
@@ -9031,10 +9036,11 @@ void homeform::trainprogram_autostart_requested() {
     }
 
     if (dev && !dev->isPaused()) {
-        // Device is running, call Start() twice (pause then start)
+        // A running device needs the existing pause/resume transition. Do not block the UI thread here:
+        // queued calls otherwise reach the BLE driver in the same poll cycle and can emit a start followed
+        // immediately by a stop (notably on the NTL15010.0 X7i).
         QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
-        QThread::msleep(200);
-        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+        QTimer::singleShot(1000, this, [this]() { Start(); });
     } else {
         // Device is paused/stopped, call Start() once
         QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
