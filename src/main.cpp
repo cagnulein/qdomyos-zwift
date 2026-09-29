@@ -55,6 +55,9 @@
 #include "handleurl.h"
 #include "mywhooshlink.h"
 #include "authutils.h"
+#include "purchasing/qmltypes/inappstoreqmltype.h"
+#include "purchasing/qmltypes/inappproductqmltype.h"
+#include <QtQml/qqml.h>
 
 class OAuthCallbackEventFilter : public QObject {
   public:
@@ -817,7 +820,7 @@ int main(int argc, char *argv[]) {
     
     for (const QString &permission : permissions) {
         // Check if permission is already granted
-        auto result = QJniObject::callStaticMethod<jboolean>(
+        auto result = QJniObject::callStaticMethod<jint>(
             "androidx/core/content/ContextCompat", 
             "checkSelfPermission", 
             "(Landroid/content/Context;Ljava/lang/String;)I", 
@@ -887,6 +890,12 @@ int main(int argc, char *argv[]) {
 #endif
     {
         AndroidStatusBar::registerQmlType();
+
+        // The purchasing library is linked as a plain static library rather
+        // than through qt_add_qml_module, so QML_NAMED_ELEMENT registrations
+        // are not generated automatically.
+        qmlRegisterType<InAppStoreQmlType>("org.cagnulein.qdomyoszwift", 1, 0, "Store");
+        qmlRegisterType<InAppProductQmlType>("org.cagnulein.qdomyoszwift", 1, 0, "Product");
 
 #ifdef Q_OS_ANDROID
         FontManager fontManager;

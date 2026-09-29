@@ -75,7 +75,7 @@ void iconsolebike::serviceFinished(void) {
                 &iconsolebike::onSocketErrorOccurred);
 
 #ifdef Q_OS_ANDROID
-        socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
+        socket->setPreferredSecurityFlags(QBluetooth::Security::NoSecurity);
 #endif
 
         emit debug(QStringLiteral("Create socket"));

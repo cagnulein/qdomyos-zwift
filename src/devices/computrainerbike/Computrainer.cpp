@@ -939,6 +939,8 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
 #ifdef Q_OS_ANDROID
 
     int fullLen = 0;
+    constexpr int maxRetries = 100; // 100 * 50 ms = 5 seconds
+    int retryCount = 0;
     cleanFrame = false;
 
     // previous buffer?
@@ -956,7 +958,7 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
     }
 
     QJniEnvironment env;
-    while (fullLen < size) {
+    while (fullLen < size && retryCount < maxRetries) {
         // Push a new local frame to automatically manage JNI references
         // This prevents local reference table overflow by cleaning up refs at the end of each iteration
         if (env->PushLocalFrame(16) < 0) {

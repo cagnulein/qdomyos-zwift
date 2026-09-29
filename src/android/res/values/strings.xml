@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="use_local_qt_libs">1</string>
+    <string name="bundle_local_qt_libs">1</string>
+    <string name="system_libs_prefix"></string>
+    <string name="static_init_classes"></string>
+</resources>

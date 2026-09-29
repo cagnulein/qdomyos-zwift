@@ -1,0 +1,134 @@
+name: Android Qt6
+
+on:
+  push:
+    branches:
+      - work/qt6-android-from-qt6
+  pull_request:
+    branches:
+      - master
+      - qt6
+  workflow_dispatch:
+
+concurrency:
+  group: android-qt6-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  QT_VERSION: '6.7.3'
+  ANDROID_PLATFORM: 'android-28'
+  ANDROID_NDK_VERSION: '26.1.10909125'
+  ANDROID_BUILD_TOOLS: '35.0.0'
+
+jobs:
+  android-qt6-build:
+    name: Qt6 Android (${{ matrix.abi }})
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - abi: arm64-v8a
+            qt_arch: android_arm64_v8a
+          - abi: x86_64
+            qt_arch: android_x86_64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build unzip
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK and NDK
+        shell: bash
+        run: |
+          sdkmanager "platforms;android-36" \
+            "platforms;${ANDROID_PLATFORM}" \
+            "build-tools;${ANDROID_BUILD_TOOLS}" \
+            "ndk;${ANDROID_NDK_VERSION}"
+          echo "ANDROID_NDK_ROOT=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}" >> "$GITHUB_ENV"
+
+      - name: Install Qt host tools
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: linux
+          target: desktop
+          arch: gcc_64
+          modules: qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qt5compat qtspeech
+          dir: ${{ github.workspace }}/qt
+          cache: true
+          cache-key-prefix: install-qt6-android-host
+
+      - name: Install Qt Android target
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: linux
+          target: android
+          arch: ${{ matrix.qt_arch }}
+          modules: qtnetworkauth qtcharts qtconnectivity qtpositioning qtwebsockets qtlocation qtmultimedia qt5compat qtspeech
+          dir: ${{ github.workspace }}/qt
+          cache: true
+          cache-key-prefix: install-qt6-android-${{ matrix.abi }}
+
+      - name: Configure Qt6 Android with CMake
+        shell: bash
+        run: |
+          set -euxo pipefail
+          QT_ROOT="${{ github.workspace }}/qt/Qt/${QT_VERSION}"
+          cmake -S . -B "build/android-${{ matrix.abi }}" -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI="${{ matrix.abi }}" \
+            -DANDROID_PLATFORM="${ANDROID_PLATFORM}" \
+            -DANDROID_STL=c++_shared \
+            -DQT_HOST_PATH="$QT_ROOT/gcc_64" \
+            -DCMAKE_PREFIX_PATH="$QT_ROOT/${{ matrix.qt_arch }}" \
+            -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH
+
+      - name: Build and package Qt6 APK
+        shell: bash
+        env:
+          GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Xmx4096m'
+        run: |
+          set -euxo pipefail
+          cmake --build "build/android-${{ matrix.abi }}" \
+            --target qdomyos-zwift_make_apk \
+            --parallel 2
+
+      - name: Verify Qt6 APK
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APK="build/android-${{ matrix.abi }}/src/android-build/qdomyos-zwift.apk"
+          test -s "$APK"
+          unzip -t "$APK"
+          sha256sum "$APK"
+          unzip -l "$APK" | grep -E "lib/${{ matrix.abi }}/libqdomyos-zwift_${{ matrix.abi }}\.so$"
+          if unzip -l "$APK" | grep -E 'lib/(armeabi-v7a|arm64-v8a|x86|x86_64)/' | grep -v "lib/${{ matrix.abi }}/"; then
+            echo "Unexpected extra ABI libraries found in single-ABI APK"
+            exit 1
+          fi
+
+      - name: Upload Qt6 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: qdomyos-zwift-android-qt6-${{ matrix.abi }}
+          path: build/android-${{ matrix.abi }}/src/android-build/qdomyos-zwift.apk
+          if-no-files-found: error

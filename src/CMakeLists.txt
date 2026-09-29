@@ -341,6 +341,38 @@ set(ALL_SOURCES
     ${RESOURCE_SOURCES}
 )
 
+# Sources present in the qmake project but omitted from the initial Qt6 list.
+# Keep the platform-specific iOS implementation out of Android builds.
+list(APPEND ALL_SOURCES
+    devices/cycplusbc2controller/cycplusbc2controller.cpp
+    devices/fitplusrower/fitplusrower.cpp
+    devices/freebeatbike/FreebeatUSB.cpp
+    devices/freebeatbike/freebeatbike.cpp
+    devices/freebeatboombike/freebeatboombike.cpp
+    devices/iconsolebike/iconsolebike.cpp
+    devices/kettlerc12bike/kettlerc12bike.cpp
+    devices/kettlerusbbike/KettlerUSB.cpp
+    devices/kettlerusbbike/kettlerusbbike.cpp
+    devices/lifespanbike/lifespanbike.cpp
+    devices/nordictrackifitadbrower/nordictrackifitadbrower.cpp
+    devices/sportstechrower/sportstechrower.cpp
+    devices/sunnyfitstepper/sunnyfitstepper.cpp
+    devices/thinkridercontroller/thinkridercontroller.cpp
+    devices/volavabike/volavabike.cpp
+    devices/wahookickruntreadmill/wahookickruntreadmill.cpp
+    devices/waterrowerusb/waterrowerusb.cpp
+    devices/xcxbike/xcxbike.cpp
+    filesearcher.cpp
+    fitbackupwriter.cpp
+    fitdatabaseprocessor.cpp
+    fontmanager.cpp
+    garminconnect.cpp
+    mywhooshlink.cpp
+    webtranslation.cpp
+    workoutloaderworker.cpp
+    workoutmodel.cpp
+)
+
 # Platform-specific sources
 if(WIN32)
     list(APPEND ALL_SOURCES
@@ -409,6 +441,7 @@ if(ANDROID)
         Qt6::Network
         Qt6::Gui
         Qt6::Charts
+        Qt6::Sql
     )
     # Link optional Android modules
     if(TARGET Qt6::Bluetooth)
@@ -471,6 +504,10 @@ target_include_directories(${TARGET_NAME} PRIVATE
 
 # Platform-specific settings
 if(ANDROID)
+    target_sources(${TARGET_NAME} PRIVATE
+        purchasing/android/androidjni.cpp
+    )
+
     # Android-specific settings
     set_target_properties(${TARGET_NAME} PROPERTIES
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android"
@@ -478,10 +515,10 @@ if(ANDROID)
         QT_ANDROID_TARGET_SDK_VERSION 36
     )
     
-    # Enable multi-ABI
+    # Keep constrained Android builds on the installed ABI only.
     set_target_properties(${TARGET_NAME} PROPERTIES
-        QT_ANDROID_BUILD_ALL_ABIS TRUE
-        QT_ANDROID_ABIS "armeabi-v7a;arm64-v8a;x86;x86_64"
+        QT_ANDROID_BUILD_ALL_ABIS FALSE
+        QT_ANDROID_ABIS "${ANDROID_ABI}"
     )
 endif()
 

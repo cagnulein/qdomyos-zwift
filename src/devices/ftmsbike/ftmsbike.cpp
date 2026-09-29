@@ -16,6 +16,7 @@
 #endif
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include "QAndroidJniEnvironment"
 #endif
 #include <chrono>
 #include "wheelcircumference.h"

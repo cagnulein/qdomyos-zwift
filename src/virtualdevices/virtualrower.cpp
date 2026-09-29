@@ -10,6 +10,9 @@
 #include <QtMath>
 #include <chrono>
 #include <QThread>
+#ifdef Q_OS_ANDROID
+#include "QtAndroid"
+#endif
 
 // PM5 Concept2 BLE UUIDs
 // Base UUID: CE06XXXX-43E5-11E4-916C-0800200C9A66

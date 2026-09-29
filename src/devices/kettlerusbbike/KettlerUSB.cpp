@@ -17,7 +17,9 @@
 #include "KettlerUSB.h"
 
 #ifdef Q_OS_ANDROID
-#include <QtAndroid>
+#include "QAndroidJniEnvironment"
+#include "QAndroidJniObject"
+#include "QtAndroid"
 #endif
 
 /* ----------------------------------------------------------------------

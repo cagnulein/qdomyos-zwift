@@ -29,7 +29,6 @@ if(ANDROID)
         android/androidinappproduct.cpp
         android/androidinapppurchasebackend.cpp
         android/androidinapptransaction.cpp
-        android/androidjni.cpp
         android/androidinappproduct.h
         android/androidinapppurchasebackend.h
         android/androidinapptransaction.h
@@ -80,4 +79,5 @@ target_include_directories(purchasing PUBLIC
 set_target_properties(purchasing PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
+    AUTOMOC ON
 )

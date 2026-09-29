@@ -8,6 +8,9 @@
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include "QAndroidJniEnvironment"
+#include "QAndroidJniObject"
+#include "QtAndroid"
 #include <jni.h>
 #include <QJniObject>
 #endif

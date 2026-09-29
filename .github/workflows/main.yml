@@ -501,6 +501,9 @@ jobs:
 
   # This workflow contains a single job called "build"
   android-build:
+    # The qt6 Android migration uses the dedicated CMake workflow. Keep this
+    # legacy qmake job for the existing Qt5-compatible branches only.
+    if: github.head_ref != 'work/qt6-android-from-qt6'
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
 
@@ -819,6 +822,7 @@ jobs:
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
   android-emulator-test:
+    if: github.head_ref != 'work/qt6-android-from-qt6'
     runs-on: ubuntu-latest
     needs: android-build
     continue-on-error: ${{ matrix.flaky || false }}

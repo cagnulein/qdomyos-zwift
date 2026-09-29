@@ -1,0 +1,2 @@
+#include <QJniObject>
+using QAndroidJniObject = QJniObject;

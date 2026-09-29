@@ -1,0 +1,25 @@
+#pragma once
+
+#include <QJniObject>
+#include <utility>
+
+namespace QtAndroid {
+inline QJniObject androidContext() {
+    return QJniObject::callStaticObjectMethod(
+        "org/qtproject/qt/android/QtNative",
+        "getContext",
+        "()Landroid/content/Context;");
+}
+
+inline QJniObject androidActivity() {
+    return QJniObject::callStaticObjectMethod(
+        "org/qtproject/qt/android/QtNative",
+        "getActivity",
+        "()Landroid/app/Activity;");
+}
+
+template <typename Callable>
+inline void runOnAndroidThread(Callable&& callable) {
+    std::forward<Callable>(callable)();
+}
+} // namespace QtAndroid

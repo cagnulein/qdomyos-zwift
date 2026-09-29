@@ -38,6 +38,7 @@ if(ANDROID)
         Location 
         Multimedia 
         Charts
+        Sql
     )
     # Try to find optional Android modules
     find_package(Qt6Bluetooth QUIET)
@@ -76,12 +77,13 @@ else()
         TextToSpeech 
         Location 
         Multimedia 
-        MultimediaWidgets 
+        MultimediaWidgets
         Network 
         Gui 
         WebView
         Charts
         Core5Compat
+        Sql
     )
 endif()
 
