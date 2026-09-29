@@ -319,11 +319,8 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
         KCal = calories;
     }
 
-    double power = parts.size() > 14 ? parts.value(14).toDouble(&ok) : 0.0;
-    if ((!ok || power < 0) && parts.size() > 21) {
-        power = parts.value(21).toDouble(&ok);
-    }
-    if (ok) {
+    const double power = parts.size() > 21 ? parts.value(21).toDouble(&ok) : 0.0;
+    if (ok && power >= 0) {
         m_watt = power;
     }
 
