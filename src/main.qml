@@ -506,11 +506,12 @@ ApplicationWindow {
                 horizontalAlignment: Text.AlignHCenter
             }
 
-            ComboBox {
+            ValueComboBox {
                 id: gymModeDeviceComboBox
                 width: parent.width
                 model: rootItem.bluetoothDevices
-                displayText: currentIndex >= 0 ? currentValue : qsTr("Select a device")
+                labels: ({ "Disabled": qsTr("Disabled") })
+                displayText: currentIndex >= 0 ? labelFor(currentValue) : qsTr("Select a device")
                 currentIndex: -1
                 font.pixelSize: Qt.application.font.pixelSize + 8
 
@@ -1028,7 +1029,7 @@ ApplicationWindow {
                  anchors.horizontalCenter: parent.horizontalCenter
              Label {
                  anchors.horizontalCenter: parent.horizontalCenter
-                 text: qsTr("Auto Resistance " + (rootItem.autoResistance?"enabled":"disabled"))
+                 text: rootItem.autoResistance ? qsTr("Auto Resistance enabled") : qsTr("Auto Resistance disabled")
                 }
              }
         }
