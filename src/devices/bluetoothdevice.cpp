@@ -22,11 +22,18 @@ bluetoothdevice::~bluetoothdevice() {
 }
 
 BLUETOOTH_TYPE bluetoothdevice::deviceType() { return UNKNOWN; }
-void bluetoothdevice::start() { requestStart = 1; lastStart = QDateTime::currentMSecsSinceEpoch(); }
+void bluetoothdevice::start() {
+    // Start/stop requests are a last-command-wins queue. Do not let a pending stop
+    // from a pause transition execute after a subsequent start request.
+    requestStop = -1;
+    requestPause = -1;
+    requestStart = 1;
+    lastStart = QDateTime::currentMSecsSinceEpoch();
+}
 void bluetoothdevice::stop(bool pause) {
+    requestStart = -1;
     requestStop = 1;
-    if (pause)
-        requestPause = 1;
+    requestPause = pause ? 1 : -1;
 }
 metric bluetoothdevice::currentHeart() { return Heart; }
 metric bluetoothdevice::currentSpeed() { return Speed; }

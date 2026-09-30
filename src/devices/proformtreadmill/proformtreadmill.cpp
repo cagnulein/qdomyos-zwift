@@ -2280,8 +2280,7 @@ void proformtreadmill::update() {
                         writeCharacteristic(start5, sizeof(start5), QStringLiteral("NTL15010 start 5/5"), false, true);
                         requestStart = -1;
                         emit tapeStarted();
-                    }
-                    if (requestStop != -1) {
+                    } else if (requestStop != -1) {
                         emit debug(QStringLiteral("stopping..."));
                         writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("NTL15010 stop 1/2"));
                         writeCharacteristic(stop2, sizeof(stop2), QStringLiteral("NTL15010 stop 2/2"), false, true);

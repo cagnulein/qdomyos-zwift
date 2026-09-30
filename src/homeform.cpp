@@ -5791,7 +5791,7 @@ void homeform::Minus(const QString &name) {
 
 void homeform::Start() { Start_inner(true); }
 
-void homeform::Start_inner(bool send_event_to_device) {
+void homeform::Start_inner(bool send_event_to_device, bool force_start) {
     QSettings settings;
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
@@ -5800,7 +5800,7 @@ void homeform::Start_inner(bool send_event_to_device) {
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
         m_speech.say("Start pressed");
 
-    if (!paused && !stopped) {
+    if (!force_start && !paused && !stopped) {
         paused = true;
         if (bluetoothManager->device() && send_event_to_device) {
             bluetoothManager->device()->stop(paused);
@@ -7899,10 +7899,15 @@ void homeform::update() {
                 delta = trainProgram->currentRow().loopTimeHR;
             }
 
+            bool trainingProgramTransitionActive =
+                bluetoothManager->device()->deviceType() == TREADMILL &&
+                ((treadmill *)bluetoothManager->device())->trainingProgramTransitionActive(delta * 1000);
+
             if (bluetoothManager->device()->deviceType() == TREADMILL &&
                 !settings.value(QZSettings::trainprogram_pid_ignore_inclination, QZSettings::default_trainprogram_pid_ignore_inclination).toBool() &&
                 !(trainProgram && trainProgram->currentRow().forcespeed && trainProgram->currentRow().zoneHR < 0) &&
                 lastTrainingProgramSpeedChange.msecsTo(QDateTime::currentDateTime()) >= (delta * 1000) &&
+                !trainingProgramTransitionActive &&
                 bluetoothManager->device()->currentInclination().value() != lastInclination && lastWattage != 0) {
                 last_seconds_pid_heart_zone = seconds;
 
@@ -7958,7 +7963,7 @@ void homeform::update() {
                     // Skip HR PID adjustments for a period after training program changes speed
                     // This prevents race conditions where HR PID overwrites training program speed changes
                     qint64 msSinceSpeedChange = lastTrainingProgramSpeedChange.msecsTo(QDateTime::currentDateTime());
-                    bool recentSpeedChange = (msSinceSpeedChange < (delta * 1000));
+                    bool recentSpeedChange = (msSinceSpeedChange < (delta * 1000)) || trainingProgramTransitionActive;
                     
                     if (!recentSpeedChange) {
                     if (bluetoothManager->device()->deviceType() == TREADMILL) {
@@ -8131,6 +8136,10 @@ void homeform::update() {
                 delta = trainProgram->currentRow().loopTimeHR;
             }
 
+            bool trainingProgramTransitionActive =
+                bluetoothManager->device()->deviceType() == TREADMILL &&
+                ((treadmill *)bluetoothManager->device())->trainingProgramTransitionActive(delta * 1000);
+
             if (last_seconds_pid_heart_zone == 0 || ((seconds - last_seconds_pid_heart_zone) >= delta)) {
 
                 last_seconds_pid_heart_zone = seconds;
@@ -8167,7 +8176,7 @@ void homeform::update() {
                     // Skip HR PID adjustments for a period after training program changes speed
                     // This prevents race conditions where HR PID overwrites training program speed changes
                     qint64 msSinceSpeedChange = lastTrainingProgramSpeedChange.msecsTo(QDateTime::currentDateTime());
-                    bool recentSpeedChange = (msSinceSpeedChange < (delta * 1000));
+                    bool recentSpeedChange = (msSinceSpeedChange < (delta * 1000)) || trainingProgramTransitionActive;
                     
                     if (!recentSpeedChange) {
                     if (bluetoothManager->device()->deviceType() == TREADMILL) {
@@ -9030,21 +9039,11 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
 void homeform::trainprogram_autostart_requested() {
     qDebug() << QStringLiteral("trainprogram_autostart_requested");
 
-    bluetoothdevice *dev = nullptr;
-    if (bluetoothManager) {
-        dev = bluetoothManager->device();
-    }
-
-    if (dev && !dev->isPaused()) {
-        // A running device needs the existing pause/resume transition. Do not block the UI thread here:
-        // queued calls otherwise reach the BLE driver in the same poll cycle and can emit a start followed
-        // immediately by a stop (notably on the NTL15010.0 X7i).
-        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
-        QTimer::singleShot(1000, this, [this]() { Start(); });
-    } else {
-        // Device is paused/stopped, call Start() once
-        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
-    }
+    // Autostart must start the workout, not toggle the current UI state. Calling Start()
+    // while the UI is initially neither paused nor stopped enters the pause branch and
+    // leaves a stale stop request behind; the following start then produces start -> stop
+    // on the NTL15010.0 X7i. Force the existing start branch exactly once instead.
+    QTimer::singleShot(0, this, [this]() { Start_inner(true, true); });
 }
 
 void homeform::checkClipboardForWorkout() {
