@@ -84,6 +84,12 @@ class horizontreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+    // btinit() blocks for a long time inside nested event loops (writeCharacteristic() and
+    // waitForAPacket() both call loop.exec()), during which the refresh timer keeps firing
+    // update(). Guards against update() re-entering btinit() while it is still running.
+    bool btinitRunning = false;
+    // Consecutive failed reconnects, used for backoff. Reset on a successful connection.
+    int reconnectAttempts = 0;
     bool initPacketRecv = false;
 
     bool noWriteResistance = false;
