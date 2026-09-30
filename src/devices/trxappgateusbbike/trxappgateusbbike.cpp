@@ -32,7 +32,8 @@ trxappgateusbbike::trxappgateusbbike(bool noWriteResistance, bool noHeartService
 }
 
 void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                            bool wait_for_response, const QByteArray &response_prefix) {
+                                            bool wait_for_response, const QByteArray &response_prefix,
+                                            bool force_write_with_response) {
     QEventLoop loop;
     QTimer timeout;
 
@@ -55,14 +56,17 @@ void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse)
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
-                                                             QLowEnergyService::WriteWithoutResponse);
-    else
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    auto writeMode = QLowEnergyService::WriteWithResponse;
+    if (!force_write_with_response && (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse))
+        writeMode = QLowEnergyService::WriteWithoutResponse;
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer, writeMode);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
+        const QString writeModeName =
+            writeMode == QLowEnergyService::WriteWithoutResponse ? QStringLiteral("without_response")
+                                                                  : QStringLiteral("with_response");
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info +
+                   QStringLiteral(" writeMode=") + writeModeName);
     }
 
     loop.exec();
@@ -100,8 +104,10 @@ void trxappgateusbbike::forceResistance(resistance_t requestResistance) {
 
         resistance[5] += resistance[i]; // the last byte is a sort of a checksum
     }
+    const bool force_write_with_response = bike_type == DKN_MOTION_2;
     writeCharacteristic((uint8_t *)resistance, sizeof(resistance),
-                        QStringLiteral("resistance ") + QString::number(requestResistance), false, true);
+                        QStringLiteral("resistance ") + QString::number(requestResistance), false, true, QByteArray(),
+                        force_write_with_response);
 }
 
 void trxappgateusbbike::update() {

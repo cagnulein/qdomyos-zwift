@@ -51,7 +51,8 @@ class trxappgateusbbike : public bike {
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                             bool wait_for_response, const QByteArray &response_prefix = QByteArray());
+                             bool wait_for_response, const QByteArray &response_prefix = QByteArray(),
+                             bool force_write_with_response = false);
     void startDiscover();
     uint16_t watts() override;
     double GetWattFromPacket(const QByteArray &packet);
