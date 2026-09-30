@@ -22,6 +22,7 @@
 #include <QGuiApplication>
 #include <QFileOpenEvent>
 #include <QEvent>
+#include <QLoggingCategory>
 #include <QOperatingSystemVersion>
 #include <QQmlApplicationEngine>
 #include <QSettings>
@@ -707,9 +708,22 @@ int main(int argc, char *argv[]) {
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
-    foreach (QString s, settings.allKeys()) {
-        if (!QZSettings::isSensitiveSettingKey(s)) {
-            qDebug() << s << settings.value(s);
+
+    // myMessageOutput() drops every message when the log is off (same condition as there), so don't
+    // build the messages nobody reads: the dump of all the settings and the Qt Bluetooth debug output,
+    // which Qt formats for every packet once its category is enabled
+    const bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+#if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
+    const bool logEnabled = forceQml ? logdebug : logs;
+#else
+    const bool logEnabled = logdebug;
+#endif
+    if (logEnabled) {
+        QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
+        foreach (QString s, settings.allKeys()) {
+            if (!QZSettings::isSensitiveSettingKey(s)) {
+                qDebug() << s << settings.value(s);
+            }
         }
     }
 
