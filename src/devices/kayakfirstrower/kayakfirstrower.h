@@ -53,7 +53,6 @@ class kayakfirstrower : public rower {
     qint64 lastDeviceTimestampSeconds = 0;
     QDateTime lastDeviceTimestampCapturedAt;
     qint64 lastPacketTimestampMs = 0;
-    double lastStrokeCountValue = 0.0;
     QDateTime lastDataUpdate = QDateTime::currentDateTime();
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;

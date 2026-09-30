@@ -272,57 +272,44 @@ void kayakfirstrower::parseLine(const QByteArray &line) {
     const qint64 packetTimestampMs = parts.value(1).toLongLong(&ok);
     const bool packetTimestampValid = ok && packetTimestampMs > 0;
 
-    const double strokeCount = parts.value(9).toDouble(&ok);
-    if (ok) {
-        if (packetTimestampValid && lastPacketTimestampMs > 0 && packetTimestampMs > lastPacketTimestampMs &&
-            strokeCount >= lastStrokeCountValue) {
-            const double elapsedMs = static_cast<double>(packetTimestampMs - lastPacketTimestampMs);
-            const double strokeDelta = strokeCount - lastStrokeCountValue;
-            if (elapsedMs > 0.0 && strokeDelta >= 0.0) {
-                Cadence = (strokeDelta * 60000.0) / elapsedMs;
-            }
-        }
-
-        if (strokeCount >= StrokesCount.value()) {
-            const uint32_t delta = static_cast<uint32_t>(strokeCount - StrokesCount.value());
-            if (delta > 0) {
-                CrankRevs += delta;
-            }
-        }
-        StrokesCount = strokeCount;
-        lastStrokeCountValue = strokeCount;
-    }
-
-    const double distanceKm = parts.value(10).toDouble(&ok);
-    if (ok) {
-        Distance = distanceKm;
+    const double distanceMeters = parts.value(9).toDouble(&ok);
+    if (ok && distanceMeters >= 0) {
+        Distance = distanceMeters / 1000.0;
     }
 
     const double speedMs = parts.value(11).toDouble(&ok);
-    if (ok) {
+    if (ok && speedMs >= 0) {
         Speed = speedMs * 3.6;
     }
 
-    double heartRate = parts.size() > 12 ? parts.value(12).toDouble(&ok) : 0.0;
-    if ((!ok || heartRate <= 0) && parts.size() > 13) {
-        heartRate = parts.value(13).toDouble(&ok);
-    }
-    if ((!ok || heartRate <= 0) && parts.size() > 20) {
-        heartRate = parts.value(20).toDouble(&ok);
-    }
-    if (ok && heartRate > 0) {
-        Heart = heartRate;
+    const double cadence = parts.value(13).toDouble(&ok);
+    if (ok && cadence >= 0) {
+        Cadence = cadence;
     }
 
-    const double calories = parts.size() > 16 ? parts.value(16).toDouble(&ok) : 0.0;
-    if (ok && calories >= 0) {
-        KCal = calories;
+    double heartRate = parts.size() > 12 ? parts.value(12).toDouble(&ok) : 0.0;
+    if (ok && heartRate >= 0) {
+        Heart = heartRate;
     }
 
     const double power = parts.size() > 21 ? parts.value(21).toDouble(&ok) : 0.0;
     if (ok && power >= 0) {
         m_watt = power;
+
+        if (power > 0 && packetTimestampValid && lastPacketTimestampMs > 0 &&
+            packetTimestampMs > lastPacketTimestampMs) {
+            QSettings settings;
+            const double weight =
+                settings.value(QZSettings::weight, QZSettings::default_weight).toDouble();
+            const double elapsedSeconds =
+                qMin((packetTimestampMs - lastPacketTimestampMs) / 1000.0, 5.0);
+            const double caloriesPerSecond =
+                (((0.048 * power + 1.19) * weight * 3.5) / 200.0) / 60.0;
+            KCal += caloriesPerSecond * elapsedSeconds;
+        }
     }
+
+    // KayakFirst field 16 is a pace duration, not calories.
 
     const double elapsed = parts.value(22).toDouble(&ok);
     if (ok) {
@@ -489,7 +476,6 @@ void kayakfirstrower::descriptorWritten(const QLowEnergyDescriptor &descriptor, 
     lastDeviceTimestampSeconds = 0;
     lastDeviceTimestampCapturedAt = QDateTime();
     lastPacketTimestampMs = 0;
-    lastStrokeCountValue = 0.0;
     showToast(QStringLiteral("KayakFirst connecting..."));
     initRequest = true;
     emit connectedAndDiscovered();
