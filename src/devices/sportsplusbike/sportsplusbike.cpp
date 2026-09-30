@@ -375,7 +375,9 @@ void sportsplusbike::btinit(bool startTape) {
     QSettings settings;
     bool sp_ht_9600ie = settings.value(QZSettings::sp_ht_9600ie, QZSettings::default_sp_ht_9600ie).toBool();
 
-    if (!sp_ht_9600ie && !carefitness_bike) {
+    if (!sp_ht_9600ie &&
+        (!carefitness_bike ||
+         !bluetoothDevice.name().compare(QStringLiteral("CARE11216+0156"), Qt::CaseInsensitive))) {
         const uint8_t initData1[] = {0x40, 0x00, 0x16, 0x0a, 0x60};
 
         writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
