@@ -520,6 +520,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::FTMSBikeHammerRacerS)
         ->expectDevice<ftmsbike>()        
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
+        ->acceptDeviceName("HS-5000L", DeviceNameComparison::IgnoreCase)
         ->configureSettingsWith(QZSettings::hammer_racer_s)
         ->excluding(ftmsBikeConfigureExclusions);
 

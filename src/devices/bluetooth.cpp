@@ -1935,7 +1935,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 npeCableBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(npeCableBike);
-            } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
+            } else if ((((b.name().startsWith("FS-") || b.name().toUpper().startsWith("HS-5000L")) && hammerRacerS) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) && toorx_ftms ) ||
                         (b.name().toUpper().startsWith("DI") && b.name().length() == 2) || // Elite smart trainer #1682
                         (b.name().toUpper().startsWith("DHZ-")) ||                         // JK fitness 577
