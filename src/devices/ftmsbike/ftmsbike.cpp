@@ -1734,7 +1734,8 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
             }
             
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700 || WLT_BK || H9115) {
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() ||
+                HAMMER_RACER_S || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700 || WLT_BK || H9115) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
@@ -1824,7 +1825,8 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
-        (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_290R || SMB1 || FIT_BK || WLT_BK || H9115)) {
+        (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() ||
+         HAMMER_RACER_S || SCH_290R || SMB1 || FIT_BK || WLT_BK || H9115)) {
         init();
     }
 
@@ -2238,6 +2240,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             MRK_S36C = true;
             resistance_lvl_mode = true;
             ergModeSupported = false; // this bike doesn't have ERG mode natively, target power must be converted to resistance
+        } else if (device.name().toUpper().startsWith("HS-5000L")) {
+            qDebug() << QStringLiteral("HS-5000L Hammer Racer S found");
+            HAMMER_RACER_S = true;
         } else if(device.name().toUpper().startsWith("HAMMER")) {
             qDebug() << QStringLiteral("HAMMER found");
             HAMMER = true;

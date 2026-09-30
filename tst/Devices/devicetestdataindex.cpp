@@ -521,7 +521,18 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<ftmsbike>()        
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
         ->acceptDeviceName("HS-5000L", DeviceNameComparison::IgnoreCase)
-        ->configureSettingsWith(QZSettings::hammer_racer_s)
+        ->configureSettingsWith([](const DeviceDiscoveryInfo &info, bool enable,
+                                   std::vector<DeviceDiscoveryInfo> &configurations) {
+            if (info.DeviceName().compare(QStringLiteral("HS-5000L"), Qt::CaseInsensitive) == 0) {
+                if (enable)
+                    configurations.push_back(info);
+                return;
+            }
+
+            DeviceDiscoveryInfo config(info);
+            config.setValue(QZSettings::hammer_racer_s, enable);
+            configurations.push_back(config);
+        })
         ->excluding(ftmsBikeConfigureExclusions);
 
     // FTMS Bike Hammer 64123
