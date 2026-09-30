@@ -32,12 +32,19 @@ trxappgateusbbike::trxappgateusbbike(bool noWriteResistance, bool noHeartService
 }
 
 void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                            bool wait_for_response) {
+                                            bool wait_for_response, const QByteArray &response_prefix,
+                                            bool force_write_with_response) {
     QEventLoop loop;
     QTimer timeout;
 
     if (wait_for_response) {
-        connect(this, &trxappgateusbbike::packetReceived, &loop, &QEventLoop::quit);
+        connect(this, &trxappgateusbbike::packetReceived, &loop,
+                [this, &loop, response_prefix](const QByteArray &packet) {
+                    if (response_prefix.isEmpty() || packet.startsWith(response_prefix)) {
+                        lastResponsePacket = packet;
+                        loop.quit();
+                    }
+                });
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
@@ -49,14 +56,17 @@ void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse)
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
-                                                             QLowEnergyService::WriteWithoutResponse);
-    else
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    auto writeMode = QLowEnergyService::WriteWithResponse;
+    if (!force_write_with_response && (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse))
+        writeMode = QLowEnergyService::WriteWithoutResponse;
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer, writeMode);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
+        const QString writeModeName =
+            writeMode == QLowEnergyService::WriteWithoutResponse ? QStringLiteral("without_response")
+                                                                  : QStringLiteral("with_response");
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info +
+                   QStringLiteral(" writeMode=") + writeModeName);
     }
 
     loop.exec();
@@ -75,7 +85,8 @@ void trxappgateusbbike::forceResistance(resistance_t requestResistance) {
 
     uint8_t resistance[] = {0xf0, 0xa6, 0x01, 0x01, 0x00, 0x00};
     if (bike_type == DKN_MOTION_2) {
-        resistance[2] = 0x02;
+        resistance[2] = vescapeIdentifier1;
+        resistance[3] = vescapeIdentifier2;
     } else if (bike_type == VIRTUFIT || bike_type == VIRTUFIT_2) {
         resistance[2] = 0x1e;
     } else if (bike_type == ADIDAS_C1) {
@@ -93,8 +104,10 @@ void trxappgateusbbike::forceResistance(resistance_t requestResistance) {
 
         resistance[5] += resistance[i]; // the last byte is a sort of a checksum
     }
+    const bool force_write_with_response = bike_type == DKN_MOTION_2;
     writeCharacteristic((uint8_t *)resistance, sizeof(resistance),
-                        QStringLiteral("resistance ") + QString::number(requestResistance), false, true);
+                        QStringLiteral("resistance ") + QString::number(requestResistance), false, true, QByteArray(),
+                        force_write_with_response);
 }
 
 void trxappgateusbbike::update() {
@@ -135,8 +148,13 @@ void trxappgateusbbike::update() {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0x01, 0x94};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-        } else if (bike_type == TYPE::DKN_MOTION || bike_type == TYPE::DKN_MOTION_2) {
-
+        } else if (bike_type == TYPE::DKN_MOTION_2) {
+            uint8_t noOpData[] = {0xf0, 0xa2, vescapeIdentifier1, vescapeIdentifier2, 0x00};
+            for (uint8_t i = 0; i < sizeof(noOpData) - 1; i++) {
+                noOpData[4] += noOpData[i];
+            }
+            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+        } else if (bike_type == TYPE::DKN_MOTION) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x02, 0x01, 0x95};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (bike_type == TYPE::CASALL) {
@@ -230,7 +248,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    emit packetReceived();
+    emit packetReceived(newValue);
 
     qDebug() << newValue.toHex(' ') << bike_type;
 
@@ -582,7 +600,75 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
-    } else if (bike_type == TYPE::DKN_MOTION || bike_type == TYPE::DKN_MOTION_2) {
+    } else if (bike_type == TYPE::DKN_MOTION_2) {
+        const QByteArray vescapeB7 = QByteArray::fromHex("f0b7");
+        const QByteArray vescapeB0 = QByteArray::fromHex("f0b0");
+        const QByteArray vescapeA4Payload = QByteArray::fromHex("01010101010101010101");
+        const auto responseByte = [](char value) {
+            return static_cast<uint8_t>(static_cast<unsigned char>(value));
+        };
+        const auto validVescapeResponse = [&responseByte](const QByteArray &packet, const QByteArray &prefix,
+                                                           int expectedSize) {
+            if (packet.size() != expectedSize || !packet.startsWith(prefix)) {
+                return false;
+            }
+            uint8_t checksum = 0;
+            for (int index = 0; index < packet.size() - 1; ++index) {
+                checksum += responseByte(packet.at(index));
+            }
+            return checksum == responseByte(packet.at(packet.size() - 1));
+        };
+        const auto buildVescapeFrame = [](uint8_t opcode, uint8_t identifier1, uint8_t identifier2,
+                                          const QByteArray &payload) {
+            QByteArray frame;
+            frame.append(static_cast<char>(0xf0));
+            frame.append(static_cast<char>(opcode));
+            frame.append(static_cast<char>(identifier1));
+            frame.append(static_cast<char>(identifier2));
+            frame.append(payload);
+            uint8_t checksum = 0;
+            for (const char value : frame) {
+                checksum += static_cast<uint8_t>(static_cast<unsigned char>(value));
+            }
+            frame.append(static_cast<char>(checksum));
+            return frame;
+        };
+
+        lastResponsePacket.clear();
+        const uint8_t handshake[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
+        writeCharacteristic((uint8_t *)handshake, sizeof(handshake), QStringLiteral("Vescape B7 handshake"), false, true,
+                            vescapeB7);
+        if (!validVescapeResponse(lastResponsePacket, vescapeB7, 6)) {
+            emit debug(QStringLiteral("Vescape B7 handshake response invalid"));
+            return;
+        }
+        vescapeIdentifier1 = responseByte(lastResponsePacket.at(2));
+        vescapeIdentifier2 = responseByte(lastResponsePacket.at(3));
+
+        QByteArray vescapeContinuation = buildVescapeFrame(0xa0, vescapeIdentifier1, vescapeIdentifier2,
+                                                           QByteArray());
+        lastResponsePacket.clear();
+        writeCharacteristic(reinterpret_cast<uint8_t *>(vescapeContinuation.data()), vescapeContinuation.size(),
+                            QStringLiteral("Vescape B0 handshake"), false, true, vescapeB0);
+        if (!validVescapeResponse(lastResponsePacket, vescapeB0, 5)) {
+            emit debug(QStringLiteral("Vescape B0 handshake response invalid"));
+            return;
+        }
+        vescapeIdentifier1 = responseByte(lastResponsePacket.at(2));
+        vescapeIdentifier2 = responseByte(lastResponsePacket.at(3));
+        QByteArray vescapeA3 = buildVescapeFrame(0xa3, vescapeIdentifier1, vescapeIdentifier2,
+                                                 QByteArray::fromHex("01"));
+        QByteArray vescapeA4 = buildVescapeFrame(0xa4, vescapeIdentifier1, vescapeIdentifier2,
+                                                 vescapeA4Payload);
+        QByteArray vescapeA5 = buildVescapeFrame(0xa5, vescapeIdentifier1, vescapeIdentifier2,
+                                                 QByteArray::fromHex("02"));
+        writeCharacteristic(reinterpret_cast<uint8_t *>(vescapeA3.data()), vescapeA3.size(),
+                            QStringLiteral("Vescape init"), false, false);
+        writeCharacteristic(reinterpret_cast<uint8_t *>(vescapeA4.data()), vescapeA4.size(),
+                            QStringLiteral("Vescape init"), false, false);
+        writeCharacteristic(reinterpret_cast<uint8_t *>(vescapeA5.data()), vescapeA5.size(),
+                            QStringLiteral("Vescape init"), false, false);
+    } else if (bike_type == TYPE::DKN_MOTION) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x02, 0x01, 0x93};
         const uint8_t initData3[] = {0xf0, 0xa3, 0x02, 0x01, 0x01, 0x97};
