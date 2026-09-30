@@ -19,7 +19,9 @@ ListView {
       * @param {real} duration Duration to show in milliseconds, defaults to 3000
       */
     function show(text, duration) {
-        model.insert(0, {text: text, duration: duration});
+        // Always a number: a ListModel role takes its type from the first insert, so after one
+        // toast with a duration an undefined one came back as 0 and the toast lasted 0.6 s
+        model.insert(0, {text: text, duration: (typeof duration === "number" && duration > 0) ? duration : 0});
     }
 
     /**
@@ -47,7 +49,7 @@ ListView {
     
     delegate: Toast {
         Component.onCompleted: {
-            if (typeof duration === "undefined") {
+            if (typeof duration === "undefined" || !(duration > 0)) {
                 show(text);
             }
             else {
