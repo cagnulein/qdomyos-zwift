@@ -506,7 +506,12 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 #else
     if (logdebug == false)
 #endif
+    {
+        // Qt aborts after a fatal message: print it even with the log off
+        if (type == QtFatalMsg)
+            (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
         return;
+    }
 
     // QByteArray localMsg = msg.toLocal8Bit(); // NOTE: clazy-unused-non-trivial-variable
     const char *file = context.file ? context.file : "";
@@ -528,6 +533,10 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         break;
     case QtFatalMsg:
         txt += QStringLiteral("Fatal: %1 %2 %3\n").arg(file, function, msg); // NOTE: clazy-qstring-arg
+        // the log thread would not get to this line before the abort: write it here
+        if (logs == true || logdebug == true)
+            LogWriter().writeLog(homeform::getWritableAppDir() + logfilename, txt);
+        (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
         abort();
     }
 
