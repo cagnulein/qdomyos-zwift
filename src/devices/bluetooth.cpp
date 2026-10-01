@@ -1531,6 +1531,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(
                             QStringLiteral("KS-BLR"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
                        !(b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) && // it's an FTMS one
+                       // set by kingsmithr1protreadmill when the device has FTMS but not the KingSmith service
+                       b.name().compare(ftms_treadmill, Qt::CaseInsensitive) &&
                        !kingsmithR1ProTreadmill &&
                        !kingsmithR2Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2248,7 +2250,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 concept2Skierg->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(concept2Skierg);
             } else if (b.name().toUpper().startsWith(QStringLiteral("MRK-R28-")) &&
-                       !fitPlusRower && filter) {
+                       !isConfiguredFtmsRowerDevice && !fitPlusRower && filter) {
                 // Support case: matthieu.f.graveleau@gmail.com, debug-Wed_Sep_9_22_16_00_2026.log.txt.
                 // The R28 advertises FTMS, but QZ 2.20.29 successfully used the proprietary FFF0 Merach protocol.
                 this->setLastBluetoothDevice(b);
