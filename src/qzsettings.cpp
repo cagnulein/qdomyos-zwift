@@ -8,6 +8,7 @@ bool QZSettings::isSensitiveSettingKey(const QString &key) {
            normalizedKey.contains(QStringLiteral("user_email")) ||
            normalizedKey.contains(QStringLiteral("username")) ||
            normalizedKey.contains(QStringLiteral("token")) ||
+           normalizedKey.contains(QStringLiteral("cryptokey")) || // decrypts the passwords in the profile files
            normalizedKey.contains(QStringLiteral("garmin_device_serial")) ||
            normalizedKey.contains(QStringLiteral("garmin_email"));
 }

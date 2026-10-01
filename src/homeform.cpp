@@ -9661,7 +9661,8 @@ void homeform::strava_refreshtoken() {
 
     // lets extract the access token, and possibly a new refresh token
     QByteArray r = reply->readAll();
-    qDebug() << QStringLiteral("Got response:") << r.data();
+    // the body has the access and refresh tokens; users may attach logs to public issues
+    qDebug() << QStringLiteral("Got response:") << r.size() << QStringLiteral("bytes");
 
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(r, &parseError);
@@ -9876,7 +9877,11 @@ void homeform::onStravaAuthorizeWithBrowser(const QUrl &url) {
 
 void homeform::replyDataReceived(const QByteArray &v) {
 
-    qDebug() << v;
+    // The OAuth body contains access and refresh tokens; avoid logging it.
+    if (v.contains("_token"))
+        qDebug() << QStringLiteral("Strava reply received:") << v.size() << QStringLiteral("bytes");
+    else
+        qDebug() << v;
 
     QByteArray data;
     QSettings settings;
