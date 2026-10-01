@@ -5,7 +5,6 @@
 #include "characteristicnotifier.h"
 
 class CharacteristicNotifier2A5B : public CharacteristicNotifier {
-    bluetoothdevice *Bike;
     uint16_t lastWheelTime = 0;
     uint32_t wheelRevs = 0;
     bool bike_wheel_revs;
