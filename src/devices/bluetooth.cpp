@@ -179,24 +179,45 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
                 [this](QBluetoothDeviceDiscoveryAgent::Error error) {
                     debug(QStringLiteral("BTLE scanning error ") + QString::number(error) + QStringLiteral(" ") +
                           discoveryAgent->errorString());
-                    if (error == QBluetoothDeviceDiscoveryAgent::PoweredOffError)
+                    if (error == QBluetoothDeviceDiscoveryAgent::PoweredOffError) {
+                        if (!bluetoothOffPoll.isActive())
+                            bluetoothOffPoll.start();
                         finished();
+                    }
                 },
                 // start() reports the error from inside itself, the first time in this constructor:
                 // finished() must run once the app has connected to our signals
                 Qt::QueuedConnection);
         // ...and scan as soon as Bluetooth is switched on, rather than at the next rescan (up to 60 s later)
+        auto bluetoothSwitchedOn = [this]() {
+            bluetoothOffPoll.stop();
+            if (device() || !discoveryAgent || discoveryAgent->isActive())
+                return;
+            debug(QStringLiteral("BTLE scanning, Bluetooth switched on"));
+            rescanCount = 0;
+            rescanStartedMs = 0;
+            startDiscovery();
+        };
         QBluetoothLocalDevice *localDevice = new QBluetoothLocalDevice(this);
         connect(localDevice, &QBluetoothLocalDevice::hostModeStateChanged, this,
-                [this](QBluetoothLocalDevice::HostMode mode) {
-                    if (mode == QBluetoothLocalDevice::HostPoweredOff || device() || !discoveryAgent ||
-                        discoveryAgent->isActive())
-                        return;
-                    debug(QStringLiteral("BTLE scanning, Bluetooth switched on"));
-                    rescanCount = 0;
-                    rescanStartedMs = 0;
-                    startDiscovery();
+                [bluetoothSwitchedOn](QBluetoothLocalDevice::HostMode mode) {
+                    if (mode != QBluetoothLocalDevice::HostPoweredOff)
+                        bluetoothSwitchedOn();
                 });
+        // Qt 5 learns about Bluetooth only from the scan mode broadcast, and switching Bluetooth on
+        // from the quick settings may never send one: then the equipment was found only at the next
+        // rescan. So the adapter is also asked directly, by the same check that start() makes.
+        bluetoothOffPoll.setInterval(2000);
+        connect(&bluetoothOffPoll, &QTimer::timeout, this, [this, bluetoothSwitchedOn]() {
+            if (device()) {
+                bluetoothOffPoll.stop();
+                return;
+            }
+            QAndroidJniObject adapter = QAndroidJniObject::callStaticObjectMethod(
+                "android/bluetooth/BluetoothAdapter", "getDefaultAdapter", "()Landroid/bluetooth/BluetoothAdapter;");
+            if (adapter.isValid() && adapter.callMethod<jint>("getState") == 12) // BluetoothAdapter.STATE_ON
+                bluetoothSwitchedOn();
+        });
 #endif
         // Safety net: on some platforms (e.g. Android containers/emulators without a functional
         // Bluetooth adapter, such as Waydroid) the discovery agent's finished()/timeout signal never
