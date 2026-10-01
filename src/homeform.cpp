@@ -1,6 +1,7 @@
 #include "homeform.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
 #include "devices/fakebike/fakebike.h"
+#include "devices/ftmsrower/ftmsrower.h"
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #include "ios/ios_liveactivity.h"
@@ -8587,8 +8588,11 @@ void homeform::update() {
             }
 
             bool treadmill_direct_distance = settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance).toBool();
+            const ftmsrower *jorotoRower = dynamic_cast<const ftmsrower *>(bluetoothManager->device());
+            const bool joroto_direct_distance =
+                jorotoRower && jorotoRower->usesJorotoDirectDistance();
             double distance1s = 0;
-            if (treadmill_direct_distance) {
+            if (treadmill_direct_distance || joroto_direct_distance) {
                 distance1s = bluetoothManager->device()->odometer();
             } else {
                 if(bluetoothManager->device()->currentSpeed().value() > 0 && !isinf(bluetoothManager->device()->currentSpeed().value()))
