@@ -15,7 +15,7 @@ void metric::setType(_metric_type t, BLUETOOTH_TYPE bt) {
     m_bluetooth_type = bt;
 }
 
-void metric::setValue(double v, bool applyGainAndOffset) {
+void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats) {
     QSettings settings;
     // these special cases are also in the valueRaw
     if (applyGainAndOffset) {
@@ -67,7 +67,7 @@ void metric::setValue(double v, bool applyGainAndOffset) {
         return;
     }
 
-    if (value() != 0 && value() != INFINITY) {
+    if ((value() != 0 || includeZeroInStats) && value() != INFINITY) {
         m_countValue++;
         m_lapCountValue++;
         m_totValue += value();
@@ -522,7 +522,7 @@ double metric::calculateActiveKCal(double totalKCal, double elapsed) {
     // Calculate BMR calories for the elapsed time
     double bmrForElapsed = bmrPerSecond * elapsed;
     
-    // Active calories = Total calories - BMR calories for the elapsed time
+    // Active calories = Total calories - BMR calories
     double activeKCal = totalKCal - bmrForElapsed;
     
     // Ensure we don't return negative calories
