@@ -166,6 +166,38 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #ifndef Q_OS_WIN
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &bluetooth::finished);
 #endif
+#ifdef Q_OS_ANDROID
+        // With Bluetooth off the scan fails at once and finished() never comes, so the rescan loop
+        // in finished() never started: the equipment was not found until the user tapped the
+        // Bluetooth icon or restarted the app. Treat this failure as an empty scan.
+        // Android only: on iOS every new scan may show the system "Turn On Bluetooth" alert again.
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 2, 0))
+        connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this,
+#else
+        connect(discoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this,
+#endif
+                [this](QBluetoothDeviceDiscoveryAgent::Error error) {
+                    debug(QStringLiteral("BTLE scanning error ") + QString::number(error) + QStringLiteral(" ") +
+                          discoveryAgent->errorString());
+                    if (error == QBluetoothDeviceDiscoveryAgent::PoweredOffError)
+                        finished();
+                },
+                // start() reports the error from inside itself, the first time in this constructor:
+                // finished() must run once the app has connected to our signals
+                Qt::QueuedConnection);
+        // ...and scan as soon as Bluetooth is switched on, rather than at the next rescan (up to 60 s later)
+        QBluetoothLocalDevice *localDevice = new QBluetoothLocalDevice(this);
+        connect(localDevice, &QBluetoothLocalDevice::hostModeStateChanged, this,
+                [this](QBluetoothLocalDevice::HostMode mode) {
+                    if (mode == QBluetoothLocalDevice::HostPoweredOff || device() || !discoveryAgent ||
+                        discoveryAgent->isActive())
+                        return;
+                    debug(QStringLiteral("BTLE scanning, Bluetooth switched on"));
+                    rescanCount = 0;
+                    rescanStartedMs = 0;
+                    startDiscovery();
+                });
+#endif
         // Safety net: on some platforms (e.g. Android containers/emulators without a functional
         // Bluetooth adapter, such as Waydroid) the discovery agent's finished()/timeout signal never
         // fires even though a discoveryAgent object was created, leaving fake devices (Fake
