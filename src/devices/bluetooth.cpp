@@ -2137,7 +2137,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
 #ifndef Q_OS_IOS
             else if (b.name() == QStringLiteral("RACER S") &&
-                     (b.coreConfigurations() & QBluetoothDeviceInfo::BaseRateCoreConfiguration) &&
                      !kettlerClassicBike && filter) {
                 // MyHomeFIT's Kettler Classic connector uses BR/EDR SPP.
                 // The BaseRate check keeps the existing BLE Stages "RACER S"
