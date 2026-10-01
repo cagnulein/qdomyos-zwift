@@ -55,7 +55,6 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
                      double bikeResistanceGain, bool startDiscovery) {
     QSettings settings;
     bool gymMode = settings.value(QZSettings::gym_mode, QZSettings::default_gym_mode).toBool();
-    QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
     this->testResistance = testResistance;
     this->noWriteResistance = noWriteResistance;
