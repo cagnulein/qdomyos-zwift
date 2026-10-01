@@ -522,7 +522,7 @@ double metric::calculateActiveKCal(double totalKCal, double elapsed) {
     // Calculate BMR calories for the elapsed time
     double bmrForElapsed = bmrPerSecond * elapsed;
     
-    // Active calories = Total calories - BMR calories
+    // Active calories = Total calories - BMR calories for the elapsed time
     double activeKCal = totalKCal - bmrForElapsed;
     
     // Ensure we don't return negative calories
