@@ -7903,7 +7903,10 @@ void homeform::update() {
                 bluetoothManager->device()->deviceType() == TREADMILL &&
                 ((treadmill *)bluetoothManager->device())->trainingProgramTransitionActive(delta * 1000);
 
+            // Training-program HR rows must be controlled by the HR PID only. Do not let the
+            // wattage-preserving incline compensation replace their requested speed.
             if (bluetoothManager->device()->deviceType() == TREADMILL &&
+                !fromTrainProgram &&
                 !settings.value(QZSettings::trainprogram_pid_ignore_inclination, QZSettings::default_trainprogram_pid_ignore_inclination).toBool() &&
                 !(trainProgram && trainProgram->currentRow().forcespeed && trainProgram->currentRow().zoneHR < 0) &&
                 lastTrainingProgramSpeedChange.msecsTo(QDateTime::currentDateTime()) >= (delta * 1000) &&
