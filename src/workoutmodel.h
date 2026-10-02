@@ -8,7 +8,7 @@
 #include <QDate>
 #include <QDateTime>
 #include "fitdatabaseprocessor.h"
-#ifdef Q_OS_IOS
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
 #include "ios/lockscreen.h"
 #endif
 
@@ -55,7 +55,7 @@ class WorkoutModel : public QAbstractListModel {
     Q_INVOKABLE bool loadTrainingProgram(int workoutId);
 
     Q_INVOKABLE bool canWriteAppleHealth(int workoutId) const {
-#ifdef Q_OS_IOS
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
         QSqlQuery query(m_db);
         query.prepare("SELECT sport_type FROM workouts WHERE id = ?");
         query.addBindValue(workoutId);
@@ -72,7 +72,7 @@ class WorkoutModel : public QAbstractListModel {
     }
 
     Q_INVOKABLE bool uploadWorkoutToAppleHealth(int workoutId) {
-#ifdef Q_OS_IOS
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
         QSqlQuery query(m_db);
         query.prepare("SELECT sport_type, start_time, end_time, total_distance, total_calories FROM workouts WHERE id = ?");
         query.addBindValue(workoutId);

@@ -175,6 +175,8 @@ if [[ -f "qdomyoszwift.xcodeproj/project.pbxproj" ]]; then
     sed -i '' 's|/Users/cagnulein/Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
     sed -i '' 's|../../Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
     sed -i '' 's|../Qt/5\.15\.2/ios/|/tmp/Qt-5.15.2/ios/|g' qdomyoszwift.xcodeproj/project.pbxproj
+    sed -i '' 's|"/Users/cagnulein/Qt/5\.15.2/ios"|"/tmp/Qt-5.15.2/ios"|g' qdomyoszwift.xcodeproj/project.pbxproj
+    sed -i '' 's|"/Users/cagnulein/Qt/5.15.2/ios-simulator-arm64"|"/tmp/Qt-5.15.2/ios"|g' qdomyoszwift.xcodeproj/project.pbxproj
 
     # 2. Fix source file paths to relative (must be before general fix)
     sed -i '' 's|/Users/cagnulein/qdomyos-zwift/src/|../src/|g' qdomyoszwift.xcodeproj/project.pbxproj

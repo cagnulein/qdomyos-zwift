@@ -16,6 +16,7 @@
 		0870834790CEDE2D52551A52 /* CoreBluetooth.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 71E5705044D6C31AB87AEB17 /* CoreBluetooth.framework */; };
 		0CE02722F00CAD43741297B5 /* CoreGraphics.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 6AE3EC31EE5BB1FCEE84137C /* CoreGraphics.framework */; };
 		0F974CB18B3E792B42270F19 /* FitDecode.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = FE506AC7CF7E6DE1931BFB55 /* FitDecode.mm */; settings = {ATTRIBUTES = (); }; };
+		2D4684BF88B9B0456A50B3F0 /* qdomyoszwift_plugin_import_simulator.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8DD3B05CF7374DC62BC3BA4A /* qdomyoszwift_plugin_import_simulator.cpp */; settings = {ATTRIBUTES = (); }; };
 		133CA0345CD2BFB03079A655 /* qmlfolderlistmodelplugin in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 4D77E0181941BE76CD4887BD /* qmlfolderlistmodelplugin */; };
 		140BAAA8823E05940EF35A38 /* moc_treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = CA44C08759DF30D7DC9CA598 /* moc_treadmill.cpp */; settings = {ATTRIBUTES = (); }; };
 		15364689D2AB5A30E87A689F /* Security.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 205259EEEE2BADA5E64741E3 /* Security.framework */; };
@@ -278,6 +279,8 @@
 		87433F2127D8B722003D1672 /* simplecrypt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87433F2027D8B722003D1672 /* simplecrypt.cpp */; };
 		87440FBD2640291700E4DC0B /* fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBC2640291700E4DC0B /* fitplusbike.cpp */; };
 		87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */; };
+		87F000012F00000000000006 /* freebeatboombike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000009 /* freebeatboombike.cpp */; };
+		87F000012F00000000000007 /* moc_freebeatboombike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F0000000000000A /* moc_freebeatboombike.cpp */; };
 		87F000012F00000000000001 /* fitplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000004 /* fitplusrower.cpp */; };
 		87F000012F00000000000002 /* moc_fitplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000005 /* moc_fitplusrower.cpp */; };
 		8745B2762AFCB4A300991A39 /* android in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8745B2752AFCB4A300991A39 /* android */; };
@@ -325,6 +328,7 @@
 		8768C8C52BBC11C80099DBE1 /* OVERVIEW.TXT in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8768C8AE2BBC11C70099DBE1 /* OVERVIEW.TXT */; };
 		8768C8C62BBC11C80099DBE1 /* AdbClient.m in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C8B12BBC11C70099DBE1 /* AdbClient.m */; };
 		8768C8C72BBC11C80099DBE1 /* adb_auth_host.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C8B22BBC11C70099DBE1 /* adb_auth_host.c */; };
+		A8768C8D2BBC11C80099DBE1 /* adb_auth_host_simulator.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = A8768C8E2BBC11C70099DBE1 /* adb_auth_host_simulator.c */; };
 		8768C8C82BBC11C80099DBE1 /* commandline.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C8B32BBC11C70099DBE1 /* commandline.c */; };
 		8768C8C92BBC11C80099DBE1 /* adb_client.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C8B42BBC11C70099DBE1 /* adb_client.c */; };
 		8768C8CA2BBC11C80099DBE1 /* sockets.c in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8768C8B52BBC11C80099DBE1 /* sockets.c */; };
@@ -1254,6 +1258,9 @@
 		87440FBB2640291700E4DC0B /* fitplusbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fitplusbike.h; path = ../src/devices/fitplusbike/fitplusbike.h; sourceTree = "<group>"; };
 		87440FBC2640291700E4DC0B /* fitplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fitplusbike.cpp; path = ../src/devices/fitplusbike/fitplusbike.cpp; sourceTree = "<group>"; };
 		87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitplusbike.cpp; sourceTree = "<group>"; };
+		87F000012F00000000000008 /* freebeatboombike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = freebeatboombike.h; path = ../src/devices/freebeatboombike/freebeatboombike.h; sourceTree = "<group>"; };
+		87F000012F00000000000009 /* freebeatboombike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = freebeatboombike.cpp; path = ../src/devices/freebeatboombike/freebeatboombike.cpp; sourceTree = "<group>"; };
+		87F000012F0000000000000A /* moc_freebeatboombike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_freebeatboombike.cpp; sourceTree = "<group>"; };
 		87F000012F00000000000003 /* fitplusrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fitplusrower.h; path = ../src/devices/fitplusrower/fitplusrower.h; sourceTree = "<group>"; };
 		87F000012F00000000000004 /* fitplusrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fitplusrower.cpp; path = ../src/devices/fitplusrower/fitplusrower.cpp; sourceTree = "<group>"; };
 		87F000012F00000000000005 /* moc_fitplusrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitplusrower.cpp; sourceTree = "<group>"; };
@@ -1334,6 +1341,7 @@
 		8768C8B02BBC11C70099DBE1 /* fdevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fdevent.h; path = ../src/ios/adb/adb/fdevent.h; sourceTree = "<group>"; };
 		8768C8B12BBC11C70099DBE1 /* AdbClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AdbClient.m; path = ../src/ios/adb/adb/AdbClient.m; sourceTree = "<group>"; };
 		8768C8B22BBC11C70099DBE1 /* adb_auth_host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = adb_auth_host.c; path = ../src/ios/adb/adb/adb_auth_host.c; sourceTree = "<group>"; };
+		A8768C8E2BBC11C70099DBE1 /* adb_auth_host_simulator.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = adb_auth_host_simulator.c; path = "/Users/cagnulein/qdomyos-zwift/qt-patches/ios/5.15.2/simulator/adb_auth_host_simulator.c"; sourceTree = "<absolute>"; };
 		8768C8B32BBC11C70099DBE1 /* commandline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = commandline.c; path = ../src/ios/adb/adb/commandline.c; sourceTree = "<group>"; };
 		8768C8B42BBC11C70099DBE1 /* adb_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = adb_client.c; path = ../src/ios/adb/adb/adb_client.c; sourceTree = "<group>"; };
 		8768C8B52BBC11C80099DBE1 /* sockets.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sockets.c; path = ../src/ios/adb/adb/sockets.c; sourceTree = "<group>"; };
@@ -1849,6 +1857,7 @@
 		8B4D3E8297D9B0A3F6D0E502 /* fit_exercise_title_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_exercise_title_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_exercise_title_mesg.hpp"; sourceTree = "<absolute>"; };
 		8D4707FE7D1DA58A70A11CF8 /* lockscreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lockscreen.h; path = "/Users/cagnulein/qdomyos-zwift/src/macos/lockscreen.h"; sourceTree = "<absolute>"; };
 		8DD3B05BF7374DC62BC3BA4A /* qdomyoszwift_plugin_import.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qdomyoszwift_plugin_import.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_plugin_import.cpp"; sourceTree = "<absolute>"; };
+		8DD3B05CF7374DC62BC3BA4A /* qdomyoszwift_plugin_import_simulator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qdomyoszwift_plugin_import_simulator.cpp; path = "/Users/cagnulein/qdomyos-zwift/qt-patches/ios/5.15.2/simulator/qdomyoszwift_plugin_import_simulator.cpp"; sourceTree = "<absolute>"; };
 		8E28393138FD66362FE1D92E /* fit_accumulator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_accumulator.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_accumulator.cpp"; sourceTree = "<absolute>"; };
 		8F482725CD95AE73BEF24D76 /* qrc_icons.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qrc_icons.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qrc_icons.cpp"; sourceTree = "<absolute>"; };
 		90C9FE418CA050D1AC2BCB2B /* qmldbg_quickprofiler */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_quickprofiler; path = "$(QZ_QT_IOS_ROOT)/plugins/qmltooling/libqmldbg_quickprofiler$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
@@ -2073,6 +2082,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				878521CD2E42552A00922796 /* libqtlabscalendarplugin.a in Link Binary With Libraries */,
+				8768C9282BBC13220099DBE1 /* libcrypto.a in Link Binary With Libraries */,
 				87FA94672B6B89FD00B6AB9A /* SwiftUI.framework in Link Binary With Libraries */,
 				879F74112893D5B8009A64C8 /* libqavfcamera.a in Link Binary With Libraries */,
 				879F740F2893D592009A64C8 /* libqtmedia_audioengine.a in Link Binary With Libraries */,
@@ -2344,6 +2354,7 @@
 				87A3BC24265642A200D302E3 /* moc_rower.cpp */,
 				8780D948264FB8B800192D41 /* moc_smartspin2k.cpp */,
 				87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */,
+				87F000012F0000000000000A /* moc_freebeatboombike.cpp */,
 				87F000012F00000000000005 /* moc_fitplusrower.cpp */,
 				875F69BA26342E9A0009FD78 /* moc_spirittreadmill.cpp */,
 				8718CBAA263063CE004BF4EE /* moc_soleelliptical.cpp */,
@@ -2387,6 +2398,7 @@
 				87CC3B9C25A08812001EC5A8 /* moc_elliptical.cpp */,
 				873063BF259DF2C500DA0F44 /* moc_heartratebelt.cpp */,
 				8DD3B05BF7374DC62BC3BA4A /* qdomyoszwift_plugin_import.cpp */,
+				8DD3B05CF7374DC62BC3BA4A /* qdomyoszwift_plugin_import_simulator.cpp */,
 				310AB027BBBCDE72251E1C01 /* qdomyoszwift_qml_plugin_import.cpp */,
 				8F482725CD95AE73BEF24D76 /* qrc_icons.cpp */,
 				49789298954386B0E136DA23 /* qrc_qml.cpp */,
@@ -2841,6 +2853,8 @@
 				8780D945264FB8AB00192D41 /* smartspin2k.h */,
 				87440FBC2640291700E4DC0B /* fitplusbike.cpp */,
 				87440FBB2640291700E4DC0B /* fitplusbike.h */,
+				87F000012F00000000000009 /* freebeatboombike.cpp */,
+				87F000012F00000000000008 /* freebeatboombike.h */,
 				87F000012F00000000000004 /* fitplusrower.cpp */,
 				87F000012F00000000000003 /* fitplusrower.h */,
 				875F69B826342E8D0009FD78 /* spirittreadmill.cpp */,
@@ -3036,6 +3050,7 @@
 			children = (
 				8768C9292BBC32AE0099DBE1 /* adb_auth.h */,
 				8768C8B22BBC11C70099DBE1 /* adb_auth_host.c */,
+				A8768C8E2BBC11C70099DBE1 /* adb_auth_host_simulator.c */,
 				8768C8B42BBC11C70099DBE1 /* adb_client.c */,
 				8768C8A32BBC11C70099DBE1 /* adb_client.h */,
 				8768C8AB2BBC11C70099DBE1 /* adb_trace.h */,
@@ -3844,6 +3859,7 @@
 				87B617F225F260150094A1CB /* moc_fitshowtreadmill.cpp in Compile Sources */,
 				87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */,
 				87F000012F00000000000001 /* fitplusrower.cpp in Compile Sources */,
+				87F000012F00000000000006 /* freebeatboombike.cpp in Compile Sources */,
 				8556B13A3D02D52A21FC5E3E /* bluetooth.cpp in Compile Sources */,
 				87586A4125B8340E00A243C4 /* proformbike.cpp in Compile Sources */,
 				87C5F0C126285E5F0067A1B5 /* mimeattachment.cpp in Compile Sources */,
@@ -4179,6 +4195,7 @@
 				0F974CB18B3E792B42270F19 /* FitDecode.mm in Compile Sources */,
 				87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */,
 				87F000012F00000000000002 /* moc_fitplusrower.cpp in Compile Sources */,
+				87F000012F00000000000007 /* moc_freebeatboombike.cpp in Compile Sources */,
 				8768C8CA2BBC11C80099DBE1 /* sockets.c in Compile Sources */,
 				87B617EC25F25FED0094A1CB /* screencapture.cpp in Compile Sources */,
 				8755E5D42E4E260B006A12E4 /* moc_fontmanager.cpp in Compile Sources */,
@@ -4216,12 +4233,14 @@
 				876E50F32B701C050080FAAF /* moc_zwiftPlayDevice.cpp in Compile Sources */,
 				8790FDDF277B0ABA00247550 /* nautilustreadmill.cpp in Compile Sources */,
 				2D4684BE88B9B0456A50B3F0 /* qdomyoszwift_plugin_import.cpp in Compile Sources */,
+				2D4684BF88B9B0456A50B3F0 /* qdomyoszwift_plugin_import_simulator.cpp in Compile Sources */,
 				8783153C25E8DAFD0007817C /* sportstechbike.cpp in Compile Sources */,
 				873824E527E647A8004F1B46 /* message.cpp in Compile Sources */,
 				210F6A0A7E2FA7CDD3CA0084 /* qdomyoszwift_qml_plugin_import.cpp in Compile Sources */,
 				8715A3E72C75E6C9009BAC05 /* moc_antbike.cpp in Compile Sources */,
 				87062644259480A600D06586 /* APIFetcher.swift in Compile Sources */,
 				8768C8C72BBC11C80099DBE1 /* adb_auth_host.c in Compile Sources */,
+				A8768C8D2BBC11C80099DBE1 /* adb_auth_host_simulator.c in Compile Sources */,
 				87F02E4029178524000DB52C /* octaneelliptical.cpp in Compile Sources */,
 				878531682711A3EC004B153D /* moc_activiotreadmill.cpp in Compile Sources */,
 				87C5F0D626285E7E0067A1B5 /* moc_emailaddress.cpp in Compile Sources */,
@@ -4424,54 +4443,54 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					"$(QZ_QT_IOS_ROOT)/mkspecs/common/uikit",
+					../../Qt/5.15.2/ios/mkspecs/common/uikit,
 					"../src/fit-sdk",
-					"$(QZ_QT_IOS_ROOT)/include",
-					"$(QZ_QT_IOS_ROOT)/include/QtWidgets",
-					"$(QZ_QT_IOS_ROOT)/include/QtQuick",
-					"$(QZ_QT_IOS_ROOT)/include/QtGui",
-					"$(QZ_QT_IOS_ROOT)/include/QtBluetooth",
-					"$(QZ_QT_IOS_ROOT)/include/QtXml",
-					"$(QZ_QT_IOS_ROOT)/include/QtPositioning",
-					"$(QZ_QT_IOS_ROOT)/include/QtQmlModels",
-					"$(QZ_QT_IOS_ROOT)/include/QtQml",
-					"$(QZ_QT_IOS_ROOT)/include/QtNetwork",
-					"$(QZ_QT_IOS_ROOT)/include/QtCore",
+					../../Qt/5.15.2/ios/include,
+					../../Qt/5.15.2/ios/include/QtWidgets,
+					../../Qt/5.15.2/ios/include/QtQuick,
+					../../Qt/5.15.2/ios/include/QtGui,
+					../../Qt/5.15.2/ios/include/QtBluetooth,
+					../../Qt/5.15.2/ios/include/QtXml,
+					../../Qt/5.15.2/ios/include/QtPositioning,
+					../../Qt/5.15.2/ios/include/QtQmlModels,
+					../../Qt/5.15.2/ios/include/QtQml,
+					../../Qt/5.15.2/ios/include/QtNetwork,
+					../../Qt/5.15.2/ios/include/QtCore,
 					.,
-					"$(QZ_QT_IOS_ROOT)/mkspecs/macx-ios-clang",
+					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
 				);
 				INFOPLIST_FILE = ../src/ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LDPLUSPLUS = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++";
 				LIBRARY_SEARCH_PATHS = (
-					"$(QZ_QT_IOS_ROOT)/plugins/platforms",
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
 					/System/Library/Frameworks/,
-					"$(QZ_QT_IOS_ROOT)/lib",
-					"$(QZ_QT_IOS_ROOT)/plugins/imageformats",
-					"$(QZ_QT_IOS_ROOT)/plugins/position",
-					"$(QZ_QT_IOS_ROOT)/lib",
-					"$(QZ_QT_IOS_ROOT)/plugins/qmltooling",
-					"$(QZ_QT_IOS_ROOT)/plugins/bearer",
-					"$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects/private",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQml/Models.2",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQml/WorkerScript.2",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs",
-					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/folderlistmodel",
-					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/settings",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs/Private",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/PrivateWidgets",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQml",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Layouts",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Window.2",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick.2",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Templates.2",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Material",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Fusion",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Universal",
-					"$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Imagine",
+					/Users/cagnulein/Qt/5.15.2/ios/lib,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/imageformats,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
+					/Users/cagnulein/Qt/5.15.2/ios/lib,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/qmltooling,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/bearer,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects/private,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml/Models.2,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml/WorkerScript.2,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Dialogs,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/folderlistmodel,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/settings,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Dialogs/Private,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/PrivateWidgets,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Layouts,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Window.2,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick.2,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Templates.2,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Material,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Fusion,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Universal,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Imagine,
 				);
 				OTHER_CFLAGS = (
 					"-pipe",
@@ -4524,12 +4543,12 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
-					"-Wl,-force_load,$(QZ_QIOS_ARCHIVE)",
+					"-Wl,-force_load,/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
 					"-framework",
 					AssetsLibrary,
-					"-L$(QZ_QT_IOS_ROOT)/lib",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -4581,54 +4600,54 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					"$(QZ_QT_IOS_ROOT)/mkspecs/common/uikit",
+					../../Qt/5.15.2/ios/mkspecs/common/uikit,
 					"../src/fit-sdk",
-					"$(QZ_QT_IOS_ROOT)/include",
-					"$(QZ_QT_IOS_ROOT)/include/QtWidgets",
-					"$(QZ_QT_IOS_ROOT)/include/QtQuick",
-					"$(QZ_QT_IOS_ROOT)/include/QtGui",
-					"$(QZ_QT_IOS_ROOT)/include/QtBluetooth",
-					"$(QZ_QT_IOS_ROOT)/include/QtXml",
-					"$(QZ_QT_IOS_ROOT)/include/QtPositioning",
-					"$(QZ_QT_IOS_ROOT)/include/QtQmlModels",
-					"$(QZ_QT_IOS_ROOT)/include/QtQml",
-					"$(QZ_QT_IOS_ROOT)/include/QtNetwork",
-					"$(QZ_QT_IOS_ROOT)/include/QtCore",
+					../../Qt/5.15.2/ios/include,
+					../../Qt/5.15.2/ios/include/QtWidgets,
+					../../Qt/5.15.2/ios/include/QtQuick,
+					../../Qt/5.15.2/ios/include/QtGui,
+					../../Qt/5.15.2/ios/include/QtBluetooth,
+					../../Qt/5.15.2/ios/include/QtXml,
+					../../Qt/5.15.2/ios/include/QtPositioning,
+					../../Qt/5.15.2/ios/include/QtQmlModels,
+					../../Qt/5.15.2/ios/include/QtQml,
+					../../Qt/5.15.2/ios/include/QtNetwork,
+					../../Qt/5.15.2/ios/include/QtCore,
 					.,
-					"$(QZ_QT_IOS_ROOT)/mkspecs/macx-ios-clang",
+					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
 				);
 				INFOPLIST_FILE = ../src/ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LDPLUSPLUS = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++";
 				LIBRARY_SEARCH_PATHS = (
-					"$(QZ_QT_IOS_ROOT)/plugins/platforms",
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
 					/System/Library/Frameworks/,
-					"$(QZ_QT_IOS_ROOT)/lib",
-					"$(QZ_QT_IOS_ROOT)/plugins/imageformats",
-					"$(QZ_QT_IOS_ROOT)/plugins/position",
-					"$(QZ_QT_IOS_ROOT)/lib",
-					"$(QZ_QT_IOS_ROOT)/plugins/qmltooling",
-					"$(QZ_QT_IOS_ROOT)/plugins/bearer",
-					"$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects/private",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQml/Models.2",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQml/WorkerScript.2",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs",
-					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/folderlistmodel",
-					"$(QZ_QT_IOS_ROOT)/qml/Qt/labs/settings",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Dialogs/Private",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/PrivateWidgets",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQml",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Layouts",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Window.2",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick.2",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Templates.2",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Material",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Fusion",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Universal",
-					"$(QZ_QT_IOS_ROOT)/qml/QtGraphicalEffects",
-					"$(QZ_QT_IOS_ROOT)/qml/QtQuick/Controls.2/Imagine",
+					/Users/cagnulein/Qt/5.15.2/ios/lib,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/imageformats,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
+					/Users/cagnulein/Qt/5.15.2/ios/lib,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/qmltooling,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/bearer,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects/private,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml/Models.2,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml/WorkerScript.2,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Dialogs,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/folderlistmodel,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/settings,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Dialogs/Private,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/PrivateWidgets,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Layouts,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Window.2,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick.2,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Templates.2,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Material,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Fusion,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Universal,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Imagine,
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
@@ -4682,12 +4701,12 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-e,_qt_main_wrapper",
-					"-Wl,-force_load,$(QZ_QIOS_ARCHIVE)",
+					"-Wl,-force_load,/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
 					"-framework",
 					AssetsLibrary,
-					"-L$(QZ_QT_IOS_ROOT)/lib",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -4718,7 +4737,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				"ARCHS[sdk=iphoneos*]" = arm64;
-				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
@@ -4727,39 +4746,41 @@
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = "ADB_HOST=1";
+				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphoneos*]" = "adb_auth_host_simulator.c qdomyoszwift_plugin_import_simulator.cpp";
+				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphonesimulator*]" = "adb_auth_host.c qdomyoszwift_plugin_import.cpp";
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					"$(QZ_QT_IOS_ROOT)/mkspecs/common/uikit",
+					../../Qt/5.15.2/ios/mkspecs/common/uikit,
 					"../src/fit-sdk",
-					"$(QZ_QT_IOS_ROOT)/include",
-					"$(QZ_QT_IOS_ROOT)/include/QtWidgets",
-					"$(QZ_QT_IOS_ROOT)/include/QtQuick",
-					"$(QZ_QT_IOS_ROOT)/include/QtGui",
-					"$(QZ_QT_IOS_ROOT)/include/QtBluetooth",
-					"$(QZ_QT_IOS_ROOT)/include/QtXml",
-					"$(QZ_QT_IOS_ROOT)/include/QtPositioning",
-					"$(QZ_QT_IOS_ROOT)/include/QtQmlModels",
-					"$(QZ_QT_IOS_ROOT)/include/QtQml",
-					"$(QZ_QT_IOS_ROOT)/include/QtCharts",
-					"$(QZ_QT_IOS_ROOT)/include/QtNetwork",
-					"$(QZ_QT_IOS_ROOT)/include/QtCore",
+					../../Qt/5.15.2/ios/include,
+					../../Qt/5.15.2/ios/include/QtWidgets,
+					../../Qt/5.15.2/ios/include/QtQuick,
+					../../Qt/5.15.2/ios/include/QtGui,
+					../../Qt/5.15.2/ios/include/QtBluetooth,
+					../../Qt/5.15.2/ios/include/QtXml,
+					../../Qt/5.15.2/ios/include/QtPositioning,
+					../../Qt/5.15.2/ios/include/QtQmlModels,
+					../../Qt/5.15.2/ios/include/QtQml,
+					../../Qt/5.15.2/ios/include/QtCharts,
+					../../Qt/5.15.2/ios/include/QtNetwork,
+					../../Qt/5.15.2/ios/include/QtCore,
 					.,
-					"$(QZ_QT_IOS_ROOT)/mkspecs/macx-ios-clang",
-					"$(QZ_QT_IOS_ROOT)/include/QtNetworkAuth",
-					"$(QZ_QT_IOS_ROOT)/include/QtHttpServer",
+					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
+					../../Qt/5.15.2/ios/include/QtNetworkAuth,
+					../../Qt/5.15.2/ios/include/QtHttpServer,
 					../src/qmdnsengine/src/include,
 					../src/purchasing/inapp,
 					../src/purchasing/qmltypes,
 					../src/purchasing/ios,
-					"$(QZ_QT_IOS_ROOT)/include/QtTextToSpeech",
-					"$(QZ_QT_IOS_ROOT)/include/QtMultimedia",
+					../../Qt/5.15.2/ios/include/QtTextToSpeech,
+					../../Qt/5.15.2/ios/include/QtMultimedia,
 					../src/devices,
 					../src/ios/adb/include,
-					"$(QZ_QT_IOS_ROOT)/include/QtCore/5.15.2/QtCore/private",
-					"$(QZ_QT_IOS_ROOT)/include/QtCore/5.15.2",
-					"$(QZ_QT_IOS_ROOT)/include/QtCore/5.15.2/QtCore/",
-					"$(QZ_QT_IOS_ROOT)/include/QtSql",
+					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/private,
+					../../Qt/5.15.2/ios/include/QtCore/5.15.2,
+					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/,
+					../../Qt/5.15.2/ios/include/QtSql,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -4894,6 +4915,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
+				"QZ_QT_IOS_ROOT[sdk=iphoneos*]" = "/Users/cagnulein/Qt/5.15.2/ios";
+				"QZ_QT_IOS_ROOT[sdk=iphonesimulator*]" = "/Users/cagnulein/Qt/5.15.2/ios-simulator-arm64";
+				QZ_QIOS_ARCHIVE = "$(SRCROOT)/../qt-patches/ios/5.15.2/binary/libqios.a";
+				"QZ_QIOS_ARCHIVE[sdk=iphonesimulator*]" = "$(QZ_QT_IOS_ROOT)/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a";
 				QMAKE_FULL_VERSION = 1.7.0;
 				"QMAKE_MAC_SDK_PATH[sdk=iphoneos*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.2.sdk;
 				"QMAKE_MAC_SDK_PATH[sdk=iphonesimulator*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.2.sdk;
@@ -4902,15 +4927,6 @@
 				QMAKE_PKGINFO_TYPEINFO = "????";
 				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = "";
-				QZ_QT_IOS_ROOT = /Users/cagnulein/Qt/5.15.2/ios;
-				"QZ_QT_IOS_ROOT[sdk=iphonesimulator*]" = /Users/cagnulein/Qt/5.15.2/ios-simulator-arm64;
-				QZ_QIOS_ARCHIVE = "$(SRCROOT)/../qt-patches/ios/5.15.2/binary/libqios.a";
-				"QZ_QIOS_ARCHIVE[sdk=iphonesimulator*]" = "$(QZ_QT_IOS_ROOT)/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a";
-				QZ_OPENSSL_CRYPTO_ARCHIVE = "$(SRCROOT)/../src/ios/adb/libcrypto.a";
-				"QZ_OPENSSL_CRYPTO_ARCHIVE[sdk=iphonesimulator*]" = "$(SRCROOT)/ios-simulator-libs/libcrypto.a";
-				"INFOPLIST_FILE[sdk=iphonesimulator*]" = "$(SRCROOT)/Info-Simulator.plist";
-				"OTHER_LDFLAGS[sdk=iphoneos*]" = "$(inherited) -Wl,-force_load,$(QZ_OPENSSL_CRYPTO_ARCHIVE)";
-				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited) -Wl,-force_load,$(QZ_OPENSSL_CRYPTO_ARCHIVE)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -4930,7 +4946,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				"ARCHS[sdk=iphoneos*]" = arm64;
-				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
@@ -4941,39 +4957,41 @@
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "ADB_HOST=1";
+				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphoneos*]" = "adb_auth_host_simulator.c qdomyoszwift_plugin_import_simulator.cpp";
+				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphonesimulator*]" = "adb_auth_host.c qdomyoszwift_plugin_import.cpp";
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					"$(QZ_QT_IOS_ROOT)/mkspecs/common/uikit",
+					../../Qt/5.15.2/ios/mkspecs/common/uikit,
 					"../src/fit-sdk",
-					"$(QZ_QT_IOS_ROOT)/include",
-					"$(QZ_QT_IOS_ROOT)/include/QtWidgets",
-					"$(QZ_QT_IOS_ROOT)/include/QtQuick",
-					"$(QZ_QT_IOS_ROOT)/include/QtGui",
-					"$(QZ_QT_IOS_ROOT)/include/QtBluetooth",
-					"$(QZ_QT_IOS_ROOT)/include/QtXml",
-					"$(QZ_QT_IOS_ROOT)/include/QtPositioning",
-					"$(QZ_QT_IOS_ROOT)/include/QtQmlModels",
-					"$(QZ_QT_IOS_ROOT)/include/QtQml",
-					"$(QZ_QT_IOS_ROOT)/include/QtCharts",
-					"$(QZ_QT_IOS_ROOT)/include/QtNetwork",
-					"$(QZ_QT_IOS_ROOT)/include/QtCore",
+					../../Qt/5.15.2/ios/include,
+					../../Qt/5.15.2/ios/include/QtWidgets,
+					../../Qt/5.15.2/ios/include/QtQuick,
+					../../Qt/5.15.2/ios/include/QtGui,
+					../../Qt/5.15.2/ios/include/QtBluetooth,
+					../../Qt/5.15.2/ios/include/QtXml,
+					../../Qt/5.15.2/ios/include/QtPositioning,
+					../../Qt/5.15.2/ios/include/QtQmlModels,
+					../../Qt/5.15.2/ios/include/QtQml,
+					../../Qt/5.15.2/ios/include/QtCharts,
+					../../Qt/5.15.2/ios/include/QtNetwork,
+					../../Qt/5.15.2/ios/include/QtCore,
 					.,
-					"$(QZ_QT_IOS_ROOT)/mkspecs/macx-ios-clang",
-					"$(QZ_QT_IOS_ROOT)/include/QtNetworkAuth",
-					"$(QZ_QT_IOS_ROOT)/include/QtHttpServer",
+					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
+					../../Qt/5.15.2/ios/include/QtNetworkAuth,
+					../../Qt/5.15.2/ios/include/QtHttpServer,
 					../src/qmdnsengine/src/include,
 					../src/purchasing/inapp,
 					../src/purchasing/qmltypes,
 					../src/purchasing/ios,
-					"$(QZ_QT_IOS_ROOT)/include/QtTextToSpeech",
-					"$(QZ_QT_IOS_ROOT)/include/QtMultimedia",
+					../../Qt/5.15.2/ios/include/QtTextToSpeech,
+					../../Qt/5.15.2/ios/include/QtMultimedia,
 					../src/devices,
 					../src/ios/adb/include,
-					"$(QZ_QT_IOS_ROOT)/include/QtCore/5.15.2/QtCore/private",
-					"$(QZ_QT_IOS_ROOT)/include/QtCore/5.15.2",
-					"$(QZ_QT_IOS_ROOT)/include/QtCore/5.15.2/QtCore/",
-					"$(QZ_QT_IOS_ROOT)/include/QtSql",
+					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/private,
+					../../Qt/5.15.2/ios/include/QtCore/5.15.2,
+					../../Qt/5.15.2/ios/include/QtCore/5.15.2/QtCore/,
+					../../Qt/5.15.2/ios/include/QtSql,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -5109,6 +5127,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
+				"QZ_QT_IOS_ROOT[sdk=iphoneos*]" = "/Users/cagnulein/Qt/5.15.2/ios";
+				"QZ_QT_IOS_ROOT[sdk=iphonesimulator*]" = "/Users/cagnulein/Qt/5.15.2/ios-simulator-arm64";
+				QZ_QIOS_ARCHIVE = "$(SRCROOT)/../qt-patches/ios/5.15.2/binary/libqios.a";
+				"QZ_QIOS_ARCHIVE[sdk=iphonesimulator*]" = "$(QZ_QT_IOS_ROOT)/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a";
 				QMAKE_FULL_VERSION = 1.7.0;
 				"QMAKE_MAC_SDK_PATH[sdk=iphoneos*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.2.sdk;
 				"QMAKE_MAC_SDK_PATH[sdk=iphonesimulator*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.2.sdk;
@@ -5117,15 +5139,6 @@
 				QMAKE_PKGINFO_TYPEINFO = "????";
 				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = _debug;
-				QZ_QT_IOS_ROOT = /Users/cagnulein/Qt/5.15.2/ios;
-				"QZ_QT_IOS_ROOT[sdk=iphonesimulator*]" = /Users/cagnulein/Qt/5.15.2/ios-simulator-arm64;
-				QZ_QIOS_ARCHIVE = "$(SRCROOT)/../qt-patches/ios/5.15.2/binary/libqios.a";
-				"QZ_QIOS_ARCHIVE[sdk=iphonesimulator*]" = "$(QZ_QT_IOS_ROOT)/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a";
-				QZ_OPENSSL_CRYPTO_ARCHIVE = "$(SRCROOT)/../src/ios/adb/libcrypto.a";
-				"QZ_OPENSSL_CRYPTO_ARCHIVE[sdk=iphonesimulator*]" = "$(SRCROOT)/ios-simulator-libs/libcrypto.a";
-				"INFOPLIST_FILE[sdk=iphonesimulator*]" = "$(SRCROOT)/Info-Simulator.plist";
-				"OTHER_LDFLAGS[sdk=iphoneos*]" = "$(inherited) -Wl,-force_load,$(QZ_OPENSSL_CRYPTO_ARCHIVE)";
-				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited) -Wl,-force_load,$(QZ_OPENSSL_CRYPTO_ARCHIVE)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -5214,8 +5227,8 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
-					"-L$(QZ_QT_IOS_ROOT)/lib",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -5306,8 +5319,8 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
-					"-L$(QZ_QT_IOS_ROOT)/lib",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -5392,22 +5405,22 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					"$(QZ_QT_IOS_ROOT)/mkspecs/common/uikit",
+					../../Qt/5.15.2/ios/mkspecs/common/uikit,
 					"../src/fit-sdk",
-					"$(QZ_QT_IOS_ROOT)/include",
-					"$(QZ_QT_IOS_ROOT)/include/QtWidgets",
-					"$(QZ_QT_IOS_ROOT)/include/QtQuick",
-					"$(QZ_QT_IOS_ROOT)/include/QtGui",
-					"$(QZ_QT_IOS_ROOT)/include/QtBluetooth",
-					"$(QZ_QT_IOS_ROOT)/include/QtXml",
-					"$(QZ_QT_IOS_ROOT)/include/QtPositioning",
-					"$(QZ_QT_IOS_ROOT)/include/QtQmlModels",
-					"$(QZ_QT_IOS_ROOT)/include/QtQml",
-					"$(QZ_QT_IOS_ROOT)/include/QtNetwork",
-					"$(QZ_QT_IOS_ROOT)/include/QtCore",
+					../../Qt/5.15.2/ios/include,
+					../../Qt/5.15.2/ios/include/QtWidgets,
+					../../Qt/5.15.2/ios/include/QtQuick,
+					../../Qt/5.15.2/ios/include/QtGui,
+					../../Qt/5.15.2/ios/include/QtBluetooth,
+					../../Qt/5.15.2/ios/include/QtXml,
+					../../Qt/5.15.2/ios/include/QtPositioning,
+					../../Qt/5.15.2/ios/include/QtQmlModels,
+					../../Qt/5.15.2/ios/include/QtQml,
+					../../Qt/5.15.2/ios/include/QtNetwork,
+					../../Qt/5.15.2/ios/include/QtCore,
 					.,
-					"$(QZ_QT_IOS_ROOT)/mkspecs/macx-ios-clang",
-					"$(QZ_QT_IOS_ROOT)/include/QtMultimedia",
+					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
+					../../Qt/5.15.2/ios/include/QtMultimedia,
 				);
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5422,8 +5435,8 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
-					"-L$(QZ_QT_IOS_ROOT)/lib",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -5504,22 +5517,22 @@
 				HEADER_SEARCH_PATHS = (
 					../src,
 					.,
-					"$(QZ_QT_IOS_ROOT)/mkspecs/common/uikit",
+					../../Qt/5.15.2/ios/mkspecs/common/uikit,
 					"../src/fit-sdk",
-					"$(QZ_QT_IOS_ROOT)/include",
-					"$(QZ_QT_IOS_ROOT)/include/QtWidgets",
-					"$(QZ_QT_IOS_ROOT)/include/QtQuick",
-					"$(QZ_QT_IOS_ROOT)/include/QtGui",
-					"$(QZ_QT_IOS_ROOT)/include/QtBluetooth",
-					"$(QZ_QT_IOS_ROOT)/include/QtXml",
-					"$(QZ_QT_IOS_ROOT)/include/QtPositioning",
-					"$(QZ_QT_IOS_ROOT)/include/QtQmlModels",
-					"$(QZ_QT_IOS_ROOT)/include/QtQml",
-					"$(QZ_QT_IOS_ROOT)/include/QtNetwork",
-					"$(QZ_QT_IOS_ROOT)/include/QtCore",
+					../../Qt/5.15.2/ios/include,
+					../../Qt/5.15.2/ios/include/QtWidgets,
+					../../Qt/5.15.2/ios/include/QtQuick,
+					../../Qt/5.15.2/ios/include/QtGui,
+					../../Qt/5.15.2/ios/include/QtBluetooth,
+					../../Qt/5.15.2/ios/include/QtXml,
+					../../Qt/5.15.2/ios/include/QtPositioning,
+					../../Qt/5.15.2/ios/include/QtQmlModels,
+					../../Qt/5.15.2/ios/include/QtQml,
+					../../Qt/5.15.2/ios/include/QtNetwork,
+					../../Qt/5.15.2/ios/include/QtCore,
 					.,
-					"$(QZ_QT_IOS_ROOT)/mkspecs/macx-ios-clang",
-					"$(QZ_QT_IOS_ROOT)/include/QtMultimedia",
+					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
+					../../Qt/5.15.2/ios/include/QtMultimedia,
 				);
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5534,8 +5547,8 @@
 				OTHER_LDFLAGS = (
 					"-stdlib=libc++",
 					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L$(QZ_QT_IOS_ROOT)/plugins/platforms",
-					"-L$(QZ_QT_IOS_ROOT)/lib",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
 					"-framework",
 					MobileCoreServices,
 					"-lm",
@@ -5562,10 +5575,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				"ARCHS[sdk=iphonesimulator*]" = arm64;
 				APPLICATION_EXTENSION_API_ONLY = YES;
-				ARCHS = "$(ARCHS_STANDARD)";
-				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
-				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -5656,10 +5667,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				"ARCHS[sdk=iphonesimulator*]" = arm64;
 				APPLICATION_EXTENSION_API_ONLY = YES;
-				ARCHS = "$(ARCHS_STANDARD)";
-				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
-				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;

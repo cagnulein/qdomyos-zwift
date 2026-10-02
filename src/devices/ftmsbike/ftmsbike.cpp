@@ -794,6 +794,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                 domyosResistanceRetryAfter = now;
             }
         }
+
+        if (bluetoothDevice.name().toUpper().startsWith("ICONSOLE+") &&
+            responseCode == FTMS_RESPONSE_CODE && requestCode == FTMS_SET_TARGET_POWER &&
+            resultCode == FTMS_CONTROL_NOT_PERMITTED) {
+            qDebug() << QStringLiteral("iConsole+ rejected FTMS target power - switching to resistance ERG emulation");
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+        }
     }
     
     if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("00000002-19ca-4651-86e5-fa29dcdd09d1")) && newValue.at(0) == 0x03) {
@@ -1726,7 +1734,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
             }
             
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700 || WLT_BK) {
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_190U || SCH_290R || DOMYOS || SMB1 || FIT_BK || USDC_D700 || WLT_BK || H9115) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
@@ -1816,7 +1824,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
-        (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_290R || SMB1 || FIT_BK || WLT_BK)) {
+        (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || SCH_290R || SMB1 || FIT_BK || WLT_BK || H9115)) {
         init();
     }
 
@@ -2233,6 +2241,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith("HAMMER")) {
             qDebug() << QStringLiteral("HAMMER found");
             HAMMER = true;
+        } else if(device.name().toUpper().startsWith("H9115 LYON")) {
+            qDebug() << QStringLiteral("H9115 LYON found");
+            H9115 = true;
         } else if(device.name().toUpper().startsWith("YPBM") && device.name().length() == 10) {
             qDebug() << QStringLiteral("YPBM found");
             YPBM = true;
@@ -2297,9 +2308,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             WLT_BK = true;
             max_resistance = 24;
         } else if (device.name().toUpper().startsWith("ICONSOLE+")) {
-            qDebug() << QStringLiteral("iConsole+ found as FTMS bike - ERG not supported");
-            resistance_lvl_mode = true;
-            ergModeSupported = false;
+            qDebug() << QStringLiteral("iConsole+ found as FTMS bike - probing native ERG support");
+            resistance_lvl_mode = false;
+            ergModeSupported = true;
             max_resistance = 24;
         } else if (device.name().compare(QStringLiteral("Tunturi E50-168"), Qt::CaseInsensitive) == 0) {
             qDebug() << QStringLiteral("Tunturi E50-168 found - enabling direct resistance and distance workaround");

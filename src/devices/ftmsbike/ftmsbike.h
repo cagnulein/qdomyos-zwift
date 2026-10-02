@@ -209,6 +209,7 @@ class ftmsbike : public bike {
     bool MRK_S28 = false;
     bool MRK_S36C = false;
     bool HAMMER = false;
+    bool H9115 = false;
     bool YPBM = false;
     bool SPORT01 = false;
     bool FS_YK = false;
