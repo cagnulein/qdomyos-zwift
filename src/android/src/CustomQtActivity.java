@@ -30,6 +30,9 @@ public class CustomQtActivity extends QtActivity {
     private static native void onInsetsChanged(int top, int bottom, int left, int right,
                                                int waterfallTop, int waterfallBottom,
                                                int waterfallLeft, int waterfallRight);
+    // Left and right system bar insets without the display cutout, so QML can let the
+    // content go under the cutout when the user turns the cutout margin off.
+    private static native void onSystemBarSideInsetsChanged(int left, int right);
     private static native void nativeOnOAuthCallback(String callbackUrl);
     private static native void nativeOnDocumentPicked(int requestCode, int resultCode, String localPath);
 
@@ -112,6 +115,8 @@ public class CustomQtActivity extends QtActivity {
                 int waterfallBottom = 0;
                 int waterfallLeft = 0;
                 int waterfallRight = 0;
+                int systemBarLeft = 0;
+                int systemBarRight = 0;
 
                 if (density > 0) {
                     // Use system window insets as primary source
@@ -119,6 +124,16 @@ public class CustomQtActivity extends QtActivity {
                     bottom = Math.round(insets.getSystemWindowInsetBottom() / density);
                     left = Math.round(insets.getSystemWindowInsetLeft() / density);
                     right = Math.round(insets.getSystemWindowInsetRight() / density);
+                    // On API 30+ getSystemWindowInsets() also includes the display cutout,
+                    // so ask for the system bars alone.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        Insets bars = insets.getInsets(WindowInsets.Type.systemBars());
+                        systemBarLeft = Math.round(bars.left / density);
+                        systemBarRight = Math.round(bars.right / density);
+                    } else {
+                        systemBarLeft = left;
+                        systemBarRight = right;
+                    }
 
                     // For API 28+, also check display cutout for additional padding
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -173,6 +188,7 @@ public class CustomQtActivity extends QtActivity {
                 // finished loading yet when Android fires onApplyWindowInsets early.
                 try {
                     onInsetsChanged(top, bottom, left, right, waterfallTop, waterfallBottom, waterfallLeft, waterfallRight);
+                    onSystemBarSideInsetsChanged(systemBarLeft, systemBarRight);
                 } catch (UnsatisfiedLinkError ignored) {
                     // Qt not ready yet; insets will be re-applied once Qt initializes.
                 }

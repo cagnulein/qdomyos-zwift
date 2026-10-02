@@ -3336,6 +3336,9 @@ class QZSettings {
     static const QString renpho_bike_knob_gears;
     static constexpr bool default_renpho_bike_knob_gears = false;
 
+    static const QString android_landscape_cutout_margin;
+    static constexpr bool default_android_landscape_cutout_margin = true;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
