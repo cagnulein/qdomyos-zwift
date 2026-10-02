@@ -6,8 +6,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.SparseArray;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowInsets;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
 import android.graphics.Insets;
@@ -49,6 +52,72 @@ public class CustomQtActivity extends QtActivity {
         }
     }
 
+    private boolean injectingBackKey = false;
+    // A system KEYCODE_BACK ACTION_DOWN went to the Qt delegate and its ACTION_UP has not arrived yet
+    private boolean backDownSentToQt = false;
+    // The callback already released that ACTION_DOWN in Qt, so the system ACTION_UP is a duplicate
+    private boolean dropNextSystemBackUp = false;
+
+    // The manifest opts out of predictive back (enableOnBackInvokedCallback="false"), so Android
+    // keeps sending KEYCODE_BACK and Qt turns an unhandled one into a close event that
+    // main.qml handles in onClosing. While the opt-out is honored, the system refuses this
+    // callback (it only logs "OnBackInvokedCallback is not enabled") and nothing changes.
+    // When the system ignores the opt-out, back goes to the callback instead, and the callback
+    // feeds Qt the same back key, so main.qml sees no difference. In the API 33-35 emulators
+    // no KEYCODE_BACK reaches the activity then; in the API 36 emulator ACTION_DOWN still comes
+    // before the callback and a canceled ACTION_UP after it. The callback completes such an
+    // ACTION_DOWN, and dispatchKeyEvent() drops the system ACTION_UP that follows (canceled or
+    // not), so Qt sees exactly one press either way. A canceled ACTION_UP without the callback
+    // (a back gesture or press the user aborted) is dropped too, so it no longer goes back.
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && !injectingBackKey) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                backDownSentToQt = true;
+                dropNextSystemBackUp = false;
+            } else if (event.getAction() == KeyEvent.ACTION_UP) {
+                boolean drop = dropNextSystemBackUp || event.isCanceled();
+                backDownSentToQt = false;
+                dropNextSystemBackUp = false;
+                if (drop) {
+                    return true;
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    private void registerBackCallback() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return;
+        }
+        getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                new OnBackInvokedCallback() {
+                    @Override
+                    public void onBackInvoked() {
+                        // A back key that Qt leaves unhandled can come back here through
+                        // Activity.onBackPressed(); stop instead of looping.
+                        if (injectingBackKey) {
+                            return;
+                        }
+                        Log.d(TAG, "onBackInvoked: sending KEYCODE_BACK to Qt, down already sent: " + backDownSentToQt);
+                        injectingBackKey = true;
+                        boolean downAlreadySent = backDownSentToQt;
+                        try {
+                            if (!downAlreadySent) {
+                                dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+                            }
+                            dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
+                        } finally {
+                            injectingBackKey = false;
+                            backDownSentToQt = false;
+                            dropNextSystemBackUp = downAlreadySent;
+                        }
+                    }
+                });
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +125,7 @@ public class CustomQtActivity extends QtActivity {
         dispatchOAuthCallback(getIntent());
         AgeSignalsHelper.requestAgeSignals(this);
         HealthConnectHelper.initialize(this);
+        registerBackCallback();
 
         // This tells the OS that we want to handle the display cutout area ourselves
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
