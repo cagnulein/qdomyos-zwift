@@ -1781,8 +1781,8 @@ import AndroidStatusBar 1.0
             property real power_sensor_speed_correction_threshold: 20.0
             property bool flow_fitness_runner_dtm2000i: false
             property bool nordictrack_incline_trainer_x7i_netl18716_0: false
-            property real watt_max: 9999
             property bool android_landscape_cutout_margin: true
+            property real watt_max: 9999
         }
 
 
