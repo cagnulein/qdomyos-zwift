@@ -303,6 +303,55 @@ static void qz_sendUpdatedExposeEvent(UIView *view)
         qz_sendUpdatedExposeEvent(subview);
 }
 
+// Qt 5.15 can restore a stale 0x0 fullscreen geometry after UIKit connects
+// the scene on iOS 27. Keep the native view and QWindow geometry synchronized
+// while the scene is active.
+static void qz_scheduleQtGeometryRepair(UIWindow *qtWindow)
+{
+    if (!qtWindow)
+        return;
+
+    UIWindow *strongWindow = qtWindow;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC),
+                   dispatch_get_main_queue(), ^{
+        UIWindow *window = strongWindow;
+        if (!window || !window.windowScene || !qGuiApp)
+            return;
+
+        UIView *container = window.rootViewController.view;
+        if (container) {
+            const QSize target(qRound(container.bounds.size.width),
+                               qRound(container.bounds.size.height));
+            if (!target.isEmpty()) {
+                for (QWindow *qWindow : qGuiApp->topLevelWindows()) {
+                    if (!qWindow || !qWindow->handle() || !qWindow->isVisible())
+                        continue;
+
+                    const UIEdgeInsets safeInsets = qz_isStandardIPhoneWindow(window)
+                        ? window.safeAreaInsets : UIEdgeInsetsZero;
+                    const QRect desired = qz_isStandardIPhoneWindow(window)
+                        ? QRect(qRound(safeInsets.left), qRound(safeInsets.top),
+                                qMax(0, target.width() - qRound(safeInsets.left + safeInsets.right)),
+                                qMax(0, target.height() - qRound(safeInsets.top + safeInsets.bottom)))
+                        : QRect(0, 0, target.width(), target.height());
+                    if (qWindow->geometry() != desired)
+                        qWindow->setGeometry(desired);
+
+                    UIView *qtView = reinterpret_cast<UIView *>(qWindow->winId());
+                    if (qtView && qtView.superview) {
+                        qtView.frame = CGRectMake(desired.x(), desired.y(), desired.width(), desired.height());
+                        qtView.autoresizingMask = UIViewAutoresizingFlexibleWidth |
+                                                   UIViewAutoresizingFlexibleHeight;
+                    }
+                }
+                qz_sendUpdatedExposeEvent(container);
+            }
+        }
+
+        qz_scheduleQtGeometryRepair(window);
+    });
+}
+
 static UIWindowScene *qz_foregroundWindowScene(void)
 {
     if (@available(iOS 13.0, *)) {
@@ -475,13 +524,8 @@ static UIWindow *qz_qtWindowForScreen(void *platformScreen)
     qz_installHingeInteraction(qtWindow);
     qz_updateIOSLayoutMetrics(qtWindow);
 
-    for (QWindow *window : qGuiApp->topLevelWindows()) {
-        if (!window || !window->handle() || !window->screen() ||
-            window->screen()->handle() != platformScreen)
-            continue;
-        window->setParent(nullptr);
-        window->setWindowStates(window->windowStates());
-    }
+    // Reapplying the QWindow parent/state here makes Qt 5.15 recompute the
+    // fullscreen geometry asynchronously and collapse the QUIView to 0x0.
 
     qz_installDesktopManagerOverlay();
     [qtWindow makeKeyAndVisible];
@@ -489,6 +533,28 @@ static UIWindow *qz_qtWindowForScreen(void *platformScreen)
     [qtWindow.rootViewController.view layoutIfNeeded];
     qz_layoutQtViews(qtWindow.rootViewController.view);
     qz_sendUpdatedExposeEvent(qtWindow.rootViewController.view);
+    qz_scheduleQtGeometryRepair(qtWindow);
+}
+
+@end
+
+// Qt 5.15 creates its UIKit window before iOS 27 connects the application
+// scene. Explicitly select the bridge delegate for simulator and Designed for
+// iPad launches so the existing Qt window is attached to that scene.
+@implementation QIOSApplicationDelegate (QZSceneLifecycle)
+
+- (UISceneConfiguration *)application:(UIApplication *)application
+    configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession
+                                  options:(UISceneConnectionOptions *)options
+{
+    Q_UNUSED(application)
+    Q_UNUSED(options)
+
+    UISceneConfiguration *configuration = connectingSceneSession.configuration;
+#if TARGET_OS_SIMULATOR
+    configuration.delegateClass = [QZSimulatorWindowSceneDelegate class];
+#endif
+    return configuration;
 }
 
 @end
