@@ -27,6 +27,8 @@ public class CustomQtActivity extends QtActivity {
     private static final int DOCUMENT_PICKER_TRAINING_REQUEST_CODE = 4102;
     private static final int DOCUMENT_PICKER_GPX_REQUEST_CODE = 4103;
     private static final int DOCUMENT_PICKER_SETTINGS_REQUEST_CODE = 4104;
+    private static final int DOCUMENT_PICKER_FIT_REQUEST_CODE = 4105;
+    private static final int DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE = 4106;
     private final SparseArray<String> pendingImportDirectories = new SparseArray<>();
 
     // Declare the native method that will be implemented in C++
@@ -331,10 +333,155 @@ public class CustomQtActivity extends QtActivity {
         return requestCode == DOCUMENT_PICKER_PROFILE_REQUEST_CODE
             || requestCode == DOCUMENT_PICKER_TRAINING_REQUEST_CODE
             || requestCode == DOCUMENT_PICKER_GPX_REQUEST_CODE
-            || requestCode == DOCUMENT_PICKER_SETTINGS_REQUEST_CODE;
+            || requestCode == DOCUMENT_PICKER_SETTINGS_REQUEST_CODE
+            || requestCode == DOCUMENT_PICKER_FIT_REQUEST_CODE
+            || requestCode == DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE;
+    }
+
+    // Folder of the QZ files on Android 14+ (Documents/QZ) as a document of the external storage
+    // provider, so the folder picker opens there.
+    private static final String QZ_DOCUMENTS_TREE_ID = "primary:Documents/QZ";
+
+    // Opens the system folder picker to import every .fit file of a folder. After the app is
+    // reinstalled, the workouts left in Documents/QZ by the previous install are hidden from the
+    // file API (scoped storage); a folder granted through the picker can still be read. The grant
+    // is kept, so later imports of the same folder skip the picker.
+    public void openFitFolderPicker(int requestCode, String destinationDir) {
+        pendingImportDirectories.put(requestCode, destinationDir == null ? "" : destinationDir);
+        for (android.content.UriPermission permission : getContentResolver().getPersistedUriPermissions()) {
+            Uri treeUri = permission.getUri();
+            String treeId = "";
+            try {
+                treeId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
+            } catch (Exception ignored) {
+                // a granted single document, not a folder
+            }
+            if (permission.isReadPermission() && QZ_DOCUMENTS_TREE_ID.equals(treeId)) {
+                Intent data = new Intent();
+                data.setData(treeUri);
+                handleFitFolderResult(requestCode, RESULT_OK, data, true);
+                return;
+            }
+        }
+        launchFitFolderPicker(requestCode);
+    }
+
+    private void launchFitFolderPicker(int requestCode) {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            intent.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI,
+                android.provider.DocumentsContract.buildDocumentUri("com.android.externalstorage.documents",
+                                                                    QZ_DOCUMENTS_TREE_ID));
+        }
+        startActivityForResult(intent, requestCode);
+    }
+
+    // Copies the .fit files of the picked folder and of its "fit" subfolder into destinationDir
+    // and passes their local paths, one per line, to the native side. An empty string still goes
+    // through, so the app can say that no workout was found. The copy runs off the UI thread:
+    // a folder can hold hundreds of workouts.
+    // A saved grant that finds nothing may be stale (folder removed or renamed): it is dropped
+    // and the picker opens, so the user can always choose the folder again.
+    private void handleFitFolderResult(final int requestCode, final int resultCode, Intent data,
+                                       final boolean fromSavedGrant) {
+        final String destinationDir = pendingImportDirectories.get(requestCode, "");
+        pendingImportDirectories.remove(requestCode);
+        if (resultCode != RESULT_OK || data == null || data.getData() == null) {
+            nativeOnDocumentPicked(requestCode, resultCode, "");
+            return;
+        }
+        final Uri treeUri = data.getData();
+        try {
+            getContentResolver().takePersistableUriPermission(treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } catch (Exception e) {
+            Log.d(TAG, "takePersistableUriPermission failed " + e);
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                StringBuilder localPaths = new StringBuilder();
+                try {
+                    String rootId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
+                    importFitFilesFromTree(treeUri, rootId, destinationDir, localPaths, true);
+                } catch (Exception e) {
+                    Log.d(TAG, "handleFitFolderResult failed " + e);
+                }
+                Log.d(TAG, "handleFitFolderResult requestCode=" + requestCode + " savedGrant=" + fromSavedGrant
+                    + " files=" + (localPaths.length() == 0 ? 0 : localPaths.toString().split("\n").length));
+                if (fromSavedGrant && localPaths.length() == 0) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                getContentResolver().releasePersistableUriPermission(
+                                    treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            } catch (Exception e) {
+                                Log.d(TAG, "releasePersistableUriPermission failed " + e);
+                            }
+                            pendingImportDirectories.put(requestCode, destinationDir);
+                            launchFitFolderPicker(requestCode);
+                        }
+                    });
+                    return;
+                }
+                nativeOnDocumentPicked(requestCode, RESULT_OK, localPaths.toString());
+            }
+        }, "FitFolderImport").start();
+    }
+
+    private void importFitFilesFromTree(Uri treeUri, String parentId, String destinationDir,
+                                        StringBuilder localPaths, boolean descendIntoFit) {
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentId);
+        String[] projection = new String[] {
+            android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+            android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            android.provider.DocumentsContract.Document.COLUMN_MIME_TYPE,
+            android.provider.DocumentsContract.Document.COLUMN_SIZE};
+        android.database.Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(childrenUri, projection, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                String documentId = cursor.getString(0);
+                String name = cursor.getString(1);
+                String mimeType = cursor.getString(2);
+                long size = cursor.isNull(3) ? -1 : cursor.getLong(3);
+                if (name == null || documentId == null) {
+                    continue;
+                }
+                if (android.provider.DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
+                    if (descendIntoFit && name.equalsIgnoreCase("fit")) {
+                        importFitFilesFromTree(treeUri, documentId, destinationDir, localPaths, false);
+                    }
+                    continue;
+                }
+                if (!name.toLowerCase(java.util.Locale.ROOT).endsWith(".fit")) {
+                    continue;
+                }
+                Uri documentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
+                String localPath = ContentHelper.importContentToAppDirKeepExisting(this, documentUri, name, size,
+                                                                                   destinationDir);
+                if (!localPath.isEmpty()) {
+                    if (localPaths.length() > 0) {
+                        localPaths.append('\n');
+                    }
+                    localPaths.append(localPath);
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "importFitFilesFromTree failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     private void handleDocumentPickerResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == DOCUMENT_PICKER_FIT_FOLDER_REQUEST_CODE) {
+            handleFitFolderResult(requestCode, resultCode, data, false);
+            return;
+        }
         String destinationDir = pendingImportDirectories.get(requestCode, "");
         pendingImportDirectories.remove(requestCode);
 
@@ -353,7 +500,12 @@ public class CustomQtActivity extends QtActivity {
             if (data.getData() != null) {
                 Uri uri = data.getData();
                 uriString = uri.toString();
-                if (resultCode == RESULT_OK) {
+                if (resultCode == RESULT_OK && requestCode == DOCUMENT_PICKER_FIT_REQUEST_CODE) {
+                    // a workout must not replace another one that has the same file name
+                    localPath = ContentHelper.importContentToAppDirKeepExisting(this, uri, "",
+                                                                                ContentHelper.getFileSize(this, uri),
+                                                                                destinationDir);
+                } else if (resultCode == RESULT_OK) {
                     localPath = ContentHelper.importContentToAppDir(this, uri, destinationDir);
                 }
             }

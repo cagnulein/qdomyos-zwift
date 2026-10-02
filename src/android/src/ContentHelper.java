@@ -45,6 +45,24 @@ public class ContentHelper {
         return result;
     }
 
+    // Size in bytes reported by the provider, or -1 when it is unknown.
+    public static long getFileSize(Context context, Uri uri) {
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(uri, new String[] {OpenableColumns.SIZE}, null, null, null);
+            if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
+                return cursor.getLong(0);
+            }
+        } catch (Exception e) {
+            QLog.d("ContentHelper", "getFileSize query failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return -1;
+    }
+
     public static boolean copyContentToFile(Context context, Uri uri, String destinationPath) {
         if (context == null || uri == null || destinationPath == null || destinationPath.isEmpty()) {
             return false;
@@ -116,6 +134,53 @@ public class ContentHelper {
         }
 
         return destinationFile.getAbsolutePath();
+    }
+
+    // Copies a picked file into destinationDirPath without replacing anything there: a file with
+    // the same name and size is taken as already imported, otherwise a free name gets a "_N"
+    // suffix. A name taken by a file this install cannot see (left by an uninstalled copy of the
+    // app) fails to open for writing, so the next suffix is tried as well.
+    public static String importContentToAppDirKeepExisting(Context context, Uri uri, String fileName, long size,
+                                                           String destinationDirPath) {
+        if (context == null || uri == null || destinationDirPath == null || destinationDirPath.isEmpty()) {
+            return "";
+        }
+
+        fileName = sanitizeFileName(fileName);
+        if (fileName.isEmpty()) {
+            fileName = sanitizeFileName(getFileName(context, uri));
+        }
+        if (fileName.isEmpty()) {
+            fileName = "imported_file";
+        }
+
+        File destinationDir = new File(destinationDirPath);
+        if (!destinationDir.exists() && !destinationDir.mkdirs()) {
+            QLog.d("ContentHelper", "importContentToAppDirKeepExisting could not create " + destinationDirPath);
+            return "";
+        }
+
+        int dot = fileName.lastIndexOf('.');
+        String base = dot > 0 ? fileName.substring(0, dot) : fileName;
+        String extension = dot > 0 ? fileName.substring(dot) : "";
+        for (int attempt = 0; attempt < 100; attempt++) {
+            String candidate = attempt == 0 ? fileName : base + "_" + attempt + extension;
+            File destinationFile = new File(destinationDir, candidate);
+            if (destinationFile.exists()) {
+                if (size >= 0 && destinationFile.length() == size) {
+                    return destinationFile.getAbsolutePath();
+                }
+                continue;
+            }
+            if (copyContentToFile(context, uri, destinationFile.getAbsolutePath())) {
+                return destinationFile.getAbsolutePath();
+            }
+            if (destinationFile.exists()) {
+                destinationFile.delete();
+            }
+        }
+        QLog.d("ContentHelper", "importContentToAppDirKeepExisting gave up on " + fileName);
+        return "";
     }
 
     private static String sanitizeFileName(String value) {

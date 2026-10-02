@@ -223,6 +223,8 @@ constexpr int AndroidDocumentPickerProfileRequestCode = 4101;
 constexpr int AndroidDocumentPickerTrainingRequestCode = 4102;
 constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
 constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
+constexpr int AndroidDocumentPickerFitRequestCode = 4105;
+constexpr int AndroidDocumentPickerFitFolderRequestCode = 4106;
 constexpr jint AndroidActivityResultOk = -1;
 #endif
 double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2, double zone3, double zone4) {
@@ -1120,6 +1122,20 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 workoutModel->setDatabaseProcessing(false);
                 workoutModel->refresh();
             });
+    connect(fitProcessor, &FitDatabaseProcessor::importFinished,
+            this, [this](int added, int alreadyInHistory, int unreadable) {
+                qDebug() << "FitDatabaseProcessor import: added" << added << "already" << alreadyInHistory
+                         << "unreadable" << unreadable;
+                QString message = tr("Workouts imported: %1.").arg(added);
+                if (alreadyInHistory > 0) {
+                    message += QStringLiteral(" ") + tr("Already in the history: %1.").arg(alreadyInHistory);
+                }
+                if (unreadable > 0) {
+                    message += QStringLiteral(" ") + tr("Without workout data: %1.").arg(unreadable);
+                }
+                setToastRequested(message);
+                workoutModel->refresh();
+            });
     fitProcessor->processDirectory(getWritableAppDir() + "fit");
 
     m_speech.setLocale(QLocale::English);
@@ -1349,7 +1365,8 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *e
         }
     }
 
-    if (localPath.isEmpty()) {
+    // a folder import without any workout still has to tell the user so
+    if (localPath.isEmpty() && requestCode != AndroidDocumentPickerFitFolderRequestCode) {
         return;
     }
 
@@ -8884,6 +8901,9 @@ void homeform::openAndroidDocumentPicker(const QString &kind) {
     } else if (kind == QStringLiteral("settings")) {
         requestCode = AndroidDocumentPickerSettingsRequestCode;
         destinationDir = getWritableAppDir() + QStringLiteral("settings/");
+    } else if (kind == QStringLiteral("fit")) {
+        requestCode = AndroidDocumentPickerFitRequestCode;
+        destinationDir = getWritableAppDir() + QStringLiteral("fit/");
     } else {
         qWarning() << "Unknown Android document picker kind" << kind;
         return;
@@ -8904,6 +8924,13 @@ void homeform::openAndroidDocumentPicker(const QString &kind) {
 
 void homeform::handleAndroidDocumentPicked(int requestCode, const QString &localPath) {
 #ifdef Q_OS_ANDROID
+    // the Java side already copied the workouts into the fit folder; the folder import
+    // passes one path per line
+    if (requestCode == AndroidDocumentPickerFitRequestCode ||
+        requestCode == AndroidDocumentPickerFitFolderRequestCode) {
+        importFitFilesToHistory(localPath.split(QLatin1Char('\n'), Qt::SkipEmptyParts));
+        return;
+    }
     if (localPath.isEmpty()) {
         qWarning() << "Android document picker returned empty local path for request code" << requestCode;
         return;
@@ -8934,6 +8961,76 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
     Q_UNUSED(requestCode)
     Q_UNUSED(localPath)
 #endif
+}
+
+void homeform::importFitFile(const QUrl &fileUrl) {
+    const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(fileUrl);
+    const QFileInfo source(sourcePath);
+    if (sourcePath.isEmpty() || !source.isFile()) {
+        setToastRequested(tr("The workout file could not be opened."));
+        return;
+    }
+    const QString destinationDir = getWritableAppDir() + QStringLiteral("fit/");
+    QDir().mkpath(destinationDir);
+    if (source.absolutePath() + QStringLiteral("/") == destinationDir) {
+        importFitFilesToHistory(QStringList() << sourcePath);
+        return;
+    }
+
+    // keep any workout with the same file name: same name and size is the same workout,
+    // otherwise the copy gets a free "_N" name
+    QString destination;
+    for (int attempt = 0; attempt < 100 && destination.isEmpty(); attempt++) {
+        const QString candidate = destinationDir +
+                                  (attempt == 0 ? source.fileName()
+                                                : QStringLiteral("%1_%2.%3")
+                                                      .arg(source.completeBaseName())
+                                                      .arg(attempt)
+                                                      .arg(source.suffix()));
+        if (QFileInfo::exists(candidate)) {
+            if (QFileInfo(candidate).size() == source.size()) {
+                destination = candidate;
+            }
+        } else if (QFile::copy(sourcePath, candidate)) {
+            destination = candidate;
+        }
+    }
+    if (destination.isEmpty()) {
+        setToastRequested(tr("The workout file could not be copied."));
+        return;
+    }
+    importFitFilesToHistory(QStringList() << destination);
+}
+
+void homeform::importFitFolder() {
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("fit/"));
+    QtAndroid::androidActivity().callMethod<void>("openFitFolderPicker", "(ILjava/lang/String;)V",
+                                                  AndroidDocumentPickerFitFolderRequestCode,
+                                                  javaDestinationDir.object<jstring>());
+    clearAndroidJniException("CustomQtActivity.openFitFolderPicker");
+#else
+    // other platforms can read their own folder: take every workout file in it again
+    QStringList files;
+    QDirIterator it(getWritableAppDir() + QStringLiteral("fit"), QStringList() << QStringLiteral("*.fit")
+                                                                              << QStringLiteral("*.FIT"),
+                    QDir::Files);
+    while (it.hasNext()) {
+        files << it.next();
+    }
+    importFitFilesToHistory(files);
+#endif
+}
+
+void homeform::importFitFilesToHistory(const QStringList &files) {
+    if (!fitProcessor || !workoutModel) {
+        return;
+    }
+    if (files.isEmpty()) {
+        setToastRequested(tr("No workout files (.fit) found."));
+        return;
+    }
+    QMetaObject::invokeMethod(fitProcessor, "importFiles", Qt::QueuedConnection, Q_ARG(QStringList, files));
 }
 
 bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {

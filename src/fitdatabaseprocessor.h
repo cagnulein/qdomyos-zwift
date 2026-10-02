@@ -23,7 +23,13 @@ class FitDatabaseProcessor : public QObject {
 
     static const QString DB_CONNECTION_NAME;
 
+  public slots:
+    // Adds the given .fit files to the history, in the worker thread (call it queued);
+    // reports the outcome with importFinished().
+    void importFiles(const QStringList& filePaths);
+
   signals:
+    void importFinished(int added, int alreadyInHistory, int unreadable);
     void processingStopped();
     void fileProcessed(const QString& filename);
     void progress(int processedFiles, int totalFiles);

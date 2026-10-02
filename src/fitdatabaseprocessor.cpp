@@ -142,6 +142,27 @@ void FitDatabaseProcessor::processFile(const QString& filePath) {
     emit fileProcessed(filePath);
 }
 
+void FitDatabaseProcessor::importFiles(const QStringList& filePaths) {
+    int added = 0;
+    int alreadyInHistory = 0;
+    int unreadable = 0;
+    if (!db.isOpen() && !initializeDatabase()) {
+        emit importFinished(0, 0, filePaths.size());
+        return;
+    }
+    for (const QString& filePath : filePaths) {
+        if (isFileProcessed(filePath)) {
+            alreadyInHistory++;
+        } else if (processFitFile(filePath)) {
+            added++;
+            emit fileProcessed(filePath);
+        } else {
+            unreadable++;
+        }
+    }
+    emit importFinished(added, alreadyInHistory, unreadable);
+}
+
 void FitDatabaseProcessor::stopProcessing() {
     stopRequested.storeRelease(1);
     workerThread.quit();

@@ -688,6 +688,10 @@ public:
     Q_INVOKABLE static void clearFiles();
     Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
     Q_INVOKABLE void openAndroidDocumentPicker(const QString &kind);
+    // Workout history import: one .fit file picked by the user (iOS and desktop; Android goes
+    // through openAndroidDocumentPicker("fit")), or every .fit file of the QZ folder.
+    Q_INVOKABLE void importFitFile(const QUrl &fileUrl);
+    Q_INVOKABLE void importFitFolder();
     Q_INVOKABLE bool deleteTrainingProgramFile(const QString &fileUrl);
 
     double wattMaxChart() {
@@ -1047,6 +1051,8 @@ public:
     QStringList m_pendingGarminWorkoutPromptNames;
     QStringList m_pendingGarminWorkoutPromptDates;
     FitDatabaseProcessor *fitProcessor = nullptr;
+    // queues .fit files that already sit in the fit folder for the history database
+    void importFitFilesToHistory(const QStringList &files);
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
