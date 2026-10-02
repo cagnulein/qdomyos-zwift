@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import Qt.labs.settings 1.0
+import AndroidStatusBar 1.0
 
 Page {
     id: wizardPage
@@ -9,6 +10,9 @@ Page {
 
     property int currentStep: 0
     property var selectedOptions: ({})
+    property real duoBottomInset: (Qt.platform.os === "ios" &&
+                                   typeof IOSLayout !== "undefined" &&
+                                   IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
 
     // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
     function stripRssi(deviceName) {
@@ -52,6 +56,7 @@ Page {
     StackView {
         id: stackViewLocal
         anchors.fill: parent
+        anchors.bottomMargin: wizardPage.duoBottomInset
 
         initialItem: welcomeComponent
     }

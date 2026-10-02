@@ -31,9 +31,13 @@ ListView {
     z: Infinity
     spacing: 5
     anchors.fill: parent
-    anchors.bottomMargin: (Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31) ? 
-                         ((Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? 
-                          AndroidStatusBar.navigationBarHeight + 10 : 10) : 10
+    anchors.bottomMargin: (Qt.platform.os === "ios" &&
+                           typeof IOSLayout !== "undefined" &&
+                           IOSLayout.isIPhoneDuo) ?
+                          Math.max(0, Number(IOSLayout.bottomInset) || 0) + 10 :
+                          ((Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31) ?
+                           ((Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
+                            AndroidStatusBar.navigationBarHeight + 10 : 10) : 10)
     verticalLayoutDirection: ListView.BottomToTop
 
     interactive: false

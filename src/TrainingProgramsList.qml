@@ -6,6 +6,7 @@ import QtQuick.Controls.Material 2.0
 import QtQuick.Dialogs 1.0
 import QtCharts 2.2
 import Qt.labs.settings 1.0
+import AndroidStatusBar 1.0
 
 ColumnLayout {
     signal trainprogram_open_clicked(url name)
@@ -390,6 +391,9 @@ ColumnLayout {
         }
         anchors {
             bottom: parent.bottom
+            bottomMargin: (Qt.platform.os === "ios" &&
+                           typeof IOSLayout !== "undefined" &&
+                           IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
         }
     }
 }

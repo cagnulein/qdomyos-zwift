@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import QtQuick.Dialogs 1.0
+import AndroidStatusBar 1.0
 
 ColumnLayout {
     signal loadSettings(url name)
@@ -134,6 +135,9 @@ ColumnLayout {
         }
         anchors {
             bottom: parent.bottom
+            bottomMargin: (Qt.platform.os === "ios" &&
+                           typeof IOSLayout !== "undefined" &&
+                           IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
         }
     }
 }

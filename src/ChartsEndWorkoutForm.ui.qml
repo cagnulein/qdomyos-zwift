@@ -2,6 +2,7 @@ import QtQuick 2.4
 import QtCharts 2.2
 import Qt.labs.settings 1.0
 import QtQuick.Controls 2.15
+import AndroidStatusBar 1.0
 
 Item {
     anchors.fill: parent
@@ -128,6 +129,9 @@ Item {
             anchors.right: parent.right
             anchors.top: instructor.bottom
             anchors.bottom: parent.bottom
+            anchors.bottomMargin: (Qt.platform.os === "ios" &&
+                                   typeof IOSLayout !== "undefined" &&
+                                   IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
             contentHeight: powerChart.height+heartChart.height+cadenceChart.height
 
             ChartView {

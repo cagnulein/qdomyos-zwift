@@ -4,9 +4,14 @@ import QtQuick.Layouts 1.15
 import QtCharts 2.15
 import Qt.labs.calendar 1.0
 import Qt.labs.settings 1.0
+import AndroidStatusBar 1.0
 
 Page {
     id: workoutHistoryPage
+
+    property real duoBottomInset: (Qt.platform.os === "ios" &&
+                                   typeof IOSLayout !== "undefined" &&
+                                   IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
 
 
 
@@ -191,7 +196,7 @@ Page {
             id: workoutListView
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.bottomMargin: streakBanner.visible ? streakBanner.height + 10 : 10
+            Layout.bottomMargin: (streakBanner.visible ? streakBanner.height + 10 : 10) + duoBottomInset
             model: workoutModel
             spacing: 8
             clip: true
@@ -579,6 +584,7 @@ Page {
     Rectangle {
         id: streakBanner
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: duoBottomInset
         anchors.left: parent.left
         anchors.right: parent.right
         height: 80

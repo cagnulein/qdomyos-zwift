@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 import QtWebView 1.1
+import AndroidStatusBar 1.0
 
 Item {
     signal trainprogram_zwo_loaded(string s)
@@ -32,6 +33,9 @@ Item {
         property var rr;
         anchors.top: loadButton.bottom
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: (Qt.platform.os === "ios" &&
+                              typeof IOSLayout !== "undefined" &&
+                              IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width
 

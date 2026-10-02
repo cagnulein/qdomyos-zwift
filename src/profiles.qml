@@ -6,6 +6,7 @@ import Qt.labs.platform 1.1
 import Qt.labs.folderlistmodel 2.15
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.0 as FileDialogClass
+import AndroidStatusBar 1.0
 
 ColumnLayout {
 
@@ -284,6 +285,9 @@ ColumnLayout {
         }
         anchors {
             bottom: parent.bottom
+            bottomMargin: (Qt.platform.os === "ios" &&
+                           typeof IOSLayout !== "undefined" &&
+                           IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
         }
     }
 }

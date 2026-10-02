@@ -7,6 +7,7 @@ import QtQuick.Dialogs 1.0
 import Qt.labs.settings 1.0
 import Qt.labs.platform 1.1
 import QtWebView 1.1
+import AndroidStatusBar 1.0
 
 ColumnLayout {
     signal trainprogram_open_clicked(url name)
@@ -283,6 +284,13 @@ ColumnLayout {
 
                 Button {
                     Layout.fillWidth: true
+                    // The Duo exposes a bottom hinge/safe-area strip while
+                    // Qt's fullscreen window intentionally paints through it.
+                    // Keep this action above that strip so it remains fully
+                    // tappable, matching the standard iPhone layout.
+                    Layout.bottomMargin: (Qt.platform.os === "ios" &&
+                                          typeof IOSLayout !== "undefined" &&
+                                          IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
                     height: 50
                     text: "Other folders"
                     onClicked: {
