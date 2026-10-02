@@ -346,8 +346,14 @@ public class CustomQtActivity extends QtActivity {
     // reinstalled, the workouts left in Documents/QZ by the previous install are hidden from the
     // file API (scoped storage); a folder granted through the picker can still be read. The grant
     // is kept, so later imports of the same folder skip the picker.
-    public void openFitFolderPicker(int requestCode, String destinationDir) {
+    // removeOldDatabase: also delete ddb.sqlite of the previous install from the folder (the app
+    // can remove it only through the grant). allowPicker false (automatic import at start): use
+    // a saved grant only, never open the picker; returns false when there is no saved grant.
+    public boolean openFitFolderPicker(int requestCode, String destinationDir, boolean removeOldDatabase,
+                                       boolean allowPicker) {
         pendingImportDirectories.put(requestCode, destinationDir == null ? "" : destinationDir);
+        fitFolderRemoveOldDatabase = removeOldDatabase;
+        fitFolderAllowPicker = allowPicker;
         for (android.content.UriPermission permission : getContentResolver().getPersistedUriPermissions()) {
             Uri treeUri = permission.getUri();
             String treeId = "";
@@ -356,19 +362,30 @@ public class CustomQtActivity extends QtActivity {
             } catch (Exception ignored) {
                 // a granted single document, not a folder
             }
-            if (permission.isReadPermission() && QZ_DOCUMENTS_TREE_ID.equals(treeId)) {
+            // removing the old database needs a grant with write access
+            if (permission.isReadPermission() && QZ_DOCUMENTS_TREE_ID.equals(treeId)
+                && (!removeOldDatabase || permission.isWritePermission())) {
                 Intent data = new Intent();
                 data.setData(treeUri);
                 handleFitFolderResult(requestCode, RESULT_OK, data, true);
-                return;
+                return true;
             }
         }
+        if (!allowPicker) {
+            pendingImportDirectories.remove(requestCode);
+            return false;
+        }
         launchFitFolderPicker(requestCode);
+        return true;
     }
+
+    private boolean fitFolderRemoveOldDatabase = false;
+    private boolean fitFolderAllowPicker = true;
 
     private void launchFitFolderPicker(int requestCode) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             intent.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI,
                 android.provider.DocumentsContract.buildDocumentUri("com.android.externalstorage.documents",
@@ -392,10 +409,17 @@ public class CustomQtActivity extends QtActivity {
             return;
         }
         final Uri treeUri = data.getData();
+        final boolean removeOldDatabase = fitFolderRemoveOldDatabase;
+        final boolean allowPicker = fitFolderAllowPicker;
         try {
-            getContentResolver().takePersistableUriPermission(treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            getContentResolver().takePersistableUriPermission(treeUri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         } catch (Exception e) {
-            Log.d(TAG, "takePersistableUriPermission failed " + e);
+            try {
+                getContentResolver().takePersistableUriPermission(treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } catch (Exception e2) {
+                Log.d(TAG, "takePersistableUriPermission failed " + e2);
+            }
         }
         new Thread(new Runnable() {
             @Override
@@ -404,30 +428,92 @@ public class CustomQtActivity extends QtActivity {
                 try {
                     String rootId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
                     importFitFilesFromTree(treeUri, rootId, destinationDir, localPaths, true);
+                    // only in the QZ folder itself, never in another folder the user picked
+                    if (removeOldDatabase && localPaths.length() > 0 && QZ_DOCUMENTS_TREE_ID.equals(rootId)) {
+                        deleteOldHistoryDatabase(treeUri, rootId);
+                    }
                 } catch (Exception e) {
                     Log.d(TAG, "handleFitFolderResult failed " + e);
                 }
                 Log.d(TAG, "handleFitFolderResult requestCode=" + requestCode + " savedGrant=" + fromSavedGrant
                     + " files=" + (localPaths.length() == 0 ? 0 : localPaths.toString().split("\n").length));
                 if (fromSavedGrant && localPaths.length() == 0) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                getContentResolver().releasePersistableUriPermission(
-                                    treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            } catch (Exception e) {
-                                Log.d(TAG, "releasePersistableUriPermission failed " + e);
+                    releaseFolderGrant(treeUri);
+                    if (allowPicker) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                pendingImportDirectories.put(requestCode, destinationDir);
+                                launchFitFolderPicker(requestCode);
                             }
-                            pendingImportDirectories.put(requestCode, destinationDir);
-                            launchFitFolderPicker(requestCode);
-                        }
-                    });
-                    return;
+                        });
+                        return;
+                    }
                 }
                 nativeOnDocumentPicked(requestCode, RESULT_OK, localPaths.toString());
             }
         }, "FitFolderImport").start();
+    }
+
+    private void releaseFolderGrant(Uri treeUri) {
+        try {
+            getContentResolver().releasePersistableUriPermission(treeUri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (Exception e) {
+            try {
+                getContentResolver().releasePersistableUriPermission(treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } catch (Exception e2) {
+                Log.d(TAG, "releasePersistableUriPermission failed " + e2);
+            }
+        }
+    }
+
+    // The history database of a previous install cannot be opened, so the app runs on a spare
+    // one; once its workouts are copied, the old file (and its journal) is removed through the
+    // grant, and the next start goes back to ddb.sqlite.
+    private void deleteOldHistoryDatabase(Uri treeUri, String rootId) {
+        Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, rootId);
+        android.database.Cursor cursor = null;
+        String databaseId = null;
+        String journalId = null;
+        try {
+            cursor = getContentResolver().query(childrenUri, new String[] {
+                android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME}, null, null, null);
+            while (cursor != null && cursor.moveToNext()) {
+                String name = cursor.getString(1);
+                if ("ddb.sqlite".equals(name)) {
+                    databaseId = cursor.getString(0);
+                } else if ("ddb.sqlite-journal".equals(name)) {
+                    journalId = cursor.getString(0);
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "deleteOldHistoryDatabase query failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        // the journal goes first: a foreign journal left next to a new ddb.sqlite would break it
+        if (journalId != null && !deleteTreeDocument(treeUri, journalId)) {
+            return;
+        }
+        if (databaseId != null) {
+            deleteTreeDocument(treeUri, databaseId);
+        }
+    }
+
+    private boolean deleteTreeDocument(Uri treeUri, String documentId) {
+        try {
+            boolean deleted = android.provider.DocumentsContract.deleteDocument(getContentResolver(),
+                android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId));
+            Log.d(TAG, "deleteOldHistoryDatabase " + documentId + " deleted=" + deleted);
+            return deleted;
+        } catch (Exception e) {
+            Log.d(TAG, "deleteOldHistoryDatabase " + documentId + " failed " + e);
+            return false;
+        }
     }
 
     private void importFitFilesFromTree(Uri treeUri, String parentId, String destinationDir,

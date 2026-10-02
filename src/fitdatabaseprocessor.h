@@ -29,7 +29,7 @@ class FitDatabaseProcessor : public QObject {
     void importFiles(const QStringList& filePaths);
 
   signals:
-    void importFinished(int added, int alreadyInHistory, int unreadable);
+    void importFinished(int added, int alreadyInHistory, int unreadable, bool databaseOpen);
     void processingStopped();
     void fileProcessed(const QString& filename);
     void progress(int processedFiles, int totalFiles);

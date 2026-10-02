@@ -147,7 +147,7 @@ void FitDatabaseProcessor::importFiles(const QStringList& filePaths) {
     int alreadyInHistory = 0;
     int unreadable = 0;
     if (!db.isOpen() && !initializeDatabase()) {
-        emit importFinished(0, 0, filePaths.size());
+        emit importFinished(0, 0, 0, false);
         return;
     }
     for (const QString& filePath : filePaths) {
@@ -160,7 +160,7 @@ void FitDatabaseProcessor::importFiles(const QStringList& filePaths) {
             unreadable++;
         }
     }
-    emit importFinished(added, alreadyInHistory, unreadable);
+    emit importFinished(added, alreadyInHistory, unreadable, true);
 }
 
 void FitDatabaseProcessor::stopProcessing() {
@@ -404,6 +404,8 @@ bool FitDatabaseProcessor::processFitFile(const QString& filePath) {
 
 void FitDatabaseProcessor::doWork() {
     if (!initializeDatabase()) {
+        // without this the history page waits for the processing forever
+        emit processingStopped();
         return;
     }
 

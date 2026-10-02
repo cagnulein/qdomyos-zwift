@@ -136,6 +136,8 @@ class WorkoutModel : public QAbstractListModel {
     QThread* m_workerThread;
     WorkoutLoaderWorker* m_worker;
     bool m_isLoading;
+    // refresh() asked while a load was running: load again once it ends
+    bool m_refreshPending = false;
     bool m_isDatabaseProcessing;
     QString m_dbPath;
     int m_currentStreak;

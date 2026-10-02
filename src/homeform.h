@@ -1053,6 +1053,17 @@ public:
     FitDatabaseProcessor *fitProcessor = nullptr;
     // queues .fit files that already sit in the fit folder for the history database
     void importFitFilesToHistory(const QStringList &files);
+    // path of a history database this install can open; sets m_historyDatabaseIsNew
+    QString historyDatabasePath();
+    // folder import through the Android folder grant; without a saved grant it opens the
+    // picker only when allowPicker is set, and returns false otherwise
+    bool startFitFolderImport(bool allowPicker);
+    void offerHistoryRecovery();
+    QString m_historyDatabasePath;
+    bool m_historyDatabaseIsNew = false;
+    bool m_historyRecoveryChecked = false;
+    // automatic import after a new database: no toast when nothing new was found
+    bool m_fitImportQuiet = false;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
@@ -1278,6 +1289,9 @@ public:
     void changeOfdevice();
     void changeOflap();
     void androidDocumentPicked(QString kind, QUrl localUrl);
+    // a new history database was started and the workouts of a previous install may be
+    // hidden in the QZ folder: QML asks whether to look for them (importFitFolder())
+    void historyRecoveryOfferRequested();
     void signalChanged(QString value);
     void startTextChanged(QString value);
     void startIconChanged(QString value);
