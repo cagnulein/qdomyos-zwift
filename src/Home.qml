@@ -286,30 +286,36 @@ HomeForm {
 
     GridView {
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.fill: parent
-        cellWidth: 175 * settings.ui_zoom / 100
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        // The tiles stretch to fill the row: the space left over by a whole number of columns
+        // is shared between the columns, up to a quarter of the tile width, and what remains
+        // centres the grid. Measured on the page, so the Android insets are excluded.
+        // The grid is exactly as wide as its columns and centred by the anchor above, not
+        // by leftMargin: Qt 5.15 does not recount the columns when leftMargin changes, so
+        // after a resize a row could come out one column short
+        readonly property real tileBaseWidth: 175 * settings.ui_zoom / 100
+        readonly property int tileColumns: Math.max(1, Math.floor(parent.width / tileBaseWidth))
+        cellWidth: Math.floor(Math.min(parent.width / tileColumns, tileBaseWidth * 1.25))
+        width: tileColumns * cellWidth
         cellHeight: 130 * settings.ui_zoom / 100
         focus: true
         model: appModel
-        leftMargin: { if(OS_VERSION === "Android") (Screen.width % cellWidth) / 2; else (parent.width % cellWidth) / 2; }
         anchors.topMargin: (!window.lockTiles ? rootItem.topBarHeight + 30 : 0)
         interactive: !window.lockTiles
         id: gridView
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
-        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
+        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation | Qt.InvertedLandscapeOrientation | Qt.InvertedPortraitOrientation
         Screen.onPrimaryOrientationChanged:{
-            if(OS_VERSION === "Android")
-                gridView.leftMargin = (Screen.width % cellWidth) / 2;
-            else
-                gridView.leftMargin = (parent.width % cellWidth) / 2;
+            // Nothing to recompute: cellWidth and the grid width follow the page width
         }
 
         Accessible.ignored: true
 
         delegate: Item {
             id: id1
-            width: 170 * settings.ui_zoom / 100
+            width: gridView.cellWidth - 5 * settings.ui_zoom / 100
             height: 125 * settings.ui_zoom / 100
 
             visible: visibleItem
@@ -338,7 +344,7 @@ HomeForm {
             transitions: Transition { NumberAnimation { property: "opacity"; duration: 200} }
 
             Rectangle {
-                width: 168 * settings.ui_zoom / 100
+                width: id1.width - 2 * settings.ui_zoom / 100
                 height: 123 * settings.ui_zoom / 100
                 radius: 3
                 border.width: 1
@@ -685,9 +691,10 @@ HomeForm {
         property bool isSwiping: false
 
         function indexAtMouse(mx, my) {
-            var cols = Math.max(1, Math.floor(gridView.width / gridView.cellWidth))
+            var cols = gridView.tileColumns
             var adjustedY = my + gridView.contentY
-            var col = Math.floor(mx / gridView.cellWidth)
+            var col = Math.floor((mx - gridView.x) / gridView.cellWidth)
+            if (col < 0 || col >= cols) return -1
             var row = Math.floor(adjustedY / gridView.cellHeight)
             var idx = row * cols + col
             if (idx < 0 || idx >= appModel.count) return -1

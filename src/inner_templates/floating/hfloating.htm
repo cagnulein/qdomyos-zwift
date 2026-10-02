@@ -252,32 +252,32 @@
         <tr class="speed" sort-order="0">
           <td class="icon">🏃</td>
           <td style="text-align: left" data-i18n="metric.speed">SPEED</td>
-          <td class="speed-avg-title"><small class="non-treadmill">AVG</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          <td class="speed-avg-title"><small class="non-treadmill" data-i18n="floating.avg">AVG</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
               onclick="SpeedMinus()">-</button></td>
-          <td class="speed-avg"><span class="speed-avg-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">AVG</small></span></td>
+          <td class="speed-avg"><span class="speed-avg-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;" data-i18n="floating.avg">AVG</small></span></td>
           <td class="speed-value values"><b>0.0</b></td>
-          <td class="speed-max-title"><small class="non-treadmill">MAX</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          <td class="speed-max-title"><small class="non-treadmill" data-i18n="floating.max">MAX</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
               onclick="SpeedPlus()">+</button></td>
-          <td class="speed-max"><span class="speed-max-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">MAX</small></span></td>
+          <td class="speed-max"><span class="speed-max-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;" data-i18n="floating.max">MAX</small></span></td>
         </tr>
         <tr class="inclination" sort-order="1">
           <td class="icon">📐</td>
           <td style="text-align: left" data-i18n="metric.incline">INCLINE</td>
-          <td class="inclination-avg-title"><small class="non-treadmill">AVG</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          <td class="inclination-avg-title"><small class="non-treadmill" data-i18n="floating.avg">AVG</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
               onclick="InclinationMinus()">-</button></td>
-          <td class="inclination-avg"><span class="inclination-avg-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">AVG</small></span></td>
+          <td class="inclination-avg"><span class="inclination-avg-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;" data-i18n="floating.avg">AVG</small></span></td>
           <td class="inclination-value values"><b>0.0</b></td>
-          <td class="inclination-max-title"><small class="non-treadmill">MAX</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
+          <td class="inclination-max-title"><small class="non-treadmill" data-i18n="floating.max">MAX</small><button class="treadmill-only" style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
               onclick="InclinationPlus()">+</button></td>
-          <td class="inclination-max"><span class="inclination-max-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;">MAX</small></span></td>
+          <td class="inclination-max"><span class="inclination-max-value">0.0</span><span class="treadmill-only"><br><small style="font-size: 10px; color: #888;" data-i18n="floating.max">MAX</small></span></td>
         </tr>
         <tr class="pace" sort-order="2">
           <td class="icon">🏃</td>
           <td style="text-align: left" data-i18n="metric.pace">PACE</td>
-          <td class="pace-avg-title"><small>AVG</small></td>
+          <td class="pace-avg-title"><small data-i18n="floating.avg">AVG</small></td>
           <td class="pace-avg">00:00</td>
           <td class="pace-value values"><b>00:00</b></td>
-          <td class="pace-max-title"><small>MAX</small></td>
+          <td class="pace-max-title"><small data-i18n="floating.max">MAX</small></td>
           <td class="pace-max">00:00</td>
         </tr>
         <tr class="elevation" sort-order="3">
@@ -288,37 +288,37 @@
         <tr class="cadence" sort-order="4">
           <td class="icon">🚴</td>
           <td style="text-align: left" data-i18n="metric.cadence">CADENCE</td>
-          <td><small>AVG</small></td>
+          <td><small data-i18n="floating.avg">AVG</small></td>
           <td class="cadence-avg">0</td>
           <td class="cadence-value values"><b>0</b></td>
-          <td><small>MAX</small></td>
+          <td><small data-i18n="floating.max">MAX</small></td>
           <td class="cadence-max">0</td>
         </tr>
         <tr class="heart" sort-order="5">
           <td class="icon">💓</td>
           <td style="text-align: left" data-i18n="metric.pulse">PULSE</td>
-          <td><small>AVG</small></td>
+          <td><small data-i18n="floating.avg">AVG</small></td>
           <td class="heart-avg">0</td>
           <td class="heart-value values"><b>0</b></td>
-          <td><small>MAX</small></td>
+          <td><small data-i18n="floating.max">MAX</small></td>
           <td class="heart-max">0</td>
         </tr>
         <tr class="watt" sort-order="6">
           <td class="icon">⚡</td>
           <td style="text-align: left" data-i18n="metric.power">POWER</td>
-          <td><small>AVG</small></td>
+          <td><small data-i18n="floating.avg">AVG</small></td>
           <td class="watt-avg">0</td>
           <td class="watt-value values"><span class='current-watt'><b>0</b></span><span class='watt-separator'></span><span class='target-watt'></span></td>
-          <td><small>MAX</small></td>
+          <td><small data-i18n="floating.max">MAX</small></td>
           <td class="watt-max">0</td>
         </tr>
         <tr class="powerzone" sort-order="7">
           <td class="icon">🚥</td>
-          <td style="text-align: left">P.ZONE</td>
-          <td><small>AVG</small></td>
+          <td style="text-align: left" data-i18n="floating.powerZone">P.ZONE</td>
+          <td><small data-i18n="floating.avg">AVG</small></td>
           <td class="powerzone-avg">0.0</td>
           <td class="powerzone-value values"><span class='powerzone-current-value'><b>0.0</b></span><span class='powerzone-separator'></span><span class='powerzone-target-value'></span></td>
-          <td><small>MAX</small></td>
+          <td><small data-i18n="floating.max">MAX</small></td>
           <td class="powerzone-max">0.0</td>
         </tr>
         <tr class="resistance" sort-order="8">
@@ -326,19 +326,19 @@
           <td style="text-align: left" data-i18n="metric.resistance">RESISTANCE</td>
           <td class="resistance-avg-title"><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
               onclick="ResistanceMinus()">-</button></td>
-          <td class="resistance-avg"><span class="resistance-avg-value">1</span><span><br><small style="font-size: 10px; color: #888;">AVG</small></span></td>
+          <td class="resistance-avg"><span class="resistance-avg-value">1</span><span><br><small style="font-size: 10px; color: #888;" data-i18n="floating.avg">AVG</small></span></td>
           <td class="resistance-value values"><b>1</b></td>
           <td class="resistance-max-title"><button style="width: 30px; font-size: 18px; color: white; background-color:#4C70BF; border: none; cursor: pointer;"
               onclick="ResistancePlus()">+</button></td>
-          <td class="resistance-max"><span class="resistance-max-value">1</span><span><br><small style="font-size: 10px; color: #888;">MAX</small></span></td>
+          <td class="resistance-max"><span class="resistance-max-value">1</span><span><br><small style="font-size: 10px; color: #888;" data-i18n="floating.max">MAX</small></span></td>
         </tr>
         <tr class="pelotonresistance" sort-order="9">
           <td class="icon">🅿</td>
-          <td style="text-align: left">P.RESISTANCE</td>
-          <td><small>AVG</small></td>
+          <td style="text-align: left" data-i18n="floating.pelotonResistance">P.RESISTANCE</td>
+          <td><small data-i18n="floating.avg">AVG</small></td>
           <td class="pelotonresistance-avg">1</td>
           <td class="pelotonresistance-value values"><b>1</b></td>
-          <td><small>MAX</small></td>
+          <td><small data-i18n="floating.max">MAX</small></td>
           <td class="pelotonresistance-max">1</td>
         </tr>
         <tr class="calories" sort-order="10">
@@ -348,7 +348,7 @@
         </tr>
         <tr class="jouls" sort-order="11">
           <td class="icon">🔥</td>
-          <td style="text-align: left">TOT.OUTPUT</td>
+          <td style="text-align: left" data-i18n="floating.totalOutput">TOT.OUTPUT</td>
           <td class="jouls-value values" colspan="5"><b>0</b></td>
         </tr>
         <tr class="distance" sort-order="12">
@@ -358,17 +358,17 @@
         </tr>
         <tr class="elapsed" sort-order="13">
           <td class="icon">⏲️</td>
-          <td style="text-align: left">ELAPSED</td>
+          <td style="text-align: left" data-i18n="floating.elapsed">ELAPSED</td>
           <td class="elapsed-value values" colspan="5"><b>0:00:00</b></td>
         </tr>
         <tr class="rowremainingtime" sort-order="14">
           <td class="icon">⏲️</td>
-          <td style="text-align: left">REM.TIME</td>
+          <td style="text-align: left" data-i18n="floating.remainingTime">REM.TIME</td>
           <td class="rowremainingtime-value values" colspan="5"><b>0:00:00</b></td>
         </tr>
         <tr class="pelotonoffset" sort-order="15">
                 <td class="icon">⏰</td>
-                <td style="text-align: left">P.OFFSET</td>
+                <td style="text-align: left" data-i18n="floating.pelotonOffset">P.OFFSET</td>
                 <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
                     onclick="PelotonOffsetMinus()">-</button></td>
                 <td class="pelotonoffset-value values"><b>0</b></td>
@@ -377,7 +377,7 @@
               </tr>
               <tr class="gears" sort-order="16">
                 <td class="icon">⚙</td>
-                <td style="text-align: left">GEARS</td>
+                <td style="text-align: left" data-i18n="floating.gears">GEARS</td>
                 <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
                     onclick="GearsMinus()">-</button></td>
                 <td class="gears-value values"><b>0</b></td>
@@ -386,19 +386,19 @@
               </tr>
               <tr class="nextrow" sort-order="17">
                 <td class="icon">🕶</td>
-                <td style="text-align: left">NEXT</td>
+                <td style="text-align: left" data-i18n="floating.next">NEXT</td>
                 <td class="nextrow-value values" colspan="5"><b></b></td>
               </tr>
               <tr sort-order="255">
                 <td colspan=2 style="text-align:left"><button style="font-size: 16px; color: white; background-color:#4C70BF"
-                    onclick="Lap()">CLEAR</button></td>
+                    onclick="Lap()" data-i18n="floating.clear">CLEAR</button></td>
                 <td colspan="2"><button style="font-size: 16px; color: white; background-color:#4C70BF"
                     onclick="Start()">▶/⏸</button></td>
                 <td><button style="font-size: 16px; color: white; background-color:#4C70BF" onclick="Stop()">⏹</button></td>
                 <td colspan=3 style="text-align:right">
                   <button class="autoresistance" style="font-size: 16px; color: white; background-color:#4C70BF"
                     onclick="AutoResistance()">🧲</button>
-                  <button style="font-size: 16px; color: white; background-color:#4C70BF" onclick="toggleCompletePanel()">Back</button>
+                  <button style="font-size: 16px; color: white; background-color:#4C70BF" onclick="toggleCompletePanel()" data-i18n="common.back">Back</button>
                   <button style="font-size: 16px; color: red; background-color:#4C70BF" onclick="Close()">🗙</button>
                 </td>
               </tr>
@@ -407,13 +407,13 @@
 
           <!-- Metric selector panel -->
           <div id="metric-selector" class="metric-selector-panel">
-            <h3>Select metrics to display</h3>
+            <h3 data-i18n="floating.selectMetricsToDisplay">Select metrics to display</h3>
             <div class="metric-selector-grid" id="metric-selector-grid">
               <!-- Will be populated by JavaScript -->
             </div>
             <div class="control-row" style="margin-top: 10px;">
-              <button class="control-btn" onclick="saveMetricPreferences()">Save</button>
-              <button class="control-btn" onclick="toggleMetricSelector()">Cancel</button>
+              <button class="control-btn" onclick="saveMetricPreferences()" data-i18n="common.save">Save</button>
+              <button class="control-btn" onclick="toggleMetricSelector()" data-i18n="common.cancel">Cancel</button>
             </div>
           </div>
 
@@ -422,17 +422,17 @@
             <div class="control-row">
               <button class="control-btn" onclick="Start()">▶/⏸</button>
               <button class="control-btn" onclick="Stop()">⏹</button>
-              <button class="control-btn" onclick="Lap()">CLEAR</button>
+              <button class="control-btn" onclick="Lap()" data-i18n="floating.clear">CLEAR</button>
             </div>
             <div class="control-row">
               <button class="control-btn autoresistance" onclick="AutoResistance()">🧲</button>
-              <button class="control-btn" onclick="toggleMetricSelector()">Select Metrics</button>
-              <button class="control-btn" onclick="toggleCompletePanel()">Full Controls</button>
+              <button class="control-btn" onclick="toggleMetricSelector()" data-i18n="floating.selectMetrics">Select Metrics</button>
+              <button class="control-btn" onclick="toggleCompletePanel()" data-i18n="floating.fullControls">Full Controls</button>
             </div>
             <div class="control-row">
-              <button class="control-btn" onclick="GearsMinus()">GEAR -</button>
-              <button class="control-btn" onclick="GearsPlus()">GEAR +</button>
-              <button class="control-btn" style="color: red;" onclick="Close()">Close</button>
+              <button class="control-btn" onclick="GearsMinus()" data-i18n="floating.gearMinus">GEAR -</button>
+              <button class="control-btn" onclick="GearsPlus()" data-i18n="floating.gearPlus">GEAR +</button>
+              <button class="control-btn" style="color: red;" onclick="Close()" data-i18n="floating.close">Close</button>
             </div>
           </div>
 
@@ -440,12 +440,12 @@
           <div id="metrics-bar" class="horizontal-bar">
             <!-- Quick action buttons that appear on hover -->
             <div class="quick-actions">
-              <button class="quick-action-btn" onclick="Start()" title="Start/Pause">▶/⏸</button>
-              <button class="quick-action-btn" onclick="Stop()" title="Stop">⏹</button>
-              <button class="quick-action-btn autoresistance" onclick="AutoResistance()" title="Auto Resistance">🧲</button>
-              <button class="quick-action-btn" onclick="toggleMetricSelector()" title="Select Metrics">⚙</button>
-              <button class="quick-action-btn" onclick="toggleCompletePanel()" title="Full Controls">⋯</button>
-              <button class="quick-action-btn" onclick="Close()" title="Close" style="color: red;">🗙</button>
+              <button class="quick-action-btn" onclick="Start()" title="Start/Pause" data-i18n-title="floating.startPause">▶/⏸</button>
+              <button class="quick-action-btn" onclick="Stop()" title="Stop" data-i18n-title="floating.stop">⏹</button>
+              <button class="quick-action-btn autoresistance" onclick="AutoResistance()" title="Auto Resistance" data-i18n-title="floating.autoResistance">🧲</button>
+              <button class="quick-action-btn" onclick="toggleMetricSelector()" title="Select Metrics" data-i18n-title="floating.selectMetrics">⚙</button>
+              <button class="quick-action-btn" onclick="toggleCompletePanel()" title="Full Controls" data-i18n-title="floating.fullControls">⋯</button>
+              <button class="quick-action-btn" onclick="Close()" title="Close" data-i18n-title="floating.close" style="color: red;">🗙</button>
             </div>
             <!-- The metrics will be populated dynamically by JavaScript -->
           </div>
@@ -453,24 +453,24 @@
           <script>
             var peloton_ask_already_running = false;
             var availableMetrics = [
-              { id: "cadence", name: "CADENCE", order: 4 },
-              { id: "resistance", name: "RESISTANCE", order: 8 },
-              { id: "heart", name: "PULSE", order: 5 },
-              { id: "watt", name: "POWER", order: 6 },
-              { id: "speed", name: "SPEED", order: 0 },
-              { id: "inclination", name: "INCLINE", order: 1 },
-              { id: "pace", name: "PACE", order: 2 },
-              { id: "elevation", name: "ELEV.", order: 3 },
-              { id: "powerzone", name: "P.ZONE", order: 7 },
-              { id: "pelotonresistance", name: "P.RESISTANCE", order: 9 },
-              { id: "calories", name: "CALORIES", order: 10 },
-              { id: "jouls", name: "TOT.OUTPUT", order: 11 },
-              { id: "distance", name: "DISTANCE", order: 12 },
-              { id: "elapsed", name: "ELAPSED", order: 13 },
-              { id: "rowremainingtime", name: "REM.TIME", order: 14 },
-              { id: "pelotonoffset", name: "P.OFFSET", order: 15 },
-              { id: "gears", name: "GEARS", order: 16 },
-              { id: "nextrow", name: "NEXT", order: 17 }
+              { id: "cadence", name: "CADENCE", i18n: "metric.cadence", order: 4 },
+              { id: "resistance", name: "RESISTANCE", i18n: "metric.resistance", order: 8 },
+              { id: "heart", name: "PULSE", i18n: "metric.pulse", order: 5 },
+              { id: "watt", name: "POWER", i18n: "metric.power", order: 6 },
+              { id: "speed", name: "SPEED", i18n: "metric.speed", order: 0 },
+              { id: "inclination", name: "INCLINE", i18n: "metric.incline", order: 1 },
+              { id: "pace", name: "PACE", i18n: "metric.pace", order: 2 },
+              { id: "elevation", name: "ELEV.", i18n: "metric.elevationShort", order: 3 },
+              { id: "powerzone", name: "P.ZONE", i18n: "floating.powerZone", order: 7 },
+              { id: "pelotonresistance", name: "P.RESISTANCE", i18n: "floating.pelotonResistance", order: 9 },
+              { id: "calories", name: "CALORIES", i18n: "metric.calories", order: 10 },
+              { id: "jouls", name: "TOT.OUTPUT", i18n: "floating.totalOutput", order: 11 },
+              { id: "distance", name: "DISTANCE", i18n: "metric.distance", order: 12 },
+              { id: "elapsed", name: "ELAPSED", i18n: "floating.elapsed", order: 13 },
+              { id: "rowremainingtime", name: "REM.TIME", i18n: "floating.remainingTime", order: 14 },
+              { id: "pelotonoffset", name: "P.OFFSET", i18n: "floating.pelotonOffset", order: 15 },
+              { id: "gears", name: "GEARS", i18n: "floating.gears", order: 16 },
+              { id: "nextrow", name: "NEXT", i18n: "floating.next", order: 17 }
             ];
 
             var displayedMetricsCount = 5; // Default number of metrics to display
@@ -624,7 +624,8 @@
                       item.className += " active";
                     }
                     item.dataset.metric = metric.id;
-                    item.innerHTML = metric.name;
+                    item.dataset.i18n = metric.i18n;
+                    item.innerHTML = qzTranslate(metric.i18n, metric.name);
 
                     // Toggle selection when clicked
                     item.addEventListener("click", function() {
@@ -702,7 +703,7 @@
                 // Create HTML for a horizontal metric
                 function createMetricHTML(metric) {
                   var id = metric.id;
-                  var name = metric.name;
+                  var name = qzTranslate(metric.i18n, metric.name);
                   var html = '<div class="metric ' + id + '" sort-order="' + metric.order + '">';
                   html += '<div class="metric-name">' + name + '</div>';
 
@@ -720,7 +721,7 @@
                   }
                   else if (id === "pelotonoffset") {
                     html += '<div class="metric-value pelotonoffset-value">0</div>';
-                    html += '<div class="metric-avg"><button onclick="PelotonOffsetMinus()" style="background: none; border: none; color: white; cursor: pointer; font-size: 14px; padding: 0 3px;">-</button> OFFSET <button onclick="PelotonOffsetPlus()" style="background: none; border: none; color: white; cursor: pointer; font-size: 14px; padding: 0 3px;">+</button></div>';
+                    html += '<div class="metric-avg"><button onclick="PelotonOffsetMinus()" style="background: none; border: none; color: white; cursor: pointer; font-size: 14px; padding: 0 3px;">-</button> ' + qzTranslate('floating.offset', 'OFFSET') + ' <button onclick="PelotonOffsetPlus()" style="background: none; border: none; color: white; cursor: pointer; font-size: 14px; padding: 0 3px;">+</button></div>';
                     return html + '</div>';
                   }
                   else {
@@ -729,10 +730,10 @@
                   }
                   // Add average/max info for metrics that have it
                         if (["speed", "inclination", "pace", "cadence", "heart", "watt", "powerzone", "resistance", "pelotonresistance"].includes(id)) {
-                          html += '<div class="metric-avg">AVG <span class="' + id + '-avg">0</span></div>';
+                          html += '<div class="metric-avg">' + qzTranslate('floating.avg', 'AVG') + ' <span class="' + id + '-avg">0</span></div>';
                         } else if (["calories", "jouls", "distance", "elevation"].includes(id)) {
                           // These metrics don't have averages
-                          html += '<div class="metric-avg">TOTAL</div>';
+                          html += '<div class="metric-avg">' + qzTranslate('floating.total', 'TOTAL') + '</div>';
                         } else if (id === "elapsed" || id === "rowremainingtime") {
                           // Time metrics don't need a label
                           html += '<div class="metric-avg"></div>';
@@ -766,6 +767,11 @@
                           metricsBar.innerHTML += createMetricHTML(metric);
                         });
                       }
+
+                      // Rebuild the bar when the translations arrive: its labels are generated in JavaScript
+                      document.addEventListener('qz-translations-updated', function() {
+                        updateHorizontalMetrics();
+                      });
 
                       // Function to handle auto resistance
                       function AutoResistance() {
@@ -1574,7 +1580,7 @@
                                                                                         $('.gears-value').html("<b>" + data.gears.toFixed(0) + "</b>");
                                                                                         // Pace
                                                                                               if(data.pace_s.toString() === "-1" || (data.pace_s.toString() === "0" && data.pace_m.toString() === "0")) {
-                                                                                                $('.pace-value').html("<b>N/A</b>");
+                                                                                                $('.pace-value').html("<b>" + qzTranslate('floating.notAvailable', 'N/A') + "</b>");
                                                                                               } else {
                                                                                                 if(tile_target_pace_enabled && (data.target_pace_s.toString() !== "-1" && !(data.target_pace_s.toString() === "0" && data.target_pace_m.toString() === "0"))) {
                                                                                                   $('.pace-value').html("<b>" + data.pace_m.toString().padStart(1, "0") + ":" + data.pace_s.toString().padStart(2, "0") +
@@ -1586,13 +1592,13 @@
                                                                                               }
 
                                                                                               if(data.avgpace_s.toString() === "-1" || (data.avgpace_s.toString() === "0" && data.avgpace_m.toString() === "0")) {
-                                                                                                $('.pace-avg').html("<b>N/A</b>");
+                                                                                                $('.pace-avg').html("<b>" + qzTranslate('floating.notAvailable', 'N/A') + "</b>");
                                                                                               } else {
                                                                                                 $('.pace-avg').html("<b>" + data.avgpace_m.toString().padStart(2, "0") + ":" + data.avgpace_s.toString().padStart(2, "0") + "</b>");
                                                                                               }
 
                                                                                               if(data.maxpace_s.toString() === "-1" || (data.maxpace_s.toString() === "0" && data.maxpace_m.toString() === "0")) {
-                                                                                                $('.pace-max').html("<b>N/A</b>");
+                                                                                                $('.pace-max').html("<b>" + qzTranslate('floating.notAvailable', 'N/A') + "</b>");
                                                                                               } else {
                                                                                                 $('.pace-max').html("<b>" + data.maxpace_m.toString().padStart(2, "0") + ":" + data.maxpace_s.toString().padStart(2, "0") + "</b>");
                                                                                               }
@@ -1725,7 +1731,7 @@
                                                                                                     // Update pace
                                                                                                     if ($('.horizontal-bar .pace').length > 0) {
                                                                                                       if(data.pace_s.toString() === "-1" || (data.pace_s.toString() === "0" && data.pace_m.toString() === "0")) {
-                                                                                                        $('.horizontal-bar .pace-value').html("N/A");
+                                                                                                        $('.horizontal-bar .pace-value').html(qzTranslate('floating.notAvailable', 'N/A'));
                                                                                                       } else {
                                                                                                         if(tile_target_pace_enabled && data.target_pace_s.toString() !== "-1" &&
                                                                                                            !(data.target_pace_s.toString() === "0" && data.target_pace_m.toString() === "0")) {

@@ -14,7 +14,7 @@ ColumnLayout {
         id: hostRow
         Label {
             id: labelTcpClientIp
-            text: qsTr(rootElement.templateId + " Host:")
+            text: qsTr("%1 Host:").arg(rootElement.templateId)
             Layout.fillWidth: true
         }
         function doSaveHost(text) {
@@ -47,7 +47,7 @@ ColumnLayout {
         id: portRow
         Label {
             id: labelTcpClientPort
-            text: qsTr(rootElement.templateId + " Port:")
+            text: qsTr("%1 Port:").arg(rootElement.templateId)
             Layout.fillWidth: true
         }
         function doSavePort(text) {

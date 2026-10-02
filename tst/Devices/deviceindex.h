@@ -70,6 +70,7 @@ public:
     DEFINE_DEVICE(FTMSBikeHammer, "FTMS Bike Hammer 64123");
     DEFINE_DEVICE(FTMSBikeIConsole, "FTMS Bike IConsole");
     DEFINE_DEVICE(FTMSBikeHammerRacerS, "FTMS Bike Hammer Racer S");
+    DEFINE_DEVICE(FTMSBikeHS5000L, "FTMS Bike HS-5000L");
     DEFINE_DEVICE(FTMSBike, "FTMS Bike");
     DEFINE_DEVICE(FTMSBike2, "FTMS Bike 2");
     DEFINE_DEVICE(FTMSBike3, "FTMS Bike 3");

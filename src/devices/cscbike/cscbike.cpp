@@ -44,9 +44,9 @@ void cscbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
     if (!manualResistancePowerAdjustmentToastShown && homeform::singleton()) {
         homeform::singleton()->setToastRequested(
             jorotoBike
-                ? QStringLiteral(
+                ? QObject::tr(
                       "Manual resistance power adjustment enabled: power now scales with the Resistance tile value.")
-                : QStringLiteral(
+                : QObject::tr(
                       "Custom CSC power table enabled: power now follows the configured resistance/watt points."));
         manualResistancePowerAdjustmentToastShown = true;
     }
@@ -287,7 +287,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         battery = newValue.at(0);
         if(battery != battery_level)
             if(homeform::singleton())
-                homeform::singleton()->setToastRequested(bluetoothDevice.name() + QStringLiteral(" Battery Level ") + QString::number(battery) + " %");
+                homeform::singleton()->setToastRequested(QObject::tr("%1 Battery Level %2 %").arg(bluetoothDevice.name(), QString::number(battery)));
         battery_level = battery;
         qDebug() << QStringLiteral("battery: ") << battery;
         return;

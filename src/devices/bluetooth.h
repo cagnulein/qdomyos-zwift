@@ -380,6 +380,8 @@ class bluetooth : public QObject, public SignalHandler {
 
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;
+    int rescanCount = 0;
+    qint64 rescanStartedMs = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = nullptr;

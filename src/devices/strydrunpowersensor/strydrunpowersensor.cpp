@@ -157,8 +157,8 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         uint8_t battery = newValue.at(0);
         if (battery != battery_level) {
             if (homeform::singleton()) {
-                homeform::singleton()->setToastRequested(bluetoothDevice.name() + QStringLiteral(" Battery Level ") +
-                                                         QString::number(battery) + " %");
+                homeform::singleton()->setToastRequested(
+                    QObject::tr("%1 Battery Level %2 %").arg(bluetoothDevice.name(), QString::number(battery)));
             }
         }
         battery_level = battery;

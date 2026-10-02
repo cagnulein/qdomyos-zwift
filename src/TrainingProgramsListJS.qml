@@ -89,9 +89,9 @@ ColumnLayout {
         sourceComponent: Component {
             FileDialog {
                 id: fileDialog
-                title: "Please choose a file"
+                title: qsTr("Please choose a file")
                 folder: shortcuts.home
-                nameFilters: ["Training programs (*.xml *.zwo)", "All files (*)"]
+                nameFilters: [qsTr("Training programs (*.xml *.zwo)"), qsTr("All files (*)")]
                 visible: true
                 onAccepted: {
                     var chosenFile = fileDialog.fileUrl || fileDialog.file || (fileDialog.fileUrls && fileDialog.fileUrls.length > 0 ? fileDialog.fileUrls[0] : "")
@@ -117,8 +117,8 @@ ColumnLayout {
     MessageDialog {
         id: deleteDialog
         property url fileUrl: ""
-        text: "Delete workout?"
-        informativeText: "This cannot be undone."
+        text: qsTr("Delete workout?")
+        informativeText: qsTr("This cannot be undone.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             if (rootItem.deleteTrainingProgramFile(fileUrl)) {
@@ -150,7 +150,7 @@ ColumnLayout {
                     spacing: 5
 
                     Text {
-                        text: "Filter"
+                        text: qsTr("Filter")
                         color: "white"
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -158,7 +158,7 @@ ColumnLayout {
                     TextField {
                         id: filterField
                         Layout.fillWidth: true
-                        placeholderText: "Search (recursive)..."
+                        placeholderText: qsTr("Search (recursive)...")
 
                         function updateFilter() {
                             var text = filterField.text.trim()
@@ -293,7 +293,7 @@ ColumnLayout {
                 Button {
                     Layout.fillWidth: true
                     height: 50
-                    text: "Other folders"
+                    text: qsTr("Other folders")
                     onClicked: {
                         if (Qt.platform.os === "android") {
                             rootItem.openAndroidDocumentPicker("training")
@@ -319,14 +319,14 @@ ColumnLayout {
                     spacing: 10
 
                     Button {
-                        text: "← Back"
+                        text: qsTr("← Back")
                         onClicked: stackView.pop()
                     }
 
                     Item { Layout.fillWidth: true }
 
                     Button {
-                        text: "Delete"
+                        text: qsTr("Delete")
                         visible: pendingWorkoutUrl.toString() !== ""
                         Material.background: Material.Red
                         onClicked: {
@@ -336,7 +336,7 @@ ColumnLayout {
                     }
 
                     Button {
-                        text: "Start Workout"
+                        text: qsTr("Start Workout")
                         highlighted: true
                         Material.background: Material.Green
                         onClicked: {

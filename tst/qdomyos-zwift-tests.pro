@@ -24,6 +24,7 @@ SOURCES += \
         TrainingProgram/trainprogramtestsuite.cpp \
         ToolTests/qfittestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
+        ToolTests/testsettingssecuritytestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
         ToolTests/zwiftworkouttestsuite.cpp \
         Tools/testsettings.cpp \
@@ -38,6 +39,7 @@ SOURCES += \
         Devices/TestRenphoBikeKnobGears.cpp \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
+        Devices/TestRowerTargetResistance.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
         main.cpp
 

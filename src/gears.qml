@@ -326,7 +326,7 @@ ScrollView {
 
         // Wahoo Options
         GroupBox {
-            title: "Wahoo Options"
+            title: qsTr("Wahoo Options")
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -358,12 +358,12 @@ ScrollView {
 
         // Crankset Size
         GroupBox {
-            title: "Chainring Size"
+            title: qsTr("Chainring Size")
             Layout.fillWidth: true
 
             ColumnLayout {
                 Label {
-                    text: "Tooth count of your chainring on the bike you are currently riding on your trainer - enter 42 for Zwift Ride"
+                    text: qsTr("Tooth count of your chainring on the bike you are currently riding on your trainer - enter 42 for Zwift Ride")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
@@ -384,12 +384,12 @@ ScrollView {
 
         // Cog Size
         GroupBox {
-            title: "Cog Size"
+            title: qsTr("Cog Size")
             Layout.fillWidth: true
 
             ColumnLayout {
                 Label {
-                    text: "Tooth count of your rear cog on your trainer - enter 14 if you have the Zwift Cog"
+                    text: qsTr("Tooth count of your rear cog on your trainer - enter 14 if you have the Zwift Cog")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
@@ -409,7 +409,7 @@ ScrollView {
 
         // Wheel Size
         GroupBox {
-            title: "Virtual Wheel Size"
+            title: qsTr("Virtual Wheel Size")
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -518,7 +518,7 @@ ScrollView {
 
                 // Restore Default Wheel Diameter Button
                 Button {
-                    text: "Restore Default Setting to the Trainer"
+                    text: qsTr("Restore Default Setting to the Trainer")
                     Layout.fillWidth: true
                     Layout.preferredHeight: 50
                     font.bold: true
@@ -542,14 +542,14 @@ ScrollView {
         }
 
         GroupBox {
-        title: "Preset Gear Profiles"
+        title: qsTr("Preset Gear Profiles")
         Layout.fillWidth: true
 
             ComboBox {
                 id: profileCombo
                 width: parent.width
                 textRole: "text"
-                displayText: currentIndex < 0 ? "Select a profile..." : model.get(currentIndex).text
+                displayText: currentIndex < 0 ? qsTr("Select a profile...") : model.get(currentIndex).text
                 model: ListModel {
                  id: profileModel
                 }
@@ -574,7 +574,7 @@ ScrollView {
 
         // Gear Table GroupBox
         GroupBox {
-            title: "Virtual Gear Table"
+            title: qsTr("Virtual Gear Table")
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.preferredHeight: parent.height
@@ -590,14 +590,14 @@ ScrollView {
                     spacing: 10
 
                     Button {
-                        text: "Add Gear"
+                        text: qsTr("Add Gear")
                         Layout.fillWidth: true
                         Layout.preferredHeight: 40
                         onClicked: addNewGear()
                     }
 
                     Button {
-                        text: "Clear Selected Gear and Following"
+                        text: qsTr("Clear Selected Gear and Following")
                         Layout.fillWidth: true
                         Layout.preferredHeight: 40
                         onClicked: {
@@ -608,7 +608,7 @@ ScrollView {
                     }
 
                     Button {
-                        text: "Reset All Gears"
+                        text: qsTr("Reset All Gears")
                         Layout.fillWidth: true
                         Layout.preferredHeight: 40
                         onClicked: initializeGearRows()
@@ -635,7 +635,7 @@ ScrollView {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: "Gear"
+                                text: qsTr("Gear")
                                 font.bold: true
                                 color: "black"
                             }
@@ -650,7 +650,7 @@ ScrollView {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: "Chainring"
+                                text: qsTr("Chainring")
                                 font.bold: true
                                 color: "black"
                             }
@@ -665,7 +665,7 @@ ScrollView {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: "Rear Cog"
+                                text: qsTr("Rear Cog")
                                 font.bold: true
                                 color: "black"
                             }

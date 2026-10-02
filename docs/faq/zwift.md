@@ -24,3 +24,18 @@ When QZ is handling a custom virtual gear table and Zwift is also showing its vi
 The alignment logic is active when both the custom gear table and the Zwift gear-alignment setting are enabled. QZ then reads the current gear from its virtual bike and synchronizes the local gear to it.
 
 If QZ stops at a smaller number of gears while Zwift continues higher, check the selected custom gear profile as well as **Align Gear**. In a confirmed support case, gear alignment made QZ and Zwift shift together, and selecting the 24-step Reality Bender profile resolved the remaining mismatch in available gear range.
+
+## Zwift auto-incline works for one rider account but not another. Can QZ support multiple Zwift accounts?
+
+Yes. QZ's Zwift API auto-incline uses the Zwift credentials configured in QZ, so the credentials must match the Zwift rider whose session QZ should follow.
+
+If more than one person uses the same QZ installation, create a separate QZ profile for each rider and store that rider's Zwift credentials in the corresponding profile:
+
+1. Configure the first rider's Zwift username and password under **Zwift Options**.
+2. Save that configuration as a QZ profile.
+3. Create or save a second profile for the other rider and enter the second rider's Zwift credentials there.
+4. Before starting the session, load the QZ profile that belongs to the rider who will use Zwift, then restart QZ if prompted.
+
+This keeps the rest of the device configuration reusable while allowing QZ to authenticate against the correct Zwift account for API-based auto-incline.
+
+QZ's current implementation reads the configured `zwift_username` and `zwift_password` when authenticating to Zwift, and QZ profiles save the current settings as separate configurations.

@@ -42,27 +42,34 @@ ApplicationWindow {
             }
         }
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
-               AndroidStatusBar.height : AndroidStatusBar.leftInset;
+        // AndroidStatusBar.height is always the top inset in the current orientation
+        // (getSystemWindowInsets() returns orientation-aware values)
+        return AndroidStatusBar.height;
     }
 
     function getBottomPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
-               AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
+        // navigationBarHeight is always the bottom inset in the current orientation
+        return AndroidStatusBar.navigationBarHeight;
     }
 
     function getLeftPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
-               AndroidStatusBar.leftInset : 0;
+               (settings.android_landscape_cutout_margin ? AndroidStatusBar.leftInset : AndroidStatusBar.systemBarLeftInset) : 0;
     }
-    
+
     function getRightPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
-               AndroidStatusBar.rightInset : 0;
+               (settings.android_landscape_cutout_margin ? AndroidStatusBar.rightInset : AndroidStatusBar.systemBarRightInset) : 0;
     }
+
+    // Side margin for text, after the Material 3 window margins (16 on compact windows
+    // under 600 wide, 24 on wider ones) but tighter: 12 and 16. Keeps text clear of
+    // rounded screen corners and of the edges covered by protective glass.
+    // A property rather than a function, so .ui.qml forms can bind to it.
+    readonly property int contentSideMargin: width < 600 ? 12 : 16
 
     function isConfiguringShortcuts() {
         // Check if a TextField in the shortcuts settings has active focus
@@ -209,6 +216,7 @@ ApplicationWindow {
         property string shortcut_lap: ""
         property string shortcut_start_stop: ""
         property string shortcut_stop: ""
+        property bool android_landscape_cutout_margin: true
     }
 
 
@@ -541,11 +549,12 @@ ApplicationWindow {
                 horizontalAlignment: Text.AlignHCenter
             }
 
-            ComboBox {
+            ValueComboBox {
                 id: gymModeDeviceComboBox
                 width: parent.width
                 model: rootItem.bluetoothDevices
-                displayText: currentIndex >= 0 ? currentValue : qsTr("Select a device")
+                labels: ({ "Disabled": qsTr("Disabled") })
+                displayText: currentIndex >= 0 ? labelFor(currentValue) : qsTr("Select a device")
                 currentIndex: -1
                 font.pixelSize: Qt.application.font.pixelSize + 8
 
@@ -800,6 +809,26 @@ ApplicationWindow {
         visible: false
     }
 
+    // a device changed a setting on its own (auto-detection): the message says what QZ found and why it must restart
+    MessageDialog {
+        id: popupRestartAppDetected
+        text: ""
+        informativeText: qsTr("Restart now?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: Qt.callLater(Qt.quit)
+        onNoClicked: this.visible = false;
+        visible: false
+    }
+
+    Connections {
+        target: rootItem
+        ignoreUnknownSignals: true
+        function onRestartToApplyRequested(message) {
+            popupRestartAppDetected.text = message;
+            popupRestartAppDetected.visible = true;
+        }
+    }
+
     MessageDialog {
         text: qsTr("Strava")
         informativeText: qsTr("Do you want to upload the workout to Strava?")
@@ -821,7 +850,7 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Garmin FTP Update"
+        text: qsTr("Garmin FTP Update")
         informativeText: rootItem.garminFtpPromptMessage
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.garmin_accept_ftp_update(); }
@@ -830,9 +859,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Clipboard Workout"
-        informativeText: "Workout found in clipboard:\n" + rootItem.clipboardWorkoutPromptName +
-                         "\n\nDo you want to open the workout preview?"
+        text: qsTr("Clipboard Workout")
+        informativeText: qsTr("Workout found in clipboard:\n%1\n\nDo you want to open the workout preview?").arg(rootItem.clipboardWorkoutPromptName)
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             var workoutUrl = rootItem.clipboard_workout_url()
@@ -855,8 +883,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Clipboard Workout"
-        informativeText: "The clipboard workout has ended.\n\nDo you want to delete the file?"
+        text: qsTr("Clipboard Workout")
+        informativeText: qsTr("The clipboard workout has ended.\n\nDo you want to delete the file?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: rootItem.clipboard_delete_finished_workout()
         onNoClicked: rootItem.clipboard_keep_finished_workout()
@@ -864,8 +892,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Echelon Unlock"
-        informativeText: "The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?"
+        text: qsTr("Echelon Unlock")
+        informativeText: qsTr("The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.echelon_switch_to_classic_bridge(); }
         onNoClicked: { rootItem.echelon_dismiss_bridge_switch_prompt(); }
@@ -898,7 +926,7 @@ ApplicationWindow {
 
             Label {
                 width: parent.width
-                text: "Echelon Locked Bike"
+                text: qsTr("Echelon Locked Bike")
                 font.bold: true
                 font.pixelSize: 20
                 wrapMode: Text.WordWrap
@@ -915,10 +943,10 @@ ApplicationWindow {
                     wrapMode: TextEdit.Wrap
                     selectByMouse: true
                     text:
-                        "Your bike is locked by Echelon, but QZ can unlock it.\n\n" +
-                        "Enable Virtual Echelon in the experimental settings and restart qz, then open the official Echelon app on a separate device and connect to the bike once.\n\n" +
-                        "After initialization, return to QZ and everything will work normally.\n\n" +
-                        "You have to repeat this for each session, would you like to enable the Virtual Echelon setting now for this?"
+                        qsTr("Your bike is locked by Echelon, but QZ can unlock it.\n\n") +
+                        qsTr("Enable Virtual Echelon in the experimental settings and restart qz, then open the official Echelon app on a separate device and connect to the bike once.\n\n") +
+                        qsTr("After initialization, return to QZ and everything will work normally.\n\n") +
+                        qsTr("You have to repeat this for each session, would you like to enable the Virtual Echelon setting now for this?")
                 }
             }
 
@@ -929,12 +957,12 @@ ApplicationWindow {
                 layoutDirection: Qt.RightToLeft
 
                 Button {
-                    text: "Yes"
+                    text: qsTr("Yes")
                     onClicked: rootItem.echelon_enable_virtual_bridge()
                 }
 
                 Button {
-                    text: "No"
+                    text: qsTr("No")
                     onClicked: rootItem.echelon_dismiss_enable_prompt()
                 }
             }
@@ -977,8 +1005,6 @@ ApplicationWindow {
         id: headerToolbar
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
         topPadding: getTopPadding()
-        leftPadding: getLeftPadding()
-        rightPadding: getRightPadding()
 
         ToolButton {
             id: toolButton
@@ -1026,7 +1052,7 @@ ApplicationWindow {
                  anchors.horizontalCenter: parent.horizontalCenter
              Label {
                  anchors.horizontalCenter: parent.horizontalCenter
-                 text: qsTr("Auto Resistance " + (rootItem.autoResistance?"enabled":"disabled"))
+                 text: rootItem.autoResistance ? qsTr("Auto Resistance enabled") : qsTr("Auto Resistance disabled")
                 }
              }
         }
@@ -1492,7 +1518,7 @@ ApplicationWindow {
 
                     FileDialog {
                         id: fileDialogGPX
-                         title: "Please choose a file"
+                         title: qsTr("Please choose a file")
                          folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
                          onAccepted: {
                              console.log("You chose: " + fileDialogGPX.fileUrl)

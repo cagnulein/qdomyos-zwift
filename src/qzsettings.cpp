@@ -1,6 +1,18 @@
 #include "qzsettings.h"
 #include <QDebug>
 #include <QSettings>
+
+bool QZSettings::isSensitiveSettingKey(const QString &key) {
+    const QString normalizedKey = key.toLower();
+    return normalizedKey.contains(QStringLiteral("password")) ||
+           normalizedKey.contains(QStringLiteral("user_email")) ||
+           normalizedKey.contains(QStringLiteral("username")) ||
+           normalizedKey.contains(QStringLiteral("token")) ||
+           normalizedKey.contains(QStringLiteral("cryptokey")) || // decrypts the passwords in the profile files
+           normalizedKey.contains(QStringLiteral("garmin_device_serial")) ||
+           normalizedKey.contains(QStringLiteral("garmin_email"));
+}
+
 const QString QZSettings::cryptoKeySettingsProfiles = QStringLiteral("cryptoKeySettingsProfiles");
 const QString QZSettings::bluetooth_no_reconnection = QStringLiteral("bluetooth_no_reconnection");
 const QString QZSettings::bike_wheel_revs = QStringLiteral("bike_wheel_revs");
@@ -1288,8 +1300,9 @@ const QString QZSettings::shortcut_start_stop = QStringLiteral("shortcut_start_s
 const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
+const QString QZSettings::android_landscape_cutout_margin = QStringLiteral("android_landscape_cutout_margin");
 
-const uint32_t allSettingsCount = 1008;
+const uint32_t allSettingsCount = 1009;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2324,6 +2337,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb},
     {QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport},
     {QZSettings::renpho_bike_knob_gears, QZSettings::default_renpho_bike_knob_gears},
+    {QZSettings::android_landscape_cutout_margin, QZSettings::default_android_landscape_cutout_margin},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

@@ -55,7 +55,6 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
                      double bikeResistanceGain, bool startDiscovery) {
     QSettings settings;
     bool gymMode = settings.value(QZSettings::gym_mode, QZSettings::default_gym_mode).toBool();
-    QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
     this->testResistance = testResistance;
     this->noWriteResistance = noWriteResistance;
@@ -199,8 +198,31 @@ bluetooth::~bluetooth() {
 void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) { emit this->bluetoothDeviceConnected(b); }
 
 void bluetooth::finished() {
-    if (discoveryFinishedHandled)
+    if (discoveryFinishedHandled) {
+        // The bookkeeping below runs once, but scanning has to go on until the equipment shows up:
+        // otherwise discovery stopped for good about 20 s after launch, and equipment that was
+        // rebooting or still held by the previous app session was never found again.
+        // The pause grows from 3 s to 60 s and scanning gives up after 10 minutes (the device list
+        // refresh starts it again), so an app left open without equipment does not scan for hours.
+        if (!device()) {
+            const qint64 now = QDateTime::currentMSecsSinceEpoch();
+            if (!rescanStartedMs)
+                rescanStartedMs = now;
+            if (now - rescanStartedMs > 10 * 60 * 1000) {
+                debug(QStringLiteral("BTLE scanning stopped, no device found in 10 minutes"));
+                return;
+            }
+            const int delayMs = qMin(3000 << qMin(rescanCount, 5), 60000);
+            rescanCount++;
+            QTimer::singleShot(delayMs, this, [this]() {
+                if (!device() && discoveryAgent && !discoveryAgent->isActive()) {
+                    debug(QStringLiteral("BTLE scanning again, no device found yet"));
+                    startDiscovery();
+                }
+            });
+        }
         return;
+    }
     discoveryFinishedHandled = true;
     discoveryTimeout.stop();
 
@@ -819,6 +841,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             const bool isConfiguredFtmsRowerDevice =
                 !ftms_rower.contains(QZSettings::default_ftms_rower) &&
                 !deviceName.compare(ftms_rower, Qt::CaseInsensitive);
+            const bool isIonFitnessBike =
+                QRegularExpression(QStringLiteral("^FI\\d+\\s+ION$"), QRegularExpression::CaseInsensitiveOption)
+                    .match(deviceName)
+                    .hasMatch();
             bool isRI009R = upperDeviceName.contains(QStringLiteral("RI009R"));
             bool isTrxAppGateUsbBikeTC = false;
             if (upperDeviceName.startsWith(QStringLiteral("TC")) && deviceName.length() == 5) {
@@ -830,6 +856,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     }
                 }
             }
+            // The device chain below is split in two: MSVC 2019 fails with C1061 (blocks nested too deeply)
+            // on a single else-if chain this long. A match in the first part skips the second part, as before.
+            bool firstChainMatched = true;
             if (deviceName.startsWith(QStringLiteral("M3")) && !m3iBike && filter) {
 
                 if (m3ibike::isCorrectUnit(b)) {
@@ -1501,6 +1530,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(
                             QStringLiteral("KS-BLR"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
                        !(b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) && // it's an FTMS one
+                       // set by kingsmithr1protreadmill when the device has FTMS but not the KingSmith service
+                       b.name().compare(ftms_treadmill, Qt::CaseInsensitive) &&
                        !kingsmithR1ProTreadmill &&
                        !kingsmithR2Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1929,6 +1960,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 npeCableBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(npeCableBike);
             } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
+                        b.name().toUpper().startsWith("HS-5000L") ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) && toorx_ftms ) ||
                         (b.name().toUpper().startsWith("DI") && b.name().length() == 2) || // Elite smart trainer #1682
                         (b.name().toUpper().startsWith("DHZ-")) ||                         // JK fitness 577
@@ -1978,6 +2010,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DOMYOS-BIKING-")) ||
                         (b.name().startsWith(QStringLiteral("Domyos-Bike")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && !settings.value(QZSettings::domyosbike_notfmts, QZSettings::default_domyosbike_notfmts).toBool()) ||
                         (b.name().toUpper().startsWith("F") && b.name().toUpper().endsWith("ARROW")) || // FI9110 Arrow, https://www.fitnessdigital.it/bicicletta-smart-bike-ion-fitness-arrow-connect/p/10022863/ IO Fitness Arrow
+                        isIonFitnessBike || // ION Fitness bikes (e.g. FI9117 ion), ignoring the model identifier
                         (b.name().toUpper().startsWith("ICSE") && b.name().length() == 4) ||
                         (b.name().toUpper().startsWith("TUO") && b.name().length() == 3) ||
                         (b.name().toUpper().startsWith("FLX") && b.name().length() == 10) ||
@@ -2177,7 +2210,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(stagesBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 stagesBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(stagesBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("SMARTROW")) && !b.name().toUpper().startsWith(QStringLiteral("SMARTROWER")) && ftms_rower.contains(QZSettings::default_ftms_rower) && !smartrowRower && filter) { // Issue #4033
+            } else {
+                firstChainMatched = false;
+            }
+            if (firstChainMatched) {
+                continue;
+            }
+            // second part of the device chain
+            if (b.name().toUpper().startsWith(QStringLiteral("SMARTROW")) && !b.name().toUpper().startsWith(QStringLiteral("SMARTROWER")) && ftms_rower.contains(QZSettings::default_ftms_rower) && !smartrowRower && filter) { // Issue #4033
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 smartrowRower =
@@ -2209,7 +2249,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 concept2Skierg->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(concept2Skierg);
             } else if (b.name().toUpper().startsWith(QStringLiteral("MRK-R28-")) &&
-                       !fitPlusRower && filter) {
+                       !isConfiguredFtmsRowerDevice && !fitPlusRower && filter) {
                 // Support case: matthieu.f.graveleau@gmail.com, debug-Wed_Sep_9_22_16_00_2026.log.txt.
                 // The R28 advertises FTMS, but QZ 2.20.29 successfully used the proprietary FFF0 Merach protocol.
                 this->setLastBluetoothDevice(b);
@@ -3222,7 +3262,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(heartRateBelt, &heartratebelt::rrIntervalReceived, this->device(), &bluetoothdevice::rrIntervalReceived);
                 heartRateBelt->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested(b.name() + " (HR sensor) connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("%1 (HR sensor) connected!").arg(b.name()));
                 break;
             }
         }
@@ -3310,7 +3350,7 @@ void bluetooth::connectedAndDiscovered() {
                             &bluetoothdevice::cadenceSensor);
                     cadenceSensor->deviceDiscovered(b);
                     if(homeform::singleton())
-                        homeform::singleton()->setToastRequested(b.name() + " (cadence sensor) connected!");
+                        homeform::singleton()->setToastRequested(QObject::tr("%1 (cadence sensor) connected!").arg(b.name()));
                     break;
                 }
             }
@@ -3362,7 +3402,7 @@ void bluetooth::connectedAndDiscovered() {
                 }
 
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested(b.name() + " (power sensor) connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("%1 (power sensor) connected!").arg(b.name()));
 
                 break;
             }
@@ -3426,7 +3466,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(sramAXSController, &sramaxscontroller::minus, this, &bluetooth::controllerGearDown);
                 sramAXSController->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("SRAM Connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("SRAM Connected!"));
                 break;
             }
         }
@@ -3460,7 +3500,7 @@ void bluetooth::connectedAndDiscovered() {
                             &bluetooth::controllerGearDownWithMyWhoosh);
                     zwiftClickRemote->deviceDiscovered(b);
                     if(homeform::singleton())
-                        homeform::singleton()->setToastRequested("Zwift Click Connected!");
+                        homeform::singleton()->setToastRequested(QObject::tr("Zwift Click Connected!"));
                 }
             } else if (zwiftPlayDevice.size() < 2) {
                 // v2: two devices with LEFT/RIGHT designation
@@ -3531,7 +3571,7 @@ void bluetooth::connectedAndDiscovered() {
                 }
                 zwiftPlayDevice.last()->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Zwift Click v2 Connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("Zwift Click v2 Connected!"));
             }
         }
     }
@@ -3548,7 +3588,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(thinkriderController, &thinkridercontroller::minus, this, &bluetooth::controllerGearDown);
                 thinkriderController->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Thinkrider Controller Connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("Thinkrider Controller Connected!"));
                 break;
             }
         }
@@ -3568,7 +3608,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(cycplusBC2Controller, &cycplusbc2controller::minus, this, &bluetooth::controllerGearDown);
                 cycplusBC2Controller->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("CYCPLUS BC2 Connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("CYCPLUS BC2 Connected!"));
                 break;
             }
         }
@@ -3587,7 +3627,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(eliteSquareController, &elitesquarecontroller::minus, this, &bluetooth::controllerGearDown);
                 eliteSquareController->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Elite Square Connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("Elite Square Connected!"));
                 break;
             }
         }
@@ -3685,7 +3725,7 @@ void bluetooth::connectedAndDiscovered() {
                 }
                 zwiftPlayDevice.last()->deviceDiscovered(b);
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Zwift Play/Ride Connected!");
+                    homeform::singleton()->setToastRequested(QObject::tr("Zwift Play/Ride Connected!"));
             }
         }
     }
@@ -3882,6 +3922,9 @@ void bluetooth::selectGymModeDevice(const QString &deviceName) {
 void bluetooth::restart() {
 
     QSettings settings;
+
+    rescanCount = 0;
+    rescanStartedMs = 0;
 
     if (onlyDiscover) {
 

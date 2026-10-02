@@ -730,7 +730,16 @@ jobs:
           # with this custom Qt, naturally leaves android-extra-libs unset - the bundled
           # android_openssl libs are not 16K-page-aligned, so we must NOT inject them (see
           # below); Qt's own QtNetwork already has openssl linked in.
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.1.6352462' 'CONFIG+=debug' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          # The ABIs are built one after another: with Qt 5.15.0 every ABI writes the same
+          # src/qdomyos-zwift_metatypes.json, qdomyos-zwift.qmltypes and
+          # qdomyos-zwift_qmltyperegistrations.cpp, and with a plain make -j4 two ABIs can
+          # write them at the same time ("Error parsing qdomyos-zwift_metatypes.json").
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.1.6352462' 'CONFIG+=debug'
+          make qmake_all
+          for abi in armeabi-v7a arm64-v8a x86 x86_64; do
+            make -j4 -C src -f Makefile.qdomyos-zwift "$abi-all"
+          done
+          make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           cat src/android-qdomyos-zwift-deployment-settings.json
 
       - name: Cache Gradle
@@ -1679,6 +1688,9 @@ jobs:
           docker run --rm -v ${{ github.workspace }}/bin64:/app \
             arm64v8/debian:bullseye-20241016 \
             bash -c "
+              # Bullseye is EOL; use the same dated snapshot as the ARM64 build.
+              rm -f /etc/apt/sources.list.d/* /etc/apt/sources.list &&
+              printf '%s\\n' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260608T080000Z/ bullseye main' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20260608T080000Z/ bullseye-security main' > /etc/apt/sources.list &&
               apt-get update && apt-get install -y --no-install-recommends \
                 libqt5core5a libqt5bluetooth5 libqt5charts5 libqt5widgets5 \
                 libqt5network5 libqt5websockets5 libqt5xml5 libqt5sql5 \

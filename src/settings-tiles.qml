@@ -7,6 +7,8 @@ import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    leftPadding: window.contentSideMargin
+    rightPadding: window.contentSideMargin
     focus: true
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
@@ -808,7 +810,7 @@ ScrollView {
                     id: okgradeAdjustedPaceOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_grade_adjusted_pace_order = gradeAdjustedPaceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_grade_adjusted_pace_order = gradeAdjustedPaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
