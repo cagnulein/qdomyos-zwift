@@ -58,7 +58,33 @@ pelotonbike::pelotonbike(bool noWriteResistance, bool noHeartService) {
 
 bool pelotonbike::inclinationAvailableByHardware() { return true; }
 
-void pelotonbike::forceResistance(double resistance) {}
+bool pelotonbike::forceResistance(double resistance) {
+#ifdef Q_OS_ANDROID
+    // noWriteResistance is used by QZ when the virtual device must be read-only.
+    if (noWriteResistance)
+        return true;
+
+    if (!pelotonSensorInitialized || !isPelotonSensorConnected()) {
+        emit debug(QStringLiteral("Peloton Bike+ resistance write skipped: sensor service not connected"));
+        return false;
+    }
+
+    const int target = qBound(0, qRound(resistance), 100);
+    const bool result = QAndroidJniObject::callStaticMethod<jboolean>(
+        "org/cagnulen/qdomyoszwift/PelotonSensorHelper",
+        "setResistance",
+        "(I)Z",
+        static_cast<jint>(target)
+    );
+
+    emit debug(QStringLiteral("Peloton Bike+ set resistance ") + QString::number(target) +
+               (result ? QStringLiteral(" OK") : QStringLiteral(" FAILED")));
+    return result;
+#else
+    Q_UNUSED(resistance)
+    return false;
+#endif
+}
 
 void pelotonbike::pelotonOCRprocessPendingDatagrams() {
     qDebug() << "in !";
@@ -113,6 +139,22 @@ void pelotonbike::update() {
         Cadence = cadence;
         Resistance = resistance;
         Speed = speed;
+
+        // QZ already translates Zwift/FTMS slope and resistance requests into
+        // requestResistance. Until now the Peloton backend only exposed metrics,
+        // so the request was never sent to the Bike+ motor.
+        //
+        // Keep the request pending when the Binder transaction fails so the next
+        // 200 ms update can retry it. This also prevents losing a target during a
+        // short Affernet reconnect.
+        if (requestResistance != -1) {
+            const int targetResistance = qBound(0, static_cast<int>(requestResistance), 100);
+
+            if (targetResistance == qRound(Resistance.value()) ||
+                forceResistance(targetResistance)) {
+                requestResistance = -1;
+            }
+        }
     }
 #endif
     

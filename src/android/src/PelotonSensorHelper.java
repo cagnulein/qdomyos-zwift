@@ -254,6 +254,23 @@ public class PelotonSensorHelper {
         }
         return 0.0f;
     }
+
+    /**
+     * Writes a native Peloton Bike+ resistance target (0..100).
+     * Called from the Qt/C++ backend through JNI.
+     */
+    public static boolean setResistance(int resistance) {
+        if (instance == null || !instance.isInitialized || instance.sensorBinder == null) {
+            QLog.w(TAG, "Cannot set resistance: helper is not initialized");
+            return false;
+        }
+
+        boolean result = instance.sensorBinder.setResistance(resistance);
+        if (!result) {
+            QLog.w(TAG, "Failed to set Peloton resistance to " + resistance);
+        }
+        return result;
+    }
     
     public static boolean isConnected() {
         if (instance != null && instance.sensorBinder != null) {

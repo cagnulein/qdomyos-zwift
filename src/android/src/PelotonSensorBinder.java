@@ -26,6 +26,7 @@ public class PelotonSensorBinder {
     
     // Binder transaction code (from Grupetto BikePlusSensor.kt - line 74)
     private static final int TRANSACTION_GET_BIKE_DATA = 14;
+    private static final int TRANSACTION_SET_RESISTANCE = 7;
     
     private Context context;
     private IBinder serviceBinder = null;
@@ -247,6 +248,49 @@ public class PelotonSensorBinder {
             }
             
             return minValue;
+        }
+    }
+
+    /**
+     * Sets the Bike+ target resistance using the Titan/Affernet binder contract.
+     *
+     * Grupetto's BikeResistanceWriter uses transaction 7 with a single integer
+     * resistance argument in the native Peloton 0..100 range.
+     */
+    public boolean setResistance(int resistance) {
+        if (resistance < 0 || resistance > 100) {
+            QLog.w(TAG, "Ignoring invalid Peloton resistance: " + resistance);
+            return false;
+        }
+
+        IBinder binder = serviceBinder;
+        if (binder == null || !isConnected) {
+            QLog.w(TAG, "Cannot set resistance: Peloton service is not connected");
+            return false;
+        }
+
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
+
+        try {
+            data.writeInterfaceToken(SERVICE_ACTION);
+            data.writeInt(resistance);
+
+            boolean result = binder.transact(TRANSACTION_SET_RESISTANCE, data, reply, 0);
+            if (!result) {
+                QLog.w(TAG, "Peloton resistance transaction rejected: " + resistance);
+                return false;
+            }
+
+            reply.readException();
+            QLog.i(TAG, "Peloton resistance set to " + resistance);
+            return true;
+        } catch (Exception e) {
+            QLog.w(TAG, "Peloton resistance write failed", e);
+            return false;
+        } finally {
+            data.recycle();
+            reply.recycle();
         }
     }
     

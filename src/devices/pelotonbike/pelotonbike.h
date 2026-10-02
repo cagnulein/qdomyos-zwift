@@ -38,7 +38,7 @@ class pelotonbike : public bike {
     bool inclinationAvailableByHardware() override;
 
   private:
-    void forceResistance(double resistance);
+    bool forceResistance(double resistance);
     uint16_t watts() override;
     double getDouble(QString v);
     
