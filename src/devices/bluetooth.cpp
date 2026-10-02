@@ -257,6 +257,10 @@ void bluetooth::finished() {
         // rebooting or still held by the previous app session was never found again.
         // The pause grows from 3 s to 60 s and scanning gives up after 10 minutes (the device list
         // refresh starts it again), so an app left open without equipment does not scan for hours.
+        // With Bluetooth off a rescan only fails again: bluetoothOffPoll starts the search once it
+        // is on, and the 10 minutes are counted from then
+        if (bluetoothOffPoll.isActive())
+            return;
         if (!device()) {
             const qint64 now = QDateTime::currentMSecsSinceEpoch();
             if (!rescanStartedMs)
