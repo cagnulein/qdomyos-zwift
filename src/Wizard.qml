@@ -59,6 +59,10 @@ Page {
     component WizardButton: Button {
              property color textColor: "#800080"
              property color backgroundColor: "white"
+             // A translated label can be wider than the screen: cap the button and wrap the text.
+             // Capped by the screen, not by parent.width: in a GridLayout the parent's width comes
+             // from the buttons themselves, and the loop squeezed them on Android
+             Layout.maximumWidth: stackViewLocal.width * 0.8
              background: Rectangle {
                  color: parent.backgroundColor
                  radius: 5
@@ -67,6 +71,7 @@ Page {
                  font.pixelSize: 20
                  text: parent.text
                  color: parent.textColor
+                 wrapMode: Text.WordWrap
                  horizontalAlignment: Text.AlignHCenter
                  verticalAlignment: Text.AlignVCenter
              }
@@ -78,14 +83,17 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -97,6 +105,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Welcome to QZ")
                         font.pixelSize: 28
@@ -105,6 +116,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Created by Roberto Viola")
                         font.pixelSize: 24
@@ -138,7 +152,10 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -146,11 +163,14 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("How can I help you?")
                         font.pixelSize: 24
@@ -194,7 +214,10 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -202,11 +225,14 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("What's your fitness device?")
                         font.pixelSize: 24
@@ -252,18 +278,24 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Choose your preferred app")
                         font.pixelSize: 24
@@ -329,18 +361,24 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Connect to Peloton")
                         font.pixelSize: 24
@@ -398,18 +436,24 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Peloton Difficulty")
                         font.pixelSize: 24
@@ -428,6 +472,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Difficulty")
                         font.pixelSize: 20
@@ -477,18 +524,24 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Bike Resistance Level")
                         font.pixelSize: 24
@@ -546,18 +599,24 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Custom Configurations")
                         font.pixelSize: 20
@@ -601,18 +660,24 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select a feature")
                         font.pixelSize: 24
@@ -667,18 +732,24 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Zwift Credentials")
                         font.pixelSize: 24
@@ -697,6 +768,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Username")
                         font.pixelSize: 20
@@ -715,6 +789,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Password")
                         font.pixelSize: 20
@@ -765,18 +842,24 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 24
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Zwift Play and Click")
                         font.pixelSize: 20
@@ -866,18 +949,24 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Virtual Shifting")
                         font.pixelSize: 24
@@ -924,18 +1013,24 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Custom Configurations")
                         font.pixelSize: 20
@@ -978,18 +1073,24 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Thank you for setting up QZ!")
                         font.pixelSize: 20
@@ -1031,7 +1132,10 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -1039,11 +1143,14 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select Your Fitness Device")
                         font.pixelSize: 24
@@ -1103,7 +1210,10 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -1111,11 +1221,14 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Unit System")
                         font.pixelSize: 24
@@ -1124,6 +1237,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select your preferred unit system")
                         font.pixelSize: 20
@@ -1166,7 +1282,10 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -1174,11 +1293,14 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("User Information")
                         font.pixelSize: 24
@@ -1187,6 +1309,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Weight (%1)").arg((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg")
                         font.pixelSize: 20
@@ -1218,6 +1343,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Age")
                         font.pixelSize: 20
@@ -1234,6 +1362,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Gender")
                         font.pixelSize: 20
@@ -1280,7 +1411,10 @@ Page {
         Item {
             anchors.fill: parent
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -1288,11 +1422,14 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select Your Heart Rate Device")
                         font.pixelSize: 24
@@ -1335,6 +1472,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Or select a smartwatch option:")
                         font.pixelSize: 20
@@ -1353,6 +1493,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Download the QZ Companion App there")
                         color: "white"
@@ -1370,6 +1513,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Download the QZ Companion App there")
                         color: "white"
@@ -1387,6 +1533,9 @@ Page {
                     }
 
                     Text {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Download the QZ Companion App there")
                         color: "white"

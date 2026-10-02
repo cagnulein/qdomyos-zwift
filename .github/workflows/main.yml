@@ -730,7 +730,16 @@ jobs:
           # with this custom Qt, naturally leaves android-extra-libs unset - the bundled
           # android_openssl libs are not 16K-page-aligned, so we must NOT inject them (see
           # below); Qt's own QtNetwork already has openssl linked in.
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.1.6352462' 'CONFIG+=debug' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          # The ABIs are built one after another: with Qt 5.15.0 every ABI writes the same
+          # src/qdomyos-zwift_metatypes.json, qdomyos-zwift.qmltypes and
+          # qdomyos-zwift_qmltyperegistrations.cpp, and with a plain make -j4 two ABIs can
+          # write them at the same time ("Error parsing qdomyos-zwift_metatypes.json").
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.1.6352462' 'CONFIG+=debug'
+          make qmake_all
+          for abi in armeabi-v7a arm64-v8a x86 x86_64; do
+            make -j4 -C src -f Makefile.qdomyos-zwift "$abi-all"
+          done
+          make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           cat src/android-qdomyos-zwift-deployment-settings.json
 
       - name: Cache Gradle

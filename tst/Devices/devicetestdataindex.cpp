@@ -523,6 +523,17 @@ void DeviceTestDataIndex::Initialize() {
         ->configureSettingsWith(QZSettings::hammer_racer_s)
         ->excluding(ftmsBikeConfigureExclusions);
 
+    // FTMS Bike HS-5000L: standard FTMS with model-specific service/init handling.
+    RegisterNewDeviceTestData(DeviceIndex::FTMSBikeHS5000L)
+        ->expectDevice<ftmsbike>()
+        ->acceptDeviceName("HS-5000L", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith([](const DeviceDiscoveryInfo &info, bool enable,
+                                   std::vector<DeviceDiscoveryInfo> &configurations) {
+            if (enable)
+                configurations.push_back(info);
+        })
+        ->excluding(ftmsBikeConfigureExclusions);
+
     // FTMS Bike Hammer 64123
     RegisterNewDeviceTestData(DeviceIndex::FTMSBikeHammer)
         ->expectDevice<ftmsbike>()

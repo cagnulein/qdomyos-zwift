@@ -2576,7 +2576,8 @@ void peloton::onPelotonAuthorizeWithBrowser(const QUrl &url) {
 
 void peloton::replyDataReceived(const QByteArray &v) {
 
-    qDebug() << v;
+    // The OAuth body contains access and refresh tokens; avoid logging it.
+    qDebug() << QStringLiteral("Peloton reply received:") << v.size() << QStringLiteral("bytes");
 
     QByteArray data;
     QSettings settings;
@@ -3070,7 +3071,8 @@ void peloton::peloton_refreshtoken() {
 
     // lets extract the access token, and possibly a new refresh token
     QByteArray r = reply->readAll();
-    qDebug() << QStringLiteral("Got response:") << r.data();
+    // the body has the access and refresh tokens; users may attach logs to public issues
+    qDebug() << QStringLiteral("Got response:") << r.size() << QStringLiteral("bytes");
 
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(r, &parseError);

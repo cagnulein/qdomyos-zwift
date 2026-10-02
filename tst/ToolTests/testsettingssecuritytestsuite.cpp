@@ -13,6 +13,7 @@ TEST(QZSettingsSecurityTest, FiltersSensitiveKeysUsedByStartupSettingsLog) {
         QStringLiteral("garmin_device_serial"),
         QStringLiteral("ZWIFT_PASSWORD"),
         QStringLiteral("/MQTT_TOKEN"),
+        QStringLiteral("cryptoKeySettingsProfiles"),
     };
 
     for (const QString &key : sensitiveKeys) {

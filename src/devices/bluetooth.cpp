@@ -55,7 +55,6 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
                      double bikeResistanceGain, bool startDiscovery) {
     QSettings settings;
     bool gymMode = settings.value(QZSettings::gym_mode, QZSettings::default_gym_mode).toBool();
-    QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
     this->testResistance = testResistance;
     this->noWriteResistance = noWriteResistance;
@@ -199,8 +198,31 @@ bluetooth::~bluetooth() {
 void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) { emit this->bluetoothDeviceConnected(b); }
 
 void bluetooth::finished() {
-    if (discoveryFinishedHandled)
+    if (discoveryFinishedHandled) {
+        // The bookkeeping below runs once, but scanning has to go on until the equipment shows up:
+        // otherwise discovery stopped for good about 20 s after launch, and equipment that was
+        // rebooting or still held by the previous app session was never found again.
+        // The pause grows from 3 s to 60 s and scanning gives up after 10 minutes (the device list
+        // refresh starts it again), so an app left open without equipment does not scan for hours.
+        if (!device()) {
+            const qint64 now = QDateTime::currentMSecsSinceEpoch();
+            if (!rescanStartedMs)
+                rescanStartedMs = now;
+            if (now - rescanStartedMs > 10 * 60 * 1000) {
+                debug(QStringLiteral("BTLE scanning stopped, no device found in 10 minutes"));
+                return;
+            }
+            const int delayMs = qMin(3000 << qMin(rescanCount, 5), 60000);
+            rescanCount++;
+            QTimer::singleShot(delayMs, this, [this]() {
+                if (!device() && discoveryAgent && !discoveryAgent->isActive()) {
+                    debug(QStringLiteral("BTLE scanning again, no device found yet"));
+                    startDiscovery();
+                }
+            });
+        }
         return;
+    }
     discoveryFinishedHandled = true;
     discoveryTimeout.stop();
 
@@ -1508,6 +1530,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(
                             QStringLiteral("KS-BLR"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
                        !(b.name().toUpper().startsWith(QStringLiteral("KS-HD-Z1D"))) && // it's an FTMS one
+                       // set by kingsmithr1protreadmill when the device has FTMS but not the KingSmith service
+                       b.name().compare(ftms_treadmill, Qt::CaseInsensitive) &&
                        !kingsmithR1ProTreadmill &&
                        !kingsmithR2Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1936,6 +1960,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 npeCableBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(npeCableBike);
             } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
+                        b.name().toUpper().startsWith("HS-5000L") ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) && toorx_ftms ) ||
                         (b.name().toUpper().startsWith("DI") && b.name().length() == 2) || // Elite smart trainer #1682
                         (b.name().toUpper().startsWith("DHZ-")) ||                         // JK fitness 577
@@ -2224,7 +2249,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 concept2Skierg->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(concept2Skierg);
             } else if (b.name().toUpper().startsWith(QStringLiteral("MRK-R28-")) &&
-                       !fitPlusRower && filter) {
+                       !isConfiguredFtmsRowerDevice && !fitPlusRower && filter) {
                 // Support case: matthieu.f.graveleau@gmail.com, debug-Wed_Sep_9_22_16_00_2026.log.txt.
                 // The R28 advertises FTMS, but QZ 2.20.29 successfully used the proprietary FFF0 Merach protocol.
                 this->setLastBluetoothDevice(b);
@@ -3897,6 +3922,9 @@ void bluetooth::selectGymModeDevice(const QString &deviceName) {
 void bluetooth::restart() {
 
     QSettings settings;
+
+    rescanCount = 0;
+    rescanStartedMs = 0;
 
     if (onlyDiscover) {
 
