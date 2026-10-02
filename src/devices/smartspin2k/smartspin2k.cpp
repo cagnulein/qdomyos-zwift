@@ -167,7 +167,7 @@ void smartspin2k::calibrateShiftStep() {
 
     for (int i = 0; i < max_calibration_samples; ++i) {
         x[nSamples] = settings.value(QStringLiteral("ss2k_resistance_sample_") + QString::number(i + 1)).toDouble();
-        y[nSamples] = settings.value(QStringLiteral("ss2k_shiftstep_sample_") + QString::number(i + 1)).toDouble();
+        y[nSamples] = settings.value(QStringLiteral("ss2k_shift_step_sample_") + QString::number(i + 1)).toDouble();
         if (x[nSamples] > 0 && y[nSamples] > 0) {
             ++nSamples;
         }

@@ -306,7 +306,7 @@ HomeForm {
         id: gridView
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
-        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
+        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation | Qt.InvertedLandscapeOrientation | Qt.InvertedPortraitOrientation
         Screen.onPrimaryOrientationChanged:{
             // Nothing to recompute: cellWidth and the grid width follow the page width
         }

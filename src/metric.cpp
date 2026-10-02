@@ -19,7 +19,7 @@ double metric::capWatt(double value, double maxWatt) {
     return maxWatt > 0.0 ? qMin(value, maxWatt) : value;
 }
 
-void metric::setValue(double v, bool applyGainAndOffset) {
+void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats) {
     QSettings settings;
     // these special cases are also in the valueRaw
     if (applyGainAndOffset) {
@@ -81,7 +81,7 @@ void metric::setValue(double v, bool applyGainAndOffset) {
         return;
     }
 
-    if (value() != 0 && value() != INFINITY) {
+    if ((value() != 0 || includeZeroInStats) && value() != INFINITY) {
         m_countValue++;
         m_lapCountValue++;
         m_totValue += value();

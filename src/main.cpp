@@ -22,6 +22,7 @@
 #include <QGuiApplication>
 #include <QFileOpenEvent>
 #include <QEvent>
+#include <QLoggingCategory>
 #include <QOperatingSystemVersion>
 #include <QQmlApplicationEngine>
 #include <QSettings>
@@ -505,7 +506,12 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 #else
     if (logdebug == false)
 #endif
+    {
+        // Qt aborts after a fatal message: print it even with the log off
+        if (type == QtFatalMsg)
+            (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
         return;
+    }
 
     // QByteArray localMsg = msg.toLocal8Bit(); // NOTE: clazy-unused-non-trivial-variable
     const char *file = context.file ? context.file : "";
@@ -527,6 +533,10 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         break;
     case QtFatalMsg:
         txt += QStringLiteral("Fatal: %1 %2 %3\n").arg(file, function, msg); // NOTE: clazy-qstring-arg
+        // the log thread would not get to this line before the abort: write it here
+        if (logs == true || logdebug == true)
+            LogWriter().writeLog(homeform::getWritableAppDir() + logfilename, txt);
+        (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
         abort();
     }
 
@@ -707,9 +717,22 @@ int main(int argc, char *argv[]) {
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
-    foreach (QString s, settings.allKeys()) {
-        if (!QZSettings::isSensitiveSettingKey(s)) {
-            qDebug() << s << settings.value(s);
+
+    // myMessageOutput() drops every message when the log is off (same condition as there), so don't
+    // build the messages nobody reads: the dump of all the settings and the Qt Bluetooth debug output,
+    // which Qt formats for every packet once its category is enabled
+    const bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+#if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
+    const bool logEnabled = forceQml ? logdebug : logs;
+#else
+    const bool logEnabled = logdebug;
+#endif
+    if (logEnabled) {
+        QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
+        foreach (QString s, settings.allKeys()) {
+            if (!QZSettings::isSensitiveSettingKey(s)) {
+                qDebug() << s << settings.value(s);
+            }
         }
     }
 

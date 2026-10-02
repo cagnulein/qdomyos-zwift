@@ -42,26 +42,27 @@ ApplicationWindow {
             }
         }
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
-               AndroidStatusBar.height : AndroidStatusBar.leftInset;
+        // AndroidStatusBar.height is always the top inset in the current orientation
+        // (getSystemWindowInsets() returns orientation-aware values)
+        return AndroidStatusBar.height;
     }
 
     function getBottomPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
-               AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
+        // navigationBarHeight is always the bottom inset in the current orientation
+        return AndroidStatusBar.navigationBarHeight;
     }
 
     function getLeftPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
-               AndroidStatusBar.leftInset : 0;
+               (settings.android_landscape_cutout_margin ? AndroidStatusBar.leftInset : AndroidStatusBar.systemBarLeftInset) : 0;
     }
-    
+
     function getRightPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
-               AndroidStatusBar.rightInset : 0;
+               (settings.android_landscape_cutout_margin ? AndroidStatusBar.rightInset : AndroidStatusBar.systemBarRightInset) : 0;
     }
 
     // Side margin for text, after the Material 3 window margins (16 on compact windows
@@ -215,6 +216,7 @@ ApplicationWindow {
         property string shortcut_lap: ""
         property string shortcut_start_stop: ""
         property string shortcut_stop: ""
+        property bool android_landscape_cutout_margin: true
     }
 
 
@@ -968,8 +970,6 @@ ApplicationWindow {
         id: headerToolbar
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
         topPadding: getTopPadding()
-        leftPadding: getLeftPadding()
-        rightPadding: getRightPadding()
 
         ToolButton {
             id: toolButton

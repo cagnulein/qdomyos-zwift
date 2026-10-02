@@ -719,7 +719,8 @@ double treadmill::calculateCadenceFromSpeed(double speed) {
     const double cadence_gain =
         settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
     const double cadence_offset =
-        settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
+        settings.value(QZSettings::cadence_offset,
+                       QZSettings::default_cadence_offset).toDouble();
     calculatedCadence = (calculatedCadence * cadence_gain) + cadence_offset;
 
     qDebug() << "Calculated Cadence from Speed:" << calculatedCadence
@@ -841,7 +842,10 @@ void treadmill::parseInclination(double inclination) {
     QSettings settings;
     bool stryd_inclination_instead_treadmill = settings.value(QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill).toBool();
     if(!stryd_inclination_instead_treadmill) {
-        Inclination = inclination;
+        // Support case 2026-10-01, Domyos Run500:
+        // 0% is a valid inclination and must contribute to the average while moving.
+        Inclination.setValue(inclination, true,
+                             inclination == 0.0 && currentSpeed().value() > 0.0);
     } else {
         qDebug() << "Inclination from the treadmill is discarded since we are using the one from the power sensor " << inclination;
     }
