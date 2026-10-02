@@ -2543,6 +2543,22 @@ Do you want to start it now?</source>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift - Pont d&apos;équipement de fitness</translation>
     </message>
+    <message>
+        <location filename="../main.qml" line="799"/>
+        <source>Camera Cutout</source>
+        <translation>Encoche de la caméra</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="800"/>
+        <source>In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.
+Do you want to use the full screen width instead?
+
+You can change it later in Settings &gt; General UI Options &gt; Keep Content Clear of the Camera Cutout.</source>
+        <translation>En paysage, QZ laisse une marge du côté de la caméra pour que l&apos;encoche ne masque pas le contenu.
+Voulez-vous utiliser toute la largeur de l&apos;écran ?
+
+Vous pourrez le modifier plus tard dans Paramètres &gt; Options générales &gt; Éloigner le contenu de l&apos;encoche de la caméra.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6989,6 +7005,16 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <location filename="../settings.qml" line="15665"/>
         <source>Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.</source>
         <translation>Efface tous les journaux QZ, les fichiers QZ .fit et les images QZ (ces fichiers sont enregistrés par QZ pour chaque session) de votre appareil tout en conservant vos Profils et Paramètres enregistrés.</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6197"/>
+        <source>Keep Content Clear of the Camera Cutout</source>
+        <translation>Éloigner le contenu de l&apos;encoche de la caméra</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6212"/>
+        <source>In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.</source>
+        <translation>En paysage, laisse une marge du côté de la caméra pour que l&apos;encoche ne masque pas le contenu. Désactivez pour que le contenu passe sous l&apos;encoche. Activé par défaut.</translation>
     </message>
 </context>
 <context>
