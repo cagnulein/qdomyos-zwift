@@ -1783,6 +1783,7 @@ import AndroidStatusBar 1.0
             property bool nordictrack_incline_trainer_x7i_netl18716_0: false
             property bool android_landscape_cutout_margin: true
             property real watt_max: 9999
+            property bool fitshow_bike_question: true
         }
 
 

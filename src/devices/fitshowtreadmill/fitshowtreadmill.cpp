@@ -858,6 +858,36 @@ void fitshowtreadmill::serviceScanDone(void) {
     gattCommunicationChannelService->discoverDetails();
 #endif
 
+    // FitShow bikes use FS- names too and expose FTMS Indoor Bike Data (2AD2). Some FitShow treadmills expose it
+    // as well, so don't switch on our own: ask the user once per session; No turns the question off for good.
+    if (fs_connected && !fitshowBikeQuestionAsked) {
+        gattFTMSProbeService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
+        if (gattFTMSProbeService) {
+            connect(gattFTMSProbeService, &QLowEnergyService::stateChanged, this,
+                    [this](QLowEnergyService::ServiceState state) {
+                        if (state != QLowEnergyService::ServiceDiscovered ||
+                            !gattFTMSProbeService->characteristic(QBluetoothUuid((quint16)0x2AD2)).isValid())
+                            return;
+                        QSettings settings;
+                        if (fitshowBikeQuestionAsked ||
+                            settings.value(QZSettings::fitplus_bike, QZSettings::default_fitplus_bike).toBool() ||
+                            !settings.value(QZSettings::fitshow_bike_question,
+                                            QZSettings::default_fitshow_bike_question)
+                                 .toBool())
+                            return;
+                        fitshowBikeQuestionAsked = true;
+                        qDebug() << "FitShow device with FTMS Indoor Bike Data, asking whether it is a bike";
+                        if (homeform::singleton())
+                            homeform::singleton()->requestFitshowBikeQuestion();
+                    });
+#ifdef _MSC_VER
+            QTimer::singleShot(0, [=]() { gattFTMSProbeService->discoverDetails(); });
+#else
+            gattFTMSProbeService->discoverDetails();
+#endif
+        }
+    }
+
     // useful for the cadence
     gattCommunicationRSCService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1814));
     if (!gattCommunicationRSCService) {

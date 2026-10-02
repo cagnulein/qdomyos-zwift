@@ -582,6 +582,17 @@ class homeform : public QObject {
     void setToastRequested(QString value) { m_toastRequested = value; emit toastRequestedChanged(value); }
     // a device changed a setting that only takes effect after a restart: say what changed and offer to restart now
     void requestRestartToApply(QString message) { emit restartToApplyRequested(message); }
+    // an FS- device reports bike data, but some FitShow treadmills do too: ask the user instead of switching
+    void requestFitshowBikeQuestion() { emit fitshowBikeQuestionRequested(); }
+    // the answer: Yes enables the Fit Plus bike, No turns the question off for good
+    Q_INVOKABLE void fitshowBikeAnswer(bool isBike) {
+        QSettings settings;
+        if (isBike)
+            settings.setValue(QZSettings::fitplus_bike, true);
+        else
+            settings.setValue(QZSettings::fitshow_bike_question, false);
+        qDebug() << "fitshowBikeAnswer" << isBike;
+    }
     void setStravaUploadRequested(bool value) {
         m_stravaUploadRequested = value;
     }
@@ -1288,6 +1299,7 @@ public:
     void changePelotonProvider(QString value);
     void toastRequestedChanged(QString value);
     void restartToApplyRequested(QString message);
+    void fitshowBikeQuestionRequested();
     void stravaUploadRequestedChanged(bool value);
     void garminMfaRequestedChanged(bool value);
     void garminWorkoutPromptRequestedChanged(bool value);
