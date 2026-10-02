@@ -7,6 +7,7 @@ This directory contains reusable diagnostic intake guidance for QZ support. It f
 - [Connection and device discovery](connection-and-discovery.md)
 - [Third-party app integration](third-party-apps.md)
 - [Crashes and unexpected exits](crashes.md)
+- [Heart rate source diagnostics](heart-rate.md)
 
 ## How to use these guides
 
