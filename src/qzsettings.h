@@ -950,6 +950,12 @@ class QZSettings {
     static const QString watt_gain;
     static constexpr float default_watt_gain = 1;
 
+    /**
+     * @brief Caps the effective watt output. Zero disables the cap.
+     */
+    static const QString watt_max;
+    static constexpr float default_watt_max = 9999;
+
     static const QString power_avg_5s;
     static constexpr bool default_power_avg_5s = false;
 

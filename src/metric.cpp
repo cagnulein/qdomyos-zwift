@@ -15,6 +15,10 @@ void metric::setType(_metric_type t, BLUETOOTH_TYPE bt) {
     m_bluetooth_type = bt;
 }
 
+double metric::capWatt(double value, double maxWatt) {
+    return maxWatt > 0.0 ? qMin(value, maxWatt) : value;
+}
+
 void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats) {
     QSettings settings;
     // these special cases are also in the valueRaw
@@ -42,6 +46,16 @@ void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats
                 v *= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
                 v += settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();
             }
+        }
+    }
+
+    if (m_type == METRIC_WATT) {
+        const double maxWatt = settings.value(QZSettings::watt_max, QZSettings::default_watt_max).toDouble();
+        const double cappedWatt = capWatt(v, maxWatt);
+        if (cappedWatt != v) {
+            qDebug() << QStringLiteral("watt value was ") << v
+                     << QStringLiteral("but it will be capped to") << cappedWatt;
+            v = cappedWatt;
         }
     }
 
