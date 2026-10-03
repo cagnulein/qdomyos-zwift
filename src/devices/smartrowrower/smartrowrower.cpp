@@ -123,17 +123,19 @@ void smartrowrower::update() {
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotify1Characteristic.isValid() && initDone) {
-        if (!pendingSmartRowWrite.isEmpty()) {
+        if (!smartRowAppAttached && !pendingSmartRowWrite.isEmpty()) {
             sendNextSmartRowWrite();
             return;
         }
 
         update_metrics(false, watts());
 
-        // sending poll every 2 seconds
+        // sending poll every 2 seconds (the SmartRow app polls by itself when attached)
         if (sec1Update++ >= (2000 / refresh->interval())) {
             sec1Update = 0;
-            sendPoll();
+            if (!smartRowAppAttached) {
+                sendPoll();
+            }
             // updateDisplay(elapsed);
         }
 
@@ -209,19 +211,31 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     qDebug() << " << " + newValue.toHex(' ');
 
+    // virtual pulley: relay the untouched bytes first, parsing below works on its own copy
+    emit smartRowRawData(newValue);
+
     if (newValue.contains("V3.")) {
         smartRowV3 = true;
-        if (!smartRowV3ChallengeRequested) {
+        if (!smartRowV3ChallengeRequested && !smartRowAppAttached) {
             smartRowV3ChallengeRequested = true;
             queueSmartRowWrite(QByteArray(1, (char)0x23));
         }
     } else if (newValue.contains("KEYLOCK")) {
         smartRowV3 = true;
-        queueSmartRowWrite(calculateSmartRowV3ChallengeResponse(newValue));
+        // the app answers its own challenge; a second answer from QZ would break the handshake
+        if (!smartRowAppAttached) {
+            queueSmartRowWrite(calculateSmartRowV3ChallengeResponse(newValue));
+        }
     }
 
     if (newValue.length() != 17)
         return;
+
+    // bytes 14-15 are the hex of sum(raw bytes 0..13) & 0xFF (verified on 1476 records, FW V3.10)
+    if (!smartRowChecksumOk(newValue)) {
+        qDebug() << QStringLiteral("SmartRow record checksum error, ignored");
+        return;
+    }
 
     QByteArray packet = decodeSmartRowPacket(newValue);
     if (packet != newValue) {
@@ -237,18 +251,19 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
     // https://github.com/inonoob/pirowflo/blob/6ea5f3a9d224ed594b23c25c186737bc0cae7ac3/src/adapters/smartrow/smartrowtobleant.py
     switch (packet.at(0)) {
     case 'a':
-        // elapsed time
-        localTime = QTime(atoi(packet.mid(6, 2)), atoi(packet.mid(8, 2)), atoi(packet.mid(10, 2)));
+        // elapsed time: MMMSS at [6:11], e.g. "00058" -> 0:58, "00101" -> 1:01, "00200" -> 2:00
+        // (a variant with ',' at [11] repeats the current time with extra data)
+        localTime = QTime(0, 0, 0).addSecs((atoi(packet.mid(6, 3)) * 60) + atoi(packet.mid(9, 2)));
         break;
     case 'b':
         // work per stroke[6:11] / 10, stroke length [11:13]
         StrokesLength = atoi(packet.mid(11, 3));
         break;
     case 'c':
-        // actual power
+        // actual power [6:9]; it stays 0 until the first stroke of a session has completed.
+        // [9:14] is the session average power x10 (e.g. "  358" = 35.8 W). Both match the
+        // Concept2 curve W = 2.8 / (pace/500)^3 within ~2% from 45 to 264 W.
         m_watt = atoi(packet.mid(6, 3));
-        // average power / 10
-        // ignore it
         break;
     case 'd':
         // strokes per minute
@@ -272,10 +287,20 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
             Speed = 0;
         }
 
-        // average split time
+        // average split time: m ss at [9:12], e.g. "318335" = 3:18 actual, 3:35 average
         break;
     case 'f':
-        // no row packet.at(5) == '!'
+        // "---00 1720" while rowing, "---00!--15" once the flywheel has stopped: '!' at [11].
+        // After that the pulley keeps repeating the LAST 'c'/'d'/'e' values twice a second,
+        // so without this the watts, cadence and speed stay frozen at the last stroke.
+        if (packet.at(11) == '!') {
+            m_watt = 0;
+            Speed = 0;
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled")))
+                Cadence = 0;
+        }
         break;
     case 'x':
         // curve points
@@ -343,6 +368,36 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
 }
 
+// The SmartRow app wrote to the virtual pulley: pass the bytes on exactly as received,
+// in one write (not through the one-byte-per-tick queue QZ uses for its own commands).
+void smartrowrower::virtualSmartRowWrite(const QByteArray &data) {
+    if (!gattCommunicationChannelService || !gattWriteCharacteristic.isValid() || !m_control ||
+        m_control->state() != QLowEnergyController::DiscoveredState) {
+        qDebug() << QStringLiteral("virtualSmartRowWrite dropped, pulley not ready");
+        return;
+    }
+    qDebug() << QStringLiteral(" >> ") + data.toHex(' ') + QStringLiteral(" // from SmartRow app");
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, data,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, data);
+    }
+}
+
+void smartrowrower::virtualSmartRowClientAttached(bool attached) {
+    qDebug() << QStringLiteral("SmartRow app attached to virtual pulley:") << attached;
+    smartRowAppAttached = attached;
+    if (attached) {
+        // hand the dialogue over: drop anything QZ still wanted to send
+        pendingSmartRowWrite.clear();
+    } else {
+        // the app left: QZ initialises and polls the pulley again
+        smartRowV3ChallengeRequested = false;
+        initRequest = true;
+    }
+}
+
 QByteArray smartrowrower::calculateSmartRowV3ChallengeResponse(const QByteArray &keylock) const {
     QByteArray challenge = keylock.trimmed();
     const int keylockIndex = challenge.indexOf("KEYLOCK=");
@@ -384,6 +439,33 @@ QByteArray smartrowrower::calculateSmartRowV3ChallengeResponse(const QByteArray 
     result.append(response);
     result.append((char)0x0d);
     return result;
+}
+
+bool smartrowrower::smartRowChecksumOk(const QByteArray &packet) const {
+    if (packet.length() != 17) {
+        return false;
+    }
+    switch (packet.at(0)) {
+    case 'a':
+    case 'b':
+    case 'c':
+    case 'd':
+    case 'e':
+    case 'f':
+    case 'x':
+    case 'y':
+    case 'z':
+        break;
+    default:
+        return true; // not a data record (version string, KEYLOCK...): nothing to check
+    }
+    int sum = 0;
+    for (int i = 0; i < 14; i++) {
+        sum += (uint8_t)packet.at(i);
+    }
+    bool ok = false;
+    const int expected = packet.mid(14, 2).toInt(&ok, 16);
+    return ok && expected == (sum & 0xff);
 }
 
 QByteArray smartrowrower::decodeSmartRowPacket(const QByteArray &packet) const {
@@ -501,6 +583,11 @@ void smartrowrower::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
                     auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
                     // connect(virtualRower,&virtualrower::debug ,this,&smartrowrower::debug);
+                    // SmartRow pass-through (no-ops unless virtual_device_rower_smartrow is enabled)
+                    connect(this, &smartrowrower::smartRowRawData, virtualRower, &virtualrower::smartRowRawData);
+                    connect(virtualRower, &virtualrower::smartRowWrite, this, &smartrowrower::virtualSmartRowWrite);
+                    connect(virtualRower, &virtualrower::smartRowClientAttachedChanged, this,
+                            &smartrowrower::virtualSmartRowClientAttached);
                     this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
                 }
             }

@@ -371,6 +371,11 @@ void lockscreen::virtualrower_ios_pm5(bool pm5Mode)
     _virtualrower = [[virtualrower_zwift alloc] initWithPm5Mode:pm5Mode];
 }
 
+void lockscreen::virtualrower_ios_smartrow()
+{
+    _virtualrower = [[virtualrower_zwift alloc] initWithSmartRowMode:true];
+}
+
 double lockscreen::virtualbike_getCurrentSlope()
 {
     if(_virtualbike_zwift != nil)
@@ -431,6 +436,34 @@ void lockscreen::virtualrower_setPM5Mode(bool enabled)
 {
     if(_virtualrower != nil)
         [_virtualrower setPM5ModeWithEnabled:enabled];
+}
+
+void lockscreen::virtualrower_setSmartRowData(const QByteArray &data)
+{
+    if(_virtualrower != nil) {
+        NSData *value = [NSData dataWithBytes:data.constData() length:data.length()];
+        [_virtualrower updateSmartRowData:value];
+    }
+}
+
+int lockscreen::virtualrower_getLastSmartRowMessage(unsigned char* message)
+{
+    if(message && _virtualrower != nil) {
+        NSData* data = [_virtualrower getLastSmartRowMessage];
+        if(data != nil && data.length > 0) {
+            const NSUInteger length = MIN(data.length, (NSUInteger)255);
+            [data getBytes:message length:length];
+            return (int)length;
+        }
+    }
+    return 0;
+}
+
+bool lockscreen::virtualrower_smartRowClientAttached()
+{
+    if(_virtualrower != nil)
+        return [_virtualrower smartRowClientAttached];
+    return false;
 }
 
 
