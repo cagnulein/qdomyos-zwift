@@ -166,14 +166,50 @@ Page {
                     border.width: 1
                 }
 
-                contentItem: Text {
-                    text: Qt.platform.os === "android" ?
-                          wrapEmoji("📥") :
-                          "📥"
-                    textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
-                    font.pixelSize: 26
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
+                contentItem: Item {
+                    // Android draws emoji only with the downloaded emoji font; until it is
+                    // there (or when the download failed) the icon is drawn as a shape
+                    readonly property bool emojiFontMissing: Qt.platform.os === "android" &&
+                        (!fontManager || fontManager.emojiFontFamily === "Arial")
+
+                    Text {
+                        anchors.fill: parent
+                        visible: !parent.emojiFontMissing
+                        text: Qt.platform.os === "android" ?
+                              wrapEmoji("📥") :
+                              "📥"
+                        textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                        font.pixelSize: 26
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    // tray with a down arrow
+                    Canvas {
+                        anchors.centerIn: parent
+                        width: 26
+                        height: 26
+                        visible: parent.emojiFontMissing
+                        onPaint: {
+                            var ctx = getContext("2d")
+                            ctx.reset()
+                            ctx.strokeStyle = "#444444"
+                            ctx.lineWidth = 2.5
+                            ctx.lineCap = "round"
+                            ctx.lineJoin = "round"
+                            ctx.beginPath()
+                            ctx.moveTo(13, 3)
+                            ctx.lineTo(13, 16)
+                            ctx.moveTo(8, 11)
+                            ctx.lineTo(13, 16)
+                            ctx.lineTo(18, 11)
+                            ctx.moveTo(3, 15)
+                            ctx.lineTo(3, 23)
+                            ctx.lineTo(23, 23)
+                            ctx.lineTo(23, 15)
+                            ctx.stroke()
+                        }
+                    }
                 }
 
                 onClicked: importMenu.popup(importButton, 0, importButton.height)

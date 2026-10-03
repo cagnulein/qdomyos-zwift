@@ -12,6 +12,8 @@
 #include <QAndroidJniObject>
 #endif
 #include "fitdatabaseprocessor.h"
+#include <QSqlDatabase>
+#include <QSqlQuery>
 #include "material.h"
 #include "qfit.h"
 #include "simplecrypt.h"
@@ -1124,8 +1126,13 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 workoutModel->refresh();
                 if (!m_historyRecoveryChecked) {
                     m_historyRecoveryChecked = true;
-                    // asked on the history page, where the missing workouts are noticed
-                    m_historyRecoveryPending = m_historyDatabaseIsNew;
+                    // asked on the history page, where the missing workouts are noticed: on a
+                    // spare database (ddb.sqlite of a previous install is there) that holds no
+                    // workout yet. "New file" alone is not enough: a spare left by an earlier
+                    // test install may still open with its old content.
+                    m_historyRecoveryPending =
+                        m_historyDatabasePath != getWritableAppDir() + QStringLiteral("ddb.sqlite") &&
+                        historyWorkoutCount() == 0;
                     maybeOfferHistoryRecovery();
                 }
             });
@@ -9075,6 +9082,19 @@ bool homeform::startFitFolderImport(bool allowPicker) {
 // (Android 14+ after a reinstall), so its workouts are there too, hidden from the app. With a
 // saved folder grant they are imported right away; without one, the user is asked once. A
 // first install, or a database removed by hand, starts on ddb.sqlite and is not asked.
+// workouts in the history database, read through the connection of the workout model
+int homeform::historyWorkoutCount() {
+    QSqlDatabase db = QSqlDatabase::database(FitDatabaseProcessor::DB_CONNECTION_NAME + QStringLiteral("_main"));
+    if (!db.isOpen()) {
+        return 0;
+    }
+    QSqlQuery query(db);
+    if (!query.exec(QStringLiteral("SELECT COUNT(*) FROM workouts")) || !query.next()) {
+        return 0;
+    }
+    return query.value(0).toInt();
+}
+
 void homeform::historyPageOpened() {
     m_historyPageOpened = true;
     maybeOfferHistoryRecovery();
