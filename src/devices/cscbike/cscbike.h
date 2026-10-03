@@ -49,6 +49,7 @@ class cscbike : public bike {
     static double speedFromWheelRevolutions(uint32_t previousRevolutions, uint32_t currentRevolutions,
                                             uint16_t previousEventTime, uint16_t currentEventTime,
                                             double circumferenceMillimetres);
+    static double speedSensorPowerFromSpeed(double speed);
     void enableManualResistancePowerAdjustment(resistance_t resistance);
     static uint16_t customResistanceAdjustedWatts(double cadence, resistance_t resistance);
     static resistance_t customResistanceMax();

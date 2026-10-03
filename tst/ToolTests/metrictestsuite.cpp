@@ -123,3 +123,11 @@ TEST_F(CscBikeSpeedPowerTest, EstimatedPowerIsZeroWhenStoppedAndIncreasesWithSpe
     EXPECT_GT(tenKphPower, stoppedPower);
     EXPECT_GT(twentyKphPower, tenKphPower);
 }
+
+TEST_F(CscBikeSpeedPowerTest, SpeedSensorPowerIgnoresReceivedInclination) {
+    const double speed = 30.0;
+    const double flatRoadPower = cscbike::speedSensorPowerFromSpeed(speed);
+
+    EXPECT_DOUBLE_EQ(flatRoadPower, metric::calculatePowerFromSpeed(speed, 0.0));
+    EXPECT_NE(metric::calculatePowerFromSpeed(speed, 10.0), flatRoadPower);
+}

@@ -46,6 +46,12 @@ double cscbike::speedFromWheelRevolutions(uint32_t previousRevolutions, uint32_t
            static_cast<double>(eventTimeDelta);
 }
 
+double cscbike::speedSensorPowerFromSpeed(double speed) {
+    // Speed-sensor power is a flat-road estimate. The inclination received by
+    // the virtual-bike/game control path must not be folded back into it.
+    return metric::calculatePowerFromSpeed(speed, 0.0);
+}
+
 void cscbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
     if (!jorotoBike && !useCustomResistancePowerTable()) {
         return;
@@ -204,7 +210,7 @@ void cscbike::update() {
     
     if (isSpeedSensorBike()) {
         const double estimatedWatts =
-            Speed.value() > 0.0 ? qMax(0.0, metric::calculatePowerFromSpeed(Speed.value(), Inclination.value())) : 0.0;
+            Speed.value() > 0.0 ? qMax(0.0, speedSensorPowerFromSpeed(Speed.value())) : 0.0;
         m_watt = estimatedWatts;
     } else if (manualResistancePowerAdjustmentActive && jorotoBike) {
         m_watt = manualResistanceAdjustedWatts();
