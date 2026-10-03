@@ -541,7 +541,10 @@ public class CustomQtActivity extends QtActivity {
                     }
                     continue;
                 }
-                if (!name.toLowerCase(java.util.Locale.ROOT).endsWith(".fit")) {
+                String lowerName = name.toLowerCase(java.util.Locale.ROOT);
+                // QZ-backup-*.fit are partial copies written during a workout, skipped at start
+                // as well; importing them would show the workout twice
+                if (!lowerName.endsWith(".fit") || lowerName.contains("backup")) {
                     continue;
                 }
                 Uri documentUri = android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
