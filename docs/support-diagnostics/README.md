@@ -8,6 +8,7 @@ This directory contains reusable diagnostic intake guidance for QZ support. It f
 - [Third-party app integration](third-party-apps.md)
 - [Crashes and unexpected exits](crashes.md)
 - [Heart rate source diagnostics](heart-rate.md)
+- [Android installation and embedded consoles](android-installation.md)
 
 ## How to use these guides
 
