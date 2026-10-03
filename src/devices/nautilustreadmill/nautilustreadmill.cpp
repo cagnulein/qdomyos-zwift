@@ -183,8 +183,8 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit packetReceived();
 
     if (newValue.length() == 12) {
-        double speed = GetSpeedFromPacket(value);
-        double incline = GetInclinationFromPacket(value);
+        double speed = speedFromPacket(value);
+        double incline = inclinationFromPacket(value);
 
 #ifdef Q_OS_ANDROID
         if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -251,14 +251,20 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     }
 }
 
-double nautilustreadmill::GetSpeedFromPacket(const QByteArray &packet) {
+double nautilustreadmill::speedFromPacket(const QByteArray &packet) {
+    if (packet.size() < 12)
+        return 0.0;
+
     uint16_t convertedData = (uint16_t)((uint8_t)packet.at(3)) + (uint16_t)((((uint8_t)packet.at(4)) << 8) & 0xFF00);
     const double miles = 1.60934;
     double data = (((double)convertedData) * miles) / 100.0f;
     return data;
 }
 
-double nautilustreadmill::GetInclinationFromPacket(const QByteArray &packet) {
+double nautilustreadmill::inclinationFromPacket(const QByteArray &packet) {
+    if (packet.size() < 7)
+        return 0.0;
+
     uint16_t convertedData = packet.at(6);
     double data = convertedData;
 
@@ -347,11 +353,17 @@ void nautilustreadmill::serviceScanDone(void) {
 
             gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
             if (!gattCommunicationChannelService) {
-                _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("4b2387a0-be8e-11e3-8039-0002a5d5c51b"));
+                _gattCommunicationChannelServiceId =
+                    QBluetoothUuid(QStringLiteral("688a15a0-3a30-11e6-b3f8-0002a5d5c51b"));
 
                 gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
                 if (!gattCommunicationChannelService) {
-                    return;
+                    _gattCommunicationChannelServiceId =
+                        QBluetoothUuid(QStringLiteral("4b2387a0-be8e-11e3-8039-0002a5d5c51b"));
+
+                    gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+                    if (!gattCommunicationChannelService)
+                        return;
                 }
             }
         }
