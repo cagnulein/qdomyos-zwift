@@ -209,6 +209,18 @@ HomeForm {
     }
 
     property bool locationServiceRequsted: false
+    // Bluetooth and Location as Android reports them now, not only at app start: switched on from
+    // the quick settings, the questions about them go away
+    property bool locationServicesOn: rootItem.locationServices()
+    // "No" answered: not asked again until the next start
+    property bool locationServicesDeclined: false
+
+    Timer {
+        interval: 2000; repeat: true
+        // only while a question about them is open: devices without GPS never report Location on
+        running: !locationServicesOn && (locationServicesDialog.visible || locationServiceRequsted)
+        onTriggered: locationServicesOn = rootItem.refreshLocationServices()
+    }
 
     MessageDialog {
         id: locationServicesDialog
@@ -219,8 +231,11 @@ HomeForm {
             locationServiceRequsted = true
             rootItem.enableLocationServices()
         }
-        onNoClicked: remindLocationServicesDialog.visible = true
-        visible: !rootItem.locationServices() && !locationServiceRequsted && !settings.skipLocationServicesDialog
+        onNoClicked: {
+            locationServicesDeclined = true
+            remindLocationServicesDialog.visible = true
+        }
+        visible: !locationServicesOn && !locationServiceRequsted && !locationServicesDeclined && !settings.skipLocationServicesDialog
     }
 
     MessageDialog {
@@ -239,7 +254,7 @@ HomeForm {
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
-        visible: locationServiceRequsted
+        visible: locationServiceRequsted && !locationServicesOn
     }
 
     Timer {
