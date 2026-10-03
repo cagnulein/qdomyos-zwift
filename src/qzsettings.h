@@ -2584,6 +2584,8 @@ class QZSettings {
     static constexpr bool default_proform_trainer_8_0 = false;
     static const QString proform_trainer_8_0_pftl59721_int_0;
     static constexpr bool default_proform_trainer_8_0_pftl59721_int_0 = false;
+    static const QString proform_trainer_8_0_pftl59721_0;
+    static constexpr bool default_proform_trainer_8_0_pftl59721_0 = false;
 
     static const QString tile_biggears_swap;
     static constexpr bool default_tile_biggears_swap = false;
