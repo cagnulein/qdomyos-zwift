@@ -120,6 +120,7 @@ void treadmill::changeSpeedAndInclination(double speed, double inclination) {
 }
 
 void treadmill::onTrainingProgramTransition() {
+    m_trainingProgramTransitionAt = QDateTime::currentDateTime();
     targetWatts = -1;
     m_followPowerLastSpeedWhenTargetSet = -1;
     m_followPowerSuppressedUntil = QDateTime::currentDateTime().addMSecs(5000);

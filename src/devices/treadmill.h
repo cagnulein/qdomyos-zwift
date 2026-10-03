@@ -49,6 +49,10 @@ class treadmill : public bluetoothdevice {
     double calculateCadenceFromSpeed(double speed);
     virtual bool canHandleSpeedChange() { return true; }
     virtual bool canHandleInclineChange() { return true; }
+    bool trainingProgramTransitionActive(qint64 settleMs) const {
+        return m_trainingProgramTransitionAt.isValid() &&
+               m_trainingProgramTransitionAt.msecsTo(QDateTime::currentDateTime()) < settleMs;
+    }
     double runningStressScore();
     QTime speedToPace(double Speed);
     double gradeAdjustedSpeed(double speed, double inclination);
@@ -97,6 +101,7 @@ class treadmill : public bluetoothdevice {
     double m_followPowerLastInclination = 0;
     double m_followPowerLastSpeedWhenTargetSet = -1;
     QDateTime m_followPowerSuppressedUntil;
+    QDateTime m_trainingProgramTransitionAt;
 
     void parseSpeed(double speed);
     void parseInclination(double speed);
