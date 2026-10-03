@@ -41,6 +41,21 @@ This setup was confirmed on a Horizon 7.4AT to correct the displayed km/h value 
 
 Because **Speed Gain** also participates in QZ's treadmill speed-control path, verify both directions after changing it: manually set a simple treadmill speed and confirm QZ displays the same value, then start a Peloton treadmill workout and confirm an automatically requested speed produces the expected treadmill speed.
 
+## My Adidas T-800 High Incline shows an incline 6% higher in QZ. How do I fix it?
+
+The Adidas T-800 High Incline has a **-6% to +40%** incline range. QZ has dedicated handling for this range, so do not compensate for the +6% mismatch with the generic **Treadmill Inclination Offset** setting.
+
+Instead:
+
+1. Open **QZ Settings > Treadmill Options > FTMS Treadmill**.
+2. Select the treadmill's exact Bluetooth name, for example `ADIDAS xxxx`.
+3. Fully close QZ and restart it.
+4. Test the incline again. A treadmill incline of 0% should now also appear as 0% in QZ.
+
+You can also configure **Treadmill minimum incline = -6** and **Treadmill maximum incline = 40**. If you use Zwift automatic incline, set **Zwift Max Incline = 40** as well.
+
+This setup was explicitly confirmed to resolve a +6% incline display mismatch on an Adidas T-800 High Incline. The current QZ implementation recognizes Adidas treadmills and applies dedicated minimum/maximum incline handling for the -6% to +40% range.
+
 ## Zwift incline through QZ feels about twice as steep as expected. What should I change?
 
 When QZ is using Zwift auto-inclination, the inclination received from Zwift is transformed with QZ's **Zwift Inclination Gain** and **Zwift Inclination Offset** settings. The current calculation is:
