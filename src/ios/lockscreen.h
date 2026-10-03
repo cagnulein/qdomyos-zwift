@@ -47,8 +47,12 @@ class lockscreen {
     // virtualrower
     void virtualrower_ios();
     void virtualrower_ios_pm5(bool pm5Mode);
+    void virtualrower_ios_smartrow();
     void virtualrower_setHeartRate(unsigned char heartRate);
     void virtualrower_setPM5Mode(bool enabled);
+    void virtualrower_setSmartRowData(const QByteArray &data);
+    int virtualrower_getLastSmartRowMessage(unsigned char *message);
+    bool virtualrower_smartRowClientAttached();
     bool virtualrower_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                  unsigned short currentCadence, unsigned short currentWatt,
                                  unsigned short CrankRevolutions, unsigned short LastCrankEventTime,

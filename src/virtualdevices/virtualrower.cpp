@@ -112,13 +112,16 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 #ifndef IO_UNDER_QT
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if (ios_peloton_workaround && !heart_only) {
+    if ((ios_peloton_workaround || smartRowMode) && !heart_only) {
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
         if (pm5Mode) {
             h->virtualrower_ios_pm5(true);
             qDebug() << "iOS PM5 mode enabled";
+        } else if (smartRowMode) {
+            h->virtualrower_ios_smartrow();
+            qDebug() << "iOS SmartRow pass-through mode enabled";
         } else {
             h->virtualrower_ios();
         }
@@ -344,17 +347,19 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
     //! [Provide Heartbeat]
     QObject::connect(&rowerTimer, &QTimer::timeout, this, &virtualrower::rowerProvider);
-    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
+    if (smartRowMode || settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
         rowerTimer.start(100ms);
     else
         rowerTimer.start(1s);
 
     //! [Provide Heartbeat]
-    QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualrower::reconnect);
-    QObject::connect(
-        leController,
-        static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
-        &virtualrower::error);
+    if (leController) {
+        QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualrower::reconnect);
+        QObject::connect(
+            leController,
+            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
+            &virtualrower::error);
+    }
 }
 
 void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
@@ -579,6 +584,15 @@ void virtualrower::smartRowDescriptorWritten(const QLowEnergyDescriptor &descrip
 
 // raw record from the pulley: relay it unchanged (Qt notifies only if the CCCD is enabled)
 void virtualrower::smartRowRawData(const QByteArray &data) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    if (smartRowMode && h) {
+        h->virtualrower_setSmartRowData(data);
+        return;
+    }
+#endif
+#endif
+
     if (!smartRowMode || !serviceSmartRow || !leController ||
         leController->state() != QLowEnergyController::ConnectedState) {
         return;
@@ -633,6 +647,17 @@ void virtualrower::rowerProvider() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     if (h) {
+        if (smartRowMode) {
+            const bool attached = h->virtualrower_smartRowClientAttached();
+            setSmartRowClientAttached(attached);
+
+            uint8_t smartRowMessage[255];
+            int ret = 0;
+            while ((ret = h->virtualrower_getLastSmartRowMessage(smartRowMessage)) > 0) {
+                emit smartRowWrite(QByteArray((const char *)smartRowMessage, ret));
+            }
+        }
+
         // really connected to a device
         if (h->virtualrower_updateFTMS(
                 normalizeSpeed, (char)Rower->currentResistance().value(), (uint16_t)Rower->currentCadence().value() * 2,

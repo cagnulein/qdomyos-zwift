@@ -29,6 +29,11 @@ let PM5_STROKE_DATA_UUID = CBUUID(string: "CE060035-43E5-11E4-916C-0800200C9A66"
 let PM5_ADDITIONAL_STROKE_DATA_UUID = CBUUID(string: "CE060036-43E5-11E4-916C-0800200C9A66")
 let PM5_MULTIPLEXED_INFO_UUID = CBUUID(string: "CE060080-43E5-11E4-916C-0800200C9A66")
 
+// SmartRow pulley pass-through UUIDs
+let SMARTROW_SERVICE_UUID = CBUUID(string: "0x1234")
+let SMARTROW_WRITE_UUID = CBUUID(string: "0x1235")
+let SMARTROW_NOTIFY_UUID = CBUUID(string: "0x1236")
+
 @objc public class virtualrower_zwift: NSObject {
     private var peripheralManager: rowerBLEPeripheralManagerZwift!
 
@@ -39,7 +44,12 @@ let PM5_MULTIPLEXED_INFO_UUID = CBUUID(string: "CE060080-43E5-11E4-916C-0800200C
 
     @objc public init(pm5Mode: Bool) {
       super.init()
-      peripheralManager = rowerBLEPeripheralManagerZwift(pm5Mode: pm5Mode)
+      peripheralManager = rowerBLEPeripheralManagerZwift(pm5Mode: pm5Mode, smartRowMode: false)
+    }
+
+    @objc public init(smartRowMode: Bool) {
+      super.init()
+      peripheralManager = rowerBLEPeripheralManagerZwift(pm5Mode: false, smartRowMode: smartRowMode)
     }
 
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -83,6 +93,18 @@ let PM5_MULTIPLEXED_INFO_UUID = CBUUID(string: "CE060080-43E5-11E4-916C-0800200C
         peripheralManager.LastFTMSMessageReceived?.removeAll()
         return peripheralManager.LastFTMSMessageReceivedAndPassed
     }
+
+    @objc public func updateSmartRowData(_ data: Data) -> Bool {
+        return peripheralManager.updateSmartRowData(data)
+    }
+
+    @objc public func getLastSmartRowMessage() -> Data? {
+        return peripheralManager.getLastSmartRowMessage()
+    }
+
+    @objc public func smartRowClientAttached() -> Bool {
+        return peripheralManager.isSmartRowClientAttached()
+    }
 }
 
 class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
@@ -99,6 +121,9 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var rowerCharacteristic: CBMutableCharacteristic!
   private var FitnessMachinestatusCharacteristic: CBMutableCharacteristic!
   private var TrainingStatusCharacteristic: CBMutableCharacteristic!
+  private var SmartRowService: CBMutableService!
+  private var SmartRowWriteCharacteristic: CBMutableCharacteristic!
+  private var SmartRowNotifyCharacteristic: CBMutableCharacteristic!
     public var CurrentSlope: Double! = 0
     public var PowerRequested: Double! = 0
     public var NormalizeSpeed: UInt16! = 0
@@ -120,6 +145,11 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
 
     public var LastFTMSMessageReceived: Data?
     public var LastFTMSMessageReceivedAndPassed: Data?
+    private var lastSmartRowData: Data?
+    private var smartRowMessagesReceived: [Data] = []
+    private var pendingSmartRowNotifications: [Data] = []
+    private let maxSmartRowMessages = 128
+    private let maxPendingSmartRowNotifications = 128
 
     public var serviceToggle: UInt8 = 0
     public var pm5ServiceToggle: UInt8 = 0
@@ -130,6 +160,8 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
 
   // PM5 Mode
   public var pm5Mode: Bool = false
+  public var smartRowMode: Bool = false
+  private var smartRowClientAttached: Bool = false
   private var startTime: Date = Date()
   private var pm5SampleRate: UInt8 = 0x01
 
@@ -162,6 +194,7 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   override init() {
     super.init()
     pm5Mode = false
+    smartRowMode = false
     startTime = Date()
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
@@ -169,6 +202,15 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   init(pm5Mode: Bool) {
     super.init()
     self.pm5Mode = pm5Mode
+    self.smartRowMode = false
+    startTime = Date()
+    peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+  }
+
+  init(pm5Mode: Bool, smartRowMode: Bool) {
+    super.init()
+    self.pm5Mode = pm5Mode
+    self.smartRowMode = smartRowMode
     startTime = Date()
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
@@ -196,6 +238,9 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       } else {
         // FTMS Mode - Original implementation
         setupFTMSServices()
+        if smartRowMode {
+          setupSmartRowService()
+        }
       }
 
     default:
@@ -292,6 +337,25 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                                   CSCMeasurementCharacteristic,
                                                   SCControlPointCharacteristic]
           self.peripheralManager.add(CSCService)
+  }
+
+  func setupSmartRowService() {
+      print("Setting up SmartRow pass-through service")
+
+      self.SmartRowService = CBMutableService(type: SMARTROW_SERVICE_UUID, primary: true)
+
+      self.SmartRowWriteCharacteristic = CBMutableCharacteristic(type: SMARTROW_WRITE_UUID,
+                                                                 properties: [.writeWithoutResponse],
+                                                                 value: nil,
+                                                                 permissions: [.writeable])
+
+      self.SmartRowNotifyCharacteristic = CBMutableCharacteristic(type: SMARTROW_NOTIFY_UUID,
+                                                                  properties: [.read, .notify],
+                                                                  value: nil,
+                                                                  permissions: [.readable])
+
+      SmartRowService.characteristics = [SmartRowWriteCharacteristic, SmartRowNotifyCharacteristic]
+      self.peripheralManager.add(SmartRowService)
   }
 
   func setupPM5Services() {
@@ -408,6 +472,11 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       // PM5 advertising - device name + PM5 discovery service UUID
       advertisementData = [CBAdvertisementDataLocalNameKey: "PM5 430000000",
                            CBAdvertisementDataServiceUUIDsKey: [PM5_DISCOVERY_SERVICE_UUID]] as [String : Any]
+    } else if smartRowMode {
+      // CoreBluetooth cannot advertise manufacturer data; the SmartRow service and name are still advertised.
+      advertisementData = [CBAdvertisementDataLocalNameKey: "SmartRow",
+                           CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid,
+                                                                CSCServiceUUID, SMARTROW_SERVICE_UUID]] as [String : Any]
     } else {
       // FTMS advertising
       advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
@@ -430,38 +499,55 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   }
   
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
-    if requests.first!.characteristic == self.PM5SampleRateCharacteristic {
-        if let value = requests.first!.value, value.count > 0 {
-            self.pm5SampleRate = value[0]
-            print("PM5 sample rate set to \(self.pm5SampleRate)")
+    for request in requests {
+        if request.characteristic == self.SmartRowWriteCharacteristic {
+            if let value = request.value, !value.isEmpty {
+                if smartRowMessagesReceived.count >= maxSmartRowMessages {
+                    smartRowMessagesReceived.removeFirst()
+                    print("SmartRow app write queue full; dropping oldest message")
+                }
+                smartRowMessagesReceived.append(value)
+                self.connected = true
+                print("SmartRow app write: \(value.count) bytes")
+            }
+            self.smartRowClientAttached = true
+            self.peripheralManager.respond(to: request, withResult: .success)
+            continue
         }
-        self.peripheralManager.respond(to: requests.first!, withResult: .success)
-        return
-    }
-    if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
-        if(LastFTMSMessageReceived == nil || LastFTMSMessageReceived?.count == 0) {
-            LastFTMSMessageReceived = requests.first!.value
-        }
-        if(requests.first!.value?.first == 0x11)
-        {
-               var high : Int16 = ((Int16)(requests.first!.value![4])) << 8;
-                 self.CurrentSlope = (Double)((Int16)(requests.first!.value![3]) + high);
-        }
-        else if(requests.first!.value?.first == 0x05)
-        {
-            var high : UInt16 = (((UInt16)(requests.first!.value![2])) << 8);
-            self.PowerRequested = (Double)((UInt16)(requests.first!.value![1]) + high);
-        }
-        self.connected = true;
-        self.peripheralManager.respond(to: requests.first!, withResult: .success)
-        print("Responded successfully to a read request")
 
-        let funcCode: UInt8 = requests.first!.value![0]
-        var response: [UInt8] = [0x80, funcCode , 0x01]
-        let responseData = Data(bytes: &response, count: 3)
-          
-        self.peripheralManager.updateValue(responseData, for: self.FitnessMachineControlPointCharacteristic, onSubscribedCentrals: nil)
+        if request.characteristic == self.PM5SampleRateCharacteristic {
+            if let value = request.value, value.count > 0 {
+                self.pm5SampleRate = value[0]
+                print("PM5 sample rate set to \(self.pm5SampleRate)")
+            }
+            self.peripheralManager.respond(to: request, withResult: .success)
+            continue
         }
+        if request.characteristic == self.FitnessMachineControlPointCharacteristic {
+            if(LastFTMSMessageReceived == nil || LastFTMSMessageReceived?.count == 0) {
+                LastFTMSMessageReceived = request.value
+            }
+            if(request.value?.first == 0x11)
+            {
+                   var high : Int16 = ((Int16)(request.value![4])) << 8;
+                     self.CurrentSlope = (Double)((Int16)(request.value![3]) + high);
+            }
+            else if(request.value?.first == 0x05)
+            {
+                var high : UInt16 = (((UInt16)(request.value![2])) << 8);
+                self.PowerRequested = (Double)((UInt16)(request.value![1]) + high);
+            }
+            self.connected = true;
+            self.peripheralManager.respond(to: request, withResult: .success)
+            print("Responded successfully to a read request")
+
+            let funcCode: UInt8 = request.value![0]
+            var response: [UInt8] = [0x80, funcCode , 0x01]
+            let responseData = Data(bytes: &response, count: 3)
+
+            self.peripheralManager.updateValue(responseData, for: self.FitnessMachineControlPointCharacteristic, onSubscribedCentrals: nil)
+        }
+    }
     }
     
   func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
@@ -485,19 +571,64 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         self.peripheralManager.respond(to: request, withResult: .success)
         print("Responded successfully to PM5 sample rate read request")
     }
+    else if request.characteristic == self.SmartRowNotifyCharacteristic {
+        request.value = self.lastSmartRowData
+        self.peripheralManager.respond(to: request, withResult: .success)
+    }
   }
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
     print("Successfully subscribed")
 	 self.connected = true
+    if characteristic == self.SmartRowNotifyCharacteristic {
+        self.smartRowClientAttached = true
+    }
     updateSubscribers();
     self.startSendingDataToSubscribers()
   }
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
     //self.notificationTimer.invalidate()
+	 if characteristic == self.SmartRowNotifyCharacteristic {
+        self.smartRowClientAttached = false
+        self.pendingSmartRowNotifications.removeAll()
+    }
 	 self.connected = false
     print("Successfully unsubscribed")
+  }
+
+  func updateSmartRowData(_ data: Data) -> Bool {
+    guard smartRowMode, self.SmartRowNotifyCharacteristic != nil else { return false }
+    self.lastSmartRowData = data
+    guard self.smartRowClientAttached else { return false }
+    if pendingSmartRowNotifications.count >= maxPendingSmartRowNotifications {
+        pendingSmartRowNotifications.removeFirst()
+        print("SmartRow notification queue full; dropping oldest packet")
+    }
+    pendingSmartRowNotifications.append(data)
+    flushPendingSmartRowNotifications()
+    return pendingSmartRowNotifications.isEmpty
+  }
+
+  private func flushPendingSmartRowNotifications() {
+    guard self.smartRowClientAttached else { return }
+    while !pendingSmartRowNotifications.isEmpty {
+        let data = pendingSmartRowNotifications[0]
+        guard self.peripheralManager.updateValue(data, for: self.SmartRowNotifyCharacteristic,
+                                                  onSubscribedCentrals: nil) else {
+            return
+        }
+        pendingSmartRowNotifications.removeFirst()
+    }
+  }
+
+  func isSmartRowClientAttached() -> Bool {
+    return smartRowClientAttached
+  }
+
+  func getLastSmartRowMessage() -> Data? {
+    guard !smartRowMessagesReceived.isEmpty else { return nil }
+    return smartRowMessagesReceived.removeFirst()
   }
 
   func startSendingDataToSubscribers() {
@@ -508,6 +639,7 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
 
   func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
     print("Peripheral manager is ready to update subscribers")
+    flushPendingSmartRowNotifications()
     updateSubscribers();
     self.startSendingDataToSubscribers()
   }
