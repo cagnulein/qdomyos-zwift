@@ -8,6 +8,7 @@
 #include <QDirIterator>
 #include <QSqlDatabase>
 #include <QDateTime>
+#include <QSet>
 
 const QString FitDatabaseProcessor::DB_CONNECTION_NAME = "FitProcessor";
 
@@ -150,7 +151,16 @@ void FitDatabaseProcessor::importFiles(const QStringList& filePaths) {
         emit importFinished(0, 0, 0, false);
         return;
     }
+    // the counts are workouts, not files: copies of one workout (same bytes) count once
+    QSet<QString> seenHashes;
     for (const QString& filePath : filePaths) {
+        const QString hash = getFileHash(filePath);
+        if (!hash.isEmpty()) {
+            if (seenHashes.contains(hash)) {
+                continue;
+            }
+            seenHashes.insert(hash);
+        }
         if (isFileProcessed(filePath)) {
             alreadyInHistory++;
         } else if (processFitFile(filePath)) {

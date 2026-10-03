@@ -192,6 +192,8 @@ class homeform : public QObject {
     Q_PROPERTY(bool stopRequested READ stopRequested NOTIFY stopRequestedChanged WRITE setStopRequestedChanged)
     Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
     Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
+    // a workout import (file or folder) is copying or adding to the history
+    Q_PROPERTY(bool fitImportRunning READ fitImportRunning NOTIFY fitImportRunningChanged)
     Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
     Q_PROPERTY(bool garminMfaRequested READ garminMfaRequested NOTIFY garminMfaRequestedChanged WRITE setGarminMfaRequested)
     Q_PROPERTY(bool garminWorkoutPromptRequested READ garminWorkoutPromptRequested NOTIFY garminWorkoutPromptRequestedChanged WRITE setGarminWorkoutPromptRequested)
@@ -695,6 +697,13 @@ public:
     // the workout history page was shown: a pending offer to recover the workouts of a
     // previous install is made there (historyRecoveryOfferRequested)
     Q_INVOKABLE void historyPageOpened();
+    bool fitImportRunning() const { return m_fitImportRunning; }
+    Q_INVOKABLE void setFitImportRunning(bool running) {
+        if (m_fitImportRunning != running) {
+            m_fitImportRunning = running;
+            emit fitImportRunningChanged();
+        }
+    }
     Q_INVOKABLE bool deleteTrainingProgramFile(const QString &fileUrl);
 
     double wattMaxChart() {
@@ -1071,6 +1080,7 @@ public:
     bool m_historyPageOpened = false;
     // automatic import after a new database: no toast when nothing new was found
     bool m_fitImportQuiet = false;
+    bool m_fitImportRunning = false;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
@@ -1299,6 +1309,7 @@ public:
     // a new history database was started and the workouts of a previous install may be
     // hidden in the QZ folder: QML asks whether to look for them (importFitFolder())
     void historyRecoveryOfferRequested();
+    void fitImportRunningChanged();
     void signalChanged(QString value);
     void startTextChanged(QString value);
     void startIconChanged(QString value);

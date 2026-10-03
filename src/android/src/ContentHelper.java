@@ -175,6 +175,13 @@ public class ContentHelper {
                 continue;
             }
             if (copyContentToFile(context, uri, destinationFile.getAbsolutePath())) {
+                // the same workout may already be here under another name (name_1.fit, ...):
+                // keep one copy, otherwise every import multiplies them
+                File twin = findIdenticalFile(destinationDir, destinationFile);
+                if (twin != null) {
+                    destinationFile.delete();
+                    return twin.getAbsolutePath();
+                }
                 return destinationFile.getAbsolutePath();
             }
             if (destinationFile.exists()) {
@@ -183,6 +190,77 @@ public class ContentHelper {
         }
         QLog.d("ContentHelper", "importContentToAppDirKeepExisting gave up on " + fileName);
         return "";
+    }
+
+    // A readable file of the folder with the same bytes as file, or null.
+    private static File findIdenticalFile(File dir, File file) {
+        File[] others = dir.listFiles();
+        if (others == null) {
+            return null;
+        }
+        for (File other : others) {
+            if (other.equals(file) || !other.isFile() || other.length() != file.length()) {
+                continue;
+            }
+            if (sameContent(other, file)) {
+                return other;
+            }
+        }
+        return null;
+    }
+
+    private static boolean sameContent(File a, File b) {
+        java.io.FileInputStream inA = null;
+        java.io.FileInputStream inB = null;
+        try {
+            inA = new java.io.FileInputStream(a);
+            inB = new java.io.FileInputStream(b);
+            byte[] bufA = new byte[8192];
+            byte[] bufB = new byte[8192];
+            while (true) {
+                int readA = readFully(inA, bufA);
+                int readB = readFully(inB, bufB);
+                if (readA != readB) {
+                    return false;
+                }
+                if (readA <= 0) {
+                    return true;
+                }
+                for (int i = 0; i < readA; i++) {
+                    if (bufA[i] != bufB[i]) {
+                        return false;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // unreadable (a file of a previous install): not a copy this install can use
+            return false;
+        } finally {
+            try {
+                if (inA != null) {
+                    inA.close();
+                }
+            } catch (Exception ignored) {
+            }
+            try {
+                if (inB != null) {
+                    inB.close();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static int readFully(InputStream in, byte[] buffer) throws java.io.IOException {
+        int total = 0;
+        while (total < buffer.length) {
+            int read = in.read(buffer, total, buffer.length - total);
+            if (read == -1) {
+                break;
+            }
+            total += read;
+        }
+        return total;
     }
 
     private static boolean isReadable(File file) {

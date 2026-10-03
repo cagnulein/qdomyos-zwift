@@ -1140,6 +1140,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             this, [this](int added, int alreadyInHistory, int unreadable, bool databaseOpen) {
                 qDebug() << "FitDatabaseProcessor import: added" << added << "already" << alreadyInHistory
                          << "unreadable" << unreadable << "database open" << databaseOpen;
+                setFitImportRunning(false);
                 const bool quiet = m_fitImportQuiet;
                 m_fitImportQuiet = false;
                 workoutModel->refresh();
@@ -1371,11 +1372,28 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnOAuthCallback(JNIEnv *en
     }
 }
 
+// a workout import was picked: the copy is about to start, show it is running
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFitImportStarted(JNIEnv *env, jclass clazz) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (homeform::singleton()) {
+        QMetaObject::invokeMethod(homeform::singleton(), "setFitImportRunning", Qt::QueuedConnection,
+                                  Q_ARG(bool, true));
+    }
+}
+
 JNIEXPORT void JNICALL
 Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *env, jclass clazz, jint requestCode,
                                                                        jint resultCode, jstring localPathString) {
     Q_UNUSED(clazz)
     if (resultCode != AndroidActivityResultOk || !homeform::singleton()) {
+        // a cancelled picker ends a workout import that may already show as running
+        if (homeform::singleton() && (requestCode == AndroidDocumentPickerFitRequestCode ||
+                                      requestCode == AndroidDocumentPickerFitFolderRequestCode)) {
+            QMetaObject::invokeMethod(homeform::singleton(), "setFitImportRunning", Qt::QueuedConnection,
+                                      Q_ARG(bool, false));
+        }
         return;
     }
 
@@ -1389,7 +1407,8 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *e
     }
 
     // a folder import without any workout still has to tell the user so
-    if (localPath.isEmpty() && requestCode != AndroidDocumentPickerFitFolderRequestCode) {
+    if (localPath.isEmpty() && requestCode != AndroidDocumentPickerFitFolderRequestCode &&
+        requestCode != AndroidDocumentPickerFitRequestCode) {
         return;
     }
 
@@ -9143,6 +9162,7 @@ void homeform::importFitFilesToHistory(const QStringList &files) {
         return;
     }
     if (files.isEmpty()) {
+        setFitImportRunning(false);
         if (m_fitImportQuiet) {
             // automatic import at start: the saved grant found nothing (folder gone), so ask
             m_fitImportQuiet = false;
@@ -9152,6 +9172,7 @@ void homeform::importFitFilesToHistory(const QStringList &files) {
         setToastRequested(tr("No workout files (.fit) found."));
         return;
     }
+    setFitImportRunning(true);
     QMetaObject::invokeMethod(fitProcessor, "importFiles", Qt::QueuedConnection, Q_ARG(QStringList, files));
 }
 

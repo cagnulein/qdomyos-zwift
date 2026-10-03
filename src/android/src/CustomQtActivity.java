@@ -40,6 +40,8 @@ public class CustomQtActivity extends QtActivity {
     private static native void onSystemBarSideInsetsChanged(int left, int right);
     private static native void nativeOnOAuthCallback(String callbackUrl);
     private static native void nativeOnDocumentPicked(int requestCode, int resultCode, String localPath);
+    // a workout import starts copying: the history page shows that it is running
+    private static native void nativeOnFitImportStarted();
 
     private void dispatchOAuthCallback(Intent intent) {
         if (intent == null) {
@@ -421,6 +423,7 @@ public class CustomQtActivity extends QtActivity {
                 Log.d(TAG, "takePersistableUriPermission failed " + e2);
             }
         }
+        nativeOnFitImportStarted();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -590,6 +593,7 @@ public class CustomQtActivity extends QtActivity {
                 Uri uri = data.getData();
                 uriString = uri.toString();
                 if (resultCode == RESULT_OK && requestCode == DOCUMENT_PICKER_FIT_REQUEST_CODE) {
+                    nativeOnFitImportStarted();
                     // a workout must not replace another one that has the same file name
                     localPath = ContentHelper.importContentToAppDirKeepExisting(this, uri, "",
                                                                                 ContentHelper.getFileSize(this, uri),

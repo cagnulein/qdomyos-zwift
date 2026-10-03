@@ -253,10 +253,24 @@ Page {
         BusyIndicator {
             id: loadingIndicator
             Layout.alignment: Qt.AlignHCenter
-            visible: workoutModel ? (workoutModel.isLoading || workoutModel.isDatabaseProcessing) : false
+            visible: (workoutModel ? (workoutModel.isLoading || workoutModel.isDatabaseProcessing) : false) ||
+                     (rootItem && rootItem.fitImportRunning)
             running: visible
         }
-        
+
+        // Workout import message: copying the picked files can take a while
+        Text {
+            Layout.fillWidth: true
+            Layout.leftMargin: window.contentSideMargin
+            Layout.rightMargin: window.contentSideMargin
+            visible: rootItem ? rootItem.fitImportRunning : false
+            text: qsTr("Importing workouts...")
+            wrapMode: Text.WordWrap
+            horizontalAlignment: Text.AlignHCenter
+            color: "#666666"
+            font.pixelSize: 16
+        }
+
         // Database processing message
         Text {
             Layout.fillWidth: true
