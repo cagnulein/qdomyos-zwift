@@ -72,6 +72,19 @@ The gain changes the scale of every grade change, while the offset shifts the wh
 
 This setup was confirmed in a Wahoo KICKR RUN support case where a gain of 0.5 produced the expected incline behavior. The same 0.5 starting value was also used successfully while validating automatic Zwift incline on another supported treadmill.
 
+## Strava does not show the treadmill elevation gain recorded by QZ. What should I change?
+
+If QZ records the incline/elevation correctly but Strava does not display the elevation gain, enable **Strava Virtual Activity** in QZ.
+
+QZ writes treadmill activities differently depending on this setting:
+
+- with **Strava Virtual Activity = ON**, the FIT activity is marked as a **Virtual Activity**;
+- with **Strava Virtual Activity = OFF** and the treadmill tag enabled, the FIT activity is marked as **Treadmill/Indoor**.
+
+Strava can hide the elevation for activities tagged as treadmill/indoor even when the FIT file contains the elevation data. In a confirmed support case, removing the indoor/treadmill classification made the elevation visible in Strava, while keeping the virtual classification still showed it correctly.
+
+So, for treadmill workouts where you want Strava to display QZ's calculated elevation gain, use **Strava Virtual Activity = ON**.
+
 ## My treadmill only changes incline in 1% increments. Why do 0.5% commands not work as expected?
 
 Set **Inclination Step** in QZ's advanced treadmill settings to match the smallest incline increment supported by the treadmill. For a treadmill that only accepts whole-percent changes, set **Inclination Step = 1**.
