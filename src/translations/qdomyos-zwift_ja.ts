@@ -2542,6 +2542,22 @@ Do you want to start it now?</source>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift - フィットネス機器ブリッジ</translation>
     </message>
+    <message>
+        <location filename="../main.qml" line="799"/>
+        <source>Camera Cutout</source>
+        <translation>カメラの切り欠き</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="800"/>
+        <source>In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.
+Do you want to use the full screen width instead?
+
+You can change it later in Settings &gt; General UI Options &gt; Keep Content Clear of the Camera Cutout.</source>
+        <translation>横向きのとき、QZ はカメラ側に余白を空けて、切り欠きで内容が隠れないようにしています。
+代わりに画面の幅をすべて使いますか？
+
+後から 設定 &gt; UI・画面表示設定 &gt; カメラの切り欠きを避けて表示 で変更できます。</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -7006,6 +7022,16 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
         <location filename="../settings.qml" line="15665"/>
         <source>Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.</source>
         <translation>保存されているプロフィールや各種設定を維持したまま　端末内からすべてのQZログ　FITファイル　およびQZ画像を完全に消去します（これらのファイルはセッションごとに保存されています）</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6197"/>
+        <source>Keep Content Clear of the Camera Cutout</source>
+        <translation>カメラの切り欠きを避けて表示</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6212"/>
+        <source>In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.</source>
+        <translation>横向きのとき、カメラ側に余白を空けて、切り欠きで内容が隠れないようにします。オフにすると内容が切り欠きの下まで広がります。既定はオンです。</translation>
     </message>
 </context>
 <context>

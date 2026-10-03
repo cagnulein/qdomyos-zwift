@@ -2543,6 +2543,22 @@ Do you want to start it now?</source>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift - Ponte de Equipamento Fitness</translation>
     </message>
+    <message>
+        <location filename="../main.qml" line="799"/>
+        <source>Camera Cutout</source>
+        <translation>Recorte da câmera</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="800"/>
+        <source>In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.
+Do you want to use the full screen width instead?
+
+You can change it later in Settings &gt; General UI Options &gt; Keep Content Clear of the Camera Cutout.</source>
+        <translation>Na horizontal, o QZ deixa uma margem do lado da câmera para que o recorte não cubra o conteúdo.
+Deseja usar toda a largura da tela?
+
+Você pode alterar isso depois em Configurações &gt; Opções Gerais de UI &gt; Manter o conteúdo longe do recorte da câmera.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6981,6 +6997,16 @@ Padrão: A = -0.96, B = 1.33</translation>
         <location filename="../settings.qml" line="15665"/>
         <source>Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.</source>
         <translation>Limpa todos os logs do QZ, arquivos .fit do QZ e imagens do QZ (estes arquivos são salvos pelo QZ para cada sessão) do seu dispositivo, mantendo seus Perfis e Configurações salvos.</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6197"/>
+        <source>Keep Content Clear of the Camera Cutout</source>
+        <translation>Manter o conteúdo longe do recorte da câmera</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6212"/>
+        <source>In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.</source>
+        <translation>Na horizontal, deixa uma margem do lado da câmera para que o recorte não cubra o conteúdo. Desative para o conteúdo se estender sob o recorte. Padrão é ligado.</translation>
     </message>
 </context>
 <context>

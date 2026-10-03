@@ -1303,8 +1303,9 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 const QString QZSettings::android_landscape_cutout_margin = QStringLiteral("android_landscape_cutout_margin");
+const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral("android_landscape_cutout_prompt_shown");
 
-const uint32_t allSettingsCount = 1011;
+const uint32_t allSettingsCount = 1012;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2342,6 +2343,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::watt_max, QZSettings::default_watt_max},
     {QZSettings::android_landscape_cutout_margin, QZSettings::default_android_landscape_cutout_margin},
     {QZSettings::proform_trainer_8_0_pftl59721_0, QZSettings::default_proform_trainer_8_0_pftl59721_0},
+    {QZSettings::android_landscape_cutout_prompt_shown, QZSettings::default_android_landscape_cutout_prompt_shown},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
