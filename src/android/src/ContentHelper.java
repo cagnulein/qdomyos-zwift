@@ -167,7 +167,9 @@ public class ContentHelper {
             String candidate = attempt == 0 ? fileName : base + "_" + attempt + extension;
             File destinationFile = new File(destinationDir, candidate);
             if (destinationFile.exists()) {
-                if (size >= 0 && destinationFile.length() == size) {
+                // a same-size file counts as this workout only if the app can read it: after a
+                // reinstall the copies made by the previous install are still listed but unreadable
+                if (size >= 0 && destinationFile.length() == size && isReadable(destinationFile)) {
                     return destinationFile.getAbsolutePath();
                 }
                 continue;
@@ -181,6 +183,23 @@ public class ContentHelper {
         }
         QLog.d("ContentHelper", "importContentToAppDirKeepExisting gave up on " + fileName);
         return "";
+    }
+
+    private static boolean isReadable(File file) {
+        java.io.FileInputStream stream = null;
+        try {
+            stream = new java.io.FileInputStream(file);
+            return stream.read() != -1 || file.length() == 0;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            try {
+                if (stream != null) {
+                    stream.close();
+                }
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     private static String sanitizeFileName(String value) {
