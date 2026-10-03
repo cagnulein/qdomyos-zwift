@@ -692,6 +692,9 @@ public:
     // through openAndroidDocumentPicker("fit")), or every .fit file of the QZ folder.
     Q_INVOKABLE void importFitFile(const QUrl &fileUrl);
     Q_INVOKABLE void importFitFolder();
+    // the workout history page was shown: a pending offer to recover the workouts of a
+    // previous install is made there (historyRecoveryOfferRequested)
+    Q_INVOKABLE void historyPageOpened();
     Q_INVOKABLE bool deleteTrainingProgramFile(const QString &fileUrl);
 
     double wattMaxChart() {
@@ -1059,9 +1062,12 @@ public:
     // picker only when allowPicker is set, and returns false otherwise
     bool startFitFolderImport(bool allowPicker);
     void offerHistoryRecovery();
+    void maybeOfferHistoryRecovery();
     QString m_historyDatabasePath;
     bool m_historyDatabaseIsNew = false;
     bool m_historyRecoveryChecked = false;
+    bool m_historyRecoveryPending = false;
+    bool m_historyPageOpened = false;
     // automatic import after a new database: no toast when nothing new was found
     bool m_fitImportQuiet = false;
     WorkoutModel *workoutModel = nullptr;

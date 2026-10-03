@@ -19,6 +19,9 @@ Page {
     // Signal for chart preview
     signal fitfile_preview_clicked(var url)
 
+    // a pending offer to recover the workouts of a previous install is made here
+    Component.onCompleted: rootItem.historyPageOpened()
+
     // Helper function to wrap text with emoji font only on Android
     function wrapEmoji(emoji) {
         return Qt.platform.os === "android" ? 

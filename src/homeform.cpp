@@ -1124,9 +1124,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 workoutModel->refresh();
                 if (!m_historyRecoveryChecked) {
                     m_historyRecoveryChecked = true;
-                    if (m_historyDatabaseIsNew) {
-                        offerHistoryRecovery();
-                    }
+                    // asked on the history page, where the missing workouts are noticed
+                    m_historyRecoveryPending = m_historyDatabaseIsNew;
+                    maybeOfferHistoryRecovery();
                 }
             });
     connect(fitProcessor, &FitDatabaseProcessor::importFinished,
@@ -9075,6 +9075,20 @@ bool homeform::startFitFolderImport(bool allowPicker) {
 // (Android 14+ after a reinstall), so its workouts are there too, hidden from the app. With a
 // saved folder grant they are imported right away; without one, the user is asked once. A
 // first install, or a database removed by hand, starts on ddb.sqlite and is not asked.
+void homeform::historyPageOpened() {
+    m_historyPageOpened = true;
+    maybeOfferHistoryRecovery();
+}
+
+// the offer waits for both the end of the start-up processing and the history page
+void homeform::maybeOfferHistoryRecovery() {
+    if (!m_historyRecoveryPending || !m_historyPageOpened) {
+        return;
+    }
+    m_historyRecoveryPending = false;
+    offerHistoryRecovery();
+}
+
 void homeform::offerHistoryRecovery() {
 #ifdef Q_OS_ANDROID
     if (m_historyDatabasePath == getWritableAppDir() + QStringLiteral("ddb.sqlite")) {
