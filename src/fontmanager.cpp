@@ -2,7 +2,8 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-const QString FontManager::EMOJI_FONT_URL = "https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf";
+// a release tag, not main: on main the file moved to 2D/fonts/ on 17.09.2026 and the old path answers 404
+const QString FontManager::EMOJI_FONT_URL = "https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.051/fonts/NotoColorEmoji.ttf";
 const QString FontManager::EMOJI_FONT_FILENAME = "NotoColorEmoji.ttf";
 
 FontManager::FontManager(QObject *parent)
