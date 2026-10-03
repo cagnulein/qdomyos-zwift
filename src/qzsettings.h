@@ -1007,6 +1007,12 @@ class QZSettings {
     static const QString cadence_sensor_speed_ratio;
     static constexpr float default_cadence_sensor_speed_ratio = 0.33;
 
+    static const QString speed_sensor_name;
+    static const QString default_speed_sensor_name;
+
+    static const QString speed_sensor_as_bike;
+    static constexpr bool default_speed_sensor_as_bike = false;
+
     static const QString cscbike_custom_resistance_power_table;
     static constexpr bool default_cscbike_custom_resistance_power_table = false;
 

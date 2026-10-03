@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1007,
+  "settingCount": 1009,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -15931,6 +15931,37 @@
       "options": null,
       "virtualParent": "nordictrack_treadmill_model",
       "restartRequired": true
+    },
+    {
+      "key": "speed_sensor_name",
+      "name": "Speed Sensor",
+      "description": "Select the Bluetooth CSC speed sensor mounted on the wheel. Default is Disabled.",
+      "parent": "Speed Sensor Options",
+      "type": "string",
+      "qmlType": "string",
+      "control": "select",
+      "visible": true,
+      "defaultValue": "Disabled",
+      "defaultExpression": "\"Disabled\"",
+      "options": {
+        "source": "expression",
+        "expression": "rootItem.bluetoothDevices"
+      },
+      "restartRequired": true
+    },
+    {
+      "key": "speed_sensor_as_bike",
+      "name": "Speed Sensor as a Bike",
+      "description": "Use wheel speed as the primary bike speed and estimate watts from it. A separate cadence sensor can remain connected as an accessory. Default is off.",
+      "parent": "Speed Sensor Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": true
     }
   ],
   "legacyHierarchy": {
@@ -16343,6 +16374,13 @@
         "sourceLine": 14293
       },
       {
+        "key": "speedSensorOptionsAccordion",
+        "name": "Speed Sensor Options",
+        "parent": "accesoriesAccordion",
+        "depth": 1,
+        "sourceLine": 14006
+      },
+      {
         "key": "powerSensorOptionsAccordion",
         "name": "Power Sensor Options",
         "parent": "accesoriesAccordion",
@@ -16522,6 +16560,8 @@
       "cadence_sensor_as_treadmill": "cadenceSensorOptionsAccordion",
       "cadence_sensor_name": "cadenceSensorOptionsAccordion",
       "cadence_sensor_speed_ratio": "cadenceSensorOptionsAccordion",
+      "speed_sensor_as_bike": "speedSensorOptionsAccordion",
+      "speed_sensor_name": "speedSensorOptionsAccordion",
       "calories_active_only": "heartRateOptionsAccordion",
       "calories_from_hr": "heartRateOptionsAccordion",
       "chart_display_mode": "uiGeneralOptionsAccordion",
@@ -17089,6 +17129,8 @@
       "cadence_sensor_as_treadmill": "settings.qml",
       "cadence_sensor_name": "settings.qml",
       "cadence_sensor_speed_ratio": "settings.qml",
+      "speed_sensor_as_bike": "settings.qml",
+      "speed_sensor_name": "settings.qml",
       "calories_active_only": "settings.qml",
       "calories_from_hr": "settings.qml",
       "chart_display_mode": "settings.qml",
@@ -18093,6 +18135,8 @@
       "cadence_sensor_as_treadmill": 14330,
       "cadence_sensor_name": 14378,
       "cadence_sensor_speed_ratio": 14425,
+      "speed_sensor_as_bike": 14017,
+      "speed_sensor_name": 14058,
       "calories_active_only": 3490,
       "calories_from_hr": 3518,
       "chart_display_mode": 7121,

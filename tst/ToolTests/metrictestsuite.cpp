@@ -5,6 +5,7 @@
 
 #include "metric.h"
 #include "qzsettings.h"
+#include "devices/cscbike/cscbike.h"
 
 class MetricMaxWattTest : public testing::Test {
 protected:
@@ -67,4 +68,58 @@ TEST_F(MetricMaxWattTest, ZeroMaxWattDisablesCap) {
 TEST(MetricMaxWattHelperTest, NonPositiveMaxWattLeavesValueUnchanged) {
     EXPECT_DOUBLE_EQ(metric::capWatt(2000.0, 0.0), 2000.0);
     EXPECT_DOUBLE_EQ(metric::capWatt(2000.0, -1.0), 2000.0);
+}
+
+TEST(CscBikeWheelSpeedTest, ConvertsWheelRevolutionsToKilometresPerHour) {
+    EXPECT_NEAR(cscbike::speedFromWheelRevolutions(100, 101, 1000, 2024, 2070.0), 7.452, 0.000001);
+}
+
+TEST(CscBikeWheelSpeedTest, HandlesWheelAndEventTimeCounterWraparound) {
+    const double wrapped = cscbike::speedFromWheelRevolutions(0xffffffffu, 1u, 65530u, 10u, 2070.0);
+    const double nonWrapped = cscbike::speedFromWheelRevolutions(0u, 2u, 0u, 16u, 2070.0);
+
+    EXPECT_DOUBLE_EQ(wrapped, nonWrapped);
+}
+
+TEST(CscBikeWheelSpeedTest, ZeroEventTimeOrCircumferenceProducesZeroSpeed) {
+    EXPECT_DOUBLE_EQ(cscbike::speedFromWheelRevolutions(10, 11, 100, 100, 2070.0), 0.0);
+    EXPECT_DOUBLE_EQ(cscbike::speedFromWheelRevolutions(10, 11, 100, 200, 0.0), 0.0);
+}
+
+class CscBikeSpeedPowerTest : public testing::Test {
+protected:
+    void SetUp() override {
+        originalOrganization = QCoreApplication::organizationName();
+        originalApplication = QCoreApplication::applicationName();
+        QCoreApplication::setOrganizationName(QStringLiteral("QDomyosZwiftMetricTests"));
+        QCoreApplication::setApplicationName(QStringLiteral("CscBikeSpeedPower"));
+
+        QSettings settings;
+        settings.clear();
+        settings.setValue(QZSettings::weight, 75.0);
+        settings.setValue(QZSettings::bike_weight, 10.0);
+        settings.setValue(QZSettings::rolling_resistance, 0.005);
+        settings.sync();
+    }
+
+    void TearDown() override {
+        QSettings settings;
+        settings.clear();
+        settings.sync();
+        QCoreApplication::setOrganizationName(originalOrganization);
+        QCoreApplication::setApplicationName(originalApplication);
+    }
+
+    QString originalOrganization;
+    QString originalApplication;
+};
+
+TEST_F(CscBikeSpeedPowerTest, EstimatedPowerIsZeroWhenStoppedAndIncreasesWithSpeed) {
+    const double stoppedPower = metric::calculatePowerFromSpeed(0.0, 0.0);
+    const double tenKphPower = metric::calculatePowerFromSpeed(10.0, 0.0);
+    const double twentyKphPower = metric::calculatePowerFromSpeed(20.0, 0.0);
+
+    EXPECT_DOUBLE_EQ(stoppedPower, 0.0);
+    EXPECT_GT(tenKphPower, stoppedPower);
+    EXPECT_GT(twentyKphPower, tenKphPower);
 }

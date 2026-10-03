@@ -17,16 +17,33 @@
 
 using namespace std::chrono_literals;
 
-cscbike::cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
+cscbike::cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, SensorMode sensorMode) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     this->noVirtualDevice = noVirtualDevice;
+    this->sensorMode = sensorMode;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &cscbike::update);
     refresh->start(200ms);
+}
+
+double cscbike::speedFromWheelRevolutions(uint32_t previousRevolutions, uint32_t currentRevolutions,
+                                          uint16_t previousEventTime, uint16_t currentEventTime,
+                                          double circumferenceMillimetres) {
+    const uint32_t revolutionDelta = currentRevolutions - previousRevolutions;
+    const uint16_t eventTimeDelta = currentEventTime - previousEventTime;
+    if (eventTimeDelta == 0 || circumferenceMillimetres <= 0.0) {
+        return 0.0;
+    }
+
+    // CSC event time is expressed in 1/1024 second ticks. Convert millimetres
+    // per tick to kilometres per hour; unsigned subtraction handles counter
+    // wraparound for both the 32-bit wheel count and 16-bit event time.
+    return (static_cast<double>(revolutionDelta) * circumferenceMillimetres * 3.6864) /
+           static_cast<double>(eventTimeDelta);
 }
 
 void cscbike::enableManualResistancePowerAdjustment(resistance_t resistance) {
@@ -185,7 +202,11 @@ void cscbike::update() {
 
     bool rogue_echo_bike = settings.value(QZSettings::rogue_echo_bike, QZSettings::default_rogue_echo_bike).toBool();
     
-    if (manualResistancePowerAdjustmentActive && jorotoBike) {
+    if (isSpeedSensorBike()) {
+        const double estimatedWatts =
+            Speed.value() > 0.0 ? qMax(0.0, metric::calculatePowerFromSpeed(Speed.value(), Inclination.value())) : 0.0;
+        m_watt = estimatedWatts;
+    } else if (manualResistancePowerAdjustmentActive && jorotoBike) {
         m_watt = manualResistanceAdjustedWatts();
     } else if (manualResistancePowerAdjustmentActive && useCustomResistancePowerTable()) {
         m_watt = customResistanceAdjustedWatts(currentCadence().value(), manualResistanceTarget);
@@ -215,9 +236,12 @@ void cscbike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        bool cadence_sensor_as_bike =
-            settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
-        update_metrics(false, watts(), !cadence_sensor_as_bike);
+        const bool fromAccessory = sensorMode == SensorMode::CadenceAccessory ||
+                                    (sensorMode == SensorMode::DefaultBike &&
+                                     !settings.value(QZSettings::cadence_sensor_as_bike,
+                                                     QZSettings::default_cadence_sensor_as_bike)
+                                          .toBool());
+        update_metrics(false, watts(), fromAccessory);
 
         if(lastGoodCadence.secsTo(QDateTime::currentDateTime()) > 5 && !charNotified) {
             readMethod = true;
@@ -364,73 +388,87 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         emit debug(QStringLiteral("Current Crank Event Time: ") + QString::number(_LastCrankEventTime));
     }
 
-    // CSC Combo Sensor Fallback Logic
-    //
-    // Some combo sensors (e.g., Giant Combo) advertise both speed and cadence capabilities
-    // by setting CrankPresent=true in the CSC flags byte, but only transmit valid wheel data
-    // while sending crank data as zeros. This happens when:
-    // 1. The sensor supports dual mode (speed+cadence) but only speed sensor is mounted
-    // 2. The cadence sensor is not activated/calibrated
-    // 3. Firmware always sets CrankPresent flag regardless of actual crank sensor status
-    //
-    // In these cases, we use wheel revolutions as a fallback to calculate cadence.
-    // This works when the wheel circumference is set to a small value (e.g., 20cm for
-    // indoor trainers), which effectively converts wheel RPM to a cadence-like metric.
-    //
-    // Note: When using wheel revs as cadence, the calculated RPM can exceed 256 (the
-    // typical limit for real crank cadence). For example, with 20cm wheel circumference
-    // at 12.5 km/h, wheel RPM ≈ 1000. The validation logic below accounts for this.
-    if ((!CrankPresent || _CrankRevs == 0) && WheelPresent) {
-        CrankRevs = _WheelRevs;
-        LastCrankEventTime = _LastWheelEventTime;
+    if (isSpeedSensorBike()) {
+        if (WheelPresent) {
+            const double circumference =
+                settings.value(QZSettings::gear_circumference, QZSettings::default_gear_circumference).toDouble();
+            if (hasWheelSample) {
+                Speed = speedFromWheelRevolutions(oldWheelRevs, static_cast<uint32_t>(_WheelRevs),
+                                                  oldLastWheelEventTime, _LastWheelEventTime, circumference);
+            } else {
+                Speed = 0;
+            }
+            oldWheelRevs = static_cast<uint32_t>(_WheelRevs);
+            oldLastWheelEventTime = _LastWheelEventTime;
+            hasWheelSample = true;
+            lastGoodWheel = now;
+        } else if (lastGoodWheel.msecsTo(now) > 2000) {
+            Speed = 0;
+        }
+
+        if (CrankPresent) {
+            CrankRevs = _CrankRevs;
+            LastCrankEventTime = _LastCrankEventTime;
+            const uint16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
+            if (CrankRevs != oldCrankRevs && deltaT) {
+                const double cadence = ((CrankRevs - oldCrankRevs) / static_cast<double>(deltaT)) * 1024 * 60;
+                if (cadence >= 0 && cadence < 256)
+                    Cadence = cadence;
+                lastGoodCadence = now;
+            } else if (lastGoodCadence.msecsTo(now) > 2000) {
+                Cadence = 0;
+            }
+            oldLastCrankEventTime = LastCrankEventTime;
+            oldCrankRevs = CrankRevs;
+        } else {
+            Cadence = 0;
+        }
+        emit cadenceChanged(Cadence.value());
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
     } else {
-        CrankRevs = _CrankRevs;
-        LastCrankEventTime = _LastCrankEventTime;
-    }
-
-    int32_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
-    if (deltaT < 0) {
-        deltaT = LastCrankEventTime + 65536 - oldLastCrankEventTime;
-    }
-
-    if (CrankRevs != oldCrankRevs && deltaT) {
-        double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
-
-        // Cadence Validation Logic
+        // CSC Combo Sensor Fallback Logic
         //
-        // Normal cadence validation applies a 256 RPM limit for real crank sensors (no human
-        // can pedal faster than 256 RPM). However, when using wheel revs as fallback
-        // (_CrankRevs == 0), we bypass this limit because:
-        // - Wheel RPM with small circumferences (e.g., 20cm) can legitimately exceed 256
-        // - Example: 12.5 km/h with 20cm circumference = ~1042 wheel RPM
-        // - This high RPM represents wheel rotation rate, not actual pedaling cadence
-        //
-        // The condition breakdown:
-        // Part 1: (cadence >= 0 && (cadence < 256 || _CrankRevs == 0) && CrankPresent)
-        //         - For real crank data: applies 256 RPM limit
-        //         - For wheel fallback: no limit when _CrankRevs == 0
-        // Part 2: (!CrankPresent && WheelPresent)
-        //         - Pure speed sensors with no crank capability
-        if ((cadence >= 0 && (cadence < 256 || _CrankRevs == 0) && CrankPresent) || (!CrankPresent && WheelPresent))
-            Cadence = cadence;
-        lastGoodCadence = now;
-    } else if (lastGoodCadence.msecsTo(now) > 2000) {
-        Cadence = 0;
-    }
-    emit cadenceChanged(Cadence.value());
-    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        // Some combo sensors advertise both speed and cadence capabilities but
+        // only transmit valid wheel data. Preserve the existing wheel-to-cadence
+        // fallback for the legacy cadence-sensor path.
+        if ((!CrankPresent || _CrankRevs == 0) && WheelPresent) {
+            CrankRevs = _WheelRevs;
+            LastCrankEventTime = _LastWheelEventTime;
+        } else {
+            CrankRevs = _CrankRevs;
+            LastCrankEventTime = _LastCrankEventTime;
+        }
 
-    oldLastCrankEventTime = LastCrankEventTime;
-    oldCrankRevs = CrankRevs;
+        int32_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
+        if (deltaT < 0) {
+            deltaT = LastCrankEventTime + 65536 - oldLastCrankEventTime;
+        }
 
-    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        Speed = Cadence.value() *
-                settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
-                    .toDouble();
-    } else {
-        Speed = metric::calculateSpeedFromPower(
-            watts(), Inclination.value(), Speed.value(),
-            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        if (CrankRevs != oldCrankRevs && deltaT) {
+            double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
+            if ((cadence >= 0 && (cadence < 256 || _CrankRevs == 0) && CrankPresent) ||
+                (!CrankPresent && WheelPresent))
+                Cadence = cadence;
+            lastGoodCadence = now;
+        } else if (lastGoodCadence.msecsTo(now) > 2000) {
+            Cadence = 0;
+        }
+        emit cadenceChanged(Cadence.value());
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+
+        oldLastCrankEventTime = LastCrankEventTime;
+        oldCrankRevs = CrankRevs;
+
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            Speed = Cadence.value() *
+                    settings.value(QZSettings::cadence_sensor_speed_ratio,
+                                   QZSettings::default_cadence_sensor_speed_ratio)
+                        .toDouble();
+        } else {
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        }
     }
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
