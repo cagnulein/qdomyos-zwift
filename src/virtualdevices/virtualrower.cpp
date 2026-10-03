@@ -41,6 +41,14 @@ static const QBluetoothUuid PM5_STROKE_DATA_UUID(QStringLiteral("CE060035-43E5-1
 static const QBluetoothUuid PM5_ADDITIONAL_STROKE_DATA_UUID(QStringLiteral("CE060036-43E5-11E4-916C-0800200C9A66"));
 static const QBluetoothUuid PM5_MULTIPLEXED_INFO_UUID(QStringLiteral("CE060080-43E5-11E4-916C-0800200C9A66"));
 
+// SmartRow pulley (custom service, same layout as the real pulley: 0x1235 then 0x1236)
+static const QBluetoothUuid SMARTROW_SERVICE_UUID((quint16)0x1234);
+static const QBluetoothUuid SMARTROW_WRITE_UUID((quint16)0x1235);  // write without response
+static const QBluetoothUuid SMARTROW_NOTIFY_UUID((quint16)0x1236); // read + notify, 17-byte ASCII records
+// The pulley advertises its ID as manufacturer data under this "company id" (e.g. "34"); the
+// SmartRow app shows it as "SmartRow-34" and remembers the pulley by it.
+static const quint16 SMARTROW_MANUFACTURER_ID = 0x1235;
+
 // PM5 Workout states
 enum PM5WorkoutState {
     PM5_WORKOUT_WAITING = 0,
@@ -91,6 +99,13 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
     pm5Mode = settings.value(QZSettings::virtual_device_rower_pm5, QZSettings::default_virtual_device_rower_pm5).toBool();
     qDebug() << "virtualrower PM5 mode:" << pm5Mode;
 
+    // SmartRow pass-through only makes sense when the real device is a SmartRow pulley:
+    // the data is relayed, not synthesised (see smartrowrower::characteristicChanged).
+    smartRowMode = !pm5Mode && !heart_only &&
+                   settings.value(QZSettings::virtual_device_rower_smartrow,
+                                  QZSettings::default_virtual_device_rower_smartrow).toBool();
+    qDebug() << "virtualrower SmartRow pass-through mode:" << smartRowMode;
+
     Q_UNUSED(noWriteResistance)
 
 #ifdef Q_OS_IOS
@@ -114,9 +129,19 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
     {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
-        advertisingData.setIncludePowerLevel(true);
+        // 31 bytes is all we have: in SmartRow mode the name, three 16-bit UUIDs and the
+        // pulley ID (manufacturer data) take the room of the TX power level and 0xFF00.
+        advertisingData.setIncludePowerLevel(!smartRowMode);
 
-        if (pm5Mode) {
+        if (smartRowMode) {
+            // The SmartRow app looks for this name plus the 0x1234 service
+            advertisingData.setLocalName(QStringLiteral("SmartRow"));
+            const QByteArray pulleyId = Rower->bluetoothDevice.manufacturerData(SMARTROW_MANUFACTURER_ID);
+            if (!pulleyId.isEmpty()) {
+                advertisingData.setManufacturerData(SMARTROW_MANUFACTURER_ID, pulleyId);
+            }
+            qDebug() << "Advertising as SmartRow pulley, id" << pulleyId;
+        } else if (pm5Mode) {
             // PM5 device name format: "PM5 XXXXXX" where XXXXXX is serial number
             advertisingData.setLocalName(QStringLiteral("PM5 430000000"));
             qDebug() << "Advertising as PM5 Concept2 rower";
@@ -140,7 +165,9 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             services << QBluetoothUuid::HeartRate;
         }
 
-        if (!pm5Mode) {
+        if (smartRowMode) {
+            services << SMARTROW_SERVICE_UUID;
+        } else if (!pm5Mode) {
             services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
         }
 
@@ -230,6 +257,10 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
                 serviceDataFIT.addCharacteristic(charDataFIT4);
                 serviceDataFIT.addCharacteristic(charDataFIT5);
                 serviceDataFIT.addCharacteristic(charDataFIT6);
+
+                if (smartRowMode) {
+                    setupSmartRowService();
+                }
             }
         }
 
@@ -251,6 +282,10 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         //! [Start Advertising]
         leController = QLowEnergyController::createPeripheral();
         Q_ASSERT(leController);
+        if (smartRowMode) {
+            QObject::connect(leController, &QLowEnergyController::disconnected, this,
+                             [this]() { setSmartRowClientAttached(false); });
+        }
 
         if (pm5Mode) {
             // Add PM5 services in correct order
@@ -271,6 +306,9 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         } else {
             serviceFIT = leController->addService(serviceDataFIT);
             QThread::msleep(100); // give time to Android to add the service async.ly
+            if (smartRowMode) {
+                addSmartRowService();
+            }
         }
 
         if (!this->noHeartService || heart_only) {
@@ -447,6 +485,11 @@ void virtualrower::reconnect() {
     } else {
         serviceFIT = leController->addService(serviceDataFIT);
         QThread::msleep(100); // give time to Android to add the service async.ly
+        if (smartRowMode) {
+            // the app is gone: QZ takes the pulley dialogue back until it subscribes again
+            setSmartRowClientAttached(false);
+            addSmartRowService();
+        }
     }
 
     if (!this->noHeartService || heart_only)
@@ -466,6 +509,85 @@ void virtualrower::reconnect() {
     leController->startAdvertising(pars, advertisingData, advertisingData);
 #endif
 
+}
+
+void virtualrower::setupSmartRowService() {
+    qDebug() << "Setting up SmartRow pass-through service";
+
+    serviceDataSmartRow.setType(QLowEnergyServiceData::ServiceTypePrimary);
+    serviceDataSmartRow.setUuid(SMARTROW_SERVICE_UUID);
+
+    // 0x1235: commands from the app ("$\rV@\r" init, '$' poll, '#', KEYLOCK answer...)
+    QLowEnergyCharacteristicData charWrite;
+    charWrite.setUuid(SMARTROW_WRITE_UUID);
+    charWrite.setProperties(QLowEnergyCharacteristic::WriteNoResponse);
+    charWrite.setValueLength(0, 20);
+
+    // 0x1236: the pulley's records, relayed byte for byte
+    QLowEnergyCharacteristicData charNotify;
+    charNotify.setUuid(SMARTROW_NOTIFY_UUID);
+    charNotify.setProperties(QLowEnergyCharacteristic::Read | QLowEnergyCharacteristic::Notify);
+    charNotify.setValueLength(0, 20);
+    const QLowEnergyDescriptorData clientConfig(QBluetoothUuid::ClientCharacteristicConfiguration, QByteArray(2, 0));
+    charNotify.addDescriptor(clientConfig);
+
+    serviceDataSmartRow.addCharacteristic(charWrite);
+    serviceDataSmartRow.addCharacteristic(charNotify);
+}
+
+void virtualrower::addSmartRowService() {
+    serviceSmartRow = leController->addService(serviceDataSmartRow);
+    QThread::msleep(100); // give time to Android to add the service async.ly
+    if (!serviceSmartRow) {
+        qDebug() << "SmartRow pass-through service could not be added";
+        return;
+    }
+    QObject::connect(serviceSmartRow, &QLowEnergyService::characteristicChanged, this,
+                     &virtualrower::smartRowCharacteristicChanged);
+    QObject::connect(serviceSmartRow, &QLowEnergyService::descriptorWritten, this,
+                     &virtualrower::smartRowDescriptorWritten);
+}
+
+void virtualrower::setSmartRowClientAttached(bool attached) {
+    if (smartRowClientAttached == attached) {
+        return;
+    }
+    smartRowClientAttached = attached;
+    qDebug() << "SmartRow app attached to the virtual pulley:" << attached;
+    emit smartRowClientAttachedChanged(attached);
+}
+
+// the app wrote a command: hand it to the real pulley untouched
+void virtualrower::smartRowCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                                 const QByteArray &newValue) {
+    if (characteristic.uuid() != SMARTROW_WRITE_UUID) {
+        return;
+    }
+    qDebug() << "SmartRow app >> " + newValue.toHex(' ');
+    // a client that writes here is the SmartRow app even if its CCCD write was missed
+    setSmartRowClientAttached(true);
+    emit smartRowWrite(newValue);
+}
+
+// the app (un)subscribed to the notifications
+void virtualrower::smartRowDescriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+    if (descriptor.type() != QBluetoothUuid::ClientCharacteristicConfiguration) {
+        return;
+    }
+    setSmartRowClientAttached(!newValue.isEmpty() && (newValue.at(0) & 0x01));
+}
+
+// raw record from the pulley: relay it unchanged (Qt notifies only if the CCCD is enabled)
+void virtualrower::smartRowRawData(const QByteArray &data) {
+    if (!smartRowMode || !serviceSmartRow || !leController ||
+        leController->state() != QLowEnergyController::ConnectedState) {
+        return;
+    }
+    QLowEnergyCharacteristic characteristic = serviceSmartRow->characteristic(SMARTROW_NOTIFY_UUID);
+    if (!characteristic.isValid()) {
+        return;
+    }
+    serviceSmartRow->writeCharacteristic(characteristic, data);
 }
 
 void virtualrower::rowerProvider() {

@@ -123,17 +123,19 @@ void smartrowrower::update() {
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotify1Characteristic.isValid() && initDone) {
-        if (!pendingSmartRowWrite.isEmpty()) {
+        if (!smartRowAppAttached && !pendingSmartRowWrite.isEmpty()) {
             sendNextSmartRowWrite();
             return;
         }
 
         update_metrics(false, watts());
 
-        // sending poll every 2 seconds
+        // sending poll every 2 seconds (the SmartRow app polls by itself when attached)
         if (sec1Update++ >= (2000 / refresh->interval())) {
             sec1Update = 0;
-            sendPoll();
+            if (!smartRowAppAttached) {
+                sendPoll();
+            }
             // updateDisplay(elapsed);
         }
 
@@ -209,15 +211,21 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     qDebug() << " << " + newValue.toHex(' ');
 
+    // virtual pulley: relay the untouched bytes first, parsing below works on its own copy
+    emit smartRowRawData(newValue);
+
     if (newValue.contains("V3.")) {
         smartRowV3 = true;
-        if (!smartRowV3ChallengeRequested) {
+        if (!smartRowV3ChallengeRequested && !smartRowAppAttached) {
             smartRowV3ChallengeRequested = true;
             queueSmartRowWrite(QByteArray(1, (char)0x23));
         }
     } else if (newValue.contains("KEYLOCK")) {
         smartRowV3 = true;
-        queueSmartRowWrite(calculateSmartRowV3ChallengeResponse(newValue));
+        // the app answers its own challenge; a second answer from QZ would break the handshake
+        if (!smartRowAppAttached) {
+            queueSmartRowWrite(calculateSmartRowV3ChallengeResponse(newValue));
+        }
     }
 
     if (newValue.length() != 17)
@@ -341,6 +349,36 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     if (m_control->error() != QLowEnergyController::NoError)
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+}
+
+// The SmartRow app wrote to the virtual pulley: pass the bytes on exactly as received,
+// in one write (not through the one-byte-per-tick queue QZ uses for its own commands).
+void smartrowrower::virtualSmartRowWrite(const QByteArray &data) {
+    if (!gattCommunicationChannelService || !gattWriteCharacteristic.isValid() || !m_control ||
+        m_control->state() != QLowEnergyController::DiscoveredState) {
+        qDebug() << QStringLiteral("virtualSmartRowWrite dropped, pulley not ready");
+        return;
+    }
+    qDebug() << QStringLiteral(" >> ") + data.toHex(' ') + QStringLiteral(" // from SmartRow app");
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, data,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, data);
+    }
+}
+
+void smartrowrower::virtualSmartRowClientAttached(bool attached) {
+    qDebug() << QStringLiteral("SmartRow app attached to virtual pulley:") << attached;
+    smartRowAppAttached = attached;
+    if (attached) {
+        // hand the dialogue over: drop anything QZ still wanted to send
+        pendingSmartRowWrite.clear();
+    } else {
+        // the app left: QZ initialises and polls the pulley again
+        smartRowV3ChallengeRequested = false;
+        initRequest = true;
+    }
 }
 
 QByteArray smartrowrower::calculateSmartRowV3ChallengeResponse(const QByteArray &keylock) const {
@@ -501,6 +539,11 @@ void smartrowrower::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
                     auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
                     // connect(virtualRower,&virtualrower::debug ,this,&smartrowrower::debug);
+                    // SmartRow pass-through (no-ops unless virtual_device_rower_smartrow is enabled)
+                    connect(this, &smartrowrower::smartRowRawData, virtualRower, &virtualrower::smartRowRawData);
+                    connect(virtualRower, &virtualrower::smartRowWrite, this, &smartrowrower::virtualSmartRowWrite);
+                    connect(virtualRower, &virtualrower::smartRowClientAttachedChanged, this,
+                            &smartrowrower::virtualSmartRowClientAttached);
                     this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
                 }
             }
