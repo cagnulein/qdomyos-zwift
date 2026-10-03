@@ -38,6 +38,9 @@ import java.util.UUID;
 
 public class BleAdvertiser {
     private static final UUID SERVICE_UUID = UUID.fromString("00001826-0000-1000-8000-00805f9b34fb");
+    private static final UUID IFIT_SERVICE_UUID = UUID.fromString("00001533-1412-efde-1523-785feabcd123");
+    private static final String IFIT_DEVICE_NAME = "I_EB";
+    private static final int IFIT_MANUFACTURER_ID = 0x01A5;
     private static final UUID ECHELON_SERVICE_UUID = UUID.fromString("0bf669f0-45f2-11e7-9598-0800200c9a66");
     private static final String ECHELON_DEVICE_NAME = "ECHEX-5s-160880";
     // PM5 Concept2 UUIDs
@@ -45,6 +48,9 @@ public class BleAdvertiser {
     private static final UUID PM5_ROWING_SERVICE_UUID = UUID.fromString("CE060030-43E5-11E4-916C-0800200C9A66");
     private static final byte[] SERVICE_DATA_ROWER = {0x01, 0x10, 0x00};
     private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
+    private static final byte[] IFIT_MANUFACTURER_DATA = new byte[] {
+            0x02, (byte) 0xcc, 0x3c, (byte) 0x82, 0x00, 0x07, (byte) 0xdd, (byte) 0x1e, (byte) 0xdd
+    };
     private static final byte[] SERVICE_DATA_BIKE = {0x01, 0x20, 0x00};
     private static final UUID TACX_ZWIFT_SERVICE_UUID = UUID.fromString("0000fc82-0000-1000-8000-00805f9b34fb");
     private static final UUID TACX_CYCLING_POWER_UUID = UUID.fromString("00001818-0000-1000-8000-00805f9b34fb");
@@ -192,6 +198,46 @@ public class BleAdvertiser {
         }
     }
 
+    public static void startAdvertisingIfit(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            android.bluetooth.BluetoothAdapter adapter = bluetoothManager.getAdapter();
+            if (adapter == null) {
+                QLog.e("BleAdvertiser", "Unable to start iFIT advertising: Bluetooth adapter is null");
+                return;
+            }
+
+            if (!IFIT_DEVICE_NAME.equals(adapter.getName())) {
+                boolean renamed = adapter.setName(IFIT_DEVICE_NAME);
+                QLog.d("BleAdvertiser", "Setting iFIT adapter name to " + IFIT_DEVICE_NAME + ": " + renamed);
+            }
+
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = adapter.getBluetoothLeAdvertiser();
+            if (advertiser == null) {
+                QLog.e("BleAdvertiser", "Unable to start iFIT advertising: BluetoothLeAdvertiser is null");
+                return;
+            }
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .addManufacturerData(IFIT_MANUFACTURER_ID, IFIT_MANUFACTURER_DATA)
+                    .build();
+
+            AdvertiseData scanResponse = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .addServiceUuid(new ParcelUuid(IFIT_SERVICE_UUID))
+                    .build();
+
+            QLog.d("BleAdvertiser", "Starting iFIT advertising with manufacturer data " + IFIT_MANUFACTURER_ID);
+            advertiser.startAdvertising(settings, advertiseData, scanResponse, advertiseCallback);
+        }
+    }
+
     public static void startAdvertisingBike(Context context) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager != null) {
@@ -249,7 +295,6 @@ public class BleAdvertiser {
         QLog.d("BleAdvertiser", "Starting Tacx Neo 2T advertising");
         advertiser.startAdvertising(settings, advertiseData, scanResponse, advertiseCallback);
     }
-
     private static AdvertiseCallback advertiseCallback = new AdvertiseCallback() {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
