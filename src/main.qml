@@ -369,30 +369,65 @@ ApplicationWindow {
         }
     }*/
 
-    Keys.onBackPressed: {
-        if(OS_VERSION === "Android") {
-            toast.show("Pressed it quickly to close the app!")
-            timer.pressBack();
+    // Shared by the toolbar "◄" button and the Android back button.
+    // stepInsidePage: pages with their own inner navigation (Wizard, training programs
+    // list) first go back one step there, via their handleBack().
+    // Returns false when there is nothing to go back to (home page).
+    function navigateBack(stepInsidePage) {
+        if (stepInsidePage && stackView.currentItem && typeof stackView.currentItem.handleBack === "function" &&
+                stackView.currentItem.handleBack()) {
+            return true
         }
-    }
-    Timer{
-        id: timer
+        if (stackView.depth <= 1) {
+            return false
+        }
 
-        property bool backPressed: false
-        repeat: false
-        interval: 200//ms
-        onTriggered: backPressed = false
-        function pressBack(){
-            if(backPressed){
-                timer.stop()
-                backPressed = false
-                Qt.callLater(Qt.quit)
-            }
-            else{
-                backPressed = true
-                timer.start()
-            }
+        var remindToSaveProfile = headerToolbar.settingsPageActive &&
+                stackView.currentItem &&
+                typeof stackView.currentItem.profileSaveReminderNeeded === "function" &&
+                stackView.currentItem.profileSaveReminderNeeded()
+        var activeProfileName = settings.profile_name
+
+        if(window.settings_restart_to_apply === true) {
+            window.settings_restart_to_apply = false;
+            popupRestartApp.visible = true;
         }
+
+        stackView.pop()
+        toolButtonLoadSettings.visible = false;
+        toolButtonSaveSettings.visible = false;
+        rootItem.sortTiles()
+        if (remindToSaveProfile) {
+            toast.show(qsTr("Remember to save profile \"%1\" if you want to keep these changes in this profile.").arg(activeProfileName))
+        }
+        return true
+    }
+
+    // On Android an unhandled back key closes the window, which quits the app.
+    // (Keys.onBackPressed cannot be attached to ApplicationWindow: it is not an Item.)
+    // Popups and the drawer close themselves on back before this is reached.
+    // Android 16+ with targetSdk 36 no longer sends the back key to the app unless
+    // AndroidManifest.xml sets android:enableOnBackInvokedCallback="false".
+    onClosing: {
+        if (OS_VERSION !== "Android") {
+            return
+        }
+        if (navigateBack(true)) {
+            close.accepted = false
+            return
+        }
+        if (backToExitTimer.running) {
+            return  // second press within the interval: let the app close
+        }
+        close.accepted = false
+        backToExitTimer.start()
+        toast.show(qsTr("Press back again to exit"), backToExitTimer.interval)
+    }
+
+    Timer {
+        id: backToExitTimer
+        repeat: false
+        interval: 2000 // ms
     }
 
     Popup {
@@ -978,24 +1013,7 @@ ApplicationWindow {
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
-                    var remindToSaveProfile = headerToolbar.settingsPageActive &&
-                            stackView.currentItem &&
-                            typeof stackView.currentItem.profileSaveReminderNeeded === "function" &&
-                            stackView.currentItem.profileSaveReminderNeeded()
-                    var activeProfileName = settings.profile_name
-
-                    if(window.settings_restart_to_apply === true) {
-                        window.settings_restart_to_apply = false;
-                        popupRestartApp.visible = true;
-                    }
-
-                    stackView.pop()
-                    toolButtonLoadSettings.visible = false;
-                    toolButtonSaveSettings.visible = false;
-                    rootItem.sortTiles()
-                    if (remindToSaveProfile) {
-                        toast.show(qsTr("Remember to save profile \"%1\" if you want to keep these changes in this profile.").arg(activeProfileName))
-                    }
+                    navigateBack(false)
                 } else {
                     drawer.open()
                 }
