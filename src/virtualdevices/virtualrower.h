@@ -44,6 +44,7 @@ class virtualrower : public virtualdevice {
     QLowEnergyService *servicePM5DeviceInfo = nullptr;
     QLowEnergyService *servicePM5GAP = nullptr;
     QLowEnergyService *servicePM5Control = nullptr;
+    QLowEnergyService *serviceSmartRow = nullptr;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataFIT;
@@ -51,10 +52,16 @@ class virtualrower : public virtualdevice {
     QLowEnergyServiceData serviceDataPM5DeviceInfo;
     QLowEnergyServiceData serviceDataPM5GAP;
     QLowEnergyServiceData serviceDataPM5Control;
+    QLowEnergyServiceData serviceDataSmartRow;
     QTimer rowerTimer;
     bluetoothdevice *Rower;
 
     bool pm5Mode = false;
+
+    // SmartRow pass-through: expose the pulley's own 0x1234 service next to FTMS so the
+    // SmartRow app can use a real SmartRow pulley through QZ. Raw bytes in both directions.
+    bool smartRowMode = false;
+    bool smartRowClientAttached = false;
 
     uint16_t lastWheelTime = 0;
     uint32_t wheelRevs = 0;
@@ -65,6 +72,9 @@ class virtualrower : public virtualdevice {
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
     void setupPM5Services();
+    void setupSmartRowService();
+    void addSmartRowService();
+    void setSmartRowClientAttached(bool attached);
     QByteArray buildPM5GeneralStatus();
     QByteArray buildPM5AdditionalStatus();
     QByteArray buildPM5AdditionalStatus2();
@@ -77,9 +87,20 @@ class virtualrower : public virtualdevice {
 
   signals:
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    // SmartRow pass-through: the connected app wrote to 0x1235 (forward unchanged to the pulley)
+    void smartRowWrite(const QByteArray &data);
+    // SmartRow pass-through: the app subscribed to / left 0x1236. While attached, the app
+    // owns the pulley dialogue (init, '$' poll, V3 KEYLOCK) and QZ must stay silent.
+    void smartRowClientAttachedChanged(bool attached);
+
+  public slots:
+    // SmartRow pass-through: raw notification from the pulley's 0x1236, relayed unchanged
+    void smartRowRawData(const QByteArray &data);
     
   private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void smartRowCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void smartRowDescriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void rowerProvider();
     void reconnect();
     void error(QLowEnergyController::Error newError);
