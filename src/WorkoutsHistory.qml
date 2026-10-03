@@ -109,7 +109,7 @@ Page {
                           wrapEmoji("📅") : 
                           "📅"
                     textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
-                    font.pixelSize: 20
+                    font.pixelSize: 26
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -119,23 +119,33 @@ Page {
                 }
             }
 
-            // Title with filter status - centered
+            // Title with filter status - between the buttons, shrinking on narrow screens
             Column {
-                anchors.centerIn: parent
-                
+                anchors.left: calendarButton.right
+                anchors.right: clearFilterButton.visible ? clearFilterButton.left : importButton.left
+                anchors.leftMargin: 8
+                anchors.rightMargin: 8
+                anchors.verticalCenter: parent.verticalCenter
+
                 Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
                     text: qsTr("Workout History")
                     font.pixelSize: 24
                     font.bold: true
+                    fontSizeMode: Text.HorizontalFit
+                    minimumPixelSize: 14
+                    elide: Text.ElideRight
                 }
-                
+
                 Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: workoutModel && workoutModel.isDateFiltered ? 
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    text: workoutModel && workoutModel.isDateFiltered ?
                           qsTr("Filtered: %1").arg(workoutModel.filteredDate.toLocaleDateString()) : ""
                     font.pixelSize: 12
                     color: "#666666"
+                    elide: Text.ElideRight
                     visible: workoutModel && workoutModel.isDateFiltered
                 }
             }
@@ -161,7 +171,7 @@ Page {
                           wrapEmoji("📥") :
                           "📥"
                     textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
-                    font.pixelSize: 20
+                    font.pixelSize: 26
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -174,22 +184,24 @@ Page {
                 id: clearFilterButton
                 anchors.right: importButton.left
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.rightMargin: window.contentSideMargin
-                width: 100
-                height: 36
+                anchors.rightMargin: 8
+                // square like the calendar and import buttons, so the centered title stays clear
+                width: 48
+                height: 48
                 visible: workoutModel && workoutModel.isDateFiltered
-                
+
                 background: Rectangle {
-                    radius: 6
+                    radius: 8
                     color: clearFilterButton.pressed ? "#ff6666" : "#ff8888"
                     border.color: "#ff4444"
                     border.width: 1
                 }
-                
+
                 contentItem: Text {
-                    text: qsTr("Clear Filter")
+                    text: "×"
+                    Accessible.name: qsTr("Clear Filter")
                     color: "white"
-                    font.pixelSize: 12
+                    font.pixelSize: 26
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
