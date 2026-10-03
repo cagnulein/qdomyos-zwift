@@ -82,6 +82,9 @@ class smartrowrower : public rower {
     bool initRequest = false;
     bool smartRowV3 = false;
     bool smartRowV3ChallengeRequested = false;
+    // true while the SmartRow app is attached to the virtual pulley (virtualrower SmartRow mode):
+    // the app then runs the init / poll / KEYLOCK dialogue itself and QZ must not interfere.
+    bool smartRowAppAttached = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -92,9 +95,14 @@ class smartrowrower : public rower {
 
   signals:
     void disconnected();
+    // every raw notification from 0x1236, before any parsing (for the virtual pulley)
+    void smartRowRawData(const QByteArray &data);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    // virtual pulley -> real pulley: bytes written by the SmartRow app, sent as they are
+    void virtualSmartRowWrite(const QByteArray &data);
+    void virtualSmartRowClientAttached(bool attached);
 
   private slots:
 
