@@ -196,7 +196,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
             debug(QStringLiteral("BTLE scanning, Bluetooth switched on"));
             rescanCount = 0;
             rescanStartedMs = 0;
-            startDiscovery();
+            this->startDiscovery();
         };
         QBluetoothLocalDevice *localDevice = new QBluetoothLocalDevice(this);
         connect(localDevice, &QBluetoothLocalDevice::hostModeStateChanged, this,
