@@ -3847,7 +3847,7 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <location filename="../homeform.cpp" line="660"/>
         <source>Power Avg</source>
-        <translation>Potência média</translation>
+        <translation>Média móvel de potência</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="664"/>
@@ -10775,7 +10775,7 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="2227"/>
         <source>Time</source>
-        <translation>Tempo</translation>
+        <translation>Relógio</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2258"/>
@@ -11257,7 +11257,7 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="5740"/>
         <source>Power Averaging</source>
-        <translation>Média de Potência</translation>
+        <translation>Média móvel de potência</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="5769"/>

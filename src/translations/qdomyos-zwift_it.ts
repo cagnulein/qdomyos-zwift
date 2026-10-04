@@ -3847,7 +3847,7 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
     <message>
         <location filename="../homeform.cpp" line="660"/>
         <source>Power Avg</source>
-        <translation>Potenza Media</translation>
+        <translation>Media mobile potenza</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="664"/>
@@ -5525,7 +5525,7 @@ Nella finestra successiva, consenti l&apos;accesso alla cartella QZ.</translatio
     <message>
         <location filename="../settings.qml" line="6174"/>
         <source>Tiles Options</source>
-        <translation>Piastrelle Opzioni</translation>
+        <translation>Opzioni riquadri</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="6183"/>
@@ -10763,7 +10763,7 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="2227"/>
         <source>Time</source>
-        <translation>Tempo</translation>
+        <translation>Orologio</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2258"/>
@@ -11245,7 +11245,7 @@ Predefinito: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="5740"/>
         <source>Power Averaging</source>
-        <translation>Media potenza</translation>
+        <translation>Media mobile potenza</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="5769"/>

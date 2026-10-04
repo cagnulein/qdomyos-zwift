@@ -3847,7 +3847,7 @@ Beim ersten Start kann dies einen Moment dauern.</translation>
     <message>
         <location filename="../homeform.cpp" line="660"/>
         <source>Power Avg</source>
-        <translation>Durchschnittsleistung</translation>
+        <translation>Mittelwertbildung</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="664"/>
@@ -6595,7 +6595,7 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
     <message>
         <location filename="../settings.qml" line="6174"/>
         <source>Tiles Options</source>
-        <translation>Fliesen Optionen</translation>
+        <translation>Kacheloptionen</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="6183"/>
@@ -10767,7 +10767,7 @@ Standard: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="2227"/>
         <source>Time</source>
-        <translation>Zeit</translation>
+        <translation>Uhrzeit</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2258"/>

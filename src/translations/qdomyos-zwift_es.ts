@@ -3847,7 +3847,7 @@ Esto puede tardar un poco en el primer inicio.</translation>
     <message>
         <location filename="../homeform.cpp" line="660"/>
         <source>Power Avg</source>
-        <translation>Potencia promedio</translation>
+        <translation>Promediado de potencia</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="664"/>
@@ -10652,7 +10652,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="1635"/>
         <source>Target Peloton Resistance</source>
-        <translation>Resistencia Peloton</translation>
+        <translation>Resistencia objetivo Peloton</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="1666"/>
@@ -10779,7 +10779,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="2227"/>
         <source>Time</source>
-        <translation>Tiempo</translation>
+        <translation>Reloj</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2258"/>

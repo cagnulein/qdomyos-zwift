@@ -3847,7 +3847,7 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
     <message>
         <location filename="../homeform.cpp" line="660"/>
         <source>Power Avg</source>
-        <translation>Puissance Moyenne</translation>
+        <translation>Moyennage de puissance</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="664"/>
@@ -6596,7 +6596,7 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     <message>
         <location filename="../settings.qml" line="6183"/>
         <source>General UI Options</source>
-        <translation>Options générales</translation>
+        <translation>Options générales de l&apos;interface</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="6194"/>
@@ -10787,7 +10787,7 @@ Par défaut : A = -0.96, B = 1.33</translation>
     <message>
         <location filename="../settings-tiles.qml" line="2227"/>
         <source>Time</source>
-        <translation>Temps</translation>
+        <translation>Horloge</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2258"/>

@@ -3851,7 +3851,7 @@ This may take a few moments on first startup.</source>
     <message>
         <location filename="../homeform.cpp" line="660"/>
         <source>Power Avg</source>
-        <translation>平均功率</translation>
+        <translation>功率平滑</translation>
     </message>
     <message>
         <source>HRV (ms)</source>
@@ -10811,7 +10811,7 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <location filename="../settings-tiles.qml" line="2227"/>
         <source>Time</source>
-        <translation>时间</translation>
+        <translation>时钟</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2258"/>
@@ -11293,7 +11293,7 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <location filename="../settings-tiles.qml" line="5740"/>
         <source>Power Averaging</source>
-        <translation>平均功率</translation>
+        <translation>功率平滑</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="5769"/>

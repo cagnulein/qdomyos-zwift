@@ -3851,7 +3851,7 @@ This may take a few moments on first startup.</source>
     <message>
         <location filename="../homeform.cpp" line="660"/>
         <source>Power Avg</source>
-        <translation>平均パワー</translation>
+        <translation>パワー平滑化</translation>
     </message>
     <message>
         <source>HRV (ms)</source>

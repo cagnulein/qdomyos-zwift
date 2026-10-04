@@ -3849,7 +3849,7 @@ This may take a few moments on first startup.</source>
     <message>
         <location filename="../homeform.cpp" line="660"/>
         <source>Power Avg</source>
-        <translation>Ср. мощность</translation>
+        <translation>Усредн. мощности</translation>
     </message>
     <message>
         <location filename="../homeform.cpp" line="664"/>
@@ -10743,7 +10743,7 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <location filename="../settings-tiles.qml" line="2227"/>
         <source>Time</source>
-        <translation>Время</translation>
+        <translation>Часы</translation>
     </message>
     <message>
         <location filename="../settings-tiles.qml" line="2258"/>
