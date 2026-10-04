@@ -1867,7 +1867,7 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="58"/>
-        <location filename="../webtranslation.cpp" line="219"/>
+        <location filename="../webtranslation.cpp" line="223"/>
         <source>Speed</source>
         <translation>Geschwindigkeit</translation>
     </message>
@@ -1883,13 +1883,13 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="61"/>
-        <location filename="../webtranslation.cpp" line="227"/>
+        <location filename="../webtranslation.cpp" line="231"/>
         <source>Resistance</source>
         <translation>Widerstand</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="62"/>
-        <location filename="../webtranslation.cpp" line="220"/>
+        <location filename="../webtranslation.cpp" line="224"/>
         <source>Cadence</source>
         <translation>Trittfrequenz</translation>
     </message>
@@ -1940,7 +1940,7 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="72"/>
-        <location filename="../webtranslation.cpp" line="156"/>
+        <location filename="../webtranslation.cpp" line="159"/>
         <source>Max Speed</source>
         <translation>Max Geschwindigkeit</translation>
     </message>
@@ -2310,398 +2310,402 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <translation>Neigung (%)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="146"/>
+        <location filename="../webtranslation.cpp" line="147"/>
         <source>Avg Output</source>
+        <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>Durchschnittsleistung</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="147"/>
+        <location filename="../webtranslation.cpp" line="149"/>
         <source>Max Output</source>
+        <extracomment>Chart summary: maximum power during the workout, in watts.</extracomment>
         <translation>Max. Leistung</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="148"/>
+        <location filename="../webtranslation.cpp" line="151"/>
         <source>Total Output</source>
+        <extracomment>Chart summary: total work done during the workout, shown in kJ (energy), not power in watts.</extracomment>
         <translation>Gesamtarbeit</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="149"/>
-        <location filename="../webtranslation.cpp" line="222"/>
+        <location filename="../webtranslation.cpp" line="152"/>
+        <location filename="../webtranslation.cpp" line="226"/>
         <source>Calories</source>
         <translation>Kalorien</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="150"/>
+        <location filename="../webtranslation.cpp" line="153"/>
         <source>AVG Cadence</source>
         <translation>Durchschnittliche Kadenz</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="151"/>
+        <location filename="../webtranslation.cpp" line="154"/>
         <source>Max Cadence</source>
         <translation>Max. Trittfrequenz</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="152"/>
+        <location filename="../webtranslation.cpp" line="155"/>
         <source>AVG Resistance</source>
         <translation>Durchschnittlicher Widerstand</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="153"/>
+        <location filename="../webtranslation.cpp" line="156"/>
         <source>AVG Heart Rate</source>
         <translation>Durchschnittliche Herzfrequenz</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="154"/>
+        <location filename="../webtranslation.cpp" line="157"/>
         <source>Max Heart Rate</source>
         <translation>Maximale Herzfrequenz</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="155"/>
+        <location filename="../webtranslation.cpp" line="158"/>
         <source>AVG Speed</source>
         <translation>Durchschnittsgeschwindigkeit</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="157"/>
+        <location filename="../webtranslation.cpp" line="160"/>
         <source>Watts</source>
         <translation>Watt</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="158"/>
+        <location filename="../webtranslation.cpp" line="161"/>
         <source>Req. Watts</source>
         <translation>Benötigte Watt</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="159"/>
+        <location filename="../webtranslation.cpp" line="162"/>
         <source>Target R.</source>
         <translation>Ziel R.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="160"/>
+        <location filename="../webtranslation.cpp" line="163"/>
         <source>Target C.</source>
         <translation>Ziel C.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="161"/>
+        <location filename="../webtranslation.cpp" line="164"/>
         <source>Target Speed (km/h)</source>
         <translation>Zielgeschwindigkeit (km/h)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="162"/>
+        <location filename="../webtranslation.cpp" line="165"/>
         <source>Target Speed (mph)</source>
         <translation>Zielgeschwindigkeit (Meilen/h)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="163"/>
+        <location filename="../webtranslation.cpp" line="166"/>
         <source>Target Incline</source>
         <translation>Ziel-Steigung</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="164"/>
+        <location filename="../webtranslation.cpp" line="167"/>
         <source>Heart Rate</source>
         <translation>Herzfrequenz</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="165"/>
+        <location filename="../webtranslation.cpp" line="168"/>
         <source>Resistance vs Target Resistance</source>
         <translation>Widerstand vs. Zielwiderstand</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="166"/>
+        <location filename="../webtranslation.cpp" line="169"/>
         <source>Peloton Resistance vs Target Peloton Resistance</source>
         <translation>Peloton-Widerstand vs. Peloton-Zielwiderstand</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="167"/>
+        <location filename="../webtranslation.cpp" line="170"/>
         <source>Cadence vs Target Cadence</source>
         <translation>Trittfrequenz vs. Zieltrittfrequenz</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="168"/>
+        <location filename="../webtranslation.cpp" line="171"/>
         <source>Power Distribution</source>
         <translation>Leistungsverteilung</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="169"/>
+        <location filename="../webtranslation.cpp" line="172"/>
         <source>Speed and Inclination</source>
         <translation>Geschwindigkeit und Neigung</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="170"/>
+        <location filename="../webtranslation.cpp" line="173"/>
         <source>Watt AVG: {value}</source>
         <translation>Watt Ø: {value}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="171"/>
+        <location filename="../webtranslation.cpp" line="174"/>
         <source>Watt MAX: {value}</source>
         <translation>Watt MAX: {value}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="172"/>
+        <location filename="../webtranslation.cpp" line="175"/>
         <source>Heart Rate AVG: {value}</source>
         <translation>Herzfrequenz Ø: {value}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="173"/>
+        <location filename="../webtranslation.cpp" line="176"/>
         <source>Heart Rate MAX: {value}</source>
         <translation>Herzfrequenz MAX: {value}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="174"/>
+        <location filename="../webtranslation.cpp" line="177"/>
         <source>zone {number}</source>
         <translation>Zone {number}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="175"/>
+        <location filename="../webtranslation.cpp" line="178"/>
         <source>power z{number}</source>
         <translation>Leistung Z{number}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="176"/>
+        <location filename="../webtranslation.cpp" line="179"/>
         <source>heart z{number}</source>
         <translation>HF Z{number}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="177"/>
+        <location filename="../webtranslation.cpp" line="180"/>
         <source>HR &gt;{value} bpm</source>
         <translation>HF &gt;{value} bpm</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="178"/>
+        <location filename="../webtranslation.cpp" line="181"/>
         <source>HR &lt;{value} bpm</source>
         <translation>HF &lt;{value} bpm</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="179"/>
+        <location filename="../webtranslation.cpp" line="182"/>
         <source>Marathon</source>
         <translation>Marathon</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="180"/>
+        <location filename="../webtranslation.cpp" line="183"/>
         <source>Half Marathon</source>
         <translation>Halbmarathon</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="181"/>
+        <location filename="../webtranslation.cpp" line="184"/>
         <source>10K</source>
         <translation>10K</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="182"/>
+        <location filename="../webtranslation.cpp" line="185"/>
         <source>5K</source>
         <translation>5K</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="183"/>
+        <location filename="../webtranslation.cpp" line="186"/>
         <source>1 Mile</source>
         <translation>1 Meile</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="184"/>
+        <location filename="../webtranslation.cpp" line="187"/>
         <source>Peloton Workout in progress!</source>
         <translation>Peloton Workout läuft!</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="185"/>
+        <location filename="../webtranslation.cpp" line="188"/>
         <source>Do you want to follow the resistance?</source>
         <translation>Möchten Sie den Widerstand verfolgen?</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="186"/>
+        <location filename="../webtranslation.cpp" line="189"/>
         <source>AVG</source>
         <translation>Ø</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="187"/>
+        <location filename="../webtranslation.cpp" line="190"/>
         <source>MAX</source>
         <translation>MAX</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="188"/>
+        <location filename="../webtranslation.cpp" line="191"/>
         <source>TOTAL</source>
         <translation>GESAMT</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="189"/>
+        <location filename="../webtranslation.cpp" line="192"/>
         <source>OFFSET</source>
         <translation>OFFSET</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="190"/>
+        <location filename="../webtranslation.cpp" line="193"/>
         <source>N/A</source>
         <translation>k. A.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="191"/>
+        <location filename="../webtranslation.cpp" line="194"/>
         <source>P.ZONE</source>
         <translation>L.ZONE</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="192"/>
+        <location filename="../webtranslation.cpp" line="195"/>
         <source>P.RESISTANCE</source>
         <translation>P.WIDERST.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="193"/>
+        <location filename="../webtranslation.cpp" line="197"/>
         <source>TOT.OUTPUT</source>
+        <extracomment>Short uppercase tile label in the floating window: total work done during the workout, shown in kJ (energy), not power in watts.</extracomment>
         <translation>GES.ARB.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="194"/>
+        <location filename="../webtranslation.cpp" line="198"/>
         <source>ELAPSED</source>
         <translation>VERSTR.</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="195"/>
+        <location filename="../webtranslation.cpp" line="199"/>
         <source>REM.TIME</source>
         <translation>REST.ZEIT</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="196"/>
+        <location filename="../webtranslation.cpp" line="200"/>
         <source>P.OFFSET</source>
         <translation>P.OFFSET</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="197"/>
+        <location filename="../webtranslation.cpp" line="201"/>
         <source>GEARS</source>
         <translation>GÄNGE</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="198"/>
+        <location filename="../webtranslation.cpp" line="202"/>
         <source>NEXT</source>
         <translation>WEITER</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="199"/>
+        <location filename="../webtranslation.cpp" line="203"/>
         <source>CLEAR</source>
         <translation>RUNDE</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="200"/>
+        <location filename="../webtranslation.cpp" line="204"/>
         <source>GEAR -</source>
         <translation>GANG -</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="201"/>
+        <location filename="../webtranslation.cpp" line="205"/>
         <source>GEAR +</source>
         <translation>GANG +</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="202"/>
+        <location filename="../webtranslation.cpp" line="206"/>
         <source>Select metrics to display</source>
         <translation>Anzuzeigende Messwerte auswählen</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="203"/>
+        <location filename="../webtranslation.cpp" line="207"/>
         <source>Select Metrics</source>
         <translation>Messwerte auswählen</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="204"/>
+        <location filename="../webtranslation.cpp" line="208"/>
         <source>Full Controls</source>
         <translation>Volle Steuerung</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="205"/>
+        <location filename="../webtranslation.cpp" line="209"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="206"/>
+        <location filename="../webtranslation.cpp" line="210"/>
         <source>Start/Pause</source>
         <translation>Start/Pause</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="207"/>
+        <location filename="../webtranslation.cpp" line="211"/>
         <source>Stop</source>
         <translation>Stopp</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="208"/>
+        <location filename="../webtranslation.cpp" line="212"/>
         <source>Auto Resistance</source>
         <translation>Auto-Widerstand</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="209"/>
+        <location filename="../webtranslation.cpp" line="213"/>
         <source>SPEED</source>
         <translation>Geschwindigkeit</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="210"/>
+        <location filename="../webtranslation.cpp" line="214"/>
         <source>INCLINE</source>
         <translation>Steigung</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="211"/>
+        <location filename="../webtranslation.cpp" line="215"/>
         <source>PACE</source>
         <translation>Tempo</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="212"/>
+        <location filename="../webtranslation.cpp" line="216"/>
         <source>ELEV.</source>
         <translation>Höhe</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="213"/>
+        <location filename="../webtranslation.cpp" line="217"/>
         <source>CADENCE</source>
         <translation>Kadenz</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="214"/>
+        <location filename="../webtranslation.cpp" line="218"/>
         <source>PULSE</source>
         <translation>Puls</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="215"/>
+        <location filename="../webtranslation.cpp" line="219"/>
         <source>POWER</source>
         <translation>Leistung</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="216"/>
+        <location filename="../webtranslation.cpp" line="220"/>
         <source>RESISTANCE</source>
         <translation>Widerstand</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="217"/>
+        <location filename="../webtranslation.cpp" line="221"/>
         <source>CALORIES</source>
         <translation>KALORIEN</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="218"/>
+        <location filename="../webtranslation.cpp" line="222"/>
         <source>DISTANCE</source>
         <translation>DISTANZ</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="221"/>
+        <location filename="../webtranslation.cpp" line="225"/>
         <source>Heart</source>
         <translation>Herz</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="223"/>
+        <location filename="../webtranslation.cpp" line="227"/>
         <source>Odometer</source>
         <translation>Kilometerzähler</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="224"/>
+        <location filename="../webtranslation.cpp" line="228"/>
         <source>Watt</source>
         <translation>Watt</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="225"/>
+        <location filename="../webtranslation.cpp" line="229"/>
         <source>Elapsed</source>
         <translation>Vergangen</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="226"/>
+        <location filename="../webtranslation.cpp" line="230"/>
         <source>Inclination</source>
         <translation>Neigung</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="228"/>
+        <location filename="../webtranslation.cpp" line="232"/>
         <source>Altitude</source>
         <translation>Höhe</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="229"/>
+        <location filename="../webtranslation.cpp" line="233"/>
         <source>Elevation</source>
         <translation>Höhenmeter</translation>
     </message>

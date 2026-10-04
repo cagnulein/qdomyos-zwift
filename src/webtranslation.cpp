@@ -143,8 +143,11 @@ const WebTranslationEntry entries[] = {
     {"chart.value", QT_TRANSLATE_NOOP("WebTranslations", "Value")},
     {"chart.cadenceRpmUpper", QT_TRANSLATE_NOOP("WebTranslations", "Cadence (RPM)")},
     {"chart.inclinationPercent", QT_TRANSLATE_NOOP("WebTranslations", "Inclination (%)")},
+    //: Chart summary: average power during the workout, in watts.
     {"chart.avgOutput", QT_TRANSLATE_NOOP("WebTranslations", "Avg Output")},
+    //: Chart summary: maximum power during the workout, in watts.
     {"chart.maxOutput", QT_TRANSLATE_NOOP("WebTranslations", "Max Output")},
+    //: Chart summary: total work done during the workout, shown in kJ (energy), not power in watts.
     {"chart.totalOutput", QT_TRANSLATE_NOOP("WebTranslations", "Total Output")},
     {"chart.calories", QT_TRANSLATE_NOOP("WebTranslations", "Calories")},
     {"chart.avgCadence", QT_TRANSLATE_NOOP("WebTranslations", "AVG Cadence")},
@@ -190,6 +193,7 @@ const WebTranslationEntry entries[] = {
     {"floating.notAvailable", QT_TRANSLATE_NOOP("WebTranslations", "N/A")},
     {"floating.powerZone", QT_TRANSLATE_NOOP("WebTranslations", "P.ZONE")},
     {"floating.pelotonResistance", QT_TRANSLATE_NOOP("WebTranslations", "P.RESISTANCE")},
+    //: Short uppercase tile label in the floating window: total work done during the workout, shown in kJ (energy), not power in watts.
     {"floating.totalOutput", QT_TRANSLATE_NOOP("WebTranslations", "TOT.OUTPUT")},
     {"floating.elapsed", QT_TRANSLATE_NOOP("WebTranslations", "ELAPSED")},
     {"floating.remainingTime", QT_TRANSLATE_NOOP("WebTranslations", "REM.TIME")},

@@ -1867,7 +1867,7 @@ QZの設定を更新しますか?</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="58"/>
-        <location filename="../webtranslation.cpp" line="219"/>
+        <location filename="../webtranslation.cpp" line="223"/>
         <source>Speed</source>
         <translation>スピード</translation>
     </message>
@@ -1883,13 +1883,13 @@ QZの設定を更新しますか?</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="61"/>
-        <location filename="../webtranslation.cpp" line="227"/>
+        <location filename="../webtranslation.cpp" line="231"/>
         <source>Resistance</source>
         <translation>負荷レベル</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="62"/>
-        <location filename="../webtranslation.cpp" line="220"/>
+        <location filename="../webtranslation.cpp" line="224"/>
         <source>Cadence</source>
         <translation>ケイデンス</translation>
     </message>
@@ -1940,7 +1940,7 @@ QZの設定を更新しますか?</translation>
     </message>
     <message>
         <location filename="../webtranslation.cpp" line="72"/>
-        <location filename="../webtranslation.cpp" line="156"/>
+        <location filename="../webtranslation.cpp" line="159"/>
         <source>Max Speed</source>
         <translation>最高速度</translation>
     </message>
@@ -2310,398 +2310,402 @@ QZの設定を更新しますか?</translation>
         <translation>傾斜度 (%)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="146"/>
+        <location filename="../webtranslation.cpp" line="147"/>
         <source>Avg Output</source>
+        <extracomment>Chart summary: average power during the workout, in watts.</extracomment>
         <translation>平均出力</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="147"/>
+        <location filename="../webtranslation.cpp" line="149"/>
         <source>Max Output</source>
+        <extracomment>Chart summary: maximum power during the workout, in watts.</extracomment>
         <translation>最大出力</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="148"/>
+        <location filename="../webtranslation.cpp" line="151"/>
         <source>Total Output</source>
+        <extracomment>Chart summary: total work done during the workout, shown in kJ (energy), not power in watts.</extracomment>
         <translation>総仕事量</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="149"/>
-        <location filename="../webtranslation.cpp" line="222"/>
+        <location filename="../webtranslation.cpp" line="152"/>
+        <location filename="../webtranslation.cpp" line="226"/>
         <source>Calories</source>
         <translation>カロリー</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="150"/>
+        <location filename="../webtranslation.cpp" line="153"/>
         <source>AVG Cadence</source>
         <translation>平均ケイデンス</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="151"/>
+        <location filename="../webtranslation.cpp" line="154"/>
         <source>Max Cadence</source>
         <translation>最高ケイデンス</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="152"/>
+        <location filename="../webtranslation.cpp" line="155"/>
         <source>AVG Resistance</source>
         <translation>平均負荷</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="153"/>
+        <location filename="../webtranslation.cpp" line="156"/>
         <source>AVG Heart Rate</source>
         <translation>平均心拍数</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="154"/>
+        <location filename="../webtranslation.cpp" line="157"/>
         <source>Max Heart Rate</source>
         <translation>最大心拍数</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="155"/>
+        <location filename="../webtranslation.cpp" line="158"/>
         <source>AVG Speed</source>
         <translation>平均速度</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="157"/>
+        <location filename="../webtranslation.cpp" line="160"/>
         <source>Watts</source>
         <translation>ワット</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="158"/>
+        <location filename="../webtranslation.cpp" line="161"/>
         <source>Req. Watts</source>
         <translation>必要ワット</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="159"/>
+        <location filename="../webtranslation.cpp" line="162"/>
         <source>Target R.</source>
         <translation>目標負荷</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="160"/>
+        <location filename="../webtranslation.cpp" line="163"/>
         <source>Target C.</source>
         <translation>目標ケイデンス</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="161"/>
+        <location filename="../webtranslation.cpp" line="164"/>
         <source>Target Speed (km/h)</source>
         <translation>目標速度 (km/h)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="162"/>
+        <location filename="../webtranslation.cpp" line="165"/>
         <source>Target Speed (mph)</source>
         <translation>目標速度 (mph)</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="163"/>
+        <location filename="../webtranslation.cpp" line="166"/>
         <source>Target Incline</source>
         <translation>目標傾斜</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="164"/>
+        <location filename="../webtranslation.cpp" line="167"/>
         <source>Heart Rate</source>
         <translation>心拍数</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="165"/>
+        <location filename="../webtranslation.cpp" line="168"/>
         <source>Resistance vs Target Resistance</source>
         <translation>負荷レベルと目標負荷レベル</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="166"/>
+        <location filename="../webtranslation.cpp" line="169"/>
         <source>Peloton Resistance vs Target Peloton Resistance</source>
         <translation>Peloton換算負荷と目標Peloton換算負荷</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="167"/>
+        <location filename="../webtranslation.cpp" line="170"/>
         <source>Cadence vs Target Cadence</source>
         <translation>ケイデンスと目標ケイデンス</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="168"/>
+        <location filename="../webtranslation.cpp" line="171"/>
         <source>Power Distribution</source>
         <translation>パワー分布</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="169"/>
+        <location filename="../webtranslation.cpp" line="172"/>
         <source>Speed and Inclination</source>
         <translation>スピードと傾斜</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="170"/>
+        <location filename="../webtranslation.cpp" line="173"/>
         <source>Watt AVG: {value}</source>
         <translation>平均ワット: {value}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="171"/>
+        <location filename="../webtranslation.cpp" line="174"/>
         <source>Watt MAX: {value}</source>
         <translation>最大ワット: {value}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="172"/>
+        <location filename="../webtranslation.cpp" line="175"/>
         <source>Heart Rate AVG: {value}</source>
         <translation>平均心拍数: {value}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="173"/>
+        <location filename="../webtranslation.cpp" line="176"/>
         <source>Heart Rate MAX: {value}</source>
         <translation>最大心拍数: {value}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="174"/>
+        <location filename="../webtranslation.cpp" line="177"/>
         <source>zone {number}</source>
         <translation>ゾーン {number}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="175"/>
+        <location filename="../webtranslation.cpp" line="178"/>
         <source>power z{number}</source>
         <translation>パワー Z{number}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="176"/>
+        <location filename="../webtranslation.cpp" line="179"/>
         <source>heart z{number}</source>
         <translation>心拍 Z{number}</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="177"/>
+        <location filename="../webtranslation.cpp" line="180"/>
         <source>HR &gt;{value} bpm</source>
         <translation>心拍数 &gt;{value} bpm</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="178"/>
+        <location filename="../webtranslation.cpp" line="181"/>
         <source>HR &lt;{value} bpm</source>
         <translation>心拍数 &lt;{value} bpm</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="179"/>
+        <location filename="../webtranslation.cpp" line="182"/>
         <source>Marathon</source>
         <translation>マラソン</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="180"/>
+        <location filename="../webtranslation.cpp" line="183"/>
         <source>Half Marathon</source>
         <translation>ハーフマラソン</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="181"/>
+        <location filename="../webtranslation.cpp" line="184"/>
         <source>10K</source>
         <translation>10K</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="182"/>
+        <location filename="../webtranslation.cpp" line="185"/>
         <source>5K</source>
         <translation>5K</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="183"/>
+        <location filename="../webtranslation.cpp" line="186"/>
         <source>1 Mile</source>
         <translation>1マイル</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="184"/>
+        <location filename="../webtranslation.cpp" line="187"/>
         <source>Peloton Workout in progress!</source>
         <translation>Pelotonワークアウト進行中！</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="185"/>
+        <location filename="../webtranslation.cpp" line="188"/>
         <source>Do you want to follow the resistance?</source>
         <translation>負荷に合わせますか？</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="186"/>
+        <location filename="../webtranslation.cpp" line="189"/>
         <source>AVG</source>
         <translation>平均</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="187"/>
+        <location filename="../webtranslation.cpp" line="190"/>
         <source>MAX</source>
         <translation>最大</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="188"/>
+        <location filename="../webtranslation.cpp" line="191"/>
         <source>TOTAL</source>
         <translation>合計</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="189"/>
+        <location filename="../webtranslation.cpp" line="192"/>
         <source>OFFSET</source>
         <translation>オフセット</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="190"/>
+        <location filename="../webtranslation.cpp" line="193"/>
         <source>N/A</source>
         <translation>該当なし</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="191"/>
+        <location filename="../webtranslation.cpp" line="194"/>
         <source>P.ZONE</source>
         <translation>パワーゾーン</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="192"/>
+        <location filename="../webtranslation.cpp" line="195"/>
         <source>P.RESISTANCE</source>
         <translation>Peloton負荷</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="193"/>
+        <location filename="../webtranslation.cpp" line="197"/>
         <source>TOT.OUTPUT</source>
+        <extracomment>Short uppercase tile label in the floating window: total work done during the workout, shown in kJ (energy), not power in watts.</extracomment>
         <translation>総仕事量</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="194"/>
+        <location filename="../webtranslation.cpp" line="198"/>
         <source>ELAPSED</source>
         <translation>経過時間</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="195"/>
+        <location filename="../webtranslation.cpp" line="199"/>
         <source>REM.TIME</source>
         <translation>残り時間</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="196"/>
+        <location filename="../webtranslation.cpp" line="200"/>
         <source>P.OFFSET</source>
         <translation>P.ずれ</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="197"/>
+        <location filename="../webtranslation.cpp" line="201"/>
         <source>GEARS</source>
         <translation>ギア</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="198"/>
+        <location filename="../webtranslation.cpp" line="202"/>
         <source>NEXT</source>
         <translation>次へ</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="199"/>
+        <location filename="../webtranslation.cpp" line="203"/>
         <source>CLEAR</source>
         <translation>ラップ</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="200"/>
+        <location filename="../webtranslation.cpp" line="204"/>
         <source>GEAR -</source>
         <translation>ギア -</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="201"/>
+        <location filename="../webtranslation.cpp" line="205"/>
         <source>GEAR +</source>
         <translation>ギア +</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="202"/>
+        <location filename="../webtranslation.cpp" line="206"/>
         <source>Select metrics to display</source>
         <translation>表示する指標を選択</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="203"/>
+        <location filename="../webtranslation.cpp" line="207"/>
         <source>Select Metrics</source>
         <translation>指標の選択</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="204"/>
+        <location filename="../webtranslation.cpp" line="208"/>
         <source>Full Controls</source>
         <translation>フルコントロール</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="205"/>
+        <location filename="../webtranslation.cpp" line="209"/>
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="206"/>
+        <location filename="../webtranslation.cpp" line="210"/>
         <source>Start/Pause</source>
         <translation>開始/一時停止</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="207"/>
+        <location filename="../webtranslation.cpp" line="211"/>
         <source>Stop</source>
         <translation>ストップ</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="208"/>
+        <location filename="../webtranslation.cpp" line="212"/>
         <source>Auto Resistance</source>
         <translation>自動負荷</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="209"/>
+        <location filename="../webtranslation.cpp" line="213"/>
         <source>SPEED</source>
         <translation>スピード</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="210"/>
+        <location filename="../webtranslation.cpp" line="214"/>
         <source>INCLINE</source>
         <translation>傾斜</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="211"/>
+        <location filename="../webtranslation.cpp" line="215"/>
         <source>PACE</source>
         <translation>ペース</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="212"/>
+        <location filename="../webtranslation.cpp" line="216"/>
         <source>ELEV.</source>
         <translation>標高</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="213"/>
+        <location filename="../webtranslation.cpp" line="217"/>
         <source>CADENCE</source>
         <translation>ケイデンス</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="214"/>
+        <location filename="../webtranslation.cpp" line="218"/>
         <source>PULSE</source>
         <translation>心拍</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="215"/>
+        <location filename="../webtranslation.cpp" line="219"/>
         <source>POWER</source>
         <translation>パワー</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="216"/>
+        <location filename="../webtranslation.cpp" line="220"/>
         <source>RESISTANCE</source>
         <translation>負荷</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="217"/>
+        <location filename="../webtranslation.cpp" line="221"/>
         <source>CALORIES</source>
         <translation>カロリー</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="218"/>
+        <location filename="../webtranslation.cpp" line="222"/>
         <source>DISTANCE</source>
         <translation>距離</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="221"/>
+        <location filename="../webtranslation.cpp" line="225"/>
         <source>Heart</source>
         <translation>心拍数（bpm）</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="223"/>
+        <location filename="../webtranslation.cpp" line="227"/>
         <source>Odometer</source>
         <translation>総走行距離（オドメーター）</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="224"/>
+        <location filename="../webtranslation.cpp" line="228"/>
         <source>Watt</source>
         <translation>ワット</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="225"/>
+        <location filename="../webtranslation.cpp" line="229"/>
         <source>Elapsed</source>
         <translation>経過時間</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="226"/>
+        <location filename="../webtranslation.cpp" line="230"/>
         <source>Inclination</source>
         <translation>傾斜（斜度）</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="228"/>
+        <location filename="../webtranslation.cpp" line="232"/>
         <source>Altitude</source>
         <translation>標高</translation>
     </message>
     <message>
-        <location filename="../webtranslation.cpp" line="229"/>
+        <location filename="../webtranslation.cpp" line="233"/>
         <source>Elevation</source>
         <translation>標高</translation>
     </message>
