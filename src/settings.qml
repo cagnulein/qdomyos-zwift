@@ -12,6 +12,10 @@ import AndroidStatusBar 1.0
         objectName: "settingsPage"
         // Settings is a vertical page: never let a wide translated child enlarge the viewport.
         contentWidth: availableWidth
+        // The page height from the column itself: ScrollView takes it from its only child on its
+        // own, but on a phone it stopped following after a turn of the screen - the column grew
+        // to 7254 while the page stayed 1310, a section opened after it could not be scrolled
+        contentHeight: column1.implicitHeight
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
