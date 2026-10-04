@@ -35,9 +35,21 @@
 class cscbike : public bike {
     Q_OBJECT
   public:
-    cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
+    enum class SensorMode {
+        DefaultBike,
+        SpeedSensorBike,
+        CadenceAccessory,
+    };
+
+    cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice,
+            SensorMode sensorMode = SensorMode::DefaultBike);
     bool connected() override;
     bool isJorotoBike() const { return jorotoBike; }
+    bool isSpeedSensorBike() const { return sensorMode == SensorMode::SpeedSensorBike; }
+    static double speedFromWheelRevolutions(uint32_t previousRevolutions, uint32_t currentRevolutions,
+                                            uint16_t previousEventTime, uint16_t currentEventTime,
+                                            double circumferenceMillimetres);
+    static double speedSensorPowerFromSpeed(double speed);
     void enableManualResistancePowerAdjustment(resistance_t resistance);
     static uint16_t customResistanceAdjustedWatts(double cadence, resistance_t resistance);
     static resistance_t customResistanceMax();
@@ -71,6 +83,7 @@ class cscbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool noVirtualDevice = false;
+    SensorMode sensorMode = SensorMode::DefaultBike;
     bool jorotoBike = false;
     bool manualResistancePowerAdjustmentActive = false;
     bool manualResistancePowerAdjustmentToastShown = false;
@@ -80,6 +93,10 @@ class cscbike : public bike {
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
+    uint32_t oldWheelRevs = 0;
+    uint16_t oldLastWheelEventTime = 0;
+    bool hasWheelSample = false;
+    QDateTime lastGoodWheel = QDateTime::currentDateTime();
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

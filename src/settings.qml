@@ -1788,6 +1788,8 @@ import AndroidStatusBar 1.0
             property bool android_landscape_cutout_margin: true
             property real watt_max: 9999
             property bool proform_trainer_8_0_pftl59721_0: false
+            property string speed_sensor_name: "Disabled"
+            property bool speed_sensor_as_bike: false
         }
 
 
@@ -13998,6 +14000,99 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("QZ will build a linear equation from the two resistance/watt points and clamp the effective resistance using the existing Min. Resistance and Max. Resistance settings.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
+                    }
+
+                    AccordionElement {
+                        id: speedSensorOptionsAccordion
+                        title: qsTr("Speed Sensor Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+
+                            IndicatorOnlySwitch {
+                                id: speedSensorAsBikeDelegate
+                                text: qsTr("Speed Sensor as a Bike")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.speed_sensor_as_bike
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: {
+                                    settings.speed_sensor_as_bike = checked;
+                                    if (checked) {
+                                        settings.cadence_sensor_as_bike = false;
+                                        settings.cadence_sensor_as_treadmill = false;
+                                    }
+                                    window.settings_restart_to_apply = true;
+                                }
+                            }
+
+                            Label {
+                                text: qsTr("Use the wheel speed sensor as the primary bike. QZ estimates power from wheel speed; a separate cadence sensor can remain connected as an accessory. Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            Label {
+                                text: qsTr("Speed Sensor:")
+                                Layout.fillWidth: true
+                            }
+                            RowLayout {
+                                spacing: 10
+                                ValueComboBox {
+                                    id: speedSensorNameTextField
+                                    model: rootItem.bluetoothDevices
+                                    labels: ({ "Disabled": qsTr("Disabled") })
+                                    value: settings.speed_sensor_name
+                                    Layout.fillHeight: false
+                                    Layout.fillWidth: true
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                }
+                                Button {
+                                    id: okSpeedSensorNameButton
+                                    text: qsTr("OK")
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: {
+                                        settings.speed_sensor_name = stripRssi(speedSensorNameTextField.value);
+                                        window.settings_restart_to_apply = true;
+                                        toast.show(qsTr("Setting saved!"));
+                                    }
+                                }
+                            }
+
+                            Button {
+                                id: refreshSpeedSensorNameButton
+                                text: qsTr("Refresh Devices List")
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: refresh_bluetooth_devices_clicked();
+                            }
+
+                            Label {
+                                text: qsTr("Select the Bluetooth CSC speed sensor mounted on the wheel. The wheel circumference is taken from the Gear settings. The watt value is an estimate and should be validated on the trainer.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
