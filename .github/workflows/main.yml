@@ -56,7 +56,6 @@ jobs:
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
-          ref: ${{ matrix.config.python == false && '983e93c3b160c62e60b1755d075e959d4685d949' || '' }}
 
       - uses: actions/setup-python@v5
         with:
@@ -80,7 +79,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview ${{ matrix.config.python == false && 'perl' || '' }}
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview perl
           msystem: mingw64
           release: false
 
@@ -107,7 +106,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: src/qthttpserver
-          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-${{ matrix.config.python && 'v1' || '983e93c3b160c62e60b1755d075e959d4685d949-msys2-syncqt-cygwin-v2' }}
+          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-msys2-syncqt-cygwin-v2
 
       - name: download 3rd party files for qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
@@ -115,15 +114,7 @@ jobs:
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
       - name: Build qthttpserver
-        if: matrix.config.python && steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
-        run: |
-            cd src\qthttpserver
-            qmake
-            make -j8
-            cd ../..
-
-      - name: Build qthttpserver (python=false path fix)
-        if: matrix.config.python == false && steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
+        if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         shell: msys2 {0}
         run: |
             export PATH="/usr/bin:/mingw64/bin:$PATH"
@@ -141,14 +132,6 @@ jobs:
             cd ../..
 
       - name: Install qthttpserver
-        if: matrix.config.python
-        run: |
-            cd src\qthttpserver
-            make install
-            cd ../..
-
-      - name: Install qthttpserver (python=false path fix)
-        if: matrix.config.python == false
         shell: msys2 {0}
         run: |
             qt_dir="$(cygpath -u "$Qt5_Dir")"
