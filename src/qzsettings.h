@@ -950,6 +950,12 @@ class QZSettings {
     static const QString watt_gain;
     static constexpr float default_watt_gain = 1;
 
+    /**
+     * @brief Caps the effective watt output. Zero disables the cap.
+     */
+    static const QString watt_max;
+    static constexpr float default_watt_max = 9999;
+
     static const QString power_avg_5s;
     static constexpr bool default_power_avg_5s = false;
 
@@ -2578,6 +2584,8 @@ class QZSettings {
     static constexpr bool default_proform_trainer_8_0 = false;
     static const QString proform_trainer_8_0_pftl59721_int_0;
     static constexpr bool default_proform_trainer_8_0_pftl59721_int_0 = false;
+    static const QString proform_trainer_8_0_pftl59721_0;
+    static constexpr bool default_proform_trainer_8_0_pftl59721_0 = false;
 
     static const QString tile_biggears_swap;
     static constexpr bool default_tile_biggears_swap = false;
@@ -3335,6 +3343,12 @@ class QZSettings {
 
     static const QString renpho_bike_knob_gears;
     static constexpr bool default_renpho_bike_knob_gears = false;
+
+    static const QString android_landscape_cutout_margin;
+    static constexpr bool default_android_landscape_cutout_margin = true;
+
+    static const QString android_landscape_cutout_prompt_shown;
+    static constexpr bool default_android_landscape_cutout_prompt_shown = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

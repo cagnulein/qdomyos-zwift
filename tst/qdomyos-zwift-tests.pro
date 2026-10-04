@@ -23,6 +23,7 @@ SOURCES += \
         GarminConnect/garminconnecttestsuite.cpp \
         TrainingProgram/trainprogramtestsuite.cpp \
         ToolTests/qfittestsuite.cpp \
+        ToolTests/metrictestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
         ToolTests/testsettingssecuritytestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \

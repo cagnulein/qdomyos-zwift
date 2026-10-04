@@ -1,13 +1,21 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.SparseArray;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowInsets;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 import android.view.WindowManager;
 import android.view.DisplayCutout;
 import android.graphics.Insets;
@@ -25,6 +33,9 @@ public class CustomQtActivity extends QtActivity {
     private static native void onInsetsChanged(int top, int bottom, int left, int right,
                                                int waterfallTop, int waterfallBottom,
                                                int waterfallLeft, int waterfallRight);
+    // Left and right system bar insets without the display cutout, so QML can let the
+    // content go under the cutout when the user turns the cutout margin off.
+    private static native void onSystemBarSideInsetsChanged(int left, int right);
     private static native void nativeOnOAuthCallback(String callbackUrl);
     private static native void nativeOnDocumentPicked(int requestCode, int resultCode, String localPath);
 
@@ -49,6 +60,93 @@ public class CustomQtActivity extends QtActivity {
         }
     }
 
+    private boolean injectingBackKey = false;
+    // A system KEYCODE_BACK ACTION_DOWN went to the Qt delegate and its ACTION_UP has not arrived yet
+    private boolean backDownSentToQt = false;
+    // The callback already released that ACTION_DOWN in Qt, so the system ACTION_UP is a duplicate
+    private boolean dropNextSystemBackUp = false;
+
+    // The manifest opts out of predictive back (enableOnBackInvokedCallback="false"), so Android
+    // keeps sending KEYCODE_BACK and Qt turns an unhandled one into a close event that
+    // main.qml handles in onClosing. While the opt-out is honored, the system refuses this
+    // callback (it only logs "OnBackInvokedCallback is not enabled") and nothing changes.
+    // When the system ignores the opt-out, back goes to the callback instead, and the callback
+    // feeds Qt the same back key, so main.qml sees no difference. In the API 33-35 emulators
+    // no KEYCODE_BACK reaches the activity then; in the API 36 emulator ACTION_DOWN still comes
+    // before the callback and a canceled ACTION_UP after it. The callback completes such an
+    // ACTION_DOWN, and dispatchKeyEvent() drops the system ACTION_UP that follows (canceled or
+    // not), so Qt sees exactly one press either way. A canceled ACTION_UP without the callback
+    // (a back gesture or press the user aborted) is dropped too, so it no longer goes back.
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && !injectingBackKey) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                backDownSentToQt = true;
+                dropNextSystemBackUp = false;
+            } else if (event.getAction() == KeyEvent.ACTION_UP) {
+                boolean drop = dropNextSystemBackUp || event.isCanceled();
+                backDownSentToQt = false;
+                dropNextSystemBackUp = false;
+                if (drop) {
+                    return true;
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    private void registerBackCallback() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return;
+        }
+        getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                new OnBackInvokedCallback() {
+                    @Override
+                    public void onBackInvoked() {
+                        // A back key that Qt leaves unhandled can come back here through
+                        // Activity.onBackPressed(); stop instead of looping.
+                        if (injectingBackKey) {
+                            return;
+                        }
+                        Log.d(TAG, "onBackInvoked: sending KEYCODE_BACK to Qt, down already sent: " + backDownSentToQt);
+                        injectingBackKey = true;
+                        boolean downAlreadySent = backDownSentToQt;
+                        try {
+                            if (!downAlreadySent) {
+                                dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+                            }
+                            dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
+                        } finally {
+                            injectingBackKey = false;
+                            backDownSentToQt = false;
+                            dropNextSystemBackUp = downAlreadySent;
+                        }
+                    }
+                });
+    }
+
+    // Traverse the view hierarchy to find Qt's rendering surface (SurfaceView or TextureView)
+    // and return its Y position in pixels within the window.
+    // Qt 5.15 on some emulator configurations internally shifts its viewport by the top inset
+    // in landscape, even after setDecorFitsSystemWindows(false). Detecting this offset lets us
+    // avoid double-counting the top inset in QML.
+    private int findQtSurfaceYOffset(View view) {
+        if (view instanceof SurfaceView || view instanceof TextureView) {
+            int[] loc = new int[2];
+            view.getLocationInWindow(loc);
+            return loc[1];
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                int result = findQtSurfaceYOffset(group.getChildAt(i));
+                if (result > 0) return result;
+            }
+        }
+        return 0;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,9 +154,19 @@ public class CustomQtActivity extends QtActivity {
         dispatchOAuthCallback(getIntent());
         AgeSignalsHelper.requestAgeSignals(this);
         HealthConnectHelper.initialize(this);
+        registerBackCallback();
 
-        // This tells the OS that we want to handle the display cutout area ourselves
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        // Make the window truly edge-to-edge so the app renders into ALL screen areas
+        // including the display cutout (punch-hole/notch) on all 4 rotation variants.
+        // setDecorFitsSystemWindows(false) (API 30+) prevents the system from shrinking
+        // the content area around insets — we handle insets ourselves via onApplyWindowInsets.
+        // LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS extends into the cutout on every edge.
+        // Dark window background ensures no white strip is visible in areas Qt may not render.
+        getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+        if (Build.VERSION.SDK_INT >= 30) {
+            getWindow().setDecorFitsSystemWindows(false);
+            getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         }
 
@@ -77,6 +185,8 @@ public class CustomQtActivity extends QtActivity {
                 int waterfallBottom = 0;
                 int waterfallLeft = 0;
                 int waterfallRight = 0;
+                int systemBarLeft = 0;
+                int systemBarRight = 0;
 
                 if (density > 0) {
                     // Use system window insets as primary source
@@ -84,6 +194,16 @@ public class CustomQtActivity extends QtActivity {
                     bottom = Math.round(insets.getSystemWindowInsetBottom() / density);
                     left = Math.round(insets.getSystemWindowInsetLeft() / density);
                     right = Math.round(insets.getSystemWindowInsetRight() / density);
+                    // On API 30+ getSystemWindowInsets() also includes the display cutout,
+                    // so ask for the system bars alone.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        Insets bars = insets.getInsets(WindowInsets.Type.systemBars());
+                        systemBarLeft = Math.round(bars.left / density);
+                        systemBarRight = Math.round(bars.right / density);
+                    } else {
+                        systemBarLeft = left;
+                        systemBarRight = right;
+                    }
 
                     // For API 28+, also check display cutout for additional padding
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -108,20 +228,20 @@ public class CustomQtActivity extends QtActivity {
                 }
 
                 Log.d(TAG, "onApplyWindowInsets - Top:" + top + " Bottom:" + bottom + " Left:" + left + " Right:" + right);
-                Log.d(TAG, "Raw insets - SystemTop:" + insets.getSystemWindowInsetTop() + 
-                          " SystemBottom:" + insets.getSystemWindowInsetBottom() + 
-                          " SystemLeft:" + insets.getSystemWindowInsetLeft() + 
+                Log.d(TAG, "Raw insets - SystemTop:" + insets.getSystemWindowInsetTop() +
+                          " SystemBottom:" + insets.getSystemWindowInsetBottom() +
+                          " SystemLeft:" + insets.getSystemWindowInsetLeft() +
                           " SystemRight:" + insets.getSystemWindowInsetRight());
-                Log.d(TAG, "Stable insets - StableTop:" + insets.getStableInsetTop() + 
-                          " StableBottom:" + insets.getStableInsetBottom() + 
-                          " StableLeft:" + insets.getStableInsetLeft() + 
+                Log.d(TAG, "Stable insets - StableTop:" + insets.getStableInsetTop() +
+                          " StableBottom:" + insets.getStableInsetBottom() +
+                          " StableLeft:" + insets.getStableInsetLeft() +
                           " StableRight:" + insets.getStableInsetRight());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     DisplayCutout cutout = insets.getDisplayCutout();
                     if (cutout != null) {
-                        Log.d(TAG, "Cutout insets - Top:" + cutout.getSafeInsetTop() + 
-                              " Bottom:" + cutout.getSafeInsetBottom() + 
-                              " Left:" + cutout.getSafeInsetLeft() + 
+                        Log.d(TAG, "Cutout insets - Top:" + cutout.getSafeInsetTop() +
+                              " Bottom:" + cutout.getSafeInsetBottom() +
+                              " Left:" + cutout.getSafeInsetLeft() +
                               " Right:" + cutout.getSafeInsetRight());
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                             Insets waterfallInsets = cutout.getWaterfallInsets();
@@ -133,16 +253,38 @@ public class CustomQtActivity extends QtActivity {
                     }
                 }
 
-                // Push the new, correct inset values to the C++ layer.
-                // Guard against the race where Qt's native library hasn't finished
-                // loading yet when Android fires onApplyWindowInsets early (targetSdk>=36
-                // forces edge-to-edge, triggering this before QtActivity finishes
-                // loading libqdomyos-zwift in its background thread).
+                // Push the new, correct inset values to the C++ layer immediately for
+                // responsiveness. Guard against the race where Qt's native library hasn't
+                // finished loading yet when Android fires onApplyWindowInsets early.
                 try {
                     onInsetsChanged(top, bottom, left, right, waterfallTop, waterfallBottom, waterfallLeft, waterfallRight);
+                    onSystemBarSideInsetsChanged(systemBarLeft, systemBarRight);
                 } catch (UnsatisfiedLinkError ignored) {
                     // Qt not ready yet; insets will be re-applied once Qt initializes.
                 }
+
+                // Deferred correction: Qt 5.15 on some emulator configurations internally
+                // shifts its rendering viewport by the top inset in landscape mode even
+                // after setDecorFitsSystemWindows(false). On real devices this does not
+                // happen. We detect the offset by measuring the Qt surface view position
+                // after the layout pass completes, then send corrected values so QML
+                // topPadding is not double-counted.
+                final int fTop = top, fBottom = bottom, fLeft = left, fRight = right;
+                final int fWT = waterfallTop, fWB = waterfallBottom, fWL = waterfallLeft, fWR = waterfallRight;
+                final float fDensity = density;
+                v.post(() -> {
+                    int surfaceYPx = findQtSurfaceYOffset(v);
+                    Log.d(TAG, "deferred surfaceYPx=" + surfaceYPx + " fTop=" + fTop);
+                    if (surfaceYPx > 0 && fDensity > 0) {
+                        int adjustedTop = Math.max(0, fTop - Math.round(surfaceYPx / fDensity));
+                        Log.d(TAG, "adjustedTop=" + adjustedTop);
+                        if (adjustedTop != fTop) {
+                            try {
+                                onInsetsChanged(adjustedTop, fBottom, fLeft, fRight, fWT, fWB, fWL, fWR);
+                            } catch (UnsatisfiedLinkError ignored) {}
+                        }
+                    }
+                });
 
                 return v.onApplyWindowInsets(insets);
             }

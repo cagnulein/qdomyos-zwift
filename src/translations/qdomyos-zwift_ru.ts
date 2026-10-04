@@ -4561,6 +4561,22 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift – мост между тренажёрами и приложениями</translation>
     </message>
+    <message>
+        <location filename="../main.qml" line="799"/>
+        <source>Camera Cutout</source>
+        <translation>Вырез камеры</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="800"/>
+        <source>In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.
+Do you want to use the full screen width instead?
+
+You can change it later in Settings &gt; General UI Options &gt; Keep Content Clear of the Camera Cutout.</source>
+        <translation>В горизонтальной ориентации QZ оставляет отступ со стороны камеры, чтобы вырез под камеру не закрывал содержимое.
+Растянуть содержимое на всю ширину экрана?
+
+Это можно изменить позже: Настройки &gt; Общие параметры интерфейса &gt; Не заходить под вырез камеры.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>

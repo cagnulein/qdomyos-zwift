@@ -313,6 +313,11 @@ HomeForm {
         readonly property int tileColumns: Math.max(1, Math.floor(parent.width / tileBaseWidth))
         cellWidth: Math.floor(Math.min(parent.width / tileColumns, tileBaseWidth * 1.25))
         width: tileColumns * cellWidth
+        // Every tile is narrower than its cell by tileGap and sits at the cell's left edge, so the
+        // last column ends with the gap: the grid is shifted by half the gap, so the outer margins
+        // are equal
+        readonly property real tileGap: 5 * settings.ui_zoom / 100
+        anchors.horizontalCenterOffset: tileGap / 2
         cellHeight: 130 * settings.ui_zoom / 100
         focus: true
         model: appModel
@@ -321,7 +326,7 @@ HomeForm {
         id: gridView
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
-        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
+        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation | Qt.InvertedLandscapeOrientation | Qt.InvertedPortraitOrientation
         Screen.onPrimaryOrientationChanged:{
             // Nothing to recompute: cellWidth and the grid width follow the page width
         }
@@ -330,7 +335,7 @@ HomeForm {
 
         delegate: Item {
             id: id1
-            width: gridView.cellWidth - 5 * settings.ui_zoom / 100
+            width: gridView.cellWidth - gridView.tileGap
             height: 125 * settings.ui_zoom / 100
 
             visible: visibleItem

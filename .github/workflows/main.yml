@@ -923,6 +923,11 @@ jobs:
 
             echo "All permissions granted successfully"
 
+            # Turn on location services, otherwise the "Permissions Required" dialog covers the app
+            adb shell settings put secure location_mode 3 || true
+            adb shell settings put secure location_providers_allowed +gps,+network || true
+            adb shell cmd location set-location-enabled true || true
+
             # Start the main activity
             adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
 
@@ -965,6 +970,9 @@ jobs:
 
             echo "Orientation test completed - 4 screenshots captured"
 
+            # Back button test (single presses navigate back, a double press on the home page exits)
+            sh .github/scripts/android_back_button_test.sh
+
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
 
@@ -981,6 +989,7 @@ jobs:
           path: |
             screenshot.png
             screenshot_orientation_*.png
+            screenshot_back_*.png
             process_list.txt
             full_logcat.txt
             qdomyos_logcat.txt
