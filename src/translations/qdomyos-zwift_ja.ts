@@ -9514,7 +9514,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <location filename="../settings.qml" line="16002"/>
-        <source>This changes the virtual Bluetooth bridge from the standard FMTS to the Power Sensor interface. Default is off.</source>
+        <source>This changes the virtual Bluetooth bridge from the standard FTMS to the Power Sensor interface. Default is off.</source>
         <translation>仮想Bluetooth接続の方式を　標準のFTMSからパワーセンサーインターフェース（CPS）へと切り替えます　デフォルトはオフです</translation>
     </message>
     <message>

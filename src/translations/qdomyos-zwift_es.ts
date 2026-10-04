@@ -9474,7 +9474,7 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <location filename="../settings.qml" line="16002"/>
-        <source>This changes the virtual Bluetooth bridge from the standard FMTS to the Power Sensor interface. Default is off.</source>
+        <source>This changes the virtual Bluetooth bridge from the standard FTMS to the Power Sensor interface. Default is off.</source>
         <translation>Esto cambia el puente Bluetooth virtual de FTMS estándar a la interfaz del sensor de potencia. Por defecto está apagado.</translation>
     </message>
     <message>

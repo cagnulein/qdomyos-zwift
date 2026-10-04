@@ -15999,7 +15999,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                     Label {
-                                        text: qsTr("This changes the virtual Bluetooth bridge from the standard FMTS to the Power Sensor interface. Default is off.")
+                                        text: qsTr("This changes the virtual Bluetooth bridge from the standard FTMS to the Power Sensor interface. Default is off.")
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: Qt.application.font.pixelSize - 2

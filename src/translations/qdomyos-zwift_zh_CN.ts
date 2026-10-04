@@ -9510,7 +9510,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <location filename="../settings.qml" line="16002"/>
-        <source>This changes the virtual Bluetooth bridge from the standard FMTS to the Power Sensor interface. Default is off.</source>
+        <source>This changes the virtual Bluetooth bridge from the standard FTMS to the Power Sensor interface. Default is off.</source>
         <translation>这将把虚拟蓝牙桥接从标准的 FTMS 更改为功率传感器接口。默认关闭。</translation>
     </message>
     <message>
