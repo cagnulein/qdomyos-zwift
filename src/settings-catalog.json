@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1008,
+  "settingCount": 1009,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -15945,6 +15945,20 @@
       "defaultExpression": "false",
       "options": null,
       "restartRequired": false
+    },
+    {
+      "key": "pafers_rower",
+      "name": "Pafers Rower",
+      "description": null,
+      "parent": "Pafers Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": true
     }
   ],
   "legacyHierarchy": {
@@ -16760,6 +16774,7 @@
       "pacef_marathon": "trainingProgramOptionsAccordion",
       "pafers_treadmill": "pafersTreadmillAccordion",
       "pafers_treadmill_bh_iboxster_plus": "pafersTreadmillAccordion",
+      "pafers_rower": "pafersTreadmillAccordion",
       "pause_on_start": "generalOptionsAccordion",
       "pause_on_start_treadmill": "treadmillAccordion",
       "peloton_auto_start_with_intro": "pelotonAccordion",
@@ -17360,6 +17375,7 @@
       "pacef_marathon": "settings.qml",
       "pafers_treadmill": "settings.qml",
       "pafers_treadmill_bh_iboxster_plus": "settings.qml",
+      "pafers_rower": "settings.qml",
       "pause_on_start": "settings.qml",
       "pause_on_start_treadmill": "settings.qml",
       "peloton_accesstoken": "settings.qml",
@@ -18331,6 +18347,7 @@
       "pacef_marathon": 10215,
       "pafers_treadmill": 11504,
       "pafers_treadmill_bh_iboxster_plus": 11518,
+      "pafers_rower": 1792,
       "pause_on_start": 3329,
       "pause_on_start_treadmill": 10715,
       "peloton_auto_start_with_intro": 7913,

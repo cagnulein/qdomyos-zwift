@@ -773,6 +773,9 @@ class QZSettings {
     static const QString pafers_treadmill;
     static constexpr bool default_pafers_treadmill = false;
 
+    static const QString pafers_rower;
+    static constexpr bool default_pafers_rower = false;
+
     static const QString yesoul_peloton_formula;
     static constexpr bool default_yesoul_peloton_formula = false;
 
