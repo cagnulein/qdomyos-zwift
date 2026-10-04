@@ -1206,62 +1206,62 @@ Do you want to update QZ settings?</source>
         <translation>¡Subida a Intervals.icu correcta!</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12052"/>
+        <location filename="../homeform.cpp" line="12053"/>
         <source>Intervals.icu upload failed (HTTP %1)</source>
         <translation>Error al subir a Intervals.icu (HTTP %1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12066"/>
+        <location filename="../homeform.cpp" line="12067"/>
         <source>Intervals.icu upload failed: %1</source>
         <translation>Error al subir a Intervals.icu: %1</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12068"/>
+        <location filename="../homeform.cpp" line="12069"/>
         <source>Intervals.icu upload failed</source>
         <translation>Error al subir a Intervals.icu</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12083"/>
+        <location filename="../homeform.cpp" line="12084"/>
         <source>Intervals.icu: Configure athlete ID first</source>
         <translation>Intervals.icu: configura primero el ID de atleta</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12104"/>
+        <location filename="../homeform.cpp" line="12105"/>
         <source>Intervals.icu: Please authenticate first</source>
         <translation>Intervals.icu: autentícate primero</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12121"/>
+        <location filename="../homeform.cpp" line="12122"/>
         <source>Downloading workout from Intervals.icu...</source>
         <translation>Descargando el entrenamiento de Intervals.icu...</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12132"/>
+        <location filename="../homeform.cpp" line="12134"/>
         <source>Intervals.icu: %1</source>
         <translation>Intervals.icu: %1</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12133"/>
+        <location filename="../homeform.cpp" line="12135"/>
         <source>Failed to get workouts (HTTP %1)</source>
         <translation>No se pudieron obtener los entrenamientos (HTTP %1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12142"/>
+        <location filename="../homeform.cpp" line="12144"/>
         <source>Intervals.icu: Invalid response</source>
         <translation>Intervals.icu: respuesta no válida</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12150"/>
+        <location filename="../homeform.cpp" line="12152"/>
         <source>No workouts planned for today on Intervals.icu</source>
         <translation>No hay entrenamientos planificados para hoy en Intervals.icu</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12220"/>
+        <location filename="../homeform.cpp" line="12222"/>
         <source>Workout saved: %1</source>
         <translation>Entrenamiento guardado: %1</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12223"/>
+        <location filename="../homeform.cpp" line="12225"/>
         <source>Failed to save workout file</source>
         <translation>No se pudo guardar el archivo de entrenamiento</translation>
     </message>
@@ -1311,23 +1311,23 @@ Do you want to update QZ settings?</source>
         <translation>Frecuencia cardíaca objetivo alcanzada. El entrenamiento continúa.</translation>
     </message>
     <message>
-        <location filename="../trainprogram.cpp" line="1403"/>
-        <location filename="../trainprogram.cpp" line="1411"/>
+        <location filename="../trainprogram.cpp" line="1404"/>
+        <location filename="../trainprogram.cpp" line="1412"/>
         <source>Waiting for heart rate target</source>
         <translation>Esperando la frecuencia cardíaca objetivo</translation>
     </message>
     <message>
-        <location filename="../trainprogram.cpp" line="1407"/>
+        <location filename="../trainprogram.cpp" line="1408"/>
         <source>Ride until heart rate is above %1 bpm</source>
         <translation>Pedalea hasta que la frecuencia cardíaca supere %1 bpm</translation>
     </message>
     <message>
-        <location filename="../trainprogram.cpp" line="1409"/>
+        <location filename="../trainprogram.cpp" line="1410"/>
         <source>Ride until heart rate is below %1 bpm</source>
         <translation>Pedalea hasta que la frecuencia cardíaca baje de %1 bpm</translation>
     </message>
     <message>
-        <location filename="../trainprogram.cpp" line="1458"/>
+        <location filename="../trainprogram.cpp" line="1459"/>
         <source>Lap received. Continuing workout.</source>
         <translation>Vuelta recibida. El entrenamiento continúa.</translation>
     </message>

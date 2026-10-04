@@ -988,62 +988,62 @@ Do you want to update QZ settings?</source>
         <translation>Вивантаження в Intervals.icu виконано!</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12052"/>
+        <location filename="../homeform.cpp" line="12053"/>
         <source>Intervals.icu upload failed (HTTP %1)</source>
         <translation>Не вдалося вивантажити в Intervals.icu (HTTP %1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12066"/>
+        <location filename="../homeform.cpp" line="12067"/>
         <source>Intervals.icu upload failed: %1</source>
         <translation>Не вдалося вивантажити в Intervals.icu: %1</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12068"/>
+        <location filename="../homeform.cpp" line="12069"/>
         <source>Intervals.icu upload failed</source>
         <translation>Не вдалося вивантажити в Intervals.icu</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12083"/>
+        <location filename="../homeform.cpp" line="12084"/>
         <source>Intervals.icu: Configure athlete ID first</source>
         <translation>Intervals.icu: спочатку вкажіть ID спортсмена</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12104"/>
+        <location filename="../homeform.cpp" line="12105"/>
         <source>Intervals.icu: Please authenticate first</source>
         <translation>Intervals.icu: спочатку увійдіть</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12121"/>
+        <location filename="../homeform.cpp" line="12122"/>
         <source>Downloading workout from Intervals.icu...</source>
         <translation>Отримання тренування з Intervals.icu...</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12133"/>
+        <location filename="../homeform.cpp" line="12135"/>
         <source>Failed to get workouts (HTTP %1)</source>
         <translation>Не вдалося отримати тренування (HTTP %1)</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12132"/>
+        <location filename="../homeform.cpp" line="12134"/>
         <source>Intervals.icu: %1</source>
         <translation>Intervals.icu: %1</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12142"/>
+        <location filename="../homeform.cpp" line="12144"/>
         <source>Intervals.icu: Invalid response</source>
         <translation>Intervals.icu: неправильна відповідь</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12150"/>
+        <location filename="../homeform.cpp" line="12152"/>
         <source>No workouts planned for today on Intervals.icu</source>
         <translation>На сьогодні в Intervals.icu тренувань немає</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12220"/>
+        <location filename="../homeform.cpp" line="12222"/>
         <source>Workout saved: %1</source>
         <translation>Тренування збережено: %1</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12223"/>
+        <location filename="../homeform.cpp" line="12225"/>
         <source>Failed to save workout file</source>
         <translation>Не вдалося зберегти файл тренування</translation>
     </message>
@@ -1311,23 +1311,23 @@ Do you want to update QZ settings?</source>
         <translation>Цільового пульсу досягнуто. Тренування триває.</translation>
     </message>
     <message>
-        <location filename="../trainprogram.cpp" line="1403"/>
-        <location filename="../trainprogram.cpp" line="1411"/>
+        <location filename="../trainprogram.cpp" line="1404"/>
+        <location filename="../trainprogram.cpp" line="1412"/>
         <source>Waiting for heart rate target</source>
         <translation>Очікування цільового пульсу</translation>
     </message>
     <message>
-        <location filename="../trainprogram.cpp" line="1407"/>
+        <location filename="../trainprogram.cpp" line="1408"/>
         <source>Ride until heart rate is above %1 bpm</source>
         <translation>Продовжуйте їзду, доки пульс не стане вищим за %1 уд/хв</translation>
     </message>
     <message>
-        <location filename="../trainprogram.cpp" line="1409"/>
+        <location filename="../trainprogram.cpp" line="1410"/>
         <source>Ride until heart rate is below %1 bpm</source>
         <translation>Продовжуйте їзду, доки пульс не стане нижчим за %1 уд/хв</translation>
     </message>
     <message>
-        <location filename="../trainprogram.cpp" line="1458"/>
+        <location filename="../trainprogram.cpp" line="1459"/>
         <source>Lap received. Continuing workout.</source>
         <translation>Коло отримано. Тренування триває.</translation>
     </message>

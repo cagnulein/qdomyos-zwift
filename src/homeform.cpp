@@ -12048,6 +12048,7 @@ void homeform::writeFileCompletedIntervalsICU() {
     if (statusCode >= 200 && statusCode < 300) {
         setToastRequested(QObject::tr("Intervals.icu upload successful!"));
     } else {
+        // Keep the debug log in English: it is read by a human when a user sends it (#5188). Translate only the toast.
         qDebug() << "Intervals.icu upload failed (HTTP" << statusCode << ")" << response;
         setToastRequested(QObject::tr("Intervals.icu upload failed (HTTP %1)").arg(statusCode));
     }
@@ -12128,6 +12129,7 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
     qDebug() << "Intervals.icu: Download response status:" << statusCode;
 
     if (statusCode != 200) {
+        // Keep the debug log in English: it is read by a human when a user sends it (#5188). Translate only the toast.
         qDebug() << "Intervals.icu: failed to get workouts (HTTP" << statusCode << ")";
         setToastRequested(QObject::tr("Intervals.icu: %1")
                               .arg(QObject::tr("Failed to get workouts (HTTP %1)").arg(statusCode)));

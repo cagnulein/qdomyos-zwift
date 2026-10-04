@@ -1206,62 +1206,62 @@ Do you want to update QZ settings?</source>
         <translation>Intervals.icu 上传成功！</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12052"/>
+        <location filename="../homeform.cpp" line="12053"/>
         <source>Intervals.icu upload failed (HTTP %1)</source>
         <translation>Intervals.icu 上传失败（HTTP %1）</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12066"/>
+        <location filename="../homeform.cpp" line="12067"/>
         <source>Intervals.icu upload failed: %1</source>
         <translation>Intervals.icu 上传失败：%1</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12068"/>
+        <location filename="../homeform.cpp" line="12069"/>
         <source>Intervals.icu upload failed</source>
         <translation>Intervals.icu 上传失败</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12083"/>
+        <location filename="../homeform.cpp" line="12084"/>
         <source>Intervals.icu: Configure athlete ID first</source>
         <translation>Intervals.icu：请先配置运动员 ID</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12104"/>
+        <location filename="../homeform.cpp" line="12105"/>
         <source>Intervals.icu: Please authenticate first</source>
         <translation>Intervals.icu：请先认证</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12121"/>
+        <location filename="../homeform.cpp" line="12122"/>
         <source>Downloading workout from Intervals.icu...</source>
         <translation>正在从 Intervals.icu 下载训练...</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12132"/>
+        <location filename="../homeform.cpp" line="12134"/>
         <source>Intervals.icu: %1</source>
         <translation>Intervals.icu：%1</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12133"/>
+        <location filename="../homeform.cpp" line="12135"/>
         <source>Failed to get workouts (HTTP %1)</source>
         <translation>获取训练失败（HTTP %1）</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12142"/>
+        <location filename="../homeform.cpp" line="12144"/>
         <source>Intervals.icu: Invalid response</source>
         <translation>Intervals.icu：响应无效</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12150"/>
+        <location filename="../homeform.cpp" line="12152"/>
         <source>No workouts planned for today on Intervals.icu</source>
         <translation>Intervals.icu 上今天没有计划的训练</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12220"/>
+        <location filename="../homeform.cpp" line="12222"/>
         <source>Workout saved: %1</source>
         <translation>训练已保存：%1</translation>
     </message>
     <message>
-        <location filename="../homeform.cpp" line="12223"/>
+        <location filename="../homeform.cpp" line="12225"/>
         <source>Failed to save workout file</source>
         <translation>保存训练文件失败</translation>
     </message>
@@ -1311,23 +1311,23 @@ Do you want to update QZ settings?</source>
         <translation>已达到目标心率。继续训练。</translation>
     </message>
     <message>
-        <location filename="../trainprogram.cpp" line="1403"/>
-        <location filename="../trainprogram.cpp" line="1411"/>
+        <location filename="../trainprogram.cpp" line="1404"/>
+        <location filename="../trainprogram.cpp" line="1412"/>
         <source>Waiting for heart rate target</source>
         <translation>正在等待达到目标心率</translation>
     </message>
     <message>
-        <location filename="../trainprogram.cpp" line="1407"/>
+        <location filename="../trainprogram.cpp" line="1408"/>
         <source>Ride until heart rate is above %1 bpm</source>
         <translation>持续骑行，直到心率高于 %1 bpm</translation>
     </message>
     <message>
-        <location filename="../trainprogram.cpp" line="1409"/>
+        <location filename="../trainprogram.cpp" line="1410"/>
         <source>Ride until heart rate is below %1 bpm</source>
         <translation>持续骑行，直到心率低于 %1 bpm</translation>
     </message>
     <message>
-        <location filename="../trainprogram.cpp" line="1458"/>
+        <location filename="../trainprogram.cpp" line="1459"/>
         <source>Lap received. Continuing workout.</source>
         <translation>已收到计圈。继续训练。</translation>
     </message>
