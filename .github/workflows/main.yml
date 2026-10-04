@@ -232,7 +232,7 @@ jobs:
               foreach ($listener in $listeners) {
                 try {
                   $candidate = Invoke-WebRequest -Uri "http://127.0.0.1:$($listener.LocalPort)/chartjs/chart.htm" -UseBasicParsing -TimeoutSec 5
-                  if ($candidate.StatusCode -eq 200 -and $candidate.Content -match "<html|Chart|chart") {
+                  if ($candidate.StatusCode -eq 200 -and $candidate.Content -match '<title>Line Chart</title>') {
                     $response = $candidate
                     $port = $listener.LocalPort
                     break
