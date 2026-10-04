@@ -80,7 +80,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview perl
           msystem: mingw64
           release: false
 
@@ -118,6 +118,9 @@ jobs:
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
         shell: msys2 {0}
         run: |
+            export PATH="/usr/bin:/mingw64/bin:$PATH"
+            command -v perl
+            perl -e 'print "Perl OS: $^O\\n"'
             qt_dir="$(cygpath -u "$Qt5_Dir")"
             qmake="$qt_dir/bin/qmake.exe"
             "$qmake" -v
