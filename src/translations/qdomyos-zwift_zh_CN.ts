@@ -1464,6 +1464,33 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SettingsNumberField</name>
+    <message>
+        <source>The value cannot be negative</source>
+        <translation>值不能为负数</translation>
+    </message>
+    <message>
+        <source>Enter a whole number</source>
+        <translation>请输入整数</translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>请输入数字</translation>
+    </message>
+    <message>
+        <source>Allowed range: %1 to %2</source>
+        <translation>允许范围：%1 至 %2</translation>
+    </message>
+    <message>
+        <source>Minimum: %1</source>
+        <translation>最小值：%1</translation>
+    </message>
+    <message>
+        <source>Maximum: %1</source>
+        <translation>最大值：%1</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <location filename="../SwagBagView.qml" line="66"/>

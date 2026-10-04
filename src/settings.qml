@@ -2238,21 +2238,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Player Weight") + "(" + ((settings.miles_unit && !settings.weight_kg_unit)?"lbs":"kg") + ")"
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: weightTextField
+                            minimum: 1
                             text: ((settings.miles_unit && !settings.weight_kg_unit)?settings.weight * 2.20462:settings.weight)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.weight = text
+                            onAccepted: if (valid) settings.weight = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okWeightButton
                             text: qsTr("OK")
+                            enabled: weightTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?weightTextField.text / 2.20462:weightTextField.text); toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.weight = ((settings.miles_unit && !settings.weight_kg_unit)?weightTextField.value / 2.20462:weightTextField.value); toast.show(qsTr("Setting saved!")); }
                         }
                     }
                     Label {
@@ -2334,21 +2336,25 @@ import AndroidStatusBar 1.0
                             text: qsTr("Player Age:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: ageTextField
+                            decimals: 0
+                            minimum: 1
+                            maximum: 120
                             text: settings.age
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.age = text
+                            onAccepted: if (valid) settings.age = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okAgeButton
                             text: qsTr("OK")
+                            enabled: ageTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.age = ageTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.age = ageTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2413,21 +2419,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("FTP value:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: ftpTextField
                             text: settings.ftp
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.ftp = text
+                            onAccepted: settings.ftp = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okFTPButton
                             text: qsTr("OK")
+                            enabled: ftpTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftp = ftpTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftp = ftpTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2450,20 +2457,21 @@ import AndroidStatusBar 1.0
                             text: qsTr("Critical Power Run value:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: ftpRunTextField
                             text: settings.ftp_run
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.ftp_run = text
+                            onAccepted: settings.ftp_run = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: ftpRunTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftp_run = ftpRunTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftp_run = ftpRunTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3082,21 +3090,25 @@ import AndroidStatusBar 1.0
                                             text: qsTr("Resting Heart Rate")
                                             Layout.fillWidth: true
                                         }
-                                        TextField {
+                                        SettingsNumberField {
                                             id: heartRateRestingValueTextField
+                                            decimals: 0
+                                            minimum: 20
+                                            maximum: 200
                                             text: settings.heart_rate_resting
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.heart_rate_resting = text
+                                            onAccepted: if (valid) settings.heart_rate_resting = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okHeartRateRestingValue
                                             text: qsTr("OK")
+                                            enabled: heartRateRestingValueTextField.valid
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.heart_rate_resting = heartRateRestingValueTextField.text; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.heart_rate_resting = heartRateRestingValueTextField.value; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -12811,21 +12823,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Watt Offset:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: wattOffsetTextField
+                            signed: true
                             text: settings.watt_offset
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.watt_offset = text
+                            onAccepted: settings.watt_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okwattOffsetButton
                             text: qsTr("OK")
+                            enabled: wattOffsetTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_offset = wattOffsetTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.watt_offset = wattOffsetTextField.value; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12924,21 +12938,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Speed Offset")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: speedOffsetTextField
+                            signed: true
                             text: settings.speed_offset
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.speed_offset = text
+                            onAccepted: settings.speed_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okspeedOffsetButton
                             text: qsTr("OK")
+                            enabled: speedOffsetTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.speed_offset = speedOffsetTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.speed_offset = speedOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 

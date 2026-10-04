@@ -3,6 +3,7 @@
         <file>HomeForm.ui.qml</file>
         <file>main.qml</file>
         <file>EmailValidator.qml</file>
+        <file>SettingsNumberField.qml</file>
         <file>Page1Form.ui.qml</file>
         <file>Page2Form.ui.qml</file>
         <file>qtquickcontrols2.conf</file>

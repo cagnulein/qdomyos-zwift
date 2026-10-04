@@ -1464,6 +1464,33 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SettingsNumberField</name>
+    <message>
+        <source>The value cannot be negative</source>
+        <translation>Значення не може бути від’ємним</translation>
+    </message>
+    <message>
+        <source>Enter a whole number</source>
+        <translation>Введіть ціле число</translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>Введіть число</translation>
+    </message>
+    <message>
+        <source>Allowed range: %1 to %2</source>
+        <translation>Допустимо: від %1 до %2</translation>
+    </message>
+    <message>
+        <source>Minimum: %1</source>
+        <translation>Мінімум: %1</translation>
+    </message>
+    <message>
+        <source>Maximum: %1</source>
+        <translation>Максимум: %1</translation>
+    </message>
+</context>
+<context>
     <name>SwagBagView</name>
     <message>
         <location filename="../SwagBagView.qml" line="66"/>
