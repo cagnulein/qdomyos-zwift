@@ -56,6 +56,7 @@ jobs:
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
+          ref: 983e93c3b160c62e60b1755d075e959d4685d949
 
       - uses: actions/setup-python@v5
         with:
@@ -106,7 +107,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: src/qthttpserver
-          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-v1
+          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-983e93c3b160c62e60b1755d075e959d4685d949-msys2-v1
 
       - name: download 3rd party files for qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
@@ -115,17 +116,29 @@ jobs:
 
       - name: Build qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
+        shell: msys2 {0}
         run: |
-            cd src\qthttpserver
-            qmake
+            qt_dir="$(cygpath -u "$Qt5_Dir")"
+            qmake="$qt_dir/bin/qmake.exe"
+            "$qmake" -v
+            cd src/qthttpserver
+            "$qmake"
             make -j8
             cd ../..
 
       - name: Install qthttpserver
+        shell: msys2 {0}
         run: |
-            cd src\qthttpserver
+            qt_dir="$(cygpath -u "$Qt5_Dir")"
+            cd src/qthttpserver
             make install
             cd ../..
+            test -f "$qt_dir/bin/Qt5HttpServer.dll"
+            test -f "$qt_dir/bin/Qt5SslServer.dll"
+            test -f "$qt_dir/lib/libQt5HttpServer.a"
+            test -f "$qt_dir/lib/libQt5SslServer.a"
+            test -f "$qt_dir/mkspecs/modules/qt_lib_httpserver.pri"
+            test -f "$qt_dir/mkspecs/modules/qt_lib_sslserver.pri"
 
       - name: Secrets
         if: github.ref == 'refs/heads/master'
