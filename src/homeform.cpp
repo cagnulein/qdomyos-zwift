@@ -82,7 +82,7 @@ QString sanitizeClipboardWorkoutName(const QString &input) {
     if (trimmed.isEmpty()) {
         trimmed = QStringLiteral("Clipboard_Workout");
     }
-    QRegularExpression invalid(QStringLiteral("[^A-Za-z0-9_\\- ]"));
+    QRegularExpression invalid(QStringLiteral("[\\\\/:*?\"<>|\\x00-\\x1F]"));
     trimmed.replace(invalid, QStringLiteral("_"));
     trimmed.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
     return trimmed;
@@ -12293,7 +12293,8 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
 
                 // Sanitize filename
                 QString safeName = workoutName;
-                safeName.replace(QRegExp("[^a-zA-Z0-9_\\-]"), "_");
+                safeName.replace(QRegularExpression(QStringLiteral("[\\\\/:*?\"<>|\\x00-\\x1F\\s]")), QStringLiteral("_"));
+                safeName.truncate(100);
 
                 // Add date prefix
                 QString today = QDate::currentDate().toString("yyyy-MM-dd");
