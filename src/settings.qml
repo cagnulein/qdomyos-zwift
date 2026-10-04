@@ -12,6 +12,10 @@ import AndroidStatusBar 1.0
         objectName: "settingsPage"
         // Settings is a vertical page: never let a wide translated child enlarge the viewport.
         contentWidth: availableWidth
+        // The page height from the column itself: ScrollView takes it from its only child on its
+        // own, but on a phone it stopped following after a turn of the screen - the column grew
+        // to 7254 while the page stayed 1310, a section opened after it could not be scrolled
+        contentHeight: column1.implicitHeight
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
@@ -1783,6 +1787,8 @@ import AndroidStatusBar 1.0
             property bool nordictrack_incline_trainer_x7i_netl18716_0: false
             property bool android_landscape_cutout_margin: true
             property real watt_max: 9999
+            property bool proform_trainer_8_0_pftl59721_0: false
+            property bool android_landscape_cutout_prompt_shown: false
             property bool fitshow_bike_question: true
         }
 
@@ -1865,7 +1871,12 @@ import AndroidStatusBar 1.0
         ColumnLayout {
             id: column1
             spacing: 0
-            anchors.fill: parent
+            // Not tied to the bottom: the height of the column is the content height of the page, so
+            // fill made an anchor loop; on a turn of the screen Qt gave up on it and the height stayed
+            // as it was - a section opened after it could not be scrolled to its end
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
 
             RowLayout {
                 id: settingsSearchBar
@@ -10522,6 +10533,7 @@ import AndroidStatusBar 1.0
                                     "ProForm 105 CST",
                                     "Nordictrack Incline Trainer X7i NTL15010.0",
                                     "Nordictrack Incline Trainer X7i NETL18716.0",
+                                    "ProForm Trainer 8.0 PFTL59721.0",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -10602,7 +10614,8 @@ import AndroidStatusBar 1.0
                                                     settings.proform_treadmill_cst_505_pftl59420_0 ? 61 :
                                                     settings.proform_treadmill_105_cst ? 62 :
                                                     settings.nordictrack_incline_trainer_x7i_ntl15010_0 ? 63 :
-                                                    settings.nordictrack_incline_trainer_x7i_netl18716_0 ? 64 : 0;
+                                                    settings.nordictrack_incline_trainer_x7i_netl18716_0 ? 64 :
+                                                    settings.proform_trainer_8_0_pftl59721_0 ? 65 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -10681,6 +10694,7 @@ import AndroidStatusBar 1.0
                                     settings.proform_treadmill_105_cst = false;
                                     settings.nordictrack_incline_trainer_x7i_ntl15010_0 = false;
                                     settings.nordictrack_incline_trainer_x7i_netl18716_0 = false;
+                                    settings.proform_trainer_8_0_pftl59721_0 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -10748,6 +10762,7 @@ import AndroidStatusBar 1.0
                                         case 62: settings.proform_treadmill_105_cst = true; break;
                                         case 63: settings.nordictrack_incline_trainer_x7i_ntl15010_0 = true; break;
                                         case 64: settings.nordictrack_incline_trainer_x7i_netl18716_0 = true; break;
+                                        case 65: settings.proform_trainer_8_0_pftl59721_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;

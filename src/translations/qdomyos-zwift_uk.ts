@@ -3360,6 +3360,30 @@ This may take a few moments on first startup.</source>
         <source>Close</source>
         <translation>Закрити</translation>
     </message>
+    <message>
+        <source>Import FIT File...</source>
+        <translation>Імпортувати файл FIT...</translation>
+    </message>
+    <message>
+        <source>Import from QZ Folder...</source>
+        <translation>Імпортувати з папки QZ...</translation>
+    </message>
+    <message>
+        <source>Please choose a file</source>
+        <translation>Виберіть файл</translation>
+    </message>
+    <message>
+        <source>FIT files (*.fit *.FIT)</source>
+        <translation>Файли FIT (*.fit *.FIT)</translation>
+    </message>
+    <message>
+        <source>All files (*)</source>
+        <translation>Усі файли (*)</translation>
+    </message>
+    <message>
+        <source>Importing workouts...</source>
+        <translation>Імпорт тренувань...</translation>
+    </message>
 </context>
 <context>
     <name>charts</name>
@@ -4171,6 +4195,34 @@ This may take a few moments on first startup.</source>
         <source>License not found</source>
         <translation>Ліцензію не знайдено</translation>
     </message>
+    <message>
+        <source>The workout file could not be opened.</source>
+        <translation>Не вдалося відкрити файл тренування.</translation>
+    </message>
+    <message>
+        <source>The workout file could not be copied.</source>
+        <translation>Не вдалося скопіювати файл тренування.</translation>
+    </message>
+    <message>
+        <source>No workout files (.fit) found.</source>
+        <translation>Файлів тренувань (.fit) не знайдено.</translation>
+    </message>
+    <message>
+        <source>Workouts imported: %1.</source>
+        <translation>Імпортовано тренувань: %1.</translation>
+    </message>
+    <message>
+        <source>Already in the history: %1.</source>
+        <translation>Уже є в історії: %1.</translation>
+    </message>
+    <message>
+        <source>Without workout data: %1.</source>
+        <translation>Без даних тренування: %1.</translation>
+    </message>
+    <message>
+        <source>The workout history database could not be opened.</source>
+        <translation>Не вдалося відкрити базу історії тренувань.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4560,6 +4612,36 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <location filename="../main.cpp" line="145"/>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift – міст між тренажерами та застосунками</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="799"/>
+        <source>Camera Cutout</source>
+        <translation>Виріз камери</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="800"/>
+        <source>In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.
+Do you want to use the full screen width instead?
+
+You can change it later in Settings &gt; General UI Options &gt; Keep Content Clear of the Camera Cutout.</source>
+        <translation>У горизонтальній орієнтації QZ залишає відступ з боку камери, щоб виріз під камеру не закривав вміст.
+Розтягнути вміст на всю ширину екрана?
+
+Це можна змінити пізніше: Налаштування &gt; Загальні параметри інтерфейсу &gt; Не заходити під виріз камери.</translation>
+    </message>
+    <message>
+        <source>Workout History</source>
+        <translation>Історія тренувань</translation>
+    </message>
+    <message>
+        <source>Workouts of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Тренування попереднього встановлення можуть залишатися в папці QZ.
+Знайти їх?
+
+У наступному вікні дозвольте доступ до папки QZ.</translation>
     </message>
 </context>
 <context>

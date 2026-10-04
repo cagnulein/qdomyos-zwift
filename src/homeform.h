@@ -192,6 +192,8 @@ class homeform : public QObject {
     Q_PROPERTY(bool stopRequested READ stopRequested NOTIFY stopRequestedChanged WRITE setStopRequestedChanged)
     Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
     Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
+    // a workout import (file or folder) is copying or adding to the history
+    Q_PROPERTY(bool fitImportRunning READ fitImportRunning NOTIFY fitImportRunningChanged)
     Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
     Q_PROPERTY(bool garminMfaRequested READ garminMfaRequested NOTIFY garminMfaRequestedChanged WRITE setGarminMfaRequested)
     Q_PROPERTY(bool garminWorkoutPromptRequested READ garminWorkoutPromptRequested NOTIFY garminWorkoutPromptRequestedChanged WRITE setGarminWorkoutPromptRequested)
@@ -699,6 +701,20 @@ public:
     Q_INVOKABLE static void clearFiles();
     Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
     Q_INVOKABLE void openAndroidDocumentPicker(const QString &kind);
+    // Workout history import: one .fit file picked by the user (iOS and desktop; Android goes
+    // through openAndroidDocumentPicker("fit")), or every .fit file of the QZ folder.
+    Q_INVOKABLE void importFitFile(const QUrl &fileUrl);
+    Q_INVOKABLE void importFitFolder();
+    // the workout history page was shown: a pending offer to recover the workouts of a
+    // previous install is made there (historyRecoveryOfferRequested)
+    Q_INVOKABLE void historyPageOpened();
+    bool fitImportRunning() const { return m_fitImportRunning; }
+    Q_INVOKABLE void setFitImportRunning(bool running) {
+        if (m_fitImportRunning != running) {
+            m_fitImportRunning = running;
+            emit fitImportRunningChanged();
+        }
+    }
     Q_INVOKABLE bool deleteTrainingProgramFile(const QString &fileUrl);
 
     double wattMaxChart() {
@@ -1058,6 +1074,24 @@ public:
     QStringList m_pendingGarminWorkoutPromptNames;
     QStringList m_pendingGarminWorkoutPromptDates;
     FitDatabaseProcessor *fitProcessor = nullptr;
+    // queues .fit files that already sit in the fit folder for the history database
+    void importFitFilesToHistory(const QStringList &files);
+    // path of a history database this install can open; sets m_historyDatabaseIsNew
+    QString historyDatabasePath();
+    // folder import through the Android folder grant; without a saved grant it opens the
+    // picker only when allowPicker is set, and returns false otherwise
+    bool startFitFolderImport(bool allowPicker);
+    void offerHistoryRecovery();
+    void maybeOfferHistoryRecovery();
+    int historyWorkoutCount();
+    QString m_historyDatabasePath;
+    bool m_historyDatabaseIsNew = false;
+    bool m_historyRecoveryChecked = false;
+    bool m_historyRecoveryPending = false;
+    bool m_historyPageOpened = false;
+    // automatic import after a new database: no toast when nothing new was found
+    bool m_fitImportQuiet = false;
+    bool m_fitImportRunning = false;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
@@ -1283,6 +1317,10 @@ public:
     void changeOfdevice();
     void changeOflap();
     void androidDocumentPicked(QString kind, QUrl localUrl);
+    // a new history database was started and the workouts of a previous install may be
+    // hidden in the QZ folder: QML asks whether to look for them (importFitFolder())
+    void historyRecoveryOfferRequested();
+    void fitImportRunningChanged();
     void signalChanged(QString value);
     void startTextChanged(QString value);
     void startIconChanged(QString value);

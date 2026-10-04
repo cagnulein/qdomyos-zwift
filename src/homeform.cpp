@@ -12,6 +12,8 @@
 #include <QAndroidJniObject>
 #endif
 #include "fitdatabaseprocessor.h"
+#include <QSqlDatabase>
+#include <QSqlQuery>
 #include "material.h"
 #include "qfit.h"
 #include "simplecrypt.h"
@@ -223,6 +225,8 @@ constexpr int AndroidDocumentPickerProfileRequestCode = 4101;
 constexpr int AndroidDocumentPickerTrainingRequestCode = 4102;
 constexpr int AndroidDocumentPickerGpxRequestCode = 4103;
 constexpr int AndroidDocumentPickerSettingsRequestCode = 4104;
+constexpr int AndroidDocumentPickerFitRequestCode = 4105;
+constexpr int AndroidDocumentPickerFitFolderRequestCode = 4106;
 constexpr jint AndroidActivityResultOk = -1;
 #endif
 double interpolatedHeartZone(double percentHeartRate, double zone1, double zone2, double zone3, double zone4) {
@@ -1098,7 +1102,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 #endif
 
-    fitProcessor = new FitDatabaseProcessor(getWritableAppDir() + "ddb.sqlite");
+    m_historyDatabasePath = historyDatabasePath();
+    fitProcessor = new FitDatabaseProcessor(m_historyDatabasePath);
     connect(fitProcessor, &FitDatabaseProcessor::fileProcessed,
             this, [](const QString& filename) {
                 qDebug() << "FitDatabaseProcessor Processing:" << filename;
@@ -1111,7 +1116,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             this, [](const QString& error) {
                 qDebug() << "FitDatabaseProcessor Error:" << error;
             });
-    workoutModel = new WorkoutModel(getWritableAppDir() + "ddb.sqlite");
+    workoutModel = new WorkoutModel(m_historyDatabasePath);
     engine->rootContext()->setContextProperty("workoutModel", workoutModel);
     
     connect(fitProcessor, &FitDatabaseProcessor::processingStopped,
@@ -1119,6 +1124,41 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                 qDebug() << "FitDatabaseProcessor Processing stopped - refreshing workout model";
                 workoutModel->setDatabaseProcessing(false);
                 workoutModel->refresh();
+                if (!m_historyRecoveryChecked) {
+                    m_historyRecoveryChecked = true;
+                    // asked on the history page, where the missing workouts are noticed: on a
+                    // spare database (ddb.sqlite of a previous install is there) that holds no
+                    // workout yet. "New file" alone is not enough: a spare left by an earlier
+                    // test install may still open with its old content.
+                    m_historyRecoveryPending =
+                        m_historyDatabasePath != getWritableAppDir() + QStringLiteral("ddb.sqlite") &&
+                        historyWorkoutCount() == 0;
+                    maybeOfferHistoryRecovery();
+                }
+            });
+    connect(fitProcessor, &FitDatabaseProcessor::importFinished,
+            this, [this](int added, int alreadyInHistory, int unreadable, bool databaseOpen) {
+                qDebug() << "FitDatabaseProcessor import: added" << added << "already" << alreadyInHistory
+                         << "unreadable" << unreadable << "database open" << databaseOpen;
+                setFitImportRunning(false);
+                const bool quiet = m_fitImportQuiet;
+                m_fitImportQuiet = false;
+                workoutModel->refresh();
+                if (!databaseOpen) {
+                    setToastRequested(tr("The workout history database could not be opened."));
+                    return;
+                }
+                if (quiet && added == 0) {
+                    return;
+                }
+                QString message = tr("Workouts imported: %1.").arg(added);
+                if (alreadyInHistory > 0) {
+                    message += QStringLiteral(" ") + tr("Already in the history: %1.").arg(alreadyInHistory);
+                }
+                if (unreadable > 0) {
+                    message += QStringLiteral(" ") + tr("Without workout data: %1.").arg(unreadable);
+                }
+                setToastRequested(message);
             });
     fitProcessor->processDirectory(getWritableAppDir() + "fit");
 
@@ -1332,11 +1372,28 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnOAuthCallback(JNIEnv *en
     }
 }
 
+// a workout import was picked: the copy is about to start, show it is running
+JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnFitImportStarted(JNIEnv *env, jclass clazz) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (homeform::singleton()) {
+        QMetaObject::invokeMethod(homeform::singleton(), "setFitImportRunning", Qt::QueuedConnection,
+                                  Q_ARG(bool, true));
+    }
+}
+
 JNIEXPORT void JNICALL
 Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *env, jclass clazz, jint requestCode,
                                                                        jint resultCode, jstring localPathString) {
     Q_UNUSED(clazz)
     if (resultCode != AndroidActivityResultOk || !homeform::singleton()) {
+        // a cancelled picker ends a workout import that may already show as running
+        if (homeform::singleton() && (requestCode == AndroidDocumentPickerFitRequestCode ||
+                                      requestCode == AndroidDocumentPickerFitFolderRequestCode)) {
+            QMetaObject::invokeMethod(homeform::singleton(), "setFitImportRunning", Qt::QueuedConnection,
+                                      Q_ARG(bool, false));
+        }
         return;
     }
 
@@ -1349,7 +1406,9 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeOnDocumentPicked(JNIEnv *e
         }
     }
 
-    if (localPath.isEmpty()) {
+    // a folder import without any workout still has to tell the user so
+    if (localPath.isEmpty() && requestCode != AndroidDocumentPickerFitFolderRequestCode &&
+        requestCode != AndroidDocumentPickerFitRequestCode) {
         return;
     }
 
@@ -8884,6 +8943,9 @@ void homeform::openAndroidDocumentPicker(const QString &kind) {
     } else if (kind == QStringLiteral("settings")) {
         requestCode = AndroidDocumentPickerSettingsRequestCode;
         destinationDir = getWritableAppDir() + QStringLiteral("settings/");
+    } else if (kind == QStringLiteral("fit")) {
+        requestCode = AndroidDocumentPickerFitRequestCode;
+        destinationDir = getWritableAppDir() + QStringLiteral("fit/");
     } else {
         qWarning() << "Unknown Android document picker kind" << kind;
         return;
@@ -8904,6 +8966,13 @@ void homeform::openAndroidDocumentPicker(const QString &kind) {
 
 void homeform::handleAndroidDocumentPicked(int requestCode, const QString &localPath) {
 #ifdef Q_OS_ANDROID
+    // the Java side already copied the workouts into the fit folder; the folder import
+    // passes one path per line
+    if (requestCode == AndroidDocumentPickerFitRequestCode ||
+        requestCode == AndroidDocumentPickerFitFolderRequestCode) {
+        importFitFilesToHistory(localPath.split(QLatin1Char('\n'), Qt::SkipEmptyParts));
+        return;
+    }
     if (localPath.isEmpty()) {
         qWarning() << "Android document picker returned empty local path for request code" << requestCode;
         return;
@@ -8934,6 +9003,177 @@ void homeform::handleAndroidDocumentPicked(int requestCode, const QString &local
     Q_UNUSED(requestCode)
     Q_UNUSED(localPath)
 #endif
+}
+
+void homeform::importFitFile(const QUrl &fileUrl) {
+    const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(fileUrl);
+    const QFileInfo source(sourcePath);
+    if (sourcePath.isEmpty() || !source.isFile()) {
+        setToastRequested(tr("The workout file could not be opened."));
+        return;
+    }
+    const QString destinationDir = getWritableAppDir() + QStringLiteral("fit/");
+    QDir().mkpath(destinationDir);
+    if (source.absolutePath() + QStringLiteral("/") == destinationDir) {
+        importFitFilesToHistory(QStringList() << sourcePath);
+        return;
+    }
+
+    // keep any workout with the same file name: same name and size is the same workout,
+    // otherwise the copy gets a free "_N" name
+    QString destination;
+    for (int attempt = 0; attempt < 100 && destination.isEmpty(); attempt++) {
+        const QString candidate = destinationDir +
+                                  (attempt == 0 ? source.fileName()
+                                                : QStringLiteral("%1_%2.%3")
+                                                      .arg(source.completeBaseName())
+                                                      .arg(attempt)
+                                                      .arg(source.suffix()));
+        if (QFileInfo::exists(candidate)) {
+            if (QFileInfo(candidate).size() == source.size()) {
+                destination = candidate;
+            }
+        } else if (QFile::copy(sourcePath, candidate)) {
+            destination = candidate;
+        }
+    }
+    if (destination.isEmpty()) {
+        setToastRequested(tr("The workout file could not be copied."));
+        return;
+    }
+    importFitFilesToHistory(QStringList() << destination);
+}
+
+// The history database is only a cache of the .fit files. After the app is reinstalled on
+// Android 14+, ddb.sqlite in Documents/QZ belongs to the previous install: it can be neither
+// opened nor removed nor replaced. A new database is then kept next to it (ddb-1.sqlite, ...)
+// and filled again from the .fit files; once a folder import has removed the old ddb.sqlite,
+// the next start goes back to that name and drops the spare ones.
+QString homeform::historyDatabasePath() {
+    const QString dir = getWritableAppDir();
+    const QString mainPath = dir + QStringLiteral("ddb.sqlite");
+    QString chosen;
+    for (int i = 0; i < 20 && chosen.isEmpty(); i++) {
+        const QString path = i == 0 ? mainPath : dir + QStringLiteral("ddb-%1.sqlite").arg(i);
+        const bool existed = QFileInfo(path).size() > 0;
+        QFile file(path);
+        if (file.open(QIODevice::ReadWrite)) {
+            file.close();
+            chosen = path;
+            m_historyDatabaseIsNew = !existed;
+        } else {
+            qDebug() << "history database not usable:" << path << file.errorString();
+        }
+    }
+    if (chosen.isEmpty()) {
+        return mainPath;
+    }
+    if (chosen == mainPath) {
+        QDirIterator spare(dir, QStringList() << QStringLiteral("ddb-*.sqlite*"), QDir::Files);
+        while (spare.hasNext()) {
+            QFile::remove(spare.next());
+        }
+    }
+    qDebug() << "history database:" << chosen << "new:" << m_historyDatabaseIsNew;
+    return chosen;
+}
+
+bool homeform::startFitFolderImport(bool allowPicker) {
+#ifdef Q_OS_ANDROID
+    // the old database can be removed only through the folder grant
+    const bool removeOldDatabase = m_historyDatabasePath != getWritableAppDir() + QStringLiteral("ddb.sqlite");
+    QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("fit/"));
+    const jboolean started = QtAndroid::androidActivity().callMethod<jboolean>(
+        "openFitFolderPicker", "(ILjava/lang/String;ZZ)Z", AndroidDocumentPickerFitFolderRequestCode,
+        javaDestinationDir.object<jstring>(), static_cast<jboolean>(removeOldDatabase),
+        static_cast<jboolean>(allowPicker));
+    if (clearAndroidJniException("CustomQtActivity.openFitFolderPicker")) {
+        return false;
+    }
+    return started;
+#else
+    Q_UNUSED(allowPicker)
+    return false;
+#endif
+}
+
+// A new spare history database means ddb.sqlite of a previous install sits in the QZ folder
+// (Android 14+ after a reinstall), so its workouts are there too, hidden from the app. With a
+// saved folder grant they are imported right away; without one, the user is asked once. A
+// first install, or a database removed by hand, starts on ddb.sqlite and is not asked.
+// workouts in the history database, read through the connection of the workout model
+int homeform::historyWorkoutCount() {
+    QSqlDatabase db = QSqlDatabase::database(FitDatabaseProcessor::DB_CONNECTION_NAME + QStringLiteral("_main"));
+    if (!db.isOpen()) {
+        return 0;
+    }
+    QSqlQuery query(db);
+    if (!query.exec(QStringLiteral("SELECT COUNT(*) FROM workouts")) || !query.next()) {
+        return 0;
+    }
+    return query.value(0).toInt();
+}
+
+void homeform::historyPageOpened() {
+    m_historyPageOpened = true;
+    maybeOfferHistoryRecovery();
+}
+
+// the offer waits for both the end of the start-up processing and the history page
+void homeform::maybeOfferHistoryRecovery() {
+    if (!m_historyRecoveryPending || !m_historyPageOpened) {
+        return;
+    }
+    m_historyRecoveryPending = false;
+    offerHistoryRecovery();
+}
+
+void homeform::offerHistoryRecovery() {
+#ifdef Q_OS_ANDROID
+    if (m_historyDatabasePath == getWritableAppDir() + QStringLiteral("ddb.sqlite")) {
+        return;
+    }
+    m_fitImportQuiet = true;
+    if (!startFitFolderImport(false)) {
+        m_fitImportQuiet = false;
+        emit historyRecoveryOfferRequested();
+    }
+#endif
+}
+
+void homeform::importFitFolder() {
+#ifdef Q_OS_ANDROID
+    startFitFolderImport(true);
+#else
+    // other platforms can read their own folder: take every workout file in it again
+    QStringList files;
+    QDirIterator it(getWritableAppDir() + QStringLiteral("fit"), QStringList() << QStringLiteral("*.fit")
+                                                                              << QStringLiteral("*.FIT"),
+                    QDir::Files);
+    while (it.hasNext()) {
+        files << it.next();
+    }
+    importFitFilesToHistory(files);
+#endif
+}
+
+void homeform::importFitFilesToHistory(const QStringList &files) {
+    if (!fitProcessor || !workoutModel) {
+        return;
+    }
+    if (files.isEmpty()) {
+        setFitImportRunning(false);
+        if (m_fitImportQuiet) {
+            // automatic import at start: the saved grant found nothing (folder gone), so ask
+            m_fitImportQuiet = false;
+            emit historyRecoveryOfferRequested();
+            return;
+        }
+        setToastRequested(tr("No workout files (.fit) found."));
+        return;
+    }
+    setFitImportRunning(true);
+    QMetaObject::invokeMethod(fitProcessor, "importFiles", Qt::QueuedConnection, Q_ARG(QStringList, files));
 }
 
 bool homeform::deleteTrainingProgramFile(const QString &fileUrl) {

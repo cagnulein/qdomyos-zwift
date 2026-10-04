@@ -2287,6 +2287,34 @@ The following questions will customize QZ for your equipment and goals.</source>
         <source>Error retrieving access token, %1 (%2)</source>
         <translation>无法检索访问令牌，%1 (%2)</translation>
     </message>
+    <message>
+        <source>The workout file could not be opened.</source>
+        <translation>无法打开训练文件。</translation>
+    </message>
+    <message>
+        <source>The workout file could not be copied.</source>
+        <translation>无法复制训练文件。</translation>
+    </message>
+    <message>
+        <source>No workout files (.fit) found.</source>
+        <translation>未找到训练文件 (.fit)。</translation>
+    </message>
+    <message>
+        <source>Workouts imported: %1.</source>
+        <translation>已导入训练：%1。</translation>
+    </message>
+    <message>
+        <source>Already in the history: %1.</source>
+        <translation>已在历史记录中：%1。</translation>
+    </message>
+    <message>
+        <source>Without workout data: %1.</source>
+        <translation>无训练数据：%1。</translation>
+    </message>
+    <message>
+        <source>The workout history database could not be opened.</source>
+        <translation>无法打开训练历史数据库。</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -2545,6 +2573,36 @@ Do you want to start it now?</source>
         <location filename="../main.cpp" line="144"/>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift - 健身设备桥接</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="799"/>
+        <source>Camera Cutout</source>
+        <translation>摄像头挖孔</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="800"/>
+        <source>In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.
+Do you want to use the full screen width instead?
+
+You can change it later in Settings &gt; General UI Options &gt; Keep Content Clear of the Camera Cutout.</source>
+        <translation>横屏时，QZ 会在摄像头一侧留出边距，以免挖孔遮挡内容。
+要改为使用整个屏幕宽度吗？
+
+之后可以在 设置 &gt; 通用 UI 选项 &gt; 内容避开摄像头挖孔 中更改。</translation>
+    </message>
+    <message>
+        <source>Workout History</source>
+        <translation>训练历史</translation>
+    </message>
+    <message>
+        <source>Workouts of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前安装的训练可能仍在 QZ 文件夹中。
+要查找它们吗？
+
+请在下一个窗口中允许访问 QZ 文件夹。</translation>
     </message>
 </context>
 <context>
@@ -6997,6 +7055,16 @@ Default: A = -0.96, B = 1.33</source>
         <source>Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.</source>
         <translation>清除设备上所有 QZ 日志、QZ .fit 文件和 QZ 图片（这些文件由 QZ 为每次会话保存），同时保留您的已保存的个人资料和设置。</translation>
     </message>
+    <message>
+        <location filename="../settings.qml" line="6197"/>
+        <source>Keep Content Clear of the Camera Cutout</source>
+        <translation>内容避开摄像头挖孔</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6212"/>
+        <source>In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.</source>
+        <translation>横屏时在摄像头一侧留出边距，以免挖孔遮挡内容。关闭后内容会延伸到挖孔下方。默认开启。</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8942,6 +9010,33 @@ Default: A = -0.96, B = 1.33</source>
         <location filename="../settings-tts.qml" line="678"/>
         <source>Max Watt/KG</source>
         <translation>最大瓦特/公斤</translation>
+    </message>
+</context>
+<context>
+    <name>WorkoutsHistory</name>
+    <message>
+        <source>Import FIT File...</source>
+        <translation>导入 FIT 文件...</translation>
+    </message>
+    <message>
+        <source>Import from QZ Folder...</source>
+        <translation>从 QZ 文件夹导入...</translation>
+    </message>
+    <message>
+        <source>Please choose a file</source>
+        <translation>请选择文件</translation>
+    </message>
+    <message>
+        <source>FIT files (*.fit *.FIT)</source>
+        <translation>FIT 文件 (*.fit *.FIT)</translation>
+    </message>
+    <message>
+        <source>All files (*)</source>
+        <translation>所有文件 (*)</translation>
+    </message>
+    <message>
+        <source>Importing workouts...</source>
+        <translation>正在导入训练...</translation>
     </message>
 </context>
 </TS>

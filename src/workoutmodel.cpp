@@ -63,7 +63,11 @@ WorkoutModel::~WorkoutModel() {
 }
 
 void WorkoutModel::refresh() {
-    if (m_isLoading) return;
+    if (m_isLoading) {
+        // the running load may have started before the newest workouts reached the database
+        m_refreshPending = true;
+        return;
+    }
 
     m_isLoading = true;
     emit loadingStatusChanged();
@@ -88,6 +92,11 @@ void WorkoutModel::onWorkoutsLoaded(const QList<QVariantMap>& workouts) {
 
     m_isLoading = false;
     emit loadingStatusChanged();
+
+    if (m_refreshPending) {
+        m_refreshPending = false;
+        refresh();
+    }
 }
 
 bool WorkoutModel::isLoading() const {

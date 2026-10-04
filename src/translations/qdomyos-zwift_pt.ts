@@ -2279,6 +2279,34 @@ As seguintes perguntas personalizarão o QZ para o seu equipamento e objetivos.<
         <source>Error retrieving access token, %1 (%2)</source>
         <translation>Erro ao recuperar token de acesso, %1 (%2)</translation>
     </message>
+    <message>
+        <source>The workout file could not be opened.</source>
+        <translation>Não foi possível abrir o arquivo do treino.</translation>
+    </message>
+    <message>
+        <source>The workout file could not be copied.</source>
+        <translation>Não foi possível copiar o arquivo do treino.</translation>
+    </message>
+    <message>
+        <source>No workout files (.fit) found.</source>
+        <translation>Nenhum arquivo de treino (.fit) encontrado.</translation>
+    </message>
+    <message>
+        <source>Workouts imported: %1.</source>
+        <translation>Treinos importados: %1.</translation>
+    </message>
+    <message>
+        <source>Already in the history: %1.</source>
+        <translation>Já no histórico: %1.</translation>
+    </message>
+    <message>
+        <source>Without workout data: %1.</source>
+        <translation>Sem dados de treino: %1.</translation>
+    </message>
+    <message>
+        <source>The workout history database could not be opened.</source>
+        <translation>Não foi possível abrir o banco de dados do histórico de treinos.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -2542,6 +2570,36 @@ Do you want to start it now?</source>
         <location filename="../main.cpp" line="144"/>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift - Ponte de Equipamento Fitness</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="799"/>
+        <source>Camera Cutout</source>
+        <translation>Recorte da câmera</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="800"/>
+        <source>In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.
+Do you want to use the full screen width instead?
+
+You can change it later in Settings &gt; General UI Options &gt; Keep Content Clear of the Camera Cutout.</source>
+        <translation>Na horizontal, o QZ deixa uma margem do lado da câmera para que o recorte não cubra o conteúdo.
+Deseja usar toda a largura da tela?
+
+Você pode alterar isso depois em Configurações &gt; Opções Gerais de UI &gt; Manter o conteúdo longe do recorte da câmera.</translation>
+    </message>
+    <message>
+        <source>Workout History</source>
+        <translation>Histórico de treinos</translation>
+    </message>
+    <message>
+        <source>Workouts of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Os treinos de uma instalação anterior podem ainda estar na pasta QZ.
+Deseja procurá-los?
+
+Na próxima janela, permita o acesso à pasta QZ.</translation>
     </message>
 </context>
 <context>
@@ -6982,6 +7040,16 @@ Padrão: A = -0.96, B = 1.33</translation>
         <source>Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.</source>
         <translation>Limpa todos os logs do QZ, arquivos .fit do QZ e imagens do QZ (estes arquivos são salvos pelo QZ para cada sessão) do seu dispositivo, mantendo seus Perfis e Configurações salvos.</translation>
     </message>
+    <message>
+        <location filename="../settings.qml" line="6197"/>
+        <source>Keep Content Clear of the Camera Cutout</source>
+        <translation>Manter o conteúdo longe do recorte da câmera</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6212"/>
+        <source>In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.</source>
+        <translation>Na horizontal, deixa uma margem do lado da câmera para que o recorte não cubra o conteúdo. Desative para o conteúdo se estender sob o recorte. Padrão é ligado.</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>
@@ -8931,6 +8999,33 @@ Padrão: A = -0.96, B = 1.33</translation>
         <location filename="../settings-tts.qml" line="678"/>
         <source>Max Watt/KG</source>
         <translation>Máx Watt/KG</translation>
+    </message>
+</context>
+<context>
+    <name>WorkoutsHistory</name>
+    <message>
+        <source>Import FIT File...</source>
+        <translation>Importar arquivo FIT...</translation>
+    </message>
+    <message>
+        <source>Import from QZ Folder...</source>
+        <translation>Importar da pasta QZ...</translation>
+    </message>
+    <message>
+        <source>Please choose a file</source>
+        <translation>Por favor, escolha um arquivo</translation>
+    </message>
+    <message>
+        <source>FIT files (*.fit *.FIT)</source>
+        <translation>Arquivos FIT (*.fit *.FIT)</translation>
+    </message>
+    <message>
+        <source>All files (*)</source>
+        <translation>Todos os arquivos (*)</translation>
+    </message>
+    <message>
+        <source>Importing workouts...</source>
+        <translation>Importando treinos...</translation>
     </message>
 </context>
 </TS>

@@ -7,6 +7,9 @@ import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    // The page height from the column itself, as on the settings page: after a turn of the screen
+    // ScrollView stopped following the height of its only child on a phone
+    contentHeight: tilesColumn.implicitHeight
     leftPadding: window.contentSideMargin
     rightPadding: window.contentSideMargin
     focus: true
@@ -373,8 +376,14 @@ ScrollView {
 
 
     ColumnLayout {
+        id: tilesColumn
         spacing: 0
-        anchors.fill: parent
+        // Not tied to the bottom: the height of the column is the content height of the page, so
+        // fill made an anchor loop; on a turn of the screen Qt gave up on it and the height stayed
+        // as it was - a section opened after it could not be scrolled to its end
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
 
         NewPageElement {
             id: labelShortcutsSettings

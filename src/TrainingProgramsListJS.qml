@@ -34,6 +34,15 @@ ColumnLayout {
         }
     }
 
+    // Called by main.qml on the Android back button: leave the workout preview first
+    function handleBack() {
+        if (stackView.depth > 1) {
+            stackView.pop()
+            return true
+        }
+        return false
+    }
+
     function openWorkoutPreview(fileUrl) {
         if (!fileUrl || fileUrl.toString() === "") {
             return
