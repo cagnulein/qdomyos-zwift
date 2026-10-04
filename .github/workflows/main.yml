@@ -107,7 +107,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: src/qthttpserver
-          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-983e93c3b160c62e60b1755d075e959d4685d949-msys2-v1
+          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-983e93c3b160c62e60b1755d075e959d4685d949-msys2-syncqt-cygwin-v2
 
       - name: download 3rd party files for qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
@@ -120,12 +120,15 @@ jobs:
         run: |
             export PATH="/usr/bin:/mingw64/bin:$PATH"
             command -v perl
-            perl -e 'print "Perl OS: $^O\\n"'
+            perl -e 'print "Perl OS: $^O\n"'
             qt_dir="$(cygpath -u "$Qt5_Dir")"
             qmake="$qt_dir/bin/qmake.exe"
             "$qmake" -v
             cd src/qthttpserver
             "$qmake"
+            syncqt="$qt_dir/bin/syncqt.pl"
+            perl -0pi -e 's/my \$normalizePath_fixDrive = \(\$\^O eq "msys" \? 1 : 0\);/my \$normalizePath_fixDrive = (\$^O eq "msys" || \$^O eq "cygwin" ? 1 : 0);/' "$syncqt"
+            grep -F '|| $^O eq "cygwin"' "$syncqt"
             mingw32-make -j8
             cd ../..
 
