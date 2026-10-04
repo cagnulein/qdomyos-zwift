@@ -247,6 +247,12 @@ class homeform : public QObject {
     Q_INVOKABLE QString bluetoothSearchStatus();
     // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
     Q_INVOKABLE void bluetoothSearchNow();
+    // Heart rate sensor chosen in the settings or a tap on the Bluetooth icon: connect it without a restart
+    Q_INVOKABLE void reconnectHeartRateBelt() {
+        if (bluetoothManager)
+            bluetoothManager->reconnectHeartRateBelt();
+    }
+
     Q_INVOKABLE void save_screenshot() {
 
         QString path = getWritableAppDir();

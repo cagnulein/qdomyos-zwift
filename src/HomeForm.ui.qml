@@ -87,10 +87,11 @@ Page {
                             color: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
                         }
                         // No device yet: a tap searches right away instead of waiting for the next search
-                        // (with a device connected bluetoothSearchNow() does nothing)
+                        // (with a device connected bluetoothSearchNow() does nothing). With a device connected the tap
+                        // looks for the chosen heart rate sensor again (reconnectHeartRateBelt() waits for the device)
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: rootItem.bluetoothSearchNow()
+                            onClicked: { rootItem.bluetoothSearchNow(); rootItem.reconnectHeartRateBelt(); }
                         }
                     }
                     Image {
