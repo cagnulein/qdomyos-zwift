@@ -3360,6 +3360,30 @@ This may take a few moments on first startup.</source>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
+    <message>
+        <source>Import FIT File...</source>
+        <translation>Импортировать файл FIT...</translation>
+    </message>
+    <message>
+        <source>Import from QZ Folder...</source>
+        <translation>Импортировать из папки QZ...</translation>
+    </message>
+    <message>
+        <source>Please choose a file</source>
+        <translation>Выберите файл</translation>
+    </message>
+    <message>
+        <source>FIT files (*.fit *.FIT)</source>
+        <translation>Файлы FIT (*.fit *.FIT)</translation>
+    </message>
+    <message>
+        <source>All files (*)</source>
+        <translation>Все файлы (*)</translation>
+    </message>
+    <message>
+        <source>Importing workouts...</source>
+        <translation>Импорт тренировок...</translation>
+    </message>
 </context>
 <context>
     <name>charts</name>
@@ -4171,6 +4195,34 @@ This may take a few moments on first startup.</source>
         <source>License not found</source>
         <translation>Лицензия не найдена</translation>
     </message>
+    <message>
+        <source>The workout file could not be opened.</source>
+        <translation>Не удалось открыть файл тренировки.</translation>
+    </message>
+    <message>
+        <source>The workout file could not be copied.</source>
+        <translation>Не удалось скопировать файл тренировки.</translation>
+    </message>
+    <message>
+        <source>No workout files (.fit) found.</source>
+        <translation>Файлы тренировок (.fit) не найдены.</translation>
+    </message>
+    <message>
+        <source>Workouts imported: %1.</source>
+        <translation>Импортировано тренировок: %1.</translation>
+    </message>
+    <message>
+        <source>Already in the history: %1.</source>
+        <translation>Уже в истории: %1.</translation>
+    </message>
+    <message>
+        <source>Without workout data: %1.</source>
+        <translation>Без данных тренировки: %1.</translation>
+    </message>
+    <message>
+        <source>The workout history database could not be opened.</source>
+        <translation>Не удалось открыть базу истории тренировок.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4576,6 +4628,20 @@ You can change it later in Settings &gt; General UI Options &gt; Keep Content Cl
 Растянуть содержимое на всю ширину экрана?
 
 Это можно изменить позже: Настройки &gt; Общие параметры интерфейса &gt; Не заходить под вырез камеры.</translation>
+    </message>
+    <message>
+        <source>Workout History</source>
+        <translation>История тренировок</translation>
+    </message>
+    <message>
+        <source>Workouts of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Тренировки прошлой установки могут оставаться в папке QZ.
+Найти их?
+
+В следующем окне разрешите доступ к папке QZ.</translation>
     </message>
 </context>
 <context>

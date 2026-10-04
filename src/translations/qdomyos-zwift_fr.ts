@@ -2279,6 +2279,34 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
         <source>Error retrieving access token, %1 (%2)</source>
         <translation>Erreur lors de la récupération du jeton d&apos;accès, %1 (%2)</translation>
     </message>
+    <message>
+        <source>The workout file could not be opened.</source>
+        <translation>Impossible d&apos;ouvrir le fichier d&apos;entraînement.</translation>
+    </message>
+    <message>
+        <source>The workout file could not be copied.</source>
+        <translation>Impossible de copier le fichier d&apos;entraînement.</translation>
+    </message>
+    <message>
+        <source>No workout files (.fit) found.</source>
+        <translation>Aucun fichier d&apos;entraînement (.fit) trouvé.</translation>
+    </message>
+    <message>
+        <source>Workouts imported: %1.</source>
+        <translation>Entraînements importés : %1.</translation>
+    </message>
+    <message>
+        <source>Already in the history: %1.</source>
+        <translation>Déjà dans l&apos;historique : %1.</translation>
+    </message>
+    <message>
+        <source>Without workout data: %1.</source>
+        <translation>Sans données d&apos;entraînement : %1.</translation>
+    </message>
+    <message>
+        <source>The workout history database could not be opened.</source>
+        <translation>Impossible d&apos;ouvrir la base de données de l&apos;historique des entraînements.</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -2558,6 +2586,20 @@ You can change it later in Settings &gt; General UI Options &gt; Keep Content Cl
 Voulez-vous utiliser toute la largeur de l&apos;écran ?
 
 Vous pourrez le modifier plus tard dans Paramètres &gt; Options générales &gt; Éloigner le contenu de l&apos;encoche de la caméra.</translation>
+    </message>
+    <message>
+        <source>Workout History</source>
+        <translation>Historique des entraînements</translation>
+    </message>
+    <message>
+        <source>Workouts of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>Les entraînements d&apos;une installation précédente peuvent encore se trouver dans le dossier QZ.
+Voulez-vous les rechercher ?
+
+Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
     </message>
 </context>
 <context>
@@ -8961,6 +9003,33 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <location filename="../settings-tts.qml" line="678"/>
         <source>Max Watt/KG</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>WorkoutsHistory</name>
+    <message>
+        <source>Import FIT File...</source>
+        <translation>Importer un fichier FIT...</translation>
+    </message>
+    <message>
+        <source>Import from QZ Folder...</source>
+        <translation>Importer depuis le dossier QZ...</translation>
+    </message>
+    <message>
+        <source>Please choose a file</source>
+        <translation>Veuillez choisir un fichier</translation>
+    </message>
+    <message>
+        <source>FIT files (*.fit *.FIT)</source>
+        <translation>Fichiers FIT (*.fit *.FIT)</translation>
+    </message>
+    <message>
+        <source>All files (*)</source>
+        <translation>Tous les fichiers (*)</translation>
+    </message>
+    <message>
+        <source>Importing workouts...</source>
+        <translation>Importation des entraînements...</translation>
     </message>
 </context>
 </TS>
