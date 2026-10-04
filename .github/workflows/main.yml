@@ -211,6 +211,50 @@ jobs:
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
         if: matrix.config.python == false
 
+      - name: Smoke test qHttpServer runtime
+        shell: pwsh
+        run: |
+          $outputDir = Join-Path $PWD "src/debug/output"
+          $stdoutPath = Join-Path $env:RUNNER_TEMP "qz-smoke.stdout.log"
+          $stderrPath = Join-Path $env:RUNNER_TEMP "qz-smoke.stderr.log"
+          $env:QT_QPA_PLATFORM = "offscreen"
+          $env:QT_OPENGL = "software"
+          $process = Start-Process -FilePath (Join-Path $outputDir "qdomyos-zwift.exe") `
+            -ArgumentList @("-qml", "-no-heart-service", "-no-virtual-device-bluetooth") `
+            -WorkingDirectory $outputDir -PassThru `
+            -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
+          try {
+            $deadline = (Get-Date).AddMinutes(2)
+            $response = $null
+            do {
+              Start-Sleep -Seconds 2
+              $listeners = Get-NetTCPConnection -State Listen -OwningProcess $process.Id -ErrorAction SilentlyContinue
+              foreach ($listener in $listeners) {
+                try {
+                  $candidate = Invoke-WebRequest -Uri "http://127.0.0.1:$($listener.LocalPort)/chartjs/chart.htm" -UseBasicParsing -TimeoutSec 5
+                  if ($candidate.StatusCode -eq 200 -and $candidate.Content -match "<html|Chart|chart") {
+                    $response = $candidate
+                    $port = $listener.LocalPort
+                    break
+                  }
+                } catch {
+                  # The process may expose non-HTTP listeners while it starts.
+                }
+              }
+              if ((Get-Date) -gt $deadline) {
+                throw "QZ did not serve /chartjs/chart.htm. stdout: $(Get-Content $stdoutPath -Raw -ErrorAction SilentlyContinue) stderr: $(Get-Content $stderrPath -Raw -ErrorAction SilentlyContinue)"
+              }
+            } while (-not $response -and -not $process.HasExited)
+            if (-not $response) {
+              throw "QZ exited without serving /chartjs/chart.htm (exit code $($process.ExitCode))."
+            }
+            Write-Host "qHttpServer runtime smoke test passed on port $port (HTTP $($response.StatusCode))."
+          } finally {
+            if ($process -and -not $process.HasExited) {
+              Stop-Process -Id $process.Id -Force
+            }
+          }
+
       - name: patching qt for bluetooth
         run: cp qt-patches/windows/5.15.2/binary/mingw64/*.* ${{ github.workspace }}/src/debug/output/
 
