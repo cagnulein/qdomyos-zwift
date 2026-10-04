@@ -2557,6 +2557,22 @@ Vuoi avviarlo ora?</translation>
         <source>QDomyos-Zwift - Fitness Equipment Bridge</source>
         <translation>QDomyos-Zwift - Ponte per attrezzature fitness</translation>
     </message>
+    <message>
+        <location filename="../main.qml" line="799"/>
+        <source>Camera Cutout</source>
+        <translation>Foro della fotocamera</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="800"/>
+        <source>In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.
+Do you want to use the full screen width instead?
+
+You can change it later in Settings &gt; General UI Options &gt; Keep Content Clear of the Camera Cutout.</source>
+        <translation>In orizzontale QZ lascia un margine dal lato della fotocamera, così il foro non copre il contenuto.
+Vuoi usare invece tutta la larghezza dello schermo?
+
+Puoi cambiarlo in seguito in Impostazioni &gt; Opzioni Interfaccia Utente &gt; Tieni il contenuto lontano dal foro della fotocamera.</translation>
+    </message>
 </context>
 <context>
     <name>peloton</name>
@@ -6979,6 +6995,16 @@ Predefinito: A = -0.96, B = 1.33</translation>
         <location filename="../settings.qml" line="15665"/>
         <source>Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.</source>
         <translation>Cancella tutti i log QZ, i file QZ .fit e le immagini QZ (questi file sono salvati da QZ per ogni sessione) dal tuo dispositivo mantenendo i tuoi Profili e Impostazioni salvati.</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6197"/>
+        <source>Keep Content Clear of the Camera Cutout</source>
+        <translation>Tieni il contenuto lontano dal foro della fotocamera</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="6212"/>
+        <source>In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.</source>
+        <translation>In orizzontale lascia un margine dal lato della fotocamera, così il foro non copre il contenuto. Disattiva per estendere il contenuto sotto il foro. Attivo per impostazione predefinita.</translation>
     </message>
 </context>
 <context>

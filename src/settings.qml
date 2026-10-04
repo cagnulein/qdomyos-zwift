@@ -1788,6 +1788,7 @@ import AndroidStatusBar 1.0
             property bool android_landscape_cutout_margin: true
             property real watt_max: 9999
             property bool proform_trainer_8_0_pftl59721_0: false
+            property bool android_landscape_cutout_prompt_shown: false
         }
 
 
