@@ -5213,6 +5213,7 @@ import AndroidStatusBar 1.0
                                 onClicked: settings.domyosbike_notfmts = checked
                             }
                             IndicatorOnlySwitch {
+                                //: Domyos bike switch: QZ sends its own calories and distance values to the bike console display.
                                 text: qsTr("Fix Calories/Km to Console")
                                 spacing: 0
                                 bottomPadding: 0
@@ -10349,6 +10350,7 @@ import AndroidStatusBar 1.0
                     }
 
                     NewPageElement {
+                        //: Section title: table that replaces each incline value the treadmill receives with a user-defined value. Avoid the technical word "override".
                         title: qsTr("Inclination Overrides")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Grey)

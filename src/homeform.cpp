@@ -623,6 +623,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         QStringLiteral("remainingtimetrainprogramrow"), valueElapsedFontSize, labelFontSize);
 
     nextRows =
+        //: Tile title: the next steps (rows) of the loaded workout program, not a table row and not rowing.
         new DataObject(tr("Next Rows"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("N/A"),
                        false, QStringLiteral("nextrows"), valueElapsedFontSize, labelFontSize);
 
@@ -6746,15 +6747,19 @@ void homeform::update() {
 
             switch (trainProgram->currentRow().pace_intensity) {
             case 0:
+                //: Short tile value: Peloton running/walking pace target zone "Recovery" (not "record"); zones: (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.
                 this->target_zone->setValue(tr("Rec."));
                 break;
             case 1:
+                //: Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.
                 this->target_zone->setValue(tr("Easy"));
                 break;
             case 2:
                 if (isWalkingWorkout) {
+                    //: Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.
                     this->target_zone->setValue(tr("Brisk"));
                 } else {
+                    //: Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.
                     this->target_zone->setValue(tr("Moder."));
                 }
                 break;
@@ -6762,6 +6767,7 @@ void homeform::update() {
                 if (isWalkingWorkout) {
                     this->target_zone->setValue(tr("Power"));
                 } else {
+                    //: Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.
                     this->target_zone->setValue(tr("Chall."));
                 }
                 break;
@@ -6773,6 +6779,7 @@ void homeform::update() {
                 }
                 break;
             case 5:
+                //: Short tile value: Peloton running/walking pace target zone (Recovery, Easy, Brisk, Moderate, Challenging, Very Hard, Max). Keep it short; abbreviations with a dot.
                 this->target_zone->setValue(tr("V.Hard"));
                 break;
             case 6:
@@ -8632,6 +8639,7 @@ void homeform::update() {
                                settings.value(QZSettings::tts_act_speed, QZSettings::default_tts_act_speed).toBool()) {
                         tts_speed_played = bluetoothManager->device()->currentSpeed().value();
                         QString s;
+                        //: Text-to-speech: spoken before the new speed value, e.g. "speed changed to" + "12.5" + " kilometers per hour". Must read naturally when the number follows.
                         s.append((description ? tr("speed changed to") : "") +
                                  (!miles ? QString::number(bluetoothManager->device()->currentSpeed().value(), 'f', 1) +
                                                (description ? tr(" kilometers per hour") : "")
