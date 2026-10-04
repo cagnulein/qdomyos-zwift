@@ -53,13 +53,20 @@ for attempt in 1 2; do
   echo "Starting the app (attempt $attempt)"
   adb shell am start -W -n "$ACTIVITY"
   if wait_for_app; then
-    # Still alive a bit later: a start that crashes right away must not pass
+    # Still alive a bit later: a start that crashes right away must not pass.
+    # On google_apis images Google Play services may restart soon after boot, and Android kills
+    # the clients of their providers too ("depends on provider ... in dying proc"): start again then.
+    # A real crash happens on the second start as well and fails the test.
     sleep 30
-    [ -n "$(app_pid)" ] || fail "the app process died within 30 s after the start"
-    adb shell "ps -A 2>/dev/null || ps" > process_list.txt
-    echo "App is running successfully"
-    exit 0
+    if [ -n "$(app_pid)" ]; then
+      adb shell "ps -A 2>/dev/null || ps" > process_list.txt
+      echo "App is running successfully"
+      exit 0
+    fi
+    echo "App process $PID died within 30 s after the start:"
+    adb logcat -d | grep -E "Killing $PID:|Process $PKG \(pid $PID\)|FATAL EXCEPTION|Fatal signal" | tail -n 20
+  else
+    echo "App process not found after ${WAIT}s"
   fi
-  echo "App process not found after ${WAIT}s"
 done
 fail "App process not running"
