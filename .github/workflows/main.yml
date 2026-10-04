@@ -123,7 +123,7 @@ jobs:
             "$qmake" -v
             cd src/qthttpserver
             "$qmake"
-            make -j8
+            mingw32-make -j8
             cd ../..
 
       - name: Install qthttpserver
@@ -131,7 +131,7 @@ jobs:
         run: |
             qt_dir="$(cygpath -u "$Qt5_Dir")"
             cd src/qthttpserver
-            make install
+            mingw32-make install
             cd ../..
             test -f "$qt_dir/bin/Qt5HttpServer.dll"
             test -f "$qt_dir/bin/Qt5SslServer.dll"
