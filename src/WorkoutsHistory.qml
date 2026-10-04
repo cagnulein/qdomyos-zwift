@@ -381,17 +381,41 @@ Page {
                                     font.pixelSize: 18
                                     anchors.verticalCenter: parent.verticalCenter
                                     
-                                    // Auto-scroll animation for long titles
-                                    SequentialAnimation on x {
-                                        running: titleText.contentWidth > titleText.parent.width
+                                    // Auto-scroll animation for long titles.
+                                    // The row width settles only after the layout runs (the first
+                                    // delegate passes through narrower widths), and an animation started
+                                    // on one of them kept running: decide after the layout, again on every
+                                    // width change, and put the title back when it stops mid-scroll.
+                                    readonly property bool overflows: parent.width > 0 && contentWidth > parent.width
+                                    function updateScroll() {
+                                        if (overflows) {
+                                            titleScroll.restart()
+                                        } else {
+                                            titleScroll.stop()
+                                            x = 0
+                                        }
+                                    }
+                                    onOverflowsChanged: Qt.callLater(updateScroll)
+                                    onContentWidthChanged: if (overflows) Qt.callLater(updateScroll)
+                                    Connections {
+                                        target: titleText.parent
+                                        function onWidthChanged() { if (titleText.overflows) Qt.callLater(titleText.updateScroll) }
+                                    }
+
+                                    SequentialAnimation {
+                                        id: titleScroll
                                         loops: Animation.Infinite
                                         NumberAnimation {
+                                            target: titleText
+                                            property: "x"
                                             from: 0
                                             to: -(titleText.contentWidth - titleText.parent.width + 20)
                                             duration: Math.max(3000, titleText.contentWidth * 30)
                                         }
                                         PauseAnimation { duration: 1500 }
                                         NumberAnimation {
+                                            target: titleText
+                                            property: "x"
                                             from: -(titleText.contentWidth - titleText.parent.width + 20)
                                             to: 0
                                             duration: Math.max(3000, titleText.contentWidth * 30)
