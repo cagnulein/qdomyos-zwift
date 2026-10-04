@@ -2287,6 +2287,34 @@ The following questions will customize QZ for your equipment and goals.</source>
         <source>Error retrieving access token, %1 (%2)</source>
         <translation>无法检索访问令牌，%1 (%2)</translation>
     </message>
+    <message>
+        <source>The workout file could not be opened.</source>
+        <translation>无法打开训练文件。</translation>
+    </message>
+    <message>
+        <source>The workout file could not be copied.</source>
+        <translation>无法复制训练文件。</translation>
+    </message>
+    <message>
+        <source>No workout files (.fit) found.</source>
+        <translation>未找到训练文件 (.fit)。</translation>
+    </message>
+    <message>
+        <source>Workouts imported: %1.</source>
+        <translation>已导入训练：%1。</translation>
+    </message>
+    <message>
+        <source>Already in the history: %1.</source>
+        <translation>已在历史记录中：%1。</translation>
+    </message>
+    <message>
+        <source>Without workout data: %1.</source>
+        <translation>无训练数据：%1。</translation>
+    </message>
+    <message>
+        <source>The workout history database could not be opened.</source>
+        <translation>无法打开训练历史数据库。</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -2561,6 +2589,20 @@ You can change it later in Settings &gt; General UI Options &gt; Keep Content Cl
 要改为使用整个屏幕宽度吗？
 
 之后可以在 设置 &gt; 通用 UI 选项 &gt; 内容避开摄像头挖孔 中更改。</translation>
+    </message>
+    <message>
+        <source>Workout History</source>
+        <translation>训练历史</translation>
+    </message>
+    <message>
+        <source>Workouts of a previous installation may still be in the QZ folder.
+Do you want to look for them?
+
+In the next window, allow access to the QZ folder.</source>
+        <translation>以前安装的训练可能仍在 QZ 文件夹中。
+要查找它们吗？
+
+请在下一个窗口中允许访问 QZ 文件夹。</translation>
     </message>
 </context>
 <context>
@@ -8968,6 +9010,33 @@ Default: A = -0.96, B = 1.33</source>
         <location filename="../settings-tts.qml" line="678"/>
         <source>Max Watt/KG</source>
         <translation>最大瓦特/公斤</translation>
+    </message>
+</context>
+<context>
+    <name>WorkoutsHistory</name>
+    <message>
+        <source>Import FIT File...</source>
+        <translation>导入 FIT 文件...</translation>
+    </message>
+    <message>
+        <source>Import from QZ Folder...</source>
+        <translation>从 QZ 文件夹导入...</translation>
+    </message>
+    <message>
+        <source>Please choose a file</source>
+        <translation>请选择文件</translation>
+    </message>
+    <message>
+        <source>FIT files (*.fit *.FIT)</source>
+        <translation>FIT 文件 (*.fit *.FIT)</translation>
+    </message>
+    <message>
+        <source>All files (*)</source>
+        <translation>所有文件 (*)</translation>
+    </message>
+    <message>
+        <source>Importing workouts...</source>
+        <translation>正在导入训练...</translation>
     </message>
 </context>
 </TS>
