@@ -190,6 +190,7 @@ class ftmsbike : public bike {
     bool VFSPINBIKE = false;
     bool SS2K = false;
     bool DIRETO_XR = false;
+    bool INCONDI_S150I = false;
     bool JFBK5_0 = false;
     bool BIKE_ = false;
     bool SMB1 = false;
