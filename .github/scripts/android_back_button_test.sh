@@ -31,17 +31,39 @@ focused_window() {
   adb shell dumpsys window | grep -m 1 mCurrentFocus | tr -d '\r'
 }
 
-# A system dialog (e.g. "Pixel Launcher isn't responding" on the google_apis images)
-# can cover QZ while its activity stays resumed: back presses then go to the dialog.
-# Close such dialogs until QZ has the input focus.
+# An "app isn't responding" dialog of another app (e.g. Pixel Launcher on the google_apis
+# images) can cover QZ while its activity stays resumed: back presses then go to the dialog.
+# Close it: first as a system dialog, then by tapping its "Wait" button.
+close_anr_dialog() {
+  case "$(focused_window)" in
+    *"Not Responding"*) ;;
+    *) return 0 ;;
+  esac
+  echo "Closing an \"isn't responding\" dialog: $(focused_window)"
+  adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS > /dev/null
+  sleep 2
+  case "$(focused_window)" in
+    *"Not Responding"*) ;;
+    *) return 0 ;;
+  esac
+  adb shell uiautomator dump /sdcard/ui.xml > /dev/null
+  # bounds="[x1,y1][x2,y2]" of the "Wait" button -> its center
+  XY=$(adb shell cat /sdcard/ui.xml | tr '>' '\n' | grep 'text="Wait"' | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p' | head -n 1)
+  if [ -n "$XY" ]; then
+    set -- $XY
+    adb shell input tap $((($1 + $3) / 2)) $((($2 + $4) / 2))
+    sleep 2
+  fi
+}
+
+# Wait until QZ has the input focus, closing "isn't responding" dialogs on top of it
 qz_focused() {
   for i in 1 2 3; do
-    FOCUS=$(focused_window)
-    case "$FOCUS" in
+    close_anr_dialog
+    case "$(focused_window)" in
       *CustomQtActivity*) return 0 ;;
     esac
-    echo "QZ has no input focus ($FOCUS), closing system dialogs ($i)"
-    adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS > /dev/null
+    echo "QZ has no input focus ($(focused_window)), waiting ($i)"
     sleep 3
   done
   return 1
@@ -60,6 +82,7 @@ sleep 5
 
 # Close system screens opened at startup (e.g. Health Connect permissions) until QZ is in front
 for i in 1 2 3 4 5; do
+  close_anr_dialog
   qz_in_front && break
   echo "QZ is not in front, pressing back ($i)"
   adb shell input keyevent KEYCODE_BACK
