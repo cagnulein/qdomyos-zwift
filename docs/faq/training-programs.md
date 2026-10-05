@@ -17,6 +17,26 @@ Use as many steps as needed for the smoothness you want and for what your treadm
 
 For the full XML attribute reference and speed-ramp behavior, see [`train-programs-examples/README.md`](../../train-programs-examples/README.md).
 
+## My custom QZ XML workout loads but does not run the programmed steps. What basic XML structure should I check?
+
+For QZ's native XML training format, the workout must use a top-level `<rows>` element and each normal workout step must be a `<row>` element. Do not use a generic `<workout>` root or `<segment>` elements.
+
+A minimal valid structure is:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<rows>
+    <row duration="00:05:00" speed="5.0" inclination="1" forcespeed="1" zonehr="0"/>
+    <row duration="00:10:00" speed="7.0" inclination="2" forcespeed="1" zonehr="0"/>
+</rows>
+```
+
+If the file is accepted but the treadmill only starts at its minimum speed or the programmed steps do not execute, check these element names before troubleshooting the treadmill connection itself.
+
+This exact correction was confirmed to restore a custom treadmill workout that initially used both `<segment>` and an incorrect top-level `<workout>` element.
+
+For the complete native XML reference, including repeats, heart-rate zones, ramps, and supported row attributes, see [`train-programs-examples/README.md`](../../train-programs-examples/README.md).
+
 ## Can QZ control treadmill incline instead of speed to keep me in a target heart-rate zone?
 
 Yes. QZ's HR PID controller can use treadmill **incline** as its actuator, so the treadmill speed can remain fixed while QZ raises or lowers incline according to your heart rate.
