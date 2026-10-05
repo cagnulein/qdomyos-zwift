@@ -1,0 +1,63 @@
+name: temp-incondi-s150i-boolean
+
+on:
+  push:
+    branches:
+      - fix/incondi-s150i-erg
+    paths:
+      - .github/workflows/temp-incondi-s150i-boolean.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/incondi-s150i-erg
+      - name: Refactor inCondi S150i detection flag
+        shell: python
+        run: |
+          from pathlib import Path
+
+          h = Path('src/devices/ftmsbike/ftmsbike.h')
+          s = h.read_text()
+          old = '    bool DIRETO_XR = false;\n'
+          new = old + '    bool INCONDI_S150I = false;\n'
+          if 'bool INCONDI_S150I = false;' not in s:
+              if old not in s:
+                  raise SystemExit('header insertion point not found')
+              s = s.replace(old, new, 1)
+          h.write_text(s)
+
+          cpp = Path('src/devices/ftmsbike/ftmsbike.cpp')
+          s = cpp.read_text()
+          detection_old = '''        } else if (bluetoothDevice.name().toUpper().startsWith("INCONDI S150I")) {
+            qDebug() << QStringLiteral("inCondi S150i found - using resistance-level ERG emulation");
+            resistance_lvl_mode = true;'''
+          detection_new = '''        } else if (bluetoothDevice.name().toUpper().startsWith("INCONDI S150I")) {
+            qDebug() << QStringLiteral("inCondi S150i found - using resistance-level ERG emulation");
+            INCONDI_S150I = true;
+            resistance_lvl_mode = true;'''
+          if detection_old not in s and 'INCONDI_S150I = true;' not in s:
+              raise SystemExit('device detection block not found')
+          s = s.replace(detection_old, detection_new, 1)
+
+          old_condition = '''if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168 ||
+           bluetoothDevice.name().toUpper().startsWith("INCONDI S150I"))'''
+          new_condition = '''if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168 ||
+           INCONDI_S150I)'''
+          if old_condition not in s:
+              raise SystemExit('forceResistance condition not found')
+          s = s.replace(old_condition, new_condition, 1)
+          cpp.write_text(s)
+      - name: Commit clean refactor
+        run: |
+          rm .github/workflows/temp-incondi-s150i-boolean.yml
+          git config user.name "Roberto Viola"
+          git config user.email "Cagnulein@gmail.com"
+          git add src/devices/ftmsbike/ftmsbike.h src/devices/ftmsbike/ftmsbike.cpp .github/workflows/temp-incondi-s150i-boolean.yml
+          git commit -m "refactor: track inCondi S150i with device flag"
+          git push origin HEAD:fix/incondi-s150i-erg
