@@ -349,12 +349,15 @@ public class CustomQtActivity extends QtActivity {
     // file API (scoped storage); a folder granted through the picker can still be read. The grant
     // is kept, so later imports of the same folder skip the picker.
     // removeOldDatabase: also delete ddb.sqlite of the previous install from the folder (the app
-    // can remove it only through the grant). allowPicker false (automatic import at start): use
-    // a saved grant only, never open the picker; returns false when there is no saved grant.
+    // can remove it only through the grant), with the spare ddb-N.sqlite left by earlier installs;
+    // keepDatabase names the spare in use (empty when the database is elsewhere). allowPicker
+    // false (automatic import at start): use a saved grant only, never open the picker; returns
+    // false when there is no saved grant.
     public boolean openFitFolderPicker(int requestCode, String destinationDir, boolean removeOldDatabase,
-                                       boolean allowPicker) {
+                                       String keepDatabase, boolean allowPicker) {
         pendingImportDirectories.put(requestCode, destinationDir == null ? "" : destinationDir);
         fitFolderRemoveOldDatabase = removeOldDatabase;
+        fitFolderKeepDatabase = keepDatabase == null ? "" : keepDatabase;
         fitFolderAllowPicker = allowPicker;
         for (android.content.UriPermission permission : getContentResolver().getPersistedUriPermissions()) {
             Uri treeUri = permission.getUri();
@@ -382,6 +385,7 @@ public class CustomQtActivity extends QtActivity {
     }
 
     private boolean fitFolderRemoveOldDatabase = false;
+    private String fitFolderKeepDatabase = "";
     private boolean fitFolderAllowPicker = true;
 
     private void launchFitFolderPicker(int requestCode) {
@@ -412,6 +416,7 @@ public class CustomQtActivity extends QtActivity {
         }
         final Uri treeUri = data.getData();
         final boolean removeOldDatabase = fitFolderRemoveOldDatabase;
+        final String keepDatabase = fitFolderKeepDatabase;
         final boolean allowPicker = fitFolderAllowPicker;
         try {
             getContentResolver().takePersistableUriPermission(treeUri,
@@ -433,7 +438,7 @@ public class CustomQtActivity extends QtActivity {
                     importFitFilesFromTree(treeUri, rootId, destinationDir, localPaths, true);
                     // only in the QZ folder itself, never in another folder the user picked
                     if (removeOldDatabase && localPaths.length() > 0 && QZ_DOCUMENTS_TREE_ID.equals(rootId)) {
-                        deleteOldHistoryDatabase(treeUri, rootId);
+                        deleteOldHistoryDatabase(treeUri, rootId, keepDatabase);
                     }
                 } catch (Exception e) {
                     Log.d(TAG, "handleFitFolderResult failed " + e);
@@ -473,12 +478,15 @@ public class CustomQtActivity extends QtActivity {
 
     // The history database of a previous install cannot be opened, so the app runs on a spare
     // one; once its workouts are copied, the old file (and its journal) is removed through the
-    // grant, and the next start goes back to ddb.sqlite.
-    private void deleteOldHistoryDatabase(Uri treeUri, String rootId) {
+    // grant, and the next start goes back to ddb.sqlite. Spares of earlier installs are locked
+    // the same way and go too, all but keepDatabase, the one this install is running on.
+    private void deleteOldHistoryDatabase(Uri treeUri, String rootId, String keepDatabase) {
         Uri childrenUri = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, rootId);
         android.database.Cursor cursor = null;
         String databaseId = null;
         String journalId = null;
+        java.util.ArrayList<String> spareIds = new java.util.ArrayList<String>();
+        java.util.ArrayList<String> spareJournalIds = new java.util.ArrayList<String>();
         try {
             cursor = getContentResolver().query(childrenUri, new String[] {
                 android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
@@ -489,6 +497,12 @@ public class CustomQtActivity extends QtActivity {
                     databaseId = cursor.getString(0);
                 } else if ("ddb.sqlite-journal".equals(name)) {
                     journalId = cursor.getString(0);
+                } else if (name != null && name.matches("ddb-\\d+\\.sqlite")
+                           && !name.equals(keepDatabase)) {
+                    spareIds.add(cursor.getString(0));
+                } else if (name != null && name.matches("ddb-\\d+\\.sqlite-journal")
+                           && !name.equals(keepDatabase + "-journal")) {
+                    spareJournalIds.add(cursor.getString(0));
                 }
             }
         } catch (Exception e) {
@@ -504,6 +518,12 @@ public class CustomQtActivity extends QtActivity {
         }
         if (databaseId != null) {
             deleteTreeDocument(treeUri, databaseId);
+        }
+        for (String id : spareJournalIds) {
+            deleteTreeDocument(treeUri, id);
+        }
+        for (String id : spareIds) {
+            deleteTreeDocument(treeUri, id);
         }
     }
 

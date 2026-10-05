@@ -9056,7 +9056,9 @@ void homeform::importFitFile(const QUrl &fileUrl) {
 // Android 14+, ddb.sqlite in Documents/QZ belongs to the previous install: it can be neither
 // opened nor removed nor replaced. A new database is then kept next to it (ddb-1.sqlite, ...)
 // and filled again from the .fit files; once a folder import has removed the old ddb.sqlite,
-// the next start goes back to that name and drops the spare ones.
+// the next start goes back to that name and drops the spare ones. A spare left by an earlier
+// install is locked the same way, so with every name taken the database goes to the private
+// folder of the app instead.
 QString homeform::historyDatabasePath() {
     const QString dir = getWritableAppDir();
     const QString mainPath = dir + QStringLiteral("ddb.sqlite");
@@ -9074,13 +9076,23 @@ QString homeform::historyDatabasePath() {
         }
     }
     if (chosen.isEmpty()) {
-        return mainPath;
+        const QString privateDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        QDir().mkpath(privateDir);
+        const QString privatePath = privateDir + QStringLiteral("/ddb.sqlite");
+        m_historyDatabaseIsNew = QFileInfo(privatePath).size() == 0;
+        qDebug() << "history database:" << privatePath << "new:" << m_historyDatabaseIsNew
+                 << "(every name in the QZ folder is taken)";
+        return privatePath;
     }
     if (chosen == mainPath) {
         QDirIterator spare(dir, QStringList() << QStringLiteral("ddb-*.sqlite*"), QDir::Files);
         while (spare.hasNext()) {
             QFile::remove(spare.next());
         }
+        const QString privatePath =
+            QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/ddb.sqlite");
+        QFile::remove(privatePath + QStringLiteral("-journal"));
+        QFile::remove(privatePath);
     }
     qDebug() << "history database:" << chosen << "new:" << m_historyDatabaseIsNew;
     return chosen;
@@ -9090,11 +9102,16 @@ bool homeform::startFitFolderImport(bool allowPicker) {
 #ifdef Q_OS_ANDROID
     // the old database can be removed only through the folder grant
     const bool removeOldDatabase = m_historyDatabasePath != getWritableAppDir() + QStringLiteral("ddb.sqlite");
+    // the spare database in use sits among the old ones and must survive their removal
+    const QFileInfo database(m_historyDatabasePath);
+    const QString keepDatabase =
+        database.absolutePath() + QStringLiteral("/") == getWritableAppDir() ? database.fileName() : QString();
     QAndroidJniObject javaDestinationDir = QAndroidJniObject::fromString(getWritableAppDir() + QStringLiteral("fit/"));
+    QAndroidJniObject javaKeepDatabase = QAndroidJniObject::fromString(keepDatabase);
     const jboolean started = QtAndroid::androidActivity().callMethod<jboolean>(
-        "openFitFolderPicker", "(ILjava/lang/String;ZZ)Z", AndroidDocumentPickerFitFolderRequestCode,
+        "openFitFolderPicker", "(ILjava/lang/String;ZLjava/lang/String;Z)Z", AndroidDocumentPickerFitFolderRequestCode,
         javaDestinationDir.object<jstring>(), static_cast<jboolean>(removeOldDatabase),
-        static_cast<jboolean>(allowPicker));
+        javaKeepDatabase.object<jstring>(), static_cast<jboolean>(allowPicker));
     if (clearAndroidJniException("CustomQtActivity.openFitFolderPicker")) {
         return false;
     }
