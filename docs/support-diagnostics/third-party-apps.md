@@ -41,3 +41,31 @@
 
 - Data sources and control sources are independent in many training apps. Correct metrics do not prove that commands are being sent through QZ.
 - A single numerical example makes scaling, rounding, lag, and conflicting-control problems much easier to distinguish in a log.
+
+## A debug log does not show the reported control or pairing failure
+
+### Provide first
+
+- Confirm the exact machine model and the device running QZ.
+- Confirm which app is expected to send the command and which QZ virtual device is selected in that app.
+- State whether QZ is already showing live metrics from the machine before the test begins.
+- Describe one short action that will reproduce the problem, for example starting an ERG interval, changing resistance, or attempting to pair a controllable device.
+
+### Controlled reproduction
+
+1. Fully close QZ and the third-party fitness app.
+2. Wake the fitness machine or console first.
+3. Make sure manufacturer apps and unrelated Bluetooth fitness apps are closed so they cannot take the connection.
+4. Start QZ and wait until the machine is connected and live metrics are visible.
+5. Start the third-party app and pair only the QZ virtual devices required for the test.
+6. Perform one clearly identifiable control action and keep the test short.
+7. Stop QZ and provide the complete debug log, together with the action performed and the approximate time it happened.
+
+If a QZ option is suspected of changing the behavior, run separate short tests with the option enabled and disabled rather than changing several settings during one recording.
+
+### Why it matters
+
+- A log that ends before the machine connects or before the third-party app sends a command cannot show the failure being investigated.
+- Starting from a known state makes the connection order visible and reduces ambiguity from stale Bluetooth sessions.
+- One controlled action creates a clear point in the log where the expected command can be compared with what QZ actually received and sent.
+- Changing one setting at a time makes A/B logs directly comparable and helps distinguish configuration effects from intermittent connection behavior.

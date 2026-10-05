@@ -3353,6 +3353,9 @@ class QZSettings {
     static const QString android_landscape_cutout_margin;
     static constexpr bool default_android_landscape_cutout_margin = true;
 
+    static const QString android_landscape_cutout_prompt_shown;
+    static constexpr bool default_android_landscape_cutout_prompt_shown = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

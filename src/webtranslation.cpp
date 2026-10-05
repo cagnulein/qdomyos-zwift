@@ -64,6 +64,7 @@ const WebTranslationEntry entries[] = {
     {"workoutEditor.forceSpeed", QT_TRANSLATE_NOOP("WebTranslations", "Force Speed")},
     {"workoutEditor.fan", QT_TRANSLATE_NOOP("WebTranslations", "Fan")},
     {"workoutEditor.pelotonResistance", QT_TRANSLATE_NOOP("WebTranslations", "Peloton Res.")},
+    //: Workout editor field: interval in seconds between heart-rate based adjustments of the machine (1-60 s). Avoid technical words like "loop".
     {"workoutEditor.hrLoop", QT_TRANSLATE_NOOP("WebTranslations", "HR Loop (s)")},
     {"workoutEditor.hrZone", QT_TRANSLATE_NOOP("WebTranslations", "HR Zone")},
     {"workoutEditor.hrMin", QT_TRANSLATE_NOOP("WebTranslations", "HR Min")},
@@ -143,8 +144,11 @@ const WebTranslationEntry entries[] = {
     {"chart.value", QT_TRANSLATE_NOOP("WebTranslations", "Value")},
     {"chart.cadenceRpmUpper", QT_TRANSLATE_NOOP("WebTranslations", "Cadence (RPM)")},
     {"chart.inclinationPercent", QT_TRANSLATE_NOOP("WebTranslations", "Inclination (%)")},
+    //: Chart summary: average power during the workout, in watts.
     {"chart.avgOutput", QT_TRANSLATE_NOOP("WebTranslations", "Avg Output")},
+    //: Chart summary: maximum power during the workout, in watts.
     {"chart.maxOutput", QT_TRANSLATE_NOOP("WebTranslations", "Max Output")},
+    //: Chart summary: total work done during the workout, shown in kJ (energy), not power in watts.
     {"chart.totalOutput", QT_TRANSLATE_NOOP("WebTranslations", "Total Output")},
     {"chart.calories", QT_TRANSLATE_NOOP("WebTranslations", "Calories")},
     {"chart.avgCadence", QT_TRANSLATE_NOOP("WebTranslations", "AVG Cadence")},
@@ -186,16 +190,22 @@ const WebTranslationEntry entries[] = {
     {"floating.avg", QT_TRANSLATE_NOOP("WebTranslations", "AVG")},
     {"floating.max", QT_TRANSLATE_NOOP("WebTranslations", "MAX")},
     {"floating.total", QT_TRANSLATE_NOOP("WebTranslations", "TOTAL")},
+    //: Short uppercase label between the - and + buttons in the floating window: Peloton time offset (shift against the Peloton class timeline).
     {"floating.offset", QT_TRANSLATE_NOOP("WebTranslations", "OFFSET")},
     {"floating.notAvailable", QT_TRANSLATE_NOOP("WebTranslations", "N/A")},
+    //: Short uppercase tile label in the floating window: Peloton power zone. "P." stands for Peloton.
     {"floating.powerZone", QT_TRANSLATE_NOOP("WebTranslations", "P.ZONE")},
+    //: Short uppercase tile label in the floating window: Peloton resistance. "P." stands for Peloton.
     {"floating.pelotonResistance", QT_TRANSLATE_NOOP("WebTranslations", "P.RESISTANCE")},
+    //: Short uppercase tile label in the floating window: total work done during the workout, shown in kJ (energy), not power in watts.
     {"floating.totalOutput", QT_TRANSLATE_NOOP("WebTranslations", "TOT.OUTPUT")},
     {"floating.elapsed", QT_TRANSLATE_NOOP("WebTranslations", "ELAPSED")},
     {"floating.remainingTime", QT_TRANSLATE_NOOP("WebTranslations", "REM.TIME")},
+    //: Short uppercase tile label in the floating window: Peloton time offset (how far QZ is shifted against the Peloton class timeline). "P." stands for Peloton.
     {"floating.pelotonOffset", QT_TRANSLATE_NOOP("WebTranslations", "P.OFFSET")},
     {"floating.gears", QT_TRANSLATE_NOOP("WebTranslations", "GEARS")},
     {"floating.next", QT_TRANSLATE_NOOP("WebTranslations", "NEXT")},
+    //: Short uppercase button label in the floating window: starts a new lap (calls Lap()), it does not clear or reset anything.
     {"floating.clear", QT_TRANSLATE_NOOP("WebTranslations", "CLEAR")},
     {"floating.gearMinus", QT_TRANSLATE_NOOP("WebTranslations", "GEAR -")},
     {"floating.gearPlus", QT_TRANSLATE_NOOP("WebTranslations", "GEAR +")},

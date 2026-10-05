@@ -79,7 +79,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview perl
           msystem: mingw64
           release: false
 
@@ -106,7 +106,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: src/qthttpserver
-          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-v1
+          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-msys2-syncqt-cygwin-v2
 
       - name: download 3rd party files for qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
@@ -115,17 +115,35 @@ jobs:
 
       - name: Build qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
+        shell: msys2 {0}
         run: |
-            cd src\qthttpserver
-            qmake
-            make -j8
+            export PATH="/usr/bin:/mingw64/bin:$PATH"
+            command -v perl
+            perl -e 'print "Perl OS: $^O\n"'
+            qt_dir="$(cygpath -u "$Qt5_Dir")"
+            qmake="$qt_dir/bin/qmake.exe"
+            "$qmake" -v
+            cd src/qthttpserver
+            "$qmake"
+            syncqt="$qt_dir/bin/syncqt.pl"
+            perl -0pi -e 's/my \$normalizePath_fixDrive = \(\$\^O eq "msys" \? 1 : 0\);/my \$normalizePath_fixDrive = (\$^O eq "msys" || \$^O eq "cygwin" ? 1 : 0);/' "$syncqt"
+            grep -F '|| $^O eq "cygwin"' "$syncqt"
+            mingw32-make -j8
             cd ../..
 
       - name: Install qthttpserver
+        shell: msys2 {0}
         run: |
-            cd src\qthttpserver
-            make install
+            qt_dir="$(cygpath -u "$Qt5_Dir")"
+            cd src/qthttpserver
+            mingw32-make install
             cd ../..
+            test -f "$qt_dir/bin/Qt5HttpServer.dll"
+            test -f "$qt_dir/bin/Qt5SslServer.dll"
+            test -f "$qt_dir/lib/libQt5HttpServer.a"
+            test -f "$qt_dir/lib/libQt5SslServer.a"
+            test -f "$qt_dir/mkspecs/modules/qt_lib_httpserver.pri"
+            test -f "$qt_dir/mkspecs/modules/qt_lib_sslserver.pri"
 
       - name: Secrets
         if: github.ref == 'refs/heads/master'
@@ -192,6 +210,50 @@ jobs:
             cd appx
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
         if: matrix.config.python == false
+
+      - name: Smoke test qHttpServer runtime
+        shell: pwsh
+        run: |
+          $outputDir = Join-Path $PWD "src/debug/output"
+          $stdoutPath = Join-Path $env:RUNNER_TEMP "qz-smoke.stdout.log"
+          $stderrPath = Join-Path $env:RUNNER_TEMP "qz-smoke.stderr.log"
+          $env:QT_QPA_PLATFORM = "offscreen"
+          $env:QT_OPENGL = "software"
+          $process = Start-Process -FilePath (Join-Path $outputDir "qdomyos-zwift.exe") `
+            -ArgumentList @("-qml", "-no-heart-service", "-no-virtual-device-bluetooth") `
+            -WorkingDirectory $outputDir -PassThru `
+            -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
+          try {
+            $deadline = (Get-Date).AddMinutes(2)
+            $response = $null
+            do {
+              Start-Sleep -Seconds 2
+              $listeners = Get-NetTCPConnection -State Listen -OwningProcess $process.Id -ErrorAction SilentlyContinue
+              foreach ($listener in $listeners) {
+                try {
+                  $candidate = Invoke-WebRequest -Uri "http://127.0.0.1:$($listener.LocalPort)/chartjs/chart.htm" -UseBasicParsing -TimeoutSec 5
+                  if ($candidate.StatusCode -eq 200 -and $candidate.Content -match '<title>Line Chart</title>') {
+                    $response = $candidate
+                    $port = $listener.LocalPort
+                    break
+                  }
+                } catch {
+                  # The process may expose non-HTTP listeners while it starts.
+                }
+              }
+              if ((Get-Date) -gt $deadline) {
+                throw "QZ did not serve /chartjs/chart.htm. stdout: $(Get-Content $stdoutPath -Raw -ErrorAction SilentlyContinue) stderr: $(Get-Content $stderrPath -Raw -ErrorAction SilentlyContinue)"
+              }
+            } while (-not $response -and -not $process.HasExited)
+            if (-not $response) {
+              throw "QZ exited without serving /chartjs/chart.htm (exit code $($process.ExitCode))."
+            }
+            Write-Host "qHttpServer runtime smoke test passed on port $port (HTTP $($response.StatusCode))."
+          } finally {
+            if ($process -and -not $process.HasExited) {
+              Stop-Process -Id $process.Id -Force
+            }
+          }
 
       - name: patching qt for bluetooth
         run: cp qt-patches/windows/5.15.2/binary/mingw64/*.* ${{ github.workspace }}/src/debug/output/
@@ -923,31 +985,13 @@ jobs:
 
             echo "All permissions granted successfully"
 
-            # Start the main activity
-            adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
+            # Turn on location services, otherwise the "Permissions Required" dialog covers the app
+            adb shell settings put secure location_mode 3 || true
+            adb shell settings put secure location_providers_allowed +gps,+network || true
+            adb shell cmd location set-location-enabled true || true
 
-            # Wait for app to start
-            sleep 90
-
-            # Verify the app is running
-            echo "Checking if app is running..."
-            # Use different ps commands for different Android versions
-            adb shell "ps -A 2>/dev/null || ps" > process_list.txt
-
-            # Debug: show all processes to understand the format
-            echo "=== All running processes ==="
-            cat process_list.txt | head -20
-            echo "=== Looking for our app ==="
-
-            grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
-            adb shell pm list packages | grep org.cagnulen.qdomyoszwift
-            echo "=== Checking app info ==="
-            adb shell dumpsys package org.cagnulen.qdomyoszwift | grep -A5 -B5 "state"
-            echo "=== Logcat output for debugging ==="
-            adb logcat -d | grep -i "qdomyos\|crash\|error\|exception\|fatal" | tail -n 50
-            echo "=== Full recent logcat ==="
-            adb logcat -d | tail -n 100
-            echo "App is running successfully"
+            # Start the main activity and wait for its process (retries a lost start, prints the logcat on failure)
+            sh .github/scripts/android_app_start_test.sh
 
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
@@ -965,6 +1009,9 @@ jobs:
 
             echo "Orientation test completed - 4 screenshots captured"
 
+            # Back button test (single presses navigate back, a double press on the home page exits)
+            sh .github/scripts/android_back_button_test.sh
+
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
 
@@ -981,6 +1028,7 @@ jobs:
           path: |
             screenshot.png
             screenshot_orientation_*.png
+            screenshot_back_*.png
             process_list.txt
             full_logcat.txt
             qdomyos_logcat.txt

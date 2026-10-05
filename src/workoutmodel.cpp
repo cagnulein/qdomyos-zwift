@@ -57,13 +57,23 @@ WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
 }
 
 WorkoutModel::~WorkoutModel() {
-    m_workerThread->quit();
-    m_workerThread->wait();
+    if (m_workerThread) {
+        m_workerThread->quit();
+        m_workerThread->wait();
+    }
     QSqlDatabase::removeDatabase(FitDatabaseProcessor::DB_CONNECTION_NAME + "_main");
 }
 
 void WorkoutModel::refresh() {
-    if (m_isLoading) return;
+    if (!m_worker) {
+        // the database did not open: nothing to load, and nobody would end the loading state
+        return;
+    }
+    if (m_isLoading) {
+        // the running load may have started before the newest workouts reached the database
+        m_refreshPending = true;
+        return;
+    }
 
     m_isLoading = true;
     emit loadingStatusChanged();
@@ -88,6 +98,11 @@ void WorkoutModel::onWorkoutsLoaded(const QList<QVariantMap>& workouts) {
 
     m_isLoading = false;
     emit loadingStatusChanged();
+
+    if (m_refreshPending) {
+        m_refreshPending = false;
+        refresh();
+    }
 }
 
 bool WorkoutModel::isLoading() const {

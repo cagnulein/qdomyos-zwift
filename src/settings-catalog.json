@@ -15945,6 +15945,20 @@
       "options": null,
       "virtualParent": "nordictrack_treadmill_model",
       "restartRequired": true
+    },
+    {
+      "key": "android_landscape_cutout_prompt_shown",
+      "name": "Camera Cutout Prompt Shown",
+      "description": "Internal flag: the one-time question about letting the content go under the camera cutout in landscape has been shown.",
+      "parent": "General UI Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "internal",
+      "visible": false,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
     }
   ],
   "legacyHierarchy": {
