@@ -2149,6 +2149,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             ergModeSupported = false;
             max_resistance = 32;
             DOMYOS = true;
+        } else if (bluetoothDevice.name().toUpper().startsWith("INCONDI S150I")) {
+            qDebug() << QStringLiteral("inCondi S150i found - using resistance-level ERG emulation");
+            resistance_lvl_mode = true;
+            ergModeSupported = false;
+            max_resistance = 24;
         } else if (bluetoothDevice.name().toUpper().startsWith("D500V2")) {
             qDebug() << QStringLiteral("D500V2 found - enabling workaround for start simulation command");
             D500V2 = true;           
