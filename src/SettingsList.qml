@@ -22,7 +22,7 @@ ColumnLayout {
         active: false
         sourceComponent: Component {
             FileDialog {
-                title: "Please choose a file"
+                title: qsTr("Please choose a file")
                 folder: shortcuts.home
                 visible: true
                 onAccepted: {
@@ -72,6 +72,7 @@ ColumnLayout {
                             color: Material.color(Material.Grey)
                             font.pixelSize: Qt.application.font.pixelSize * 1.6
                             text: fileName.substring(0, fileName.length-4)
+                            leftPadding: window.contentSideMargin
                         }
                         MouseArea {
                             anchors.fill: parent
@@ -122,7 +123,7 @@ ColumnLayout {
         id: searchButton
         height: 50
         width: parent.width
-        text: "Other folders"
+        text: qsTr("Other folders")
         Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
         onClicked: {
             console.log("folder is " + rootItem.getWritableAppDir() + 'settings')

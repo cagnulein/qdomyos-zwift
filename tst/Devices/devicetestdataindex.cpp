@@ -393,11 +393,20 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("X100-", DeviceNameComparison::StartsWith);
 
 
+    // FitPlus Rower - Merach R28
+    // Reproduces the support case from matthieu.f.graveleau@gmail.com:
+    // debug-Wed_Sep_9_22_16_00_2026.log.txt reported MRK-R28-6B51.
+    RegisterNewDeviceTestData(DeviceIndex::FitPlusRower_MRK_R28)
+        ->expectDevice<fitplusrower>()
+        ->acceptDeviceName("MRK-R28-6B51", DeviceNameComparison::Exact);
+
     // FitPlus MRK
     RegisterNewDeviceTestData(DeviceIndex::FitPlusBike_MRK_NoSettings)
         ->expectDevice<fitplusbike>()
         ->acceptDeviceName("MRK-", DeviceNameComparison::StartsWith)
+        ->rejectDeviceName("MRK-R28-", DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding<ftmsbike>()
+        ->excluding<fitplusrower>()
         ->excluding<snodebike>();
 
     // FitShow FS
@@ -462,6 +471,13 @@ void DeviceTestDataIndex::Initialize() {
         // SW, 14 characters total
         ->acceptDeviceName("SW345678901234", DeviceNameComparison::Exact)
         ->acceptDeviceName("SWFOURTEENCHAR", DeviceNameComparison::Exact)
+
+        // FitShow SW fingerprint: 15 characters with '-' at index 10
+        ->acceptDeviceName("SW5731CAXI-0061", DeviceNameComparison::Exact)
+        ->acceptDeviceName("SW12345678-1234", DeviceNameComparison::Exact)
+        ->rejectDeviceName("SW5731CAXI0-061", DeviceNameComparison::Exact)
+        ->rejectDeviceName("SW5731CAXI-006", DeviceNameComparison::Exact)
+
         ->acceptDeviceName("WINFITA", DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceName("NOBLEPRO CONNECT", DeviceNameComparison::StartsWithIgnoreCase)
 
@@ -505,6 +521,17 @@ void DeviceTestDataIndex::Initialize() {
         ->expectDevice<ftmsbike>()        
         ->acceptDeviceName("FS-", DeviceNameComparison::StartsWith)
         ->configureSettingsWith(QZSettings::hammer_racer_s)
+        ->excluding(ftmsBikeConfigureExclusions);
+
+    // FTMS Bike HS-5000L: standard FTMS with model-specific service/init handling.
+    RegisterNewDeviceTestData(DeviceIndex::FTMSBikeHS5000L)
+        ->expectDevice<ftmsbike>()
+        ->acceptDeviceName("HS-5000L", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith([](const DeviceDiscoveryInfo &info, bool enable,
+                                   std::vector<DeviceDiscoveryInfo> &configurations) {
+            if (enable)
+                configurations.push_back(info);
+        })
         ->excluding(ftmsBikeConfigureExclusions);
 
     // FTMS Bike Hammer 64123
@@ -592,6 +619,7 @@ void DeviceTestDataIndex::Initialize() {
         "MRK-S38-",
         "SMB1",
         "UBIKE FTMS",
+        "TX-500MB IRON",
         "INRIDE"
     };
     RegisterNewDeviceTestData(DeviceIndex::FTMSBike)
@@ -605,6 +633,8 @@ void DeviceTestDataIndex::Initialize() {
         ->acceptDeviceName("VOLT", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("XQ0201118141", DeviceNameComparison::IgnoreCase)
         ->acceptDeviceName("F","ARROW",DeviceNameComparison::IgnoreCase) // FI9110 Arrow, https://www.fitnessdigital.it/bicicletta-smart-bike-ion-fitness-arrow-connect/p/10022863/ IO Fitness Arrow
+        ->acceptDeviceName("FI9117 ION", DeviceNameComparison::IgnoreCase) // ION Fitness Tourmalet Alpine FI9117
+        ->acceptDeviceName("FI1234 ION", DeviceNameComparison::IgnoreCase) // ION Fitness model pattern, identifier excluded from routing
         ->acceptDeviceName("ICSE", DeviceNameComparison::StartsWithIgnoreCase, 4)
         ->acceptDeviceName("FLX", DeviceNameComparison::StartsWithIgnoreCase, 10)
         ->acceptDeviceName("CSRB", DeviceNameComparison::StartsWithIgnoreCase, 11)
@@ -1184,7 +1214,7 @@ void DeviceTestDataIndex::Initialize() {
     // Stages Bike
     RegisterNewDeviceTestData(DeviceIndex::StagesBike)
         ->expectDevice<stagesbike>()        
-        ->acceptDeviceNames({"STAGES ", "TACX SATORI", "RACER S", "ELITETRAINER"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"STAGES ", "TACX SATORI", "RACER S", "ELITETRAINER", "MISURO B+"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceNames({"QD","DFC", "KU"}, DeviceNameComparison::IgnoreCase)
         ->excluding(stagesBikeExclusions);
 
@@ -1411,6 +1441,7 @@ void DeviceTestDataIndex::Initialize() {
     RegisterNewDeviceTestData(DeviceIndex::TrxAppGateUSBEllipticalIConsole)
         ->expectDevice<trxappgateusbelliptical>()
         ->acceptDeviceName("I-CONSOLE+", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("TOORX", DeviceNameComparison::StartsWithIgnoreCase)
         ->excluding(toorxAppGateUSBBikeExclusions)
         ->configureSettingsWith([trxAppGateUSBEllipticalSettingsApplicator](const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) -> void
                                 {

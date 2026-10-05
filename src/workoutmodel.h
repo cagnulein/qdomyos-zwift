@@ -3,9 +3,14 @@
 
 #include <QAbstractListModel>
 #include <QSqlDatabase>
+#include <QSqlQuery>
 #include <QThread>
 #include <QDate>
+#include <QDateTime>
 #include "fitdatabaseprocessor.h"
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+#include "ios/lockscreen.h"
+#endif
 
 class WorkoutLoaderWorker;
 
@@ -49,6 +54,55 @@ class WorkoutModel : public QAbstractListModel {
     Q_INVOKABLE bool openPelotonUrl(int workoutId);
     Q_INVOKABLE bool loadTrainingProgram(int workoutId);
 
+    Q_INVOKABLE bool canWriteAppleHealth(int workoutId) const {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+        QSqlQuery query(m_db);
+        query.prepare("SELECT sport_type FROM workouts WHERE id = ?");
+        query.addBindValue(workoutId);
+        if (!query.exec() || !query.next()) {
+            return false;
+        }
+
+        lockscreen ls;
+        return ls.canWriteHistoricalWorkoutToHealthKit(static_cast<unsigned short>(query.value(0).toUInt()));
+#else
+        Q_UNUSED(workoutId);
+        return false;
+#endif
+    }
+
+    Q_INVOKABLE bool uploadWorkoutToAppleHealth(int workoutId) {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+        QSqlQuery query(m_db);
+        query.prepare("SELECT sport_type, start_time, end_time, total_distance, total_calories FROM workouts WHERE id = ?");
+        query.addBindValue(workoutId);
+        if (!query.exec() || !query.next()) {
+            return false;
+        }
+
+        const QDateTime start = query.value(1).toDateTime();
+        const QDateTime end = query.value(2).toDateTime();
+        if (!start.isValid() || !end.isValid() || end <= start) {
+            return false;
+        }
+
+        const unsigned short sport = static_cast<unsigned short>(query.value(0).toUInt());
+        lockscreen ls;
+        if (!ls.canWriteHistoricalWorkoutToHealthKit(sport)) {
+            return false;
+        }
+
+        return ls.saveHistoricalWorkoutToHealthKit(sport,
+                                                    start.toMSecsSinceEpoch() / 1000.0,
+                                                    end.toMSecsSinceEpoch() / 1000.0,
+                                                    query.value(3).toDouble() * 1000.0,
+                                                    query.value(4).toDouble());
+#else
+        Q_UNUSED(workoutId);
+        return false;
+#endif
+    }
+
     bool isLoading() const;
     bool isDatabaseProcessing() const;
     int currentStreak() const;
@@ -79,9 +133,12 @@ class WorkoutModel : public QAbstractListModel {
     QList<QVariantMap> m_workouts;
     QList<QVariantMap> m_allWorkouts;
     QSqlDatabase m_db;
-    QThread* m_workerThread;
-    WorkoutLoaderWorker* m_worker;
+    // stay null when the database cannot be opened
+    QThread* m_workerThread = nullptr;
+    WorkoutLoaderWorker* m_worker = nullptr;
     bool m_isLoading;
+    // refresh() asked while a load was running: load again once it ends
+    bool m_refreshPending = false;
     bool m_isDatabaseProcessing;
     QString m_dbPath;
     int m_currentStreak;

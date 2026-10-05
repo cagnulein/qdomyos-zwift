@@ -52,13 +52,19 @@ void treadmill::changeSpeed(double speed) {
 
     if(stryd_speed_instead_treadmill && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
-        double maxAllowedDelta = speed * 0.20; // 20% of the speed request
+        double correctionThreshold =
+            settings.value(QZSettings::power_sensor_speed_correction_threshold,
+                           QZSettings::default_power_sensor_speed_correction_threshold)
+                .toDouble() /
+            100.0;
+        double maxAllowedDelta = speed * correctionThreshold;
 
         if (std::abs(delta) <= maxAllowedDelta) {
             qDebug() << "stryd_speed_instead_treadmill so override speed by " << delta;
             speed -= delta;
         } else {
-            qDebug() << "Delta" << delta << "exceeds 20% threshold of" << maxAllowedDelta << "- not applying correction";
+            qDebug() << "Delta" << delta << "exceeds" << (correctionThreshold * 100.0) << "% threshold of"
+                     << maxAllowedDelta << "- not applying correction";
         }
     }
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
@@ -165,6 +171,12 @@ void treadmill::update_metrics(bool watt_calc, const double watts, const bool fr
             m_watt = 0;
             WattKg = 0;
         }
+    } else if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause)
+                             .toBool()) {
+        if (watt_calc) {
+            m_watt = watts;
+        }
+        WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     } else if (m_watt.value() > 0) {
         m_watt = 0;
         WattKg = 0;
@@ -287,7 +299,12 @@ double treadmill::requestedSpeed() { return requestSpeed; }
 double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
-void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
+void treadmill::cadenceSensor(uint8_t cadence) {
+    if (Cadence.value() > 0 || cadence > 0) {
+        evaluateStepCount();
+    }
+    Cadence.setValue(cadence);
+}
 void treadmill::powerSensor(uint16_t power) {
     double vwatts = 0;
     if(power > 0) {
@@ -702,7 +719,8 @@ double treadmill::calculateCadenceFromSpeed(double speed) {
     const double cadence_gain =
         settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
     const double cadence_offset =
-        settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
+        settings.value(QZSettings::cadence_offset,
+                       QZSettings::default_cadence_offset).toDouble();
     calculatedCadence = (calculatedCadence * cadence_gain) + cadence_offset;
 
     qDebug() << "Calculated Cadence from Speed:" << calculatedCadence
@@ -824,7 +842,10 @@ void treadmill::parseInclination(double inclination) {
     QSettings settings;
     bool stryd_inclination_instead_treadmill = settings.value(QZSettings::stryd_inclination_instead_treadmill, QZSettings::default_stryd_inclination_instead_treadmill).toBool();
     if(!stryd_inclination_instead_treadmill) {
-        Inclination = inclination;
+        // Support case 2026-10-01, Domyos Run500:
+        // 0% is a valid inclination and must contribute to the average while moving.
+        Inclination.setValue(inclination, true,
+                             inclination == 0.0 && currentSpeed().value() > 0.0);
     } else {
         qDebug() << "Inclination from the treadmill is discarded since we are using the one from the power sensor " << inclination;
     }

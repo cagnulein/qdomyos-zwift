@@ -63,32 +63,13 @@ jobs:
             git diff --name-only src/translations/
           fi
 
-      - name: Commit and push changes
+      - name: Name the update branch
         if: env.HAS_CHANGES == 'true'
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-
-          # Create a new branch for production updates
-          BRANCH_NAME="translations/auto-update-$(date +%Y%m%d-%H%M%S)"
-          git checkout -b "$BRANCH_NAME"
-
-          # Add updated translation source files only
-          git add src/translations/*.ts
-          git commit -m "chore: update translation strings
-
-          Automatic update of translatable strings extracted from source code.
-          Updated 30 language files in src/translations/
-
-          - Updated by GitHub Actions (Scheduled)
-          - Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
-
-          # Push the branch
-          git push origin "$BRANCH_NAME"
-
-          # Store branch name for PR creation
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-          echo "✅ Changes pushed to new branch: $BRANCH_NAME"
+          # create-pull-request makes the commit itself: a branch committed and pushed here
+          # beforehand was reset to master by it, and the PR was never opened
+          echo "BRANCH_NAME=translations/auto-update-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_ENV
+          echo "COMMIT_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_ENV
 
       - name: Create Pull Request
         if: env.HAS_CHANGES == 'true'
@@ -97,6 +78,17 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: master
           branch: ${{ env.BRANCH_NAME }}
+          add-paths: src/translations/*.ts
+          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          commit-message: |
+            chore: update translation strings
+
+            Automatic update of translatable strings extracted from source code.
+            Updated 30 language files in src/translations/
+
+            - Updated by GitHub Actions (Scheduled)
+            - Date: ${{ env.COMMIT_DATE }}
           title: "🌍 Update translation strings"
           body: |
             ## Translation Update
