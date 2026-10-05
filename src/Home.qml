@@ -162,7 +162,7 @@ HomeForm {
                 wrapMode: Text.WordWrap
             }
 
-            ComboBox {
+            UiComboBox {
                 id: feelCombo
                 width: parent.width
                 model: [qsTr("Very Bad"), qsTr("Bad"), qsTr("OK"), qsTr("Good"), qsTr("Very Good")]

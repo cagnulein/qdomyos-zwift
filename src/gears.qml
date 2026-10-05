@@ -413,7 +413,7 @@ ScrollView {
             Layout.fillWidth: true
 
             ColumnLayout {
-                ComboBox {
+                UiComboBox {
                        id: wheelSizeCombo
                        width: parent.width
                        currentIndex: initialWheelSizeIndex
@@ -545,7 +545,7 @@ ScrollView {
         title: qsTr("Preset Gear Profiles")
         Layout.fillWidth: true
 
-            ComboBox {
+            UiComboBox {
                 id: profileCombo
                 width: parent.width
                 textRole: "text"

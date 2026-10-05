@@ -7,7 +7,7 @@ import QtQuick.Controls.Material 2.15
 // `value` is the raw setting value the caller saves; `labels` maps raw values
 // to translated text and is used for display only. Values missing from
 // `labels` (such as Bluetooth device names) are shown unchanged.
-ComboBox {
+UiComboBox {
     id: control
 
     property string value
