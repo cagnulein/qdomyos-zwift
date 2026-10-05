@@ -27,6 +27,29 @@ qz_in_front() {
   adb shell dumpsys activity activities | grep -E "mResumedActivity|topResumedActivity" | grep -q CustomQtActivity
 }
 
+focused_window() {
+  adb shell dumpsys window | grep -m 1 mCurrentFocus | tr -d '\r'
+}
+
+# A system dialog (e.g. "Pixel Launcher isn't responding" on the google_apis images)
+# can cover QZ while its activity stays resumed: back presses then go to the dialog.
+# Close such dialogs until QZ has the input focus.
+qz_focused() {
+  for i in 1 2 3; do
+    FOCUS=$(focused_window)
+    case "$FOCUS" in
+      *CustomQtActivity*) return 0 ;;
+    esac
+    echo "QZ has no input focus ($FOCUS), closing system dialogs ($i)"
+    adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS > /dev/null
+    sleep 3
+  done
+  return 1
+}
+
+# No "app isn't responding" dialogs from other apps: applied on the next configuration change (the rotation below)
+adb shell settings put global hide_error_dialogs 1
+
 shot() {
   adb shell screencap -p "/sdcard/screenshot_back_$1.png"
   adb pull "/sdcard/screenshot_back_$1.png"
@@ -48,6 +71,7 @@ qz_in_front || fail "QZ is not in front before the back button test"
 # Single presses, more than 2 s apart: the first leaves the wizard,
 # the next ones show "Press back again to exit"
 for i in 1 2 3; do
+  qz_focused || fail "a system window keeps the input focus before back press $i"
   echo "Single back press $i"
   adb shell input keyevent KEYCODE_BACK
   sleep 1
@@ -58,6 +82,7 @@ done
 echo "Single back presses kept the app open"
 
 # Two presses in one command, well within 2 s: the app must exit
+qz_focused || fail "a system window keeps the input focus before the double back press"
 adb shell input keyevent KEYCODE_BACK KEYCODE_BACK
 sleep 10
 shot exit
