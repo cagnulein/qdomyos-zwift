@@ -101,6 +101,7 @@
 #include "devices/octaneelliptical/octaneelliptical.h"
 #include "devices/octanetreadmill/octanetreadmill.h"
 #include "devices/pafersbike/pafersbike.h"
+#include "devices/pafersrower/pafersrower.h"
 #include "devices/paferstreadmill/paferstreadmill.h"
 #include "devices/pelotonbike/pelotonbike.h"
 #include "devices/pitpatbike/pitpatbike.h"
@@ -302,6 +303,7 @@ class bluetooth : public QObject, public SignalHandler {
     kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;
     ftmsbike *ftmsBike = nullptr;
     pafersbike *pafersBike = nullptr;
+    pafersrower *pafersRower = nullptr;
     paferstreadmill *pafersTreadmill = nullptr;
     tacxneo2 *tacxneo2Bike = nullptr;
     pitpatbike *pitpatBike = nullptr;
