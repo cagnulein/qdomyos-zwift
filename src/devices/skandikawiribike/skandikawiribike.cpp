@@ -86,15 +86,35 @@ void skandikawiribike::update() {
                gattNotify1Characteristic.isValid() && initDone) {
         update_metrics(true, watts());
 
+        if (requestResistance != -1) {
+            if (requestResistance > 32) {
+                requestResistance = 32;
+            } else if (requestResistance < 1) {
+                requestResistance = 1;
+            }
+
+            // requestResistance already contains the filters applied by bike::changeResistance().
+            // Keep a copy because requestResistance is transient and is reset after this update.
+            lastEffectiveResistance = requestResistance;
+            if (requestResistance != currentResistance().value()) {
+                emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                // forceResistance(requestResistance);
+            }
+            requestResistance = -1;
+        }
+
         // updating the treadmill console every second
         if (sec1Update++ == (1000 / refresh->interval())) {
             sec1Update = 0;
             // updateDisplay(elapsed.value());
         } else {
             noOpData[1] = 0x01;
-            noOpData[2] = lastRequestedResistance().value(); // + ((lastRequestedResistance().value() / 10) * 6);
-            if (noOpData[2] == 0)
-                noOpData[2] = 1;
+            resistance_t resistanceToSend = autoResistance() && lastEffectiveResistance != -1
+                                                  ? lastEffectiveResistance
+                                                  : lastRequestedResistance().value();
+            if (resistanceToSend < 1)
+                resistanceToSend = 1;
+            noOpData[2] = resistanceToSend;
 
             for (uint8_t i = 0; i < sizeof(noOpData) - 1; i++) {
                 noOpData[4] += noOpData[i]; // the last byte is a sort of a checksum
@@ -103,22 +123,9 @@ void skandikawiribike::update() {
             writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), true, true);
 
             // this bike can take a long time to update the resistance, so we are refreshing the UI with this value
-            Resistance = lastRequestedResistance().value();
+            Resistance = resistanceToSend;
         }
 
-        if (requestResistance != -1) {
-            if (requestResistance > 32) {
-                requestResistance = 32;
-            } else if (requestResistance < 1) {
-                requestResistance = 1;
-            }
-
-            if (requestResistance != currentResistance().value()) {
-                emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                // forceResistance(requestResistance);
-            }
-            requestResistance = -1;
-        }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             requestStart = -1;
