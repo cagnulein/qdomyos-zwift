@@ -93,6 +93,8 @@ void skandikawiribike::update() {
                 requestResistance = 1;
             }
 
+            // requestResistance already contains the filters applied by bike::changeResistance().
+            // Keep a copy because requestResistance is transient and is reset after this update.
             lastEffectiveResistance = requestResistance;
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
@@ -107,8 +109,9 @@ void skandikawiribike::update() {
             // updateDisplay(elapsed.value());
         } else {
             noOpData[1] = 0x01;
-            resistance_t resistanceToSend = lastEffectiveResistance != -1 ? lastEffectiveResistance
-                                                                          : lastRequestedResistance().value();
+            resistance_t resistanceToSend = autoResistance() && lastEffectiveResistance != -1
+                                                  ? lastEffectiveResistance
+                                                  : lastRequestedResistance().value();
             if (resistanceToSend < 1)
                 resistanceToSend = 1;
             noOpData[2] = resistanceToSend;
