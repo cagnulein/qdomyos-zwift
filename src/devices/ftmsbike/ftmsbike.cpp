@@ -408,7 +408,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             Resistance = requestResistance;
         
         if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168 ||
-           bluetoothDevice.name().toUpper().startsWith("INCONDI S150I")) {
+           INCONDI_S150I) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -2152,6 +2152,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             DOMYOS = true;
         } else if (bluetoothDevice.name().toUpper().startsWith("INCONDI S150I")) {
             qDebug() << QStringLiteral("inCondi S150i found - using resistance-level ERG emulation");
+            INCONDI_S150I = true;
             resistance_lvl_mode = true;
             ergModeSupported = false;
             max_resistance = 24;
