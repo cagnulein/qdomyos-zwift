@@ -100,7 +100,7 @@ def locate_control(qml: str) -> tuple[int, int]:
     anchors = list(re.finditer(r"^\s*id:\s*garminDeviceComboBoxDelegate\s*$", qml, re.MULTILINE))
     if len(anchors) != 1:
         raise UpdateError(f"expected one Garmin ComboBox id, found {len(anchors)}")
-    starts = list(re.finditer(r"^\s*ComboBox\s*\{", qml[: anchors[0].start()], re.MULTILINE))
+    starts = list(re.finditer(r"^\s*(?:Ui)?ComboBox\s*\{", qml[: anchors[0].start()], re.MULTILINE))
     if not starts:
         raise UpdateError("Garmin id is not inside a ComboBox")
     start = starts[-1].start()
