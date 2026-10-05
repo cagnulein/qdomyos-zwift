@@ -2055,6 +2055,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: remainingTimeTrainingProgramRowEnabledAccordion
+            //: Tile title: time left in the current step (row) of the workout program, not rowing and not a lap.
             title: qsTr("Remaining Time/Row")
             linkedBoolSetting: "tile_remainingtimetrainprogramrow_enabled"
             settings: settings
@@ -2100,6 +2101,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: nextRowsTrainingProgramRowEnabledAccordion
+            //: Tile title: the next steps (rows) of the loaded workout program, not a table row and not rowing.
             title: qsTr("Next Rows")
             linkedBoolSetting: "tile_nextrowstrainprogram_enabled"
             settings: settings

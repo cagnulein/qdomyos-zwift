@@ -1102,6 +1102,7 @@ void trainprogram::scheduler() {
         } else {
             if (lastLapButtonToastStep != currentStep || ticks - lastLapButtonToastTick >= 30) {
                 const QString message = currentHeartRateEndConditionMessage();
+                // Keep the debug log in English: it is read by a human when a user sends it (#5188). Translate only the toast.
                 qDebug() << "Waiting for heart-rate end condition on row" << currentStep
                          << "current heart" << bluetoothManager->device()->currentHeart().value()
                          << "target power" << rows.at(currentStep).power
