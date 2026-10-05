@@ -990,31 +990,8 @@ jobs:
             adb shell settings put secure location_providers_allowed +gps,+network || true
             adb shell cmd location set-location-enabled true || true
 
-            # Start the main activity
-            adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
-
-            # Wait for app to start
-            sleep 90
-
-            # Verify the app is running
-            echo "Checking if app is running..."
-            # Use different ps commands for different Android versions
-            adb shell "ps -A 2>/dev/null || ps" > process_list.txt
-
-            # Debug: show all processes to understand the format
-            echo "=== All running processes ==="
-            cat process_list.txt | head -20
-            echo "=== Looking for our app ==="
-
-            grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
-            adb shell pm list packages | grep org.cagnulen.qdomyoszwift
-            echo "=== Checking app info ==="
-            adb shell dumpsys package org.cagnulen.qdomyoszwift | grep -A5 -B5 "state"
-            echo "=== Logcat output for debugging ==="
-            adb logcat -d | grep -i "qdomyos\|crash\|error\|exception\|fatal" | tail -n 50
-            echo "=== Full recent logcat ==="
-            adb logcat -d | tail -n 100
-            echo "App is running successfully"
+            # Start the main activity and wait for its process (retries a lost start, prints the logcat on failure)
+            sh .github/scripts/android_app_start_test.sh
 
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
