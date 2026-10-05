@@ -210,8 +210,10 @@ HomeForm {
 
     property bool locationServiceRequsted: false
     // Bluetooth and Location as Android reports them now, not only at app start: switched on from
-    // the quick settings, the questions about them go away
-    property bool locationServicesOn: rootItem.locationServices()
+    // the quick settings, the questions about them go away.
+    // Home.qml is created before homeform sets rootItem: until then assume "on", so the question
+    // doesn't flash at start; setting rootItem re-evaluates the binding with the real value
+    property bool locationServicesOn: typeof rootItem === "undefined" || rootItem.locationServices()
     // "No" answered: not asked again until the next start
     property bool locationServicesDeclined: false
 
