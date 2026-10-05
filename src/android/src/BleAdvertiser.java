@@ -79,13 +79,17 @@ public class BleAdvertiser {
                         .addServiceUuid(new ParcelUuid(ECHELON_SERVICE_UUID))
                         .build();
 
+                AdvertiseData scanResponse = new AdvertiseData.Builder()
+                        .setIncludeDeviceName(true)
+                        .build();
+
                 if (advertiser != null) {
                     try {
                         adapter.setName(deviceName != null && !deviceName.isEmpty() ? deviceName : ECHELON_DEVICE_NAME);
                     } catch (SecurityException | IllegalArgumentException e) {
                         QLog.e("BleAdvertiser", "Unable to set Echelon device name: " + e.getMessage());
                     }
-                    advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+                    advertiser.startAdvertising(settings, advertiseData, scanResponse, advertiseCallback);
                 } else {
                     QLog.e("BleAdvertiser", "BluetoothLeAdvertiser is null for Echelon advertising");
                 }
