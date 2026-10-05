@@ -307,6 +307,7 @@ const QString QZSettings::m3i_bike_kcal = QStringLiteral("m3i_bike_kcal");
 const QString QZSettings::snode_bike = QStringLiteral("snode_bike");
 const QString QZSettings::fitplus_bike = QStringLiteral("fitplus_bike");
 const QString QZSettings::virtufit_etappe = QStringLiteral("virtufit_etappe");
+const QString QZSettings::fitshow_bike_question = QStringLiteral("fitshow_bike_question");
 const QString QZSettings::flywheel_filter = QStringLiteral("flywheel_filter");
 const QString QZSettings::flywheel_life_fitness_ic8 = QStringLiteral("flywheel_life_fitness_ic8");
 const QString QZSettings::life_fitness_ic5 = QStringLiteral("life_fitness_ic5");
@@ -1305,7 +1306,7 @@ const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 const QString QZSettings::android_landscape_cutout_margin = QStringLiteral("android_landscape_cutout_margin");
 const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral("android_landscape_cutout_prompt_shown");
 
-const uint32_t allSettingsCount = 1012;
+const uint32_t allSettingsCount = 1013;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1545,6 +1546,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::fitplus_bike, QZSettings::default_fitplus_bike},
     {QZSettings::lifespan_bike, QZSettings::default_lifespan_bike},
     {QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe},
+    {QZSettings::fitshow_bike_question, QZSettings::default_fitshow_bike_question},
     {QZSettings::flywheel_filter, QZSettings::default_flywheel_filter},
     {QZSettings::flywheel_life_fitness_ic8, QZSettings::default_flywheel_life_fitness_ic8},
     {QZSettings::life_fitness_ic5, QZSettings::default_life_fitness_ic5},
