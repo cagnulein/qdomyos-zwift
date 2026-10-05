@@ -133,8 +133,9 @@ class WorkoutModel : public QAbstractListModel {
     QList<QVariantMap> m_workouts;
     QList<QVariantMap> m_allWorkouts;
     QSqlDatabase m_db;
-    QThread* m_workerThread;
-    WorkoutLoaderWorker* m_worker;
+    // stay null when the database cannot be opened
+    QThread* m_workerThread = nullptr;
+    WorkoutLoaderWorker* m_worker = nullptr;
     bool m_isLoading;
     // refresh() asked while a load was running: load again once it ends
     bool m_refreshPending = false;
