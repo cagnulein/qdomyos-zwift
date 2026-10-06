@@ -39,7 +39,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     bool bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool echelon = settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     const QString echelonAdvertisingName =
-        !t->bluetoothDevice.name().isEmpty() ? t->bluetoothDevice.name() : QStringLiteral("ECHEX-5s-113399");
+        !t->bluetoothDevice.name().isEmpty() ? t->bluetoothDevice.name() : QStringLiteral("ECH-STRIDE-015099");
     this->noHeartService = noHeartService;
     if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(t, bikeResistanceOffset, bikeResistanceGain, this);
@@ -826,7 +826,7 @@ void virtualtreadmill::reconnect() {
         if (echelon) {
             const QString echelonAdvertisingName =
                 !treadMill->bluetoothDevice.name().isEmpty() ? treadMill->bluetoothDevice.name()
-                                                             : QStringLiteral("ECHEX-5s-113399");
+                                                             : QStringLiteral("ECH-STRIDE-015099");
             QAndroidJniObject::callStaticMethod<void>(
                 "org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingEchelon",
                 "(Landroid/content/Context;Ljava/lang/String;)V", QtAndroid::androidContext().object(),
