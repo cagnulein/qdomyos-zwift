@@ -37,6 +37,44 @@ function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
 }
 
+function zoneLabel(number) {
+    return t('chart.zoneNumber', 'zone {number}').replace('{number}', number);
+}
+
+function isTrueSetting(value) {
+    return value === true || value === 'true' || value === 1 || value === '1';
+}
+
+function ensurePowerZones() {
+    ftp = Number(ftp);
+    if (!Number.isFinite(ftp) || ftp <= 0) {
+        ftp = 200;
+    }
+
+    const zoneRatios = [0.55, 0.75, 0.90, 1.05, 1.20, 1.50];
+    for (let i = 0; i < zoneRatios.length; i++) {
+        ftpZones[i] = Number(ftpZones[i]);
+        if (!Number.isFinite(ftpZones[i]) || ftpZones[i] <= 0) {
+            ftpZones[i] = Math.round(ftp * zoneRatios[i]);
+        }
+    }
+}
+
+function ensureHeartZones() {
+    maxHeartRate = Number(maxHeartRate);
+    if (!Number.isFinite(maxHeartRate) || maxHeartRate <= 0) {
+        maxHeartRate = 190;
+    }
+
+    const defaultZoneRatios = [0.70, 0.80, 0.90, 1.00];
+    for (let i = 0; i < defaultZoneRatios.length; i++) {
+        heartZones[i] = Number(heartZones[i]);
+        if (!Number.isFinite(heartZones[i]) || heartZones[i] <= 0) {
+            heartZones[i] = Math.round(maxHeartRate * defaultZoneRatios[i]);
+        }
+    }
+}
+
 function process_arr(arr) {
     let watts = [];
     let reqpower = [];
@@ -175,10 +213,10 @@ function process_arr(arr) {
             $('.workout_image').attr("src","bike.png");
     }
     $('.workout_image').attr("crossOrigin","anonymous");
-    $('.watts_avg').text('Watt AVG: ' + Math.floor(watts_avg));
-    $('.watts_max').text('Watt MAX: ' + watts_max);
-    $('.heart_avg').text('Heart Rate AVG: ' + Math.floor(heart_avg));
-    $('.heart_max').text('Heart Rate MAX: ' + heart_max);
+    $('.watts_avg').text(t('chart.wattAvgValue', 'Watt AVG: {value}').replace('{value}', Math.floor(watts_avg)));
+    $('.watts_max').text(t('chart.wattMaxValue', 'Watt MAX: {value}').replace('{value}', watts_max));
+    $('.heart_avg').text(t('chart.heartRateAvgValue', 'Heart Rate AVG: {value}').replace('{value}', Math.floor(heart_avg)));
+    $('.heart_max').text(t('chart.heartRateMaxValue', 'Heart Rate MAX: {value}').replace('{value}', heart_max));
 
     $('.summary_watts_avg').text(Math.floor(watts_avg) + ' W');
     $('.summary_jouls').text(Math.floor(jouls / 1000.0) + ' kJ');
@@ -298,7 +336,7 @@ function process_arr(arr) {
                         top: 2,
                         bottom: 2
                     },
-                    text:'Watt'
+                    text:t('metric.watt', 'Watt')
                 },
                 tooltips: {
                     mode: 'index',
@@ -410,13 +448,13 @@ function process_arr(arr) {
                         stepSize: 1,
                         autoSkip: false,
                         callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
-                            value === ftpZones[0] * 0.8 ? 'zone 1' :
-                            value === ftpZones[0] ? 'zone 2' :
-                            value === ftpZones[1] ? 'zone 3' :
-                            value === ftpZones[2] ? 'zone 4' :
-                            value === ftpZones[3] ? 'zone 5' :
-                            value === ftpZones[4] ? 'zone 6' :
-                            value === ftpZones[5] ? 'zone 7' : undefined : undefined,
+                            value === ftpZones[0] * 0.8 ? zoneLabel(1) :
+                            value === ftpZones[0] ? zoneLabel(2) :
+                            value === ftpZones[1] ? zoneLabel(3) :
+                            value === ftpZones[2] ? zoneLabel(4) :
+                            value === ftpZones[3] ? zoneLabel(5) :
+                            value === ftpZones[4] ? zoneLabel(6) :
+                            value === ftpZones[5] ? zoneLabel(7) : undefined : undefined,
                         color: 'black',
                         padding: -50,
                         align: 'end',
@@ -430,6 +468,26 @@ function process_arr(arr) {
     let ctx = document.getElementById('canvas').getContext('2d');
     var powerChart = new Chart(ctx, config);
 
+    const minRecordedHeart = heart.reduce(function(minValue, point) {
+        return point.y > 0 ? Math.min(minValue, point.y) : minValue;
+    }, Number.POSITIVE_INFINITY);
+    const heartTrainingFloor = Math.round(maxHeartRate * 0.5);
+    const heartChartBottom = Math.max(
+        0,
+        Math.min(heartTrainingFloor, Number.isFinite(minRecordedHeart) ? minRecordedHeart - 5 : heartTrainingFloor)
+    );
+    const heartChartTop = Math.max(
+        maxHeartRate,
+        heart_max > maxHeartRate ? heart_max + 5 : maxHeartRate,
+        heartChartBottom + 50
+    );
+    const heartZoneLabelPositions = [
+        Math.round((heartChartBottom + heartZones[0]) / 2),
+        Math.round((heartZones[0] + heartZones[1]) / 2),
+        Math.round((heartZones[1] + heartZones[2]) / 2),
+        Math.round((heartZones[2] + heartZones[3]) / 2),
+        Math.round((heartZones[3] + heartChartTop) / 2),
+    ];
     config = {
         type: 'line',
         plugins: [backgroundFill],
@@ -483,7 +541,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Heart Rate'
+                    text:t('chart.heartRate', 'Heart Rate')
                 },
                 tooltips: {
                     mode: 'index',
@@ -499,7 +557,7 @@ function process_arr(arr) {
                             type: 'box',
                             xMin: 0,
                             xMax: maxEl,
-                            yMin: 0,
+                            yMin: heartChartBottom,
                             yMax: heartZones[0],
                             backgroundColor: window.chartColors.lightsteelbluet,
                             },
@@ -536,7 +594,7 @@ function process_arr(arr) {
                             xMin: 0,
                             xMax: maxEl,
                             yMin: heartZones[3],
-                            yMax: maxHeartRate,
+                            yMax: heartChartTop,
                             backgroundColor: window.chartColors.redt,
                             },
                     }
@@ -571,15 +629,17 @@ function process_arr(arr) {
                         display: false,
                         text: 'Heart rate'
                     },
-                    min: 50,
+                    min: heartChartBottom,
+                    max: heartChartTop,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value =>  [heartZones[0], heartZones[1], heartZones[2], heartZones[3]].includes(value) ?
-                            value === heartZones[0] ? 'zone 2' :
-                            value === heartZones[1] ? 'zone 3' :
-                            value === heartZones[2] ? 'zone 4' :
-                            value === heartZones[3] ? 'zone 5' : undefined : undefined,
+                        callback: value => heartZoneLabelPositions.includes(value) ?
+                            value === heartZoneLabelPositions[0] ? zoneLabel(1) :
+                            value === heartZoneLabelPositions[1] ? zoneLabel(2) :
+                            value === heartZoneLabelPositions[2] ? zoneLabel(3) :
+                            value === heartZoneLabelPositions[3] ? zoneLabel(4) :
+                            value === heartZoneLabelPositions[4] ? zoneLabel(5) : undefined : undefined,
                         color: 'black',
                         padding: -50,
                         align: 'end',
@@ -651,7 +711,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Resistance vs Target Resistance'
+                    text:t('chart.resistanceVsTarget', 'Resistance vs Target Resistance')
                 },
                 tooltips: {
                     mode: 'index',
@@ -768,7 +828,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Peloton Resistance vs Target Peloton Resistance'
+                    text:t('chart.pelotonResistanceVsTarget', 'Peloton Resistance vs Target Peloton Resistance')
                 },
                 tooltips: {
                     mode: 'index',
@@ -885,7 +945,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Cadence vs Target Cadence'
+                    text:t('chart.cadenceVsTarget', 'Cadence vs Target Cadence')
                 },
                 tooltips: {
                     mode: 'index',
@@ -948,7 +1008,7 @@ function process_arr(arr) {
         type: 'bar',
         plugins: [backgroundFill],
         data: {
-            labels: ['zone 1', 'zone 2', 'zone 3', 'zone 4', 'zone 5', 'zone 6', 'zone 7' ],
+            labels: [zoneLabel(1), zoneLabel(2), zoneLabel(3), zoneLabel(4), zoneLabel(5), zoneLabel(6), zoneLabel(7) ],
             datasets: [
                 {
                     data: distributionPowerZones,
@@ -986,7 +1046,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Power Distribution'
+                    text:t('chart.powerDistribution', 'Power Distribution')
                 },
                 tooltips: {
                     mode: 'index',
@@ -1082,7 +1142,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Speed and Inclination'
+                    text:t('chart.speedAndInclination', 'Speed and Inclination')
                 },
                 tooltips: {
                     mode: 'index',
@@ -1143,8 +1203,22 @@ function process_arr(arr) {
 }
 
 function dochart_init() {
-    onSettingsOK = true;
     keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
+
+    function load_workout_data() {
+        let el = new MainWSQueueElement({
+            msg: 'getsessionarray'
+        }, function(msg) {
+            if (msg.msg === 'R_getsessionarray') {
+                return msg.content;
+            }
+            return null;
+        }, 15000, 3);
+        el.enqueue().then(process_arr).catch(function(err) {
+            console.error('Error is ' + err);
+        });
+    }
+
     let el = new MainWSQueueElement({
             msg: 'getsettings',
             content: {
@@ -1174,7 +1248,7 @@ function dochart_init() {
                         age = msg.content[key];
                         maxHeartRate = 220 - age;
                     } else if (key === 'heart_max_override_enable') {
-                        heart_max_override_enable = msg.content[key];
+                        heart_max_override_enable = isTrueSetting(msg.content[key]);
                     } else if (key === 'heart_max_override_value') {
                         heart_max_override_value = msg.content[key];
                     } else if (key === 'heart_rate_zone1') {
@@ -1205,8 +1279,15 @@ function dochart_init() {
             }
             return null;
         }, 5000, 3);
-    el.enqueue().then(onSettingsOK).catch(function(err) {
-            console.error('Error is ' + err);
+    el.enqueue().then(function() {
+        ensurePowerZones();
+        ensureHeartZones();
+        load_workout_data();
+    }).catch(function(err) {
+        console.error('Error is ' + err);
+        ensurePowerZones();
+        ensureHeartZones();
+        load_workout_data();
     })
 
     let getPelotonImage = new MainWSQueueElement({
@@ -1221,17 +1302,6 @@ function dochart_init() {
         console.error('Error is ' + err);
     });
 
-    el = new MainWSQueueElement({
-        msg: 'getsessionarray'
-    }, function(msg) {
-        if (msg.msg === 'R_getsessionarray') {
-            return msg.content;
-        }
-        return null;
-    }, 15000, 3);
-    el.enqueue().then(process_arr).catch(function(err) {
-        console.error('Error is ' + err);
-    });
 }
 
 

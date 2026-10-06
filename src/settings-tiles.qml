@@ -7,6 +7,8 @@ import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    leftPadding: window.contentSideMargin
+    rightPadding: window.contentSideMargin
     focus: true
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
@@ -365,6 +367,8 @@ ScrollView {
         property string shortcut_auto_resistance: ""
         property string shortcut_lap: ""
         property string shortcut_start_stop: ""            
+        property bool tile_watt_color_enabled: true
+        property bool tile_pace_color_enabled: true
     }
 
 
@@ -703,29 +707,46 @@ ScrollView {
             title: qsTr("Pace")
             linkedBoolSetting: "tile_pace_enabled"
             settings: settings
-            accordionContent: RowLayout {
-                spacing: 10
-                Label {
-                    id: labelpaceOrder
-                    text: qsTr("order index:")
+            accordionContent: ColumnLayout {
+                SwitchDelegate {
+                    id: paceColorEnabled
+                    text: qsTr("Enable Pace color")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.tile_pace_color_enabled
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignRight
+                    onClicked: settings.tile_pace_color_enabled = checked
                 }
-                ComboBox {
-                    id: paceOrderTextField
-                    model: rootItem.tile_order
-                    displayText: settings.tile_pace_order
-                    Layout.fillHeight: false
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onActivated: {
-                        displayText = paceOrderTextField.currentValue
-                     }
-                }
-                Button {
-                    id: okpaceOrderButton
-                    text: qsTr("OK")
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_pace_order = paceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelpaceOrder
+                        text: qsTr("order index:")
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    ComboBox {
+                        id: paceOrderTextField
+                        model: rootItem.tile_order
+                        displayText: settings.tile_pace_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = paceOrderTextField.currentValue
+                         }
+                    }
+                    Button {
+                        id: okpaceOrderButton
+                        text: qsTr("OK")
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_pace_order = paceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
                 }
             }
         }
@@ -789,7 +810,7 @@ ScrollView {
                     id: okgradeAdjustedPaceOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_grade_adjusted_pace_order = gradeAdjustedPaceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_grade_adjusted_pace_order = gradeAdjustedPaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -870,29 +891,46 @@ ScrollView {
             title: qsTr("Watt")
             linkedBoolSetting: "tile_watt_enabled"
             settings: settings
-            accordionContent:  RowLayout {
-                spacing: 10
-                Label {
-                    id: labelwattOrder
-                    text: qsTr("order index:")
+            accordionContent:  ColumnLayout {
+                SwitchDelegate {
+                    id: wattColorEnabled
+                    text: qsTr("Enable Watt color")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.tile_watt_color_enabled
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignRight
+                    onClicked: settings.tile_watt_color_enabled = checked
                 }
-                ComboBox {
-                    id: wattOrderTextField
-                    model: rootItem.tile_order
-                    displayText: settings.tile_watt_order
-                    Layout.fillHeight: false
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onActivated: {
-                        displayText = wattOrderTextField.currentValue
-                     }
-                }
-                Button {
-                    id: okwattOrderButton
-                    text: qsTr("OK")
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_watt_order = wattOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelwattOrder
+                        text: qsTr("order index:")
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignRight
+                    }
+                    ComboBox {
+                        id: wattOrderTextField
+                        model: rootItem.tile_order
+                        displayText: settings.tile_watt_order
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            displayText = wattOrderTextField.currentValue
+                         }
+                    }
+                    Button {
+                        id: okwattOrderButton
+                        text: qsTr("OK")
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: {settings.tile_watt_order = wattOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                    }
                 }
             }
         }
@@ -1570,7 +1608,7 @@ ScrollView {
         }
 
         Label {
-            text: qsTr("Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile.")
+            text: qsTr("Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. During a Peloton class (bike only), +/- shifts the class's resistance target up or down for the rest of the ride.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2

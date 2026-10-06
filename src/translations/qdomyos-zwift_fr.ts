@@ -1297,12 +1297,12 @@ Les questions suivantes personnaliseront QZ pour votre équipement et vos object
     <message>
         <location filename="../Wizard.qml" line="172"/>
         <source>Help with a specific feature</source>
-        <translation>Aide avec une fonctionnalité spécifique</translation>
+        <translation>Aide pour une fonctionnalité spécifique</translation>
     </message>
     <message>
         <location filename="../Wizard.qml" line="181"/>
         <source>I&apos;m fine, thanks.</source>
-        <translation>Je vais bien, merci.</translation>
+        <translation>C&apos;est tout bon, merci.</translation>
     </message>
     <message>
         <location filename="../Wizard.qml" line="211"/>

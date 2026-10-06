@@ -30,9 +30,39 @@
 
 using namespace std::chrono_literals;
 
+namespace {
+constexpr int OPEN_ENDED_PREVIEW_SECONDS = 60;
+
+int rowDurationSecondsForPreview(const trainrow &row) {
+    const int explicitDuration = QTime(0, 0, 0).secsTo(row.duration);
+    if (explicitDuration > 0)
+        return explicitDuration;
+    if (trainprogram::isBlockingTransitionRow(row))
+        return OPEN_ENDED_PREVIEW_SECONDS;
+    return 0;
+}
+
+QString openEndedRowLabel(const trainrow &row) {
+    if (row.waitForLap)
+        return QStringLiteral("Lap");
+    if (row.HRabove > 0)
+        return QStringLiteral("HR >%1 bpm").arg(row.HRabove);
+    if (row.HRbelow > 0)
+        return QStringLiteral("HR <%1 bpm").arg(row.HRbelow);
+    return QStringLiteral("Open");
+}
+}
+
 #define TRAINPROGRAM_FIELD_TO_STRING()                                                                      \
     item[QStringLiteral("duration")] = row.duration.toString();                                             \
     item[QStringLiteral("duration_s")] = QTime(0,0,0).secsTo(row.duration);                                 \
+    item[QStringLiteral("visual_duration_s")] = rowDurationSecondsForPreview(row);                          \
+    item[QStringLiteral("openEnded")] = trainprogram::isBlockingTransitionRow(row) &&                       \
+                                        QTime(0,0,0).secsTo(row.duration) == 0;                              \
+    item[QStringLiteral("segmentLabel")] = trainprogram::isBlockingTransitionRow(row) &&                    \
+                                           QTime(0,0,0).secsTo(row.duration) == 0 ?                          \
+                                           openEndedRowLabel(row) : QStringLiteral("");                      \
+    item[QStringLiteral("waitForLap")] = row.waitForLap;                                                     \
     item[QStringLiteral("distance")] = row.distance;                                                        \
     item[QStringLiteral("speed")] = row.speed;                                                              \
     item[QStringLiteral("minSpeed")] = row.minSpeed;                                                        \
@@ -51,6 +81,9 @@ using namespace std::chrono_literals;
     item[QStringLiteral("lower_requested_peloton_resistance")] = row.lower_requested_peloton_resistance;    \
     item[QStringLiteral("upper_requested_peloton_resistance")] = row.upper_requested_peloton_resistance;    \
     item[QStringLiteral("power")] = row.power;                                                              \
+    item[QStringLiteral("rampIsFtpFraction")] = row.rampIsFtpFraction;                                      \
+    item[QStringLiteral("rampPowerFromOriginal")] = row.rampPowerFromOriginal;                               \
+    item[QStringLiteral("rampPowerToOriginal")] = row.rampPowerToOriginal;                                   \
     item[QStringLiteral("cadence")] = row.cadence;                                                          \
     item[QStringLiteral("lower_cadence")] = row.lower_cadence;                                              \
     item[QStringLiteral("upper_cadence")] = row.upper_cadence;                                              \
@@ -59,6 +92,8 @@ using namespace std::chrono_literals;
     item[QStringLiteral("zoneHR")] = row.zoneHR;                                                            \
     item[QStringLiteral("HRmin")] = row.HRmin;                                                              \
     item[QStringLiteral("HRmax")] = row.HRmax;                                                              \
+    item[QStringLiteral("HRabove")] = row.HRabove;                                                          \
+    item[QStringLiteral("HRbelow")] = row.HRbelow;                                                          \
     item[QStringLiteral("latitude")] = row.latitude;                                                        \
     item[QStringLiteral("longitude")] = row.longitude;                                                      \
     item[QStringLiteral("altitude")] = row.altitude;                                                        \
@@ -306,10 +341,12 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInf
                 outObj.insert(key, 1);
                 QRegExp regex(key.mid(1));
                 for (auto &keypresent : settings.allKeys()) {
-                    if (regex.indexIn(keypresent) >= 0) {
+                    if (regex.indexIn(keypresent) >= 0 && !QZSettings::isSensitiveSettingKey(keypresent)) {
                         outObj.insert(keypresent, QJsonValue::fromVariant(settings.value(keypresent)));
                     }
                 }
+            } else if (QZSettings::isSensitiveSettingKey(key)) {
+                continue;
             } else if (settings.contains(key)) {
                 outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
             } else {
@@ -318,7 +355,9 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInf
         }
     } else {
         for (auto &key : settings.allKeys()) {
-            outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
+            if (!QZSettings::isSensitiveSettingKey(key)) {
+                outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
+            }
         }
     }
     QJsonObject main;
@@ -458,21 +497,21 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue &msgContent, Temp
     QJsonObject outObj;
     QSettings settings;
     for (auto &key : keys) {
-        if (settings.contains(key)) {
-            val = obj[key];
-            valConv = val.toVariant();
-            settingVal = settings.value(key);
-            if (valConv.type() == settingVal.type()) {
-                settings.setValue(key, valConv);
-                outObj.insert(key, val);
-            } else {
-                outObj.insert(key, QJsonValue::fromVariant(settingVal));
-            }
-        } else {
-            val = obj[key];
-            settings.setValue(key, val.toVariant());
-            outObj.insert(key, val);
+        if (QZSettings::isSensitiveSettingKey(key)) {
+            continue;
         }
+        val = obj[key];
+        valConv = val.toVariant();
+        if (settings.contains(key)) {
+            settingVal = settings.value(key);
+            if (valConv.type() != settingVal.type() && valConv.canConvert(settingVal.type())) {
+                // QSettings backends don't always round-trip the original type (e.g. bool
+                // coming back as QString/int), so coerce instead of silently dropping the update.
+                valConv.convert(settingVal.type());
+            }
+        }
+        settings.setValue(key, valConv);
+        outObj.insert(key, QJsonValue::fromVariant(valConv));
     }
     settings.sync();
     QJsonObject main;
@@ -544,10 +583,58 @@ void TemplateInfoSenderBuilder::onGetTrainingProgram(const QJsonValue &msgConten
     QString fileXml;
     if (homeform::singleton() && homeform::singleton()->trainingProgram()) {
         QList<trainrow> lst = homeform::singleton()->trainingProgram()->loadedRows;
-        for (auto &row : lst) {
-            QJsonObject item;
-            TRAINPROGRAM_FIELD_TO_STRING();
-            outArr.append(item);
+        int idx = 0;
+        while (idx < lst.size()) {
+            const trainrow &curRow = lst[idx];
+            if (curRow.rampPowerFromOriginal >= 0.0) {
+                double fromOrig = curRow.rampPowerFromOriginal;
+                double toOrig = curRow.rampPowerToOriginal;
+                bool isFtp = curRow.rampIsFtpFraction;
+                trainrow firstRow = curRow;
+                int totalSecs = 0;
+                while (idx < lst.size() &&
+                       lst[idx].rampPowerFromOriginal == fromOrig &&
+                       lst[idx].rampPowerToOriginal == toOrig) {
+                    totalSecs += QTime(0,0,0).secsTo(lst[idx].duration);
+                    idx++;
+                }
+                QJsonObject item;
+                {
+                    trainrow compactRow = firstRow;
+                    compactRow.duration = QTime(0,0,0).addSecs(totalSecs);
+                    compactRow.rampPowerFromOriginal = -1.0;
+                    compactRow.rampPowerToOriginal = -1.0;
+                    const trainrow &row = compactRow;
+                    TRAINPROGRAM_FIELD_TO_STRING();
+                }
+                item[QStringLiteral("duration")] = QTime(0,0,0).addSecs(totalSecs).toString(QStringLiteral("hh:mm:ss"));
+                if (isFtp) {
+                    item[QStringLiteral("powerzonefrom")] = fromOrig;
+                    item[QStringLiteral("powerzoneto")] = toOrig;
+                    item[QStringLiteral("powerrampunit")] = QStringLiteral("% FTP");
+                } else {
+                    item[QStringLiteral("powerfrom")] = (int)fromOrig;
+                    item[QStringLiteral("powerto")] = (int)toOrig;
+                    item[QStringLiteral("powerrampunit")] = QStringLiteral("W");
+                }
+                outArr.append(item);
+            } else {
+                QJsonObject item;
+                const trainrow &row = curRow;
+                TRAINPROGRAM_FIELD_TO_STRING();
+                if (!curRow.textEvents.isEmpty()) {
+                    QJsonArray textEvents;
+                    for (const auto &evt : curRow.textEvents) {
+                        QJsonObject textEvent;
+                        textEvent[QStringLiteral("timeoffset")] = static_cast<int>(evt.timeoffset);
+                        textEvent[QStringLiteral("message")] = evt.message;
+                        textEvents.append(textEvent);
+                    }
+                    item[QStringLiteral("textEvents")] = textEvents;
+                }
+                outArr.append(item);
+                idx++;
+            }
         }
         outObj[QStringLiteral("device")] =
             trainprogram::deviceTypeToXmlKey(homeform::singleton()->trainingProgram()->loadedDeviceType);
@@ -588,22 +675,37 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
     }
 
     // Build workout preview data
-    QJsonArray watts, speed, inclination, resistance, cadence;
+    QJsonArray watts, speed, inclination, resistance, cadence, segments;
 
     if (!rows.isEmpty()) {
         // Calculate total duration
         int totalSeconds = 0;
         for (const trainrow &r : rows) {
-            totalSeconds += (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second();
+            totalSeconds += rowDurationSecondsForPreview(r);
         }
 
         outObj[QStringLiteral("points")] = totalSeconds;
         outObj[QStringLiteral("description")] = description.isEmpty() ? QFileInfo(filePath).baseName() : description;
         outObj[QStringLiteral("tags")] = tags;
+        outObj[QStringLiteral("hasOpenEndedSteps")] = false;
 
         // Build data arrays
         for (const trainrow &r : rows) {
-            int duration = (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second();
+            const int duration = rowDurationSecondsForPreview(r);
+            const bool openEnded = trainprogram::isBlockingTransitionRow(r) && QTime(0, 0, 0).secsTo(r.duration) == 0;
+            const QString segmentLabel = openEnded ? openEndedRowLabel(r) : QStringLiteral("");
+            const int segmentStart = watts.size();
+
+            if (openEnded) {
+                outObj[QStringLiteral("hasOpenEndedSteps")] = true;
+                QJsonObject segment;
+                segment[QStringLiteral("start")] = segmentStart;
+                segment[QStringLiteral("duration")] = duration;
+                segment[QStringLiteral("end")] = segmentStart + duration;
+                segment[QStringLiteral("openEnded")] = true;
+                segment[QStringLiteral("label")] = segmentLabel;
+                segments.append(segment);
+            }
 
             for (int i = 0; i < duration; i++) {
                 int currentSecond = watts.size();
@@ -612,6 +714,10 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
                 QJsonObject wattPoint;
                 wattPoint[QStringLiteral("x")] = currentSecond;
                 wattPoint[QStringLiteral("y")] = r.power;
+                if (openEnded) {
+                    wattPoint[QStringLiteral("openEnded")] = true;
+                    wattPoint[QStringLiteral("segmentLabel")] = segmentLabel;
+                }
                 watts.append(wattPoint);
 
                 // Speed
@@ -619,6 +725,10 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
                     QJsonObject speedPoint;
                     speedPoint[QStringLiteral("x")] = currentSecond;
                     speedPoint[QStringLiteral("y")] = r.speed;
+                    if (openEnded) {
+                        speedPoint[QStringLiteral("openEnded")] = true;
+                        speedPoint[QStringLiteral("segmentLabel")] = segmentLabel;
+                    }
                     speed.append(speedPoint);
                 }
 
@@ -627,6 +737,10 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
                     QJsonObject incPoint;
                     incPoint[QStringLiteral("x")] = currentSecond;
                     incPoint[QStringLiteral("y")] = r.inclination;
+                    if (openEnded) {
+                        incPoint[QStringLiteral("openEnded")] = true;
+                        incPoint[QStringLiteral("segmentLabel")] = segmentLabel;
+                    }
                     inclination.append(incPoint);
                 }
 
@@ -635,6 +749,10 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
                     QJsonObject resPoint;
                     resPoint[QStringLiteral("x")] = currentSecond;
                     resPoint[QStringLiteral("y")] = r.resistance;
+                    if (openEnded) {
+                        resPoint[QStringLiteral("openEnded")] = true;
+                        resPoint[QStringLiteral("segmentLabel")] = segmentLabel;
+                    }
                     resistance.append(resPoint);
                 }
 
@@ -643,6 +761,10 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
                     QJsonObject cadPoint;
                     cadPoint[QStringLiteral("x")] = currentSecond;
                     cadPoint[QStringLiteral("y")] = r.cadence;
+                    if (openEnded) {
+                        cadPoint[QStringLiteral("openEnded")] = true;
+                        cadPoint[QStringLiteral("segmentLabel")] = segmentLabel;
+                    }
                     cadence.append(cadPoint);
                 }
             }
@@ -661,6 +783,7 @@ void TemplateInfoSenderBuilder::onTrainingProgramPreview(const QJsonValue &msgCo
         outObj[QStringLiteral("inclination")] = inclination;
         outObj[QStringLiteral("resistance")] = resistance;
         outObj[QStringLiteral("cadence")] = cadence;
+        outObj[QStringLiteral("segments")] = segments;
         outObj[QStringLiteral("deviceType")] = deviceType;
     }
 
@@ -803,6 +926,7 @@ void TemplateInfoSenderBuilder::onWorkoutEditorEnv(TemplateInfoSender *tempSende
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     outObj[QStringLiteral("miles")] = miles;
+    outObj[QStringLiteral("ftp")] = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
     if (device) {
         outObj[QStringLiteral("device")] = trainprogram::deviceTypeToXmlKey(device->deviceType());
     } else {
@@ -1046,6 +1170,24 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             if (row.contains(QStringLiteral("power"))) {
                 tR.power = row[QStringLiteral("power")].toInt();
             }
+            if (row.contains(QStringLiteral("powerfrom")) && row.contains(QStringLiteral("powerto"))) {
+                double from = row[QStringLiteral("powerfrom")].toDouble();
+                double to = row[QStringLiteral("powerto")].toDouble();
+                tR.power = (int)from;
+                tR.rampPowerFromOriginal = from;
+                tR.rampPowerToOriginal = to;
+                tR.rampIsFtpFraction = false;
+            }
+            if (row.contains(QStringLiteral("powerzonefrom")) && row.contains(QStringLiteral("powerzoneto"))) {
+                QSettings localSettings;
+                double from = row[QStringLiteral("powerzonefrom")].toDouble();
+                double to = row[QStringLiteral("powerzoneto")].toDouble();
+                double ftp = localSettings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                tR.power = (int)(from * ftp);
+                tR.rampPowerFromOriginal = from;
+                tR.rampPowerToOriginal = to;
+                tR.rampIsFtpFraction = true;
+            }
             if (row.contains(QStringLiteral("cadence"))) {
                 tR.cadence = row[QStringLiteral("cadence")].toInt();
             }
@@ -1066,6 +1208,12 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             }
             if (row.contains(QStringLiteral("HRmax"))) {
                 tR.HRmax = row[QStringLiteral("HRmax")].toInt();
+            }
+            if (row.contains(QStringLiteral("HRabove"))) {
+                tR.HRabove = row[QStringLiteral("HRabove")].toInt();
+            }
+            if (row.contains(QStringLiteral("HRbelow"))) {
+                tR.HRbelow = row[QStringLiteral("HRbelow")].toInt();
             }
             if (row.contains(QStringLiteral("latitude"))) {
                 tR.latitude = row[QStringLiteral("latitude")].toDouble();
@@ -1676,6 +1824,15 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("heart_lapavg"), dep.lapAverage());
         obj.setProperty(QStringLiteral("heart_max"), dep.max());
         obj.setProperty(QStringLiteral("heart_lapmax"), dep.lapMax());
+        obj.setProperty(QStringLiteral("target_heart_above"), 0);
+        obj.setProperty(QStringLiteral("target_heart_below"), 0);
+        if (homeform::singleton()->trainingProgram()) {
+            const trainrow currentRow = homeform::singleton()->trainingProgram()->getRowFromCurrent(0);
+            if (currentRow.HRabove > 0)
+                obj.setProperty(QStringLiteral("target_heart_above"), currentRow.HRabove);
+            if (currentRow.HRbelow > 0)
+                obj.setProperty(QStringLiteral("target_heart_below"), currentRow.HRbelow);
+        }
         obj.setProperty(QStringLiteral("jouls"), device->jouls().value());
         obj.setProperty(QStringLiteral("elevation"), device->elevationGain().value());
         obj.setProperty(QStringLiteral("difficult"), device->difficult());
@@ -1700,11 +1857,21 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("autoresistance"), homeform::singleton()->autoResistance());
         obj.setProperty(QStringLiteral("nextrow"), homeform::singleton()->nextRows->value());
         if (homeform::singleton()->trainingProgram()) {
-            el = homeform::singleton()->trainingProgram()->currentRowRemainingTime();
+            trainprogram *program = homeform::singleton()->trainingProgram();
+            const trainrow currentRow = program->getRowFromCurrent(0);
+            obj.setProperty(QStringLiteral("training_row_index"), program->currentRowIndex());
+            obj.setProperty(QStringLiteral("training_row_elapsed"), program->currentRowElapsedSeconds());
+            obj.setProperty(QStringLiteral("training_row_open_ended"), trainprogram::isBlockingTransitionRow(currentRow));
+            obj.setProperty(QStringLiteral("training_row_wait_for_lap"), currentRow.waitForLap);
+            el = program->currentRowRemainingTime();
             obj.setProperty(QStringLiteral("row_remaining_time_s"), el.second());
             obj.setProperty(QStringLiteral("row_remaining_time_m"), el.minute());
             obj.setProperty(QStringLiteral("row_remaining_time_h"), el.hour());
         } else {
+            obj.setProperty(QStringLiteral("training_row_index"), -1);
+            obj.setProperty(QStringLiteral("training_row_elapsed"), 0);
+            obj.setProperty(QStringLiteral("training_row_open_ended"), false);
+            obj.setProperty(QStringLiteral("training_row_wait_for_lap"), false);
             obj.setProperty(QStringLiteral("row_remaining_time_s"), 0);
             obj.setProperty(QStringLiteral("row_remaining_time_m"), 0);
             obj.setProperty(QStringLiteral("row_remaining_time_h"), 0);

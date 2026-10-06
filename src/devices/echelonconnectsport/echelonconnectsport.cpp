@@ -556,7 +556,7 @@ void echelonconnectsport::serviceScanDone(void) {
                 gattCommunicationChannelService->discoverDetails();
             } else {
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
+                    homeform::singleton()->setToastRequested(QObject::tr("Bluetooth Service Error! Restart the bike!"));
                 m_control->disconnectFromDevice();
             }
     }
@@ -629,7 +629,7 @@ void echelonconnectsport::switchToClassicVirtualBikeBridge() {
     classicVirtualBridgeActive = true;
     if (homeform::singleton()) {
         homeform::singleton()->setEchelonBridgeSwitchPromptRequested(false);
-        homeform::singleton()->setToastRequested(QStringLiteral("Switching to classic Bluetooth bridge"));
+        homeform::singleton()->setToastRequested(QObject::tr("Switching to classic Bluetooth bridge"));
     }
 
 #ifdef Q_OS_IOS
@@ -669,7 +669,7 @@ void echelonconnectsport::enableVirtualEchelonBridge() {
 
     if (homeform::singleton()) {
         homeform::singleton()->setEchelonEnablePromptRequested(false);
-        homeform::singleton()->setToastRequested(QStringLiteral("Virtual Echelon enabled for this bike"));
+        homeform::singleton()->setToastRequested(QObject::tr("Virtual Echelon enabled for this bike"));
     }
 
     DirconManager *existingDirconManager = nullptr;

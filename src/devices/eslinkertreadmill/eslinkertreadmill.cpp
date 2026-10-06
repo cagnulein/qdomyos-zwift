@@ -334,7 +334,7 @@ void eslinkertreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
         settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
         qDebug() << "forcing FTMS treadmill since it has FTMS";
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
+            homeform::singleton()->setToastRequested(QObject::tr("FTMS treadmill found, restart the app to apply the change"));
     }
 }
 
@@ -629,7 +629,7 @@ void eslinkertreadmill::btinit(bool startTape) {
         writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, true);
 
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("Init completed, you can use the treadmill now!");
+            homeform::singleton()->setToastRequested(QObject::tr("Init completed, you can use the treadmill now!"));
 
     } else if (treadmill_type == COSTAWAY) {
         uint8_t initData1[] = {0xa9, 0xf2, 0x01, 0x2f, 0x75};
