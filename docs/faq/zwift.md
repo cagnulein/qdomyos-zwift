@@ -39,3 +39,23 @@ If more than one person uses the same QZ installation, create a separate QZ prof
 This keeps the rest of the device configuration reusable while allowing QZ to authenticate against the correct Zwift account for API-based auto-incline.
 
 QZ's current implementation reads the configured `zwift_username` and `zwift_password` when authenticating to Zwift, and QZ profiles save the current settings as separate configurations.
+
+## How should I configure Chainring Size, Cog Size, and the Virtual Gear Table on a Wahoo KICKR?
+
+When QZ virtual gearing is used with a Wahoo KICKR, **Chainring Size** and **Cog Size** describe the **physical gear that the bike is actually left in on the trainer**. They are not the virtual drivetrain you want to simulate.
+
+For example, if the chain is physically on a 36-tooth front chainring and a 14-tooth rear sprocket while QZ handles all shifting:
+
+- set **Chainring Size = 36**;
+- set **Cog Size = 14**;
+- leave the mechanical drivetrain in that physical gear during the ride.
+
+Define the gearing you want to simulate in the **Virtual Gear Table**. Each active row contains the virtual chainring and rear-cog combination for that virtual gear. For a simple 1x drivetrain, keep the same virtual chainring in each row and enter the desired cassette sprocket sizes.
+
+QZ uses the physical Chainring/Cog values as the reference ratio, compares each virtual gear-table ratio with that reference, and derives the virtual wheel circumference sent to the KICKR.
+
+For a KICKR setup where the goal is to reproduce real chainring/cassette ratios, keep **Without Wheel Diameter Protocol** disabled. In the normal Wahoo path, QZ sends a wheel-circumference command whenever the virtual gear changes. Enabling **Without Wheel Diameter Protocol** switches to a different resistance/grade-based method instead.
+
+**Virtual Wheel Size** is the base circumference used in the calculation. Start by configuring the correct physical reference gear and virtual gear table first; use Virtual Wheel Size only if you intentionally want to scale the overall gearing feel.
+
+This physical reference does not need to change when switching between training apps such as Zwift and ROUVY, as long as the bike remains in the same mechanical gear.
