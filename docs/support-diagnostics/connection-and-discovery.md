@@ -14,6 +14,7 @@
 
 - A screenshot of the relevant QZ device/settings page.
 - Close the manufacturer's app and any other app that may be connected to the machine, restart QZ, and report whether discovery changes.
+- Reproduce once with a controlled startup order: completely close QZ, power on or wake the machine first, wait until it is advertising over Bluetooth, then open QZ. Report whether the machine's Bluetooth name appears in QZ.
 - Enable QZ Debug Log, reproduce the connection attempt, stop the session, and provide the generated log.
 
 ### Why it matters
