@@ -108,17 +108,28 @@ void ftmsrower::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 100) {
-                requestResistance = 100;
-            } // TODO, use the bluetooth value
-            else if (requestResistance == 0) {
-                requestResistance = 1;
+            const bool mrkR26 = bluetoothDevice.name().trimmed().toUpper().startsWith(QStringLiteral("MRK-R26-"));
+            if (mrkR26) {
+                requestResistance = qBound<resistance_t>(1, requestResistance, 18);
+            } else {
+                if (requestResistance > 100) {
+                    requestResistance = 100;
+                } // TODO, use the bluetooth value
+                else if (requestResistance == 0) {
+                    requestResistance = 1;
+                }
             }
 
             if (requestResistance != currentResistance().value()) {
-                emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                if (mrkR26) {
+                    Resistance = requestResistance;
+                    emit resistanceRead(Resistance.value());
+                    emit debug(QStringLiteral("MRK-R26 manual resistance set to ") + QString::number(Resistance.value()));
+                } else {
+                    emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
 
-                forceResistance(requestResistance);
+                    forceResistance(requestResistance);
+                }
             }
             requestResistance = -1;
         }
@@ -366,6 +377,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         } else {
             Cadence = ((uint8_t)newValue.at(index)) / cadence_divider;
         }
+        emit debug(QStringLiteral("Current Stroke Rate: ") + QString::number(Cadence.value()));
 
         StrokesCount =
             (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
@@ -416,6 +428,18 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
     double instantPace = 0;
+    const bool mrkR26 = bluetoothDevice.name().trimmed().toUpper().startsWith(QStringLiteral("MRK-R26-"));
+
+    if (mrkR26 && !Flags.moreData) {
+        const int manualResistance = qBound(1, qRound(Resistance.value()), 18);
+        const double resistanceMultiplier = 1.0 + (0.05 * (manualResistance - 9));
+        const double baseWatt = qMax(0.0, (9.0 * Cadence.value()) - 85.0);
+        m_watt = qMax(0, qRound(baseWatt * resistanceMultiplier));
+        emit debug(QStringLiteral("MRK-R26 estimated power: spm=") + QString::number(Cadence.value()) +
+                   QStringLiteral(" resistance=") + QString::number(manualResistance) +
+                   QStringLiteral(" multiplier=") + QString::number(resistanceMultiplier) +
+                   QStringLiteral(" watt=") + QString::number(m_watt.value()));
+    }
     
     if (Flags.instantPace) {
         instantPace =
@@ -447,17 +471,20 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         double watt =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
-        if (WDK_PACE_POWER && instantPace > 0 && instantPace != 65535 && Cadence.value() > 0) {
-            m_watt = rower::calculateWattsFromPace(instantPace);
-        } else if (!filterWattNull || watt != 0) {
-            if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
-                m_watt = watt;
-        }        
-    } else if(!PM5 && Flags.instantPace) {
+        if (!mrkR26) {
+            if (WDK_PACE_POWER && instantPace > 0 && instantPace != 65535 && Cadence.value() > 0) {
+                m_watt = rower::calculateWattsFromPace(instantPace);
+            } else if (!filterWattNull || watt != 0) {
+                if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
+                    m_watt = watt;
+            }
+        }
+    } else if(!mrkR26 && !PM5 && Flags.instantPace) {
         qDebug() << "rower doesn't send wattage, let's calculate it...";
-        if(instantPace > 0 && instantPace != 65535)
-            m_watt = rower::calculateWattsFromPace(instantPace);
-        else
+        if(instantPace > 0 && instantPace != 65535) {
+            double estimatedWatt = rower::calculateWattsFromPace(instantPace);
+            m_watt = qMax(0, qRound(estimatedWatt));
+        } else
             m_watt = 0;
     }
 
@@ -473,11 +500,14 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if (Flags.resistanceLvl) {
-        Resistance =
+        const double reportedResistance =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-        emit resistanceRead(Resistance.value());
         index += 2;
-        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+        if (!mrkR26) {
+            Resistance = reportedResistance;
+            emit resistanceRead(Resistance.value());
+        }
+        emit debug(QStringLiteral("Current Resistance: ") + QString::number(mrkR26 ? Resistance.value() : reportedResistance));
     }
 
     const bool ignoreBuiltinKCal =
@@ -854,7 +884,7 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << "I_ROWER found!";
         } else if (device.name().toUpper().startsWith(QStringLiteral("SF-RW"))) {
             SF_RW = true;
-            qDebug() << "SF-RW found!";
+            qDebug() << "SF_RW found!";
         } else if (device.name().toUpper().startsWith(QStringLiteral("IROWER "))) {
             ROWER = true;
             qDebug() << "ROWER found!";
@@ -864,6 +894,10 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("MRK-R11S-"))) {
             MRK_R11S = true;
             qDebug() << "MRK_R11S found!";
+        } else if (deviceName.startsWith(QStringLiteral("MRK-R26-"))) {
+            Resistance = 9;
+            emit resistanceRead(Resistance.value());
+            qDebug() << "MRK-R26 found! using SPM-based power with manual resistance 1-18, default 9";
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";

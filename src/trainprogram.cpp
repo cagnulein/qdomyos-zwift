@@ -1356,6 +1356,32 @@ bool trainprogram::adjustPowerOffsetForTrainingProgram(int32_t delta) {
     return true;
 }
 
+bool trainprogram::adjustResistanceOffsetForTrainingProgram(int32_t delta) {
+    if (!started || currentStep >= rows.length() || currentRow().requested_peloton_resistance == -1 ||
+        loadedRows.length() != rows.length()) {
+        return false;
+    }
+
+    trainingProgramResistanceOffset += delta;
+    qDebug() << "applying training program resistance offset" << trainingProgramResistanceOffset;
+
+    bluetoothdevice *dev = bluetoothManager ? bluetoothManager->device() : nullptr;
+    bike *b = (dev && dev->deviceType() == BIKE) ? (bike *)dev : nullptr;
+
+    for (int i = 0; i < rows.length(); i++) {
+        if (loadedRows.at(i).requested_peloton_resistance != -1) {
+            int32_t newPeloton =
+                qBound(0, loadedRows.at(i).requested_peloton_resistance + trainingProgramResistanceOffset, 100);
+            rows[i].requested_peloton_resistance = newPeloton;
+            if (b) {
+                rows[i].resistance = b->pelotonToBikeResistance(newPeloton);
+            }
+        }
+    }
+
+    return true;
+}
+
 bool trainprogram::currentHeartRateEndConditionSatisfied() const {
     if (!bluetoothManager || !bluetoothManager->device() || currentStep >= rows.length())
         return false;
@@ -1640,9 +1666,14 @@ void trainprogram::onTapeStarted() { started = true; }
 
 void trainprogram::restart() {
     trainingProgramPowerOffset = 0;
+    trainingProgramResistanceOffset = 0;
     for (int i = 0; i < rows.length() && i < loadedRows.length(); i++) {
         if (loadedRows.at(i).power != -1) {
             rows[i].power = loadedRows.at(i).power;
+        }
+        if (loadedRows.at(i).requested_peloton_resistance != -1) {
+            rows[i].requested_peloton_resistance = loadedRows.at(i).requested_peloton_resistance;
+            rows[i].resistance = loadedRows.at(i).resistance;
         }
     }
 

@@ -22,6 +22,7 @@
  * IN THE SOFTWARE.
  */
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QNetworkInterface>
 #include <qmdnsengine/abstractserver.h>
@@ -39,9 +40,21 @@
 using namespace QMdnsEngine;
 
 ProviderPrivate::ProviderPrivate(QObject *parent, AbstractServer *server, Hostname *hostname)
-    : QObject(parent), server(server), hostname(hostname), prober(nullptr), initialized(false), confirmed(false) {
+    : QObject(parent), server(server), hostname(hostname), prober(nullptr), initialized(false), confirmed(false),
+      saidGoodbye(false), announcesRemaining(0), announceDelayMs(0) {
     connect(server, &AbstractServer::messageReceived, this, &ProviderPrivate::onMessageReceived);
     connect(hostname, &Hostname::hostnameChanged, this, &ProviderPrivate::onHostnameChanged);
+
+    announceTimer.setSingleShot(true);
+    connect(&announceTimer, &QTimer::timeout, this, &ProviderPrivate::onAnnounceTimeout);
+
+    // Destruction is not guaranteed to run on every exit path, and a client that
+    // keeps the cached record will then try to connect to a port nobody is
+    // listening on and remember the failure. Sending the goodbye when the app
+    // decides to quit covers the ordinary window-close case too.
+    if (QCoreApplication::instance()) {
+        connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &ProviderPrivate::sayGoodbye);
+    }
 
     browsePtrProposed.setName(MdnsBrowseType);
     browsePtrProposed.setType(PTR);
@@ -51,9 +64,21 @@ ProviderPrivate::ProviderPrivate(QObject *parent, AbstractServer *server, Hostna
 }
 
 ProviderPrivate::~ProviderPrivate() {
-    if (confirmed) {
-        farewell();
+    sayGoodbye();
+}
+
+void ProviderPrivate::sayGoodbye() {
+    if (!confirmed || saidGoodbye) {
+        return;
     }
+    saidGoodbye = true;
+
+    // Nothing should re-announce the records we are about to invalidate.
+    announceTimer.stop();
+    announcesRemaining = 0;
+
+    qDebug() << "ProviderPrivate::sayGoodbye" << ptrRecord.name();
+    farewell();
 }
 
 void ProviderPrivate::announce() {
@@ -74,6 +99,15 @@ void ProviderPrivate::confirm() {
     if (prober) {
         delete prober;
     }
+
+    // Probe from the name update() asked for. srvProposed holds the name the
+    // last prober confirmed, which may already carry a "-2"; feeding that back
+    // in makes Prober treat it as the base name and compound the suffix into
+    // "-2-2-2..." rather than counting 2, 3, 4.
+    if (!desiredFqName.isEmpty()) {
+        srvProposed.setName(desiredFqName);
+    }
+
     prober = new Prober(server, srvProposed, this);
     qDebug() << "ProviderPrivate::confirm()";
     connect(prober, &Prober::nameConfirmed, [this](const QByteArray &name) {
@@ -131,6 +165,28 @@ void ProviderPrivate::publish() {
         ARecord.setAddress(r);
 
     announce();
+
+    // Repeat the announcement a few times with a widening gap. A single
+    // datagram is easily lost on Wi-Fi, and a browser that misses it stays
+    // blind until it happens to query again.
+    announcesRemaining = 3;
+    announceDelayMs = 1000;
+    announceTimer.start(announceDelayMs);
+}
+
+void ProviderPrivate::onAnnounceTimeout() {
+    if (!confirmed || saidGoodbye || announcesRemaining <= 0) {
+        return;
+    }
+
+    --announcesRemaining;
+    qDebug() << "ProviderPrivate::onAnnounceTimeout repeat, remaining" << announcesRemaining;
+    announce();
+
+    if (announcesRemaining > 0) {
+        announceDelayMs *= 2;
+        announceTimer.start(announceDelayMs);
+    }
 }
 
 void ProviderPrivate::onMessageReceived(const Message &message) {
@@ -219,10 +275,23 @@ void Provider::update(const Service &service) {
     QByteArray serviceName = service.name();
     serviceName = serviceName.replace('.', '-');
 
+    // A name parsed off the wire always ends in a dot - parseName() appends one
+    // after every label - and onMessageReceived() matches queries against these
+    // record names by exact compare. A type given without the trailing dot
+    // therefore matches nothing, and the service answers no queries at all: it
+    // is only ever discovered by whoever happens to be listening when publish()
+    // announces. Nothing downstream can tell the difference, because writeName()
+    // chops the trailing dot before encoding.
+    QByteArray serviceType = service.type();
+    if (!serviceType.endsWith('.')) {
+        serviceType.append('.');
+    }
+
     // Update the proposed records
-    QByteArray fqName = serviceName + "." + service.type();
-    d->browsePtrProposed.setTarget(service.type());
-    d->ptrProposed.setName(service.type());
+    QByteArray fqName = serviceName + "." + serviceType;
+    d->desiredFqName = fqName;
+    d->browsePtrProposed.setTarget(serviceType);
+    d->ptrProposed.setName(serviceType);
     d->ptrProposed.setTarget(fqName);
     d->srvProposed.setName(fqName);
     d->srvProposed.setPort(service.port());
