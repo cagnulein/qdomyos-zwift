@@ -1443,6 +1443,8 @@ bool GarminConnect::refreshOAuth2Token()
 
     if (success) {
         qDebug() << "GarminConnect: OAuth2 token refreshed successfully using OAuth1!";
+        // Persist the newly issued OAuth2 token for the active scoped account.
+        saveTokensToSettings();
     } else {
         qDebug() << "GarminConnect: OAuth2 refresh failed:" << m_lastError;
         qDebug() << "GarminConnect: OAuth1 token may have expired (lasts ~1 year)";

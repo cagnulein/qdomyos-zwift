@@ -1685,7 +1685,7 @@ QString homeform::getWritableAppDir() {
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
     path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-#elif defined(Q_OS_WINDOWS)
+#elif defined(Q_OS_WINDOWS) || defined(Q_OS_LINUX)
     path = QDir::currentPath() + "/";
 #endif
     return path;
@@ -11268,6 +11268,22 @@ void homeform::loadSettings(const QUrl &filename) {
         }
         return false;
     };
+    const QString stravaUserId = settings2Load.value(QZSettings::strava_current_user_id,
+                                                      QZSettings::default_strava_current_user_id).toString().trimmed();
+    const QStringList stravaTokenKeys = {
+        QZSettings::strava_accesstoken,
+        QZSettings::strava_refreshtoken,
+        QZSettings::strava_lastrefresh,
+        QZSettings::strava_expires
+    };
+    auto isStravaTokenKey = [&stravaTokenKeys](const QString &key) {
+        for (const QString &baseKey : stravaTokenKeys) {
+            if (key == baseKey || key.startsWith(baseKey + QStringLiteral("_"))) {
+                return true;
+            }
+        }
+        return false;
+    };
     auto readProfileValue = [&settings2Load](const QString &key) {
         if (!key.contains(QStringLiteral("password")) && !key.contains(QStringLiteral("token"))) {
             return settings2Load.value(key);
@@ -11304,6 +11320,25 @@ void homeform::loadSettings(const QUrl &filename) {
                             if (isGarminCredentialKey(baseKey) && !tokenValue.toString().isEmpty()) {
                                 importedGarminTokenForProfile = true;
                             }
+                            break;
+                        }
+                    }
+                }
+            } else if (isStravaTokenKey(s)) {
+                if (!stravaUserId.isEmpty()) {
+                    for (const QString &baseKey : stravaTokenKeys) {
+                        const bool isActiveScopedKey = s == baseKey + QStringLiteral("_") + stravaUserId;
+                        const bool isLegacyRefreshKey = s == QZSettings::strava_refreshtoken;
+                        const bool isLegacyNonRefreshKey = s == baseKey && !isLegacyRefreshKey;
+                        if (isActiveScopedKey || isLegacyNonRefreshKey) {
+                            settings.setValue(s, readProfileValue(s));
+                            break;
+                        }
+                    }
+                } else {
+                    for (const QString &baseKey : stravaTokenKeys) {
+                        if (s == baseKey && s != QZSettings::strava_refreshtoken) {
+                            settings.setValue(s, readProfileValue(s));
                             break;
                         }
                     }
@@ -11359,9 +11394,84 @@ void homeform::saveProfile(QString profilename) {
     QSettings settings;
     settings.setValue(QZSettings::profile_name, profilename);
     QSettings settings2Save(path + "/" + profilename + QStringLiteral(".qzs"), QSettings::IniFormat);
+    // Rewriting a profile must remove keys that were deleted from the active settings.
+    settings2Save.clear();
+
+    const QStringList stravaTokenKeys = {
+        QZSettings::strava_accesstoken,
+        QZSettings::strava_refreshtoken,
+        QZSettings::strava_lastrefresh,
+        QZSettings::strava_expires
+    };
+    const QString activeStravaUserId = settings.value(QZSettings::strava_current_user_id,
+                                                       QZSettings::default_strava_current_user_id).toString().trimmed();
+    auto isStravaTokenKey = [&stravaTokenKeys](const QString &key) {
+        for (const QString &baseKey : stravaTokenKeys) {
+            if (key == baseKey || key.startsWith(baseKey + QStringLiteral("_"))) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    QString activeGarminEmail = settings.value(QZSettings::garmin_email,
+                                               QZSettings::default_garmin_email).toString().trimmed().toLower();
+    QString activeGarminDomain = settings.value(QZSettings::garmin_domain,
+                                                QZSettings::default_garmin_domain).toString().trimmed().toLower();
+    if (activeGarminDomain.isEmpty()) {
+        activeGarminDomain = QZSettings::default_garmin_domain;
+    }
+    QString activeGarminUserId;
+    if (!activeGarminEmail.isEmpty()) {
+        activeGarminUserId = activeGarminDomain + QStringLiteral("_") + activeGarminEmail;
+        activeGarminUserId.replace(QRegularExpression(QStringLiteral("[^A-Za-z0-9_.@-]")), QStringLiteral("_"));
+    }
+    const QStringList garminTokenKeys = {
+        QZSettings::garmin_access_token,
+        QZSettings::garmin_refresh_token,
+        QZSettings::garmin_token_type,
+        QZSettings::garmin_expires_at,
+        QZSettings::garmin_refresh_token_expires_at,
+        QZSettings::garmin_oauth1_token,
+        QZSettings::garmin_oauth1_token_secret,
+        QZSettings::garmin_last_refresh
+    };
+    auto isGarminTokenKey = [&garminTokenKeys](const QString &key) {
+        for (const QString &baseKey : garminTokenKeys) {
+            if (key == baseKey || key.startsWith(baseKey + QStringLiteral("_"))) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
+            if (isStravaTokenKey(s) && !activeStravaUserId.isEmpty()) {
+                bool belongsToActiveStravaAccount = false;
+                for (const QString &baseKey : stravaTokenKeys) {
+                    if (s == baseKey || s == baseKey + QStringLiteral("_") + activeStravaUserId) {
+                        belongsToActiveStravaAccount = true;
+                        break;
+                    }
+                }
+                if (!belongsToActiveStravaAccount) {
+                    continue;
+                }
+            }
+            if (isGarminTokenKey(s) && !activeGarminUserId.isEmpty()) {
+                bool belongsToActiveGarminAccount = false;
+                for (const QString &baseKey : garminTokenKeys) {
+                    if (s == baseKey || s == baseKey + QStringLiteral("_") + activeGarminUserId) {
+                        belongsToActiveGarminAccount = true;
+                        break;
+                    }
+                }
+                if (!belongsToActiveGarminAccount) {
+                    continue;
+                }
+            }
             if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
                 settings2Save.setValue(s, settings.value(s));
             } else {
