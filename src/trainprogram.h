@@ -58,6 +58,9 @@ class trainrow {
     double minSpeed = -1;
     int8_t maxResistance = -1;
     int32_t power = -1;
+    bool rampIsFtpFraction = false;
+    double rampPowerFromOriginal = -1.0;
+    double rampPowerToOriginal = -1.0;
     int32_t mets = -1;
     bool waitForLap = false;
     QTime rampDuration = QTime(0, 0, 0, 0); // QZ split the ramp in 1 second segments. This field will tell you how long
@@ -117,7 +120,10 @@ class trainprogram : public QObject {
     int TotalGPXSecs();
     double weightedInclination(int step);
     double medianInclination(int step);
-    bool overridePowerForCurrentRow(double power);
+    bool adjustPowerOffsetForTrainingProgram(int32_t delta);
+    int32_t powerOffsetForTrainingProgram() const { return trainingProgramPowerOffset; }
+    bool adjustResistanceOffsetForTrainingProgram(int32_t delta);
+    int32_t resistanceOffsetForTrainingProgram() const { return trainingProgramResistanceOffset; }
     bool overrideZoneHRForCurrentRow(uint8_t zone);
     bool advanceLapButtonStep();
     static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
@@ -133,6 +139,12 @@ class trainprogram : public QObject {
         foreach(trainrow r, rows) {
             if(r.power != -1 || r.zoneHR != -1 || r.HRmin != -1 || r.HRmax != -1 ||
                r.HRabove != -1 || r.HRbelow != -1) return true;
+        }
+        return false;
+    }
+    bool speedInclinationTargetWorkout() {
+        foreach(trainrow r, rows) {
+            if(r.speed != -1 || r.inclination != -200) return true;
         }
         return false;
     }
@@ -205,6 +217,8 @@ private slots:
     int lastStepTimestampChanged = 0;
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
+    int32_t trainingProgramPowerOffset = 0;
+    int32_t trainingProgramResistanceOffset = 0;
     int lastLapButtonToastStep = -1;
     int lastLapButtonToastTick = -30;
     

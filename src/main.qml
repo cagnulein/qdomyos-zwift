@@ -42,27 +42,34 @@ ApplicationWindow {
             }
         }
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
-               AndroidStatusBar.height : AndroidStatusBar.leftInset;
+        // AndroidStatusBar.height is always the top inset in the current orientation
+        // (getSystemWindowInsets() returns orientation-aware values)
+        return AndroidStatusBar.height;
     }
 
     function getBottomPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ?
-               AndroidStatusBar.navigationBarHeight : AndroidStatusBar.rightInset;
+        // navigationBarHeight is always the bottom inset in the current orientation
+        return AndroidStatusBar.navigationBarHeight;
     }
 
     function getLeftPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
-               AndroidStatusBar.leftInset : 0;
+               (settings.android_landscape_cutout_margin ? AndroidStatusBar.leftInset : AndroidStatusBar.systemBarLeftInset) : 0;
     }
-    
+
     function getRightPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
-               AndroidStatusBar.rightInset : 0;
+               (settings.android_landscape_cutout_margin ? AndroidStatusBar.rightInset : AndroidStatusBar.systemBarRightInset) : 0;
     }
+
+    // Side margin for text, after the Material 3 window margins (16 on compact windows
+    // under 600 wide, 24 on wider ones) but tighter: 12 and 16. Keeps text clear of
+    // rounded screen corners and of the edges covered by protective glass.
+    // A property rather than a function, so .ui.qml forms can bind to it.
+    readonly property int contentSideMargin: width < 600 ? 12 : 16
 
     function isConfiguringShortcuts() {
         // Check if a TextField in the shortcuts settings has active focus
@@ -209,6 +216,8 @@ ApplicationWindow {
         property string shortcut_lap: ""
         property string shortcut_start_stop: ""
         property string shortcut_stop: ""
+        property bool android_landscape_cutout_margin: true
+        property bool android_landscape_cutout_prompt_shown: false
     }
 
 
@@ -361,30 +370,65 @@ ApplicationWindow {
         }
     }*/
 
-    Keys.onBackPressed: {
-        if(OS_VERSION === "Android") {
-            toast.show("Pressed it quickly to close the app!")
-            timer.pressBack();
+    // Shared by the toolbar "◄" button and the Android back button.
+    // stepInsidePage: pages with their own inner navigation (Wizard, training programs
+    // list) first go back one step there, via their handleBack().
+    // Returns false when there is nothing to go back to (home page).
+    function navigateBack(stepInsidePage) {
+        if (stepInsidePage && stackView.currentItem && typeof stackView.currentItem.handleBack === "function" &&
+                stackView.currentItem.handleBack()) {
+            return true
         }
-    }
-    Timer{
-        id: timer
+        if (stackView.depth <= 1) {
+            return false
+        }
 
-        property bool backPressed: false
-        repeat: false
-        interval: 200//ms
-        onTriggered: backPressed = false
-        function pressBack(){
-            if(backPressed){
-                timer.stop()
-                backPressed = false
-                Qt.callLater(Qt.quit)
-            }
-            else{
-                backPressed = true
-                timer.start()
-            }
+        var remindToSaveProfile = headerToolbar.settingsPageActive &&
+                stackView.currentItem &&
+                typeof stackView.currentItem.profileSaveReminderNeeded === "function" &&
+                stackView.currentItem.profileSaveReminderNeeded()
+        var activeProfileName = settings.profile_name
+
+        if(window.settings_restart_to_apply === true) {
+            window.settings_restart_to_apply = false;
+            popupRestartApp.visible = true;
         }
+
+        stackView.pop()
+        toolButtonLoadSettings.visible = false;
+        toolButtonSaveSettings.visible = false;
+        rootItem.sortTiles()
+        if (remindToSaveProfile) {
+            toast.show(qsTr("Remember to save profile \"%1\" if you want to keep these changes in this profile.").arg(activeProfileName))
+        }
+        return true
+    }
+
+    // On Android an unhandled back key closes the window, which quits the app.
+    // (Keys.onBackPressed cannot be attached to ApplicationWindow: it is not an Item.)
+    // Popups and the drawer close themselves on back before this is reached.
+    // Android 16+ with targetSdk 36 no longer sends the back key to the app unless
+    // AndroidManifest.xml sets android:enableOnBackInvokedCallback="false".
+    onClosing: {
+        if (OS_VERSION !== "Android") {
+            return
+        }
+        if (navigateBack(true)) {
+            close.accepted = false
+            return
+        }
+        if (backToExitTimer.running) {
+            return  // second press within the interval: let the app close
+        }
+        close.accepted = false
+        backToExitTimer.start()
+        toast.show(qsTr("Press back again to exit"), backToExitTimer.interval)
+    }
+
+    Timer {
+        id: backToExitTimer
+        repeat: false
+        interval: 2000 // ms
     }
 
     Popup {
@@ -506,11 +550,12 @@ ApplicationWindow {
                 horizontalAlignment: Text.AlignHCenter
             }
 
-            ComboBox {
+            ValueComboBox {
                 id: gymModeDeviceComboBox
                 width: parent.width
                 model: rootItem.bluetoothDevices
-                displayText: currentIndex >= 0 ? currentValue : qsTr("Select a device")
+                labels: ({ "Disabled": qsTr("Disabled") })
+                displayText: currentIndex >= 0 ? labelFor(currentValue) : qsTr("Select a device")
                 currentIndex: -1
                 font.pixelSize: Qt.application.font.pixelSize + 8
 
@@ -765,6 +810,75 @@ ApplicationWindow {
         visible: false
     }
 
+    // In landscape the camera side keeps an empty margin as wide as the cutout. The first time
+    // it happens (the cutout inset is wider than the system bar one), ask once whether to let
+    // the content go under the cutout instead. The delay lets the rotation settle first.
+    readonly property bool landscapeCutoutPromptDue: Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31 &&
+        (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) &&
+        settings.android_landscape_cutout_margin && !settings.android_landscape_cutout_prompt_shown &&
+        // the cutout safe inset also covers curved (waterfall) edges, which are not a camera
+        (AndroidStatusBar.leftInset > Math.max(AndroidStatusBar.systemBarLeftInset, AndroidStatusBar.waterfallLeftInset) ||
+         AndroidStatusBar.rightInset > Math.max(AndroidStatusBar.systemBarRightInset, AndroidStatusBar.waterfallRightInset))
+
+    Timer {
+        interval: 5000
+        running: window.landscapeCutoutPromptDue
+        onTriggered: {
+            settings.android_landscape_cutout_prompt_shown = true
+            popupLandscapeCutout.visible = true
+        }
+    }
+
+    MessageDialog {
+        id: popupLandscapeCutout
+        text: qsTr("Camera Cutout")
+        informativeText: qsTr("In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.\nDo you want to use the full screen width instead?\n\nYou can change it later in Settings > General UI Options > Keep Content Clear of the Camera Cutout.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: settings.android_landscape_cutout_margin = false
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    // a new workout history database was started (first start, reinstall, database removed):
+    // the workouts of a previous install may still be in the QZ folder, hidden from the app
+    MessageDialog {
+        id: popupHistoryRecovery
+        text: qsTr("Workout History")
+        informativeText: qsTr("Workouts of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: rootItem.importFitFolder()
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    Connections {
+        target: rootItem
+        ignoreUnknownSignals: true
+        function onHistoryRecoveryOfferRequested() {
+            popupHistoryRecovery.visible = true
+        }
+    }
+
+    // a device changed a setting on its own (auto-detection): the message says what QZ found and why it must restart
+    MessageDialog {
+        id: popupRestartAppDetected
+        text: ""
+        informativeText: qsTr("Restart now?")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: Qt.callLater(Qt.quit)
+        onNoClicked: this.visible = false;
+        visible: false
+    }
+
+    Connections {
+        target: rootItem
+        ignoreUnknownSignals: true
+        function onRestartToApplyRequested(message) {
+            popupRestartAppDetected.text = message;
+            popupRestartAppDetected.visible = true;
+        }
+    }
+
     MessageDialog {
         text: qsTr("Strava")
         informativeText: qsTr("Do you want to upload the workout to Strava?")
@@ -786,7 +900,7 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Garmin FTP Update"
+        text: qsTr("Garmin FTP Update")
         informativeText: rootItem.garminFtpPromptMessage
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.garmin_accept_ftp_update(); }
@@ -795,9 +909,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Clipboard Workout"
-        informativeText: "Workout found in clipboard:\n" + rootItem.clipboardWorkoutPromptName +
-                         "\n\nDo you want to open the workout preview?"
+        text: qsTr("Clipboard Workout")
+        informativeText: qsTr("Workout found in clipboard:\n%1\n\nDo you want to open the workout preview?").arg(rootItem.clipboardWorkoutPromptName)
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             var workoutUrl = rootItem.clipboard_workout_url()
@@ -820,8 +933,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Clipboard Workout"
-        informativeText: "The clipboard workout has ended.\n\nDo you want to delete the file?"
+        text: qsTr("Clipboard Workout")
+        informativeText: qsTr("The clipboard workout has ended.\n\nDo you want to delete the file?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: rootItem.clipboard_delete_finished_workout()
         onNoClicked: rootItem.clipboard_keep_finished_workout()
@@ -829,8 +942,8 @@ ApplicationWindow {
     }
 
     MessageDialog {
-        text: "Echelon Unlock"
-        informativeText: "The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?"
+        text: qsTr("Echelon Unlock")
+        informativeText: qsTr("The bike has been unlocked and cadence is flowing.\n\nDo you want to switch to the classic Bluetooth bridge for this session?")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: { rootItem.echelon_switch_to_classic_bridge(); }
         onNoClicked: { rootItem.echelon_dismiss_bridge_switch_prompt(); }
@@ -863,7 +976,7 @@ ApplicationWindow {
 
             Label {
                 width: parent.width
-                text: "Echelon Locked Bike"
+                text: qsTr("Echelon Locked Bike")
                 font.bold: true
                 font.pixelSize: 20
                 wrapMode: Text.WordWrap
@@ -880,10 +993,10 @@ ApplicationWindow {
                     wrapMode: TextEdit.Wrap
                     selectByMouse: true
                     text:
-                        "Your bike is locked by Echelon, but QZ can unlock it.\n\n" +
-                        "Enable Virtual Echelon in the experimental settings and restart qz, then open the official Echelon app on a separate device and connect to the bike once.\n\n" +
-                        "After initialization, return to QZ and everything will work normally.\n\n" +
-                        "You have to repeat this for each session, would you like to enable the Virtual Echelon setting now for this?"
+                        qsTr("Your bike is locked by Echelon, but QZ can unlock it.\n\n") +
+                        qsTr("Enable Virtual Echelon in the experimental settings and restart qz, then open the official Echelon app on a separate device and connect to the bike once.\n\n") +
+                        qsTr("After initialization, return to QZ and everything will work normally.\n\n") +
+                        qsTr("You have to repeat this for each session, would you like to enable the Virtual Echelon setting now for this?")
                 }
             }
 
@@ -894,12 +1007,12 @@ ApplicationWindow {
                 layoutDirection: Qt.RightToLeft
 
                 Button {
-                    text: "Yes"
+                    text: qsTr("Yes")
                     onClicked: rootItem.echelon_enable_virtual_bridge()
                 }
 
                 Button {
-                    text: "No"
+                    text: qsTr("No")
                     onClicked: rootItem.echelon_dismiss_enable_prompt()
                 }
             }
@@ -942,8 +1055,6 @@ ApplicationWindow {
         id: headerToolbar
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
         topPadding: getTopPadding()
-        leftPadding: getLeftPadding()
-        rightPadding: getRightPadding()
 
         ToolButton {
             id: toolButton
@@ -952,15 +1063,7 @@ ApplicationWindow {
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
-                    if(window.settings_restart_to_apply === true) {
-                        window.settings_restart_to_apply = false;
-                        popupRestartApp.visible = true;
-                    }
-
-                    stackView.pop()
-                    toolButtonLoadSettings.visible = false;
-                    toolButtonSaveSettings.visible = false;
-                    rootItem.sortTiles()
+                    navigateBack(false)
                 } else {
                     drawer.open()
                 }
@@ -999,7 +1102,7 @@ ApplicationWindow {
                  anchors.horizontalCenter: parent.horizontalCenter
              Label {
                  anchors.horizontalCenter: parent.horizontalCenter
-                 text: qsTr("Auto Resistance " + (rootItem.autoResistance?"enabled":"disabled"))
+                 text: rootItem.autoResistance ? qsTr("Auto Resistance enabled") : qsTr("Auto Resistance disabled")
                 }
              }
         }
@@ -1203,9 +1306,6 @@ ApplicationWindow {
                         toolButtonLoadSettings.visible = true;
                         toolButtonSaveSettings.visible = true;                        
                         stackView.push("settings.qml")
-                        stackView.currentItem.peloton_connect_clicked.connect(function() {
-                            peloton_connect_clicked()
-                         });
                          drawer.close()
                     }
                 }
@@ -1368,7 +1468,7 @@ ApplicationWindow {
                 }
 
                 ItemDelegate {
-                    text: "version 2.21.5"
+                    text: "version 2.22.0"
                     width: parent.width
                 }
 
@@ -1439,11 +1539,6 @@ ApplicationWindow {
                             if (stackView.currentItem.openGarminSection) {
                                 stackView.currentItem.openGarminSection()
                             }
-                            if (stackView.currentItem.peloton_connect_clicked) {
-                                stackView.currentItem.peloton_connect_clicked.connect(function() {
-                                    peloton_connect_clicked()
-                                });
-                            }
                         }
                         drawer.close()
                     }
@@ -1473,7 +1568,7 @@ ApplicationWindow {
 
                     FileDialog {
                         id: fileDialogGPX
-                         title: "Please choose a file"
+                         title: qsTr("Please choose a file")
                          folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
                          onAccepted: {
                              console.log("You chose: " + fileDialogGPX.fileUrl)
@@ -1503,6 +1598,21 @@ ApplicationWindow {
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
             focus: true
+            Connections {
+                target: stackView.currentItem
+                ignoreUnknownSignals: true
+                function onPeloton_connect_clicked() {
+                    if (rootItem.isPelotonLoggedIn()) {
+                        pelotonLogoutConfirm.visible = true
+                    } else {
+                        stackView.push("WebPelotonAuth.qml")
+                        stackView.currentItem.goBack.connect(function() {
+                            stackView.pop();
+                        })
+                        peloton_connect_clicked()
+                    }
+                }
+            }
             Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
             Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
             Keys.onPressed: (event)=> {

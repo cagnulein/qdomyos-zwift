@@ -70,9 +70,11 @@ public:
     DEFINE_DEVICE(FTMSBikeHammer, "FTMS Bike Hammer 64123");
     DEFINE_DEVICE(FTMSBikeIConsole, "FTMS Bike IConsole");
     DEFINE_DEVICE(FTMSBikeHammerRacerS, "FTMS Bike Hammer Racer S");
+    DEFINE_DEVICE(FTMSBikeHS5000L, "FTMS Bike HS-5000L");
     DEFINE_DEVICE(FTMSBike, "FTMS Bike");
     DEFINE_DEVICE(FTMSBike2, "FTMS Bike 2");
     DEFINE_DEVICE(FTMSBike3, "FTMS Bike 3");
+    DEFINE_DEVICE(FTMSBikeHorizon5R, "FTMS Bike Horizon 5.0R");
     DEFINE_DEVICE(FTMSKICKRCORE, "FTMS KICKR CORE");
     DEFINE_DEVICE(FTMSRower, "FTMS Rower");
     DEFINE_DEVICE(FakeBike, "Fake Bike");
@@ -80,7 +82,9 @@ public:
     DEFINE_DEVICE(FakeRower, "Fake Rower");
     DEFINE_DEVICE(FakeTreadmill, "Fake Treadmill");
     DEFINE_DEVICE(FitPlusBike_MRK_NoSettings, "FitPlus Bike (MRK, no settings)");
+    DEFINE_DEVICE(FitPlusRower_MRK_R28, "FitPlus Rower (Merach R28)");
     DEFINE_DEVICE(FitPlusF5, "FitPlus F5");
+    DEFINE_DEVICE(FitPlusVirtufitEtappeX100, "FitPlus VirtuFit Etappe 2.0i (X100)");
     DEFINE_DEVICE(FitShowBF, "FitShow BF");
     DEFINE_DEVICE(FitShowFS, "FitShow FS");
     DEFINE_DEVICE(FitShowTR510T, "FitShow TR510-T");
@@ -140,6 +144,7 @@ public:
     DEFINE_DEVICE(SoleF85Treadmill, "Sole F85 Treadmill");
     DEFINE_DEVICE(SpiritTreadmill, "Spirit Treadmill");
     DEFINE_DEVICE(SportsPlusBike, "Sports Plus Bike");
+    DEFINE_DEVICE(SportsPlusRower, "Sports Plus Rower");
     DEFINE_DEVICE(SportsTechBike, "Sports Tech Bike");
     DEFINE_DEVICE(StagesBike_Assioma_PowerSensorDisabled, "Stages Bike (Assioma / Power Sensor disabled)");
     DEFINE_DEVICE(StagesBike, "Stages Bike");
@@ -159,6 +164,7 @@ public:
     DEFINE_DEVICE(TrueTreadmill2, "True Treadmill 2");
     DEFINE_DEVICE(TrxAppGateUSBElliptical, "TrxAppGateUSB Elliptical");
     DEFINE_DEVICE(UltrasportBike, "Ultrasport Bike");
+    DEFINE_DEVICE(XcxBike, "XCX Bike");
     DEFINE_DEVICE(WahooKickrSnapBike_KICKRCORE, "Wahoo KICKR CORE");
     DEFINE_DEVICE(WahooKickrSarisTrainer, "Wahoo Kickr Saris Trainer");
     DEFINE_DEVICE(WahooKickrSnapBike, "Wahoo Kickr Snap Bike");
@@ -178,5 +184,3 @@ public:
 
 
 };
-
-

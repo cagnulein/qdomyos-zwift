@@ -500,7 +500,7 @@ void kineticinroadbike::serviceScanDone(void) {
         gattCommunicationChannelService->discoverDetails();
     } else {
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
+            homeform::singleton()->setToastRequested(QObject::tr("Bluetooth Service Error! Restart the bike!"));
         m_control->disconnectFromDevice();
     }
 }

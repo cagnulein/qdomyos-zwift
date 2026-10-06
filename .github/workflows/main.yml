@@ -79,7 +79,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview perl
           msystem: mingw64
           release: false
 
@@ -106,7 +106,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: src/qthttpserver
-          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-v1
+          key: qthttpserver-mingw-${{ runner.os }}-qt5.15.2-msys2-syncqt-cygwin-v2
 
       - name: download 3rd party files for qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
@@ -115,17 +115,35 @@ jobs:
 
       - name: Build qthttpserver
         if: steps.cache-qthttpserver-mingw.outputs.cache-hit != 'true'
+        shell: msys2 {0}
         run: |
-            cd src\qthttpserver
-            qmake
-            make -j8
+            export PATH="/usr/bin:/mingw64/bin:$PATH"
+            command -v perl
+            perl -e 'print "Perl OS: $^O\n"'
+            qt_dir="$(cygpath -u "$Qt5_Dir")"
+            qmake="$qt_dir/bin/qmake.exe"
+            "$qmake" -v
+            cd src/qthttpserver
+            "$qmake"
+            syncqt="$qt_dir/bin/syncqt.pl"
+            perl -0pi -e 's/my \$normalizePath_fixDrive = \(\$\^O eq "msys" \? 1 : 0\);/my \$normalizePath_fixDrive = (\$^O eq "msys" || \$^O eq "cygwin" ? 1 : 0);/' "$syncqt"
+            grep -F '|| $^O eq "cygwin"' "$syncqt"
+            mingw32-make -j8
             cd ../..
 
       - name: Install qthttpserver
+        shell: msys2 {0}
         run: |
-            cd src\qthttpserver
-            make install
+            qt_dir="$(cygpath -u "$Qt5_Dir")"
+            cd src/qthttpserver
+            mingw32-make install
             cd ../..
+            test -f "$qt_dir/bin/Qt5HttpServer.dll"
+            test -f "$qt_dir/bin/Qt5SslServer.dll"
+            test -f "$qt_dir/lib/libQt5HttpServer.a"
+            test -f "$qt_dir/lib/libQt5SslServer.a"
+            test -f "$qt_dir/mkspecs/modules/qt_lib_httpserver.pri"
+            test -f "$qt_dir/mkspecs/modules/qt_lib_sslserver.pri"
 
       - name: Secrets
         if: github.ref == 'refs/heads/master'
@@ -192,6 +210,50 @@ jobs:
             cd appx
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
         if: matrix.config.python == false
+
+      - name: Smoke test qHttpServer runtime
+        shell: pwsh
+        run: |
+          $outputDir = Join-Path $PWD "src/debug/output"
+          $stdoutPath = Join-Path $env:RUNNER_TEMP "qz-smoke.stdout.log"
+          $stderrPath = Join-Path $env:RUNNER_TEMP "qz-smoke.stderr.log"
+          $env:QT_QPA_PLATFORM = "offscreen"
+          $env:QT_OPENGL = "software"
+          $process = Start-Process -FilePath (Join-Path $outputDir "qdomyos-zwift.exe") `
+            -ArgumentList @("-qml", "-no-heart-service", "-no-virtual-device-bluetooth") `
+            -WorkingDirectory $outputDir -PassThru `
+            -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
+          try {
+            $deadline = (Get-Date).AddMinutes(2)
+            $response = $null
+            do {
+              Start-Sleep -Seconds 2
+              $listeners = Get-NetTCPConnection -State Listen -OwningProcess $process.Id -ErrorAction SilentlyContinue
+              foreach ($listener in $listeners) {
+                try {
+                  $candidate = Invoke-WebRequest -Uri "http://127.0.0.1:$($listener.LocalPort)/chartjs/chart.htm" -UseBasicParsing -TimeoutSec 5
+                  if ($candidate.StatusCode -eq 200 -and $candidate.Content -match '<title>Line Chart</title>') {
+                    $response = $candidate
+                    $port = $listener.LocalPort
+                    break
+                  }
+                } catch {
+                  # The process may expose non-HTTP listeners while it starts.
+                }
+              }
+              if ((Get-Date) -gt $deadline) {
+                throw "QZ did not serve /chartjs/chart.htm. stdout: $(Get-Content $stdoutPath -Raw -ErrorAction SilentlyContinue) stderr: $(Get-Content $stderrPath -Raw -ErrorAction SilentlyContinue)"
+              }
+            } while (-not $response -and -not $process.HasExited)
+            if (-not $response) {
+              throw "QZ exited without serving /chartjs/chart.htm (exit code $($process.ExitCode))."
+            }
+            Write-Host "qHttpServer runtime smoke test passed on port $port (HTTP $($response.StatusCode))."
+          } finally {
+            if ($process -and -not $process.HasExited) {
+              Stop-Process -Id $process.Id -Force
+            }
+          }
 
       - name: patching qt for bluetooth
         run: cp qt-patches/windows/5.15.2/binary/mingw64/*.* ${{ github.workspace }}/src/debug/output/
@@ -599,6 +661,20 @@ jobs:
           dir: '${{ github.workspace }}/output/android/'
           cache: 'false'
 
+      - name: Install custom 16K-page-size Qt (overlay onto stock Qt install)
+        run: |
+          QT_DIR="${{ github.workspace }}/output/android/Qt/5.15.0/android"
+          curl -fsSL -o /tmp/qt5.15.0-android-page16.zip https://github.com/cagnulein/qt-5.15.0-android-page16k/releases/download/1.0.0/qt5.15.0-android-page16.zip
+          unzip -q /tmp/qt5.15.0-android-page16.zip -d /tmp/qt-page16k
+          # Overlay the 16K-page-aligned target libs/plugins/qml/mkspecs/jar/include onto the
+          # stock Qt install; keep the stock Linux host tools (bin/) since the custom Qt's
+          # host tools were built on macOS (Mach-O, not usable on this Linux runner).
+          rsync -a --exclude='bin/' "/tmp/qt-page16k/qt5.15.0-android-page16/usr/local/Qt-5.15.0/" "$QT_DIR/"
+          # qdevice.pri comes from the overlay carrying the macOS origin's NDK host value;
+          # fix it back to linux so qmake resolves the NDK toolchain path correctly.
+          sed -i 's/darwin-x86_64/linux-x86_64/' "$QT_DIR/mkspecs/qdevice.pri"
+          rm -rf /tmp/qt5.15.0-android-page16.zip /tmp/qt-page16k
+
       - name: Install Java
         uses: actions/setup-java@v4
         with:
@@ -615,13 +691,13 @@ jobs:
         id: cache-ndk
         uses: actions/cache@v4
         with:
-          path: /usr/local/lib/android/sdk/ndk/21.4.7075529
-          key: android-ndk-21.4.7075529-${{ runner.os }}
+          path: /usr/local/lib/android/sdk/ndk/21.1.6352462
+          key: android-ndk-21.1.6352462-${{ runner.os }}
 
       - name: Install Android SDK packages
         run: |
           SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager"
-          echo "y" | $SDKMANAGER "ndk;21.4.7075529" "platforms;android-35" "build-tools;35.0.0"
+          echo "y" | $SDKMANAGER "ndk;21.1.6352462" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Setup ccache
         run: |
@@ -638,13 +714,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .ccache
-          key: ccache-android-ndk21-${{ hashFiles('src/**/*.cpp', 'src/**/*.h', 'src/*.pro') }}
+          key: ccache-android-ndk21_1-${{ hashFiles('src/**/*.cpp', 'src/**/*.h', 'src/*.pro') }}
           restore-keys: |
-            ccache-android-ndk21-
+            ccache-android-ndk21_1-
 
       - name: Setup NDK environment with ccache
         run: |
-          NDK_PATH=/usr/local/lib/android/sdk/ndk/21.4.7075529
+          NDK_PATH=/usr/local/lib/android/sdk/ndk/21.1.6352462
           NDK_BIN=$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin
           ln -sfn $NDK_PATH /usr/local/lib/android/sdk/ndk-bundle
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
@@ -711,8 +787,21 @@ jobs:
       - name: Build QZ for Android (4 ABIs)
         run: |
           lrelease src/qdomyos-zwift.pri
-          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
-          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
+          # CONFIG+=debug matches the real reference build validated against the Mac-built
+          # APK: it keeps .so unstripped (matching the reference almost byte-for-byte) and,
+          # with this custom Qt, naturally leaves android-extra-libs unset - the bundled
+          # android_openssl libs are not 16K-page-aligned, so we must NOT inject them (see
+          # below); Qt's own QtNetwork already has openssl linked in.
+          # The ABIs are built one after another: with Qt 5.15.0 every ABI writes the same
+          # src/qdomyos-zwift_metatypes.json, qdomyos-zwift.qmltypes and
+          # qdomyos-zwift_qmltyperegistrations.cpp, and with a plain make -j4 two ABIs can
+          # write them at the same time ("Error parsing qdomyos-zwift_metatypes.json").
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.1.6352462' 'CONFIG+=debug'
+          make qmake_all
+          for abi in armeabi-v7a arm64-v8a x86 x86_64; do
+            make -j4 -C src -f Makefile.qdomyos-zwift "$abi-all"
+          done
+          make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
           cat src/android-qdomyos-zwift-deployment-settings.json
 
       - name: Cache Gradle
@@ -896,31 +985,13 @@ jobs:
 
             echo "All permissions granted successfully"
 
-            # Start the main activity
-            adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
+            # Turn on location services, otherwise the "Permissions Required" dialog covers the app
+            adb shell settings put secure location_mode 3 || true
+            adb shell settings put secure location_providers_allowed +gps,+network || true
+            adb shell cmd location set-location-enabled true || true
 
-            # Wait for app to start
-            sleep 90
-
-            # Verify the app is running
-            echo "Checking if app is running..."
-            # Use different ps commands for different Android versions
-            adb shell "ps -A 2>/dev/null || ps" > process_list.txt
-
-            # Debug: show all processes to understand the format
-            echo "=== All running processes ==="
-            cat process_list.txt | head -20
-            echo "=== Looking for our app ==="
-
-            grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
-            adb shell pm list packages | grep org.cagnulen.qdomyoszwift
-            echo "=== Checking app info ==="
-            adb shell dumpsys package org.cagnulen.qdomyoszwift | grep -A5 -B5 "state"
-            echo "=== Logcat output for debugging ==="
-            adb logcat -d | grep -i "qdomyos\|crash\|error\|exception\|fatal" | tail -n 50
-            echo "=== Full recent logcat ==="
-            adb logcat -d | tail -n 100
-            echo "App is running successfully"
+            # Start the main activity and wait for its process (retries a lost start, prints the logcat on failure)
+            sh .github/scripts/android_app_start_test.sh
 
             # Take a screenshot for verification
             adb shell screencap -p /sdcard/screenshot.png
@@ -938,6 +1009,9 @@ jobs:
 
             echo "Orientation test completed - 4 screenshots captured"
 
+            # Back button test (single presses navigate back, a double press on the home page exits)
+            sh .github/scripts/android_back_button_test.sh
+
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
 
@@ -954,6 +1028,7 @@ jobs:
           path: |
             screenshot.png
             screenshot_orientation_*.png
+            screenshot_back_*.png
             process_list.txt
             full_logcat.txt
             qdomyos_logcat.txt
@@ -1049,6 +1124,7 @@ jobs:
 
   window-msvc2019-build:
     runs-on: windows-2022
+    continue-on-error: true
     strategy:
       matrix:
         config:
@@ -1528,11 +1604,14 @@ jobs:
           cd ..
 
       - name: Build for Raspberry Pi 64-bit
+        # Bullseye is EOL; pin APT to a snapshot containing the ARM64 toolchain.
         uses: docker://arm64v8/debian:bullseye-20241016
         with:
           args: >
             bash -c "
             set -ex &&
+            rm -f /etc/apt/sources.list.d/* /etc/apt/sources.list &&
+            printf '%s\n' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260608T080000Z/ bullseye main' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20260608T080000Z/ bullseye-security main' > /etc/apt/sources.list &&
             for i in 1 2 3; do apt-get update && break || sleep 5; done &&
             for i in 1 2 3; do apt-get install -y --fix-missing build-essential git cmake qtbase5-dev qtbase5-private-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libqt5charts5-dev qtpositioning5-dev qtconnectivity5-dev libqt5websockets5-dev libqt5texttospeech5-dev libqt5bluetooth5 libqt5networkauth5-dev qml-module-qtlocation qml-module-qtpositioning qtlocation5-dev libqt5quickcontrols2-5 qtquickcontrols2-5-dev qml-module-qtquick-controls2 qtbase5-dev libqt5sql5-sqlite libqt5sql5 libqt5sql5-mysql libqt5sql5-psql && break || sleep 5; done &&
             export QT_SELECT=qt5 &&
@@ -1648,6 +1727,9 @@ jobs:
           docker run --rm -v ${{ github.workspace }}/bin64:/app \
             arm64v8/debian:bullseye-20241016 \
             bash -c "
+              # Bullseye is EOL; use the same dated snapshot as the ARM64 build.
+              rm -f /etc/apt/sources.list.d/* /etc/apt/sources.list &&
+              printf '%s\\n' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260608T080000Z/ bullseye main' 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20260608T080000Z/ bullseye-security main' > /etc/apt/sources.list &&
               apt-get update && apt-get install -y --no-install-recommends \
                 libqt5core5a libqt5bluetooth5 libqt5charts5 libqt5widgets5 \
                 libqt5network5 libqt5websockets5 libqt5xml5 libqt5sql5 \
@@ -2157,8 +2239,33 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
-          # Set variant-specific IP setting
-          sed -i 's/property string ${{ matrix.variant.setting_key }}: ""/property string ${{ matrix.variant.setting_key }}: "${{ matrix.variant.setting_value }}"/' settings.qml
+          # Keep the QML and C++ defaults identical for this artifact variant.
+          SETTING_KEY='${{ matrix.variant.setting_key }}' \
+          SETTING_VALUE='${{ matrix.variant.setting_value }}' \
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          key = os.environ["SETTING_KEY"]
+          value = os.environ["SETTING_VALUE"]
+          replacements = {
+              Path("settings.qml"): (
+                  f'            property string {key}: ""',
+                  f'            property string {key}: "{value}"',
+              ),
+              Path("qzsettings.cpp"): (
+                  f'const QString QZSettings::default_{key} = QStringLiteral("");',
+                  f'const QString QZSettings::default_{key} = QStringLiteral("{value}");',
+              ),
+          }
+          for path, (original, variant) in replacements.items():
+              contents = path.read_text()
+              if contents.count(original) != 1:
+                  raise SystemExit(f"Expected exactly one {original!r} in {path}")
+              path.write_text(contents.replace(original, variant))
+              if path.read_text().count(variant) != 1:
+                  raise SystemExit(f"Failed to set {variant!r} in {path}")
+          PY
           cd ..
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
@@ -2300,13 +2407,48 @@ jobs:
           echo "#define INTERVALSICU_CLIENT_SECRET ${{ secrets.intervalsicu_client_secret }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
-          # Set variant-specific IP setting
-          sed -i 's/property string ${{ matrix.variant.setting_key }}: ""/property string ${{ matrix.variant.setting_key }}: "${{ matrix.variant.setting_value }}"/' settings.qml
+          # Keep the QML and C++ defaults identical for this artifact variant.
+          SETTING_KEY='${{ matrix.variant.setting_key }}' \
+          SETTING_VALUE='${{ matrix.variant.setting_value }}' \
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          key = os.environ["SETTING_KEY"]
+          value = os.environ["SETTING_VALUE"]
+          replacements = {
+              Path("settings.qml"): (
+                  f'            property string {key}: ""',
+                  f'            property string {key}: "{value}"',
+              ),
+              Path("qzsettings.cpp"): (
+                  f'const QString QZSettings::default_{key} = QStringLiteral("");',
+                  f'const QString QZSettings::default_{key} = QStringLiteral("{value}");',
+              ),
+          }
+          for path, (original, variant) in replacements.items():
+              contents = path.read_text()
+              if contents.count(original) != 1:
+                  raise SystemExit(f"Expected exactly one {original!r} in {path}")
+              path.write_text(contents.replace(original, variant))
+              if path.read_text().count(variant) != 1:
+                  raise SystemExit(f"Failed to set {variant!r} in {path}")
+          PY
           cd ..
+
+          # Keep FitPro APKs usable on older 32-bit iFIT/ProForm consoles.
+          # qmake reads defaults.pri while generating the Android deployment JSON,
+          # so force all ABIs there before the build starts.
+          sed -i 's/^ANDROID_ABIS = .*/ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64/' defaults.pri
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
           lrelease src/qdomyos-zwift.pri
+
+          # Keep FitPro APKs usable on older 32-bit iFIT/ProForm consoles.
+          # qmake reads defaults.pri while generating the Android deployment JSON,
+          # so force all ABIs there before the build starts.
+          sed -i 's/^ANDROID_ABIS = .*/ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64/' defaults.pri
 
           # QTHTTPSERVER must use the same NDK
           cd src/qthttpserver
@@ -2349,6 +2491,15 @@ jobs:
           fi
           "$GRADLE_DIST_DIR/bin/gradle" -g "$GRADLE_USER_HOME" --no-daemon -p ${{ github.workspace }}/output/android assembleDebug bundleDebug
           mv ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-fitpro-${{ matrix.variant.name }}.apk
+          APK="${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug-fitpro-${{ matrix.variant.name }}.apk"
+          for ABI in armeabi-v7a arm64-v8a x86 x86_64; do
+            for LIB in "libqdomyos-zwift_$ABI.so" "libQt5Core_$ABI.so"; do
+              if ! unzip -l "$APK" "lib/$ABI/$LIB" | grep -q "$LIB"; then
+                echo "::error::Missing lib/$ABI/$LIB in $APK - ABI packaging is broken"
+                exit 1
+              fi
+            done
+          done
 
       - name: Archive fitpro binary
         uses: actions/upload-artifact@v4
@@ -2610,7 +2761,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-22.04 
     if: github.event_name == 'schedule'
-    needs: [window-msvc2019-build, window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit, raspberry-pi-smoke-test]
+    needs: [window-msvc2022-build, window-build, android-build, raspberry-pi-build, nordictrack-build, fitpro-build, peloton-bike-plus-build, peloton-bike-build, raspberry-pi-build-and-image-64bit]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
