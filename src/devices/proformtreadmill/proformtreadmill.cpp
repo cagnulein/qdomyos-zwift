@@ -9,7 +9,6 @@
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
-#include <QtMath>
 #include <QSettings>
 #include <QThread>
 #include <chrono>
@@ -78,18 +77,11 @@ void proformtreadmill::forceIncline(double incline) {
         for (uint8_t i = 6; i <= 12; i++) {
             write[14] += write[i];
         }
-    } else if (proform_treadmill_105_cst || proform_treadmill_305_cst) {
+    } else if (proform_treadmill_105_cst) {
         write[9] = 0x02;
         write[10] = 0x00;
         write[11] = 0x10;
-        if (proform_treadmill_305_cst) {
-            // The 305 CST protocol encodes only whole-percent inclines, while QZ requests 0.5% steps.
-            // Round in the requested direction so +0.5% from 0% becomes 1%, and -0.5% from 1% becomes 0%.
-            const int commandIncline = incline > currentInclination().value() ? qCeil(incline) : qFloor(incline);
-            write[12] = (uint8_t)qBound(0, commandIncline, 15);
-        } else {
-            write[12] = (uint8_t)incline;
-        }
+        write[12] = (uint8_t)incline;
         write[14] = write[11] + write[12] + 0x11;
     } else if (norditrack_s25i_treadmill) {
         write[14] = write[11] + write[12] + 0x11;
