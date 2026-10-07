@@ -31,3 +31,10 @@ QZ can write completed workouts to **Google Health Connect** on Android 8 / API 
 5. Start a workout in QZ, record some activity, and then **stop the workout in QZ**. The Health Connect workout is written when the completed session is saved, not merely when live metrics begin updating.
 
 In a confirmed support case, an older Play Store build did not appear in Health Connect; after updating to the beta that contained the integration, QZ immediately requested the Health Connect permissions and became available for workout export.
+
+
+## QZ cannot find my Bluetooth fitness device on Android. Which permissions should I check?
+
+If the device is powered on, is not connected to another app, and still does not appear in QZ on Android, verify that Bluetooth and Location are enabled and that QZ has the requested Bluetooth and location permissions. If Android offers precise location access, allow it, then return to QZ and refresh the device list.
+
+QZ's Android build requests Bluetooth discovery/connection and location permissions. In a confirmed support case, a bike that was otherwise ready to connect appeared immediately after precise location permission was granted.
