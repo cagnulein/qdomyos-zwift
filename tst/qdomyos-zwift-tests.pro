@@ -43,6 +43,7 @@ SOURCES += \
         Devices/TestXcxBikeParser.cpp \
         Devices/TestRowerTargetResistance.cpp \
         Devices/TestPafersRowerRouting.cpp \
+        Devices/TestSw3925EaiFtmsSpeed.cpp \
         Devices/TestFreebeatBoomBikeParser.cpp \
         main.cpp
 
