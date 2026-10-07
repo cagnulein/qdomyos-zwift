@@ -1306,7 +1306,7 @@ const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 const QString QZSettings::android_landscape_cutout_margin = QStringLiteral("android_landscape_cutout_margin");
 const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral("android_landscape_cutout_prompt_shown");
 
-const uint32_t allSettingsCount = 1012;
+const uint32_t allSettingsCount = 1013;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
