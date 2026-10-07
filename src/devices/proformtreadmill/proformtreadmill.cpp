@@ -77,7 +77,7 @@ void proformtreadmill::forceIncline(double incline) {
         for (uint8_t i = 6; i <= 12; i++) {
             write[14] += write[i];
         }
-    } else if (proform_treadmill_105_cst) {
+    } else if (proform_treadmill_105_cst || proform_treadmill_305_cst) {
         write[9] = 0x02;
         write[10] = 0x00;
         write[11] = 0x10;
@@ -133,7 +133,7 @@ void proformtreadmill::forceSpeed(double speed) {
                proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_300i || proform_performance_400i || proform_treadmill_c700 ||
                proform_treadmill_c960i || nordictrack_tseries5_treadmill || proform_carbon_tl_PFTL59722c || proform_treadmill_1500_pro || proform_trainer_8_0 || proform_trainer_8_0_pftl59721_int_0 || proform_trainer_8_0_pftl59721_0 || proform_treadmill_705_cst_V80_44 ||
                nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_treadmill_sport_3_0 || proform_treadmill_995i || nordictrack_series_7 ||
-               proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || proform_treadmill_cst_505_pftl59420_0 || proform_treadmill_105_cst) {
+               proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || proform_treadmill_cst_505_pftl59420_0 || proform_treadmill_105_cst || proform_treadmill_305_cst) {
         write[14] = write[11] + write[12] + 0x11;
     } else if (!nordictrack_t65s_treadmill && !nordictrack_elite_800 && !nordictrack_t65s_treadmill_81_miles && !nordictrack_s30_treadmill && !nordictrack_s20_treadmill && !nordictrack_t65s_83_treadmill) {
         for (uint8_t i = 0; i < 7; i++) {
@@ -170,14 +170,19 @@ void proformtreadmill::update() {
         if (requestSpeed != -1 && requestSpeed > 0 && requestSpeed <= maxSpeed && currentSpeed().value() <= 0) {
             cachedSpeedRequest = requestSpeed;
             requestSpeed = -1;
-            requestStart = 1;
-            emit debug(QStringLiteral("speed request cached while treadmill is stopped: ") +
-                       QString::number(cachedSpeedRequest));
+            if (proform_treadmill_305_cst) {
+                emit debug(QStringLiteral("speed request cached until the ProForm 305 CST is started manually: ") +
+                           QString::number(cachedSpeedRequest));
+            } else {
+                requestStart = 1;
+                emit debug(QStringLiteral("speed request cached while treadmill is stopped: ") +
+                           QString::number(cachedSpeedRequest));
 
-            if (homeform::singleton()) {
-                homeform::singleton()->setToastRequested(
-                    QObject::tr("Starting treadmill before applying requested speed %1")
-                        .arg(QString::number(cachedSpeedRequest, 'f', 1)));
+                if (homeform::singleton()) {
+                    homeform::singleton()->setToastRequested(
+                        QObject::tr("Starting treadmill before applying requested speed %1")
+                            .arg(QString::number(cachedSpeedRequest, 'f', 1)));
+                }
             }
         }
 
@@ -1165,6 +1170,67 @@ void proformtreadmill::update() {
                 if (requestStop != -1 || requestPause != -1) {
                     forceSpeed(0);
                     emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                    requestPause = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
+        } else if (proform_treadmill_305_cst) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
+                                   0x0d, 0x80, 0x02, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData3[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x91, 0x7b, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x14, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00,
+                                   0x0a, 0x1b, 0x94, 0x31, 0x00, 0x10, 0x40, 0x50, 0x00, 0x80};
+            uint8_t noOpData6[] = {0xff, 0x02, 0x18, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"), false, true);
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= maxSpeed) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("start command is not supported for ProForm 305 CST by the captured protocol"));
+                    requestStart = -1;
+                }
+                if (requestStop != -1 || requestPause != -1) {
+                    emit debug(QStringLiteral("stop/pause command is not supported for ProForm 305 CST by the captured protocol"));
                     requestStop = -1;
                     requestPause = -1;
                 }
@@ -4172,6 +4238,7 @@ void proformtreadmill::btinit() {
     proform_carbon_tl_PFTL59723_6 = settings.value(QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6).toBool();
     proform_treadmill_cst_505_pftl59420_0 = settings.value(QZSettings::proform_treadmill_cst_505_pftl59420_0, QZSettings::default_proform_treadmill_cst_505_pftl59420_0).toBool();
     proform_treadmill_105_cst = settings.value(QZSettings::proform_treadmill_105_cst, QZSettings::default_proform_treadmill_105_cst).toBool();
+    proform_treadmill_305_cst = settings.value(QZSettings::proform_treadmill_305_cst, QZSettings::default_proform_treadmill_305_cst).toBool();
 
     if (proform_treadmill_995i) {
         // ProForm 995i initialization frames from pkt4658 to pkt4756 (all 25 frames)
@@ -9148,6 +9215,50 @@ void proformtreadmill::btinit() {
             QByteArray::fromHex("ff0500000010b600000000000000000000000000"),
             QByteArray::fromHex("fe021002"),
             QByteArray::fromHex("ff100204020c040c020500000000100100280000"),
+        };
+
+        for (QByteArray &frame : initFrames) {
+            writeCharacteristic(reinterpret_cast<uint8_t *>(frame.data()), frame.length(), QStringLiteral("init"), false, false);
+            QThread::msleep(sleepms);
+        }
+    } else if (proform_treadmill_305_cst) {
+        // ProForm 305 CST PETL59817.0 init sequence captured from the iFit app.
+        QByteArray initFrames[] = {
+            QByteArray::fromHex("fe020802"),
+            QByteArray::fromHex("ff08020402040204818700000000000000000000"),
+            QByteArray::fromHex("fe020802"),
+            QByteArray::fromHex("ff08020402040404808800000000000000000000"),
+            QByteArray::fromHex("fe020802"),
+            QByteArray::fromHex("ff08020402040404889000000000000000000000"),
+            QByteArray::fromHex("fe020b02"),
+            QByteArray::fromHex("ff0b020402070207820000008b00000000000000"),
+            QByteArray::fromHex("fe020a02"),
+            QByteArray::fromHex("ff0a0204020602068400008c0000000000000000"),
+            QByteArray::fromHex("fe020802"),
+            QByteArray::fromHex("ff08020402040204959b00000000000000000000"),
+            QByteArray::fromHex("fe022c04"),
+            QByteArray::fromHex("001202040228042890040002b46412ce8830feba"),
+            QByteArray::fromHex("01127c3cfab6905806f2a494423e18c0ae8a6c4c"),
+            QByteArray::fromHex("ff082a062080020000c400000000000000000000"),
+            QByteArray::fromHex("fe021903"),
+            QByteArray::fromHex("0012020402150415020e00000000000000000000"),
+            QByteArray::fromHex("ff070000001001003a0000000000000000000000"),
+            QByteArray::fromHex("fe021703"),
+            QByteArray::fromHex("0012020402130413020c00000000000000000000"),
+            QByteArray::fromHex("ff0500800000a500000000000000000000000000"),
+            QByteArray::fromHex("fe021703"),
+            QByteArray::fromHex("001202040213041302000d001000d81c480000e0"),
+            QByteArray::fromHex("ff05000000106200000000000000000000000000"),
+            QByteArray::fromHex("fe021403"),
+            QByteArray::fromHex("001202040210041002000a1b9431001040500080"),
+            QByteArray::fromHex("ff02183800000000000000000000000000000000"),
+            QByteArray::fromHex("fe021102"),
+            QByteArray::fromHex("ff110204020d040d020500000000085802007a00"),
+            QByteArray::fromHex("fe021903"),
+            QByteArray::fromHex("0012020402150415020e00000000000000000000"),
+            QByteArray::fromHex("ff070000001001003a0000000000000000000000"),
+            QByteArray::fromHex("fe021002"),
+            QByteArray::fromHex("ff100204020c040c020400000002841c00b80000"),
         };
 
         for (QByteArray &frame : initFrames) {
