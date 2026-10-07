@@ -162,6 +162,9 @@ void MQTTPublisher::onBluetoothDeviceConnected(bluetoothdevice *device) {
 
 void MQTTPublisher::onBluetoothDeviceDisconnected() {
     m_device = nullptr;
+    // publishWorkoutData() returns early without a device, so it would never report the
+    // disconnection: publish it explicitly.
+    publishToTopic("device/connected", false);
     publishDefaultZwiftControllerStates();
 }
 
