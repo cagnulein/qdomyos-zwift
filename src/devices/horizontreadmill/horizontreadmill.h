@@ -115,6 +115,7 @@ class horizontreadmill : public treadmill {
     bool DOMYOS = false;
     bool domyos_treadmill_ts100 = false;
     bool SW_TREADMILL = false;
+    bool SW3925EAI_TREADMILL = false;
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
     bool MX_TM = false;

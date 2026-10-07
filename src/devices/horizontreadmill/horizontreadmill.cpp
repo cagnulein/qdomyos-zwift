@@ -1275,7 +1275,6 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                                 false, false);
         }
 
-        uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
         if(BOWFLEX_T9) {
             requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
         }
@@ -1285,9 +1284,15 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                 requestSpeed *= miles_conversion;   // JFTM T202 expects FTMS target speed in miles
             }
         }
-        uint16_t speed_int = round(requestSpeed * 100);
-        writeS[1] = speed_int & 0xFF;
-        writeS[2] = speed_int >> 8;
+        uint16_t speed_int = round(requestSpeed * (SW3925EAI_TREADMILL ? 10 : 100));
+        uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
+        if (SW3925EAI_TREADMILL) {
+            // SW3925EAI reads the high byte as tenths of km/h.
+            writeS[2] = speed_int & 0xFF;
+        } else {
+            writeS[1] = speed_int & 0xFF;
+            writeS[2] = speed_int >> 8;
+        }
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceSpeed"), false, false);
@@ -2657,6 +2662,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         QSettings settings;
         bluetoothDevice = device;
         JFTM_T202 = device.name().toUpper().startsWith(QStringLiteral("JFTM T202"));
+        SW3925EAI_TREADMILL = device.name().toUpper().startsWith(QStringLiteral("SW3925EAI-"));
+        if (SW3925EAI_TREADMILL) {
+            qDebug() << QStringLiteral("SW3925EAI FTMS speed workaround ON!");
+        }
 
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
             mobvoi_tmp_treadmill = true;
