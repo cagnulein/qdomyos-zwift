@@ -285,6 +285,8 @@
 		87F000012F00000000000007 /* moc_freebeatboombike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F0000000000000A /* moc_freebeatboombike.cpp */; };
 		87F000012F00000000000001 /* fitplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000004 /* fitplusrower.cpp */; };
 		87F000012F00000000000002 /* moc_fitplusrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000012F00000000000005 /* moc_fitplusrower.cpp */; };
+		87F000032F00000000000001 /* pafersrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000032F00000000000005 /* pafersrower.cpp */; };
+		87F000032F00000000000002 /* moc_pafersrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F000032F00000000000006 /* moc_pafersrower.cpp */; };
 		8745B2762AFCB4A300991A39 /* android in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8745B2752AFCB4A300991A39 /* android */; };
 		87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9527ECA9EE00C203F5 /* proformrower.cpp */; };
 		87473A9827ECAA0500C203F5 /* moc_proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9727ECAA0500C203F5 /* moc_proformrower.cpp */; };
@@ -1269,6 +1271,9 @@
 		87F000012F00000000000003 /* fitplusrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fitplusrower.h; path = ../src/devices/fitplusrower/fitplusrower.h; sourceTree = "<group>"; };
 		87F000012F00000000000004 /* fitplusrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fitplusrower.cpp; path = ../src/devices/fitplusrower/fitplusrower.cpp; sourceTree = "<group>"; };
 		87F000012F00000000000005 /* moc_fitplusrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitplusrower.cpp; sourceTree = "<group>"; };
+		87F000032F00000000000004 /* pafersrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pafersrower.h; path = ../src/devices/pafersrower/pafersrower.h; sourceTree = "<group>"; };
+		87F000032F00000000000005 /* pafersrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pafersrower.cpp; path = ../src/devices/pafersrower/pafersrower.cpp; sourceTree = "<group>"; };
+		87F000032F00000000000006 /* moc_pafersrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_pafersrower.cpp; sourceTree = "<group>"; };
 		8745B2742AFCB3B300991A39 /* libadb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libadb.a; path = ../src/ios/libadb.a; sourceTree = "<group>"; };
 		8745B2752AFCB4A300991A39 /* android */ = {isa = PBXFileReference; lastKnownFileType = folder; name = android; path = ../src/ios/android; sourceTree = "<group>"; };
 		8745B2772AFCB52800991A39 /* AdbClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AdbClient.h; path = ../src/ios/AdbClient.h; sourceTree = "<group>"; };
@@ -2712,6 +2717,9 @@
 				873CD20627EF8D8A000131BC /* inapptransaction.cpp */,
 				87EB917427EE5FB3002535E1 /* nautilusbike.cpp */,
 				87EB917527EE5FB3002535E1 /* nautilusbike.h */,
+				87F000032F00000000000004 /* pafersrower.h */,
+				87F000032F00000000000005 /* pafersrower.cpp */,
+				87F000032F00000000000006 /* moc_pafersrower.cpp */,
 				87473A9527ECA9EE00C203F5 /* proformrower.cpp */,
 				87473A9427ECA9EE00C203F5 /* proformrower.h */,
 				873824D527E647A6004F1B46 /* abstractserver.cpp */,
@@ -3866,6 +3874,8 @@
 				87C5F0D926285E7E0067A1B5 /* moc_mimeattachment.cpp in Compile Sources */,
 				87B617F225F260150094A1CB /* moc_fitshowtreadmill.cpp in Compile Sources */,
 				87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */,
+				87F000032F00000000000001 /* pafersrower.cpp in Compile Sources */,
+				87F000032F00000000000002 /* moc_pafersrower.cpp in Compile Sources */,
 				87F000012F00000000000001 /* fitplusrower.cpp in Compile Sources */,
 				87F000012F00000000000006 /* freebeatboombike.cpp in Compile Sources */,
 				CA6F83698EA1420883B66D30 /* wahookickruntreadmill.cpp in Compile Sources */,
