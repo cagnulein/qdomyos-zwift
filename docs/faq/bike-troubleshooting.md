@@ -93,3 +93,22 @@ QZ's Wi-Fi connection to a ProForm TDF bike uses the bike's configured IP addres
 4. To prevent the problem from recurring, reserve a fixed DHCP address for the bike in your router, or otherwise configure the router so the bike always receives the same IP.
 
 In a confirmed support case, the bike's IP address had changed; updating the address restored the QZ connection immediately.
+
+
+## My bike does not have native ERG mode. How can I improve QZ's ERG emulation?
+
+For supported bikes where QZ has to emulate ERG by selecting resistance levels, QZ learns the relationship between **cadence, power, and resistance** and uses that data to choose a resistance for the requested target power.
+
+If ERG is working but the resistance changes are too coarse or QZ jumps between unexpected levels, spend some time building a better power curve:
+
+1. Use a normal free ride with QZ running.
+2. Change resistance manually from the bike's own controls/display.
+3. Pedal through the resistance levels you normally use for ERG workouts.
+4. Stay on each resistance level for roughly 30 seconds at a cadence similar to the cadence you normally use in ERG mode.
+5. Repeat across a useful range of resistance levels and power outputs.
+
+You do not need Zwift open during this learning phase; QZ is the component collecting the cadence/power/resistance relationship. You also do not need to run Zwift's trainer calibration for this QZ-emulated ERG setup. If Zwift's calibration screen waits for the device, it can be ignored for this workflow.
+
+The more representative data QZ has around your normal cadence and power range, the better it can estimate which resistance level should produce a requested wattage. On bikes with discrete resistance levels, some jumps can still be unavoidable because an exact target power may fall between two available levels.
+
+In a confirmed support case, QZ's ERG emulation was working on a bike without native ERG; the recommended learning procedure was then used to improve the resistance selection for ramp workouts.
