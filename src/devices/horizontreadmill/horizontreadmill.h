@@ -39,8 +39,6 @@ class horizontreadmill : public treadmill {
   public:
     horizontreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
-    static QByteArray encodeFtmsTargetSpeed(double requestSpeed, bool sw3925eai);
-    static bool isSw3925EaiModel(const QString &deviceName);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     double minStepInclination() override;
