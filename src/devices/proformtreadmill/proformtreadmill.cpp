@@ -9,6 +9,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
+#include <QtMath>
 #include <QSettings>
 #include <QThread>
 #include <chrono>
@@ -177,19 +178,14 @@ void proformtreadmill::update() {
         if (requestSpeed != -1 && requestSpeed > 0 && requestSpeed <= maxSpeed && currentSpeed().value() <= 0) {
             cachedSpeedRequest = requestSpeed;
             requestSpeed = -1;
-            if (proform_treadmill_305_cst) {
-                emit debug(QStringLiteral("speed request cached until the ProForm 305 CST is started manually: ") +
-                           QString::number(cachedSpeedRequest));
-            } else {
-                requestStart = 1;
-                emit debug(QStringLiteral("speed request cached while treadmill is stopped: ") +
-                           QString::number(cachedSpeedRequest));
+            requestStart = 1;
+            emit debug(QStringLiteral("speed request cached while treadmill is stopped: ") +
+                       QString::number(cachedSpeedRequest));
 
-                if (homeform::singleton()) {
-                    homeform::singleton()->setToastRequested(
-                        QObject::tr("Starting treadmill before applying requested speed %1")
-                            .arg(QString::number(cachedSpeedRequest, 'f', 1)));
-                }
+            if (homeform::singleton()) {
+                homeform::singleton()->setToastRequested(
+                    QObject::tr("Starting treadmill before applying requested speed %1")
+                        .arg(QString::number(cachedSpeedRequest, 'f', 1)));
             }
         }
 
@@ -1197,6 +1193,16 @@ void proformtreadmill::update() {
                                    0x0a, 0x1b, 0x94, 0x31, 0x00, 0x10, 0x40, 0x50, 0x00, 0x80};
             uint8_t noOpData6[] = {0xff, 0x02, 0x18, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            // The 305 CST capture lacks lifecycle writes. Until a native 305 CST start/stop capture is
+            // available, reuse the existing 105 CST sequence as a model-local compatibility fallback.
+            uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
+            uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
+                                0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
+            uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xef, 0x1a, 0x58, 0x02, 0x00,
+                                0xb4, 0x00, 0x58, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00};
+            uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
+            uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
+                                0x03, 0x10, 0xa0, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xd2, 0x00};
             switch (counterPoll) {
             case 0:
                 writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
@@ -1233,11 +1239,19 @@ void proformtreadmill::update() {
                     requestSpeed = -1;
                 }
                 if (requestStart != -1) {
-                    emit debug(QStringLiteral("start command is not supported for ProForm 305 CST by the captured protocol"));
+                    emit debug(QStringLiteral("starting with the ProForm 105 CST compatibility sequence..."));
+                    writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
+                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
+                    writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
+                    writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
+                    writeCharacteristic(start5, sizeof(start5), QStringLiteral("start5"), false, true);
                     requestStart = -1;
+                    emit tapeStarted();
                 }
                 if (requestStop != -1 || requestPause != -1) {
-                    emit debug(QStringLiteral("stop/pause command is not supported for ProForm 305 CST by the captured protocol"));
+                    // Matches the existing 105 CST stop/pause behavior pending native 305 CST evidence.
+                    forceSpeed(0);
+                    emit debug(QStringLiteral("stopping with the ProForm 105 CST compatibility behavior..."));
                     requestStop = -1;
                     requestPause = -1;
                 }
