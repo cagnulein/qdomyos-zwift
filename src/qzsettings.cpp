@@ -277,6 +277,7 @@ const QString QZSettings::inspire_peloton_formula = QStringLiteral("inspire_pelo
 const QString QZSettings::inspire_peloton_formula2 = QStringLiteral("inspire_peloton_formula2");
 const QString QZSettings::hammer_racer_s = QStringLiteral("hammer_racer_s");
 const QString QZSettings::pafers_treadmill = QStringLiteral("pafers_treadmill");
+const QString QZSettings::pafers_rower = QStringLiteral("pafers_rower");
 const QString QZSettings::yesoul_peloton_formula = QStringLiteral("yesoul_peloton_formula");
 const QString QZSettings::nordictrack_10_treadmill = QStringLiteral("nordictrack_10_treadmill");
 const QString QZSettings::nordictrack_t65s_treadmill = QStringLiteral("nordictrack_t65s_treadmill");
@@ -1306,7 +1307,7 @@ const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 const QString QZSettings::android_landscape_cutout_margin = QStringLiteral("android_landscape_cutout_margin");
 const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral("android_landscape_cutout_prompt_shown");
 
-const uint32_t allSettingsCount = 1013;
+const uint32_t allSettingsCount = 1014;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2346,6 +2347,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::android_landscape_cutout_margin, QZSettings::default_android_landscape_cutout_margin},
     {QZSettings::proform_trainer_8_0_pftl59721_0, QZSettings::default_proform_trainer_8_0_pftl59721_0},
     {QZSettings::android_landscape_cutout_prompt_shown, QZSettings::default_android_landscape_cutout_prompt_shown},
+    {QZSettings::pafers_rower, QZSettings::default_pafers_rower},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

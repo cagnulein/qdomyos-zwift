@@ -641,6 +641,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool fakedevice_treadmill =
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     bool pafers_treadmill = settings.value(QZSettings::pafers_treadmill, QZSettings::default_pafers_treadmill).toBool();
+    bool pafers_rower = settings.value(QZSettings::pafers_rower, QZSettings::default_pafers_rower).toBool();
     QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString();
     QString proformtdf1ip = settings.value(QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip).toString();
     QString proformtreadmillip =
@@ -2705,7 +2706,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 deerrunTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(deerrunTreadmill);
             } else if (b.name().toUpper().startsWith(QStringLiteral("PAFERS_")) && !pafersTreadmill &&
-                       (pafers_treadmill || pafers_treadmill_bh_iboxster_plus) && filter) {
+                       (pafers_treadmill || pafers_treadmill_bh_iboxster_plus) && !pafers_rower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 pafersTreadmill = new paferstreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -3011,7 +3012,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(renphoBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 renphoBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(renphoBike);
-            } else if ((b.name().toUpper().startsWith("PAFERS_")) && !pafersBike && !pafers_treadmill && filter) {
+            } else if ((b.name().toUpper().startsWith("PAFERS_")) && !pafersRower && pafers_rower && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                pafersRower =
+                    new pafersrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit(deviceConnected(b));
+                connect(pafersRower, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                pafersRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(pafersRower);
+            } else if ((b.name().toUpper().startsWith("PAFERS_")) && !pafersBike && !pafers_treadmill &&
+                       !pafers_rower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 pafersBike =
@@ -4525,6 +4536,11 @@ void bluetooth::restart() {
         delete pafersBike;
         pafersBike = nullptr;
     }
+    if (pafersRower) {
+
+        delete pafersRower;
+        pafersRower = nullptr;
+    }
     if (fitPlusBike) {
 
         delete fitPlusBike;
@@ -4831,6 +4847,8 @@ bluetoothdevice *bluetooth::device() {
         return renphoBike;
     } else if (pafersBike) {
         return pafersBike;
+    } else if (pafersRower) {
+        return pafersRower;
     } else if (fitPlusBike) {
         return fitPlusBike;
     } else if (fitPlusRower) {
