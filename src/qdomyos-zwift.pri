@@ -355,6 +355,7 @@ devices/m3ibike/m3ibike.cpp \
 devices/domyosbike/domyosbike.cpp \
 scanrecordresult.cpp \
 windows_zwift_incline_paddleocr_thread.cpp \
+workoutimport.cpp \
 zwiftworkout.cpp
    
 macx: SOURCES += macos/lockscreen.mm
@@ -895,6 +896,7 @@ wobjectimpl.h \
 devices/yesoulbike/yesoulbike.h \
 scanrecordresult.h \
 windows_zwift_incline_paddleocr_thread.h \
+workoutimport.h \
 zwiftworkout.h
 
 
