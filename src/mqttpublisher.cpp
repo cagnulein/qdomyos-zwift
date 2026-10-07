@@ -473,17 +473,18 @@ void MQTTPublisher::processDeviceCommand(const QString& deviceType, const QStrin
 QJsonObject MQTTPublisher::getDeviceInfo() const {
     QJsonObject device;
     
+    // Always identify the HA device by the MQTT device id, so the entities announced before and
+    // after the equipment connects end up on one Home Assistant device instead of two.
+    device["identifiers"] = QJsonArray{m_userNickname};
+    device["name"] = QString("QZ Fitness Device (%1)").arg(m_userNickname);
+    device["manufacturer"] = "QDomyos-Zwift";
+    device["sw_version"] = QCoreApplication::applicationVersion();
     if (m_device) {
-        device["identifiers"] = QJsonArray{m_device->bluetoothDevice.address().toString()};
-        device["name"] = QString("QZ Fitness Device (%1)").arg(m_userNickname);
         device["model"] = m_device->bluetoothDevice.name();
-        device["manufacturer"] = "QDomyos-Zwift";
-        device["sw_version"] = QCoreApplication::applicationVersion();
-    } else {
-        device["identifiers"] = QJsonArray{m_userNickname};
-        device["name"] = QString("QZ Fitness Device (%1)").arg(m_userNickname);
-        device["manufacturer"] = "QDomyos-Zwift";
-        device["sw_version"] = QCoreApplication::applicationVersion();
+        QString address = m_device->bluetoothDevice.address().toString();
+        if (!address.isEmpty() && address != QStringLiteral("00:00:00:00:00:00")) {
+            device["connections"] = QJsonArray{QJsonArray{QStringLiteral("bluetooth"), address}};
+        }
     }
     
     return device;
@@ -604,6 +605,12 @@ void MQTTPublisher::publishWorkoutData() {
         bluetoothdevice *currentDevice = m_manager->device();
         if (currentDevice != m_device.data()) {
             m_device = currentDevice;
+            // The device-specific entities (bike / treadmill / rower / elliptical) can only be
+            // announced once the device is known. A headless bridge usually connects to the broker
+            // long before the equipment wakes up, so re-run discovery whenever the device changes.
+            if (isConnected()) {
+                publishDiscoveryConfig();
+            }
         }
     }
 
