@@ -11,6 +11,8 @@ This directory contains reusable diagnostic intake guidance for QZ support. It f
 - [Android installation and embedded consoles](android-installation.md)
 - [External speed and cadence sensors](external-sensors.md)
 - [Test and beta build verification](test-builds.md)
+- [Profiles and settings storage](profiles.md)
+- [GPX and training program control](training-programs.md)
 
 ## How to use these guides
 
