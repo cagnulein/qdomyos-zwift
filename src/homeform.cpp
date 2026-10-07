@@ -82,7 +82,7 @@ QString sanitizeClipboardWorkoutName(const QString &input) {
     if (trimmed.isEmpty()) {
         trimmed = QStringLiteral("Clipboard_Workout");
     }
-    QRegularExpression invalid(QStringLiteral("[\\\\/:*?\"<>|\\x00-\\x1F]"));
+    QRegularExpression invalid(QStringLiteral("[^A-Za-z0-9_\\- ]"));
     trimmed.replace(invalid, QStringLiteral("_"));
     trimmed.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
     return trimmed;
@@ -1748,6 +1748,20 @@ QString homeform::getWritableAppDir() {
     path = QDir::currentPath() + "/";
 #endif
     return path;
+}
+
+// Keep any letters (Cyrillic, accents, CJK...): only replace characters a file name cannot hold
+QString homeform::safeFileName(const QString &name, const QString &fallback) {
+    QString safe = name.trimmed();
+    safe.replace(QRegularExpression(QStringLiteral("[\\\\/:*?\"<>|\\x00-\\x1F]")), QStringLiteral("_"));
+    safe.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
+    // File names are limited to 255 bytes and non-Latin letters take 2-3 bytes each in UTF-8
+    safe.truncate(100);
+    safe.remove(QRegularExpression(QStringLiteral("^\\.+|\\.+$")));
+    if (safe.isEmpty()) {
+        safe = fallback;
+    }
+    return safe;
 }
 
 void homeform::backup() {
@@ -12292,9 +12306,7 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
                 }
 
                 // Sanitize filename
-                QString safeName = workoutName;
-                safeName.replace(QRegularExpression(QStringLiteral("[\\\\/:*?\"<>|\\x00-\\x1F\\s]")), QStringLiteral("_"));
-                safeName.truncate(100);
+                QString safeName = safeFileName(workoutName, QStringLiteral("Workout"));
 
                 // Add date prefix
                 QString today = QDate::currentDate().toString("yyyy-MM-dd");

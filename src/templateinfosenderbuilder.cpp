@@ -101,17 +101,7 @@ QString openEndedRowLabel(const trainrow &row) {
 
 namespace {
 QString sanitizeTrainingProgramName(const QString &input) {
-    // Keep any letters (Cyrillic, accents, CJK...): only replace characters a file name cannot hold
-    QString trimmed = input.trimmed();
-    trimmed.replace(QRegularExpression(QStringLiteral("[\\\\/:*?\"<>|\\x00-\\x1F]")), QStringLiteral("_"));
-    trimmed.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
-    // File names are limited to 255 bytes and non-Latin letters take 2-3 bytes each in UTF-8
-    trimmed.truncate(100);
-    trimmed.remove(QRegularExpression(QStringLiteral("^\\.+|\\.+$")));
-    if (trimmed.isEmpty()) {
-        trimmed = QStringLiteral("Workout");
-    }
-    return trimmed;
+    return homeform::safeFileName(input, QStringLiteral("Workout"));
 }
 
 QString uniqueTrainingProgramName(const QString &trainingDir, const QString &baseName) {
