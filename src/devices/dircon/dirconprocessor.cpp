@@ -1,6 +1,8 @@
 #include "dirconprocessor.h"
 #include "dirconpacket.h"
 #include "qzsettings.h"
+#include <QDateTime>
+#include <QGuiApplication>
 #include <QSettings>
 #include <QHostInfo>
 
@@ -170,8 +172,15 @@ void DirconProcessor::tcpNewConnection() {
 
 void DirconProcessor::tcpDisconnected() {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
+    DirconProcessorClient *client = clientsMap.value(socket);
+    const qint64 sinceData =
+        client && client->lastDataMs ? QDateTime::currentMSecsSinceEpoch() - client->lastDataMs : -1;
+    // Who closed it and how: RemoteHostClosedError is the app (Zwift) hanging up, a network error or unsent
+    // bytes piling up point at Wi-Fi; the app state tells whether QZ was in the background at the time
     qDebug() << "Disconnection from" << socket->peerAddress().toString() << ":" << socket->peerPort()
-             << " uuid = " << serverName;
+             << " uuid = " << serverName << "error" << socket->error() << socket->errorString() << "unsent bytes"
+             << socket->bytesToWrite() << "ms since last data" << sinceData << "app state"
+             << QGuiApplication::applicationState();
     clientsMap.remove(socket);
     socket->deleteLater();
 }
@@ -327,6 +336,7 @@ void DirconProcessor::tcpDataAvailable() {
     QByteArray data = socket->readAll();
     qDebug() << "Data available for uuid " << serverName << ":" << data.toHex();
     if (client) {
+        client->lastDataMs = QDateTime::currentMSecsSinceEpoch();
         int buflimit, rembuf;
         client->buffer.append(data);
         while (1) {

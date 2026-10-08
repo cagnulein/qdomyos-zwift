@@ -67,6 +67,7 @@ class DirconProcessorClient : public QObject {
     QList<quint16> char_notify;
     QTcpSocket *sock;
     QByteArray buffer;
+    qint64 lastDataMs = 0; // last packet from the client, for the disconnection log
 };
 
 class DirconProcessor : public QObject {
