@@ -91,8 +91,12 @@ class DirconProcessor : public QObject {
     bool pending2AD2Greeting = false;
     // Android cuts the network of an app in the background without a foreground service: the
     // client connection dies with NetworkError and the listening socket with it, so the client
-    // can't come back. Set then, the server and the mDNS announcement are rebuilt on resume.
-    bool restartOnResume = false;
+    // can't come back. Then the server and the mDNS announcement are rebuilt on resume - in every
+    // processor, not only the one whose client fell: the listening sockets of the others (an HRM
+    // nobody was connected to) are gone as well. Bumped by the loss, compared on resume.
+    static int networkLostGeneration;
+    int handledNetworkLostGeneration = 0;
+    int restartAttempts = 0;
     bool initServer();
     void initAdvertising();
     void restartServer();

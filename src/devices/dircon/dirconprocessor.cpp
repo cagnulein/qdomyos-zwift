@@ -8,6 +8,8 @@
 #include <QHostInfo>
 #include <QTimer>
 
+int DirconProcessor::networkLostGeneration = 0;
+
 DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_services, const QString &serv_name,
                                  quint16 serv_port, const QString &serv_sn, const QString &my_mac, QObject *parent)
     : QObject(parent), services(my_services), mac(my_mac), serverPort(serv_port), serialN(serv_sn),
@@ -16,6 +18,7 @@ DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_servi
     QSettings settings;
     rouvy_compatibility = settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool();
     foreach (DirconProcessorService *my_service, my_services) { my_service->setParent(this); }
+    handledNetworkLostGeneration = networkLostGeneration; // a loss before this processor isn't its
     if (QGuiApplication *guiApp = qobject_cast<QGuiApplication *>(QCoreApplication::instance())) {
         connect(guiApp, &QGuiApplication::applicationStateChanged, this, &DirconProcessor::applicationStateChanged);
     }
@@ -192,7 +195,7 @@ void DirconProcessor::tcpDisconnected() {
         if (QGuiApplication::applicationState() == Qt::ApplicationActive) {
             restartServer();
         } else {
-            restartOnResume = true;
+            networkLostGeneration++;
             if (homeform::singleton()) {
                 homeform::singleton()->backgroundNetworkLost();
             }
@@ -203,16 +206,17 @@ void DirconProcessor::tcpDisconnected() {
 }
 
 void DirconProcessor::applicationStateChanged(Qt::ApplicationState state) {
-    if (state != Qt::ApplicationActive || !restartOnResume) {
+    if (state != Qt::ApplicationActive || handledNetworkLostGeneration == networkLostGeneration) {
         return;
     }
-    restartOnResume = false;
+    handledNetworkLostGeneration = networkLostGeneration;
+    restartAttempts = 0;
     // give Android a moment to give the network back before binding again
     QTimer::singleShot(1000, this, &DirconProcessor::restartServer);
 }
 
 void DirconProcessor::restartServer() {
-    qDebug() << "Dircon restarting server and mDNS for" << serverName;
+    qDebug() << "Dircon restarting server and mDNS for" << serverName << "attempt" << restartAttempts + 1;
     if (server) {
         server->close();
     }
@@ -223,7 +227,16 @@ void DirconProcessor::restartServer() {
     mdnsHostname = nullptr;
     delete mdnsServer;
     mdnsServer = nullptr;
-    init();
+    if (init()) {
+        restartAttempts = 0;
+    } else if (++restartAttempts < 5) {
+        // the network may not be back yet: without a retry nothing would bring the server up again,
+        // no client can reach it to fail once more
+        QTimer::singleShot(2000, this, &DirconProcessor::restartServer);
+    } else {
+        qDebug() << "Dircon restart gave up for" << serverName;
+        restartAttempts = 0;
+    }
 }
 
 DirconPacket DirconProcessor::processPacket(DirconProcessorClient *client, const DirconPacket &pkt) {
