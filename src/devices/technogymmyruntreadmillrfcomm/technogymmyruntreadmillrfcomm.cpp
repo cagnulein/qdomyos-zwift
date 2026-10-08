@@ -124,7 +124,7 @@ void technogymmyruntreadmillrfcomm::update() {
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 20) {
                 QString force =
-                    QStringLiteral("!DEV,024,") + QString::number(requestSpeed) + QStringLiteral(",1.8#").toLocal8Bit();
+                    QStringLiteral("!DEV,024,") + QString::number(requestSpeed) + QStringLiteral(",0.8#").toLocal8Bit();
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed) + " " + force);
                 socket->write(force.toLocal8Bit());
             }
@@ -148,13 +148,12 @@ void technogymmyruntreadmillrfcomm::update() {
             */
             requestStart = -1;
             emit tapeStarted();
-        } else {
-            /*
-            const char poll[] = {0x55, 0x17, 0x01, 0x01};
-            socket->write(poll, sizeof(poll));
-            emit debug(QStringLiteral("write poll"));
-            */
         }
+
+        // Technogym Live keeps the RFCOMM session alive with this poll while
+        // the MyRun accepts speed and incline commands on the same channel.
+        socket->write(QStringLiteral("!DEV,055#").toLocal8Bit());
+        emit debug(QStringLiteral("write poll"));
 
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
     }
