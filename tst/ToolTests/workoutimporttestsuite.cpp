@@ -135,6 +135,56 @@ TEST(WorkoutImport, TrainProgramLoadsExrJsonByContent) {
     delete program;
 }
 
+// workout installed with the EXR game: PascalCase keys, meters (UnitType 0), a rest pause, a trailing comma
+static const char *kExrInstalledWorkout = R"json({
+    "MetaData": {"FileVersionNumber": 2, "Tags": ["AEROBIC", "ENDURANCE",]},
+    "TrainingData": {
+        "Title": "Kilometer Climb",
+        "UnitType": 0,
+        "Description": "Short sprints after every kilometer.",
+        "Schedule": [
+            {"Length": 1000, "FTPTarget": 1.0, "StrokesPerMin": 22},
+            {"Length": 250, "FTPTarget": 1.2, "StrokesPerMin": 0}
+        ],
+        "Events": [
+            {"_id": 1, "_timeStamp": 1000,
+             "_dataTypeString": "RowingTrainingRestData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+             "DataString": "{\"_restTime\":60}"}
+        ]
+    }
+})json";
+
+TEST(WorkoutImport, ExrInstalledWorkoutUsesMetersAndRestPauses) {
+    QString description;
+    const QList<trainrow> rows = workoutimport::loadExr(QByteArray(kExrInstalledWorkout), 200.0, &description);
+
+    ASSERT_EQ(rows.length(), 3);
+    EXPECT_EQ(description, QStringLiteral("Short sprints after every kilometer."));
+    EXPECT_DOUBLE_EQ(rows.at(0).distance, 1.0);
+    EXPECT_EQ(rows.at(0).power, 200);
+    EXPECT_EQ(rows.at(0).cadence, 22);
+    // the rest pause at 1000 m becomes a 60 s step without targets
+    EXPECT_DOUBLE_EQ(rows.at(1).distance, -1);
+    EXPECT_EQ(rows.at(1).duration, QTime(0, 1, 0));
+    EXPECT_EQ(rows.at(1).power, -1);
+    EXPECT_DOUBLE_EQ(rows.at(2).distance, 0.25);
+    EXPECT_EQ(rows.at(2).power, 240);
+    EXPECT_EQ(rows.at(2).cadence, -1);
+}
+
+TEST(WorkoutImport, TrainProgramLoadsExrXsrFile) {
+    QTemporaryFile file(QDir::tempPath() + "/qz-exr-XXXXXX.xsr");
+    ASSERT_TRUE(file.open());
+    file.write(kExrInstalledWorkout);
+    file.close();
+
+    trainprogram *program = trainprogram::load(file.fileName(), nullptr, QStringLiteral("XSR"));
+    ASSERT_NE(program, nullptr);
+    ASSERT_EQ(program->rows.length(), 3);
+    EXPECT_DOUBLE_EQ(program->rows.at(2).distance, 0.25);
+    delete program;
+}
+
 TEST(WorkoutImport, OtherJsonIsNotAWorkout) {
     QTemporaryFile file(QDir::tempPath() + "/qz-other-XXXXXX.json");
     ASSERT_TRUE(file.open());

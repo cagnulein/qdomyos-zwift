@@ -6,20 +6,41 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMap>
 #include <QRegularExpression>
 #include <QSettings>
+#include <limits>
+
+// EXR web profile exports use camelCase keys ("data", "schedule", "length"), the workouts installed with the game
+// (.xsr) use PascalCase ("TrainingData", "Schedule", "Length")
+static QJsonValue exrField(const QJsonObject &object, const QString &name) {
+    for (auto it = object.constBegin(); it != object.constEnd(); ++it) {
+        if (it.key().compare(name, Qt::CaseInsensitive) == 0)
+            return it.value();
+    }
+    return QJsonValue();
+}
 
 static QJsonObject exrData(const QByteArray &input) {
-    const QJsonDocument doc = QJsonDocument::fromJson(input);
-    if (!doc.isObject())
-        return QJsonObject();
-    return doc.object().value(QStringLiteral("data")).toObject();
+    QJsonDocument doc = QJsonDocument::fromJson(input);
+    if (!doc.isObject()) {
+        // some installed workouts have a trailing comma before ] or }
+        QString text = QString::fromUtf8(input);
+        text.replace(QRegularExpression(QStringLiteral(",(\\s*[\\]}])")), QStringLiteral("\\1"));
+        doc = QJsonDocument::fromJson(text.toUtf8());
+        if (!doc.isObject())
+            return QJsonObject();
+    }
+    const QJsonObject root = doc.object();
+    const QJsonValue data = exrField(root, QStringLiteral("data"));
+    return data.isObject() ? data.toObject() : exrField(root, QStringLiteral("TrainingData")).toObject();
 }
 
 static QTime secondsToTime(int seconds) { return QTime(0, 0, 0, 0).addSecs(seconds); }
 
 QString workoutimport::fileKind(const QString &filename, const QString &extension) {
-    static const QStringList kinds = {QStringLiteral("MRC"), QStringLiteral("ERG"), QStringLiteral("JSON")};
+    static const QStringList kinds = {QStringLiteral("MRC"), QStringLiteral("ERG"), QStringLiteral("JSON"),
+                                      QStringLiteral("XSR")};
     QString ext = QFileInfo(filename).suffix().toUpper();
     if (kinds.contains(ext))
         return ext;
@@ -34,13 +55,13 @@ bool workoutimport::isSupportedFile(const QString &filename, const QString &exte
     const QString kind = fileKind(filename, extension);
     if (kind.isEmpty())
         return false;
-    if (kind != QStringLiteral("JSON"))
+    if (kind == QStringLiteral("MRC") || kind == QStringLiteral("ERG"))
         return true;
 
     QFile input(filename);
     if (!input.open(QIODevice::ReadOnly))
         return false;
-    return !exrData(input.readAll()).value(QStringLiteral("schedule")).toArray().isEmpty();
+    return !exrField(exrData(input.readAll()), QStringLiteral("schedule")).toArray().isEmpty();
 }
 
 QList<trainrow> workoutimport::load(const QString &filename, const QString &extension, QString *description) {
@@ -54,9 +75,9 @@ QList<trainrow> workoutimport::load(const QString &filename, const QString &exte
     QSettings settings;
     const double ftp = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
     const QByteArray content = input.readAll();
-    const QList<trainrow> rows = kind == QStringLiteral("JSON")
-                                     ? loadExr(content, ftp, description)
-                                     : loadErgMrc(content, kind == QStringLiteral("MRC"), ftp, description);
+    const bool courseFile = kind == QStringLiteral("MRC") || kind == QStringLiteral("ERG");
+    const QList<trainrow> rows = courseFile ? loadErgMrc(content, kind == QStringLiteral("MRC"), ftp, description)
+                                            : loadExr(content, ftp, description);
     qDebug() << QStringLiteral("workoutimport:") << filename << kind << rows.length() << QStringLiteral("rows");
     return rows;
 }
@@ -183,26 +204,61 @@ QList<trainrow> workoutimport::loadErgMrc(const QByteArray &input, bool percentB
 
 QList<trainrow> workoutimport::loadExr(const QByteArray &input, double ftp, QString *description) {
     const QJsonObject data = exrData(input);
+    // unitType 1: length in seconds, 0: length in meters
+    const bool byDistance = exrField(data, QStringLiteral("unitType")).toInt(1) == 0;
+
+    // rest pauses, at a position of the workout in the same unit as length (always between two steps in the
+    // installed workouts)
+    QMap<double, int> rests;
+    for (const QJsonValue &value : exrField(data, QStringLiteral("events")).toArray()) {
+        const QJsonObject event = value.toObject();
+        const QString type = exrField(event, QStringLiteral("_dataTypeString")).toString();
+        if (!type.startsWith(QStringLiteral("RowingTrainingRestData")))
+            continue;
+        const QJsonObject payload =
+            QJsonDocument::fromJson(exrField(event, QStringLiteral("DataString")).toString().toUtf8()).object();
+        const int seconds = qRound(exrField(payload, QStringLiteral("_restTime")).toDouble());
+        if (seconds > 0)
+            rests[exrField(event, QStringLiteral("_timeStamp")).toDouble()] += seconds;
+    }
+
     QList<trainrow> list;
-    for (const QJsonValue &value : data.value(QStringLiteral("schedule")).toArray()) {
+    auto rest = rests.constBegin();
+    auto appendRestsUpTo = [&](double position) {
+        for (; rest != rests.constEnd() && rest.key() <= position; ++rest) {
+            trainrow row;
+            row.duration = secondsToTime(rest.value());
+            list.append(row);
+        }
+    };
+
+    double position = 0;
+    for (const QJsonValue &value : exrField(data, QStringLiteral("schedule")).toArray()) {
         const QJsonObject step = value.toObject();
-        // length is in seconds in the files we have seen (unitType 1)
-        const int length = qRound(step.value(QStringLiteral("length")).toDouble());
+        const double length = exrField(step, QStringLiteral("length")).toDouble();
         if (length <= 0)
             continue;
-        const double target = step.value(QStringLiteral("FTPTarget")).toDouble(-1);
-        const int strokes = qRound(step.value(QStringLiteral("strokesPerMin")).toDouble());
+        appendRestsUpTo(position);
+        const double target = exrField(step, QStringLiteral("FTPTarget")).toDouble(-1);
+        const int strokes = qRound(exrField(step, QStringLiteral("strokesPerMin")).toDouble());
         trainrow row;
-        row.duration = secondsToTime(length);
+        if (byDistance)
+            row.distance = length / 1000.0;
+        else
+            row.duration = secondsToTime(qRound(length));
         // FTPTarget -1: free rowing (rest), no target
         if (target > 0)
             row.power = qRound(target * ftp);
         if (strokes > 0)
             row.cadence = strokes;
         list.append(row);
+        position += length;
     }
+    if (list.isEmpty())
+        return list;
+    appendRestsUpTo(std::numeric_limits<double>::max());
 
-    if (description != nullptr && !list.isEmpty())
-        *description = data.value(QStringLiteral("description")).toString().trimmed();
+    if (description != nullptr)
+        *description = exrField(data, QStringLiteral("description")).toString().trimmed();
     return list;
 }

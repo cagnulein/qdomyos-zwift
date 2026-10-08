@@ -5,12 +5,13 @@
 // Training programs from other apps:
 // - .mrc / .erg course files (TrainerRoad, Golden Cheetah, CompuTrainer): MINUTES PERCENT or MINUTES WATTS points,
 //   a change of value at the same time is a step, a change over time is a ramp (split in 1 second rows like .zwo);
-// - EXR custom workouts (.json exported from the EXR web profile): schedule of length (s), FTPTarget, strokesPerMin.
+// - EXR rowing workouts: .json exported from the EXR web profile and .xsr installed with the game. Schedule of
+//   length (seconds, or meters when unitType is 0), FTPTarget, strokesPerMin, plus rest pauses from events.
 class workoutimport {
 
   public:
-    // extension: "MRC", "ERG" or "JSON"; callers that pass the last three characters of the file name ("SON") work
-    // too. JSON files are accepted only if they contain an EXR schedule.
+    // extension: "MRC", "ERG", "JSON" or "XSR"; callers that pass the last three characters of the file name
+    // ("SON") work too. JSON/XSR files are accepted only if they contain an EXR schedule.
     static bool isSupportedFile(const QString &filename, const QString &extension = QString());
     static QList<trainrow> load(const QString &filename, const QString &extension = QString(),
                                 QString *description = nullptr);
