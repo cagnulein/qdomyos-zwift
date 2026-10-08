@@ -51,7 +51,8 @@ class trxappgateusbbike : public bike {
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                             bool wait_for_response);
+                             bool wait_for_response, const QByteArray &response_prefix = QByteArray(),
+                             bool force_write_with_response = false);
     void startDiscover();
     uint16_t watts() override;
     double GetWattFromPacket(const QByteArray &packet);
@@ -84,6 +85,9 @@ class trxappgateusbbike : public bike {
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
+    QByteArray lastResponsePacket;
+    uint8_t vescapeIdentifier1 = 0;
+    uint8_t vescapeIdentifier2 = 0;
 
     typedef enum TYPE {
         TRXAPPGATE = 0,
@@ -130,7 +134,7 @@ class trxappgateusbbike : public bike {
   signals:
     void disconnected();
     void debug(QString string);
-    void packetReceived();
+    void packetReceived(const QByteArray &packet);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
