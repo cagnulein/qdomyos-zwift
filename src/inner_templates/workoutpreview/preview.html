@@ -79,11 +79,36 @@
         // cadence and no power showed only the speed, unset (-1).
         let charts = null;
 
+        // The speed comes in km/h: shown in miles when the app uses them (an unset -1 stays
+        // below zero, a gap)
+        function speedPoints(list) {
+            return list.map(function (p) {
+                return p && p.y >= 0 ? Object.assign({}, p, { y: p.y * miles }) : p;
+            });
+        }
+
+        // The incline below -50 (unset) is not sent at all: a missing second becomes a gap
+        // instead of a line drawn across it
+        function everySecond(list, count) {
+            const byX = {};
+            list.forEach(function (p) {
+                if (p) {
+                    byX[p.x] = p;
+                }
+            });
+            const out = [];
+            for (let x = 0; x < count; x++) {
+                out.push(byX[x] || { x: x, y: null });
+            }
+            return out;
+        }
+
         function metricSeries(workoutData, deviceType) {
+            const seconds = workoutData.watts.length;
             const all = {
                 power: { key: 'power', label: tq('workoutEditor.power', 'Power'), unit: 'W', color: '#3b82f6', points: workoutData.watts },
-                speed: { key: 'speed', label: tq('workoutEditor.speed', 'Speed'), unit: miles === 1 ? 'km/h' : 'mph', color: '#06b6d4', points: workoutData.speed },
-                inclination: { key: 'inclination', label: tq('workoutEditor.incline', 'Incline'), unit: '%', color: '#10b981', points: workoutData.inclination, floor: -50 },
+                speed: { key: 'speed', label: tq('workoutEditor.speed', 'Speed'), unit: miles === 1 ? 'km/h' : 'mph', color: '#06b6d4', points: speedPoints(workoutData.speed) },
+                inclination: { key: 'inclination', label: tq('workoutEditor.incline', 'Incline'), unit: '%', color: '#10b981', points: everySecond(workoutData.inclination, seconds), floor: -50 },
                 resistance: { key: 'resistance', label: tq('workoutEditor.resistance', 'Resistance'), unit: '', color: '#8b5cf6', points: workoutData.resistance },
                 cadence: { key: 'cadence', label: tq('workoutEditor.cadence', 'Cadence'), unit: 'rpm', color: '#f59e0b', points: workoutData.cadence }
             };

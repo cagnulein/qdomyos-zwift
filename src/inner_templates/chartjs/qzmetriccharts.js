@@ -79,7 +79,8 @@
     function readTogether(key) {
         try {
             var v = key && window.localStorage.getItem(key);
-            return v ? JSON.parse(v) : [];
+            var list = v ? JSON.parse(v) : [];
+            return Array.isArray(list) ? list : [];
         } catch (e) {
             return [];
         }
