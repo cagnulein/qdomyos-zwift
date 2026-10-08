@@ -6,8 +6,9 @@ import QtQuick.Window 2.2
 // page scrolled down into it, or scrolled without momentum and stayed blank below a straight
 // line. Seen on a OnePlus 12 (Android 16): a workout opened from the workout history, the
 // workout editor, the sign-in pages (Strava, Peloton, Intervals.icu); the charts page and
-// the preview of a training program have the same kind of view and use it too. Moving the native view off the screen and back once the turn has settled
-// brings it round; the page is not reloaded and stays as it is.
+// the preview of a training program have the same kind of view and use it too. Moving the
+// native view off the screen and back once the turn has settled brings it round; the page is
+// not reloaded and stays as it is.
 // The page moves its WebView by `shift` (anchors.leftMargin: -shift, anchors.rightMargin: shift)
 // and says when it may: `active` (shown). Not a size: the layouts skip it. Other platforms
 // are left alone.
