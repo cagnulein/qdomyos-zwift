@@ -7,6 +7,7 @@
 #include <QMetaObject>
 #include "homeform.h"
 #include "lockscreen.h"
+#include "workout_ai_bridge.h"
 #include "authutils.h"
 
 // Qt defines QIOSApplicationDelegate internally as a UIResponder-backed
@@ -80,6 +81,7 @@
 		if (@available(iOS 13.0, *)) {
 	    [self setupDynamicQuickActions];
 		}
+    ios_workout_ai_consume_pending_request_if_needed();
 
     return YES;
 }
@@ -92,6 +94,7 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     Q_UNUSED(application)
     qDebug() << "QZ iOS lifecycle: applicationDidBecomeActive";
+    ios_workout_ai_consume_pending_request_if_needed();
 }
 
 - (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {
