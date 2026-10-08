@@ -27,19 +27,12 @@ Item {
             //popupclose();
         }
     }
-    // A turn of the screen: the view goes off the screen and back (WebViewTurnFix.qml)
-    WebViewTurnFix {
-        id: turnFix
-        area: column1
-        active: column1.visible
-    }
     WebView {
         id: webView
         property var rr;
         anchors.top: loadButton.bottom
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.horizontalCenterOffset: -turnFix.shift
         width: parent.width
 
         url: "https://whatsonzwift.com/workouts"
