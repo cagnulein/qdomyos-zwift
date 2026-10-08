@@ -1,4 +1,5 @@
 #include "proformbike.h"
+#include "devices/fitpro/fitprocodec.h"
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
@@ -170,6 +171,16 @@ uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
 }
 
 void proformbike::forceResistance(resistance_t requestResistance) {
+    if (fitproFallback) {
+        const QList<QByteArray> packets = fitpro::Codec::resistanceCommand(requestResistance, fitproFallbackDevice);
+        for (int i = 0; i < packets.size(); ++i) {
+            QByteArray packet = packets.at(i);
+            writeCharacteristic(reinterpret_cast<uint8_t *>(packet.data()), static_cast<uint8_t>(packet.size()),
+                                QStringLiteral("FitPro fallback resistance"), false, i == packets.size() - 1);
+        }
+        return;
+    }
+
     if(proform_bike_PFEVEX71316_0) {
         // Value: 0012020402120812020400000004000000000700
         // Value: ff040001002c0000000000000000000000000000
@@ -1033,6 +1044,17 @@ void proformbike::forceResistance(resistance_t requestResistance) {
 }
 
 void proformbike::forceIncline(double incline) {
+    if (fitproFallback) {
+        const QList<QByteArray> packets = fitpro::Codec::gradeCommand(incline, fitproFallbackDevice);
+        for (int i = 0; i < packets.size(); ++i) {
+            QByteArray packet = packets.at(i);
+            writeCharacteristic(reinterpret_cast<uint8_t *>(packet.data()), static_cast<uint8_t>(packet.size()),
+                                QStringLiteral("FitPro fallback incline ") + QString::number(incline), false,
+                                i == packets.size() - 1);
+        }
+        return;
+    }
+
     uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x08, 0x09, 0x02, 0x01,
                        0x02, 0x38, 0xff, 0x00, 0x4d, 0x00, 0x00, 0x00, 0x00, 0x00};
 
@@ -1075,6 +1097,53 @@ void proformbike::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotify1Characteristic.isValid() && initDone) {
         update_metrics(true, watts());
+
+        if (fitproFallback) {
+            if (!fitproFallbackValidated)
+                return;
+
+            innerWriteResistance();
+            if (requestInclination != -100) {
+                if (requestInclination >= -20 && requestInclination <= 20) {
+                    emit debug(QStringLiteral("FitPro fallback incline ") + QString::number(requestInclination));
+                    forceIncline(requestInclination);
+                }
+                requestInclination = -100;
+            }
+            if (requestStart != -1) {
+                const QList<QByteArray> packets = fitpro::Codec::requiredStartCommand(true, fitproFallbackDevice);
+                for (int i = 0; i < packets.size(); ++i) {
+                    QByteArray packet = packets.at(i);
+                    writeCharacteristic(reinterpret_cast<uint8_t *>(packet.data()), static_cast<uint8_t>(packet.size()),
+                                        QStringLiteral("FitPro fallback start"), false, i == packets.size() - 1);
+                }
+                requestStart = -1;
+            }
+            if (requestStop != -1 || requestPause != -1) {
+                const QList<QByteArray> packets = fitpro::Codec::requiredStartCommand(false, fitproFallbackDevice);
+                for (int i = 0; i < packets.size(); ++i) {
+                    QByteArray packet = packets.at(i);
+                    writeCharacteristic(reinterpret_cast<uint8_t *>(packet.data()), static_cast<uint8_t>(packet.size()),
+                                        QStringLiteral("FitPro fallback stop"), false, i == packets.size() - 1);
+                }
+                requestStop = -1;
+                requestPause = -1;
+            }
+
+            const QList<QByteArray> packets = counterPoll == 0
+                                                  ? fitpro::Codec::writeRead(
+                                                        fitproFallbackDevice, {},
+                                                        {fitpro::Codec::FieldSpeed, fitpro::Codec::FieldGrade,
+                                                         fitpro::Codec::FieldResistance})
+                                                  : fitpro::Codec::workoutModeRead(fitproFallbackDevice);
+            for (int i = 0; i < packets.size(); ++i) {
+                QByteArray packet = packets.at(i);
+                writeCharacteristic(reinterpret_cast<uint8_t *>(packet.data()), static_cast<uint8_t>(packet.size()),
+                                    QStringLiteral("FitPro fallback poll"), true, i == packets.size() - 1);
+            }
+            counterPoll = (counterPoll + 1) % 2;
+            return;
+        }
 
         uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
         uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
@@ -1556,6 +1625,45 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
+
+    if (fitproFallback) {
+        if (newValue.size() >= 4 && static_cast<uint8_t>(newValue.at(0)) == 0xfe &&
+            static_cast<uint8_t>(newValue.at(1)) == 0x02) {
+            fitproFallbackRxPackets.clear();
+            fitproFallbackRxPackets.append(newValue.left(4));
+        } else if (!fitproFallbackRxPackets.isEmpty()) {
+            fitproFallbackRxPackets.append(newValue);
+        } else {
+            return;
+        }
+
+        const QByteArray wrapped = fitpro::Codec::reassemble(fitproFallbackRxPackets);
+        if (wrapped.isEmpty())
+            return;
+        fitproFallbackRxPackets.clear();
+
+        fitpro::Frame frame;
+        if (!fitpro::Codec::decode(fitpro::Codec::unwrap(wrapped), frame))
+            return;
+        if (frame.command == fitpro::Codec::GetSupportedDevices || frame.command == fitpro::Codec::GetInfo ||
+            frame.command == fitpro::Codec::GetSupportedCommands)
+            fitproFallbackValidated = true;
+        for (const fitpro::FieldWrite &field : frame.fields) {
+            if (field.value.size() != 2)
+                continue;
+            const quint16 raw = static_cast<quint8>(field.value.at(0)) |
+                                (static_cast<quint16>(static_cast<quint8>(field.value.at(1))) << 8);
+            if (field.id == fitpro::Codec::FieldSpeed) {
+                Speed = raw / 100.0;
+            } else if (field.id == fitpro::Codec::FieldGrade) {
+                Inclination = static_cast<qint16>(raw) / 100.0;
+            } else if (field.id == fitpro::Codec::FieldResistance) {
+                Resistance = raw / 100.0;
+                emit resistanceRead(Resistance.value());
+            }
+        }
+        return;
+    }
 
     if (proform_studio || proform_tdf_10 || proform_bike_PFEVEX71316_0) {
         if (newValue.length() != 20 ||
@@ -2540,8 +2648,33 @@ void proformbike::btinit() {
     proform_bike_325_csx_PFEX439210INT_0 = settings.value(QZSettings::proform_bike_325_csx_PFEX439210INT_0, QZSettings::default_proform_bike_325_csx_PFEX439210INT_0).toBool();
     nordictrack_gx_4_5_pro = settings.value(QZSettings::nordictrack_gx_4_5_pro, QZSettings::default_nordictrack_gx_4_5_pro).toBool();
 
+    fitproFallback = !(proform_studio || proform_tdf_10 || nordictrack_GX4_5_bike || nordictrack_gx_2_7 ||
+                       proform_hybrid_trainer_PFEL03815 || proform_bike_sb || proform_cycle_trainer_300_ci ||
+                       nordictrack_gx_4_5_pro || proform_bike_225_csx || proform_bike_325_csx ||
+                       proform_tour_de_france_clc || proform_studio_NTEX71021 || freemotion_coachbike_b22_7 ||
+                       proform_cycle_trainer_400 || proform_bike_PFEVEX71316_1 || nordictrack_gx_44_pro ||
+                       proform_bike_PFEVEX71316_0 || proform_xbike || proform_225_csx_PFEX32925_INT_0 ||
+                       proform_csx210 || nordictrack_vr21 || proform_bike_325_csx_PFEX439210INT_0);
 
-    if(nordictrack_GX4_5_bike || nordictrack_gx_4_5_pro)
+    if (fitproFallback) {
+        emit debug(QStringLiteral("FitPro generic fallback: probing capabilities"));
+        initDone = true;
+        const QList<quint8> probes = {fitpro::Codec::GetSupportedDevices,
+                                      fitpro::Codec::GetInfo,
+                                      fitpro::Codec::GetSupportedCommands};
+        for (const quint8 probe : probes) {
+            const QList<QByteArray> packets = fitpro::Codec::discovery(probe);
+            for (int i = 0; i < packets.size(); ++i) {
+                QByteArray packet = packets.at(i);
+                writeCharacteristic(reinterpret_cast<uint8_t *>(packet.data()), static_cast<uint8_t>(packet.size()),
+                                    QStringLiteral("FitPro fallback discovery"), false, i == packets.size() - 1);
+            }
+        }
+        return;
+    }
+
+
+    if (nordictrack_GX4_5_bike || nordictrack_gx_4_5_pro)
         max_resistance = 25;
     if(proform_csx210)
         max_resistance = 16;
