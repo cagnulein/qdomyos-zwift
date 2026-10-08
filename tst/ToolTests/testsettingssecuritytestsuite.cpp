@@ -16,6 +16,9 @@ TEST(QZSettingsSecurityTest, FiltersSensitiveKeysUsedByStartupSettingsLog) {
         QStringLiteral("cryptoKeySettingsProfiles"),
         QStringLiteral("life_fitness_first_name"),
         QStringLiteral("life_fitness_last_name"),
+        QStringLiteral("life_fitness_username"),
+        QStringLiteral("life_fitness_password"),
+        QStringLiteral("life_fitness_api_key"),
         QStringLiteral("life_fitness_token"),
         QStringLiteral("life_fitness_preset_summary"),
     };

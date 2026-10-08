@@ -1794,6 +1794,9 @@ import AndroidStatusBar 1.0
             property string life_fitness_last_name: ""
             property string life_fitness_token: ""
             property string life_fitness_preset_summary: ""
+            property string life_fitness_username: ""
+            property string life_fitness_password: ""
+            property string life_fitness_api_key: ""
         }
 
 
@@ -10111,13 +10114,57 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                     }
                     Label {
-                        text: qsTr("Used only for the Life Fitness 95T / Discover SE3 telemetry handshake. The HMAC is issued by Life Fitness and must be copied from the app; QZ never derives or writes it to the debug log. The optional QZ user email is sent as the Life Fitness profile email when configured.")
+                        text: qsTr("Used only for the Life Fitness 95T / Discover SE3 telemetry handshake. When configured, QZ posts the Life Fitness account credentials to the documented service endpoint, keeps the returned session cookies in memory, obtains User.hmac, and sends that value unchanged during the BLE login. The application API key is not bundled with QZ and must be supplied locally. If service login is not configured or fails, QZ can use the private manual HMAC fallback. Authentication values are never written to debug logs.")
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label { text: qsTr("Life Fitness username/email:"); Layout.fillWidth: true }
+                        TextField {
+                            id: lifeFitnessUsernameTextField
+                            text: settings.life_fitness_username
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.life_fitness_username = text
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label { text: qsTr("Life Fitness password:"); Layout.fillWidth: true }
+                        TextField {
+                            id: lifeFitnessPasswordTextField
+                            text: settings.life_fitness_password
+                            echoMode: TextInput.Password
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.life_fitness_password = text
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label { text: qsTr("Life Fitness application API key:"); Layout.fillWidth: true }
+                        TextField {
+                            id: lifeFitnessApiKeyTextField
+                            text: settings.life_fitness_api_key
+                            echoMode: TextInput.Password
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.life_fitness_api_key = text
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            onClicked: { settings.life_fitness_api_key = lifeFitnessApiKeyTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
                     }
                     RowLayout {
                         spacing: 10
@@ -10149,7 +10196,7 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        Label { text: qsTr("User HMAC from Life Fitness app:"); Layout.fillWidth: true }
+                        Label { text: qsTr("Manual HMAC fallback:"); Layout.fillWidth: true }
                         TextField {
                             id: lifeFitnessTokenTextField
                             text: settings.life_fitness_token

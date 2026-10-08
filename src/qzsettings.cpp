@@ -8,6 +8,7 @@ bool QZSettings::isSensitiveSettingKey(const QString &key) {
            normalizedKey.contains(QStringLiteral("user_email")) ||
            normalizedKey.contains(QStringLiteral("username")) ||
            normalizedKey.contains(QStringLiteral("token")) ||
+           normalizedKey.contains(QStringLiteral("api_key")) ||
            normalizedKey.contains(QStringLiteral("preset_summary")) ||
            normalizedKey.contains(QStringLiteral("life_fitness_first_name")) ||
            normalizedKey.contains(QStringLiteral("life_fitness_last_name")) ||
@@ -318,6 +319,12 @@ const QString QZSettings::life_fitness_first_name = QStringLiteral("life_fitness
 const QString QZSettings::default_life_fitness_first_name = QStringLiteral("");
 const QString QZSettings::life_fitness_last_name = QStringLiteral("life_fitness_last_name");
 const QString QZSettings::default_life_fitness_last_name = QStringLiteral("");
+const QString QZSettings::life_fitness_username = QStringLiteral("life_fitness_username");
+const QString QZSettings::default_life_fitness_username = QStringLiteral("");
+const QString QZSettings::life_fitness_password = QStringLiteral("life_fitness_password");
+const QString QZSettings::default_life_fitness_password = QStringLiteral("");
+const QString QZSettings::life_fitness_api_key = QStringLiteral("life_fitness_api_key");
+const QString QZSettings::default_life_fitness_api_key = QStringLiteral("");
 const QString QZSettings::life_fitness_token = QStringLiteral("life_fitness_token");
 const QString QZSettings::default_life_fitness_token = QStringLiteral("");
 const QString QZSettings::life_fitness_preset_summary = QStringLiteral("life_fitness_preset_summary");
@@ -1317,7 +1324,7 @@ const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 const QString QZSettings::android_landscape_cutout_margin = QStringLiteral("android_landscape_cutout_margin");
 const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral("android_landscape_cutout_prompt_shown");
 
-const uint32_t allSettingsCount = 1017;
+const uint32_t allSettingsCount = 1020;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1562,6 +1569,9 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::life_fitness_ic5, QZSettings::default_life_fitness_ic5},
     {QZSettings::life_fitness_first_name, QZSettings::default_life_fitness_first_name},
     {QZSettings::life_fitness_last_name, QZSettings::default_life_fitness_last_name},
+    {QZSettings::life_fitness_username, QZSettings::default_life_fitness_username},
+    {QZSettings::life_fitness_password, QZSettings::default_life_fitness_password},
+    {QZSettings::life_fitness_api_key, QZSettings::default_life_fitness_api_key},
     {QZSettings::life_fitness_token, QZSettings::default_life_fitness_token},
     {QZSettings::life_fitness_preset_summary, QZSettings::default_life_fitness_preset_summary},
     {QZSettings::technogym_bike, QZSettings::default_technogym_bike},

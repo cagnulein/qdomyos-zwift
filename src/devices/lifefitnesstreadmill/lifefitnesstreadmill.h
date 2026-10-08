@@ -25,6 +25,8 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
+
+class QNetworkAccessManager;
 #include <QObject>
 #include <QString>
 
@@ -73,10 +75,14 @@ class lifefitnesstreadmill : public treadmill {
                              uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
     void waitForAPacket();
     bool waitForLifeFitnessState(const QByteArray &expectedState, int timeoutMs = 10000);
+    bool fetchLifeFitnessServiceProfile(const QString &username, const QString &password, const QString &apiKey,
+                                        QByteArray &hmac, QByteArray &firstName, QByteArray &lastName,
+                                        QByteArray &email);
     void startDiscover();
     void btinit();
 
     QTimer *refresh;
+    QNetworkAccessManager *lifeFitnessNetworkManager = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

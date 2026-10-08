@@ -9,7 +9,15 @@
 #include <QFile>
 #include <QLocale>
 #include <QMetaEnum>
+#include <QNetworkAccessManager>
+#include <QNetworkCookieJar>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QSettings>
+#include <QTimeZone>
+#include <QUuid>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include <QThread>
 #include <math.h>
@@ -35,6 +43,8 @@ lifefitnesstreadmill::lifefitnesstreadmill(bool noWriteResistance, bool noHeartS
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    lifeFitnessNetworkManager = new QNetworkAccessManager(this);
+    lifeFitnessNetworkManager->setCookieJar(new QNetworkCookieJar(lifeFitnessNetworkManager));
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &lifefitnesstreadmill::update);
     refresh->start(200ms);
@@ -193,28 +203,156 @@ bool lifefitnesstreadmill::waitForLifeFitnessState(const QByteArray &expectedSta
     return lastLifeFitnessState == expectedState;
 }
 
+bool lifefitnesstreadmill::fetchLifeFitnessServiceProfile(const QString &username, const QString &password,
+                                                          const QString &apiKey, QByteArray &hmac,
+                                                          QByteArray &firstName, QByteArray &lastName,
+                                                          QByteArray &email) {
+    hmac.clear();
+    firstName.clear();
+    lastName.clear();
+    email.clear();
+    if (!lifeFitnessNetworkManager || username.trimmed().isEmpty() || password.isEmpty() || apiKey.trimmed().isEmpty())
+        return false;
+
+    lifeFitnessNetworkManager->setCookieJar(new QNetworkCookieJar(lifeFitnessNetworkManager));
+
+    QSettings settings;
+    QString deviceId = settings.value(QStringLiteral("life_fitness_device_id")).toString();
+    if (deviceId.isEmpty()) {
+        deviceId = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        settings.setValue(QStringLiteral("life_fitness_device_id"), deviceId);
+    }
+
+    const QString language = QLocale::system().name().section(QLatin1Char('_'), 0, 0).isEmpty()
+                                 ? QStringLiteral("en")
+                                 : QLocale::system().name().section(QLatin1Char('_'), 0, 0);
+    const QString timeZone = QString::fromUtf8(QTimeZone::systemTimeZoneId());
+
+    auto applyHeaders = [&](QNetworkRequest &request) {
+        request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
+        request.setRawHeader("x-api-key", apiKey.toUtf8());
+        request.setRawHeader("x-device-id", deviceId.toUtf8());
+        request.setRawHeader("accept-language", (language + QStringLiteral(", en;q=0.8")).toUtf8());
+        request.setRawHeader("time-zone", timeZone.toUtf8());
+    };
+
+    auto performRequest = [&](const QUrl &url, const QByteArray *body, QByteArray &response, int &status) {
+        QNetworkRequest request(url);
+        applyHeaders(request);
+        QNetworkReply *reply = body ? lifeFitnessNetworkManager->post(request, *body)
+                                    : lifeFitnessNetworkManager->get(request);
+        QEventLoop loop;
+        QTimer timeout;
+        timeout.setSingleShot(true);
+        connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+        connect(&timeout, &QTimer::timeout, &loop, &QEventLoop::quit);
+        timeout.start(15000);
+        loop.exec();
+
+        const bool finished = reply->isFinished();
+        if (!finished)
+            reply->abort();
+        status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        response = reply->readAll();
+        const bool successful = finished && reply->error() == QNetworkReply::NoError && status >= 200 && status < 300;
+        reply->deleteLater();
+        return successful;
+    };
+
+    const QJsonObject credentials{{QStringLiteral("username"), username.trimmed()},
+                                  {QStringLiteral("password"), password}};
+    const QByteArray requestBody = QJsonDocument(credentials).toJson(QJsonDocument::Compact);
+    QByteArray responseBody;
+    int status = 0;
+    if (!performRequest(QUrl(QStringLiteral("https://trainer.lifefitness.com/api/v3/signin")), &requestBody,
+                        responseBody, status)) {
+        emit debug(QStringLiteral("Life Fitness service login failed (HTTP %1)").arg(status));
+        return false;
+    }
+
+    QJsonParseError parseError;
+    const QJsonDocument responseDocument = QJsonDocument::fromJson(responseBody, &parseError);
+    if (parseError.error != QJsonParseError::NoError || !responseDocument.isObject()) {
+        emit debug(QStringLiteral("Life Fitness service login returned invalid JSON"));
+        return false;
+    }
+
+    QJsonObject user = responseDocument.object();
+    if (user.value(QStringLiteral("user")).isObject())
+        user = user.value(QStringLiteral("user")).toObject();
+    hmac = user.value(QStringLiteral("hmac")).toString().toUtf8();
+    firstName = user.value(QStringLiteral("firstname")).toString().toUtf8();
+    lastName = user.value(QStringLiteral("lastname")).toString().toUtf8();
+    email = user.value(QStringLiteral("email")).toString().toUtf8();
+    if (hmac.isEmpty()) {
+        emit debug(QStringLiteral("Life Fitness service login returned no HMAC"));
+        return false;
+    }
+
+    QByteArray sessionResponse;
+    int sessionStatus = 0;
+    if (!performRequest(QUrl(QStringLiteral("https://trainer.lifefitness.com/api/user")), nullptr, sessionResponse,
+                        sessionStatus)) {
+        emit debug(QStringLiteral("Life Fitness service session validation failed (HTTP %1)").arg(sessionStatus));
+        hmac.clear();
+        return false;
+    }
+
+    emit debug(QStringLiteral("Life Fitness service login succeeded; HMAC acquired in memory"));
+    return true;
+}
+
 void lifefitnesstreadmill::btinit() {
     if (gattCurrentStateCharacteristic.isValid() && gattWriteChar4CustomService2.isValid()) {
         QSettings settings;
-        const QByteArray firstName =
+        QByteArray firstName =
             settings.value(QZSettings::life_fitness_first_name, QZSettings::default_life_fitness_first_name)
                 .toString()
                 .toUtf8();
-        const QByteArray lastName =
+        QByteArray lastName =
             settings.value(QZSettings::life_fitness_last_name, QZSettings::default_life_fitness_last_name)
                 .toString()
                 .toUtf8();
-        const QByteArray token =
+        QByteArray token =
             settings.value(QZSettings::life_fitness_token, QZSettings::default_life_fitness_token)
                 .toString()
                 .toUtf8();
+        const QString username =
+            settings.value(QZSettings::life_fitness_username, QZSettings::default_life_fitness_username)
+                .toString()
+                .trimmed();
+        const QString password =
+            settings.value(QZSettings::life_fitness_password, QZSettings::default_life_fitness_password)
+                .toString();
+        const QString apiKey =
+            settings.value(QZSettings::life_fitness_api_key, QZSettings::default_life_fitness_api_key)
+                .toString()
+                .trimmed();
         const QByteArray presetSummary = QByteArray::fromHex(
             settings.value(QZSettings::life_fitness_preset_summary,
                            QZSettings::default_life_fitness_preset_summary)
                 .toString()
                 .toLatin1());
+        QByteArray serviceEmail;
+
+        if (!username.isEmpty() && !password.isEmpty() && !apiKey.isEmpty()) {
+            QByteArray serviceHmac;
+            QByteArray serviceFirstName;
+            QByteArray serviceLastName;
+            if (fetchLifeFitnessServiceProfile(username, password, apiKey, serviceHmac, serviceFirstName,
+                                               serviceLastName, serviceEmail)) {
+                token = serviceHmac;
+                if (!serviceFirstName.isEmpty())
+                    firstName = serviceFirstName;
+                if (!serviceLastName.isEmpty())
+                    lastName = serviceLastName;
+            } else {
+                emit debug(QStringLiteral("Life Fitness service login unavailable; trying manual HMAC fallback"));
+            }
+        }
+
         if (firstName.isEmpty() || lastName.isEmpty() || token.isEmpty()) {
-            emit debug(QStringLiteral("Life Fitness profile and token settings are required; skipping login"));
+            emit debug(QStringLiteral("Life Fitness profile and HMAC settings are required; skipping login"));
             return;
         }
         if (presetSummary.size() != 9) {
@@ -290,7 +428,9 @@ void lifefitnesstreadmill::btinit() {
         if (language.size() != 5)
             language = QByteArrayLiteral("en_US");
         writeProfileField(0x2AA2, language, QStringLiteral("Life Fitness language"));
-        const QString email = settings.value(QZSettings::user_email, QZSettings::default_user_email).toString().trimmed();
+        const QString email = serviceEmail.isEmpty()
+                                  ? settings.value(QZSettings::user_email, QZSettings::default_user_email).toString().trimmed()
+                                  : QString::fromUtf8(serviceEmail);
         if (!email.isEmpty())
             writeProfileField(0x2A87, email.toUtf8(), QStringLiteral("Life Fitness email"));
         writeData(gattCustomService2, gattWriteChar3CustomService2, token, QStringLiteral("Life Fitness HMAC"), true);
