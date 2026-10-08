@@ -13,9 +13,17 @@ ColumnLayout {
     Settings {
         id: settings
     }
+    // A turn of the screen: the view goes off the screen and back (WebViewTurnFix.qml)
+    WebViewTurnFix {
+        id: turnFix
+        area: column1
+        active: column1.visible
+    }
     WebView {
         id: webView
         anchors.fill: parent
+        anchors.leftMargin: -turnFix.shift
+        anchors.rightMargin: turnFix.shift
         url: "http://80.211.67.253:3001/qz-classifica"
         visible: true
         onLoadingChanged: {

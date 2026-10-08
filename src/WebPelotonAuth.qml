@@ -19,9 +19,17 @@ Item {
     // Signal to notify the parent stack when we want to go back
     signal goBack()
 
+    // A turn of the screen: the view goes off the screen and back (WebViewTurnFix.qml)
+    WebViewTurnFix {
+        id: turnFix
+        area: pelotonAuthPage
+    }
+
     WebView {
         id: pelotonWebView
         anchors.fill: parent
+        anchors.leftMargin: -turnFix.shift
+        anchors.rightMargin: turnFix.shift
         height: parent.height
         width: parent.width
         visible: !rootItem.pelotonPopupVisible
