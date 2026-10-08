@@ -8,7 +8,8 @@ import QtQuick.Window 2.2
 // workout editor. Moving the native view off the screen and back once the turn has settled
 // brings it round; the page is not reloaded and stays as it is.
 // The page moves its WebView by `shift` (anchors.leftMargin: -shift, anchors.rightMargin: shift)
-// and says when it may: `active` (shown). Not a size: the layouts skip it.
+// and says when it may: `active` (shown). Not a size: the layouts skip it. Other platforms
+// are left alone.
 Item {
     id: turnFix
     visible: false
@@ -39,7 +40,8 @@ Item {
             settle.restart()
             return
         }
-        if (!active)
+        // Only the Android WebView has the bug
+        if (!active || Qt.platform.os !== "android")
             return
         hidden = true
         settle.restart()
