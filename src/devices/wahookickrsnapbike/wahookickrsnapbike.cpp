@@ -39,9 +39,19 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     writeTimeoutTimer = new QTimer(this);
     writeTimeoutTimer->setSingleShot(true);
     connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
-        qDebug() << QStringLiteral("writeCharacteristic timeout - processing next in queue");
+        qDebug() << QStringLiteral("writeCharacteristic timeout") << currentWriteInfo;
+
+        // A KICKR command that is waiting for its device response must not be
+        // followed by another command merely because the local timeout elapsed.
+        // Keep the newest coalesced request queued until the real ACK arrives.
+        if (currentWriteResponseOpcode) {
+            qDebug() << QStringLiteral("KICKR command gate remains closed until ACK") << currentWriteInfo;
+            return;
+        }
+
         isWriting = false;
         currentWriteWaitingForResponse = false;
+        currentWriteInfo.clear();
         processWriteQueue();
     });
 
@@ -59,13 +69,24 @@ void wahookickrsnapbike::restoreDefaultWheelDiameter() {
 }
 
 bool wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
-                                             bool wait_for_response) {
+                                             bool wait_for_response, uint8_t response_opcode, uint8_t coalesce_key) {
+    if (coalesce_key != _noCommandGroup) {
+        for (auto it = writeQueue.begin(); it != writeQueue.end();) {
+            if (it->coalesce_key == coalesce_key)
+                it = writeQueue.erase(it);
+            else
+                ++it;
+        }
+    }
+
     // Create write request and add to queue
     WriteRequest request;
     request.data = QByteArray((const char *)data, data_len);
     request.info = info;
     request.disable_log = disable_log;
     request.wait_for_response = wait_for_response;
+    request.response_opcode = response_opcode;
+    request.coalesce_key = coalesce_key;
 
     writeQueue.enqueue(request);
 
@@ -102,12 +123,17 @@ void wahookickrsnapbike::processWriteQueue() {
     WriteRequest request = writeQueue.dequeue();
     isWriting = true;
     currentWriteWaitingForResponse = request.wait_for_response;
+    currentWriteResponseOpcode = request.response_opcode;
+    currentWriteInfo = request.info;
 
     // Update write buffer
     if (writeBuffer) {
         delete writeBuffer;
     }
     writeBuffer = new QByteArray(request.data);
+
+    if (currentWriteResponseOpcode)
+        currentWriteTimer.start();
 
     // Write the characteristic
     gattPowerChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
@@ -226,6 +252,41 @@ QByteArray wahookickrsnapbike::setWheelCircumference(double millimeters) {
     return r;
 }
 
+bool wahookickrsnapbike::isExpectedCommandResponse(const QBluetoothUuid &uuid, const QByteArray &value) const {
+    static const QBluetoothUuid wahooWriteCharacteristic(
+        QStringLiteral("A026E005-0A7D-4AB3-97FA-F1500F9FEB8B"));
+
+    return currentWriteResponseOpcode && uuid == wahooWriteCharacteristic && value.size() >= 4 &&
+           static_cast<uint8_t>(value.at(0)) == 0x01 && static_cast<uint8_t>(value.at(1)) == currentWriteResponseOpcode &&
+           static_cast<uint8_t>(value.at(2)) == 0x01 && static_cast<uint8_t>(value.at(3)) == 0x00;
+}
+
+void wahookickrsnapbike::logCommandResponse(const QByteArray &value) {
+    const qint64 elapsedMs = currentWriteTimer.isValid() ? currentWriteTimer.elapsed() : -1;
+    commandAckCount++;
+    if (elapsedMs >= 0)
+        commandAckTotalMs += static_cast<quint64>(elapsedMs);
+
+    const double responseValue = value.size() >= 6
+                                     ? static_cast<double>((static_cast<uint16_t>(static_cast<uint8_t>(value.at(5))) << 8) |
+                                                           static_cast<uint16_t>(static_cast<uint8_t>(value.at(4))))
+                                     : 0.0;
+    QString decodedValue;
+    if (currentWriteResponseOpcode == _setSimGrade) {
+        decodedValue = QStringLiteral("grade=") +
+                       QString::number((((responseValue / 65535.0) * 2.0) - 1.0) * 100.0, 'f', 3);
+    } else if (currentWriteResponseOpcode == _setWheelCircumference) {
+        decodedValue = QStringLiteral("wheelCircumference=") + QString::number(responseValue / 10.0, 'f', 1);
+    } else {
+        decodedValue = QStringLiteral("value=") + QString::number(responseValue);
+    }
+
+    const double averageMs = commandAckCount ? static_cast<double>(commandAckTotalMs) / commandAckCount : 0.0;
+    emit debug(QStringLiteral("KICKR ACK ") + currentWriteInfo + QStringLiteral(" ") + decodedValue +
+               QStringLiteral(" in ") + QString::number(elapsedMs) + QStringLiteral(" ms (average ") +
+               QString::number(averageMs, 'f', 1) + QStringLiteral(" ms)"));
+}
+
 void wahookickrsnapbike::update() {
     if (m_control && m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -336,7 +397,8 @@ void wahookickrsnapbike::update() {
                     QByteArray a = setWheelCircumference(wheelCircumference::gearsToWheelDiameter(gears()));
                     uint8_t b[20];
                     memcpy(b, a.constData(), a.length());
-                    writeCharacteristic(b, a.length(), "setWheelCircumference", false, false);
+                    writeCharacteristic(b, a.length(), "setWheelCircumference", false, true, _setWheelCircumference,
+                                        _gearCommandGroup);
                     lastGrade = 999; // to force a change
                 }
             }
@@ -468,14 +530,22 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
 void wahookickrsnapbike::handleCharacteristicValueChanged(const QBluetoothUuid &uuid, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
 
-    // Handle async write queue - if we were waiting for a response, process next item
-    if (currentWriteWaitingForResponse && isWriting) {
+    // A normal BLE characteristicWritten event is not the same as the KICKR's
+    // command response. Dynamic control requests use the latter as their gate.
+    const bool expectedDeviceResponse = isExpectedCommandResponse(uuid, newValue);
+    if (currentWriteWaitingForResponse && isWriting &&
+        (currentWriteResponseOpcode == 0 || expectedDeviceResponse)) {
         // Stop timeout timer
         writeTimeoutTimer->stop();
+
+        if (expectedDeviceResponse)
+            logCommandResponse(newValue);
 
         // Mark writing as complete and process next item in queue
         isWriting = false;
         currentWriteWaitingForResponse = false;
+        currentWriteResponseOpcode = 0;
+        currentWriteInfo.clear();
         processWriteQueue();
     }
 
@@ -1006,7 +1076,7 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
         QByteArray a = setSimGrade(g);
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
-        writeCharacteristic(b, a.length(), "setSimGrade", false, false);
+        writeCharacteristic(b, a.length(), "setSimGrade", false, true, _setSimGrade, _inclinationCommandGroup);
     } else {
         if(lastCommandErgMode) {
             lastGrade = grade + 1; // to force a refresh
@@ -1029,7 +1099,7 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
         QByteArray a = setSimGrade(g);
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
-        writeCharacteristic(b, a.length(), "setSimGrade", false, false);
+        writeCharacteristic(b, a.length(), "setSimGrade", false, true, _setSimGrade, _inclinationCommandGroup);
         lastCommandErgMode = false;
     }
 }
