@@ -13,6 +13,8 @@ This directory contains reusable diagnostic intake guidance for QZ support. It f
 - [Test and beta build verification](test-builds.md)
 - [Profiles and settings storage](profiles.md)
 - [GPX and training program control](training-programs.md)
+- [Treadmill control diagnostics](treadmill-controls.md)
+- [Virtual device settings diagnostics](virtual-device-settings.md)
 
 ## How to use these guides
 
