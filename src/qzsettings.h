@@ -1096,6 +1096,12 @@ class QZSettings {
      */
     static const QString virtual_device_bluetooth;
     static constexpr bool default_virtual_device_bluetooth = true;
+    /**
+     *@brief Advertise FTMS Treadmill Data (0x2ACD) alongside Indoor Bike Data on virtual bikes.
+     * Required to relay bike inclination between two QZ instances.
+     */
+    static const QString virtual_device_treadmill_data;
+    static constexpr bool default_virtual_device_treadmill_data = true;
 
     static const QString ios_peloton_workaround;
     static constexpr bool default_ios_peloton_workaround = true;

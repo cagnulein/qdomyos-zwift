@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 960,
+  "settingCount": 961,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -13655,6 +13655,19 @@
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null
-    },    
+    },
+    {
+      "key": "virtual_device_treadmill_data",
+      "name": "Send Virtual Treadmill Data",
+      "description": "Advertises FTMS Treadmill Data (0x2ACD) alongside Indoor Bike Data so another QZ instance can read the bike's incline. Disable if a third-party app has trouble with the extra treadmill data. Default is on. Restart QZ to apply.",
+      "parent": "virtual_device_bluetooth",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
+      "options": null
+    }
   ]
 }

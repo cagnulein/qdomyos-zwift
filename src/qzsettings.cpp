@@ -375,6 +375,7 @@ const QString QZSettings::battery_service = QStringLiteral("battery_service");
 const QString QZSettings::service_changed = QStringLiteral("service_changed");
 const QString QZSettings::virtual_device_enabled = QStringLiteral("virtual_device_enabled");
 const QString QZSettings::virtual_device_bluetooth = QStringLiteral("virtual_device_bluetooth");
+const QString QZSettings::virtual_device_treadmill_data = QStringLiteral("virtual_device_treadmill_data");
 const QString QZSettings::ios_peloton_workaround = QStringLiteral("ios_peloton_workaround");
 const QString QZSettings::android_wakelock = QStringLiteral("android_wakelock");
 const QString QZSettings::log_debug = QStringLiteral("log_debug");
@@ -1554,6 +1555,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::service_changed, QZSettings::default_service_changed},
     {QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled},
     {QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth},
+    {QZSettings::virtual_device_treadmill_data, QZSettings::default_virtual_device_treadmill_data},
     {QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround},
     {QZSettings::android_wakelock, QZSettings::default_android_wakelock},
     {QZSettings::log_debug, QZSettings::default_log_debug},

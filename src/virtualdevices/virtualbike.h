@@ -87,6 +87,7 @@ class virtualbike : public virtualdevice {
     qint64 lastFTMSFrameReceived = 0;
     qint64 lastDirconFTMSFrameReceived = 0;
 
+    bool sendVirtualTreadmillData = true;
     bool noHeartService = false;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
