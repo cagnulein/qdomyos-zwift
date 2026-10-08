@@ -1790,6 +1790,10 @@ import AndroidStatusBar 1.0
             property bool proform_trainer_8_0_pftl59721_0: false
             property bool android_landscape_cutout_prompt_shown: false
             property bool pafers_rower: false
+            property string life_fitness_first_name: ""
+            property string life_fitness_last_name: ""
+            property string life_fitness_token: ""
+            property string life_fitness_preset_summary: ""
         }
 
 
@@ -10097,6 +10101,88 @@ import AndroidStatusBar 1.0
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    Label {
+                        text: qsTr("Life Fitness 95T login")
+                        font.bold: true
+                        Layout.fillWidth: true
+                    }
+                    Label {
+                        text: qsTr("Used only for the Life Fitness 95T / Discover SE3 telemetry handshake. Keep the token and preset summary private; QZ never writes them to the debug log.")
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label { text: qsTr("First name:"); Layout.fillWidth: true }
+                        TextField {
+                            id: lifeFitnessFirstNameTextField
+                            text: settings.life_fitness_first_name
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.life_fitness_first_name = text
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            onClicked: { settings.life_fitness_first_name = lifeFitnessFirstNameTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label { text: qsTr("Last name:"); Layout.fillWidth: true }
+                        TextField {
+                            id: lifeFitnessLastNameTextField
+                            text: settings.life_fitness_last_name
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.life_fitness_last_name = text
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            onClicked: { settings.life_fitness_last_name = lifeFitnessLastNameTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label { text: qsTr("User token:"); Layout.fillWidth: true }
+                        TextField {
+                            id: lifeFitnessTokenTextField
+                            text: settings.life_fitness_token
+                            echoMode: TextInput.Password
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.life_fitness_token = text
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            onClicked: { settings.life_fitness_token = lifeFitnessTokenTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label { text: qsTr("Preset summary (18 hex chars):"); Layout.fillWidth: true }
+                        TextField {
+                            id: lifeFitnessPresetSummaryTextField
+                            text: settings.life_fitness_preset_summary
+                            echoMode: TextInput.Password
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.life_fitness_preset_summary = text
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            onClicked: { settings.life_fitness_preset_summary = lifeFitnessPresetSummaryTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+                    Label {
+                        text: qsTr("The 95T must be idle when QZ connects. Speed and incline control are not enabled because the supplied capture did not prove a working control command.")
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }

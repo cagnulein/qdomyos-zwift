@@ -5,7 +5,9 @@
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
+#include <QEventLoop>
 #include <QFile>
+#include <QLocale>
 #include <QMetaEnum>
 #include <QSettings>
 
@@ -36,6 +38,97 @@ lifefitnesstreadmill::lifefitnesstreadmill(bool noWriteResistance, bool noHeartS
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &lifefitnesstreadmill::update);
     refresh->start(200ms);
+}
+
+lifefitnesstreadmill::FtmsTreadmillData
+lifefitnesstreadmill::parseFtmsTreadmillData(const QByteArray &data) {
+    FtmsTreadmillData result;
+    if (data.size() < 2)
+        return result;
+
+    const quint16 flags = static_cast<quint8>(data.at(0)) |
+                          (static_cast<quint16>(static_cast<quint8>(data.at(1))) << 8);
+    int offset = 2;
+    auto take = [&](int size, bool signedValue, qint32 &value) {
+        if (offset + size > data.size())
+            return false;
+        quint32 raw = 0;
+        for (int i = 0; i < size; ++i)
+            raw |= static_cast<quint32>(static_cast<quint8>(data.at(offset + i))) << (8 * i);
+        offset += size;
+        if (signedValue && size == 2)
+            value = static_cast<qint16>(raw);
+        else
+            value = static_cast<qint32>(raw);
+        return true;
+    };
+
+    qint32 value = 0;
+    if (!(flags & 0x0001)) {
+        if (!take(2, false, value))
+            return result;
+        result.hasSpeed = true;
+        result.speedKmh = value / 100.0;
+    }
+    if (flags & 0x0002) {
+        if (!take(2, false, value))
+            return result;
+        result.hasAverageSpeed = true;
+        result.averageSpeedKmh = value / 100.0;
+    }
+    if (flags & 0x0004) {
+        if (!take(3, false, value))
+            return result;
+        result.hasDistance = true;
+        result.distanceMeters = value;
+    }
+    if (flags & 0x0008) {
+        if (!take(2, true, value))
+            return result;
+        result.hasInclination = value != 0x7fff;
+        result.inclinationPercent = value / 10.0;
+        if (!take(2, true, value))
+            return result;
+    }
+    if (flags & 0x0010) {
+        if (!take(2, false, value) || !take(2, false, value))
+            return result;
+    }
+    if (flags & 0x0020 && !take(1, false, value))
+        return result;
+    if (flags & 0x0040 && !take(1, false, value))
+        return result;
+    if (flags & 0x0080) {
+        if (!take(2, false, value))
+            return result;
+        result.hasEnergy = value != 0xffff;
+        result.totalEnergyKcal = value;
+        if (!take(2, false, value) || !take(1, false, value))
+            return result;
+    }
+    if (flags & 0x0100) {
+        if (!take(1, false, value))
+            return result;
+        result.hasHeartRate = true;
+        result.heartRateBpm = value;
+    }
+    if (flags & 0x0200 && !take(1, false, value))
+        return result;
+    if (flags & 0x0400) {
+        if (!take(2, false, value))
+            return result;
+        result.hasElapsedTime = true;
+        result.elapsedSeconds = value;
+    }
+    if (flags & 0x0800 && !take(2, false, value))
+        return result;
+    if (flags & 0x1000) {
+        if (!take(2, true, value) || !take(2, true, value))
+            return result;
+    }
+
+    result.valid = true;
+    return result;
 }
 
 void lifefitnesstreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
@@ -81,44 +174,146 @@ void lifefitnesstreadmill::waitForAPacket() {
     loop.exec();
 }
 
-void lifefitnesstreadmill::btinit() {
-    if (gattWriteChar4CustomService2.isValid()) {
-        // Mirror the Life Fitness app init sequence seen in the Android btsnoop
-        // before enabling FTMS notifications.
-        uint8_t emptyData[1] = {0x00};
-        uint8_t initData1[1] = {0x01};
-        uint8_t initData2[32] = {0x38, 0x61, 0x32, 0x34, 0x63, 0x38, 0x34, 0x61,
-                                 0x61, 0x34, 0x63, 0x30, 0x34, 0x30, 0x30, 0x63,
-                                 0x39, 0x36, 0x65, 0x64, 0x31, 0x66, 0x61, 0x61,
-                                 0x32, 0x30, 0x66, 0x61, 0x34, 0x35, 0x39, 0x34};
-        uint8_t initData3[1] = {0x01};
-        uint8_t initData4[7] = {0x00, 0x00, 0x00, 0x01, 0xb8, 0x5b, 0x5d};
-        uint8_t initData5[1] = {0x02};
+bool lifefitnesstreadmill::waitForLifeFitnessState(const QByteArray &expectedState, int timeoutMs) {
+    if (lastLifeFitnessState == expectedState)
+        return true;
 
-        auto writeProfileField = [&](quint16 uuid, const QString &info) {
-            QLowEnergyCharacteristic c = gattCustomService2->characteristic(QBluetoothUuid(uuid));
-            if (c.isValid())
-                writeCharacteristic(gattCustomService2, c, emptyData, 0, info, false, false);
+    QEventLoop loop;
+    QTimer timeout;
+    timeout.setSingleShot(true);
+    const auto connection = connect(this, &lifefitnesstreadmill::lifeFitnessStateChanged, &loop,
+                                    [&](const QByteArray &state) {
+                                        if (state == expectedState)
+                                            loop.quit();
+                                    });
+    connect(&timeout, &QTimer::timeout, &loop, &QEventLoop::quit);
+    timeout.start(timeoutMs);
+    loop.exec();
+    disconnect(connection);
+    return lastLifeFitnessState == expectedState;
+}
+
+void lifefitnesstreadmill::btinit() {
+    if (gattCurrentStateCharacteristic.isValid() && gattWriteChar4CustomService2.isValid()) {
+        QSettings settings;
+        const QByteArray firstName =
+            settings.value(QZSettings::life_fitness_first_name, QZSettings::default_life_fitness_first_name)
+                .toString()
+                .toUtf8();
+        const QByteArray lastName =
+            settings.value(QZSettings::life_fitness_last_name, QZSettings::default_life_fitness_last_name)
+                .toString()
+                .toUtf8();
+        const QByteArray token =
+            settings.value(QZSettings::life_fitness_token, QZSettings::default_life_fitness_token)
+                .toString()
+                .toUtf8();
+        const QByteArray presetSummary = QByteArray::fromHex(
+            settings.value(QZSettings::life_fitness_preset_summary,
+                           QZSettings::default_life_fitness_preset_summary)
+                .toString()
+                .toLatin1());
+        if (firstName.isEmpty() || lastName.isEmpty() || token.isEmpty()) {
+            emit debug(QStringLiteral("Life Fitness profile and token settings are required; skipping login"));
+            return;
+        }
+        if (presetSummary.size() != 9) {
+            emit debug(QStringLiteral("Life Fitness preset summary must contain 9 bytes of hex"));
+            return;
+        }
+
+        const QByteArray descriptor = QByteArray::fromHex("0100");
+        auto subscribe = [&](QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic) {
+            if (!service || !characteristic.isValid())
+                return;
+            const QLowEnergyDescriptor cccd =
+                characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+            if (cccd.isValid())
+                service->writeDescriptor(cccd, descriptor);
+        };
+        const QList<QBluetoothUuid> notificationUuids = {
+            QBluetoothUuid(QStringLiteral("5da551de-9cb2-11e5-8994-feff819cdc9f")),
+            QBluetoothUuid(QStringLiteral("5da552a6-9cb2-11e5-8994-feff819cdc9f")),
+            QBluetoothUuid(QStringLiteral("5da55aa8-9cb2-11e5-8994-feff819cdc9f")),
+            QBluetoothUuid((quint16)0x2ACD),
+            QBluetoothUuid((quint16)0x2ADA)};
+        for (QLowEnergyService *service : qAsConst(gattCommunicationChannelService)) {
+            for (const QLowEnergyCharacteristic &characteristic : service->characteristics()) {
+                if (notificationUuids.contains(characteristic.uuid()))
+                    subscribe(service, characteristic);
+            }
+        }
+
+        lastLifeFitnessState.clear();
+        auto pace = []() {
+            QEventLoop loop;
+            QTimer::singleShot(120, &loop, &QEventLoop::quit);
+            loop.exec();
+        };
+        auto writeData = [&](QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
+                             const QByteArray &data, const QString &info, bool redact = false) {
+            if (!service || !characteristic.isValid())
+                return;
+            QByteArray payload = data;
+            writeCharacteristic(service, characteristic, reinterpret_cast<uint8_t *>(payload.data()),
+                                static_cast<uint8_t>(payload.size()), info, redact, false);
+            pace();
+        };
+        auto writeProfileField = [&](quint16 uuid, const QByteArray &data, const QString &info) {
+            if (!gattCustomService2)
+                return;
+            const QLowEnergyCharacteristic characteristic = gattCustomService2->characteristic(QBluetoothUuid(uuid));
+            writeData(gattCustomService2, characteristic, data, info, true);
         };
 
-        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData1, sizeof(initData1),
-                            QStringLiteral("init"), false, false);
-        writeProfileField(0x2A8A, QStringLiteral("init first name"));
-        writeProfileField(0x2A90, QStringLiteral("init last name"));
-        writeProfileField(0x2A87, QStringLiteral("init email"));
-        writeProfileField(0x2A80, QStringLiteral("init age"));
-        writeProfileField(0x2A8C, QStringLiteral("init gender"));
-        writeProfileField(0x2AA2, QStringLiteral("init language"));
-        writeCharacteristic(gattCustomService2, gattWriteChar3CustomService2, initData2, sizeof(initData2),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService2, gattWriteChar4CustomService2, initData3, sizeof(initData3),
-                            QStringLiteral("init"), false, false);
-        writeProfileField(0x2A98, QStringLiteral("init weight"));
-        writeProfileField(0x2A8E, QStringLiteral("init height"));
-        writeCharacteristic(gattCustomService1, gattWriteChar2CustomService1, initData4, sizeof(initData4),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData5, sizeof(initData5),
-                            QStringLiteral("init"), false, false);
+        writeData(gattCustomService1, gattWriteChar1CustomService1, QByteArray(1, char(0x01)),
+                  QStringLiteral("Life Fitness login start"));
+        if (!waitForLifeFitnessState(QByteArray(1, char(0x07)), 3000)) {
+            emit debug(QStringLiteral("Life Fitness login did not request profile data"));
+            return;
+        }
+
+        writeProfileField(0x2A8A, firstName, QStringLiteral("Life Fitness first name"));
+        writeProfileField(0x2A90, lastName, QStringLiteral("Life Fitness last name"));
+        const QByteArray age(1, static_cast<char>(qBound(
+                                  0, settings.value(QZSettings::age, QZSettings::default_age).toInt(), 255)));
+        writeProfileField(0x2A80, age, QStringLiteral("Life Fitness age"));
+        const QByteArray gender(
+            1, settings.value(QZSettings::sex, QZSettings::default_sex).toString().compare(
+                       QStringLiteral("Female"), Qt::CaseInsensitive) == 0
+                   ? char(0x01)
+                   : char(0x00));
+        writeProfileField(0x2A8C, gender, QStringLiteral("Life Fitness gender"));
+        QByteArray language = QLocale::system().name().left(5).toUtf8();
+        if (language.size() != 5)
+            language = QByteArrayLiteral("en_US");
+        writeProfileField(0x2AA2, language, QStringLiteral("Life Fitness language"));
+        writeData(gattCustomService2, gattWriteChar3CustomService2, token, QStringLiteral("Life Fitness token"), true);
+        writeData(gattCustomService2, gattWriteChar4CustomService2, QByteArray(1, char(0x01)),
+                  QStringLiteral("Life Fitness metric units"));
+
+        const quint16 rawWeight = static_cast<quint16>(qBound(
+            0, qRound(settings.value(QZSettings::weight, QZSettings::default_weight).toDouble() / 0.005), 65535));
+        const QByteArray weight = QByteArray(1, static_cast<char>(rawWeight & 0xff)) +
+                                  QByteArray(1, static_cast<char>((rawWeight >> 8) & 0xff));
+        writeProfileField(0x2A98, weight, QStringLiteral("Life Fitness weight"));
+
+        const quint16 rawHeight = static_cast<quint16>(qBound(
+            0, qRound(settings.value(QZSettings::height, QZSettings::default_height).toDouble() / 0.01), 65535));
+        const QByteArray height = QByteArray(1, static_cast<char>(rawHeight & 0xff)) +
+                                  QByteArray(1, static_cast<char>((rawHeight >> 8) & 0xff));
+        writeProfileField(0x2A8E, height, QStringLiteral("Life Fitness height"));
+        writeData(gattCustomService1, gattWriteChar2CustomService1, presetSummary,
+                  QStringLiteral("Life Fitness preset summary"), true);
+        writeData(gattCustomService1, gattWriteChar1CustomService1, QByteArray(1, char(0x02)),
+                  QStringLiteral("Life Fitness login complete"));
+        if (!waitForLifeFitnessState(QByteArray::fromHex("0401"))) {
+            emit debug(QStringLiteral("Life Fitness login failed"));
+            return;
+        }
+        initDone = true;
+    } else if (gattWriteChar4CustomService2.isValid()) {
+        emit debug(QStringLiteral("Life Fitness Current State characteristic is unavailable; skipping login"));
     } else if(lifet5) {
 
         // From pkt5841 (after first 12 bytes)
@@ -228,16 +423,16 @@ void lifefitnesstreadmill::btinit() {
     QLowEnergyCharacteristic gattTreadmillData = gattFTMSService->characteristic(_gattTreadmillDataId);
     QLowEnergyCharacteristic gattTrainingStatus = gattFTMSService->characteristic(_gattTrainingStatusId);
     QLowEnergyCharacteristic gattCrossTrainerData = gattFTMSService->characteristic(_gattCrossTrainerDataId);
-    gattFTMSService->writeDescriptor(gattTrainingStatus.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
-                                     descriptor);
-    if (gattTreadmillData.isValid()) {
-        gattFTMSService->writeDescriptor(
-            gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-        gattFTMSService->writeDescriptor(
-            gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-    } else if (gattCrossTrainerData.isValid()) {
-        gattFTMSService->writeDescriptor(
-            gattCrossTrainerData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+    if (!gattCurrentStateCharacteristic.isValid()) {
+        gattFTMSService->writeDescriptor(gattTrainingStatus.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
+                                         descriptor);
+        if (gattTreadmillData.isValid()) {
+            gattFTMSService->writeDescriptor(
+                gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        } else if (gattCrossTrainerData.isValid()) {
+            gattFTMSService->writeDescriptor(
+                gattCrossTrainerData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        }
     }
 
     initDone = true;
@@ -389,6 +584,11 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
 
+    if (characteristic.uuid() == gattCurrentStateCharacteristic.uuid()) {
+        lastLifeFitnessState = newValue;
+        emit lifeFitnessStateChanged(newValue);
+    }
+
     if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("4a8ff3f1-c933-11e3-9c1a-0800200c9a66")) && newValue.length() == 40) {
         Speed = ((double)newValue.at(32)) / 10.0;
         Inclination = ((double)newValue.at(27)) / 10.0;
@@ -416,150 +616,50 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
 
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
         lastPacket = newValue;
+        const FtmsTreadmillData data = parseFtmsTreadmillData(newValue);
+        if (!data.valid) {
+            emit debug(QStringLiteral("Invalid Life Fitness FTMS treadmill data"));
+            return;
+        }
 
-        // default flags for this treadmill is 84 04
-
-        union flags {
-            struct {
-
-                uint16_t moreData : 1;
-                uint16_t avgSpeed : 1;
-                uint16_t totalDistance : 1;
-                uint16_t inclination : 1;
-                uint16_t elevation : 1;
-                uint16_t instantPace : 1;
-                uint16_t averagePace : 1;
-                uint16_t expEnergy : 1;
-                uint16_t heartRate : 1;
-                uint16_t metabolic : 1;
-                uint16_t elapsedTime : 1;
-                uint16_t remainingTime : 1;
-                uint16_t forceBelt : 1;
-                uint16_t spare : 3;
-            };
-
-            uint16_t word_flags;
-        };
-
-        flags Flags;
-        int index = 0;
-        Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
-        index += 2;
-
-        if (!Flags.moreData) {
-            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                              (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;
-            index += 2;
+        const QDateTime now = QDateTime::currentDateTime();
+        const bool treadmillDirectDistance =
+            settings.value(QZSettings::treadmill_direct_distance, QZSettings::default_treadmill_direct_distance)
+                .toBool();
+        if (data.hasSpeed) {
+            Speed = data.speedKmh;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
-
-        if (Flags.avgSpeed && newValue.length() > index + 1) {
-            double avgSpeed;
-            avgSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                 (uint16_t)((uint8_t)newValue.at(index)))) /
-                       100.0;
-            index += 2;
-            emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
+        if (data.hasDistance && treadmillDirectDistance) {
+            Distance = data.distanceMeters / 1000.0;
+        } else if (firstDistanceCalculated) {
+            Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         }
-
-        if (Flags.totalDistance && newValue.length() > index + 2) {
-            // ignoring the distance, because it's a total life odometer
-            // Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-            // (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
-            index += 3;
-        }
-        // else
-        {
-            if (firstDistanceCalculated)
-                Distance += ((Speed.value() / 3600000.0) *
-                             ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
-            distanceEval = true;
-        }
-
+        distanceEval = true;
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
-        if (Flags.inclination && newValue.length() > index + 1) {
-            Inclination = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                    (uint16_t)((uint8_t)newValue.at(index)))) /
-                          10.0;
-            index += 4; // the ramo value is useless
+        if (data.hasInclination) {
+            Inclination = data.inclinationPercent;
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         }
-
-        if (Flags.elevation && newValue.length() > index + 3) {
-            index += 4; // TODO
-        }
-
-        if (Flags.instantPace && newValue.length() > index) {
-            index += 1; // TODO
-        }
-
-        if (Flags.averagePace && newValue.length() > index) {
-            index += 1; // TODO
-        }
-
-        if (Flags.expEnergy && newValue.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
-            index += 2;
-
-            // energy per hour
-            index += 2;
-
-            // energy per minute
-            index += 1;
-        } else {
-            if (firstDistanceCalculated &&
-                watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal +=
-                    ((((0.048 *
+        if (data.hasEnergy) {
+            KCal = data.totalEnergyKcal;
+        } else if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) {
+            KCal += ((((0.048 *
                             ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
                         1.19) *
                        settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                       200.0) /
-                     (60000.0 /
-                      ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                            // kg * 3.5) / 200 ) / 60
-            distanceEval = true;
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(now))));
         }
-
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
-#ifdef Q_OS_ANDROID
-        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
-            Heart = (uint8_t)KeepAwakeHelper::heart();
-        else
-#endif
-        {
-            if (Flags.heartRate) {
-                if (index < newValue.length()) {
-
-                    heart = ((double)(((uint8_t)newValue.at(index))));
-                    emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
-                } else {
-                    emit debug(QStringLiteral("Error on parsing heart!"));
-                }
-                // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
-            }
+        if (!disable_hr_frommachinery && data.hasHeartRate) {
+            heart = data.heartRateBpm;
+            emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
         }
-
-        if (Flags.metabolic) {
-            // todo
-        }
-
-        if (Flags.elapsedTime) {
-            // todo
-        }
-
-        if (Flags.remainingTime) {
-            // todo
-        }
-
-        if (Flags.forceBelt) {
-            // todo
-        }
+        if (data.hasElapsedTime)
+            emit debug(QStringLiteral("Elapsed Time: ") + QString::number(data.elapsedSeconds));
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE)) {
         union flags {
             struct {
@@ -766,6 +866,7 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteChar5CustomService3(QStringLiteral("c52d3161-d1a1-11e3-9c1a-0800200c9a66"));
     QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
+    QBluetoothUuid _gattCurrentStateId(QStringLiteral("5da551de-9cb2-11e5-8994-feff819cdc9f"));
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -798,6 +899,11 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
                 qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+
+                if (c.uuid() == _gattCurrentStateId) {
+                    gattCurrentStateCharacteristic = c;
+                    gattCustomService1 = s;
+                }
 
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");

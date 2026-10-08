@@ -14,6 +14,10 @@ TEST(QZSettingsSecurityTest, FiltersSensitiveKeysUsedByStartupSettingsLog) {
         QStringLiteral("ZWIFT_PASSWORD"),
         QStringLiteral("/MQTT_TOKEN"),
         QStringLiteral("cryptoKeySettingsProfiles"),
+        QStringLiteral("life_fitness_first_name"),
+        QStringLiteral("life_fitness_last_name"),
+        QStringLiteral("life_fitness_token"),
+        QStringLiteral("life_fitness_preset_summary"),
     };
 
     for (const QString &key : sensitiveKeys) {
