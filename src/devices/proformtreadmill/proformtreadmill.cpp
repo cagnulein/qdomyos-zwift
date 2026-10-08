@@ -1185,16 +1185,18 @@ void proformtreadmill::update() {
                                    0x0a, 0x1b, 0x94, 0x31, 0x00, 0x10, 0x40, 0x50, 0x00, 0x80};
             uint8_t noOpData6[] = {0xff, 0x02, 0x18, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            // The 305 CST capture lacks lifecycle writes. Until a native 305 CST start/stop capture is
-            // available, reuse the existing 105 CST sequence as a model-local compatibility fallback.
-            uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
-            uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
-                                0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
-            uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xef, 0x1a, 0x58, 0x02, 0x00,
-                                0xb4, 0x00, 0x58, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00};
-            uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
-            uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
-                                0x03, 0x10, 0xa0, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xd2, 0x00};
+            auto send305CstState = [this](uint8_t state, const QString &info) {
+                uint8_t stateRequest[] = {0xfe, 0x02, 0x0d, 0x02};
+                uint8_t stateCommand[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x02,
+                                          0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                stateCommand[12] = state;
+                stateCommand[14] = 0;
+                for (uint8_t i = 6; i <= 12; i++) {
+                    stateCommand[14] += stateCommand[i];
+                }
+                writeCharacteristic(stateRequest, sizeof(stateRequest), info + QStringLiteral(" 1/2"));
+                writeCharacteristic(stateCommand, sizeof(stateCommand), info + QStringLiteral(" 2/2"), false, true);
+            };
             switch (counterPoll) {
             case 0:
                 writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
@@ -1231,21 +1233,30 @@ void proformtreadmill::update() {
                     requestSpeed = -1;
                 }
                 if (requestStart != -1) {
-                    emit debug(QStringLiteral("starting with the ProForm 105 CST compatibility sequence..."));
-                    writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
-                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
-                    writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
-                    writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
-                    writeCharacteristic(start5, sizeof(start5), QStringLiteral("start5"), false, true);
+                    const bool resume = isPaused();
+                    emit debug(resume ? QStringLiteral("resuming ProForm 305 CST...")
+                                      : QStringLiteral("starting ProForm 305 CST..."));
+                    send305CstState(resume ? 0x0d : 0x02,
+                                    resume ? QStringLiteral("305 CST resume") : QStringLiteral("305 CST start"));
+                    setPaused(false);
                     requestStart = -1;
                     emit tapeStarted();
                 }
-                if (requestStop != -1 || requestPause != -1) {
-                    // Matches the existing 105 CST stop/pause behavior pending native 305 CST evidence.
-                    forceSpeed(0);
-                    emit debug(QStringLiteral("stopping with the ProForm 105 CST compatibility behavior..."));
+                if (requestPause != -1) {
+                    emit debug(QStringLiteral("pausing ProForm 305 CST..."));
+                    send305CstState(0x03, QStringLiteral("305 CST pause"));
+                    setPaused(true);
                     requestStop = -1;
                     requestPause = -1;
+                } else if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping ProForm 305 CST..."));
+                    if (!isPaused()) {
+                        send305CstState(0x03, QStringLiteral("305 CST stop pause"));
+                    }
+                    send305CstState(0x04, QStringLiteral("305 CST stop"));
+                    send305CstState(0x01, QStringLiteral("305 CST stop finalize"));
+                    setPaused(false);
+                    requestStop = -1;
                 }
                 break;
             }
