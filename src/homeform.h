@@ -666,6 +666,9 @@ class homeform : public QObject {
     Q_INVOKABLE void echelon_dismiss_enable_prompt();
     Q_INVOKABLE void android_notification_prompt_enable();
     Q_INVOKABLE void android_notification_prompt_dismiss(bool dontAskAgain);
+    // Start or stop the Android notification (foreground service) at once, no restart: the
+    // android_notification switch in the settings and the prompt above. Doesn't write the setting.
+    Q_INVOKABLE void android_notification_apply(bool enabled);
 
     Q_INVOKABLE bool isStravaLoggedIn();
     Q_INVOKABLE bool isPelotonLoggedIn();

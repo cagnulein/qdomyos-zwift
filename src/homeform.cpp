@@ -10654,13 +10654,25 @@ void homeform::android_notification_prompt_enable() {
 #ifdef Q_OS_ANDROID
     QSettings settings;
     settings.setValue(QZSettings::android_notification, true);
-    // same call bluetooth.cpp makes at startup: QZ is in the foreground now, so the service can
-    // start right away and the running workout doesn't need a restart
-    QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
-    QAndroidJniObject::callStaticMethod<void>(
-        "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
-        QtAndroid::androidContext().object(), javaNotification.object<jstring>());
+    android_notification_apply(true);
     setToastRequested(QObject::tr("Android notification enabled"));
+#endif
+}
+
+void homeform::android_notification_apply(bool enabled) {
+#ifdef Q_OS_ANDROID
+    if (enabled) {
+        // same call bluetooth.cpp makes at startup: QZ is in the foreground now, so the service can
+        // start right away and the running workout doesn't need a restart
+        QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
+            QtAndroid::androidContext().object(), javaNotification.object<jstring>());
+    } else {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
+    }
+#else
+    Q_UNUSED(enabled);
 #endif
 }
 
