@@ -1,4 +1,7 @@
 #include "localipaddress.h"
+#include <QElapsedTimer>
+#include <QMutex>
+#include <QMutexLocker>
 #include <QNetworkInterface>
 
 #ifdef Q_OS_ANDROID
@@ -89,20 +92,37 @@ int getIpAddress(JNIEnv *env, jobject wifiInfoObj) {
     }
     jclass jclz = env->GetObjectClass(wifiInfoObj);
     jmethodID mid = env->GetMethodID(jclz, "getIpAddress", "()I");
-    return env->CallIntMethod(wifiInfoObj, mid);
+    const int ip = env->CallIntMethod(wifiInfoObj, mid);
+    env->DeleteLocalRef(jclz);
+    return ip;
 }
 #endif
 
 namespace {
 
+QList<QNetworkInterface> cachedInterfaces() {
+    // The mDNS responder can ask for the local address thousands of times per
+    // second. QNetworkInterface::allInterfaces() performs a netlink query on
+    // Android, so keep the result briefly instead of rebuilding it per query.
+    static QMutex mutex;
+    static QElapsedTimer refreshTimer;
+    static QList<QNetworkInterface> interfaces;
+
+    QMutexLocker locker(&mutex);
+    if (!refreshTimer.isValid() || refreshTimer.elapsed() >= 1000) {
+        interfaces = QNetworkInterface::allInterfaces();
+        refreshTimer.restart();
+    }
+    return interfaces;
+}
+
 // Best guess of our own IPv4 when there is no peer address to match against.
 // Interfaces are scored by type so that virtual adapters (VirtualBox host-only,
 // VPNs, ...) don't win over the real Wi-Fi/Ethernet one.
-QHostAddress bestLocalIPv4() {
+QHostAddress bestLocalIPv4(const QList<QNetworkInterface> &interfaces) {
     QHostAddress best;
     int bestScore = -1;
 
-    const auto interfaces = QNetworkInterface::allInterfaces();
     for (const QNetworkInterface &networkInterface : interfaces) {
         const auto flags = networkInterface.flags();
         if (!flags.testFlag(QNetworkInterface::IsUp) || !flags.testFlag(QNetworkInterface::IsRunning) ||
@@ -147,9 +167,9 @@ QHostAddress bestLocalIPv4() {
 QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
     // Attempt to find the interface that corresponds with the provided
     // address and determine this device's address from the interface
+    const auto interfaces = cachedInterfaces();
 
     if(!srcAddress.isNull()) {
-        const auto interfaces = QNetworkInterface::allInterfaces();
         for (const QNetworkInterface &networkInterface : interfaces) {
             // Same gate as bestLocalIPv4(). A disconnected adapter keeps its APIPA
             // entry, and Wi-Fi Direct/VPN adapters are down but still enumerated;
@@ -175,21 +195,39 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
             }
         }
     }
-#ifdef Q_OS_ANDROID
-    QAndroidJniEnvironment env;
-    jobject wifiManagerObj = getWifiManagerObj(env, QtAndroid::androidContext().object());
-    jobject wifiInfoObj = getWifiInfoObj(env, wifiManagerObj);
-    int ip = getIpAddress(env, wifiInfoObj);
-    QHostAddress qip = QHostAddress(qFromBigEndian<quint32>(ip));
-    qDebug() << "getIP from JNI" << qip;
-    // WifiInfo.getIpAddress() returns 0 on Android 10+ and on non-wifi connections
-    if (!qip.isNull() && qip != QHostAddress(QHostAddress::AnyIPv4))
-        return qip;
-#endif
     // No peer address to match against (this is how provider.cpp announces the
     // mDNS A record), so fall back to enumerating our own interfaces. Without
     // this the A record is published empty and the service is unreachable.
-    const QHostAddress fallback = bestLocalIPv4();
-    qDebug() << "getIP fallback" << fallback;
-    return fallback;
+    const QHostAddress fallback = bestLocalIPv4(interfaces);
+    if (!fallback.isNull()) {
+        qDebug() << "getIP fallback" << fallback;
+        return fallback;
+    }
+
+#ifdef Q_OS_ANDROID
+    // Keep the JNI path as a last resort. QNetworkInterface is the normal path
+    // on current Android releases and avoids a high-frequency Wi-Fi framework
+    // call from the mDNS responder.
+    QAndroidJniEnvironment env;
+    jobject wifiManagerObj = getWifiManagerObj(env, QtAndroid::androidContext().object());
+    jobject wifiInfoObj = getWifiInfoObj(env, wifiManagerObj);
+    const int ip = getIpAddress(env, wifiInfoObj);
+    const QHostAddress qip = QHostAddress(qFromBigEndian<quint32>(ip));
+    qDebug() << "getIP from JNI" << qip;
+
+    if (wifiInfoObj != nullptr) {
+        env->DeleteLocalRef(wifiInfoObj);
+    }
+    if (wifiManagerObj != nullptr) {
+        env->DeleteLocalRef(wifiManagerObj);
+    }
+
+    // WifiInfo.getIpAddress() returns 0 on Android 10+ and on non-wifi
+    // connections.
+    if (!qip.isNull() && qip != QHostAddress(QHostAddress::AnyIPv4)) {
+        return qip;
+    }
+#endif
+
+    return QHostAddress();
 }
