@@ -275,8 +275,10 @@ void lifefitnesstreadmill::btinit() {
 
         writeProfileField(0x2A8A, firstName, QStringLiteral("Life Fitness first name"));
         writeProfileField(0x2A90, lastName, QStringLiteral("Life Fitness last name"));
-        const QByteArray age(1, static_cast<char>(qBound(
-                                  0, settings.value(QZSettings::age, QZSettings::default_age).toInt(), 255)));
+        const quint16 ageValue = static_cast<quint16>(qBound(
+            0, settings.value(QZSettings::age, QZSettings::default_age).toInt(), 65535));
+        const QByteArray age = QByteArray(1, static_cast<char>(ageValue & 0xff)) +
+                               QByteArray(1, static_cast<char>((ageValue >> 8) & 0xff));
         writeProfileField(0x2A80, age, QStringLiteral("Life Fitness age"));
         const QByteArray gender(
             1, settings.value(QZSettings::sex, QZSettings::default_sex).toString().compare(
@@ -288,7 +290,10 @@ void lifefitnesstreadmill::btinit() {
         if (language.size() != 5)
             language = QByteArrayLiteral("en_US");
         writeProfileField(0x2AA2, language, QStringLiteral("Life Fitness language"));
-        writeData(gattCustomService2, gattWriteChar3CustomService2, token, QStringLiteral("Life Fitness token"), true);
+        const QString email = settings.value(QZSettings::user_email, QZSettings::default_user_email).toString().trimmed();
+        if (!email.isEmpty())
+            writeProfileField(0x2A87, email.toUtf8(), QStringLiteral("Life Fitness email"));
+        writeData(gattCustomService2, gattWriteChar3CustomService2, token, QStringLiteral("Life Fitness HMAC"), true);
         writeData(gattCustomService2, gattWriteChar4CustomService2, QByteArray(1, char(0x01)),
                   QStringLiteral("Life Fitness metric units"));
 

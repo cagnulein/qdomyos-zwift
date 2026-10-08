@@ -10111,7 +10111,7 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                     }
                     Label {
-                        text: qsTr("Used only for the Life Fitness 95T / Discover SE3 telemetry handshake. Keep the token and preset summary private; QZ never writes them to the debug log.")
+                        text: qsTr("Used only for the Life Fitness 95T / Discover SE3 telemetry handshake. The HMAC is issued by Life Fitness and must be copied from the app; QZ never derives or writes it to the debug log. The optional QZ user email is sent as the Life Fitness profile email when configured.")
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
@@ -10149,7 +10149,7 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        Label { text: qsTr("User token:"); Layout.fillWidth: true }
+                        Label { text: qsTr("User HMAC from Life Fitness app:"); Layout.fillWidth: true }
                         TextField {
                             id: lifeFitnessTokenTextField
                             text: settings.life_fitness_token
