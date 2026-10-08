@@ -206,6 +206,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool clipboardWorkoutDeletePromptRequested READ clipboardWorkoutDeletePromptRequested NOTIFY clipboardWorkoutDeletePromptRequestedChanged WRITE setClipboardWorkoutDeletePromptRequested)
     Q_PROPERTY(bool echelonBridgeSwitchPromptRequested READ echelonBridgeSwitchPromptRequested NOTIFY echelonBridgeSwitchPromptRequestedChanged WRITE setEchelonBridgeSwitchPromptRequested)
     Q_PROPERTY(bool echelonEnablePromptRequested READ echelonEnablePromptRequested NOTIFY echelonEnablePromptRequestedChanged WRITE setEchelonEnablePromptRequested)
+    Q_PROPERTY(bool androidNotificationPromptRequested READ androidNotificationPromptRequested NOTIFY androidNotificationPromptRequestedChanged)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -636,6 +637,17 @@ class homeform : public QObject {
         m_echelonEnablePromptRequested = value;
         emit echelonEnablePromptRequestedChanged(value);
     }
+    bool androidNotificationPromptRequested() const { return m_androidNotificationPromptRequested; }
+    void setAndroidNotificationPromptRequested(bool value) {
+        if (m_androidNotificationPromptRequested == value) {
+            return;
+        }
+        m_androidNotificationPromptRequested = value;
+        emit androidNotificationPromptRequestedChanged(value);
+    }
+    // A virtual device lost its client because Android cut QZ's network in the background
+    // (DirCon NetworkError while QZ is not active): offer the Android notification on resume
+    void backgroundNetworkLost();
     Q_INVOKABLE void garmin_connect_login();
     Q_INVOKABLE void garmin_submit_mfa_code(const QString &mfaCode);
     Q_INVOKABLE void garmin_connect_logout();
@@ -652,6 +664,8 @@ class homeform : public QObject {
     Q_INVOKABLE void echelon_dismiss_bridge_switch_prompt();
     Q_INVOKABLE void echelon_enable_virtual_bridge();
     Q_INVOKABLE void echelon_dismiss_enable_prompt();
+    Q_INVOKABLE void android_notification_prompt_enable();
+    Q_INVOKABLE void android_notification_prompt_dismiss(bool dontAskAgain);
 
     Q_INVOKABLE bool isStravaLoggedIn();
     Q_INVOKABLE bool isPelotonLoggedIn();
@@ -1047,6 +1061,8 @@ public:
     bool m_clipboardWorkoutDeletePromptRequested = false;
     bool m_echelonBridgeSwitchPromptRequested = false;
     bool m_echelonEnablePromptRequested = false;
+    bool m_androidNotificationPromptRequested = false;
+    bool m_androidNotificationPromptPending = false;
     QString m_garminWorkoutPromptName = QStringLiteral("");
     QString m_garminWorkoutPromptDate = QStringLiteral("");
     QString m_garminWorkoutPromptFile = QStringLiteral("");
@@ -1338,6 +1354,7 @@ public:
     void clipboardWorkoutDeletePromptRequestedChanged(bool value);
     void echelonBridgeSwitchPromptRequestedChanged(bool value);
     void echelonEnablePromptRequestedChanged(bool value);
+    void androidNotificationPromptRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
     void pelotonPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);

@@ -89,8 +89,13 @@ class DirconProcessor : public QObject {
     QByteArray last2AD2Notification;
     // Set when a client subscribes to 0x2AD2, flushed once its enable-response is written.
     bool pending2AD2Greeting = false;
+    // Android cuts the network of an app in the background without a foreground service: the
+    // client connection dies with NetworkError and the listening socket with it, so the client
+    // can't come back. Set then, the server and the mDNS announcement are rebuilt on resume.
+    bool restartOnResume = false;
     bool initServer();
     void initAdvertising();
+    void restartServer();
     DirconPacket processPacket(DirconProcessorClient *client, const DirconPacket &pkt);
     QString convertUUIDFromUINT16ToString (quint16 uuid);
 
@@ -104,6 +109,7 @@ class DirconProcessor : public QObject {
     void tcpDataAvailable();
     void tcpDisconnected();
     void tcpNewConnection();
+    void applicationStateChanged(Qt::ApplicationState state);
   signals:
     void onCharacteristicRead(quint16 uuid);
     void onCharacteristicWrite(quint16 uuid, QByteArray data);

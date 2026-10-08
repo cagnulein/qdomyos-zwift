@@ -1790,6 +1790,7 @@ import AndroidStatusBar 1.0
             property bool proform_trainer_8_0_pftl59721_0: false
             property bool android_landscape_cutout_prompt_shown: false
             property bool pafers_rower: false
+            property bool android_notification_prompt_disabled: false
         }
 
 
