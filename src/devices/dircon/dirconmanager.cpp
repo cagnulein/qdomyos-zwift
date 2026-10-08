@@ -1,8 +1,14 @@
 #include "devices/dircon/dirconmanager.h"
 #include "devices/bike.h"
+#include <QCoreApplication>
 #include <QNetworkInterface>
+#include <QPointer>
 #include <QSettings>
 #include <chrono>
+
+// The one endpoint for the process. A QPointer so that teardown of the application
+// object clears it instead of leaving a dangling pointer behind.
+static QPointer<DirconManager> sharedDirconManager;
 
 using namespace std::chrono_literals;
 
@@ -198,10 +204,11 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
     QSettings settings;
     DirconProcessorService *service;
     QList<DirconProcessorService *> services, proc_services;
-    BLUETOOTH_TYPE dt = Bike->deviceType();
     bt = Bike;
-    uint8_t type = dt == TREADMILL || dt == ELLIPTICAL ? DM_MACHINE_TYPE_TREADMILL
-                                                                                         : DM_MACHINE_TYPE_BIKE;
+    // Bike may be null: the endpoint is built at launch, before anything is connected,
+    // so that a client which caches discovery results always finds a live port.
+    uint8_t type = machineTypeFor(Bike);
+    machineType = type;
     qDebug() << "Building Dircom Manager";
     uint16_t server_base_port =
         settings.value(QZSettings::dircon_server_base_port, QZSettings::default_dircon_server_base_port).toUInt();
@@ -243,10 +250,134 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
         DM_MACHINE_OP(DM_MACHINE_INIT_OP, services, proc_services, type)
     }
     
-    if (zwift_play_emulator || settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
-        bikeTimer.start(50ms);
-    else
-        bikeTimer.start(1s);
+    bikeTimerInterval = (zwift_play_emulator || settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
+                            ? 50
+                            : 1000;
+
+    // Only tick while something is attached. Built at launch there is no device yet,
+    // and a 50ms timer whose handler returns immediately is pure waste.
+    if (bt) {
+        bikeTimer.start(bikeTimerInterval);
+    }
+}
+
+#define DM_CHAR_NOTIF_SETDEVICE_OP(UUID, P1, P2, P3)                                                                   \
+    if (notif##UUID)                                                                                                   \
+        notif##UUID->setDevice(P1);
+
+void DirconManager::setDevice(bluetoothdevice *t) {
+    if (bt == t)
+        return;
+
+    qDebug() << "DirconManager::setDevice rebinding from" << (void *)bt << "to" << (void *)t;
+
+    bt = t;
+
+    // Every notifier built by DM_CHAR_NOTIF_BUILD_OP holds its own copy of the
+    // pointer; the macro list is the same one used to build them, so this cannot
+    // drift out of sync with the constructor.
+    DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_SETDEVICE_OP, t, 0, 0)
+
+    // The write processors are the control path. A stale pointer here turns a
+    // client's power or resistance write into a use-after-free, not a stale
+    // reading, so they are rebound in the same pass.
+    if (writeP2AD9)
+        writeP2AD9->setDevice(t);
+    if (writePE005)
+        writePE005->setDevice(t);
+    if (writeP0003)
+        writeP0003->setDevice(t);
+
+    // The listener and the advertisement are untouched either way - only the data
+    // production follows the device.
+    if (!t) {
+        bikeTimer.stop();
+    } else if (!bikeTimer.isActive()) {
+        bikeTimer.start(bikeTimerInterval);
+    }
+}
+
+void DirconManager::setResistanceParameters(int8_t bikeResistanceOffset, double bikeResistanceGain) {
+    if (writeP2AD9) {
+        writeP2AD9->bikeResistanceOffset = bikeResistanceOffset;
+        writeP2AD9->bikeResistanceGain = bikeResistanceGain;
+    }
+    if (writePE005) {
+        writePE005->bikeResistanceOffset = bikeResistanceOffset;
+        writePE005->bikeResistanceGain = bikeResistanceGain;
+    }
+    if (writeP0003) {
+        writeP0003->bikeResistanceOffset = bikeResistanceOffset;
+        writeP0003->bikeResistanceGain = bikeResistanceGain;
+    }
+}
+
+uint8_t DirconManager::machineTypeFor(bluetoothdevice *t) {
+    // With nothing attached the profile has to be decided up front, and the endpoint
+    // exists for bikes. A treadmill or elliptical that turns up later cannot be served
+    // by rebinding: the listening port is derived from the machine type
+    // (server_base_port + DM_MACHINE_##DESC), so it needs its own endpoint.
+    if (!t) {
+        return DM_MACHINE_TYPE_BIKE;
+    }
+    const BLUETOOTH_TYPE dt = t->deviceType();
+    return dt == TREADMILL || dt == ELLIPTICAL ? DM_MACHINE_TYPE_TREADMILL : DM_MACHINE_TYPE_BIKE;
+}
+
+DirconManager *DirconManager::shared(bluetoothdevice *t, int8_t bikeResistanceOffset, double bikeResistanceGain) {
+    if (sharedDirconManager && sharedDirconManager->machineType != machineTypeFor(t)) {
+        // The advertised service set and the listening port both follow the machine
+        // type, so a device of the other kind cannot reuse this endpoint. Withdraw it
+        // properly - the destructor sends the mDNS goodbye - and build the right one.
+        qDebug() << "Shared Dircon endpoint was built for machine type" << sharedDirconManager->machineType
+                 << "but the new device needs" << machineTypeFor(t) << "- rebuilding";
+        releaseShared();
+    }
+
+    if (sharedDirconManager) {
+        qDebug() << "Reusing the shared Dircon manager for a new virtual device";
+        sharedDirconManager->setResistanceParameters(bikeResistanceOffset, bikeResistanceGain);
+        sharedDirconManager->setDevice(t);
+        return sharedDirconManager;
+    }
+
+    // Parented to the application object rather than to the virtual device that
+    // happened to ask for it first: setVirtualDevice() deletes the outgoing virtual
+    // device outright, and taking the listener and the advertisement down with it is
+    // exactly the failure this refactor removes.
+    sharedDirconManager = new DirconManager(t, bikeResistanceOffset, bikeResistanceGain, QCoreApplication::instance());
+    return sharedDirconManager;
+}
+
+DirconManager *DirconManager::sharedIfAny() { return sharedDirconManager; }
+
+void DirconManager::startIdleEndpoint() {
+    QSettings settings;
+    if (!settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
+        return;
+    }
+
+    if (sharedDirconManager) {
+        return;
+    }
+
+    const int bikeResistanceOffset =
+        settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
+    const double bikeResistanceGain =
+        settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
+
+    qDebug() << "Starting the Dircon endpoint at launch, with no device attached yet";
+    shared(nullptr, bikeResistanceOffset, bikeResistanceGain);
+}
+
+void DirconManager::releaseShared() {
+    if (!sharedDirconManager) {
+        return;
+    }
+
+    qDebug() << "Releasing the shared Dircon endpoint";
+    delete sharedDirconManager.data();
+    sharedDirconManager = nullptr;
 }
 
 #define DM_CHAR_NOTIF_NOTIF1_OP(UUID, P1, P2, P3)                                                                      \
@@ -258,6 +389,14 @@ DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset,
         P1->sendCharacteristicNotification(0x##UUID, all##UUID);
 
 void DirconManager::bikeProvider() {
+    // The manager now outlives the bike, so it can tick with nothing attached. Every
+    // CharacteristicNotifier dereferences its device, so there is nothing to send
+    // until one is bound. The listener and the advertisement stay up regardless -
+    // that is the point.
+    if (!bt) {
+        return;
+    }
+
     QSettings settings;
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
 
