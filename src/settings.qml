@@ -1709,6 +1709,7 @@ import AndroidStatusBar 1.0
             property bool tile_pace_color_enabled: true                        
             property bool treadmill_force_running_activity: false
             property bool proform_treadmill_105_cst: false
+            property bool virtual_device_treadmill_data: true
         }
 
 
@@ -14818,6 +14819,34 @@ import AndroidStatusBar 1.0
                                 linkedBoolSetting: "virtual_device_bluetooth"
                                 settings: settings
                                 accordionContent: ColumnLayout {
+                                    IndicatorOnlySwitch {
+                                        id: virtualDeviceTreadmillDataDelegate
+                                        text: qsTr("Send Virtual Treadmill Data")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_treadmill_data
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: { settings.virtual_device_treadmill_data = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("Advertises FTMS Treadmill Data (0x2ACD) alongside Indoor Bike Data so another QZ instance can read the bike's incline. Disable if a third-party app has trouble with the extra treadmill data. Default is on. Restart QZ to apply.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
                                     IndicatorOnlySwitch {
                                         id: virtualDeviceOnlyHeartDelegate
                                         text: qsTr("Virtual Heart Only")

@@ -41,6 +41,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
     bool zwift_play_emulator = settings.value(QZSettings::zwift_play_emulator, QZSettings::default_zwift_play_emulator).toBool();
     bool watt_bike_emulator = settings.value(QZSettings::watt_bike_emulator, QZSettings::default_watt_bike_emulator).toBool();
+    sendVirtualTreadmillData =
+        settings.value(QZSettings::virtual_device_treadmill_data, QZSettings::default_virtual_device_treadmill_data).toBool();
 
     if (existingDirconManager) {
         attachDirconManager(existingDirconManager);
@@ -49,7 +51,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     }
     if (!settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool())
         return;
-    notif2ACD = new CharacteristicNotifier2ACD(Bike, this);
+    if (sendVirtualTreadmillData)
+        notif2ACD = new CharacteristicNotifier2ACD(Bike, this);
     notif2AD2 = new CharacteristicNotifier2AD2(Bike, this);
     notif2AD9 = new CharacteristicNotifier2AD9(Bike, this);
     notif2A63 = new CharacteristicNotifier2A63(Bike, this);
@@ -216,7 +219,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     serviceDataFIT.addCharacteristic(charDataFIT2);
                     serviceDataFIT.addCharacteristic(charDataFIT3);
                     serviceDataFIT.addCharacteristic(charDataFIT4);
-                    serviceDataFIT.addCharacteristic(charDataFIT4Treadmill);
+                    if (sendVirtualTreadmillData)
+                        serviceDataFIT.addCharacteristic(charDataFIT4Treadmill);
                     serviceDataFIT.addCharacteristic(charDataFIT5);
                     serviceDataFIT.addCharacteristic(charDataFIT6);
 
@@ -1559,7 +1563,7 @@ void virtualbike::bikeProvider() {
                     writeCharacteristic(serviceFIT, characteristic, value);
 
                     value.clear();
-                    if (notif2ACD->notify(value) == CN_OK) {
+                    if (sendVirtualTreadmillData && notif2ACD->notify(value) == CN_OK) {
                         QLowEnergyCharacteristic treadmillCharacteristic =
                             serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2ACD);
                         Q_ASSERT(treadmillCharacteristic.isValid());
