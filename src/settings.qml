@@ -1790,6 +1790,7 @@ import AndroidStatusBar 1.0
             property bool proform_trainer_8_0_pftl59721_0: false
             property bool android_landscape_cutout_prompt_shown: false
             property bool pafers_rower: false
+            property bool virtual_device_rower_smartrow: false
         }
 
 
@@ -15940,6 +15941,36 @@ import AndroidStatusBar 1.0
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
                                         visible: settings.virtual_device_rower
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    IndicatorOnlySwitch {
+                                        id: virtualDeviceRowerSmartRowDelegate
+                                        text: qsTr("Virtual Rower as SmartRow")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_rower_smartrow
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        visible: settings.virtual_device_rower && !settings.virtual_device_rower_pm5
+                                        onClicked: { settings.virtual_device_rower_smartrow = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("When enabled with a SmartRow pulley, the virtual rower also exposes the pulley's own service, so the SmartRow app running on another device can connect through QZ. Default is off.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: Qt.application.font.pixelSize - 2
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        visible: settings.virtual_device_rower && !settings.virtual_device_rower_pm5
                                         color: Material.color(Material.Lime)
                                     }
 
