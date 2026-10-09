@@ -92,7 +92,6 @@ class treadmill : public bluetoothdevice {
     // Shared closed-loop policy. Only activates when true independent machine
     // telemetry is available via parseSpeed() and Runn is selected.
     TreadmillRunnClosedLoopController m_runnController;
-    bool m_skipStrydSpeedCorrection = false;
     void updateRunnClosedLoop();
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
