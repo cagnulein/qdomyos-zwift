@@ -2063,6 +2063,21 @@ void homeform::onTrainingProgramIntervalTransition() {
     }
 }
 
+bool homeform::trainingProgramHeartRatePidSuppressed(int windowSeconds) {
+    if (!bluetoothManager || !bluetoothManager->device() || bluetoothManager->device()->deviceType() != TREADMILL ||
+        !trainProgram || !trainProgram->isStarted()) {
+        return false;
+    }
+
+    const trainrow row = trainProgram->currentRow();
+    const int rowRemainingSeconds = QTime(0, 0, 0).secsTo(trainProgram->currentRowRemainingTime());
+    const bool transitionActive =
+        ((treadmill *)bluetoothManager->device())->trainingProgramTransitionActive(windowSeconds * 1000);
+
+    return trainprogram::isHeartRatePidSuppressed(true, row.forcespeed, rowRemainingSeconds, transitionActive,
+                                                   windowSeconds);
+}
+
 void homeform::onTrainingProgramSpeedChanged(double speed) {
     // Record the timestamp when the training program changed speed
     // This is used by the HR PID controller to avoid race conditions
@@ -7899,18 +7914,15 @@ void homeform::update() {
                 delta = trainProgram->currentRow().loopTimeHR;
             }
 
-            bool trainingProgramTransitionActive =
-                bluetoothManager->device()->deviceType() == TREADMILL &&
-                ((treadmill *)bluetoothManager->device())->trainingProgramTransitionActive(delta * 1000);
+            const bool trainingProgramPidSuppressed = trainingProgramHeartRatePidSuppressed(10);
 
             // Training-program HR rows must be controlled by the HR PID only. Do not let the
             // wattage-preserving incline compensation replace their requested speed.
             if (bluetoothManager->device()->deviceType() == TREADMILL &&
                 !fromTrainProgram &&
                 !settings.value(QZSettings::trainprogram_pid_ignore_inclination, QZSettings::default_trainprogram_pid_ignore_inclination).toBool() &&
-                !(trainProgram && trainProgram->currentRow().forcespeed && trainProgram->currentRow().zoneHR < 0) &&
+                !trainingProgramPidSuppressed &&
                 lastTrainingProgramSpeedChange.msecsTo(QDateTime::currentDateTime()) >= (delta * 1000) &&
-                !trainingProgramTransitionActive &&
                 bluetoothManager->device()->currentInclination().value() != lastInclination && lastWattage != 0) {
                 last_seconds_pid_heart_zone = seconds;
 
@@ -7966,7 +7978,7 @@ void homeform::update() {
                     // Skip HR PID adjustments for a period after training program changes speed
                     // This prevents race conditions where HR PID overwrites training program speed changes
                     qint64 msSinceSpeedChange = lastTrainingProgramSpeedChange.msecsTo(QDateTime::currentDateTime());
-                    bool recentSpeedChange = (msSinceSpeedChange < (delta * 1000)) || trainingProgramTransitionActive;
+                    bool recentSpeedChange = (msSinceSpeedChange < (delta * 1000)) || trainingProgramPidSuppressed;
                     
                     if (!recentSpeedChange) {
                     if (bluetoothManager->device()->deviceType() == TREADMILL) {
@@ -8139,9 +8151,7 @@ void homeform::update() {
                 delta = trainProgram->currentRow().loopTimeHR;
             }
 
-            bool trainingProgramTransitionActive =
-                bluetoothManager->device()->deviceType() == TREADMILL &&
-                ((treadmill *)bluetoothManager->device())->trainingProgramTransitionActive(delta * 1000);
+            const bool trainingProgramPidSuppressed = trainingProgramHeartRatePidSuppressed(10);
 
             if (last_seconds_pid_heart_zone == 0 || ((seconds - last_seconds_pid_heart_zone) >= delta)) {
 
@@ -8179,7 +8189,7 @@ void homeform::update() {
                     // Skip HR PID adjustments for a period after training program changes speed
                     // This prevents race conditions where HR PID overwrites training program speed changes
                     qint64 msSinceSpeedChange = lastTrainingProgramSpeedChange.msecsTo(QDateTime::currentDateTime());
-                    bool recentSpeedChange = (msSinceSpeedChange < (delta * 1000)) || trainingProgramTransitionActive;
+                    bool recentSpeedChange = (msSinceSpeedChange < (delta * 1000)) || trainingProgramPidSuppressed;
                     
                     if (!recentSpeedChange) {
                     if (bluetoothManager->device()->deviceType() == TREADMILL) {

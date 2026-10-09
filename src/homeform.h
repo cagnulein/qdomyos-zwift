@@ -1119,6 +1119,7 @@ public:
     void update();
     void ten_hz();
     void checkClipboardForWorkout();
+    bool trainingProgramHeartRatePidSuppressed(int windowSeconds);
     double heartRateMax();
     void backup();
     bool getDevice();

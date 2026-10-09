@@ -129,6 +129,9 @@ class trainprogram : public QObject {
     static int firstBlockingLapButtonRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
     static int firstBlockingTransitionRow(const QList<trainrow> &rows, int currentStep, int candidateStep);
     static bool isBlockingTransitionRow(const trainrow &row);
+    static bool isHeartRatePidSuppressed(bool trainingProgramStarted, bool rowForcesSpeed,
+                                         int rowRemainingSeconds, bool transitionActive,
+                                         int transitionWindowSeconds = 10);
     bool powerzoneWorkout() {
         foreach(trainrow r, rows) {
             if(r.power != -1) return true;

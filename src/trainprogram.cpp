@@ -214,6 +214,19 @@ bool trainprogram::isBlockingTransitionRow(const trainrow &row) {
     return row.waitForLap || row.HRabove > 0 || row.HRbelow > 0;
 }
 
+bool trainprogram::isHeartRatePidSuppressed(bool trainingProgramStarted, bool rowForcesSpeed,
+                                            int rowRemainingSeconds, bool transitionActive,
+                                            int transitionWindowSeconds) {
+    if (!trainingProgramStarted)
+        return false;
+
+    if (rowForcesSpeed || transitionActive)
+        return true;
+
+    return transitionWindowSeconds >= 0 && rowRemainingSeconds >= 0 &&
+           rowRemainingSeconds <= transitionWindowSeconds;
+}
+
 QString blockingTransitionRowDescription(const trainrow &row) {
     if (row.waitForLap)
         return QStringLiteral("lap button");

@@ -121,6 +121,10 @@ void treadmill::changeSpeedAndInclination(double speed, double inclination) {
 
 void treadmill::onTrainingProgramTransition() {
     m_trainingProgramTransitionAt = QDateTime::currentDateTime();
+    // Drop commands queued before the row transition. The new row writes its own targets
+    // immediately after this callback; stale HR/manual requests must not arrive afterward.
+    requestSpeed = -1;
+    requestInclination = -100;
     targetWatts = -1;
     m_followPowerLastSpeedWhenTargetSet = -1;
     m_followPowerSuppressedUntil = QDateTime::currentDateTime().addMSecs(5000);
