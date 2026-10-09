@@ -1,4 +1,4 @@
-# FitShow treadmill + Runn: experimental closed-loop speed control
+# Treadmill + Runn/Stryd: experimental closed-loop speed control
 
 Reference: [issue #4167](https://github.com/cagnulein/qdomyos-zwift/issues/4167), [source separation fix #5274](https://github.com/cagnulein/qdomyos-zwift/pull/5274), and [Runn feedback discussion](https://github.com/cagnulein/qdomyos-zwift/issues/4167#issuecomment-6076216916).
 
@@ -19,12 +19,12 @@ FitShow previously used the Runn-versus-machine speed difference **at the moment
 ## Control policy
 
 - Each speed request from QZ begins by commanding that requested speed, without applying the legacy instant Runn/machine delta.
-- The FitShow controller runs only when the treadmill is running, the external speed sensor is configured, automatic speed control is enabled, and the experimental option is on.
+- The shared treadmill controller runs only when the treadmill is running, the external speed sensor is configured, automatic speed control is enabled, and the experimental option is on.
 - Do not correct below 5 km/h (Runn sticker readings at low speeds are unreliable).
 - Wait at least 8 seconds after each command and 4 seconds after the treadmill first reports reaching it.
 - Keep recent, distinct Runn samples over a 6-second window; require at least 5 observations covering at least 4 seconds. Ignore sensor samples older than 2.5 seconds and machine telemetry older than 3 seconds.
 - Remove extreme samples before averaging. Ignore large within-window fluctuations (>2 km/h).
-- Apply no correction within +/-0.15 km/h of the target. Otherwise apply a fraction of the error, at most 0.2 km/h per correction. Quantize to FitShow's 0.1 km/h command resolution.
+- Apply no correction within +/-0.15 km/h of the target. Otherwise apply a fraction of the error, at most 0.2 km/h per correction. Quantize to 0.1 km/h command resolution.
 - Wait for the machine to settle again before any subsequent adjustment. Keep the commanded speed within both the treadmill hardware limits and the user's existing **Power sensor speed correction threshold**, capped at +/-1.5 km/h.
 - Give priority to pending BLE commands. A QZ speed target change starts a fresh controller session and drops previous feedback history.
 - Abort on stop, pause, unsafe treadmill state, setting disable or sustained speed changes made using physical treadmill buttons. On stale sensor data, hold the current speed; never generate a new correction.
