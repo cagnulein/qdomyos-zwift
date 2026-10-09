@@ -1792,6 +1792,13 @@ import AndroidStatusBar 1.0
             property bool pafers_rower: false
             property bool android_notification_prompt_disabled: false
             property bool android_notification_v2: true
+            property string life_fitness_first_name: ""
+            property string life_fitness_last_name: ""
+            property string life_fitness_token: ""
+            property string life_fitness_preset_summary: ""
+            property string life_fitness_username: ""
+            property string life_fitness_password: ""
+            property string life_fitness_api_key: ""            
         }
 
 
@@ -10101,6 +10108,36 @@ import AndroidStatusBar 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+                 
+                    RowLayout {
+                        spacing: 10
+                        Label { text: qsTr("Life Fitness username/email:"); Layout.fillWidth: true }
+                        TextField {
+                            id: lifeFitnessUsernameTextField
+                            text: settings.life_fitness_username
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.life_fitness_username = text
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            onClicked: { settings.life_fitness_username = lifeFitnessUsernameTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label { text: qsTr("Life Fitness password:"); Layout.fillWidth: true }
+                        TextField {
+                            id: lifeFitnessPasswordTextField
+                            text: settings.life_fitness_password
+                            echoMode: TextInput.Password
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.life_fitness_password = text
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
                     }
 
                     IndicatorOnlySwitch {

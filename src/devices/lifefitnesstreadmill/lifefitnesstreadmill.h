@@ -25,6 +25,8 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
+
+class QNetworkAccessManager;
 #include <QObject>
 #include <QString>
 
@@ -39,7 +41,26 @@
 class lifefitnesstreadmill : public treadmill {
     Q_OBJECT
   public:
+    struct FtmsTreadmillData {
+        bool valid = false;
+        bool hasSpeed = false;
+        double speedKmh = 0.0;
+        bool hasAverageSpeed = false;
+        double averageSpeedKmh = 0.0;
+        bool hasDistance = false;
+        double distanceMeters = 0.0;
+        bool hasInclination = false;
+        double inclinationPercent = 0.0;
+        bool hasEnergy = false;
+        double totalEnergyKcal = 0.0;
+        bool hasHeartRate = false;
+        double heartRateBpm = 0.0;
+        bool hasElapsedTime = false;
+        int elapsedSeconds = 0;
+    };
+
     lifefitnesstreadmill(bool noWriteResistance, bool noHeartService);
+    static FtmsTreadmillData parseFtmsTreadmillData(const QByteArray &data);
     bool connected() override;
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
@@ -53,10 +74,16 @@ class lifefitnesstreadmill : public treadmill {
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
                              uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
     void waitForAPacket();
+    bool waitForLifeFitnessState(const QByteArray &expectedState, int timeoutMs = 10000);
+    bool fetchLifeFitnessServiceProfile(const QString &username, const QString &password, QByteArray &hmac,
+                                        QByteArray &firstName, QByteArray &lastName, QByteArray &email,
+                                        QByteArray &oauthToken, QByteArray &oauth2Token,
+                                        QByteArray &oauthTokenSecret, qint64 &oauth2TokenExpiry);
     void startDiscover();
     void btinit();
 
     QTimer *refresh;
+    QNetworkAccessManager *lifeFitnessNetworkManager = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
@@ -65,6 +92,7 @@ class lifefitnesstreadmill : public treadmill {
     QLowEnergyCharacteristic gattWriteChar2CustomService1;
     QLowEnergyCharacteristic gattWriteChar3CustomService2;
     QLowEnergyCharacteristic gattWriteChar4CustomService2;
+    QLowEnergyCharacteristic gattCurrentStateCharacteristic;
     QLowEnergyService *gattCustomService1 = nullptr;
     QLowEnergyService *gattCustomService2 = nullptr;
     volatile int notificationSubscribed = 0;
@@ -72,6 +100,7 @@ class lifefitnesstreadmill : public treadmill {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QByteArray lastPacketComplete;
+    QByteArray lastLifeFitnessState;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     bool firstDistanceCalculated = false;
     uint8_t firstStateChanged = 0;
@@ -94,6 +123,7 @@ class lifefitnesstreadmill : public treadmill {
     void disconnected();
     void debug(QString string);
     void packetReceived();
+    void lifeFitnessStateChanged(const QByteArray &state);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
