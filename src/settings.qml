@@ -943,7 +943,7 @@ import AndroidStatusBar 1.0
             property bool gpx_loop: false
 
             // from version 2.12.6
-            property bool android_notification: false
+            property bool android_notification: true
 
             // from version 2.12.8
             property bool kingsmith_encrypt_v4: false
