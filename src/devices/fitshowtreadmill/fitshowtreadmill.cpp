@@ -9,6 +9,8 @@
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
+#include <algorithm>
+#include <cmath>
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -153,6 +155,85 @@ void fitshowtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIn
     }
 }
 
+// Preserve the workout's requested speed as the Runn target; never estimate
+// a correction from the sensor while the treadmill is accelerating.
+void fitshowtreadmill::changeSpeed(double speed) {
+    QSettings settings;
+    const bool enabled =
+        settings.value(QZSettings::fitshow_runn_closed_loop, QZSettings::default_fitshow_runn_closed_loop).toBool() &&
+        settings.value(QZSettings::stryd_speed_instead_treadmill,
+                       QZSettings::default_stryd_speed_instead_treadmill).toBool() &&
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString().startsWith(QStringLiteral("Disabled"));
+
+    // The older correction compares Runn and machine speed at the instant of
+    // the request, which can produce a large false offset at startup.
+    m_skipStrydSpeedCorrection = enabled;
+    treadmill::changeSpeed(speed);
+    m_skipStrydSpeedCorrection = false;
+
+    if (enabled && autoResistanceEnable && speed >= 5.0 && requestSpeed >= 5.0) {
+        m_runnController.start(RequestedSpeed.value(), requestSpeed, QDateTime::currentMSecsSinceEpoch());
+        emit debug(QStringLiteral("Runn closed-loop: target=%1 initialCommand=%2")
+                       .arg(m_runnController.target()).arg(m_runnController.command()));
+    } else {
+        m_runnController.reset();
+    }
+}
+
+void fitshowtreadmill::updateRunnClosedLoop() {
+    if (!m_runnController.active()) return;
+
+    QSettings settings;
+    const bool configured =
+        settings.value(QZSettings::fitshow_runn_closed_loop, QZSettings::default_fitshow_runn_closed_loop).toBool() &&
+        settings.value(QZSettings::stryd_speed_instead_treadmill,
+                       QZSettings::default_stryd_speed_instead_treadmill).toBool() &&
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString().startsWith(QStringLiteral("Disabled"));
+
+    if (!configured || !autoResistanceEnable || paused || IS_PAUSE ||
+        IS_STATUS_SAFETY || IS_STATUS_ERRO || IS_STATUS_STUDY) {
+        m_runnController.reset();
+        emit debug(QStringLiteral("Runn closed-loop: disabled due to settings, pause or safety status"));
+        return;
+    }
+
+    const std::int64_t now = QDateTime::currentMSecsSinceEpoch();
+    const std::int64_t lastRunnMs = Speed.lastChanged().toMSecsSinceEpoch();
+    // lastChanged() advances on every sensor notification, even for an unchanged value.
+    if (lastRunnMs <= now && now - lastRunnMs <= 2500)
+        m_runnController.sample(Speed.value(), lastRunnMs);
+
+    // Handle stop/manual override even when a command is still pending.
+    const std::int64_t rawAgeMs = now - rawSpeed.lastChanged().toMSecsSinceEpoch();
+    const double threshold = settings.value(QZSettings::power_sensor_speed_correction_threshold,
+                                            QZSettings::default_power_sensor_speed_correction_threshold)
+                                 .toDouble() / 100.0;
+    const double minSpeed = std::max(0.0, settings.value(QZSettings::treadmill_speed_min,
+                                                        QZSettings::default_treadmill_speed_min).toDouble());
+    const double unit = settings.value(QZSettings::fitshow_treadmill_miles,
+                                        QZSettings::default_fitshow_treadmill_miles).toBool() ? 1.60934 : 1.0;
+    const double maxSpeed = std::min(settings.value(QZSettings::treadmill_speed_max,
+                                                    QZSettings::default_treadmill_speed_max).toDouble(),
+                                     MAX_SPEED * unit / 10.0);
+    const auto decision = m_runnController.update(now, IS_RUNNING, rawSpeed.value(), rawAgeMs,
+                                                   minSpeed, maxSpeed, threshold);
+    if (decision.cancelled) {
+        emit debug(QStringLiteral("Runn closed-loop: cancelled (%1)").arg(QString::fromLatin1(decision.reason)));
+        return;
+    }
+
+    if (!decision.changed || requestSpeed != -1 || requestStart != -1 ||
+        requestStop != -1 || !bufferWrite.isEmpty())
+        return;
+
+    emit debug(QStringLiteral("Runn closed-loop: target=%1 filtered=%2 treadmill=%3 newCommand=%4")
+                   .arg(m_runnController.target()).arg(decision.filtered)
+                   .arg(rawSpeed.value()).arg(decision.command));
+    forceSpeedOrIncline(decision.command, rawInclination.value());
+}
+
 void fitshowtreadmill::update() {
     if (!m_control || m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -258,6 +339,8 @@ void fitshowtreadmill::update() {
             }
             requestStop = -1;
         }
+
+        updateRunnClosedLoop();
 
         if (retrySend >= 6) { // 3 retries
             emit debug(QStringLiteral("WARNING: answer not received for command "
