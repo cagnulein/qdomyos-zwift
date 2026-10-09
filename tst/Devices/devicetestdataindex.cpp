@@ -1214,7 +1214,7 @@ void DeviceTestDataIndex::Initialize() {
     // Stages Bike
     RegisterNewDeviceTestData(DeviceIndex::StagesBike)
         ->expectDevice<stagesbike>()        
-        ->acceptDeviceNames({"STAGES ", "TACX SATORI", "RACER S", "ELITETRAINER", "MISURO B+"}, DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceNames({"STAGES ", "TACX SATORI", "ELITETRAINER", "MISURO B+"}, DeviceNameComparison::StartsWithIgnoreCase)
         ->acceptDeviceNames({"QD","DFC", "KU"}, DeviceNameComparison::IgnoreCase)
         ->excluding(stagesBikeExclusions);
 

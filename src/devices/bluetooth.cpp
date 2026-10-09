@@ -1960,6 +1960,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 npeCableBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(npeCableBike);
+            } else if (b.name().toUpper().startsWith("RACER S") && !kettlerRacerSBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kettlerRacerSBike = new kettlerracersbike(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(kettlerRacerSBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(kettlerRacerSBike, &kettlerracersbike::debug, this, &bluetooth::debug);
+                kettlerRacerSBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kettlerRacerSBike);
             } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
                         b.name().toUpper().startsWith("HS-5000L") ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) && toorx_ftms ) ||
@@ -2095,6 +2104,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         QRegularExpression(QStringLiteral("^XQ\\d{10}$"), QRegularExpression::CaseInsensitiveOption)
                             .match(b.name())
                             .hasMatch()) &&
+                       !b.name().toUpper().startsWith(QStringLiteral("RACER S")) &&
                         !QRegularExpression(QStringLiteral("^ADIDAS\\d{4,}$"), QRegularExpression::CaseInsensitiveOption)
                             .match(b.name())
                             .hasMatch() &&
@@ -2170,15 +2180,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 //connect(kineticInroadBike, &kineticinroadbike::debug, this, &bluetooth::debug);
                 kineticInroadBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(kineticInroadBike);
-            } else if (b.name().toUpper().startsWith("RACER S") && !kettlerRacerSBike && filter) {
-                this->setLastBluetoothDevice(b);
-                this->stopDiscovery();
-                kettlerRacerSBike = new kettlerracersbike(noWriteResistance, noHeartService);
-                emit deviceConnected(b);
-                connect(kettlerRacerSBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
-                connect(kettlerRacerSBike, &kettlerracersbike::debug, this, &bluetooth::debug);
-                kettlerRacerSBike->deviceDiscovered(b);
-                this->signalBluetoothDeviceConnected(kettlerRacerSBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("ERGO C12")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER C12"))) &&
                        !kettlerC12Bike && filter) {
