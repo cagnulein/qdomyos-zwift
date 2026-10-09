@@ -489,7 +489,9 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
             settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround =
             settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence) {
+        bool virtual_device_echelon =
+            settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+        if (ios_peloton_workaround && cadence && !virtual_device_echelon) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
             h->virtualbike_ios();
@@ -554,7 +556,7 @@ void echelonconnectsport::serviceScanDone(void) {
                 gattCommunicationChannelService->discoverDetails();
             } else {
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested("Bluetooth Service Error! Restart the bike!");
+                    homeform::singleton()->setToastRequested(QObject::tr("Bluetooth Service Error! Restart the bike!"));
                 m_control->disconnectFromDevice();
             }
     }
@@ -627,7 +629,7 @@ void echelonconnectsport::switchToClassicVirtualBikeBridge() {
     classicVirtualBridgeActive = true;
     if (homeform::singleton()) {
         homeform::singleton()->setEchelonBridgeSwitchPromptRequested(false);
-        homeform::singleton()->setToastRequested(QStringLiteral("Switching to classic Bluetooth bridge"));
+        homeform::singleton()->setToastRequested(QObject::tr("Switching to classic Bluetooth bridge"));
     }
 
 #ifdef Q_OS_IOS
@@ -667,7 +669,7 @@ void echelonconnectsport::enableVirtualEchelonBridge() {
 
     if (homeform::singleton()) {
         homeform::singleton()->setEchelonEnablePromptRequested(false);
-        homeform::singleton()->setToastRequested(QStringLiteral("Virtual Echelon enabled for this bike"));
+        homeform::singleton()->setToastRequested(QObject::tr("Virtual Echelon enabled for this bike"));
     }
 
     DirconManager *existingDirconManager = nullptr;

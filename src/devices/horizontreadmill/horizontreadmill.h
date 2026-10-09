@@ -62,6 +62,8 @@ class horizontreadmill : public treadmill {
     QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
+    QLowEnergyCharacteristic gattWriteCharMerachUnlock;
+    QLowEnergyService *gattMerachUnlockService = nullptr;
     volatile int notificationSubscribed = 0;
 
     static inline const QBluetoothUuid DomyosServiceId{QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455")};
@@ -74,9 +76,11 @@ class horizontreadmill : public treadmill {
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
     double lastInclination = 0;
+    qint64 lastNonZeroSpeedTimestamp = 0;
     bool horizonPaused = false;
     double lastHorizonForceSpeed = 0;
     double minInclination = 0.0;
+    double maxInclination = 15.0;
 
     bool initDone = false;
     bool initRequest = false;
@@ -95,10 +99,12 @@ class horizontreadmill : public treadmill {
     bool sole_tt8_treadmill = false;
     bool sole_s77_treadmill = false;
     bool anplus_treadmill = false;
+    bool run_bt_treadmill = false;
     bool tunturi_t60_treadmill = false;
     bool trx3500_treadmill = false;
     bool sole_f85_treadmill = false;
     bool sole_f89_treadmill = false;
+    bool adidas_treadmill = false;
     bool schwinn_810_treadmill = false;
     bool yesoul_treadmill = false;
     bool technogymrun = false;
@@ -109,6 +115,7 @@ class horizontreadmill : public treadmill {
     bool DOMYOS = false;
     bool domyos_treadmill_ts100 = false;
     bool SW_TREADMILL = false;
+    bool SW3925EAI_TREADMILL = false;
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
     bool MX_TM = false;
@@ -116,11 +123,14 @@ class horizontreadmill : public treadmill {
     bool FIT_TM = false;
     bool T3G_PRO = false;
     bool T3G_ELITE = false;
+    bool JFTM_T202 = false;
     bool TP1 = false;
     bool T01 = false;
     bool TM4800 = false;
     bool TM4500 = false;
     bool TM6500 = false;
+    bool FS_TREADMILL = false;
+    bool SF_TREADMILL = false;
     bool WT_TREADMILL = false;
     bool THERUN_T15 = false;
     bool MERACH_TREADMILL = false;

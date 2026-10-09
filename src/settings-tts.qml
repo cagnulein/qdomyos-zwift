@@ -6,6 +6,8 @@ import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    leftPadding: window.contentSideMargin
+    rightPadding: window.contentSideMargin
     focus: true
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
@@ -108,9 +110,9 @@ ScrollView {
             }
             Button {
                 id: okTTSSummarySec
-                text: "OK"
+                text: qsTr("OK")
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: { settings.tts_summary_sec = ttsSummarySecTextField.text; toast.show("Setting saved!"); }
+                onClicked: { settings.tts_summary_sec = ttsSummarySecTextField.text; toast.show(qsTr("Setting saved!")); }
             }
         }
         SwitchDelegate {

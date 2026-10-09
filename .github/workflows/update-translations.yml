@@ -1,0 +1,138 @@
+name: Update Translations
+
+on:
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday at midnight
+
+jobs:
+  update-translations:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Qt Linguist Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qtbase5-dev qttools5-dev-tools
+
+
+      - name: Update translation files
+        run: |
+          echo "Extracting translatable strings from source code..."
+          echo "Updating 30 language files..."
+
+          # lupdate will create/update all .ts files defined in TRANSLATIONS
+          lupdate src/qdomyos-zwift.pri
+
+      - name: Compile translation binaries (.qm)
+        run: |
+          echo "Compiling .ts files into .qm binaries..."
+          lrelease src/qdomyos-zwift.pri
+
+      - name: Verify generated .qm files
+        run: |
+          echo "Checking compiled translation files..."
+          ls -1 src/translations/*.qm
+
+      - name: Check for translation changes
+        run: |
+          echo ""
+          echo "Checking for changes..."
+
+          # Check if there are changes in translations folder
+          if git diff --quiet src/translations/; then
+            echo "✅ No translation updates needed - files are up to date"
+            echo "HAS_CHANGES=false" >> $GITHUB_ENV
+          else
+            echo "📝 Translation files have been updated with new/modified strings"
+            echo "HAS_CHANGES=true" >> $GITHUB_ENV
+
+            # Show diff stats
+            echo ""
+            echo "Changes summary:"
+            git diff --stat src/translations/
+
+            echo ""
+            echo "Files modified:"
+            git diff --name-only src/translations/
+          fi
+
+      - name: Name the update branch
+        if: env.HAS_CHANGES == 'true'
+        run: |
+          # create-pull-request makes the commit itself: a branch committed and pushed here
+          # beforehand was reset to master by it, and the PR was never opened
+          echo "BRANCH_NAME=translations/auto-update-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_ENV
+          echo "COMMIT_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_ENV
+
+      - name: Create Pull Request
+        if: env.HAS_CHANGES == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: master
+          branch: ${{ env.BRANCH_NAME }}
+          add-paths: src/translations/*.ts
+          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          commit-message: |
+            chore: update translation strings
+
+            Automatic update of translatable strings extracted from source code.
+            Updated 30 language files in src/translations/
+
+            - Updated by GitHub Actions (Scheduled)
+            - Date: ${{ env.COMMIT_DATE }}
+          title: "🌍 Update translation strings"
+          body: |
+            ## Translation Update
+
+            This PR updates the translation file with new strings extracted from the source code.
+
+            ### Changes
+            - Extracted new translatable strings using `lupdate`
+            - Updated 30 language files in `src/translations/`
+            - Languages: Italian, German, French, Spanish, Portuguese, Russian, Chinese, Japanese, Korean, Arabic, Hindi, and 19 more
+
+            ### What to do next
+            1. Review the new strings in `src/translations/qdomyos-zwift_*.ts`
+            2. Contributors can now create PRs to add translations in their language
+            3. Edit the `.ts` file for your language and add translations in `<translation>` tags
+            4. Merge this PR to make new strings available
+
+            ### Translation Files
+            - Location: `src/translations/`
+            - Format: `qdomyos-zwift_LOCALE.ts` (e.g., `qdomyos-zwift_it.ts` for Italian)
+            - 30 languages supported
+
+            **Note:** Strings marked as `<translation type="unfinished">` need translation.
+
+            ---
+            *Generated automatically by GitHub Actions*
+          labels: |
+            translations
+            automation
+
+      - name: Summary
+        if: always()
+        run: |
+          echo ""
+          echo "============================================"
+          echo "Translation Workflow Summary"
+          echo "============================================"
+          echo "Event: ${{ github.event_name }}"
+          echo "Has changes: ${{ env.HAS_CHANGES }}"
+          echo "============================================"
+
+          if [ "${{ env.HAS_CHANGES }}" = "true" ]; then
+            echo "✅ Translation files updated and PR created"
+            echo "   Branch: ${{ env.BRANCH_NAME }}"
+          else
+            echo "ℹ️  No updates needed - translation files are current"
+          fi

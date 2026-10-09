@@ -9,6 +9,8 @@
 #endif
 #endif
 #include <QQmlContext>
+#include <QTranslator>
+#include <QLocale>
 #include "logwriter.h"
 #include "bluetooth.h"
 #include "devices/domyostreadmill/domyostreadmill.h"
@@ -20,6 +22,7 @@
 #include <QGuiApplication>
 #include <QFileOpenEvent>
 #include <QEvent>
+#include <QLoggingCategory>
 #include <QOperatingSystemVersion>
 #include <QQmlApplicationEngine>
 #include <QSettings>
@@ -50,6 +53,7 @@
 #include "osc.h"
 
 #include "handleurl.h"
+#include "mywhooshlink.h"
 #include "authutils.h"
 
 class OAuthCallbackEventFilter : public QObject {
@@ -138,6 +142,10 @@ static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandle
 
 // Function to display help information and exit
 void displayHelp() {
+    // Test string for translation workflow - will be extracted by lupdate
+    QString testTranslation = QCoreApplication::translate("main", "QDomyos-Zwift - Fitness Equipment Bridge");
+    Q_UNUSED(testTranslation); // Suppress unused variable warning
+
     printf("qDomyos-Zwift Usage:\n");
     printf("General options:\n");
     printf("  -h, --help                    Display this help message and exit\n");
@@ -498,7 +506,12 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 #else
     if (logdebug == false)
 #endif
+    {
+        // Qt aborts after a fatal message: print it even with the log off
+        if (type == QtFatalMsg)
+            (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
         return;
+    }
 
     // QByteArray localMsg = msg.toLocal8Bit(); // NOTE: clazy-unused-non-trivial-variable
     const char *file = context.file ? context.file : "";
@@ -520,6 +533,10 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         break;
     case QtFatalMsg:
         txt += QStringLiteral("Fatal: %1 %2 %3\n").arg(file, function, msg); // NOTE: clazy-qstring-arg
+        // the log thread would not get to this line before the abort: write it here
+        if (logs == true || logdebug == true)
+            LogWriter().writeLog(homeform::getWritableAppDir() + logfilename, txt);
+        (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
         abort();
     }
 
@@ -700,10 +717,22 @@ int main(int argc, char *argv[]) {
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
-    foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email") && !s.contains("username") && !s.contains("token") && !s.contains("garmin_device_serial") && !s.contains("garmin_email")) {
 
-            qDebug() << s << settings.value(s);
+    // myMessageOutput() drops every message when the log is off (same condition as there), so don't
+    // build the messages nobody reads: the dump of all the settings and the Qt Bluetooth debug output,
+    // which Qt formats for every packet once its category is enabled
+    const bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+#if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
+    const bool logEnabled = forceQml ? logdebug : logs;
+#else
+    const bool logEnabled = logdebug;
+#endif
+    if (logEnabled) {
+        QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
+        foreach (QString s, settings.allKeys()) {
+            if (!QZSettings::isSensitiveSettingKey(s)) {
+                qDebug() << s << settings.value(s);
+            }
         }
     }
 
@@ -881,6 +910,12 @@ int main(int argc, char *argv[]) {
         OSC* osc = new OSC(&bl);
     }
 
+    // MyWhoosh Link integration
+    bool mywhoosh_link_enabled = settings.value(QZSettings::mywhoosh_link_enabled, QZSettings::default_mywhoosh_link_enabled).toBool();
+    if(mywhoosh_link_enabled) {
+        MyWhooshLink* mywhooshLink = new MyWhooshLink(&bl);
+    }
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     lockscreen h;
@@ -893,11 +928,76 @@ int main(int argc, char *argv[]) {
 #endif
     {
         AndroidStatusBar::registerQmlType();
-        
+
 #ifdef Q_OS_ANDROID
         FontManager fontManager;
         fontManager.initializeEmojiFont();
 #endif
+
+        // Standard dialog buttons (MessageDialog Yes/No/Abort...) are labelled by the Qt platform
+        // theme, and Qt's own translations are not shipped with the app. Listing the theme's
+        // strings here lets lupdate put them into our .ts files, so the app translator covers them.
+        static const char *const qtStandardButtonTexts[] = {
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "Yes"),
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "Yes to All"),
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "No"),
+            QT_TRANSLATE_NOOP("QAndroidPlatformTheme", "No to All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "OK"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Save"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Save All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Open"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "&Yes"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Yes to &All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "&No"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "N&o to All"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Abort"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Retry"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Ignore"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Close"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Cancel"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Discard"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Help"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Apply"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Reset"),
+            QT_TRANSLATE_NOOP("QPlatformTheme", "Restore Defaults"),
+        };
+        Q_UNUSED(qtStandardButtonTexts);
+
+        // Load translations based on explicit app setting or system locale.
+        QTranslator *translator = new QTranslator(app.data());
+        QString configuredLanguage =
+            settings.value(QZSettings::app_language, QZSettings::default_app_language).toString().trimmed();
+        QString locale = configuredLanguage.compare(QStringLiteral("auto"), Qt::CaseInsensitive) == 0 ||
+                                 configuredLanguage.isEmpty()
+                             ? QLocale::system().name()
+                             : configuredLanguage;
+        locale.replace(QLatin1Char('-'), QLatin1Char('_'));
+
+        auto tryLoadTranslation = [&](const QString &localeKey, const QString &sourceLabel) -> bool {
+            if (localeKey.isEmpty()) {
+                return false;
+            }
+            if (translator->load(QStringLiteral(":/translations/translations/qdomyos-zwift_") + localeKey)) {
+                app->installTranslator(translator);
+                qDebug() << "Translation loaded successfully for" << sourceLabel << ":" << localeKey;
+                return true;
+            }
+            return false;
+        };
+
+        // "en" is the built-in source language, so we don't load any translator for it.
+        if (locale.startsWith(QStringLiteral("en"), Qt::CaseInsensitive)) {
+            qDebug() << "Language setting resolves to English. Using built-in source strings.";
+        } else {
+            bool loaded = tryLoadTranslation(locale, QStringLiteral("locale"));
+            if (!loaded && locale.contains(QLatin1Char('_'))) {
+                loaded = tryLoadTranslation(locale.section(QLatin1Char('_'), 0, 0), QStringLiteral("language"));
+            }
+            if (!loaded) {
+                qDebug() << "No translation available for locale:" << locale << "- using default (English)";
+            }
+        }
+
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(
