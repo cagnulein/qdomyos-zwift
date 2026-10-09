@@ -1346,6 +1346,11 @@ Deseja atualizar as configurações do QZ?</translation>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Dispositivo Zwift: ATUALIZE O FIRMWARE!</translation>
     </message>
+    <message>
+        <location filename="../homeform.cpp" line="10663"/>
+        <source>Android notification enabled</source>
+        <translation>Notificação do Android ativada</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4688,6 +4693,40 @@ In the next window, allow access to the QZ folder.</source>
 Deseja procurá-los?
 
 Na próxima janela, permita o acesso à pasta QZ.</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1048"/>
+        <source>Connection lost in the background</source>
+        <translation>Conexão perdida em segundo plano</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1064"/>
+        <source>Android cut QZ&apos;s network while it was in the background, so the app connected to QZ over Wi-Fi (Zwift, for example) lost it.
+
+</source>
+        <translation>O Android cortou a rede do QZ enquanto estava em segundo plano, por isso a app conectada ao QZ por Wi-Fi (por exemplo, o Zwift) perdeu a conexão.
+
+</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1065"/>
+        <source>The Android notification keeps QZ running in the background. Enable it now? The workout keeps going, no restart needed.</source>
+        <translation>A notificação do Android mantém o QZ em execução em segundo plano. Ativar agora? O treino continua, sem necessidade de reiniciar.</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1077"/>
+        <source>Enable</source>
+        <translation>Ativar</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1082"/>
+        <source>Not now</source>
+        <translation>Agora não</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1087"/>
+        <source>Don&apos;t ask again</source>
+        <translation>Não perguntar novamente</translation>
     </message>
 </context>
 <context>

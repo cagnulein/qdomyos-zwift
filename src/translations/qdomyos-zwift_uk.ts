@@ -1346,6 +1346,11 @@ Do you want to update QZ settings?</source>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Пристрій Zwift: ОНОВІТЬ ПРОШИВКУ!</translation>
     </message>
+    <message>
+        <location filename="../homeform.cpp" line="10663"/>
+        <source>Android notification enabled</source>
+        <translation>Сповіщення Android увімкнено</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4680,6 +4685,40 @@ In the next window, allow access to the QZ folder.</source>
 Знайти їх?
 
 У наступному вікні дозвольте доступ до папки QZ.</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1048"/>
+        <source>Connection lost in the background</source>
+        <translation>Зв’язок втрачено у фоні</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1064"/>
+        <source>Android cut QZ&apos;s network while it was in the background, so the app connected to QZ over Wi-Fi (Zwift, for example) lost it.
+
+</source>
+        <translation>Android відключив QZ від мережі, поки він був у фоні, і застосунок, підключений до QZ через Wi-Fi (наприклад, Zwift), втратив зв’язок.
+
+</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1065"/>
+        <source>The Android notification keeps QZ running in the background. Enable it now? The workout keeps going, no restart needed.</source>
+        <translation>Сповіщення Android не дає системі зупинити QZ у фоні. Увімкнути його зараз? Тренування триватиме, перезапуск не потрібен.</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1077"/>
+        <source>Enable</source>
+        <translation>Увімкнути</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1082"/>
+        <source>Not now</source>
+        <translation>Не зараз</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1087"/>
+        <source>Don&apos;t ask again</source>
+        <translation>Більше не питати</translation>
     </message>
 </context>
 <context>
