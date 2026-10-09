@@ -27,8 +27,8 @@ class bike : public bluetoothdevice {
     uint16_t lastCrankEventTime() override;
     bool connected() override;
     double defaultMaxGears() { return 9999.0; }
-    virtual double maxGears() { return defaultMaxGears(); }
-    virtual double minGears() { return -9999.0; }
+    virtual double maxGears();
+    virtual double minGears();
     virtual uint16_t watts();
     virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
@@ -46,6 +46,7 @@ class bike : public bluetoothdevice {
     double gears();
     double gearsModifier();
     double gearsModifier(double gear);
+    double lastRequestedInclination() const { return lastRawRequestedInclinationValue; }
     double gearsZwiftRatio();
     void setSpeedLimit(double speed) { m_speedLimit = speed; }
     double speedLimit() { return m_speedLimit; }

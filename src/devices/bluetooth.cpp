@@ -2170,6 +2170,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 //connect(kineticInroadBike, &kineticinroadbike::debug, this, &bluetooth::debug);
                 kineticInroadBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(kineticInroadBike);
+            } else if (b.name().toUpper().startsWith("RACER S") && !kettlerRacerSBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kettlerRacerSBike = new kettlerracersbike(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(kettlerRacerSBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(kettlerRacerSBike, &kettlerracersbike::debug, this, &bluetooth::debug);
+                kettlerRacerSBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kettlerRacerSBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("ERGO C12")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER C12"))) &&
                        !kettlerC12Bike && filter) {
@@ -2185,7 +2194,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(kettlerC12Bike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
                         (b.name().toUpper().startsWith("TACX SATORI")) ||
-                        (b.name().toUpper().startsWith("RACER S")) ||
                         ((b.name().toUpper().startsWith("KU")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith("ELITETRAINER")) ||
                         (b.name().toUpper().startsWith("MISURO B+")) ||
@@ -4843,6 +4851,8 @@ bluetoothdevice *bluetooth::device() {
         return horizonGr7Bike;
     } else if (kineticInroadBike) {
         return kineticInroadBike;
+    } else if (kettlerRacerSBike) {
+        return kettlerRacerSBike;
     } else if (renphoBike) {
         return renphoBike;
     } else if (pafersBike) {
