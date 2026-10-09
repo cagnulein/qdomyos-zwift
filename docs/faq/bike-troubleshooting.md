@@ -112,3 +112,16 @@ You do not need Zwift open during this learning phase; QZ is the component colle
 The more representative data QZ has around your normal cadence and power range, the better it can estimate which resistance level should produce a requested wattage. On bikes with discrete resistance levels, some jumps can still be unavoidable because an exact target power may fall between two available levels.
 
 In a confirmed support case, QZ's ERG emulation was working on a bike without native ERG; the recommended learning procedure was then used to improve the resistance selection for ramp workouts.
+
+## MyWhoosh cannot discover QZ's virtual trainer on an Echelon console. Which virtual-device options should I check?
+
+If QZ is already connected to an unlocked Echelon bike and its own metrics work, but MyWhoosh on another device cannot see QZ as a trainer, check for special-purpose virtual-device options left enabled in **Experimental Settings**.
+
+1. Keep the normal **Virtual Bluetooth Device** enabled.
+2. Disable **Virtual iFit**, **Virtual Echelon**, and **Virtual Only Heart Rate** if they were enabled for previous experiments or setup procedures.
+3. Fully close and restart QZ, reconnect it to the physical bike, and then rescan for QZ's virtual trainer from MyWhoosh.
+4. Pair MyWhoosh with the QZ virtual trainer rather than directly with the Echelon bike.
+
+In a confirmed Echelon EX-4S+ support case, disabling Virtual iFit and Virtual Echelon alone did not restore discovery. After **Virtual Only Heart Rate** was also disabled, MyWhoosh immediately recognized QZ. This does not isolate a single setting as the cause; the working configuration had all three special-purpose modes disabled.
+
+**Exception:** If your bike still requires the **Virtual Echelon** unlock handshake, complete that separate unlock procedure first. These steps apply when the bike is already unlocked and QZ needs to advertise a normal trainer to MyWhoosh.

@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1016,
+  "settingCount": 1018,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -6869,16 +6869,16 @@
     {
       "key": "android_notification",
       "name": "Android Notification",
-      "description": "Android Only: enable this to force Android to don't kill QZ when it's running on background",
+      "description": "Spare: replaced by android_notification_v2 (on by default), kept because changing a default corrupts the iOS settings file.",
       "parent": "Experimental Features",
       "type": "boolean",
       "qmlType": "bool",
-      "control": "switch",
-      "visible": true,
+      "control": "internal",
+      "visible": false,
       "defaultValue": false,
       "defaultExpression": "false",
       "options": null,
-      "restartRequired": true
+      "restartRequired": false
     },
     {
       "key": "kingsmith_encrypt_v4",
@@ -16057,6 +16057,34 @@
       "defaultExpression": "false",
       "options": null,
       "restartRequired": true
+    },
+    {
+      "key": "android_notification_prompt_disabled",
+      "name": "Don't Ask to Enable the Android Notification",
+      "description": "Internal flag: \"Don't ask again\" in the question that offers the Android Notification after Android cut QZ's network in the background.",
+      "parent": "Experimental Features",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "internal",
+      "visible": false,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "restartRequired": false
+    },
+    {
+      "key": "android_notification_v2",
+      "name": "Android Notification",
+      "description": "Android Only: enable this to force Android to don't kill QZ when it's running on background",
+      "parent": "Experimental Features",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": true,
+      "defaultExpression": "true",
+      "options": null,
+      "restartRequired": false
     }
   ],
   "legacyHierarchy": {
@@ -16599,7 +16627,7 @@
       "age": "generalOptionsAccordion",
       "android_antbike": "uiAntOptionsAccordion",
       "android_documents_folder": "experimentalFeatureAccordion",
-      "android_notification": "zwiftUsernameTextField",
+      "android_notification_v2": "zwiftUsernameTextField",
       "android_wakelock": "experimentalFeatureAccordion",
       "ant_bike_device_number": "technogymBikeAccordion",
       "ant_cadence": "uiAntOptionsAccordion",
@@ -17173,7 +17201,7 @@
       "age": "settings.qml",
       "android_antbike": "settings.qml",
       "android_documents_folder": "settings.qml",
-      "android_notification": "settings.qml",
+      "android_notification_v2": "settings.qml",
       "android_wakelock": "settings.qml",
       "ant_bike_device_number": "settings.qml",
       "ant_cadence": "settings.qml",
@@ -18187,7 +18215,7 @@
       "age": 3044,
       "android_antbike": 6586,
       "android_documents_folder": 17371,
-      "android_notification": 756,
+      "android_notification_v2": 756,
       "android_wakelock": 17094,
       "ant_bike_device_number": 6600,
       "ant_cadence": 6692,

@@ -1,8 +1,14 @@
 #include "dirconprocessor.h"
 #include "dirconpacket.h"
+#include "homeform.h"
 #include "qzsettings.h"
+#include <QDateTime>
+#include <QGuiApplication>
 #include <QSettings>
 #include <QHostInfo>
+#include <QTimer>
+
+int DirconProcessor::networkLostGeneration = 0;
 
 DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_services, const QString &serv_name,
                                  quint16 serv_port, const QString &serv_sn, const QString &my_mac, QObject *parent)
@@ -12,6 +18,10 @@ DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_servi
     QSettings settings;
     rouvy_compatibility = settings.value(QZSettings::rouvy_compatibility, QZSettings::default_rouvy_compatibility).toBool();
     foreach (DirconProcessorService *my_service, my_services) { my_service->setParent(this); }
+    handledNetworkLostGeneration = networkLostGeneration; // a loss before this processor isn't its
+    if (QGuiApplication *guiApp = qobject_cast<QGuiApplication *>(QCoreApplication::instance())) {
+        connect(guiApp, &QGuiApplication::applicationStateChanged, this, &DirconProcessor::applicationStateChanged);
+    }
 }
 
 DirconProcessor::~DirconProcessor() {
@@ -170,10 +180,63 @@ void DirconProcessor::tcpNewConnection() {
 
 void DirconProcessor::tcpDisconnected() {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
+    DirconProcessorClient *client = clientsMap.value(socket);
+    const qint64 sinceData =
+        client && client->lastDataMs ? QDateTime::currentMSecsSinceEpoch() - client->lastDataMs : -1;
+    // Who closed it and how: RemoteHostClosedError is the app (Zwift) hanging up, a network error or unsent
+    // bytes piling up point at Wi-Fi; the app state tells whether QZ was in the background at the time
     qDebug() << "Disconnection from" << socket->peerAddress().toString() << ":" << socket->peerPort()
-             << " uuid = " << serverName;
+             << " uuid = " << serverName << "error" << socket->error() << socket->errorString() << "unsent bytes"
+             << socket->bytesToWrite() << "ms since last data" << sinceData << "app state"
+             << QGuiApplication::applicationState();
+    // NetworkError ("Software caused connection abort") is the phone dropping the socket, not the
+    // client hanging up: Android does it to an app in the background without a foreground service
+    if (socket->error() == QAbstractSocket::NetworkError) {
+        if (QGuiApplication::applicationState() == Qt::ApplicationActive) {
+            restartServer();
+        } else {
+            networkLostGeneration++;
+            if (homeform::singleton()) {
+                homeform::singleton()->backgroundNetworkLost();
+            }
+        }
+    }
     clientsMap.remove(socket);
     socket->deleteLater();
+}
+
+void DirconProcessor::applicationStateChanged(Qt::ApplicationState state) {
+    if (state != Qt::ApplicationActive || handledNetworkLostGeneration == networkLostGeneration) {
+        return;
+    }
+    handledNetworkLostGeneration = networkLostGeneration;
+    restartAttempts = 0;
+    // give Android a moment to give the network back before binding again
+    QTimer::singleShot(1000, this, &DirconProcessor::restartServer);
+}
+
+void DirconProcessor::restartServer() {
+    qDebug() << "Dircon restarting server and mDNS for" << serverName << "attempt" << restartAttempts + 1;
+    if (server) {
+        server->close();
+    }
+    // same dependency order as the destructor: the provider says goodbye through the server
+    delete mdnsProvider;
+    mdnsProvider = nullptr;
+    delete mdnsHostname;
+    mdnsHostname = nullptr;
+    delete mdnsServer;
+    mdnsServer = nullptr;
+    if (init()) {
+        restartAttempts = 0;
+    } else if (++restartAttempts < 5) {
+        // the network may not be back yet: without a retry nothing would bring the server up again,
+        // no client can reach it to fail once more
+        QTimer::singleShot(2000, this, &DirconProcessor::restartServer);
+    } else {
+        qDebug() << "Dircon restart gave up for" << serverName;
+        restartAttempts = 0;
+    }
 }
 
 DirconPacket DirconProcessor::processPacket(DirconProcessorClient *client, const DirconPacket &pkt) {
@@ -327,6 +390,7 @@ void DirconProcessor::tcpDataAvailable() {
     QByteArray data = socket->readAll();
     qDebug() << "Data available for uuid " << serverName << ":" << data.toHex();
     if (client) {
+        client->lastDataMs = QDateTime::currentMSecsSinceEpoch();
         int buflimit, rembuf;
         client->buffer.append(data);
         while (1) {

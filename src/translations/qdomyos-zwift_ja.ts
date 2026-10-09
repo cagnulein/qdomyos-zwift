@@ -1346,6 +1346,11 @@ QZの設定を更新しますか?</translation>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Zwiftデバイス: ファームウェアを更新してください!</translation>
     </message>
+    <message>
+        <location filename="../homeform.cpp" line="10663"/>
+        <source>Android notification enabled</source>
+        <translation>Androidバックグラウンド通知保持を有効にしました</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1527,8 +1532,8 @@ QZの設定を更新しますか?</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsList.qml" line="71"/>
-        <source>Training programs (*.xml *.zwo)</source>
-        <translation>トレーニングプログラム (*.xml *.zwo)</translation>
+        <source>Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)</source>
+        <translation>トレーニングプログラム (*.xml *.zwo *.mrc *.erg *.json *.xsr)</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsList.qml" line="71"/>
@@ -1570,8 +1575,8 @@ QZの設定を更新しますか?</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsListJS.qml" line="94"/>
-        <source>Training programs (*.xml *.zwo)</source>
-        <translation>トレーニングプログラム (*.xml *.zwo)</translation>
+        <source>Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)</source>
+        <translation>トレーニングプログラム (*.xml *.zwo *.mrc *.erg *.json *.xsr)</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsListJS.qml" line="94"/>
@@ -4696,6 +4701,40 @@ In the next window, allow access to the QZ folder.</source>
 検索しますか？
 
 次の画面でQZフォルダーへのアクセスを許可してください。</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1048"/>
+        <source>Connection lost in the background</source>
+        <translation>バックグラウンドで接続が切れました</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1064"/>
+        <source>Android cut QZ&apos;s network while it was in the background, so the app connected to QZ over Wi-Fi (Zwift, for example) lost it.
+
+</source>
+        <translation>QZ がバックグラウンドにある間に Android がネットワークを遮断したため、Wi-Fi で QZ に接続していたアプリ（Zwift など）の接続が切れました。
+
+</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1065"/>
+        <source>The Android notification keeps QZ running in the background. Enable it now? The workout keeps going, no restart needed.</source>
+        <translation>Androidバックグラウンド通知保持を使うと、QZ はバックグラウンドでも動作し続けます。今すぐ有効にしますか？トレーニングは中断されず、再起動も不要です。</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1077"/>
+        <source>Enable</source>
+        <translation>有効にする</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1082"/>
+        <source>Not now</source>
+        <translation>後で</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1087"/>
+        <source>Don&apos;t ask again</source>
+        <translation>今後表示しない</translation>
     </message>
 </context>
 <context>

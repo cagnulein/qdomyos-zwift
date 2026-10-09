@@ -1346,6 +1346,11 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Zwift-Gerät: AKTUALISIEREN SIE DIE FIRMWARE!</translation>
     </message>
+    <message>
+        <location filename="../homeform.cpp" line="10663"/>
+        <source>Android notification enabled</source>
+        <translation>Benachrichtigung von Android aktiviert</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1527,8 +1532,8 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsList.qml" line="71"/>
-        <source>Training programs (*.xml *.zwo)</source>
-        <translation>Trainingsprogramme (*.xml *.zwo)</translation>
+        <source>Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)</source>
+        <translation>Trainingsprogramme (*.xml *.zwo *.mrc *.erg *.json *.xsr)</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsList.qml" line="71"/>
@@ -1570,8 +1575,8 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsListJS.qml" line="94"/>
-        <source>Training programs (*.xml *.zwo)</source>
-        <translation>Trainingsprogramme (*.xml *.zwo)</translation>
+        <source>Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)</source>
+        <translation>Trainingsprogramme (*.xml *.zwo *.mrc *.erg *.json *.xsr)</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsListJS.qml" line="94"/>
@@ -4688,6 +4693,40 @@ In the next window, allow access to the QZ folder.</source>
 Möchten Sie danach suchen?
 
 Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1048"/>
+        <source>Connection lost in the background</source>
+        <translation>Verbindung im Hintergrund verloren</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1064"/>
+        <source>Android cut QZ&apos;s network while it was in the background, so the app connected to QZ over Wi-Fi (Zwift, for example) lost it.
+
+</source>
+        <translation>Android hat QZ im Hintergrund vom Netzwerk getrennt, daher hat die über WLAN mit QZ verbundene App (z. B. Zwift) die Verbindung verloren.
+
+</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1065"/>
+        <source>The Android notification keeps QZ running in the background. Enable it now? The workout keeps going, no restart needed.</source>
+        <translation>Die Benachrichtigung von Android hält QZ im Hintergrund aktiv. Jetzt aktivieren? Das Training läuft weiter, ein Neustart ist nicht nötig.</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1077"/>
+        <source>Enable</source>
+        <translation>Aktivieren</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1082"/>
+        <source>Not now</source>
+        <translation>Nicht jetzt</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1087"/>
+        <source>Don&apos;t ask again</source>
+        <translation>Nicht mehr fragen</translation>
     </message>
 </context>
 <context>

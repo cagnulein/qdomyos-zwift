@@ -1431,7 +1431,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(bhFitnessElliptical);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("E95S")) ||
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("XE88")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("E95S")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("E25")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("E35")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         b.name().toUpper().startsWith(QStringLiteral("E55")) ||
@@ -1738,6 +1739,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("T118_")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TM4500")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TM6500")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("TM55-")) || // LifeSmart TM55
                         b.name().toUpper().startsWith(QStringLiteral("RUNN ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YS_T")) ||
                         b.name().toUpper().startsWith(QStringLiteral("YPOO-MINI PRO-")) ||
@@ -3760,7 +3762,7 @@ void bluetooth::connectedAndDiscovered() {
             settings.value(QZSettings::ant_heart_device_number, QZSettings::default_ant_heart_device_number).toInt());
     }
 
-    if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
+    if (settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool()) {
         QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",

@@ -3374,6 +3374,15 @@ class QZSettings {
     static const QString android_landscape_cutout_prompt_shown;
     static constexpr bool default_android_landscape_cutout_prompt_shown = false;
 
+    // "Don't ask again" in the prompt that offers android_notification_v2 after Android cut QZ's network
+    static const QString android_notification_prompt_disabled;
+    static constexpr bool default_android_notification_prompt_disabled = false;
+
+    // Android Notification (foreground service), on by default. Replaces android_notification, which
+    // is kept as a spare: changing the default of an existing setting corrupts the iOS settings file.
+    static const QString android_notification_v2;
+    static constexpr bool default_android_notification_v2 = true;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

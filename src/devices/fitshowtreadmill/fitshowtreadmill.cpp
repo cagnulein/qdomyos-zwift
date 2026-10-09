@@ -188,7 +188,7 @@ void fitshowtreadmill::update() {
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         if (requestSpeed != -1) {
-            if (requestSpeed != currentSpeed().value()) {
+            if (requestSpeed != rawSpeed.value()) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 double inc = rawInclination.value();
                 if (requestInclination != -100) {
@@ -210,7 +210,7 @@ void fitshowtreadmill::update() {
             if (requestInclination != inc) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 inc = requestInclination;
-                double speed = currentSpeed().valueRaw();
+                double speed = rawSpeed.value();
                 if (requestSpeed != -1) {
                     speed = requestSpeed;
                     requestSpeed = -1;
@@ -527,12 +527,17 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                         .toBool())
                     miles = 1.60934;
 
-                if(IS_RUNNING)
-                    Speed = speed * miles;
-                else
-                    Speed = 0;
+                // Always update the treadmill speed used for motor control and corrections.
+                // When a Runn/Stryd sensor is selected, keep its speed in Speed instead.
+                const double machineSpeed = IS_RUNNING ? speed * miles : 0.0;
+                parseSpeed(machineSpeed);
+                if (!IS_RUNNING) {
+                    Speed = 0.0;
+                }
 
-                if (Speed.value() != speed) {
+                if (!settings.value(QZSettings::stryd_speed_instead_treadmill,
+                                    QZSettings::default_stryd_speed_instead_treadmill).toBool() &&
+                    Speed.value() != speed) {
                     emit speedChanged(speed);
                 }
 
@@ -595,8 +600,10 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 IS_STATUS_SAFETY = true;
                 sendSportData();
             }
-            if (Speed.value() != 0.0) {
-                Speed = 0.0;
+            const bool wasMoving = Speed.value() != 0.0;
+            parseSpeed(0.0);
+            Speed = 0.0;
+            if (wasMoving) {
                 emit speedChanged(0.0);
             }
             if (Inclination.value() != 0.0) {
