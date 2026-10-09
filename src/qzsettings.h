@@ -2325,11 +2325,11 @@ class QZSettings {
     static const QString stryd_speed_instead_treadmill;
     static constexpr bool default_stryd_speed_instead_treadmill = false;
 
-    static const QString fitshow_runn_closed_loop;
-    static constexpr bool default_fitshow_runn_closed_loop = false;
+    static const QString treadmill_runn_closed_loop;
+    static constexpr bool default_treadmill_runn_closed_loop = false;
 
-    static const QString fitshow_runn_closed_loop;
-    static constexpr bool default_fitshow_runn_closed_loop = false;
+    static const QString treadmill_runn_closed_loop;
+    static constexpr bool default_treadmill_runn_closed_loop = false;
     static const QString inclination_delay_seconds;
     static constexpr float default_inclination_delay_seconds = 0.0;
 
