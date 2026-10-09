@@ -1305,8 +1305,10 @@ const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 const QString QZSettings::android_landscape_cutout_margin = QStringLiteral("android_landscape_cutout_margin");
 const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral("android_landscape_cutout_prompt_shown");
+const QString QZSettings::android_notification_prompt_disabled = QStringLiteral("android_notification_prompt_disabled");
+const QString QZSettings::android_notification_v2 = QStringLiteral("android_notification_v2");
 
-const uint32_t allSettingsCount = 1013;
+const uint32_t allSettingsCount = 1015;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2346,6 +2348,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_trainer_8_0_pftl59721_0, QZSettings::default_proform_trainer_8_0_pftl59721_0},
     {QZSettings::android_landscape_cutout_prompt_shown, QZSettings::default_android_landscape_cutout_prompt_shown},
     {QZSettings::pafers_rower, QZSettings::default_pafers_rower},
+    {QZSettings::android_notification_prompt_disabled, QZSettings::default_android_notification_prompt_disabled},
+    {QZSettings::android_notification_v2, QZSettings::default_android_notification_v2},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

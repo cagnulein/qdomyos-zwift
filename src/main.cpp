@@ -717,6 +717,14 @@ int main(int argc, char *argv[]) {
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
+    // Foreground/background switches: Android may throttle or kill QZ in the background, and without this the
+    // log can't tell whether a lost connection to Zwift happened while QZ was on screen
+    if (QGuiApplication *guiApp = qobject_cast<QGuiApplication *>(app.data())) {
+        QObject::connect(guiApp, &QGuiApplication::applicationStateChanged,
+                         [](Qt::ApplicationState state) { qDebug() << "applicationStateChanged" << state; });
+        // the signal only reports changes: log the state QZ starts in (background when Android restarts it)
+        qDebug() << "applicationState at start" << guiApp->applicationState();
+    }
 
     // myMessageOutput() drops every message when the log is off (same condition as there), so don't
     // build the messages nobody reads: the dump of all the settings and the Qt Bluetooth debug output,
