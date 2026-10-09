@@ -139,7 +139,10 @@ public:
         }
         const double delta = std::max(-0.2, std::min(0.2, error * 0.35));
         double next = std::round((m_command + delta) * 10.0) / 10.0;
-        next = std::max({minSpeed, m_target - limit, std::min({next, maxSpeed, m_target + limit})});
+        const double lower = std::max(minSpeed, m_target - limit);
+        const double upper = std::min(maxSpeed, m_target + limit);
+        if (lower > upper) return result;
+        next = std::max(lower, std::min(upper, next));
         if (std::fabs(next - m_command) < 0.09) return result;
 
         m_command = next;
