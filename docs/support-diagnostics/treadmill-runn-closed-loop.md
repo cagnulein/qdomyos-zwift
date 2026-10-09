@@ -19,7 +19,7 @@ FitShow previously used the Runn-versus-machine speed difference **at the moment
 ## Control policy
 
 - Each speed request from QZ begins by commanding that requested speed, without applying the legacy instant Runn/machine delta.
-- The shared treadmill controller runs only when the treadmill is running, the external speed sensor is configured, automatic speed control is enabled, and the experimental option is on.
+- The shared treadmill controller runs only when the treadmill has a fresh independent machine-speed reading and is running, the external speed sensor is configured, automatic speed control is enabled, and the experimental option is on.
 - Do not correct below 5 km/h (Runn sticker readings at low speeds are unreliable).
 - Wait at least 8 seconds after each command and 4 seconds after the treadmill first reports reaching it.
 - Keep recent, distinct Runn samples over a 6-second window; require at least 5 observations covering at least 4 seconds. Ignore sensor samples older than 2.5 seconds and machine telemetry older than 3 seconds.
@@ -38,4 +38,4 @@ FitShow previously used the Runn-versus-machine speed difference **at the moment
 - Disconnect Runn during a run: motor speed remains unchanged, without runaway compensation.
 - Repeat with the option disabled: previous behavior is preserved.
 
-The controller's pure C++ policy has automated regression scenarios in `tst/ToolTests/fitshowrunnclosedlooptests.cpp`. **Hardware validation is still required before merging.**
+The controller's pure C++ policy has automated regression scenarios in `tst/ToolTests/treadmillrunnclosedlooptests.cpp`. **Hardware validation is still required before merging.**
