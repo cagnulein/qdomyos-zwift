@@ -167,6 +167,11 @@ android {
     // filesystem, not from inside the APK, so we must force extraction.
     packaging {
         resources {
+            // androiddeployqt also copies the patched Qt Bluetooth JAR into libs;
+            // keep the single identical QtBluetoothLE.java resource during merge.
+            pickFirsts += [
+                'org/qtproject/qt5/android/bluetooth/QtBluetoothLE.java'
+            ]
             excludes += [
                 'META-INF/io.netty.versions.properties',
                 'META-INF/INDEX.LIST',
