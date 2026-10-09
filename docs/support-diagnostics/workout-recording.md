@@ -1,17 +1,22 @@
-# Workout recording
+# Workout recording and history
 
-## Session missing from history
+## Live metrics are visible but a workout is missing or incomplete afterward
 
 ### Provide first
 
-- QZ version and device model.
-- Whether QZ start and stop were used.
-- Whether the session appears in QZ history.
+- QZ version, operating system, and machine model.
+- Whether QZ elapsed time and distance advanced during the activity.
+- Whether the QZ Play and Stop buttons were used, or only the machine's physical controls.
+- Whether the session is missing from QZ history, the external service, or both.
+- Whether QZ remained in the foreground with the screen awake.
 
 ### If still unclear
 
-- Capture a short QZ debug log.
+- Run a short session, starting and stopping the workout inside QZ.
+- Check QZ history before testing external uploads.
+- Provide a QZ debug log with the approximate start and stop times.
 
 ### Why it matters
 
-- Local recording and external upload are different steps.
+- Live telemetry is not proof that a workout was recorded and finalized.
+- Distinguishing local history from external upload failures isolates the affected step.
