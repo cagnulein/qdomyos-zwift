@@ -13,9 +13,17 @@ ColumnLayout {
     Settings {
         id: settings
     }
+    // A turn of the screen: the view goes off the screen and back (WebViewTurnFix.qml)
+    WebViewTurnFix {
+        id: turnFix
+        area: column1
+        active: column1.visible
+    }
     WebView {
         id: webView
         anchors.fill: parent
+        anchors.leftMargin: -turnFix.shift
+        anchors.rightMargin: turnFix.shift
         url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/previewchart/chart.htm"
         visible: true
         onLoadingChanged: {

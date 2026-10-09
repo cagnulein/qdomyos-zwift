@@ -26,6 +26,7 @@
         <file>templates/qz-TcpClient.qzt</file>
         <file>TrainingProgramsList.qml</file>
         <file>TrainingProgramsListJS.qml</file>
+        <file>WebViewTurnFix.qml</file>
         <file>WorkoutEditor.qml</file>
         <file>SettingsList.qml</file>
         <file>ChartJsTest.qml</file>

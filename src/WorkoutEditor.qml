@@ -34,6 +34,8 @@ Item {
     WebView {
         id: webView
         anchors.fill: parent
+        anchors.leftMargin: -turnFix.shift
+        anchors.rightMargin: turnFix.shift
         visible: root.pageLoaded
         onLoadingChanged: {
             if (loadRequest.status === WebView.LoadSucceededStatus) {
@@ -48,6 +50,13 @@ Item {
                 portPoller.start()
             }
         }
+    }
+
+    // A turn of the screen: the view goes off the screen and back (WebViewTurnFix.qml)
+    WebViewTurnFix {
+        id: turnFix
+        area: root
+        active: root.pageLoaded && root.visible
     }
 
     BusyIndicator {

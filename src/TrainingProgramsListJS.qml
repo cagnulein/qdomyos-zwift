@@ -373,11 +373,25 @@ ColumnLayout {
 
                 // WebView con grafico
                 // Preview data is now loaded via WebSocket, no runJavaScript needed
-                WebView {
-                    id: previewWebView
+                Item {
+                    id: previewBox
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
+
+                    // A turn of the screen: the view goes off the screen and back (WebViewTurnFix.qml)
+                    WebViewTurnFix {
+                        id: previewTurnFix
+                        area: previewBox
+                        active: previewWebView.visible
+                    }
+
+                    WebView {
+                        id: previewWebView
+                        anchors.fill: parent
+                        anchors.leftMargin: -previewTurnFix.shift
+                        anchors.rightMargin: previewTurnFix.shift
+                        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
+                    }
                 }
             }
         }
