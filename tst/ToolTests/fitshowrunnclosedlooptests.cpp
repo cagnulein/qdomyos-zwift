@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "devices/fitshowtreadmill/runnclosedloopcontroller.h"
+#include "devices/runnclosedloopcontroller.h"
 
-TEST(FitShowRunnClosedLoop, IgnoresInaccurateStartupReadings) {
-    FitShowRunnClosedLoopController controller;
+TEST(TreadmillRunnClosedLoop, IgnoresInaccurateStartupReadings) {
+    TreadmillRunnClosedLoopController controller;
     controller.start(10.0, 10.0, 0);
     controller.sample(0.028, 1000);
     EXPECT_FALSE(controller.update(1000, true, 0.7, 0, 0, 22, 0.2).changed);
@@ -22,8 +22,8 @@ TEST(FitShowRunnClosedLoop, IgnoresInaccurateStartupReadings) {
     EXPECT_TRUE(corrected);
 }
 
-TEST(FitShowRunnClosedLoop, DeadbandPreventsHunting) {
-    FitShowRunnClosedLoopController controller;
+TEST(TreadmillRunnClosedLoop, DeadbandPreventsHunting) {
+    TreadmillRunnClosedLoopController controller;
     controller.start(10.0, 10.0, 0);
     for (int ms = 1000; ms <= 30000; ms += 1000) {
         controller.sample(ms % 2000 == 0 ? 10.1 : 9.95, ms);
@@ -31,8 +31,8 @@ TEST(FitShowRunnClosedLoop, DeadbandPreventsHunting) {
     }
 }
 
-TEST(FitShowRunnClosedLoop, StaleOrSlowRunnReadingsDoNotAdjustMotor) {
-    FitShowRunnClosedLoopController controller;
+TEST(TreadmillRunnClosedLoop, StaleOrSlowRunnReadingsDoNotAdjustMotor) {
+    TreadmillRunnClosedLoopController controller;
     controller.start(10.0, 10.0, 0);
     controller.sample(0.028, 1000);
     controller.sample(4.5, 2000);
@@ -42,8 +42,8 @@ TEST(FitShowRunnClosedLoop, StaleOrSlowRunnReadingsDoNotAdjustMotor) {
     EXPECT_FALSE(controller.update(17000, true, 10.0, 0, 0, 22, 0.2).changed);
 }
 
-TEST(FitShowRunnClosedLoop, ManualConsoleChangeCancelsControl) {
-    FitShowRunnClosedLoopController controller;
+TEST(TreadmillRunnClosedLoop, ManualConsoleChangeCancelsControl) {
+    TreadmillRunnClosedLoopController controller;
     controller.start(10.0, 10.0, 0);
     EXPECT_FALSE(controller.update(5000, true, 10.0, 0, 0, 22, 0.2).changed);
     EXPECT_FALSE(controller.update(6000, true, 11.0, 0, 0, 22, 0.2).cancelled);
@@ -52,16 +52,16 @@ TEST(FitShowRunnClosedLoop, ManualConsoleChangeCancelsControl) {
     EXPECT_FALSE(controller.active());
 }
 
-TEST(FitShowRunnClosedLoop, StopCancelsActiveControl) {
-    FitShowRunnClosedLoopController controller;
+TEST(TreadmillRunnClosedLoop, StopCancelsActiveControl) {
+    TreadmillRunnClosedLoopController controller;
     controller.start(10.0, 10.0, 0);
     controller.update(5000, true, 10.0, 0, 0, 22, 0.2);
     EXPECT_TRUE(controller.update(5500, false, 0.0, 0, 0, 22, 0.2).cancelled);
     EXPECT_FALSE(controller.active());
 }
 
-TEST(FitShowRunnClosedLoop, NewWorkoutIntervalResetsFeedback) {
-    FitShowRunnClosedLoopController controller;
+TEST(TreadmillRunnClosedLoop, NewWorkoutIntervalResetsFeedback) {
+    TreadmillRunnClosedLoopController controller;
     controller.start(10.0, 10.0, 0);
     for (int ms = 1000; ms <= 9000; ms += 1000) {
         controller.sample(9.5, ms);
@@ -73,8 +73,8 @@ TEST(FitShowRunnClosedLoop, NewWorkoutIntervalResetsFeedback) {
     EXPECT_FALSE(controller.update(10500, true, 10.0, 0, 0, 22, 0.2).changed);
 }
 
-TEST(FitShowRunnClosedLoop, CorrectionsStayBounded) {
-    FitShowRunnClosedLoopController controller;
+TEST(TreadmillRunnClosedLoop, CorrectionsStayBounded) {
+    TreadmillRunnClosedLoopController controller;
     controller.start(10.0, 10.0, 0);
     double command = 10.0;
     for (int ms = 1000; ms <= 180000; ms += 1000) {
@@ -86,8 +86,8 @@ TEST(FitShowRunnClosedLoop, CorrectionsStayBounded) {
     }
 }
 
-TEST(FitShowRunnClosedLoop, LargeMismatchIsRejected) {
-    FitShowRunnClosedLoopController controller;
+TEST(TreadmillRunnClosedLoop, LargeMismatchIsRejected) {
+    TreadmillRunnClosedLoopController controller;
     controller.start(10.0, 10.0, 0);
     for (int ms = 1000; ms <= 30000; ms += 1000) {
         controller.sample(6.0, ms);
@@ -95,8 +95,8 @@ TEST(FitShowRunnClosedLoop, LargeMismatchIsRejected) {
     }
 }
 
-TEST(FitShowRunnClosedLoop, UnstartedTargetExpiresInsteadOfControllingLaterRun) {
-    FitShowRunnClosedLoopController controller;
+TEST(TreadmillRunnClosedLoop, UnstartedTargetExpiresInsteadOfControllingLaterRun) {
+    TreadmillRunnClosedLoopController controller;
     controller.start(10.0, 10.0, 0);
     EXPECT_FALSE(controller.update(29000, false, 0.0, 0, 0, 22, 0.2).cancelled);
     EXPECT_TRUE(controller.update(30000, false, 0.0, 0, 0, 22, 0.2).cancelled);
