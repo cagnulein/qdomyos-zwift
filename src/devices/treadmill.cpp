@@ -50,7 +50,7 @@ void treadmill::changeSpeed(double speed) {
         qDebug() << "speed override due to treadmill_speed_min" << speed;
     }
 
-    if(stryd_speed_instead_treadmill && Speed.value() > 0) {
+    if(stryd_speed_instead_treadmill && !m_skipStrydSpeedCorrection && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
         double correctionThreshold =
             settings.value(QZSettings::power_sensor_speed_correction_threshold,
