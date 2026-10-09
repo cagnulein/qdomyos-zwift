@@ -68,10 +68,10 @@ public:
         Result result;
         if (!m_active) return result;
         if (!running) {
-            if (m_everRunning) {
+            if (m_everRunning || nowMs - m_lastCommandMs >= 30000) {
                 reset();
                 result.cancelled = true;
-                result.reason = "treadmill stopped";
+                result.reason = "treadmill stopped or did not start";
             }
             return result;
         }
