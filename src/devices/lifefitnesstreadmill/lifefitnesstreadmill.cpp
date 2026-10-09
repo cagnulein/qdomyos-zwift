@@ -29,6 +29,23 @@
 
 using namespace std::chrono_literals;
 
+namespace {
+
+QByteArray lifeFitnessApplicationApiKey() {
+    // Reproduce the key assembly used by Life Fitness Connect 1.16.0.
+    const QByteArray encodedTail = QByteArray::fromHex(QByteArrayLiteral("4d4449304f545133525445794f445a450a"));
+    return QByteArrayLiteral("BA0A2CCED4FEB76CE0CA") + QByteArray::fromBase64(encodedTail);
+}
+
+const QString lifeFitnessCachedEmail = QStringLiteral("life_fitness_email");
+const QString lifeFitnessCachedOAuthToken = QStringLiteral("life_fitness_oauth_token");
+const QString lifeFitnessCachedOAuth2Token = QStringLiteral("life_fitness_oauth2_token");
+const QString lifeFitnessCachedOAuthTokenSecret = QStringLiteral("life_fitness_oauth_token_secret");
+const QString lifeFitnessCachedOAuth2Expiry = QStringLiteral("life_fitness_oauth2_token_expiry");
+const QString lifeFitnessDeviceId = QStringLiteral("life_fitness_device_id");
+
+} // namespace
+
 #ifdef Q_OS_IOS
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
@@ -204,25 +221,31 @@ bool lifefitnesstreadmill::waitForLifeFitnessState(const QByteArray &expectedSta
 }
 
 bool lifefitnesstreadmill::fetchLifeFitnessServiceProfile(const QString &username, const QString &password,
-                                                          const QString &apiKey, QByteArray &hmac,
-                                                          QByteArray &firstName, QByteArray &lastName,
-                                                          QByteArray &email) {
+                                                          QByteArray &hmac, QByteArray &firstName,
+                                                          QByteArray &lastName, QByteArray &email,
+                                                          QByteArray &oauthToken, QByteArray &oauth2Token,
+                                                          QByteArray &oauthTokenSecret, qint64 &oauth2TokenExpiry) {
     hmac.clear();
     firstName.clear();
     lastName.clear();
     email.clear();
-    if (!lifeFitnessNetworkManager || username.trimmed().isEmpty() || password.isEmpty() || apiKey.trimmed().isEmpty())
+    oauthToken.clear();
+    oauth2Token.clear();
+    oauthTokenSecret.clear();
+    oauth2TokenExpiry = 0;
+    if (!lifeFitnessNetworkManager || username.trimmed().isEmpty() || password.isEmpty())
         return false;
 
     lifeFitnessNetworkManager->setCookieJar(new QNetworkCookieJar(lifeFitnessNetworkManager));
 
     QSettings settings;
-    QString deviceId = settings.value(QStringLiteral("life_fitness_device_id")).toString();
+    QString deviceId = settings.value(lifeFitnessDeviceId).toString();
     if (deviceId.isEmpty()) {
         deviceId = QUuid::createUuid().toString(QUuid::WithoutBraces);
-        settings.setValue(QStringLiteral("life_fitness_device_id"), deviceId);
+        settings.setValue(lifeFitnessDeviceId, deviceId);
     }
 
+    const QByteArray apiKey = lifeFitnessApplicationApiKey();
     const QString language = QLocale::system().name().section(QLatin1Char('_'), 0, 0).isEmpty()
                                  ? QStringLiteral("en")
                                  : QLocale::system().name().section(QLatin1Char('_'), 0, 0);
@@ -230,7 +253,7 @@ bool lifefitnesstreadmill::fetchLifeFitnessServiceProfile(const QString &usernam
 
     auto applyHeaders = [&](QNetworkRequest &request) {
         request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-        request.setRawHeader("x-api-key", apiKey.toUtf8());
+        request.setRawHeader("x-api-key", apiKey);
         request.setRawHeader("x-device-id", deviceId.toUtf8());
         request.setRawHeader("accept-language", (language + QStringLiteral(", en;q=0.8")).toUtf8());
         request.setRawHeader("time-zone", timeZone.toUtf8());
@@ -284,6 +307,10 @@ bool lifefitnesstreadmill::fetchLifeFitnessServiceProfile(const QString &usernam
     firstName = user.value(QStringLiteral("firstname")).toString().toUtf8();
     lastName = user.value(QStringLiteral("lastname")).toString().toUtf8();
     email = user.value(QStringLiteral("email")).toString().toUtf8();
+    oauthToken = user.value(QStringLiteral("oauthToken")).toString().toUtf8();
+    oauth2Token = user.value(QStringLiteral("oauth2Token")).toString().toUtf8();
+    oauthTokenSecret = user.value(QStringLiteral("oauthTokenSecret")).toString().toUtf8();
+    oauth2TokenExpiry = user.value(QStringLiteral("oauth2TokenExpiry")).toVariant().toLongLong();
     if (hmac.isEmpty()) {
         emit debug(QStringLiteral("Life Fitness service login returned no HMAC"));
         return false;
@@ -324,10 +351,6 @@ void lifefitnesstreadmill::btinit() {
         const QString password =
             settings.value(QZSettings::life_fitness_password, QZSettings::default_life_fitness_password)
                 .toString();
-        const QString apiKey =
-            settings.value(QZSettings::life_fitness_api_key, QZSettings::default_life_fitness_api_key)
-                .toString()
-                .trimmed();
         const QByteArray presetSummary = QByteArray::fromHex(
             settings.value(QZSettings::life_fitness_preset_summary,
                            QZSettings::default_life_fitness_preset_summary)
@@ -335,19 +358,36 @@ void lifefitnesstreadmill::btinit() {
                 .toLatin1());
         QByteArray serviceEmail;
 
-        if (!username.isEmpty() && !password.isEmpty() && !apiKey.isEmpty()) {
+        if (!username.isEmpty() && !password.isEmpty()) {
             QByteArray serviceHmac;
             QByteArray serviceFirstName;
             QByteArray serviceLastName;
-            if (fetchLifeFitnessServiceProfile(username, password, apiKey, serviceHmac, serviceFirstName,
-                                               serviceLastName, serviceEmail)) {
+            QByteArray serviceOAuthToken;
+            QByteArray serviceOAuth2Token;
+            QByteArray serviceOAuthTokenSecret;
+            qint64 serviceOAuth2Expiry = 0;
+            if (fetchLifeFitnessServiceProfile(username, password, serviceHmac, serviceFirstName, serviceLastName,
+                                               serviceEmail, serviceOAuthToken, serviceOAuth2Token,
+                                               serviceOAuthTokenSecret, serviceOAuth2Expiry)) {
                 token = serviceHmac;
                 if (!serviceFirstName.isEmpty())
                     firstName = serviceFirstName;
                 if (!serviceLastName.isEmpty())
                     lastName = serviceLastName;
+                settings.setValue(QZSettings::life_fitness_token, QString::fromUtf8(serviceHmac));
+                if (!serviceFirstName.isEmpty())
+                    settings.setValue(QZSettings::life_fitness_first_name, QString::fromUtf8(serviceFirstName));
+                if (!serviceLastName.isEmpty())
+                    settings.setValue(QZSettings::life_fitness_last_name, QString::fromUtf8(serviceLastName));
+                if (!serviceEmail.isEmpty())
+                    settings.setValue(lifeFitnessCachedEmail, QString::fromUtf8(serviceEmail));
+                settings.setValue(lifeFitnessCachedOAuthToken, QString::fromUtf8(serviceOAuthToken));
+                settings.setValue(lifeFitnessCachedOAuth2Token, QString::fromUtf8(serviceOAuth2Token));
+                settings.setValue(lifeFitnessCachedOAuthTokenSecret, QString::fromUtf8(serviceOAuthTokenSecret));
+                settings.setValue(lifeFitnessCachedOAuth2Expiry, serviceOAuth2Expiry);
+                settings.sync();
             } else {
-                emit debug(QStringLiteral("Life Fitness service login unavailable; trying manual HMAC fallback"));
+                emit debug(QStringLiteral("Life Fitness service login unavailable; using cached HMAC if available"));
             }
         }
 
@@ -429,7 +469,11 @@ void lifefitnesstreadmill::btinit() {
             language = QByteArrayLiteral("en_US");
         writeProfileField(0x2AA2, language, QStringLiteral("Life Fitness language"));
         const QString email = serviceEmail.isEmpty()
-                                  ? settings.value(QZSettings::user_email, QZSettings::default_user_email).toString().trimmed()
+                                  ? settings.value(lifeFitnessCachedEmail,
+                                                   settings.value(QZSettings::user_email,
+                                                                  QZSettings::default_user_email))
+                                        .toString()
+                                        .trimmed()
                                   : QString::fromUtf8(serviceEmail);
         if (!email.isEmpty())
             writeProfileField(0x2A87, email.toUtf8(), QStringLiteral("Life Fitness email"));

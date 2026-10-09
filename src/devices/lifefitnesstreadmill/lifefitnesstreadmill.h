@@ -75,9 +75,10 @@ class lifefitnesstreadmill : public treadmill {
                              uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
     void waitForAPacket();
     bool waitForLifeFitnessState(const QByteArray &expectedState, int timeoutMs = 10000);
-    bool fetchLifeFitnessServiceProfile(const QString &username, const QString &password, const QString &apiKey,
-                                        QByteArray &hmac, QByteArray &firstName, QByteArray &lastName,
-                                        QByteArray &email);
+    bool fetchLifeFitnessServiceProfile(const QString &username, const QString &password, QByteArray &hmac,
+                                        QByteArray &firstName, QByteArray &lastName, QByteArray &email,
+                                        QByteArray &oauthToken, QByteArray &oauth2Token,
+                                        QByteArray &oauthTokenSecret, qint64 &oauth2TokenExpiry);
     void startDiscover();
     void btinit();
 

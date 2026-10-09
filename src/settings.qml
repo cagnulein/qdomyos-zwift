@@ -10114,7 +10114,7 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                     }
                     Label {
-                        text: qsTr("Used only for the Life Fitness 95T / Discover SE3 telemetry handshake. When configured, QZ posts the Life Fitness account credentials to the documented service endpoint, keeps the returned session cookies in memory, obtains User.hmac, and sends that value unchanged during the BLE login. The application API key is not bundled with QZ and must be supplied locally. If service login is not configured or fails, QZ can use the private manual HMAC fallback. Authentication values are never written to debug logs.")
+                        text: qsTr("Enter only the Life Fitness username and password. QZ reproduces the Connect app login headers, reconstructs the application key internally, keeps the returned session cookies in memory, caches the returned profile/HMAC/OAuth values privately, and sends the HMAC unchanged during the BLE login. Authentication values are never written to debug logs. The service response does not include the BLE preset summary, so an existing private cache is reused when available.")
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
                         textFormat: Text.PlainText
@@ -10151,78 +10151,14 @@ import AndroidStatusBar 1.0
                             onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
                     }
-                    RowLayout {
-                        spacing: 10
-                        Label { text: qsTr("Life Fitness application API key:"); Layout.fillWidth: true }
-                        TextField {
-                            id: lifeFitnessApiKeyTextField
-                            text: settings.life_fitness_api_key
-                            echoMode: TextInput.Password
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.life_fitness_api_key = text
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            onClicked: { settings.life_fitness_api_key = lifeFitnessApiKeyTextField.text; toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-                    RowLayout {
-                        spacing: 10
-                        Label { text: qsTr("First name:"); Layout.fillWidth: true }
-                        TextField {
-                            id: lifeFitnessFirstNameTextField
-                            text: settings.life_fitness_first_name
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.life_fitness_first_name = text
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            onClicked: { settings.life_fitness_first_name = lifeFitnessFirstNameTextField.text; toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-                    RowLayout {
-                        spacing: 10
-                        Label { text: qsTr("Last name:"); Layout.fillWidth: true }
-                        TextField {
-                            id: lifeFitnessLastNameTextField
-                            text: settings.life_fitness_last_name
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.life_fitness_last_name = text
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            onClicked: { settings.life_fitness_last_name = lifeFitnessLastNameTextField.text; toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-                    RowLayout {
-                        spacing: 10
-                        Label { text: qsTr("Manual HMAC fallback:"); Layout.fillWidth: true }
-                        TextField {
-                            id: lifeFitnessTokenTextField
-                            text: settings.life_fitness_token
-                            echoMode: TextInput.Password
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.life_fitness_token = text
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            onClicked: { settings.life_fitness_token = lifeFitnessTokenTextField.text; toast.show(qsTr("Setting saved!")); }
-                        }
-                    }
-                    RowLayout {
-                        spacing: 10
-                        Label { text: qsTr("Preset summary (18 hex chars):"); Layout.fillWidth: true }
-                        TextField {
-                            id: lifeFitnessPresetSummaryTextField
-                            text: settings.life_fitness_preset_summary
-                            echoMode: TextInput.Password
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.life_fitness_preset_summary = text
-                        }
-                        Button {
-                            text: qsTr("OK")
-                            onClicked: { settings.life_fitness_preset_summary = lifeFitnessPresetSummaryTextField.text; toast.show(qsTr("Setting saved!")); }
-                        }
+                    Label {
+                        text: qsTr("First run uses only the Life Fitness username and password. QZ reconstructs the application key from the inspected Connect APK, caches the returned profile/HMAC/OAuth values privately, and keeps them out of the UI and logs. The BLE preset summary is reused only from a previously captured local cache because the service response does not include it.")
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
                     Label {
                         text: qsTr("The 95T must be idle when QZ connects. Speed and incline control are not enabled because the supplied capture did not prove a working control command.")
