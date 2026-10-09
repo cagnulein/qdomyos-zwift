@@ -330,6 +330,7 @@ void fitshowtreadmill::update() {
             emit tapeStarted();
         }
         if (requestStop != -1) {
+            m_runnController.reset();
             if (paused) {
                 lastStop = QDateTime::currentMSecsSinceEpoch();
                 uint8_t pauseTape[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_PAUSE}; // to verify
