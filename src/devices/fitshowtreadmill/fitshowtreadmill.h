@@ -160,7 +160,6 @@ class fitshowtreadmill : public treadmill {
 
     metric rawInclination;
     FitShowRunnClosedLoopController m_runnController;
-    std::int64_t m_runnLastLoggedAtMs = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
