@@ -189,9 +189,8 @@ android {
     defaultConfig {
         applicationId = "org.cagnulen.qdomyoszwift"
         resConfig "en"
-            compileSdkVersion 33
-		  minSdkVersion = 21
-                  targetSdkVersion = 36
+        minSdk 21
+        targetSdk 36
     }
 
     tasks.all { task ->
