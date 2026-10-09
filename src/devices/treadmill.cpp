@@ -1,4 +1,6 @@
 #include "treadmill.h"
+#include "trainprogram.h"
+#include <QPointer>
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
 #endif
@@ -7,6 +9,8 @@
 #endif
 #include <QSettings>
 #include <cmath>
+
+static QPointer<trainprogram> activeTrainingProgram;
 
 static double gradeAdjustedCost(double gradePercent) {
     const double i = gradePercent / 100.0;
@@ -115,11 +119,33 @@ void treadmill::changeInclination(double grade, double inclination) {
     }
 }
 void treadmill::changeSpeedAndInclination(double speed, double inclination) {
+    if (activeTrainingProgram && activeTrainingProgram->isStarted()) {
+        const trainrow row = activeTrainingProgram->currentRow();
+        const bool heartRateControlled = row.zoneHR >= 0 || (row.HRmin > 0 && row.HRmax > 0);
+        const bool fixedProgramSpeed = row.forcespeed && row.speed > 0 && !heartRateControlled;
+
+        if (fixedProgramSpeed) {
+            qDebug() << "Training program fixed-speed row: ignoring combined speed/inclination adjustment"
+                     << speed << inclination;
+            return;
+        }
+
+        if (heartRateControlled) {
+            qDebug() << "Training program HR row: applying speed adjustment without re-sending inclination"
+                     << speed << inclination;
+            changeSpeed(speed);
+            return;
+        }
+    }
+
     changeSpeed(speed);
     changeInclination(inclination, inclination);
 }
 
 void treadmill::onTrainingProgramTransition() {
+    if (auto *program = qobject_cast<trainprogram *>(sender())) {
+        activeTrainingProgram = program;
+    }
     m_trainingProgramTransitionAt = QDateTime::currentDateTime();
     // Drop commands queued before the row transition. The new row writes its own targets
     // immediately after this callback; stale HR/manual requests must not arrive afterward.
@@ -901,7 +927,6 @@ void treadmill::changePower(int32_t power) {
     /*
     double erg_filter_upper =
         settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
-    double erg_filter_lower =
         settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
     double deltaDown = wattsMetric().value() - ((double)power);
     double deltaUp = ((double)power) - wattsMetric().value();
