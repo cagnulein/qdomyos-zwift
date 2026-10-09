@@ -10107,21 +10107,7 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-
-                    Label {
-                        text: qsTr("Life Fitness 95T login")
-                        font.bold: true
-                        Layout.fillWidth: true
-                    }
-                    Label {
-                        text: qsTr("Enter only the Life Fitness username and password. QZ reproduces the Connect app login headers, reconstructs the application key internally, keeps the returned session cookies in memory, caches the returned profile/HMAC/OAuth values privately, and sends the HMAC unchanged during the BLE login. Authentication values are never written to debug logs. The service response does not include the BLE preset summary, so an existing private cache is reused when available.")
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
+                 
                     RowLayout {
                         spacing: 10
                         Label { text: qsTr("Life Fitness username/email:"); Layout.fillWidth: true }
@@ -10150,24 +10136,6 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             onClicked: { settings.life_fitness_password = lifeFitnessPasswordTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
-                    }
-                    Label {
-                        text: qsTr("First run uses only the Life Fitness username and password. QZ reconstructs the application key from the inspected Connect APK, caches the returned profile/HMAC/OAuth values privately, and keeps them out of the UI and logs. The BLE preset summary is reused only from a previously captured local cache because the service response does not include it.")
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-                    Label {
-                        text: qsTr("The 95T must be idle when QZ connects. Speed and incline control are not enabled because the supplied capture did not prove a working control command.")
-                        font.italic: true
-                        font.pixelSize: Qt.application.font.pixelSize - 2
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
                     }
 
                     IndicatorOnlySwitch {
