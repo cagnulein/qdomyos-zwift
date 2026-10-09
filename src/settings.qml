@@ -1790,6 +1790,7 @@ import AndroidStatusBar 1.0
             property bool proform_trainer_8_0_pftl59721_0: false
             property bool android_landscape_cutout_prompt_shown: false
             property bool pafers_rower: false
+            property bool fitshow_runn_closed_loop: false
         }
 
 
@@ -14165,6 +14166,33 @@ import AndroidStatusBar 1.0
 
                             Label {
                                 text: qsTr("If you have a Bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: Qt.application.font.pixelSize - 2
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            IndicatorOnlySwitch {
+                                text: qsTr("FitShow Runn closed-loop speed correction")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.fitshow_runn_closed_loop
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.fitshow_runn_closed_loop = checked
+                            }
+
+                            Label {
+                                text: qsTr("Experimental: when using a FitShow treadmill and the Runn speed sensor, gradually adjust QZ-controlled workout speeds to match Runn after the belt has stabilized. Requires 'Use speed from the power sensor'. Does not override manual treadmill controls. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: Qt.application.font.pixelSize - 2
