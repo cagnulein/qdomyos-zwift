@@ -217,6 +217,12 @@ void fitshowtreadmill::updateRunnClosedLoop() {
     const double maxSpeed = std::min(settings.value(QZSettings::treadmill_speed_max,
                                                     QZSettings::default_treadmill_speed_max).toDouble(),
                                      MAX_SPEED * unit / 10.0);
+    // Do not advance the controller state while another BLE command is queued.
+    // Otherwise its next speed would be consumed internally but never transmitted.
+    if ((requestSpeed != -1 || requestStart != -1 || requestStop != -1 ||
+         !bufferWrite.isEmpty()) && IS_RUNNING)
+        return;
+
     const auto decision = m_runnController.update(now, IS_RUNNING, rawSpeed.value(), rawAgeMs,
                                                    minSpeed, maxSpeed, threshold);
     if (decision.cancelled) {
@@ -224,9 +230,7 @@ void fitshowtreadmill::updateRunnClosedLoop() {
         return;
     }
 
-    if (!decision.changed || requestSpeed != -1 || requestStart != -1 ||
-        requestStop != -1 || !bufferWrite.isEmpty())
-        return;
+    if (!decision.changed) return;
 
     emit debug(QStringLiteral("Runn closed-loop: target=%1 filtered=%2 treadmill=%3 newCommand=%4")
                    .arg(m_runnController.target()).arg(decision.filtered)
