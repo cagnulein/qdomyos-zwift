@@ -395,11 +395,6 @@ void lifefitnesstreadmill::btinit() {
             emit debug(QStringLiteral("Life Fitness profile and HMAC settings are required; skipping login"));
             return;
         }
-        if (presetSummary.size() != 9) {
-            emit debug(QStringLiteral("Life Fitness preset summary must contain 9 bytes of hex"));
-            return;
-        }
-
         const QByteArray descriptor = QByteArray::fromHex("0100");
         auto subscribe = [&](QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic) {
             if (!service || !characteristic.isValid())
@@ -492,6 +487,10 @@ void lifefitnesstreadmill::btinit() {
         const QByteArray height = QByteArray(1, static_cast<char>(rawHeight & 0xff)) +
                                   QByteArray(1, static_cast<char>((rawHeight >> 8) & 0xff));
         writeProfileField(0x2A8E, height, QStringLiteral("Life Fitness height"));
+        if (presetSummary.size() != 9) {
+            emit debug(QStringLiteral("Life Fitness profile/HMAC sent; preset summary must contain 9 bytes of hex"));
+            return;
+        }
         writeData(gattCustomService1, gattWriteChar2CustomService1, presetSummary,
                   QStringLiteral("Life Fitness preset summary"), true);
         writeData(gattCustomService1, gattWriteChar1CustomService1, QByteArray(1, char(0x02)),
