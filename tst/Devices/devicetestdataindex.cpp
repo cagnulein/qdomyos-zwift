@@ -1162,7 +1162,7 @@ void DeviceTestDataIndex::Initialize() {
     // Sole Elliptical
     RegisterNewDeviceTestData(DeviceIndex::SoleElliptical)
         ->expectDevice<soleelliptical>()        
-        ->acceptDeviceNames({"E95S","E25","E55","E95","E98","XG400","E98S"}, DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceNames({"XE88","E95S","E25","E55","E95","E98","XG400","E98S"}, DeviceNameComparison::StartsWithIgnoreCase);
 
     // Sole Elliptical 2
     RegisterNewDeviceTestData(DeviceIndex::SoleElliptical2)
