@@ -48,3 +48,14 @@ Use PM5 mode only when you specifically need Concept2/PM5 compatibility.
 Open **QZ Settings > Tiles** and enable **Pace Last 500m**.
 
 The tile shows rowing pace as the time needed to cover 500 metres, the standard pace format commonly used for rowing.
+
+## Can I use an external Bluetooth cadence sensor, such as a Magene S3, with a virtual rower?
+
+QZ supports selecting an external Bluetooth cadence sensor as a cadence source in supported rowing setups. The **Cadence Sensor Name** option can override cadence reported by the rower; QZ can then advertise a **Virtual Rower** to a compatible training app.
+
+1. Put the cadence sensor in its cadence broadcasting mode and confirm it is visible over Bluetooth.
+2. Select the sensor in QZ's **Cadence Sensor Name** setting.
+3. Enable **Virtual Rower** and pair the training app with QZ's virtual rowing device.
+4. Verify that cadence/stroke-rate values update while the sensor moves.
+
+A cycling cadence sensor measures rotations, not actual rowing strokes. Its placement and movement therefore determine whether the resulting stroke-rate values are meaningful. This is a supported input/virtual-device configuration, not a guarantee of accurate rowing power, pace, or stroke detection from the sensor alone.
