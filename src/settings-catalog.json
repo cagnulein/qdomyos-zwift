@@ -440,8 +440,8 @@
           "sets": "proform_treadmill_105_cst"
         },
         {
-          "label": "Proform Carbon TL PFTL59720 (HCI snoop)",
-          "sets": "proform_carbon_tl_PFTL59720_hci"
+          "label": "Freemotion T10.9B (HCI snoop)",
+          "sets": "freemotion_t10_9b_hci"
         },
         {
           "label": "Nordictrack Incline Trainer X7i NTL15010.0",
@@ -15993,9 +15993,9 @@
       "restartRequired": false
     },
     {
-      "key": "proform_carbon_tl_PFTL59720_hci",
-      "name": "Proform Carbon Tl Pftl59720 Hci",
-      "description": "ProForm Carbon TL PFTL59720 profile matching the captured HCI snoop.",
+      "key": "freemotion_t10_9b_hci",
+      "name": "Freemotion T10 9B Hci",
+      "description": "Freemotion T10.9B profile matching the captured HCI snoop.",
       "parent": "Proform/Nordictrack Options",
       "type": "boolean",
       "qmlType": "bool",
@@ -16871,7 +16871,7 @@
       "proform_bike_sb": "proformBikeAccordion",
       "proform_carbon_tl": "proformTreadmillAccordion",
       "proform_carbon_tl_PFTL59720": "proformTreadmillAccordion",
-      "proform_carbon_tl_PFTL59720_hci": "proformTreadmillAccordion",
+      "freemotion_t10_9b_hci": "proformTreadmillAccordion",
       "proform_carbon_tl_PFTL59722c": "proformTreadmillAccordion",
       "proform_carbon_tl_PFTL59723_6": "proformTreadmillAccordion",
       "proform_carbon_tlx_treadmill": "proformTreadmillAccordion",
@@ -17483,7 +17483,7 @@
       "proform_bike_sb": "settings.qml",
       "proform_carbon_tl": "settings.qml",
       "proform_carbon_tl_PFTL59720": "settings.qml",
-      "proform_carbon_tl_PFTL59720_hci": "settings.qml",
+      "freemotion_t10_9b_hci": "settings.qml",
       "proform_carbon_tl_PFTL59722c": "settings.qml",
       "proform_carbon_tl_PFTL59723_6": "settings.qml",
       "proform_carbon_tlx_treadmill": "settings.qml",
@@ -18445,7 +18445,7 @@
       "proform_bike_sb": 6108,
       "proform_carbon_tl": 11236,
       "proform_carbon_tl_PFTL59720": 11244,
-      "proform_carbon_tl_PFTL59720_hci": 17400,
+      "freemotion_t10_9b_hci": 17400,
       "proform_carbon_tl_PFTL59722c": 11251,
       "proform_carbon_tl_PFTL59723_6": 11269,
       "proform_carbon_tlx_treadmill": 11267,

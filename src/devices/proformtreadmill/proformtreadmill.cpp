@@ -82,8 +82,8 @@ void proformtreadmill::forceIncline(double incline) {
         write[10] = 0x00;
         write[11] = 0x10;
         write[12] = (uint8_t)incline;
-    } else if (proform_carbon_tl_PFTL59720_hci) {
-        // Native PFTL59720 incline writes use command 0x02 with a little-endian
+    } else if (freemotion_t10_9b_hci) {
+        // Native Freemotion T10.9B incline writes use command 0x02 with a little-endian
         // incline value in hundredths after the 0x00 selector byte.
         write[9] = 0x02;
         write[10] = 0x00;
@@ -93,7 +93,7 @@ void proformtreadmill::forceIncline(double incline) {
     } else if (proform_treadmill_8_0 || proform_treadmill_705_cst || proform_treadmill_705_cst_V78_239 || proform_treadmill_9_0 || proform_treadmill_se ||
                 proform_treadmill_z1300i || proform_treadmill_l6_0s || norditrack_s25_treadmill || proform_8_5_treadmill || nordictrack_treadmill_exp_5i || proform_2000_treadmill ||
                 proform_treadmill_sport_8_5 || proform_treadmill_505_cst || proform_505_cst_80_44 || proform_carbon_tl || proform_proshox2 || nordictrack_s20i_treadmill || proform_595i_proshox2 ||
-               proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_carbon_tl_PFTL59720_hci || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_300i || proform_performance_400i || proform_treadmill_c700 ||
+               proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || freemotion_t10_9b_hci || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_300i || proform_performance_400i || proform_treadmill_c700 ||
                proform_treadmill_c960i || nordictrack_tseries5_treadmill || proform_carbon_tl_PFTL59722c || proform_treadmill_1500_pro || proform_trainer_8_0 || proform_trainer_8_0_pftl59721_int_0 || proform_trainer_8_0_pftl59721_0 || proform_treadmill_705_cst_V80_44 ||
                nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_treadmill_sport_3_0 || proform_treadmill_995i || nordictrack_series_7 ||
                proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || proform_treadmill_cst_505_pftl59420_0
@@ -135,7 +135,7 @@ void proformtreadmill::forceSpeed(double speed) {
     } else if (proform_treadmill_8_0 || proform_treadmill_9_0 || proform_treadmill_se || proform_cadence_lt ||
                proform_treadmill_z1300i || proform_treadmill_l6_0s || norditrack_s25_treadmill || proform_8_5_treadmill || nordictrack_treadmill_exp_5i || proform_2000_treadmill ||
                proform_treadmill_sport_8_5 || proform_treadmill_505_cst || proform_505_cst_80_44 || proform_treadmill_705_cst || proform_treadmill_705_cst_V78_239 || proform_carbon_tl || proform_proshox2 || nordictrack_s20i_treadmill || proform_595i_proshox2 ||
-               proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || proform_carbon_tl_PFTL59720_hci || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_300i || proform_performance_400i || proform_treadmill_c700 ||
+               proform_treadmill_8_7 || proform_carbon_tl_PFTL59720 || freemotion_t10_9b_hci || proform_treadmill_sport_70 || proform_treadmill_575i || proform_performance_300i || proform_performance_400i || proform_treadmill_c700 ||
                proform_treadmill_c960i || nordictrack_tseries5_treadmill || proform_carbon_tl_PFTL59722c || proform_treadmill_1500_pro || proform_trainer_8_0 || proform_trainer_8_0_pftl59721_int_0 || proform_trainer_8_0_pftl59721_0 || proform_treadmill_705_cst_V80_44 ||
                nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_treadmill_sport_3_0 || proform_treadmill_995i || nordictrack_series_7 ||
                proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || proform_treadmill_cst_505_pftl59420_0 || proform_treadmill_105_cst) {
@@ -2834,8 +2834,8 @@ void proformtreadmill::update() {
             if (counterPoll > 5) {
                 counterPoll = 0;
             }            
-        } else if (proform_carbon_tl_PFTL59720_hci) {
-            // Runtime poll sequence captured from the PFTL59720 I_TL HCI snoop.
+        } else if (freemotion_t10_9b_hci) {
+            // Runtime poll sequence captured from the Freemotion T10.9B I_TL HCI snoop.
             uint8_t noOpData1[] = {0xfe, 0x02, 0x14, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00,
                                    0x0a, 0x1b, 0x94, 0x30, 0x00, 0x10, 0x40, 0x50, 0x00, 0x80};
@@ -4061,7 +4061,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         ((proform_trainer_8_0_pftl59721_int_0 || proform_trainer_8_0_pftl59721_0) &&
          (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2e && newValue.at(5) != 0x2f))) ||
 
-        ((norditrack_s25i_treadmill || nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || proform_carbon_tl_PFTL59720_hci) &&
+        ((norditrack_s25i_treadmill || nordictrack_treadmill_ultra_le || nordictrack_treadmill_commercial_le || proform_treadmill_carbon_tls || proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || freemotion_t10_9b_hci) &&
          (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2f))) ||
 
         ((nordictrack_t65s_treadmill || nordictrack_t65s_treadmill_81_miles || proform_pro_1000_treadmill || nordictrack_t65s_83_treadmill || nordictrack_s30_treadmill ||
@@ -4079,7 +4079,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
          ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF) ||
 
         (((((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) &&
-        (proform_proshox2 || proform_595i_proshox2 || proform_treadmill_sport_3_0 || proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || proform_carbon_tl_PFTL59720_hci))
+        (proform_proshox2 || proform_595i_proshox2 || proform_treadmill_sport_3_0 || proform_carbon_tlx_treadmill || proform_carbon_tlx_v84_314_treadmill || proform_carbon_tl_PFTL59723_6 || freemotion_t10_9b_hci))
     )
     {
         return;
@@ -4089,7 +4089,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     m_watts = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
 
     // for the proform_treadmill_se this field is the distance in meters ;)
-    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill && !proform_treadmill_sport_3_0 && !proform_carbon_tlx_treadmill && !proform_carbon_tlx_v84_314_treadmill && !proform_carbon_tl_PFTL59723_6 && !proform_carbon_tl_PFTL59720_hci) {
+    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill && !proform_treadmill_sport_3_0 && !proform_carbon_tlx_treadmill && !proform_carbon_tlx_v84_314_treadmill && !proform_carbon_tl_PFTL59723_6 && !freemotion_t10_9b_hci) {
         m_watts = 0;
     } else {
         if (!proform_cadence_lt) {
@@ -4213,7 +4213,7 @@ void proformtreadmill::btinit() {
     proform_595i_proshox2 = settings.value(QZSettings::proform_595i_proshox2, QZSettings::default_proform_595i_proshox2).toBool();
     proform_treadmill_8_7 = settings.value(QZSettings::proform_treadmill_8_7, QZSettings::default_proform_treadmill_8_7).toBool();
     proform_carbon_tl_PFTL59720 = settings.value(QZSettings::proform_carbon_tl_PFTL59720, QZSettings::default_proform_carbon_tl_PFTL59720).toBool();
-    proform_carbon_tl_PFTL59720_hci = settings.value(QZSettings::proform_carbon_tl_PFTL59720_hci, QZSettings::default_proform_carbon_tl_PFTL59720_hci).toBool();
+    freemotion_t10_9b_hci = settings.value(QZSettings::freemotion_t10_9b_hci, QZSettings::default_freemotion_t10_9b_hci).toBool();
     proform_treadmill_sport_70 = settings.value(QZSettings::proform_treadmill_sport_70, QZSettings::default_proform_treadmill_sport_70).toBool();
     proform_treadmill_575i = settings.value(QZSettings::proform_treadmill_575i, QZSettings::default_proform_treadmill_575i).toBool();
     proform_performance_300i = settings.value(QZSettings::proform_performance_300i, QZSettings::default_proform_performance_300i).toBool();
@@ -5262,8 +5262,8 @@ void proformtreadmill::btinit() {
         QThread::msleep(sleepms);
         writeCharacteristic(noOpData12, sizeof(noOpData12), QStringLiteral("init"), false, false);
         QThread::msleep(sleepms);        
-} else if (proform_carbon_tl_PFTL59720_hci) {
-        // PFTL59720 I_TL init sequence captured from the native HCI snoop.
+} else if (freemotion_t10_9b_hci) {
+        // Freemotion T10.9B I_TL init sequence captured from the native HCI snoop.
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t initData3[] = {0xfe, 0x02, 0x08, 0x02};

@@ -1792,7 +1792,7 @@ import AndroidStatusBar 1.0
             property bool pafers_rower: false
             property bool android_notification_prompt_disabled: false
             property bool android_notification_v2: true
-            property bool proform_carbon_tl_PFTL59720_hci: false
+            property bool freemotion_t10_9b_hci: false
         }
 
 
@@ -10539,7 +10539,7 @@ import AndroidStatusBar 1.0
                                     "Nordictrack Incline Trainer X7i NTL15010.0",
                                     "Nordictrack Incline Trainer X7i NETL18716.0",
                                     "ProForm Trainer 8.0 PFTL59721.0",
-                                    "Proform Carbon TL PFTL59720 (HCI snoop)",
+                                    "Freemotion T10.9B (HCI snoop)",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -10622,7 +10622,7 @@ import AndroidStatusBar 1.0
                                                     settings.nordictrack_incline_trainer_x7i_ntl15010_0 ? 63 :
                                                     settings.nordictrack_incline_trainer_x7i_netl18716_0 ? 64 :
                                                     settings.proform_trainer_8_0_pftl59721_0 ? 65 :
-                                                    settings.proform_carbon_tl_PFTL59720_hci ? 66 : 0;
+                                                    settings.freemotion_t10_9b_hci ? 66 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -10702,7 +10702,7 @@ import AndroidStatusBar 1.0
                                     settings.nordictrack_incline_trainer_x7i_ntl15010_0 = false;
                                     settings.nordictrack_incline_trainer_x7i_netl18716_0 = false;
                                     settings.proform_trainer_8_0_pftl59721_0 = false;
-                                    settings.proform_carbon_tl_PFTL59720_hci = false;
+                                    settings.freemotion_t10_9b_hci = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -10771,7 +10771,7 @@ import AndroidStatusBar 1.0
                                         case 63: settings.nordictrack_incline_trainer_x7i_ntl15010_0 = true; break;
                                         case 64: settings.nordictrack_incline_trainer_x7i_netl18716_0 = true; break;
                                         case 65: settings.proform_trainer_8_0_pftl59721_0 = true; break;
-                                        case 66: settings.proform_carbon_tl_PFTL59720_hci = true; break;
+                                        case 66: settings.freemotion_t10_9b_hci = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
