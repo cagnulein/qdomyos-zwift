@@ -943,7 +943,7 @@ import AndroidStatusBar 1.0
             property bool gpx_loop: false
 
             // from version 2.12.6
-            property bool android_notification: true
+            property bool android_notification: false
 
             // from version 2.12.8
             property bool kingsmith_encrypt_v4: false
@@ -1791,6 +1791,7 @@ import AndroidStatusBar 1.0
             property bool android_landscape_cutout_prompt_shown: false
             property bool pafers_rower: false
             property bool android_notification_prompt_disabled: false
+            property bool android_notification_v2: true
         }
 
 
@@ -7816,7 +7817,7 @@ import AndroidStatusBar 1.0
                         checked: settings.zwift_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_ocr = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_ocr = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification_v2 = true; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -7843,7 +7844,7 @@ import AndroidStatusBar 1.0
                         checked: settings.zwift_ocr_climb_portal
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_ocr_climb_portal = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_ocr_climb_portal = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr = false; settings.android_notification_v2 = true; window.settings_restart_to_apply = true; }
                     }
 
                     IndicatorOnlySwitch {
@@ -7857,7 +7858,7 @@ import AndroidStatusBar 1.0
                         checked: settings.zwift_workout_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_workout_ocr = checked; settings.zwift_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_workout_ocr = checked; settings.zwift_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification_v2 = true; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -16793,11 +16794,11 @@ import AndroidStatusBar 1.0
                         rightPadding: 0
                         leftPadding: 0
                         clip: false
-                        checked: settings.android_notification
+                        checked: settings.android_notification_v2
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         // applied at once (the service starts or stops), no restart needed
-                        onClicked: { settings.android_notification = checked; rootItem.android_notification_apply(checked); }
+                        onClicked: { settings.android_notification_v2 = checked; rootItem.android_notification_apply(checked); }
                     }
 
                     Label {

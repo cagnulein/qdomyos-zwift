@@ -10634,7 +10634,7 @@ void homeform::echelon_dismiss_enable_prompt() {
 void homeform::backgroundNetworkLost() {
 #ifdef Q_OS_ANDROID
     QSettings settings;
-    if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool() ||
+    if (settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool() ||
         settings.value(QZSettings::android_notification_prompt_disabled,
                        QZSettings::default_android_notification_prompt_disabled)
             .toBool()) {
@@ -10653,7 +10653,7 @@ void homeform::android_notification_prompt_enable() {
     setAndroidNotificationPromptRequested(false);
 #ifdef Q_OS_ANDROID
     QSettings settings;
-    settings.setValue(QZSettings::android_notification, true);
+    settings.setValue(QZSettings::android_notification_v2, true);
     android_notification_apply(true);
     setToastRequested(QObject::tr("Android notification enabled"));
 #endif

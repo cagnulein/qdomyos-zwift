@@ -3760,7 +3760,7 @@ void bluetooth::connectedAndDiscovered() {
             settings.value(QZSettings::ant_heart_device_number, QZSettings::default_ant_heart_device_number).toInt());
     }
 
-    if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
+    if (settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool()) {
         QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
