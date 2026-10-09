@@ -94,3 +94,11 @@ TEST(FitShowRunnClosedLoop, LargeMismatchIsRejected) {
         EXPECT_FALSE(controller.update(ms, true, 10.0, 0, 0, 22, 0.2).changed);
     }
 }
+
+TEST(FitShowRunnClosedLoop, UnstartedTargetExpiresInsteadOfControllingLaterRun) {
+    FitShowRunnClosedLoopController controller;
+    controller.start(10.0, 10.0, 0);
+    EXPECT_FALSE(controller.update(29000, false, 0.0, 0, 0, 22, 0.2).cancelled);
+    EXPECT_TRUE(controller.update(30000, false, 0.0, 0, 0, 22, 0.2).cancelled);
+    EXPECT_FALSE(controller.active());
+}
