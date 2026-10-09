@@ -351,10 +351,12 @@ void lifefitnesstreadmill::btinit() {
         const QString password =
             settings.value(QZSettings::life_fitness_password, QZSettings::default_life_fitness_password)
                 .toString();
+        const QString presetSummaryHex = settings.value(QZSettings::life_fitness_preset_summary,
+                                                         QZSettings::default_life_fitness_preset_summary)
+                                             .toString()
+                                             .trimmed();
         const QByteArray presetSummary = QByteArray::fromHex(
-            settings.value(QZSettings::life_fitness_preset_summary,
-                           QZSettings::default_life_fitness_preset_summary)
-                .toString()
+            (presetSummaryHex.isEmpty() ? QZSettings::default_life_fitness_preset_summary : presetSummaryHex)
                 .toLatin1());
         QByteArray serviceEmail;
 
