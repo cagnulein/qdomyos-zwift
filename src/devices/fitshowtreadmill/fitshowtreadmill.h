@@ -27,6 +27,7 @@
 #include <QObject>
 
 #include "treadmill.h"
+#include "runnclosedloopcontroller.h"
 #include "virtualdevices/virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
@@ -82,6 +83,7 @@ class fitshowtreadmill : public treadmill {
     fitshowtreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     virtual ~fitshowtreadmill();
+    void changeSpeed(double speed) override;
     bool connected() override;
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
@@ -90,6 +92,7 @@ class fitshowtreadmill : public treadmill {
   private:
     bool checkIncomingPacket(const uint8_t *data, uint8_t data_len) const;
     void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void updateRunnClosedLoop();
     void btinit(bool startTape);
     void writeCharacteristic(const uint8_t *data, uint8_t data_len, const QString &info = QString());
     bool writePayload(const uint8_t *data, uint8_t data_len, const QString &info = QString());
@@ -156,6 +159,8 @@ class fitshowtreadmill : public treadmill {
     bool tunturi_t80_connected = false;
 
     metric rawInclination;
+    FitShowRunnClosedLoopController m_runnController;
+    std::int64_t m_runnLastLoggedAtMs = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
