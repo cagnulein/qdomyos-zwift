@@ -1346,6 +1346,11 @@ Do you want to update QZ settings?</source>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Zwift 设备：请升级固件！</translation>
     </message>
+    <message>
+        <location filename="../homeform.cpp" line="10663"/>
+        <source>Android notification enabled</source>
+        <translation>已启用 Android 通知</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -4700,6 +4705,40 @@ In the next window, allow access to the QZ folder.</source>
 要查找它们吗？
 
 请在下一个窗口中允许访问 QZ 文件夹。</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1048"/>
+        <source>Connection lost in the background</source>
+        <translation>后台连接已断开</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1064"/>
+        <source>Android cut QZ&apos;s network while it was in the background, so the app connected to QZ over Wi-Fi (Zwift, for example) lost it.
+
+</source>
+        <translation>QZ 在后台时 Android 切断了它的网络，因此通过 Wi-Fi 连接到 QZ 的应用（例如 Zwift）断开了连接。
+
+</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1065"/>
+        <source>The Android notification keeps QZ running in the background. Enable it now? The workout keeps going, no restart needed.</source>
+        <translation>Android 通知可让 QZ 在后台保持运行。现在启用吗？训练会继续进行，无需重启。</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1077"/>
+        <source>Enable</source>
+        <translation>启用</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1082"/>
+        <source>Not now</source>
+        <translation>以后再说</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1087"/>
+        <source>Don&apos;t ask again</source>
+        <translation>不再询问</translation>
     </message>
 </context>
 <context>

@@ -125,3 +125,9 @@ If QZ is already connected to an unlocked Echelon bike and its own metrics work,
 In a confirmed Echelon EX-4S+ support case, disabling Virtual iFit and Virtual Echelon alone did not restore discovery. After **Virtual Only Heart Rate** was also disabled, MyWhoosh immediately recognized QZ. This does not isolate a single setting as the cause; the working configuration had all three special-purpose modes disabled.
 
 **Exception:** If your bike still requires the **Virtual Echelon** unlock handshake, complete that separate unlock procedure first. These steps apply when the bike is already unlocked and QZ needs to advertise a normal trainer to MyWhoosh.
+
+## QZ connects to my devices, but the dashboard tiles have disappeared. How do I restore them?
+
+If QZ opens to its main screen without the expected speed, cadence, power, or gear tiles, try running QZ's initial **setup wizard** again to restore the dashboard layout. After completing the wizard, return to the main screen and check that the tiles have reappeared before investigating the bike connection or virtual gearing.
+
+A support user explicitly confirmed that rerunning the wizard restored missing tiles while QZ was still detecting the connected Wahoo devices. This is a dashboard-layout issue, not evidence that the trainer itself has lost Bluetooth connectivity.

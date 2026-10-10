@@ -721,7 +721,7 @@ void DeviceTestDataIndex::Initialize() {
             // FTMS
             {"T318_", "T218_", "TRX3500", "JFTMPARAGON", "PARAGON X", "JFTM", "CT800",
              "MOBVOI TM", "DK202000725", "CTM780102C6BB32D62", "MX-TM ", "MATRIXTF50", "MOBVOI TM",
-             "KETTLER TREADMILL", "ASSAULTRUNNER"}, DeviceNameComparison::StartsWithIgnoreCase);
+             "KETTLER TREADMILL", "ASSAULTRUNNER", "TM55-"}, DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Horizon Treadmill (Toorx)
@@ -919,7 +919,9 @@ void DeviceTestDataIndex::Initialize() {
     // Nautilus Treadmill
     RegisterNewDeviceTestData(DeviceIndex::NautilusTreadmill)
         ->expectDevice<nautilustreadmill>()
-        ->acceptDeviceName("NAUTILUS T", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceName("NAUTILUS T", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("SCHWINN T", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("SCHWINN 570T", DeviceNameComparison::StartsWithIgnoreCase);
 
 
     // Norditrack Elliptical
@@ -1162,7 +1164,7 @@ void DeviceTestDataIndex::Initialize() {
     // Sole Elliptical
     RegisterNewDeviceTestData(DeviceIndex::SoleElliptical)
         ->expectDevice<soleelliptical>()        
-        ->acceptDeviceNames({"E95S","E25","E55","E95","E98","XG400","E98S"}, DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceNames({"XE88","E95S","E25","E55","E95","E98","XG400","E98S"}, DeviceNameComparison::StartsWithIgnoreCase);
 
     // Sole Elliptical 2
     RegisterNewDeviceTestData(DeviceIndex::SoleElliptical2)

@@ -3046,6 +3046,9 @@ class QZSettings {
     static const QString proform_bike_325_csx_PFEX439210INT_0;
     static constexpr bool default_proform_bike_325_csx_PFEX439210INT_0 = false;
 
+    static const QString nordictrack_gx_le;
+    static constexpr bool default_nordictrack_gx_le = false;
+
     static const QString nordictrack_vr21;
     static constexpr bool default_nordictrack_vr21 = false;
 
@@ -3355,6 +3358,15 @@ class QZSettings {
 
     static const QString android_landscape_cutout_prompt_shown;
     static constexpr bool default_android_landscape_cutout_prompt_shown = false;
+
+    // "Don't ask again" in the prompt that offers android_notification_v2 after Android cut QZ's network
+    static const QString android_notification_prompt_disabled;
+    static constexpr bool default_android_notification_prompt_disabled = false;
+
+    // Android Notification (foreground service), on by default. Replaces android_notification, which
+    // is kept as a spare: changing the default of an existing setting corrupts the iOS settings file.
+    static const QString android_notification_v2;
+    static constexpr bool default_android_notification_v2 = true;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
