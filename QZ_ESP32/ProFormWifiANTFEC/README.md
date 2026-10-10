@@ -155,7 +155,7 @@ west update
 Then build this application:
 
 ```sh
-west build -p always -b xiao_ble/nrf52840 \
+west build -p always -b xiao_ble \
   /path/to/qdomyos-zwift/QZ_ESP32/ProFormWifiANTFEC/xiao_nrf52840
 ```
 
@@ -165,7 +165,7 @@ pairs may also be used according to the ANT compatibility documentation.
 
 ### Flashing the XIAO
 
-The Zephyr `xiao_ble/nrf52840` target supports the XIAO's UF2 bootloader.
+The Zephyr `xiao_ble` target supports the XIAO's UF2 bootloader.
 
 1. Connect the XIAO over USB.
 2. Double-tap reset to enter the bootloader.
