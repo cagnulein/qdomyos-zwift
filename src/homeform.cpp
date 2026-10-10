@@ -11440,7 +11440,27 @@ void homeform::migrateAndroidDataToDocuments() {
             const QString backupPath = destinationPath + QStringLiteral(".backup");
             QFile::remove(stagingPath);
             QFile::remove(backupPath);
-            copied = QFile::copy(sourcePath, stagingPath);
+            QFile sourceFile(sourcePath);
+            QFile stagingFile(stagingPath);
+            copied = sourceFile.open(QIODevice::ReadOnly) &&
+                     stagingFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+            if (copied) {
+                constexpr qint64 copyChunkSize = 1024 * 1024;
+                while (!sourceFile.atEnd()) {
+                    const QByteArray chunk = sourceFile.read(copyChunkSize);
+                    if (chunk.isEmpty() && !sourceFile.atEnd()) {
+                        copied = false;
+                        break;
+                    }
+                    if (stagingFile.write(chunk) != chunk.size()) {
+                        copied = false;
+                        break;
+                    }
+                }
+                copied = copied && stagingFile.flush();
+            }
+            sourceFile.close();
+            stagingFile.close();
             if (copied) {
                 const bool stagedFileReady = QFileInfo::exists(stagingPath) &&
                                               QFileInfo(stagingPath).size() == sourceInfo.size();
