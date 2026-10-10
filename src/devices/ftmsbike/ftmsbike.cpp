@@ -326,6 +326,28 @@ void ftmsbike::changePower(int32_t power) {
         return;
     }
     bike::changePower(power);
+
+    QSettings settings;
+    const bool power_sensor_enabled =
+        !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString()
+             .startsWith(QStringLiteral("Disabled"));
+    if (!power_sensor_enabled || !ergModeSupported || m_rawWatt.value() <= 0 || m_watt.value() <= 0 ||
+        Cadence.value() <= 0 || Resistance.value() <= 0) {
+        return;
+    }
+
+    const int32_t targetPower =
+        power + settings.value(QZSettings::bike_power_offset, QZSettings::default_bike_power_offset).toInt();
+    const int32_t tablePower =
+        _ergTable.trainerPowerForPedalTarget(static_cast<uint16_t>(qBound<int32_t>(0, targetPower, UINT16_MAX)),
+                                             static_cast<uint16_t>(Cadence.value()),
+                                             static_cast<uint16_t>(Resistance.value()));
+    if (tablePower > 0) {
+        qDebug() << "using paired ERG table power" << "target pedal" << targetPower << "trainer command" << tablePower
+                 << "cadence" << Cadence.value() << "resistance" << Resistance.value();
+        requestPower = tablePower;
+    }
 }
 
 resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
