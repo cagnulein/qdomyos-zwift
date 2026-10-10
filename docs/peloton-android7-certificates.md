@@ -7,19 +7,33 @@ Bundling ISRG Root X1 and X2 in a repackaged QZ 2.21.5 APK fixed login on that
 console. The original report observed roughly 25 certificate errors before the
 change and none afterwards; Peloton tokens were saved successfully.
 
-The production source implementation is deliberately **narrower** than that
-test APK: `src/android/res/xml/network_security_config.xml` adds those
-public roots **only** for `assets.onepeloton.com` and
-`images.onepeloton.com`. These were the two suspected Let's Encrypt hosts
-in the reporter's investigation; the console logs did **not** associate each
-failed certificate request with its host. All other destinations retain the
-Android system trust store. HTTPS verification remains enabled, and these two
-Peloton domains do not allow cleartext traffic.
+The production implementation is deliberately **narrower** than the test APK,
+both by Android version and by domain:
 
-The global `base-config` keeps cleartext enabled for QZ's existing local
-device integrations, matching the prior `usesCleartextTraffic="true"`
-manifest setting. Android otherwise ignores that manifest flag after
-`networkSecurityConfig` is supplied.
+- **Android 7.0–7.1 (API 24–25):**
+  `src/android/res/xml/network_security_config.xml` adds ISRG Root X1/X2
+  only for `assets.onepeloton.com` and `images.onepeloton.com`.
+- **Android 8.0+ (API 26+):**
+  `src/android/res/xml-v26/network_security_config.xml` trusts only system
+  certificates for those domains (and everywhere else), without loading
+  the extra ISRG roots. The Android resource version qualifier selects this
+  file automatically, without runtime branching or additional permissions.
+- **Android 6.0 and earlier (API <=23):** Android does not support Network
+  Security Configuration. The packaged certificate files cannot change the
+  system trust store there.
+
+Those two Peloton hosts were suspected in the reporter's investigation; the
+console logs did **not** associate each failed certificate request with its
+hostname. HTTPS certificate validation remains enabled, and both XML variants
+disallow cleartext for the two Peloton domains. All other destinations retain
+the Android system trust store. Let's Encrypt reports Android 7.1.1+ normally
+already trusts ISRG Root X1; API 25 is retained in the workaround to cover
+earlier 7.1 builds and vendor-modified device images.
+
+Both XML variants keep cleartext enabled in `base-config` for QZ's existing
+local-device integrations, matching the prior `usesCleartextTraffic="true"`
+manifest setting. On Android 7.0+, `networkSecurityConfig` takes precedence
+over that manifest flag.
 
 Bundled root certificates:
 - ISRG Root X1 SHA-256:
@@ -37,11 +51,14 @@ https://letsencrypt.org/certificates/
    login saves access and refresh tokens.
 2. If login still fails, log the exact failing WebView request hostname
    before expanding the allowlist; do not bypass SSL errors.
-3. On Android 14+ and other modern devices, verify Peloton OAuth login and
-   routine HTTPS API calls still work.
-4. Confirm QZ can still access localhost and local network equipment via
+3. Verify resource selection in an Android build: API 24/25 selects
+   `res/xml/network_security_config.xml` (Peloton roots added), while API
+   26+ selects `res/xml-v26/network_security_config.xml` (system roots only).
+4. On Android 8+ and Android 14+, verify Peloton OAuth login, routine HTTPS
+   API calls, and system-only trust anchors.
+5. Confirm QZ can still access localhost and local network equipment via
    plain HTTP (where the integrations require it).
-5. Verify that non-Peloton hosts still use system trust anchors.
+6. Verify that non-Peloton hosts still use system trust anchors on Android 7.
 
 Credit: Jonathan Kaplan (endlessthinker@gmail.com), for the original
 NordicTrack Android 7.0 investigation, patched APK and change record.
