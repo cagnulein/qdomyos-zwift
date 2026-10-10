@@ -9316,22 +9316,12 @@ void homeform::trainprogram_autostart_requested() {
         dev = bluetoothManager->device();
     }
 
-    if (dev && dev->deviceType() == ELLIPTICAL && !dev->isPaused() && !paused && !stopped) {
-        // Autostarting a workout while an elliptical is already running must not
-        // pause/resume the hardware. On Domyos, that queues a stop command after
-        // the start command and the console stops reporting speed and cadence.
-        // Only the newly loaded training program needs to be started.
-        if (trainProgram) {
-            trainProgram->restart();
-        }
-        return;
-    }
-
     if (dev && !dev->isPaused()) {
-        // Device is running, call Start() twice (pause then start)
-        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+        // Pause and resume QZ to start the program, without sending STOP/START
+        // commands to the physical device (Domyos ellipticals lose console telemetry).
+        QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
         QThread::msleep(200);
-        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
     } else {
         // Device is paused/stopped, call Start() once
         QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
