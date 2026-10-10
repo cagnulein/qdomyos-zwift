@@ -4329,6 +4329,22 @@ This may take a few moments on first startup.</source>
         <source>The workout history database could not be opened.</source>
         <translation>无法打开训练历史数据库。</translation>
     </message>
+    <message>
+        <source>Searching for the device...</source>
+        <translation>正在搜索设备...</translation>
+    </message>
+    <message>
+        <source>Search stopped, tap the Bluetooth icon</source>
+        <translation>搜索已停止，请点击蓝牙图标</translation>
+    </message>
+    <message>
+        <source>Next search in %1 s</source>
+        <translation>%1 秒后再次搜索</translation>
+    </message>
+    <message>
+        <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
+        <translation>Android 允许 30 秒内进行 5 次蓝牙搜索，下一次将在 %1 秒后开始</translation>
+    </message>
 </context>
 <context>
     <name>main</name>

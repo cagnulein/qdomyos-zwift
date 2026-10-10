@@ -4317,6 +4317,22 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
         <source>The workout history database could not be opened.</source>
         <translation>Impossibile aprire il database della cronologia degli allenamenti.</translation>
     </message>
+    <message>
+        <source>Searching for the device...</source>
+        <translation>Ricerca del dispositivo...</translation>
+    </message>
+    <message>
+        <source>Search stopped, tap the Bluetooth icon</source>
+        <translation>Ricerca interrotta, tocca l&apos;icona Bluetooth</translation>
+    </message>
+    <message>
+        <source>Next search in %1 s</source>
+        <translation>Prossima ricerca tra %1 s</translation>
+    </message>
+    <message>
+        <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
+        <translation>Android consente 5 ricerche Bluetooth in 30 s, la prossima inizia tra %1 s</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
