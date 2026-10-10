@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Older Android 7.0 NordicTrack consoles lack Let's Encrypt ISRG roots.
+  Preserve QZ's existing cleartext traffic support for local equipment,
+  while limiting the additional public trust roots to Peloton assets.
+  Source: https://letsencrypt.org/certificates/
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain>assets.onepeloton.com</domain>
+        <domain>images.onepeloton.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/isrg_root_x1" />
+            <certificates src="@raw/isrg_root_x2" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
