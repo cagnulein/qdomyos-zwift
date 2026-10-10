@@ -24,6 +24,13 @@ FORMATS = {
     "time": r"^\d{1,2}:[0-5]?\d:[0-5]?\d$",
 }
 
+# Rows where Enter and OK differ on purpose, with the reason
+ENTER_UNLIKE_OK = {
+    # OK also says "Invalid format!" for a height it cannot parse: Enter shows no toast, and the
+    # heightFtIn format of the field lets no such height through
+    "heightTextField",
+}
+
 errors = []
 
 
@@ -59,6 +66,38 @@ def number(literal):
         return None
 
 
+def handler(lines, start, end, name):
+    """The code of `name:` (onAccepted, onClicked) at the top level of lines[start:end], also
+    when it spans lines ({ ... })."""
+    depth = 0
+    for k in range(start, end):
+        code = re.sub(r'"(\\.|[^"\\])*"', '""', re.sub(r"//.*", "", lines[k]))
+        if depth == 0:
+            m = re.match(r"^\s*%s:\s*(.*)$" % name, lines[k])
+            if m:
+                text, d = [m.group(1)], code.count("{") - code.count("}")
+                while d > 0 and k + 1 < end:
+                    k += 1
+                    text.append(lines[k])
+                    c = re.sub(r'"(\\.|[^"\\])*"', '""', re.sub(r"//.*", "", lines[k]))
+                    d += c.count("{") - c.count("}")
+                return "\n".join(text)
+        depth += code.count("{") - code.count("}")
+    return None
+
+
+def actions(code, fid):
+    """What a handler does, comparable between Enter and OK: its statements without the toast
+    and the `if (valid)` guard (the OK button is enabled by valid), with `<id>.value` read as
+    `value`."""
+    code = re.sub(r"//.*", "", code)
+    code = re.sub(r'toast\.show\(qsTr\("(\\.|[^"\\])*"\)\)', "", code)
+    code = re.sub(r"\bif\s*\(valid\)", "", code)
+    code = re.sub(r"\b%s\.(value|text)\b" % re.escape(fid), r"\1", code)
+    code = re.sub(r"\s+", "", code).strip("{}")
+    return sorted(s for s in code.split(";") if s.strip("{}"))
+
+
 def check_page(path):
     text = open(path, encoding="utf-8").read()
     lines = text.split("\n")
@@ -77,6 +116,22 @@ def check_page(path):
         shown = get("text") or ""
         keys = re.findall(r"settings\.(\w+)", shown)
         types = {props[k][0] for k in keys if k in props}
+
+        # Enter does what the OK button of the row does (it shows no toast, so a difference is
+        # not seen): the same value, the same conversion, the same side effects
+        accepted = handler(lines, i + 1, end, "onAccepted")
+        if accepted is not None and fid and fid not in ENTER_UNLIKE_OK:
+            for j in range(end + 1, min(end + 40, len(lines))):
+                if re.match(r"^\s*(SettingsNumberField|SettingsFormatField|TextField)\s*\{", lines[j]):
+                    break
+                # the OK button: a Cancel next to a field does something else on purpose
+                if re.match(r"^\s*Button\s*\{", lines[j]) and \
+                        any(re.match(r'^\s*text:\s*qsTr\("OK"\)', x) for x in lines[j + 1:block_end(lines, j)]):
+                    clicked = handler(lines, j + 1, block_end(lines, j), "onClicked")
+                    if clicked is not None and actions(accepted, fid) != actions(clicked, fid):
+                        error(path, i + 1, "%s: Enter does not do what the OK button does:\n    Enter: %s\n    OK:    %s"
+                              % (fid, "; ".join(actions(accepted, fid)), "; ".join(actions(clicked, fid))))
+                    break
 
         if kind == "TextField":
             if types & {"real", "int", "double"}:
