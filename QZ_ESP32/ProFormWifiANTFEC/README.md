@@ -112,6 +112,18 @@ The BLE peripheral advertises as:
 and exposes the standard Cycling Power service (0x1818), including instantaneous
 power and crank-revolution data.
 
+## Ready-to-flash XIAO firmware
+
+A prebuilt XIAO nRF52840 image is committed in the PR branch:
+
+- [QZ-ProForm-ANT-FEC-XIAO-nRF52840.uf2](xiao_nrf52840/prebuilt/QZ-ProForm-ANT-FEC-XIAO-nRF52840.uf2)
+- [QZ-ProForm-ANT-FEC-XIAO-nRF52840.hex](xiao_nrf52840/prebuilt/QZ-ProForm-ANT-FEC-XIAO-nRF52840.hex)
+- [SHA256SUMS.txt](xiao_nrf52840/prebuilt/SHA256SUMS.txt)
+
+The UF2 is built automatically with nRF Connect SDK 2.7.0 plus the ANT add-on.
+To flash it on macOS, double-tap RESET on the XIAO until the `XIAO BLE`
+volume appears, then copy the `.uf2` file to that volume.
+
 ## XIAO nRF52840 ANT firmware
 
 The XIAO application is under:
