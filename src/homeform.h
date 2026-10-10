@@ -701,6 +701,7 @@ public:
 #if defined(Q_OS_ANDROID)
     QString getBluetoothName();
     static QString getAndroidDataAppDir();
+    static void migrateAndroidDataToDocuments();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
     Q_INVOKABLE static QString getProfileDir();

@@ -1087,7 +1087,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
 
 #ifdef Q_OS_ANDROID
-
     QString bluetoothName = getBluetoothName();
     qDebug() << "getBluetoothName()" << bluetoothName;
 
@@ -1095,72 +1094,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     if(bluetoothName.length() > 9 || !regex.match(bluetoothName).hasMatch()) {
         setToastRequested(QObject::tr("Bluetooth name too long, change it to a 4 letters one in the android settings and use only A-Z or 0-9 characters"));
     }
-    
-    // Android 14 restricts access to /Android/data folder
-    const bool android_documents_folder = settings.value(QZSettings::android_documents_folder,
-                                                         QZSettings::default_android_documents_folder).toBool();
-    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
-        const QString sourceRoot = QDir::cleanPath(getAndroidDataAppDir());
-        const QString destinationRoot = QDir::cleanPath(getWritableAppDir());
-        QDir().mkpath(destinationRoot);
-        QDir().mkpath(getProfileDir());
-        qDebug() << "Android storage migration source" << sourceRoot
-                 << "destination" << destinationRoot;
 
-        QDirIterator itAndroid(sourceRoot, QDir::Files, QDirIterator::Subdirectories);
-        const QDir sourceDirectory(sourceRoot);
-        while (itAndroid.hasNext()) {
-            const QString sourcePath = itAndroid.next();
-            const QString relativePath = sourceDirectory.relativeFilePath(sourcePath);
-            const QString destinationPath = QDir(destinationRoot).filePath(relativePath);
-            QDir().mkpath(QFileInfo(destinationPath).path());
-
-            const QFileInfo sourceInfo(sourcePath);
-            const QFileInfo destinationInfo(destinationPath);
-            const bool destinationIsNewer = destinationInfo.exists() &&
-                                             destinationInfo.lastModified() >= sourceInfo.lastModified();
-            bool destinationReady = destinationInfo.exists();
-            bool copied = false;
-            if (!destinationIsNewer) {
-                const QString stagingPath = destinationPath + QStringLiteral(".migrating");
-                const QString backupPath = destinationPath + QStringLiteral(".backup");
-                QFile::remove(stagingPath);
-                QFile::remove(backupPath);
-                copied = QFile::copy(sourcePath, stagingPath);
-                if (copied) {
-                    const bool stagedFileReady = QFileInfo::exists(stagingPath) &&
-                                                  QFileInfo(stagingPath).size() == sourceInfo.size();
-                    bool movedOldDestination = true;
-                    if (stagedFileReady && QFile::exists(destinationPath)) {
-                        movedOldDestination = QFile::rename(destinationPath, backupPath);
-                    }
-                    destinationReady = stagedFileReady && movedOldDestination &&
-                                       QFile::rename(stagingPath, destinationPath);
-                    if (destinationReady) {
-                        QFile::remove(backupPath);
-                    } else {
-                        QFile::remove(stagingPath);
-                        if (movedOldDestination && QFile::exists(backupPath)) {
-                            QFile::rename(backupPath, destinationPath);
-                        }
-                    }
-                }
-                if (!destinationReady) {
-                    QFile::remove(stagingPath);
-                }
-            }
-
-            qDebug() << "Android storage migration file" << sourcePath
-                     << "->" << destinationPath
-                     << "destinationWasNewer" << destinationIsNewer
-                     << "copied" << copied
-                     << "ready" << destinationReady;
-            if (destinationReady) {
-                const bool removedSource = QFile::remove(sourcePath);
-                qDebug() << "Android storage migration remove source" << sourcePath << removedSource;
-            }
-        }
-    }
+    migrateAndroidDataToDocuments();
 #endif
 
     m_historyDatabasePath = historyDatabasePath();
@@ -11455,6 +11390,96 @@ QString homeform::getAndroidDataAppDir() {
 }
 #endif
 
+#ifdef Q_OS_ANDROID
+void homeform::migrateAndroidDataToDocuments() {
+    QSettings settings;
+    const bool useDocuments = settings.value(QZSettings::android_documents_folder,
+                                               QZSettings::default_android_documents_folder).toBool() ||
+                              QOperatingSystemVersion::current() >=
+                                  QOperatingSystemVersion(QOperatingSystemVersion::Android, 14);
+    if (!useDocuments) {
+        return;
+    }
+
+    const QString sourceRoot = QDir::cleanPath(getAndroidDataAppDir());
+    const QString destinationRoot = QDir::cleanPath(
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + QStringLiteral("/QZ/"));
+    if (sourceRoot.isEmpty() || destinationRoot.isEmpty() || sourceRoot == destinationRoot) {
+        qWarning() << "Android storage migration skipped: invalid paths"
+                   << sourceRoot << destinationRoot;
+        return;
+    }
+    if (!QDir(sourceRoot).exists()) {
+        qWarning() << "Android storage migration skipped: source does not exist" << sourceRoot;
+        return;
+    }
+    if (!QDir().mkpath(destinationRoot)) {
+        qWarning() << "Android storage migration skipped: cannot create destination" << destinationRoot;
+        return;
+    }
+
+    const QDir sourceDirectory(sourceRoot);
+    QDirIterator itAndroid(sourceRoot, QDir::Files, QDirIterator::Subdirectories);
+    int filesFound = 0;
+    int filesMigrated = 0;
+    while (itAndroid.hasNext()) {
+        const QString sourcePath = itAndroid.next();
+        ++filesFound;
+        const QString relativePath = sourceDirectory.relativeFilePath(sourcePath);
+        const QString destinationPath = QDir(destinationRoot).filePath(relativePath);
+        QDir().mkpath(QFileInfo(destinationPath).path());
+
+        const QFileInfo sourceInfo(sourcePath);
+        const QFileInfo destinationInfo(destinationPath);
+        const bool destinationIsNewer = destinationInfo.exists() &&
+                                         destinationInfo.lastModified() >= sourceInfo.lastModified();
+        bool destinationReady = destinationInfo.exists();
+        bool copied = false;
+        if (!destinationIsNewer) {
+            const QString stagingPath = destinationPath + QStringLiteral(".migrating");
+            const QString backupPath = destinationPath + QStringLiteral(".backup");
+            QFile::remove(stagingPath);
+            QFile::remove(backupPath);
+            copied = QFile::copy(sourcePath, stagingPath);
+            if (copied) {
+                const bool stagedFileReady = QFileInfo::exists(stagingPath) &&
+                                              QFileInfo(stagingPath).size() == sourceInfo.size();
+                bool movedOldDestination = true;
+                if (stagedFileReady && QFile::exists(destinationPath)) {
+                    movedOldDestination = QFile::rename(destinationPath, backupPath);
+                }
+                destinationReady = stagedFileReady && movedOldDestination &&
+                                   QFile::rename(stagingPath, destinationPath);
+                if (destinationReady) {
+                    QFile::remove(backupPath);
+                } else {
+                    QFile::remove(stagingPath);
+                    if (movedOldDestination && QFile::exists(backupPath)) {
+                        QFile::rename(backupPath, destinationPath);
+                    }
+                }
+            }
+            if (!destinationReady) {
+                QFile::remove(stagingPath);
+            }
+        }
+
+        if (destinationReady && QFile::remove(sourcePath)) {
+            ++filesMigrated;
+        }
+        qDebug() << "Android storage migration file" << sourcePath
+                 << "->" << destinationPath
+                 << "destinationWasNewer" << destinationIsNewer
+                 << "copied" << copied
+                 << "ready" << destinationReady;
+    }
+    qWarning() << "Android storage migration complete: found" << filesFound
+               << "migrated" << filesMigrated
+               << "source" << sourceRoot
+               << "destination" << destinationRoot;
+}
+#endif
+
 quint64 homeform::cryptoKeySettingsProfiles() {
     QSettings settings;
     quint64 v = settings.value(QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles)
@@ -11543,6 +11568,9 @@ void homeform::restoreSettings() {
 }
 
 QString homeform::getProfileDir() {
+#if defined(Q_OS_ANDROID)
+    migrateAndroidDataToDocuments();
+#endif
     QString path = getWritableAppDir() + "profiles";
     QDir().mkdir(path);
     return path;
