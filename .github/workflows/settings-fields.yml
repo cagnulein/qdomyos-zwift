@@ -34,6 +34,7 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
           QT_QUICK_CONTROLS_STYLE: Material
+          QT_QUICK_BACKEND: software
         run: |
           runner=$(command -v qmltestrunner || echo /usr/lib/qt5/bin/qmltestrunner)
           "$runner" -input tst/qml
