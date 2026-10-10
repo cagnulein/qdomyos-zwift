@@ -16,6 +16,10 @@
 })();
 
 (function () {
+    function t(key, fallback) {
+        return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+    }
+
     const state = {
         chart: null,
         axisTemplate: {
@@ -78,24 +82,7 @@
                     }
                 },
                 scales: {
-                    x: {
-                        type: 'linear',
-                        grid: {
-                            color: 'rgba(255,255,255,0.04)'
-                        },
-                        border: {
-                            color: 'rgba(255,255,255,0.16)'
-                        },
-                        ticks: {
-                            color: 'rgba(255,255,255,0.65)',
-                            callback: (value) => formatSeconds(value)
-                        },
-                        title: {
-                            display: true,
-                            text: 'Time',
-                            color: 'rgba(255,255,255,0.75)'
-                        }
-                    }
+                    x: buildTimeAxis()
                 },
                 elements: {
                     point: {
@@ -109,6 +96,33 @@
             }
         });
         return state.chart;
+    }
+
+    // A fresh object every time: putting the chart's own (proxied) x scale back into its options
+    // recurses in Chart.js 3.4.1, and the translated title would not be picked up
+    function buildTimeAxis(suggestedMax) {
+        const axis = {
+            type: 'linear',
+            grid: {
+                color: 'rgba(255,255,255,0.04)'
+            },
+            border: {
+                color: 'rgba(255,255,255,0.16)'
+            },
+            ticks: {
+                color: 'rgba(255,255,255,0.65)',
+                callback: (value) => formatSeconds(value)
+            },
+            title: {
+                display: true,
+                text: t('workoutEditor.time', 'Time'),
+                color: 'rgba(255,255,255,0.75)'
+            }
+        };
+        if (typeof suggestedMax === 'number') {
+            axis.suggestedMax = suggestedMax;
+        }
+        return axis;
     }
 
     function buildAxes(seriesList) {
@@ -162,7 +176,7 @@
         const title = document.getElementById('chartTitle');
         const meta = document.getElementById('chartMeta');
         if (title) {
-            title.textContent = payload.title || 'Workout Preview';
+            title.textContent = payload.title || t('workoutEditor.workoutPreview', 'Workout Preview');
         }
         if (meta) {
             const parts = [];
@@ -170,10 +184,10 @@
                 parts.push(payload.subtitle);
             }
             if (typeof payload.totalSeconds === 'number') {
-                parts.push('Duration ' + formatSeconds(payload.totalSeconds));
+                parts.push(t('workoutEditor.durationValue', 'Duration {value}').replace('{value}', formatSeconds(payload.totalSeconds)));
             }
             if (Array.isArray(payload.rows)) {
-                parts.push(payload.rows.length + ' intervals');
+                parts.push(t('workoutEditor.intervalsCount', '{count} intervals').replace('{count}', payload.rows.length));
             }
             meta.textContent = parts.join(' • ');
         }
@@ -186,7 +200,7 @@
         }
         const seriesList = Array.isArray(payload.series) ? payload.series : [];
         const axes = buildAxes(seriesList);
-        chart.options.scales = Object.assign({ x: chart.options.scales.x }, axes);
+        chart.options.scales = Object.assign({ x: buildTimeAxis(payload.totalSeconds) }, axes);
         chart.data.datasets = seriesList.map((series) => {
             const color = String(series.color || '#35baf6');
             const fillColor = String(series.fillColor || color) + '33';
@@ -204,9 +218,6 @@
                 spanGaps: true
             });
         });
-        if (typeof payload.totalSeconds === 'number') {
-            chart.options.scales.x.suggestedMax = payload.totalSeconds;
-        }
         chart.update();
         updateLegend(seriesList);
         updateMeta(payload);

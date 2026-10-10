@@ -99,6 +99,7 @@ class horizontreadmill : public treadmill {
     bool sole_tt8_treadmill = false;
     bool sole_s77_treadmill = false;
     bool anplus_treadmill = false;
+    bool run_bt_treadmill = false;
     bool tunturi_t60_treadmill = false;
     bool trx3500_treadmill = false;
     bool sole_f85_treadmill = false;
@@ -114,6 +115,7 @@ class horizontreadmill : public treadmill {
     bool DOMYOS = false;
     bool domyos_treadmill_ts100 = false;
     bool SW_TREADMILL = false;
+    bool SW3925EAI_TREADMILL = false;
     bool BOWFLEX_T9 = false;
     bool YPOO_MINI_PRO = false;
     bool MX_TM = false;
@@ -127,7 +129,9 @@ class horizontreadmill : public treadmill {
     bool TM4800 = false;
     bool TM4500 = false;
     bool TM6500 = false;
+    bool TM55_TREADMILL = false;
     bool FS_TREADMILL = false;
+    bool SF_TREADMILL = false;
     bool WT_TREADMILL = false;
     bool THERUN_T15 = false;
     bool MERACH_TREADMILL = false;

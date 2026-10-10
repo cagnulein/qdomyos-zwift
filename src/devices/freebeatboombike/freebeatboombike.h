@@ -31,6 +31,7 @@ class freebeatboombike : public bike {
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
 
     static bool parseTelemetry(const QByteArray &packet, Telemetry *telemetry);
+    static double distanceIncrement(double speedKmh, qint64 elapsedMsecs);
     static QByteArray queryCommand();
     static QByteArray streamCommand(bool enabled);
     static QByteArray resistanceCommand(int resistance);
@@ -45,6 +46,7 @@ class freebeatboombike : public bike {
     void writeCharacteristic(const QByteArray &data, const QString &info);
     void forceResistance(resistance_t requestResistance);
     void innerWriteResistance();
+    void createVirtualBike();
     void updateTelemetry(const Telemetry &telemetry);
 
     bool noWriteResistance = false;
