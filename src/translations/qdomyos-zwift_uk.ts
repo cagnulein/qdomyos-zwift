@@ -1448,6 +1448,10 @@ Do you want to update QZ settings?</source>
 <context>
     <name>SettingsFormatField</name>
     <message>
+        <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
+        <translation>Введіть IP-адресу або ім’я хоста, наприклад 192.168.1.10</translation>
+    </message>
+    <message>
         <source>Enter an IP address, e.g. 192.168.1.10</source>
         <translation>Введіть IP-адресу, наприклад 192.168.1.10</translation>
     </message>

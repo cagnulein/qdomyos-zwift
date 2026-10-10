@@ -6,7 +6,9 @@ import QtQuick.Controls.Material 2.0
 // by `valid`. A bare text field let anything through: a pace like "5 min" was saved as NaN,
 // an IP address field took any text.
 // - format "time": hh:mm:ss, as the pace fields show it and timeToPaceSeconds() reads it
-// - format "ip": an IPv4 address, or empty (feature off)
+// - format "ip": an IPv4 address, or empty (feature off) - for QHostAddress (OSC)
+// - format "host": an IPv4 address or a host name, an optional :port, or empty - for addresses
+//   that go to connectToHost, a ws:// URL or "adb connect" (192.168.1.10:5555, treadmill.local)
 // Characters that cannot belong to the format cannot be typed; an incomplete value shows a red
 // line and the expected format under the field, nothing is changed by itself
 TextField {
@@ -17,11 +19,14 @@ TextField {
     readonly property bool valid: acceptableInput
     readonly property string errorText: valid ? ""
         : format === "ip" ? qsTr("Enter an IP address, e.g. 192.168.1.10")
+        : format === "host" ? qsTr("Enter an IP address or a host name, e.g. 192.168.1.10")
         : qsTr("Enter the time as hh:mm:ss")
 
     validator: RegularExpressionValidator {
         regularExpression: field.format === "ip"
             ? /^$|^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/
+            : field.format === "host"
+            ? /^$|^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)*(:\d{1,5})?$/
             : /^\d{1,2}:[0-5]?\d:[0-5]?\d$/
     }
     // Full keyboard on purpose: a number keyboard of Android may have no ':' and allow a single '.'

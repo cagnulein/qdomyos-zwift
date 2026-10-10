@@ -1448,6 +1448,10 @@ Do you want to update QZ settings?</source>
 <context>
     <name>SettingsFormatField</name>
     <message>
+        <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
+        <translation>请输入 IP 地址或主机名，例如 192.168.1.10</translation>
+    </message>
+    <message>
         <source>Enter an IP address, e.g. 192.168.1.10</source>
         <translation>请输入 IP 地址，例如 192.168.1.10</translation>
     </message>

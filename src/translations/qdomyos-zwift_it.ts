@@ -1448,6 +1448,10 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
 <context>
     <name>SettingsFormatField</name>
     <message>
+        <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
+        <translation>Inserisci un indirizzo IP o un nome host, ad es. 192.168.1.10</translation>
+    </message>
+    <message>
         <source>Enter an IP address, e.g. 192.168.1.10</source>
         <translation>Inserisci un indirizzo IP, ad es. 192.168.1.10</translation>
     </message>

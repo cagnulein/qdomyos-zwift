@@ -5586,7 +5586,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsFormatField {
                                     id: proformTDF1IPTextField
-                                    format: "ip"
+                                    format: "host"
                                     text: settings.proformtdf1ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -5612,7 +5612,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsFormatField {
                                     id: proformTDF4IPTextField
-                                    format: "ip"
+                                    format: "host"
                                     text: settings.proformtdf4ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -5638,7 +5638,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsFormatField {
                                     id: proformTDFCompanionIPTextField
-                                    format: "ip"
+                                    format: "host"
                                     text: settings.tdf_10_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -10946,7 +10946,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsFormatField {
                                     id: proformtreadmillIPTextField
-                                    format: "ip"
+                                    format: "host"
                                     text: settings.proformtreadmillip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -10972,7 +10972,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsFormatField {
                                     id: nordictrack2950IPTextField
-                                    format: "ip"
+                                    format: "host"
                                     text: settings.nordictrack_2950_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -12548,7 +12548,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsFormatField {
                                     id: proformRowerIPTextField
-                                    format: "ip"
+                                    format: "host"
                                     text: settings.proform_rower_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -12795,7 +12795,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsFormatField {
                                     id: proformEllipticalCompanionIPTextField
-                                    format: "ip"
+                                    format: "host"
                                     text: settings.proform_elliptical_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false

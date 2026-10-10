@@ -1448,6 +1448,10 @@ QZの設定を更新しますか?</translation>
 <context>
     <name>SettingsFormatField</name>
     <message>
+        <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
+        <translation>IPアドレスまたはホスト名を入力してください（例: 192.168.1.10）</translation>
+    </message>
+    <message>
         <source>Enter an IP address, e.g. 192.168.1.10</source>
         <translation>IPアドレスを入力してください（例: 192.168.1.10）</translation>
     </message>
