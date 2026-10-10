@@ -322,6 +322,9 @@ static void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       break;
 
     case WStype_TEXT:
+    case WStype_BIN:
+      // QZ's proformwifibike handles both QWebSocket textMessageReceived
+      // and binaryMessageReceived with the same JSON parser.
       parseProFormTelemetry(payload, length);
       break;
 
