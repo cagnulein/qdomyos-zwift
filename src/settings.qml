@@ -2429,7 +2429,7 @@ import AndroidStatusBar 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.ftp = value
+                            onAccepted: if (valid) settings.ftp = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -2469,7 +2469,7 @@ import AndroidStatusBar 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.ftp_run = value
+                            onAccepted: if (valid) settings.ftp_run = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -2916,7 +2916,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.heart_rate_zone1 = value
+                                    onAccepted: if (valid) settings.heart_rate_zone1 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -2943,7 +2943,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.heart_rate_zone2 = value
+                                    onAccepted: if (valid) settings.heart_rate_zone2 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -2970,7 +2970,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.heart_rate_zone3 = value
+                                    onAccepted: if (valid) settings.heart_rate_zone3 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -2997,7 +2997,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.heart_rate_zone4 = value
+                                    onAccepted: if (valid) settings.heart_rate_zone4 = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -6485,7 +6485,7 @@ import AndroidStatusBar 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.floating_transparency = value
+                            onAccepted: if (valid) settings.floating_transparency = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
