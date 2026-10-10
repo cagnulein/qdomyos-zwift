@@ -1446,6 +1446,17 @@ QZの設定を更新しますか?</translation>
     </message>
 </context>
 <context>
+    <name>SettingsFormatField</name>
+    <message>
+        <source>Enter an IP address, e.g. 192.168.1.10</source>
+        <translation>IPアドレスを入力してください（例: 192.168.1.10）</translation>
+    </message>
+    <message>
+        <source>Enter the time as hh:mm:ss</source>
+        <translation>時間を hh:mm:ss の形式で入力してください</translation>
+    </message>
+</context>
+<context>
     <name>SettingsList</name>
     <message>
         <location filename="../SettingsList.qml" line="25"/>
