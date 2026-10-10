@@ -2251,6 +2251,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(concept2Skierg, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 concept2Skierg->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(concept2Skierg);
+            } else if (deviceHasService(b, QBluetoothUuid(QStringLiteral("0000ffe0-0000-1000-8000-00805f9b34fb"))) &&
+                       (b.name().toUpper().startsWith(QStringLiteral("KAYAK FIRST")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("KAYAKFIRST")) ||
+                        QRegularExpression(QStringLiteral("^[A-F0-9]{8}$"), QRegularExpression::CaseInsensitiveOption)
+                            .match(b.name())
+                            .hasMatch()) &&
+                       !kayakFirstRower && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kayakFirstRower =
+                    new kayakfirstrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(kayakFirstRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(kayakFirstRower, &kayakfirstrower::debug, this, &bluetooth::debug);
+                kayakFirstRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kayakFirstRower);
             } else if (b.name().toUpper().startsWith(QStringLiteral("MRK-R28-")) &&
                        !isConfiguredFtmsRowerDevice && !fitPlusRower && filter) {
                 // Support case: matthieu.f.graveleau@gmail.com, debug-Wed_Sep_9_22_16_00_2026.log.txt.
@@ -4317,6 +4334,11 @@ void bluetooth::restart() {
         delete ftmsRower;
         ftmsRower = nullptr;
     }
+    if (kayakFirstRower) {
+
+        delete kayakFirstRower;
+        kayakFirstRower = nullptr;
+    }
     if (concept2Skierg) {
 
         delete concept2Skierg;
@@ -4773,6 +4795,8 @@ bluetoothdevice *bluetooth::device() {
         return octaneElliptical;
     } else if (ftmsRower) {
         return ftmsRower;
+    } else if (kayakFirstRower) {
+        return kayakFirstRower;
     } else if (concept2Skierg) {
         return concept2Skierg;
     } else if (smartrowRower) {
