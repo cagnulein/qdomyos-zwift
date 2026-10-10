@@ -39,6 +39,12 @@ TextField {
                            : (field.signed ? /^-?(\d+([.,]\d*)?|[.,]\d+)$/ : /^(\d+([.,]\d*)?|[.,]\d+)$/)
     }
 
+    // Number keyboard on Android: the comma it may offer counts as a point (see `value`).
+    // iOS keeps the full keyboard (d09a2cf96: its decimal separator)
+    inputMethodHints: Qt.platform.os === "android"
+                      ? (signed || decimals > 0 ? Qt.ImhFormattedNumbersOnly : Qt.ImhDigitsOnly)
+                      : Qt.ImhNone
+
     // Room for the reason under the line while the value is not valid
     bottomPadding: valid ? 16 : 16 + reason.implicitHeight
 
