@@ -1087,7 +1087,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
 
 #ifdef Q_OS_ANDROID
-
     QString bluetoothName = getBluetoothName();
     qDebug() << "getBluetoothName()" << bluetoothName;
 
@@ -1095,21 +1094,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     if(bluetoothName.length() > 9 || !regex.match(bluetoothName).hasMatch()) {
         setToastRequested(QObject::tr("Bluetooth name too long, change it to a 4 letters one in the android settings and use only A-Z or 0-9 characters"));
     }
-    
-    // Android 14 restrics access to /Android/data folder
-    bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
-    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
-        QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
-        QDir().mkdir(getWritableAppDir());
-        QDir().mkdir(getProfileDir());
-        while (itAndroid.hasNext()) {
-            qDebug() << itAndroid.filePath() << itAndroid.fileName() << itAndroid.filePath().replace(itAndroid.path(), "");
-            if (!QFile(getWritableAppDir() + itAndroid.next().replace(itAndroid.path(), "")).exists()) {
-                if(QFile::copy(itAndroid.filePath(), getWritableAppDir() + itAndroid.filePath().replace(itAndroid.path(), "")))
-                       QFile::remove(itAndroid.filePath());
-            }
-        }
-    }
+
+    migrateAndroidDataToDocuments();
 #endif
 
     m_historyDatabasePath = historyDatabasePath();
@@ -11404,6 +11390,125 @@ QString homeform::getAndroidDataAppDir() {
 }
 #endif
 
+#ifdef Q_OS_ANDROID
+void homeform::migrateAndroidDataToDocuments() {
+    QSettings settings;
+    const bool useDocuments = settings.value(QZSettings::android_documents_folder,
+                                               QZSettings::default_android_documents_folder).toBool() ||
+                              QOperatingSystemVersion::current() >=
+                                  QOperatingSystemVersion(QOperatingSystemVersion::Android, 14);
+    if (!useDocuments) {
+        return;
+    }
+
+    const QString sourceRoot = QDir::cleanPath(getAndroidDataAppDir());
+    const QString destinationRoot = QDir::cleanPath(
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + QStringLiteral("/QZ/"));
+    if (sourceRoot.isEmpty() || destinationRoot.isEmpty() || sourceRoot == destinationRoot) {
+        qWarning() << "Android storage migration skipped: invalid paths"
+                   << sourceRoot << destinationRoot;
+        return;
+    }
+    if (!QDir(sourceRoot).exists()) {
+        qWarning() << "Android storage migration skipped: source does not exist" << sourceRoot;
+        return;
+    }
+    if (!QDir().mkpath(destinationRoot)) {
+        qWarning() << "Android storage migration: destination path is not directly writable, using MediaStore"
+                   << destinationRoot;
+    }
+
+    const QDir sourceDirectory(sourceRoot);
+    QDirIterator itAndroid(sourceRoot, QDir::Files, QDirIterator::Subdirectories);
+    int filesFound = 0;
+    int filesMigrated = 0;
+    while (itAndroid.hasNext()) {
+        const QString sourcePath = itAndroid.next();
+        ++filesFound;
+        const QString relativePath = sourceDirectory.relativeFilePath(sourcePath);
+        const QString destinationPath = QDir(destinationRoot).filePath(relativePath);
+        QDir().mkpath(QFileInfo(destinationPath).path());
+
+        const QFileInfo sourceInfo(sourcePath);
+        const QFileInfo destinationInfo(destinationPath);
+        const bool destinationIsNewer = destinationInfo.exists() &&
+                                         destinationInfo.lastModified() >= sourceInfo.lastModified();
+        bool destinationReady = destinationInfo.exists();
+        bool copied = false;
+        if (!destinationIsNewer) {
+            const QString stagingPath = destinationPath + QStringLiteral(".migrating");
+            const QString backupPath = destinationPath + QStringLiteral(".backup");
+            QFile::remove(stagingPath);
+            QFile::remove(backupPath);
+            QAndroidJniObject javaSourcePath = QAndroidJniObject::fromString(sourcePath);
+            QAndroidJniObject javaStagingPath = QAndroidJniObject::fromString(stagingPath);
+            copied = QAndroidJniObject::callStaticMethod<jboolean>(
+                "org/cagnulen/qdomyoszwift/ContentHelper",
+                "copyFileToFile",
+                "(Ljava/lang/String;Ljava/lang/String;)Z",
+                javaSourcePath.object<jstring>(),
+                javaStagingPath.object<jstring>());
+            if (clearAndroidJniException("ContentHelper.copyFileToFile")) {
+                copied = false;
+            }
+            qDebug() << "Android storage migration Java copy" << sourcePath
+                     << "->" << stagingPath << copied;
+            if (!copied) {
+                const QString relativePath = sourceDirectory.relativeFilePath(sourcePath);
+                QAndroidJniObject javaRelativePath = QAndroidJniObject::fromString(relativePath);
+                copied = QAndroidJniObject::callStaticMethod<jboolean>(
+                    "org/cagnulen/qdomyoszwift/ContentHelper",
+                    "copyFileToPublicDocuments",
+                    "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Z",
+                    QtAndroid::androidActivity().object(),
+                    javaSourcePath.object<jstring>(),
+                    javaRelativePath.object<jstring>());
+                if (clearAndroidJniException("ContentHelper.copyFileToPublicDocuments")) {
+                    copied = false;
+                }
+                destinationReady = copied;
+                qDebug() << "Android storage migration MediaStore copy" << sourcePath
+                         << "->" << relativePath << copied;
+            }
+            if (copied && !destinationReady) {
+                const bool stagedFileReady = QFileInfo::exists(stagingPath) &&
+                                              QFileInfo(stagingPath).size() == sourceInfo.size();
+                bool movedOldDestination = true;
+                if (stagedFileReady && QFile::exists(destinationPath)) {
+                    movedOldDestination = QFile::rename(destinationPath, backupPath);
+                }
+                destinationReady = stagedFileReady && movedOldDestination &&
+                                   QFile::rename(stagingPath, destinationPath);
+                if (destinationReady) {
+                    QFile::remove(backupPath);
+                } else {
+                    QFile::remove(stagingPath);
+                    if (movedOldDestination && QFile::exists(backupPath)) {
+                        QFile::rename(backupPath, destinationPath);
+                    }
+                }
+            }
+            if (!destinationReady) {
+                QFile::remove(stagingPath);
+            }
+        }
+
+        if (destinationReady && QFile::remove(sourcePath)) {
+            ++filesMigrated;
+        }
+        qDebug() << "Android storage migration file" << sourcePath
+                 << "->" << destinationPath
+                 << "destinationWasNewer" << destinationIsNewer
+                 << "copied" << copied
+                 << "ready" << destinationReady;
+    }
+    qWarning() << "Android storage migration complete: found" << filesFound
+               << "migrated" << filesMigrated
+               << "source" << sourceRoot
+               << "destination" << destinationRoot;
+}
+#endif
+
 quint64 homeform::cryptoKeySettingsProfiles() {
     QSettings settings;
     quint64 v = settings.value(QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles)
@@ -11429,6 +11534,9 @@ void homeform::saveSettings(const QUrl &filename) {
                             QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
+        if (s == QZSettings::android_documents_folder) {
+            continue;
+        }
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
             if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
                 settings2Save.setValue(s, settings.value(s));
@@ -11458,6 +11566,9 @@ void homeform::loadSettings(const QUrl &filename) {
     QSettings settings2Load(settingsFile, QSettings::IniFormat);
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
+        if (s == QZSettings::android_documents_folder) {
+            continue;
+        }
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
             // peloton refresh token must not be changed because it has one refresh token for peloton user saved locally on the device
             if(!s.contains(QStringLiteral("peloton_refreshtoken"))) {
@@ -11486,6 +11597,9 @@ void homeform::restoreSettings() {
 }
 
 QString homeform::getProfileDir() {
+#if defined(Q_OS_ANDROID)
+    migrateAndroidDataToDocuments();
+#endif
     QString path = getWritableAppDir() + "profiles";
     QDir().mkdir(path);
     return path;
@@ -11500,6 +11614,9 @@ void homeform::saveProfile(QString profilename) {
     QSettings settings2Save(path + "/" + profilename + QStringLiteral(".qzs"), QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
+        if (s == QZSettings::android_documents_folder) {
+            continue;
+        }
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
             if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
                 settings2Save.setValue(s, settings.value(s));
@@ -11510,6 +11627,9 @@ void homeform::saveProfile(QString profilename) {
             }
         }
     }
+    settings2Save.sync();
+    qDebug() << "homeform::saveProfile path" << settings2Save.fileName()
+             << "status" << settings2Save.status();
 }
 
 void homeform::restart() {
