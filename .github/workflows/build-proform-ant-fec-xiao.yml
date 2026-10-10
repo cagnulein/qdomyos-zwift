@@ -5,9 +5,15 @@ on:
     branches:
       - feature/proform-wifi-ant-fec-bridge
     paths:
-      - "QZ_ESP32/ProFormWifiANTFEC/xiao_nrf52840/**"
+      - "QZ_ESP32/ProFormWifiANTFEC/xiao_nrf52840/src/**"
+      - "QZ_ESP32/ProFormWifiANTFEC/xiao_nrf52840/CMakeLists.txt"
+      - "QZ_ESP32/ProFormWifiANTFEC/xiao_nrf52840/Kconfig"
+      - "QZ_ESP32/ProFormWifiANTFEC/xiao_nrf52840/prj.conf"
       - ".github/workflows/build-proform-ant-fec-xiao.yml"
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-xiao:
@@ -55,3 +61,21 @@ jobs:
           path: firmware/
           if-no-files-found: error
           retention-days: 90
+
+      - name: Commit prebuilt firmware to PR branch
+        run: |
+          PREBUILT="$GITHUB_WORKSPACE/QZ_ESP32/ProFormWifiANTFEC/xiao_nrf52840/prebuilt"
+          mkdir -p "$PREBUILT"
+          cp "$GITHUB_WORKSPACE/firmware/QZ-ProForm-ANT-FEC-XIAO-nRF52840.uf2" "$PREBUILT/"
+          cp "$GITHUB_WORKSPACE/firmware/QZ-ProForm-ANT-FEC-XIAO-nRF52840.hex" "$PREBUILT/"
+          cp "$GITHUB_WORKSPACE/firmware/SHA256SUMS.txt" "$PREBUILT/"
+
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add QZ_ESP32/ProFormWifiANTFEC/xiao_nrf52840/prebuilt
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Update prebuilt XIAO ANT+ FE-C firmware"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
