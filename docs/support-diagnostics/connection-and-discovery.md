@@ -47,3 +47,22 @@
 - QZ relies on Bluetooth interfaces exposed to applications. A machine that never appears in an iOS BLE scanner may use a legacy Bluetooth path that third-party iOS applications cannot access.
 - Comparing the same machine on iOS and Android separates a QZ discovery problem from a platform/protocol limitation before spending time on QZ settings or logs.
 - The advertised name from Android can still help identify the protocol and the appropriate QZ device handler.
+
+## Machine connects but QZ metrics remain zero
+
+### Provide first
+
+- Exact machine model, Bluetooth name, and firmware revision if available.
+- QZ version and screenshots of relevant machine-specific and generic FTMS settings.
+- Identify which QZ metrics update during a short workout.
+
+### If still unclear
+
+- Capture a short QZ debug log after restarting QZ.
+- Identify which device handler QZ selected for the machine.
+- Compare only one setting change at a time, restarting between tests.
+
+### Why it matters
+
+- A successful Bluetooth connection does not guarantee that the correct protocol handler was selected.
+- Conflicting model-specific and generic settings can route a device to an unsuitable parser.
