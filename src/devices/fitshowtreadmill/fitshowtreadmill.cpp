@@ -160,6 +160,7 @@ void fitshowtreadmill::cancelPendingStartTarget(const QString &reason) {
     emit debug(QStringLiteral("FitShow startup: discarding deferred speed/incline (%1)").arg(reason));
     requestSpeed = -1;
     requestInclination = -100;
+    m_runnController.reset();
     m_startSpeedGate.cancel();
 }
 
