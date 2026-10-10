@@ -11414,8 +11414,8 @@ void homeform::migrateAndroidDataToDocuments() {
         return;
     }
     if (!QDir().mkpath(destinationRoot)) {
-        qWarning() << "Android storage migration skipped: cannot create destination" << destinationRoot;
-        return;
+        qWarning() << "Android storage migration: destination path is not directly writable, using MediaStore"
+                   << destinationRoot;
     }
 
     const QDir sourceDirectory(sourceRoot);
@@ -11453,7 +11453,24 @@ void homeform::migrateAndroidDataToDocuments() {
             }
             qDebug() << "Android storage migration Java copy" << sourcePath
                      << "->" << stagingPath << copied;
-            if (copied) {
+            if (!copied) {
+                const QString relativePath = sourceDirectory.relativeFilePath(sourcePath);
+                QAndroidJniObject javaRelativePath = QAndroidJniObject::fromString(relativePath);
+                copied = QAndroidJniObject::callStaticMethod<jboolean>(
+                    "org/cagnulen/qdomyoszwift/ContentHelper",
+                    "copyFileToPublicDocuments",
+                    "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Z",
+                    QtAndroid::androidActivity().object(),
+                    javaSourcePath.object<jstring>(),
+                    javaRelativePath.object<jstring>());
+                if (clearAndroidJniException("ContentHelper.copyFileToPublicDocuments")) {
+                    copied = false;
+                }
+                destinationReady = copied;
+                qDebug() << "Android storage migration MediaStore copy" << sourcePath
+                         << "->" << relativePath << copied;
+            }
+            if (copied && !destinationReady) {
                 const bool stagedFileReady = QFileInfo::exists(stagingPath) &&
                                               QFileInfo(stagingPath).size() == sourceInfo.size();
                 bool movedOldDestination = true;
