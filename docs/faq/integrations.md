@@ -66,6 +66,20 @@ For example, with a smart treadmill, Apple Watch, and a Bluetooth heart-rate str
 
 You do not need to pair the chest strap separately to QZ for this setup. QZ's current treadmill code includes Apple Watch cadence handling, and its external heart-rate path explicitly supports Apple Watch heart-rate data.
 
+## Can QZ bridge a trainer and heart rate to Zwift on Apple TV over Wi-Fi so Bluetooth remains available for Zwift Click?
+
+Yes. QZ supports the Wahoo DIRCON-compatible Wi-Fi virtual-trainer path. This can be useful on Apple TV when you want Zwift to receive the trainer data and heart rate through QZ over the local network while keeping Apple TV's Bluetooth connection available for a Zwift Click controller.
+
+A typical setup is:
+
+1. Connect the physical trainer and heart-rate sensor to QZ.
+2. Enable QZ's **Wahoo DIRCON / Wi-Fi** compatibility option.
+3. Make sure the device running QZ and the Apple TV are on the same local network.
+4. In Zwift on Apple TV, select the virtual QZ/Wahoo trainer exposed over Wi-Fi for the trainer connection and use the heart-rate data forwarded by QZ.
+5. Pair the Zwift Click controller directly to Zwift on the Apple TV over Bluetooth.
+
+This avoids using separate Apple TV Bluetooth connections for both the physical trainer and heart-rate sensor. QZ's current virtual-bike implementation includes DIRCON support, and the project documents DIRCON as a Wi-Fi-only path for sending QZ data to Zwift.
+
 ## Can I use Zwift Ride virtual gears with Kinomap through QZ?
 
 Yes. QZ can use the Zwift Ride controllers for shifting while Kinomap connects to QZ as the virtual trainer.
@@ -78,6 +92,8 @@ For this setup:
 4. Start QZ and verify that the controllers are connected, then pair the QZ virtual trainer in Kinomap.
 
 If the controllers appear connected but gear changes do not work in Kinomap, check **FTMS Bike** first. Selecting a trainer model there can make QZ use the wrong bike path for this setup. In a confirmed support case, changing **FTMS Bike** from a KICKR model back to **Disabled** restored virtual shifting immediately.
+
+If QZ does not detect the Zwift Ride/Play controller after enabling the option, fully restart QZ with the controller awake. The controller option is applied during QZ startup. In a confirmed support case, enabling the Zwift controller option before starting QZ restored virtual shifting in MyWhoosh; selecting **FTMS** when adding the QZ virtual trainer in Kinomap then made the same setup work there as well.
 
 ## Can I use QZ virtual gears with Rouvy?
 
@@ -156,3 +172,34 @@ If QZ still reports a successful Peloton login but stops recognizing an active P
 3. Restart QZ, confirm that the Peloton login succeeds, and open the workout again.
 
 In a confirmed support case, signing out and back in did not restore workout detection, while changing the Peloton password did and the integration immediately started working again.
+
+## Can QZ send cadence and heart rate to Peloton?
+
+Yes, but use the **native Peloton app on iOS or Android** for this setup. QZ can expose cadence and heart-rate data through its Peloton compatibility path so that the native mobile app can receive them from QZ.
+
+The **Peloton web app in a browser does not accept this live sensor data from QZ**. If you are using Peloton in a web browser, switching QZ settings will not make cadence or heart rate appear there.
+
+For a supported bike or trainer:
+
+1. Connect the physical equipment and, if needed, the heart-rate sensor to QZ.
+2. Enable the Peloton compatibility option in QZ.
+3. Run the native Peloton app on the device that will receive the virtual sensor data and pair the QZ-exposed cadence/heart-rate devices there.
+
+This distinction is important when troubleshooting a setup that works in QZ but shows no live metrics in Peloton: first confirm whether Peloton is running as the native mobile app or in a web browser.
+
+## Kinomap keeps reconnecting to an old device or does not use QZ correctly. What should I check?
+
+When QZ is acting as the bridge between a physical bike and Kinomap, Kinomap should connect to the **virtual device exposed by QZ**, not directly to the physical bike.
+
+If Kinomap has previously been paired with the bike or with older QZ virtual devices, remove those saved connections in Kinomap and set up the connection again. When Kinomap asks for the equipment type/brand, use the **FTMS** option and select the virtual QZ device.
+
+Also avoid pairing the physical bike to the phone/tablet through the operating system Bluetooth settings. Let QZ establish the connection to the physical bike, then let Kinomap connect to QZ.
+
+A useful two-device setup is:
+
+1. Run QZ on the device that connects to the physical bike.
+2. Run Kinomap on a second phone/tablet.
+3. Remove stale/saved bike connections from Kinomap if it keeps selecting the wrong device.
+4. In Kinomap, add the equipment again using **FTMS** and select QZ's virtual device.
+
+In a confirmed support case, Kinomap had retained old connections and was interfering with the intended QZ bridge. Cleaning up those saved connections and using the FTMS path restored the expected connection and resistance behavior.

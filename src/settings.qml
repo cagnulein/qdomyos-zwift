@@ -12,6 +12,10 @@ import AndroidStatusBar 1.0
         objectName: "settingsPage"
         // Settings is a vertical page: never let a wide translated child enlarge the viewport.
         contentWidth: availableWidth
+        // The page height from the column itself: ScrollView takes it from its only child on its
+        // own, but on a phone it stopped following after a turn of the screen - the column grew
+        // to 7254 while the page stayed 1310, a section opened after it could not be scrolled
+        contentHeight: column1.implicitHeight
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
@@ -19,6 +23,9 @@ import AndroidStatusBar 1.0
                             AndroidStatusBar.waterfallLeftInset : 0
         anchors.rightMargin: (Qt.platform.os === "android" && AndroidStatusBar.hasWaterfallDisplay) ?
                              AndroidStatusBar.waterfallRightInset : 0
+        // Padding, not margins: the text moves in, the scroll bar stays at the edge
+        leftPadding: window.contentSideMargin
+        rightPadding: window.contentSideMargin
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane
@@ -36,6 +43,7 @@ import AndroidStatusBar 1.0
         property bool settingsSearchVisible: false
         property bool settingsSearchActive: false
         property bool settingsSearchPending: false
+        property string initialProfileSettingsSnapshot: ""
 
         function showSettingsSearch() {
             settingsSearchVisible = true
@@ -57,6 +65,29 @@ import AndroidStatusBar 1.0
         function openGarminSection() {
             garminOptionsAccordion.isOpen = true
             scrollTimer.start()
+        }
+
+        function profileSettingsSnapshot() {
+            var values = []
+            for (var key in settings) {
+                var value = settings[key]
+                if (typeof value === "boolean" || typeof value === "number" || typeof value === "string")
+                    values.push(key + "=" + String(value))
+            }
+            values.sort()
+            return values.join("\n")
+        }
+
+        function profileSaveReminderNeeded() {
+            return settings.profile_name.length > 0 &&
+                   settings.profile_name !== "default" &&
+                   initialProfileSettingsSnapshot.length > 0 &&
+                   initialProfileSettingsSnapshot !== profileSettingsSnapshot()
+        }
+
+        Component.onCompleted: {
+            initialProfileSettingsSnapshot = profileSettingsSnapshot()
+            window.settings_restart_to_apply = false
         }
 
         // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
@@ -264,7 +295,7 @@ import AndroidStatusBar 1.0
             }
 
             window.settings_restart_to_apply = true
-            toast.show("Setting saved!")
+            toast.show(qsTr("Setting saved!"))
         }
 
         function optionValues(entry) {
@@ -331,7 +362,7 @@ import AndroidStatusBar 1.0
                 settings[entry.options[index].sets] = true
 
             window.settings_restart_to_apply = true
-            toast.show("Setting saved!")
+            toast.show(qsTr("Setting saved!"))
         }
 
         // always add a property at the end of the file to avoid corruption of the settings when loading old versions
@@ -1752,6 +1783,16 @@ import AndroidStatusBar 1.0
             property bool custom_inclination_resistance_table_enabled: false
             property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
             property real power_sensor_speed_correction_threshold: 20.0
+            property bool flow_fitness_runner_dtm2000i: false
+            property bool nordictrack_incline_trainer_x7i_netl18716_0: false
+            property bool android_landscape_cutout_margin: true
+            property real watt_max: 9999
+            property bool proform_trainer_8_0_pftl59721_0: false
+            property bool android_landscape_cutout_prompt_shown: false
+            property bool pafers_rower: false
+            property bool android_notification_prompt_disabled: false
+            property bool android_notification_v2: true
+            property bool nordictrack_gx_le: false
         }
 
 
@@ -1787,10 +1828,6 @@ import AndroidStatusBar 1.0
         function timeToPaceSeconds(text) {
             var pieces = text.split(":")
             return (parseInt(pieces[0]) * 3600) + (parseInt(pieces[1]) * 60) + parseInt(pieces[2])
-        }
-
-        Component.onCompleted: {
-            window.settings_restart_to_apply = false;
         }
 
         property var appLanguageOptions: [
@@ -1837,7 +1874,12 @@ import AndroidStatusBar 1.0
         ColumnLayout {
             id: column1
             spacing: 0
-            anchors.fill: parent
+            // Not tied to the bottom: the height of the column is the content height of the page, so
+            // fill made an anchor loop; on a turn of the screen Qt gave up on it and the height stayed
+            // as it was - a section opened after it could not be scrolled to its end
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
 
             RowLayout {
                 id: settingsSearchBar
@@ -2003,12 +2045,12 @@ import AndroidStatusBar 1.0
                                 }
 
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     onClicked: settingsPane.setSettingValue(entry, searchSettingTextField.text)
                                 }
                             }
 
-                            ComboBox {
+                            UiComboBox {
                                 id: searchSettingComboBox
                                 visible: entry.catalogKind === "setting" && settingsPane.optionValues(entry).length > 0
                                 Layout.fillWidth: true
@@ -2030,7 +2072,7 @@ import AndroidStatusBar 1.0
                                     elide: Text.ElideRight
                                 }
                                 delegate: ItemDelegate {
-                                    width: searchSettingComboBox.width
+                                    width: ListView.view.width
                                     text: modelData
                                     contentItem: Label {
                                         text: modelData
@@ -2048,7 +2090,7 @@ import AndroidStatusBar 1.0
                                 }
                             }
 
-                            ComboBox {
+                            UiComboBox {
                                 id: searchVirtualComboBox
                                 visible: entry.catalogKind === "virtual"
                                 Layout.fillWidth: true
@@ -2067,7 +2109,7 @@ import AndroidStatusBar 1.0
                                     elide: Text.ElideRight
                                 }
                                 delegate: ItemDelegate {
-                                    width: searchVirtualComboBox.width
+                                    width: ListView.view.width
                                     text: modelData
                                     contentItem: Label {
                                         text: modelData
@@ -2146,7 +2188,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("App Language:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: appLanguageCombo
                             model: appLanguageOptions
                             textRole: "label"
@@ -2330,15 +2372,15 @@ import AndroidStatusBar 1.0
                             text: qsTr("Gender:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: sexTextField
                             model: [ "Male", "Female" ]
-                            displayText: settings.sex
+                            labels: ({ "Male": qsTr("Male"), "Female": qsTr("Female") })
+                            value: settings.sex
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + sexTextField.currentIndex)
-                                displayText = sexTextField.currentValue
                              }
 
                         }
@@ -2346,7 +2388,7 @@ import AndroidStatusBar 1.0
                             id: okSex
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.sex = sexTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.sex = sexTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -2794,16 +2836,16 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: heartBeltNameTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.heart_rate_belt_name
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.heart_rate_belt_name
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
-                                displayText = heartBeltNameTextField.currentValue
                              }
 
                         }
@@ -2811,7 +2853,7 @@ import AndroidStatusBar 1.0
                             id: okHeartBeltNameButton
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -3362,7 +3404,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelBikeWeight
-                            text: qsTr("Bike Weight") + "(" + ((settings.miles_unit && !settings.weight_kg_unit)?"lbs":"kg") + ")"
+                            text: qsTr("Bike Weight (%1)").arg((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg")
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -3535,8 +3577,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Left Up:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_up
                                     onActivated: { settings.mywhoosh_link_left_up = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3547,8 +3589,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Left Down:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_down
                                     onActivated: { settings.mywhoosh_link_left_down = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3559,8 +3601,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Left Left:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_left
                                     onActivated: { settings.mywhoosh_link_left_left = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3571,8 +3613,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Left Right:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_right
                                     onActivated: { settings.mywhoosh_link_left_right = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3583,8 +3625,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Left Shoulder:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_shoulder
                                     onActivated: { settings.mywhoosh_link_left_shoulder = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3595,8 +3637,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Left Power:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_power
                                     onActivated: { settings.mywhoosh_link_left_power = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3615,8 +3657,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Right Y:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_y
                                     onActivated: { settings.mywhoosh_link_right_y = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3627,8 +3669,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Right A:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_a
                                     onActivated: { settings.mywhoosh_link_right_a = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3639,8 +3681,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Right B:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_b
                                     onActivated: { settings.mywhoosh_link_right_b = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3651,8 +3693,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Right Z:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_z
                                     onActivated: { settings.mywhoosh_link_right_z = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3663,8 +3705,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Right Shoulder:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_shoulder
                                     onActivated: { settings.mywhoosh_link_right_shoulder = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -3675,8 +3717,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Right Power:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down", "Steer Left", "Steer Right", "U-Turn", "Camera Angle", "Emote", "Tuck", "Nav Up", "Nav Down", "Nav Left", "Nav Right", "Select/Confirm", "Back/Cancel", "Menu", "Home"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_power
                                     onActivated: { settings.mywhoosh_link_right_power = currentIndex; window.settings_restart_to_apply = true; }
                                 }
@@ -4132,9 +4174,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Profile:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
+                                UiComboBox {
                                     id: automaticVirtualShiftingProfileComboBox
-                                    model: ["Cruise", "Climb", "Sprint"]
+                                    model: [qsTr("Cruise"), qsTr("Climb"), qsTr("Sprint")]
                                     currentIndex: settings.automatic_virtual_shifting_profile
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4470,23 +4512,23 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: ftmsBikeTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.ftms_bike
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.ftms_bike
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + ftmsBikeTextField.currentIndex)
-                                displayText = ftmsBikeTextField.currentValue
                              }
 
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_bike = stripRssi(ftmsBikeTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftms_bike = stripRssi(ftmsBikeTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -4661,7 +4703,7 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Watt Profile:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
+                                UiComboBox {
                                     id: echelonWattTableTextField
                                     model: [ "Echelon", "mgarcea" ]
                                     displayText: settings.echelon_watttable
@@ -4921,7 +4963,7 @@ import AndroidStatusBar 1.0
 
                     AccordionElement {
                         id: snodeBikeAccordion
-                        title: "Snode Bike Options"
+                        title: qsTr("Snode Bike Options")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -5175,6 +5217,7 @@ import AndroidStatusBar 1.0
                                 onClicked: settings.domyosbike_notfmts = checked
                             }
                             IndicatorOnlySwitch {
+                                //: Domyos bike switch: QZ sends its own calories and distance values to the bike console display.
                                 text: qsTr("Fix Calories/Km to Console")
                                 spacing: 0
                                 bottomPadding: 0
@@ -5299,7 +5342,7 @@ import AndroidStatusBar 1.0
                                 Layout.fillWidth: true
                             }
 
-                            ComboBox {
+                            UiComboBox {
                                 Layout.fillWidth: true
                                 id: bikeModelComboBox
                                 property bool initialized: false
@@ -5327,7 +5370,8 @@ import AndroidStatusBar 1.0
                                     "Proform CSX210",
                                     "Nordictrack GX 4.5 Pro",
                                     "Proform 325 CSX PFEX439210 INT.0",
-                                    "NordicTrack VR21"
+                                    "NordicTrack VR21",
+                                    "NordicTrack GX LE"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -5366,7 +5410,8 @@ import AndroidStatusBar 1.0
                                                     settings.proform_csx210 ? 19 : 
                                                     settings.nordictrack_gx_4_5_pro ? 20 :
                                                     settings.proform_bike_325_csx_PFEX439210INT_0 ? 21 : 
-                                                    settings.nordictrack_vr21 ? 22 : 0;
+                                                    settings.nordictrack_vr21 ? 22 :
+                                                    settings.nordictrack_gx_le ? 23 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -5403,6 +5448,7 @@ import AndroidStatusBar 1.0
                                     settings.nordictrack_vr21 = false;
                                     settings.proform_bike_325_csx_PFEX439210INT_0 = false;
                                     settings.nordictrack_gx_4_5_pro = false;
+                                    settings.nordictrack_gx_le = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -5428,6 +5474,7 @@ import AndroidStatusBar 1.0
                                         case 20: settings.nordictrack_gx_4_5_pro = true; break;
                                         case 21: settings.proform_bike_325_csx_PFEX439210INT_0 = true; break;
                                         case 22: settings.nordictrack_vr21 = true; break;
+                                        case 23: settings.nordictrack_gx_le = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -5452,7 +5499,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: "TDF1 IP:"
+                                    text: qsTr("TDF1 IP:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -5476,7 +5523,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelproformTDF4IP
-                                    text: "TDF4 IP:"
+                                    text: qsTr("TDF4 IP:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -5618,10 +5665,10 @@ import AndroidStatusBar 1.0
                             spacing: 10
                             Label {
                                 id: labelKettlerUsbBaudrate
-                                text: "Baudrate:"
+                                text: qsTr("Baudrate:")
                                 Layout.fillWidth: true
                             }
-                            ComboBox {
+                            UiComboBox {
                                 id: kettlerUsbBaudrateComboBox
                                 model: [ "9600", "57600" ]
                                 displayText: settings.kettler_usb_baudrate.toString()
@@ -5870,7 +5917,7 @@ import AndroidStatusBar 1.0
 
                     AccordionElement {
                         id: toputureBikeAccordion
-                        title: "Toputure Bikes"
+                        title: qsTr("Toputure Bikes")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -6165,6 +6212,36 @@ import AndroidStatusBar 1.0
                         onClicked: { settings.top_bar_enabled = checked; window.settings_restart_to_apply = true; }
                     }
 
+                    IndicatorOnlySwitch {
+                        id: landscapeCutoutMarginDelegate
+                        text: qsTr("Keep Content Clear of the Camera Cutout")
+                        visible: Qt.platform.os === "android"
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.android_landscape_cutout_margin
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.android_landscape_cutout_margin = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.")
+                        visible: Qt.platform.os === "android"
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -6172,9 +6249,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Floating Window Type:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: floatingWindowTypeComboBox
-                            model: ["Classic", "Horizontal"]
+                            model: [qsTr("Classic"), qsTr("Horizontal")]
                             currentIndex: settings.floatingwindow_type
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -6368,9 +6445,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Chart Display Mode:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: chartDisplayModeComboBox
-                            model: ["Both Charts", "Heart Rate Only", "Power Only"]
+                            model: [qsTr("Both Charts"), qsTr("Heart Rate Only"), qsTr("Power Only")]
                             currentIndex: settings.chart_display_mode
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -6405,7 +6482,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("iOS Live Activity Left Metric:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: iosLiveActivityCompactLeadingMetricComboBox
                             model: rootItem.metrics
                             displayText: settings.ios_live_activity_compact_leading_metric
@@ -6414,9 +6491,9 @@ import AndroidStatusBar 1.0
                             onActivated: displayText = currentValue
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ios_live_activity_compact_leading_metric = iosLiveActivityCompactLeadingMetricComboBox.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.ios_live_activity_compact_leading_metric = iosLiveActivityCompactLeadingMetricComboBox.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6426,7 +6503,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("iOS Live Activity Right Metric:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: iosLiveActivityCompactTrailingMetricComboBox
                             model: rootItem.metrics
                             displayText: settings.ios_live_activity_compact_trailing_metric
@@ -6435,9 +6512,9 @@ import AndroidStatusBar 1.0
                             onActivated: displayText = currentValue
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ios_live_activity_compact_trailing_metric = iosLiveActivityCompactTrailingMetricComboBox.displayText; toast.show("Setting saved!"); }
+                            onClicked: { settings.ios_live_activity_compact_trailing_metric = iosLiveActivityCompactTrailingMetricComboBox.displayText; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6748,7 +6825,6 @@ import AndroidStatusBar 1.0
                         }
                         Layout.fillWidth: true
                         onClicked: {
-                            stackView.push("WebPelotonAuth.qml")
                             peloton_connect_clicked()
                         }
                     }
@@ -6760,15 +6836,15 @@ import AndroidStatusBar 1.0
                             text: qsTr("Difficulty:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: pelotonDifficultyTextField
                             model: [ "lower", "upper", "average" ]
-                            displayText: settings.peloton_difficulty
+                            labels: ({ "lower": qsTr("lower"), "upper": qsTr("upper"), "average": qsTr("average") })
+                            value: settings.peloton_difficulty
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + pelotonDifficultyTextField.currentIndex)
-                                displayText = pelotonDifficultyTextField.currentValue
                              }
 
                         }
@@ -6776,7 +6852,7 @@ import AndroidStatusBar 1.0
                             id: okPelotonDifficultyButton
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_difficulty = pelotonDifficultyTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.peloton_difficulty = pelotonDifficultyTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6799,7 +6875,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Treadmill Level:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: pelotonTreadmillLevelTextField
                             model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
                             displayText: settings.peloton_treadmill_level
@@ -6837,7 +6913,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Treadmill Walk Level:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: pelotonTreadmillWalkLevelTextField
                             model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
                             displayText: settings.peloton_treadmill_walk_level
@@ -6943,7 +7019,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Rower Level:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: pelotonRowerLevelTextField
                             model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
                             displayText: settings.peloton_rower_level
@@ -7217,7 +7293,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Override Cadence Metric:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: pelotonCadenceMetricTextField
                             model: rootItem.metrics
                             displayText: settings.peloton_cadence_metric
@@ -7244,7 +7320,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Override HR Metric:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: pelotonHeartRateMetricTextField
                             model: rootItem.metrics
                             displayText: settings.peloton_heartrate_metric
@@ -7284,15 +7360,15 @@ import AndroidStatusBar 1.0
                             text: qsTr("Date on Strava:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: pelotonDateOnStravaTextField
                             model: [ "Before Title", "After Title", "Disabled" ]
-                            displayText: settings.peloton_date
+                            labels: ({ "Before Title": qsTr("Before Title"), "After Title": qsTr("After Title"), "Disabled": qsTr("Disabled") })
+                            value: settings.peloton_date
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + pelotonDateOnStravaTextField.currentIndex)
-                                displayText = pelotonDateOnStravaTextField.currentValue
                             }
 
                         }
@@ -7300,7 +7376,7 @@ import AndroidStatusBar 1.0
                             id: okPelotonDateOnStrava
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.peloton_date = pelotonDateOnStravaTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.peloton_date = pelotonDateOnStravaTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -7323,7 +7399,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Date Format:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: pelotonDateFormatTextField
                             model: [ "MM/dd/yy", "yy/MM/dd" ]
                             displayText: settings.peloton_date_format
@@ -7746,7 +7822,7 @@ import AndroidStatusBar 1.0
                         checked: settings.zwift_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_ocr = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_ocr = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification_v2 = true; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -7773,7 +7849,7 @@ import AndroidStatusBar 1.0
                         checked: settings.zwift_ocr_climb_portal
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_ocr_climb_portal = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_ocr_climb_portal = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr = false; settings.android_notification_v2 = true; window.settings_restart_to_apply = true; }
                     }
 
                     IndicatorOnlySwitch {
@@ -7787,7 +7863,7 @@ import AndroidStatusBar 1.0
                         checked: settings.zwift_workout_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_workout_ocr = checked; settings.zwift_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_workout_ocr = checked; settings.zwift_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification_v2 = true; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -8050,7 +8126,7 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: "Garmin Password:"
+                            text: qsTr("Garmin Password:")
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -8077,14 +8153,14 @@ import AndroidStatusBar 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            text: "Garmin Server:"
+                            text: qsTr("Garmin Server:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: garminServerComboBox
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            model: ["Global (garmin.com)", "China (garmin.cn)"]
+                            model: [qsTr("Global (garmin.com)"), qsTr("China (garmin.cn)")]
                             currentIndex: settings.garmin_domain === "garmin.cn" ? 1 : 0
                             onCurrentIndexChanged: {
                                 var newDomain = currentIndex === 1 ? "garmin.cn" : "garmin.com";
@@ -8176,7 +8252,6 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Submit")
                                     Layout.fillWidth: true
                                     highlighted: true
-                                    enabled: mfaCodeTextField.text.length > 0
                                     onClicked: {
                                         rootItem.garmin_submit_mfa_code(mfaCodeTextField.text);
                                         mfaCodeTextField.text = "";
@@ -8238,7 +8313,7 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                     }
 
-                    ComboBox {
+                    UiComboBox {
                         id: garminDeviceComboBoxDelegate
                         model: [
                             "Approach G10",
@@ -9117,15 +9192,15 @@ import AndroidStatusBar 1.0
                             text: qsTr("PID on Heart Zone:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: treadmillPidHRTextField
                             model: [ "Disabled", "1", "2","3","4","5" ]
-                            displayText: settings.treadmill_pid_heart_zone
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.treadmill_pid_heart_zone
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + treadmillPidHRTextField.currentIndex)
-                                displayText = treadmillPidHRTextField.currentValue
                              }
 
                         }
@@ -9133,7 +9208,7 @@ import AndroidStatusBar 1.0
                             id: okTreadmillPidHR
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.treadmill_pid_heart_zone = treadmillPidHRTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.treadmill_pid_heart_zone = treadmillPidHRTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9249,9 +9324,9 @@ import AndroidStatusBar 1.0
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_pid_hr_recovery_zone_limit = parseFloat(pidHrRecoveryZoneLimitTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_pid_hr_recovery_zone_limit = parseFloat(pidHrRecoveryZoneLimitTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9283,9 +9358,9 @@ import AndroidStatusBar 1.0
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_pid_hr_pushy_zone_limit = parseFloat(pidHrPushyZoneLimitTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_pid_hr_pushy_zone_limit = parseFloat(pidHrPushyZoneLimitTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9531,9 +9606,9 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             id: okTrainProgramWarmupSpeed
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_warmup_speed = timeToPaceSeconds(trainProgramWarmupSpeedTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_warmup_speed = timeToPaceSeconds(trainProgramWarmupSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9554,9 +9629,9 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             id: okTrainProgramCooldownSpeed
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_cooldown_speed = timeToPaceSeconds(trainProgramCooldownSpeedTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_cooldown_speed = timeToPaceSeconds(trainProgramCooldownSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9577,9 +9652,9 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             id: okTrainProgramRestSpeed
-                            text: "OK"
+                            text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_rest_speed = timeToPaceSeconds(trainProgramRestSpeedTextField.text); toast.show("Setting saved!"); }
+                            onClicked: { settings.trainprogram_rest_speed = timeToPaceSeconds(trainProgramRestSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9590,15 +9665,15 @@ import AndroidStatusBar 1.0
                             text: qsTr("Default Pace:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: treadmillPaceDefaultTextField
                             model: [ "1 mile", "5 km", "10 km","Half Marathon","Marathon", ]
-                            displayText: settings.pace_default
+                            labels: ({ "1 mile": qsTr("1 mile"), "Half Marathon": qsTr("Half Marathon"), "Marathon": qsTr("Marathon") })
+                            value: settings.pace_default
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + treadmillPaceDefaultTextField.currentIndex)
-                                displayText = treadmillPaceDefaultTextField.currentValue
                              }
 
                         }
@@ -9606,7 +9681,7 @@ import AndroidStatusBar 1.0
                             id: okTreadmillPaceDefault
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.pace_default = treadmillPaceDefaultTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.pace_default = treadmillPaceDefaultTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -10283,6 +10358,7 @@ import AndroidStatusBar 1.0
                     }
 
                     NewPageElement {
+                        //: Section title: table that replaces each incline value the treadmill receives with a user-defined value. Avoid the technical word "override".
                         title: qsTr("Inclination Overrides")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Grey)
@@ -10336,23 +10412,23 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: ftmsTreadmillTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.ftms_treadmill
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.ftms_treadmill
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + ftmsTreadmillTextField.currentIndex)
-                                displayText = ftmsTreadmillTextField.currentValue
                             }
 
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_treadmill = stripRssi(ftmsTreadmillTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftms_treadmill = stripRssi(ftmsTreadmillTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -10395,7 +10471,7 @@ import AndroidStatusBar 1.0
                                 Layout.fillWidth: true
                             }
 
-                            ComboBox {
+                            UiComboBox {
                                 Layout.fillWidth: true
                                 id: treadmillModelComboBox
                                 property bool initialized: false
@@ -10465,6 +10541,8 @@ import AndroidStatusBar 1.0
                                     "ProForm CST 505 PFTL59420.0",
                                     "ProForm 105 CST",
                                     "Nordictrack Incline Trainer X7i NTL15010.0",
+                                    "Nordictrack Incline Trainer X7i NETL18716.0",
+                                    "ProForm Trainer 8.0 PFTL59721.0",
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -10544,7 +10622,9 @@ import AndroidStatusBar 1.0
                                                     settings.proform_carbon_tlx_v84_314_treadmill ? 60 :
                                                     settings.proform_treadmill_cst_505_pftl59420_0 ? 61 :
                                                     settings.proform_treadmill_105_cst ? 62 :
-                                                    settings.nordictrack_incline_trainer_x7i_ntl15010_0 ? 63 : 0;
+                                                    settings.nordictrack_incline_trainer_x7i_ntl15010_0 ? 63 :
+                                                    settings.nordictrack_incline_trainer_x7i_netl18716_0 ? 64 :
+                                                    settings.proform_trainer_8_0_pftl59721_0 ? 65 : 0;
 
                                     console.log("treadmillModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -10622,6 +10702,8 @@ import AndroidStatusBar 1.0
                                     settings.proform_treadmill_cst_505_pftl59420_0 = false;
                                     settings.proform_treadmill_105_cst = false;
                                     settings.nordictrack_incline_trainer_x7i_ntl15010_0 = false;
+                                    settings.nordictrack_incline_trainer_x7i_netl18716_0 = false;
+                                    settings.proform_trainer_8_0_pftl59721_0 = false;
 
                                     // Set new setting based on selection
                                     switch (currentIndex) {
@@ -10688,6 +10770,8 @@ import AndroidStatusBar 1.0
                                         case 61: settings.proform_treadmill_cst_505_pftl59420_0 = true; break;
                                         case 62: settings.proform_treadmill_105_cst = true; break;
                                         case 63: settings.nordictrack_incline_trainer_x7i_ntl15010_0 = true; break;
+                                        case 64: settings.nordictrack_incline_trainer_x7i_netl18716_0 = true; break;
+                                        case 65: settings.proform_trainer_8_0_pftl59721_0 = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
@@ -10697,7 +10781,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelproformtreadmillip
-                                    text: "Proform IP:"
+                                    text: qsTr("Proform IP:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -10721,7 +10805,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 Label {
                                     id: labelnordictrack2950IP
-                                    text: "Nordictrack 2950 IP:"
+                                    text: qsTr("Nordictrack 2950 IP:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -10778,7 +10862,7 @@ import AndroidStatusBar 1.0
                                 checked: settings.pafers_treadmill
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.pafers_treadmill = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.pafers_treadmill = checked; if (checked) settings.pafers_rower = false; window.settings_restart_to_apply = true; }
                             }
                             IndicatorOnlySwitch {
                                 id: bhIboxsterPlusDelegate
@@ -10792,7 +10876,21 @@ import AndroidStatusBar 1.0
                                 checked: settings.pafers_treadmill_bh_iboxster_plus
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: { settings.pafers_treadmill_bh_iboxster_plus = checked; window.settings_restart_to_apply = true; }
+                                onClicked: { settings.pafers_treadmill_bh_iboxster_plus = checked; if (checked) settings.pafers_rower = false; window.settings_restart_to_apply = true; }
+                            }
+                            IndicatorOnlySwitch {
+                                id: pafersRowerDelegate
+                                text: qsTr("Pafers Rower")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.pafers_rower
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.pafers_rower = checked; if (checked) { settings.pafers_treadmill = false; settings.pafers_treadmill_bh_iboxster_plus = false; } window.settings_restart_to_apply = true; }
                             }
                         }
                     }
@@ -11917,6 +12015,21 @@ import AndroidStatusBar 1.0
                     }
 
                     IndicatorOnlySwitch {
+                        id: flowFitnessRunnerDtm2000iDelegate
+                        text: qsTr("Flow Fitness Runner DTM2000i")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.flow_fitness_runner_dtm2000i
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.flow_fitness_runner_dtm2000i = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    IndicatorOnlySwitch {
                         id: reebokFR30TreadmillDelegate
                         text: qsTr("Reebok FR30 Treadmill")
                         spacing: 0
@@ -12163,23 +12276,23 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: ftmsRowerTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.ftms_rower
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.ftms_rower
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + ftmsRowerTextField.currentIndex)
-                                displayText = ftmsRowerTextField.currentValue
                              }
 
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_rower = stripRssi(ftmsRowerTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftms_rower = stripRssi(ftmsRowerTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }                   
 
@@ -12258,7 +12371,7 @@ import AndroidStatusBar 1.0
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    text: "ProForm Rower IP:"
+                                    text: qsTr("ProForm Rower IP:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
@@ -12372,23 +12485,23 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: ftmsEllipticalTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.ftms_elliptical
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.ftms_elliptical
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + ftmsEllipticalTextField.currentIndex)
-                                displayText = ftmsEllipticalTextField.currentValue
                              }
 
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_elliptical = stripRssi(ftmsEllipticalTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftms_elliptical = stripRssi(ftmsEllipticalTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12617,16 +12730,16 @@ import AndroidStatusBar 1.0
                     }
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: filterDeviceTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.filter_device
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.filter_device
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + filterDeviceTextField.currentIndex)
-                                displayText = filterDeviceTextField.currentValue
                              }
 
                         }
@@ -12634,7 +12747,7 @@ import AndroidStatusBar 1.0
                             id: okFilterDeviceButton
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.filter_device = stripRssi(filterDeviceTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.filter_device = stripRssi(filterDeviceTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -12750,6 +12863,43 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelwattMax
+                            text: qsTr("Max Watt:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: wattMaxTextField
+                            text: settings.watt_max
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.watt_max = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okWattMaxButton
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.watt_max = wattMaxTextField.text; toast.show(qsTr("Setting saved!")); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Limits the watt output sent by QZ. Set to 0 to disable the limit. Default is 9999 W.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -12928,22 +13078,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Strava Upload:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: stravaUploadMode
                             model: [ "Always", "Request", "Disabled" ]
-                            displayText: settings.strava_upload_mode
+                            labels: ({ "Always": qsTr("Always"), "Request": qsTr("Request"), "Disabled": qsTr("Disabled") })
+                            value: settings.strava_upload_mode
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + stravaUploadMode.currentIndex)
-                                displayText = stravaUploadMode.currentValue
                              }
 
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.strava_upload_mode = stravaUploadMode.displayText; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.strava_upload_mode = stravaUploadMode.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -13155,9 +13305,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Power Averaging Mode:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: powerAvgCombo
-                            model: ["Off", "3 seconds", "5 seconds"]
+                            model: [qsTr("Off"), qsTr("3 seconds"), qsTr("5 seconds")]
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             currentIndex: {
@@ -13505,7 +13655,7 @@ import AndroidStatusBar 1.0
                     }
 
                     Label {
-                        text: qsTr("You can trigger auto laps in the FIT file based on distance. Unit: "+ (settings.miles_unit?"Mi":"KM") +" Default: 0 (disabled).")
+                        text: qsTr("You can trigger auto laps in the FIT file based on distance. Unit: %1 Default: 0 (disabled).").arg(settings.miles_unit ? "Mi" : "KM")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -13646,16 +13796,16 @@ import AndroidStatusBar 1.0
                             }
                             RowLayout {
                                 spacing: 10
-                                ComboBox {
+                                ValueComboBox {
                                     id: cadenceSensorNameTextField
                                     model: rootItem.bluetoothDevices
-                                    displayText: settings.cadence_sensor_name
+                                    labels: ({ "Disabled": qsTr("Disabled") })
+                                    value: settings.cadence_sensor_name
                                     Layout.fillHeight: false
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + cadenceSensorNameTextField.currentIndex)
-                                        displayText = cadenceSensorNameTextField.currentValue
                                     }
 
                                 }
@@ -13663,7 +13813,7 @@ import AndroidStatusBar 1.0
                                     id: okCadenceSensorNameButton
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cadence_sensor_name = stripRssi(cadenceSensorNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.cadence_sensor_name = stripRssi(cadenceSensorNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13796,9 +13946,9 @@ import AndroidStatusBar 1.0
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cscbike_custom_resistance_level_1 = cscBikeCustomResistanceLevel1TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cscbike_custom_resistance_level_1 = cscBikeCustomResistanceLevel1TextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13819,9 +13969,9 @@ import AndroidStatusBar 1.0
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cscbike_custom_watt_1 = cscBikeCustomWatt1TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cscbike_custom_watt_1 = cscBikeCustomWatt1TextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13842,9 +13992,9 @@ import AndroidStatusBar 1.0
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cscbike_custom_resistance_level_2 = cscBikeCustomResistanceLevel2TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cscbike_custom_resistance_level_2 = cscBikeCustomResistanceLevel2TextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -13865,9 +14015,9 @@ import AndroidStatusBar 1.0
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cscbike_custom_watt_2 = cscBikeCustomWatt2TextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.cscbike_custom_watt_2 = cscBikeCustomWatt2TextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14048,9 +14198,9 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_speed_correction_threshold = powerSensorSpeedCorrectionThresholdTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_speed_correction_threshold = powerSensorSpeedCorrectionThresholdTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14163,9 +14313,9 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_speed_inclination_coeff_a = powerSensorSpeedInclinationCoeffATextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_speed_inclination_coeff_a = powerSensorSpeedInclinationCoeffATextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14184,9 +14334,9 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 }
                                 Button {
-                                    text: "OK"
+                                    text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_speed_inclination_coeff_b = powerSensorSpeedInclinationCoeffBTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_speed_inclination_coeff_b = powerSensorSpeedInclinationCoeffBTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14210,16 +14360,16 @@ import AndroidStatusBar 1.0
                             }
                             RowLayout {
                                 spacing: 10
-                                ComboBox {
+                                ValueComboBox {
                                     id: powerSensorNameTextField
                                     model: rootItem.bluetoothDevices
-                                    displayText: settings.power_sensor_name
+                                    labels: ({ "Disabled": qsTr("Disabled") })
+                                    value: settings.power_sensor_name
                                     Layout.fillHeight: false
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + powerSensorNameTextField.currentIndex)
-                                        displayText = powerSensorNameTextField.currentValue
                                     }
 
                                 }
@@ -14227,7 +14377,7 @@ import AndroidStatusBar 1.0
                                     id: okPowerSensorNameButton
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_name = stripRssi(powerSensorNameTextField.displayText); settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.power_sensor_name = stripRssi(powerSensorNameTextField.value); settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14276,16 +14426,16 @@ import AndroidStatusBar 1.0
                                     }
                                     RowLayout {
                                         spacing: 10
-                                        ComboBox {
+                                        ValueComboBox {
                                             id: eliteRizerNameTextField
                                             model: rootItem.bluetoothDevices
-                                            displayText: settings.elite_rizer_name
+                                            labels: ({ "Disabled": qsTr("Disabled") })
+                                            value: settings.elite_rizer_name
                                             Layout.fillHeight: false
                                             Layout.fillWidth: true
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onActivated: {
                                                 console.log("combomodel activated" + eliteRizerNameTextField.currentIndex)
-                                                displayText = eliteRizerNameTextField.currentValue
                                             }
 
                                         }
@@ -14293,7 +14443,7 @@ import AndroidStatusBar 1.0
                                             id: okEliteRizerNameButton
                                             text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.elite_rizer_name = stripRssi(eliteRizerNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.elite_rizer_name = stripRssi(eliteRizerNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -14344,16 +14494,16 @@ import AndroidStatusBar 1.0
                                     }
                                     RowLayout {
                                         spacing: 10
-                                        ComboBox {
+                                        ValueComboBox {
                                             id: eliteSterzoSmartNameTextField
                                             model: rootItem.bluetoothDevices
-                                            displayText: settings.elite_sterzo_smart_name
+                                            labels: ({ "Disabled": qsTr("Disabled") })
+                                            value: settings.elite_sterzo_smart_name
                                             Layout.fillHeight: false
                                             Layout.fillWidth: true
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onActivated: {
                                                 console.log("combomodel activated" + eliteSterzoSmartNameTextField.currentIndex)
-                                                displayText = eliteSterzoSmartNameTextField.currentValue
                                             }
 
                                         }
@@ -14361,7 +14511,7 @@ import AndroidStatusBar 1.0
                                             id: okEliteSterzoSmartNameButton
                                             text: qsTr("OK")
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.elite_sterzo_smart_name = stripRssi(eliteSterzoSmartNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.elite_sterzo_smart_name = stripRssi(eliteSterzoSmartNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -14391,16 +14541,16 @@ import AndroidStatusBar 1.0
                             }
                             RowLayout {
                                 spacing: 10
-                                ComboBox {
+                                ValueComboBox {
                                     id: ftmsAccessoryNameTextField
                                     model: rootItem.bluetoothDevices
-                                    displayText: settings.ftms_accessory_name
+                                    labels: ({ "Disabled": qsTr("Disabled") })
+                                    value: settings.ftms_accessory_name
                                     Layout.fillHeight: false
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + ftmsAccessoryNameTextField.currentIndex)
-                                        displayText = ftmsAccessoryNameTextField.currentValue
                                     }
 
                                 }
@@ -14408,7 +14558,7 @@ import AndroidStatusBar 1.0
                                     id: okFTMSAccessoryNameButton
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ftms_accessory_name = stripRssi(ftmsAccessoryNameTextField.displayText); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.ftms_accessory_name = stripRssi(ftmsAccessoryNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -14739,15 +14889,15 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Mode:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
+                                ValueComboBox {
                                     id: fitmetriaFanFitModeTextField
                                     model: [ "Heart", "Power", "Manual" ]
-                                    displayText: settings.fitmetria_fanfit_mode
+                                    labels: ({ "Heart": qsTr("Heart"), "Power": qsTr("Power"), "Manual": qsTr("Manual") })
+                                    value: settings.fitmetria_fanfit_mode
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + fitmetriaFanFitModeTextField.currentIndex)
-                                        displayText = fitmetriaFanFitModeTextField.currentValue
                                     }
 
                                 }
@@ -14755,7 +14905,7 @@ import AndroidStatusBar 1.0
                                     id: okFitmetriaFanFitModeTextField
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -14837,22 +14987,22 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Mode:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
+                                ValueComboBox {
                                     id: headWindModeTextField
                                     model: [ "Heart", "Power", "Manual" ]
-                                    displayText: settings.fitmetria_fanfit_mode
+                                    labels: ({ "Heart": qsTr("Heart"), "Power": qsTr("Power"), "Manual": qsTr("Manual") })
+                                    value: settings.fitmetria_fanfit_mode
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + headWindModeTextField.currentIndex)
-                                        displayText = headWindModeTextField.currentValue
                                     }
 
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_mode = headWindModeTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitmetria_fanfit_mode = headWindModeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -14930,22 +15080,22 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Mode:")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
+                                ValueComboBox {
                                     id: eliteAriaModeTextField
                                     model: [ "Heart", "Power", "Manual" ]
-                                    displayText: settings.fitmetria_fanfit_mode
+                                    labels: ({ "Heart": qsTr("Heart"), "Power": qsTr("Power"), "Manual": qsTr("Manual") })
+                                    value: settings.fitmetria_fanfit_mode
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + eliteAriaModeTextField.currentIndex)
-                                        displayText = eliteAriaModeTextField.currentValue
                                     }
 
                                 }
                                 Button {
                                     text: qsTr("OK")
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.fitmetria_fanfit_mode = eliteAriaModeTextField.displayText; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.fitmetria_fanfit_mode = eliteAriaModeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                             RowLayout {
@@ -15303,8 +15453,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Left Shifter Up (LS1):")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_ls1
                                     onActivated: settings.zwiftplay_gear_ls1 = currentIndex
                                 }
@@ -15315,8 +15465,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Left Shifter Down (LS2):")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_ls2
                                     onActivated: settings.zwiftplay_gear_ls2 = currentIndex
                                 }
@@ -15327,8 +15477,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Right Shifter Up (RS1):")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rs1
                                     onActivated: settings.zwiftplay_gear_rs1 = currentIndex
                                 }
@@ -15339,8 +15489,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Right Shifter Down (RS2):")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rs2
                                     onActivated: settings.zwiftplay_gear_rs2 = currentIndex
                                 }
@@ -15351,8 +15501,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Left Paddle (ZL):")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_paddle_left
                                     onActivated: settings.zwiftplay_gear_paddle_left = currentIndex
                                 }
@@ -15363,8 +15513,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Right Paddle (ZR):")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_paddle_right
                                     onActivated: settings.zwiftplay_gear_paddle_right = currentIndex
                                 }
@@ -15375,8 +15525,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Power Up (LB):")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_lb
                                     onActivated: settings.zwiftplay_gear_lb = currentIndex
                                 }
@@ -15387,8 +15537,8 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Ride On (RB):")
                                     Layout.fillWidth: true
                                 }
-                                ComboBox {
-                                    model: ["Disabled", "Gear Up", "Gear Down"]
+                                UiComboBox {
+                                    model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rb
                                     onActivated: settings.zwiftplay_gear_rb = currentIndex
                                 }
@@ -15460,7 +15610,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("Maps Type:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        UiComboBox {
                             id: mapsTypeTextField
                             model: [ "2D", "3D" ]
                             displayText: settings.maps_type
@@ -15873,7 +16023,7 @@ import AndroidStatusBar 1.0
                                     }
 
                                     Label {
-                                        text: qsTr("This changes the virtual Bluetooth bridge from the standard FMTS to the Power Sensor interface. Default is off.")
+                                        text: qsTr("This changes the virtual Bluetooth bridge from the standard FTMS to the Power Sensor interface. Default is off.")
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: Qt.application.font.pixelSize - 2
@@ -16649,10 +16799,11 @@ import AndroidStatusBar 1.0
                         rightPadding: 0
                         leftPadding: 0
                         clip: false
-                        checked: settings.android_notification
+                        checked: settings.android_notification_v2
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.android_notification = checked; window.settings_restart_to_apply = true; }
+                        // applied at once (the service starts or stops), no restart needed
+                        onClicked: { settings.android_notification_v2 = checked; rootItem.android_notification_apply(checked); }
                     }
 
                     Label {
@@ -16743,7 +16894,7 @@ import AndroidStatusBar 1.0
                             Layout.fillWidth: true
                             Layout.minimumWidth: 0
                             onClicked: {
-                                toast.show(rootItem.getProfileDir())
+                                toast.show(rootItem.getWritableAppDir())
                             }
                         }
                     }

@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.15
 import QtCharts 2.15
 import Qt.labs.calendar 1.0
 import Qt.labs.settings 1.0
+import QtQuick.Dialogs 1.0 as Dialogs
 
 Page {
     id: workoutHistoryPage
@@ -17,6 +18,9 @@ Page {
 
     // Signal for chart preview
     signal fitfile_preview_clicked(var url)
+
+    // a pending offer to recover the workouts of a previous install is made here
+    Component.onCompleted: rootItem.historyPageOpened()
 
     // Helper function to wrap text with emoji font only on Android
     function wrapEmoji(emoji) {
@@ -89,7 +93,7 @@ Page {
                 id: calendarButton
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.leftMargin: 12
+                anchors.leftMargin: window.contentSideMargin
                 width: 48
                 height: 48
                 
@@ -105,7 +109,7 @@ Page {
                           wrapEmoji("📅") : 
                           "📅"
                     textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
-                    font.pixelSize: 20
+                    font.pixelSize: 26
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -115,53 +119,130 @@ Page {
                 }
             }
 
-            // Title with filter status - centered
+            // Title with filter status - between the buttons, shrinking on narrow screens
             Column {
-                anchors.centerIn: parent
-                
+                anchors.left: clearFilterButton.visible ? clearFilterButton.right : calendarButton.right
+                anchors.right: importButton.left
+                anchors.leftMargin: 8
+                anchors.rightMargin: 8
+                anchors.verticalCenter: parent.verticalCenter
+
                 Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: "Workout History"
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    text: qsTr("Workout History")
                     font.pixelSize: 24
                     font.bold: true
+                    fontSizeMode: Text.HorizontalFit
+                    minimumPixelSize: 14
+                    elide: Text.ElideRight
                 }
-                
+
                 Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: workoutModel && workoutModel.isDateFiltered ? 
-                          "Filtered: " + workoutModel.filteredDate.toLocaleDateString() : ""
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    text: workoutModel && workoutModel.isDateFiltered ?
+                          qsTr("Filtered: %1").arg(workoutModel.filteredDate.toLocaleDateString()) : ""
                     font.pixelSize: 12
                     color: "#666666"
+                    elide: Text.ElideRight
                     visible: workoutModel && workoutModel.isDateFiltered
                 }
             }
 
-            // Clear Filter Button - positioned absolutely on the right
+            // Import Button - on the right: a single .fit file, or every workout of the QZ folder
             Button {
-                id: clearFilterButton
+                id: importButton
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.rightMargin: 12
-                width: 100
-                height: 36
-                visible: workoutModel && workoutModel.isDateFiltered
-                
+                anchors.rightMargin: window.contentSideMargin
+                width: 48
+                height: 48
+
                 background: Rectangle {
-                    radius: 6
+                    radius: 8
+                    color: importButton.pressed ? "#e0e0e0" : "#f0f0f0"
+                    border.color: "#d0d0d0"
+                    border.width: 1
+                }
+
+                contentItem: Item {
+                    // Android draws emoji only with the downloaded emoji font; until it is
+                    // there (or when the download failed) the icon is drawn as a shape
+                    readonly property bool emojiFontMissing: Qt.platform.os === "android" &&
+                        (!fontManager || fontManager.emojiFontFamily === "Arial")
+
+                    Text {
+                        anchors.fill: parent
+                        visible: !parent.emojiFontMissing
+                        text: Qt.platform.os === "android" ?
+                              wrapEmoji("📥") :
+                              "📥"
+                        textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
+                        font.pixelSize: 26
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    // tray with a down arrow
+                    Canvas {
+                        anchors.centerIn: parent
+                        width: 26
+                        height: 26
+                        visible: parent.emojiFontMissing
+                        onPaint: {
+                            var ctx = getContext("2d")
+                            ctx.reset()
+                            ctx.strokeStyle = "#444444"
+                            ctx.lineWidth = 2.5
+                            ctx.lineCap = "round"
+                            ctx.lineJoin = "round"
+                            ctx.beginPath()
+                            ctx.moveTo(13, 3)
+                            ctx.lineTo(13, 16)
+                            ctx.moveTo(8, 11)
+                            ctx.lineTo(13, 16)
+                            ctx.lineTo(18, 11)
+                            ctx.moveTo(3, 15)
+                            ctx.lineTo(3, 23)
+                            ctx.lineTo(23, 23)
+                            ctx.lineTo(23, 15)
+                            ctx.stroke()
+                        }
+                    }
+                }
+
+                onClicked: importMenu.popup(importButton, 0, importButton.height)
+            }
+
+            // Clear Filter Button - left of the import button
+            Button {
+                id: clearFilterButton
+                // next to the calendar that set the filter; small, so the title keeps its room
+                anchors.left: calendarButton.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.leftMargin: 6
+                width: 32
+                height: 32
+                visible: workoutModel && workoutModel.isDateFiltered
+
+                background: Rectangle {
+                    radius: 16
                     color: clearFilterButton.pressed ? "#ff6666" : "#ff8888"
                     border.color: "#ff4444"
                     border.width: 1
                 }
-                
+
                 contentItem: Text {
-                    text: "Clear Filter"
+                    text: "×"
+                    Accessible.name: qsTr("Clear Filter")
                     color: "white"
-                    font.pixelSize: 12
+                    font.pixelSize: 20
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
-                
+
                 onClicked: {
                     workoutModel.clearDateFilter()
                 }
@@ -172,15 +253,32 @@ Page {
         BusyIndicator {
             id: loadingIndicator
             Layout.alignment: Qt.AlignHCenter
-            visible: workoutModel ? (workoutModel.isLoading || workoutModel.isDatabaseProcessing) : false
+            visible: (workoutModel ? (workoutModel.isLoading || workoutModel.isDatabaseProcessing) : false) ||
+                     (rootItem && rootItem.fitImportRunning)
             running: visible
         }
-        
+
+        // Workout import message: copying the picked files can take a while
+        Text {
+            Layout.fillWidth: true
+            Layout.leftMargin: window.contentSideMargin
+            Layout.rightMargin: window.contentSideMargin
+            visible: rootItem ? rootItem.fitImportRunning : false
+            text: qsTr("Importing workouts...")
+            wrapMode: Text.WordWrap
+            horizontalAlignment: Text.AlignHCenter
+            color: "#666666"
+            font.pixelSize: 16
+        }
+
         // Database processing message
         Text {
-            Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
+            Layout.leftMargin: window.contentSideMargin
+            Layout.rightMargin: window.contentSideMargin
             visible: workoutModel ? workoutModel.isDatabaseProcessing : false
-            text: "Processing workout files...\nThis may take a few moments on first startup."
+            text: qsTr("Processing workout files...\nThis may take a few moments on first startup.")
+            wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
             color: "#666666"
             font.pixelSize: 16
@@ -231,8 +329,8 @@ Page {
 
                         Text {
                             text: Qt.platform.os === "android" ? 
-                                  wrapEmoji("🗑️") + " Delete" : 
-                                  "🗑️ Delete"
+                                  wrapEmoji("🗑️") + " " + qsTr("Delete") : 
+                                  "🗑️ " + qsTr("Delete")
                             textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                             color: "white"
                             font.pixelSize: 16
@@ -252,6 +350,8 @@ Page {
                 Rectangle {
                     anchors.fill: parent
                     anchors.margins: 8
+                    anchors.leftMargin: window.contentSideMargin
+                    anchors.rightMargin: window.contentSideMargin
                     radius: 10
                     color: "white"
                     border.color: "#e0e0e0"
@@ -326,12 +426,12 @@ Page {
                             onClicked: {
                                 var success = workoutModel.loadTrainingProgram(model.id)
                                 if (success) {
-                                    trainingProgramDialog.title = "Success"
-                                    trainingProgramDialog.message = "Training program loaded successfully!"
+                                    trainingProgramDialog.title = qsTr("Success")
+                                    trainingProgramDialog.message = qsTr("Training program loaded successfully!")
                                     trainingProgramDialog.isSuccess = true
                                 } else {
-                                    trainingProgramDialog.title = "Error"
-                                    trainingProgramDialog.message = "Failed to load training program. Please check if the file exists."
+                                    trainingProgramDialog.title = qsTr("Error")
+                                    trainingProgramDialog.message = qsTr("Failed to load training program. Please check if the file exists.")
                                     trainingProgramDialog.isSuccess = false
                                 }
                                 trainingProgramDialog.open()
@@ -376,17 +476,41 @@ Page {
                                     font.pixelSize: 18
                                     anchors.verticalCenter: parent.verticalCenter
                                     
-                                    // Auto-scroll animation for long titles
-                                    SequentialAnimation on x {
-                                        running: titleText.contentWidth > titleText.parent.width
+                                    // Auto-scroll animation for long titles.
+                                    // The row width settles only after the layout runs (the first
+                                    // delegate passes through narrower widths), and an animation started
+                                    // on one of them kept running: decide after the layout, again on every
+                                    // width change, and put the title back when it stops mid-scroll.
+                                    readonly property bool overflows: parent.width > 0 && contentWidth > parent.width
+                                    function updateScroll() {
+                                        if (overflows) {
+                                            titleScroll.restart()
+                                        } else {
+                                            titleScroll.stop()
+                                            x = 0
+                                        }
+                                    }
+                                    onOverflowsChanged: Qt.callLater(updateScroll)
+                                    onContentWidthChanged: if (overflows) Qt.callLater(updateScroll)
+                                    Connections {
+                                        target: titleText.parent
+                                        function onWidthChanged() { if (titleText.overflows) Qt.callLater(titleText.updateScroll) }
+                                    }
+
+                                    SequentialAnimation {
+                                        id: titleScroll
                                         loops: Animation.Infinite
                                         NumberAnimation {
+                                            target: titleText
+                                            property: "x"
                                             from: 0
                                             to: -(titleText.contentWidth - titleText.parent.width + 20)
                                             duration: Math.max(3000, titleText.contentWidth * 30)
                                         }
                                         PauseAnimation { duration: 1500 }
                                         NumberAnimation {
+                                            target: titleText
+                                            property: "x"
                                             from: -(titleText.contentWidth - titleText.parent.width + 20)
                                             to: 0
                                             duration: Math.max(3000, titleText.contentWidth * 30)
@@ -459,6 +583,46 @@ Page {
     }
 
     Menu {
+        id: importMenu
+
+        MenuItem {
+            text: qsTr("Import FIT File...")
+            onTriggered: {
+                if (Qt.platform.os === "android") {
+                    rootItem.openAndroidDocumentPicker("fit")
+                } else {
+                    fitFileDialogLoader.active = true
+                }
+            }
+        }
+
+        MenuItem {
+            // after a reinstall the workouts of the previous install stay in this folder,
+            // but Android hides them from the app until the folder is picked once
+            text: qsTr("Import from QZ Folder...")
+            onTriggered: rootItem.importFitFolder()
+        }
+    }
+
+    Loader {
+        id: fitFileDialogLoader
+        active: false
+        sourceComponent: Component {
+            Dialogs.FileDialog {
+                title: qsTr("Please choose a file")
+                folder: shortcuts.home
+                nameFilters: [qsTr("FIT files (*.fit *.FIT)"), qsTr("All files (*)")]
+                visible: true
+                onAccepted: {
+                    rootItem.importFitFile(fileUrl)
+                    fitFileDialogLoader.active = false
+                }
+                onRejected: fitFileDialogLoader.active = false
+            }
+        }
+    }
+
+    Menu {
         id: uploadMenu
 
         property int workoutId: -1
@@ -468,25 +632,25 @@ Page {
         title: workoutTitle
 
         MenuItem {
-            text: "Upload to Strava"
+            text: qsTr("Upload to Strava")
             visible: rootItem && rootItem.isStravaLoggedIn()
             onTriggered: rootItem.uploadHistoricalWorkoutToStrava(uploadMenu.filePath)
         }
 
         MenuItem {
-            text: "Upload to Garmin"
+            text: qsTr("Upload to Garmin")
             visible: rootItem && rootItem.isGarminUploadConfigured()
             onTriggered: rootItem.uploadHistoricalWorkoutToGarmin(uploadMenu.filePath)
         }
 
         MenuItem {
-            text: "Upload to Intervals.icu"
+            text: qsTr("Upload to Intervals.icu")
             visible: rootItem && rootItem.isIntervalsICUUploadConfigured()
             onTriggered: rootItem.uploadHistoricalWorkoutToIntervalsICU(uploadMenu.filePath)
         }
 
         MenuItem {
-            text: "Upload to Apple Health"
+            text: qsTr("Upload to Apple Health")
             visible: Qt.platform.os === "ios" &&
                      workoutModel &&
                      workoutModel.canWriteAppleHealth(uploadMenu.workoutId)
@@ -501,7 +665,7 @@ Page {
         property int workoutId
         property string workoutTitle
 
-        title: "Delete Workout"
+        title: qsTr("Delete Workout")
         modal: true
         standardButtons: Dialog.Ok | Dialog.Cancel
 
@@ -509,7 +673,7 @@ Page {
         y: (parent.height - height) / 2
 
         Text {
-            text: "Are you sure you want to delete '" + confirmDialog.workoutTitle + "'?"
+            text: qsTr("Are you sure you want to delete '%1'?").arg(confirmDialog.workoutTitle)
         }
 
         onAccepted: {
@@ -681,7 +845,7 @@ Page {
 
                 // Current streak count
                 Text {
-                    text: workoutModel ? workoutModel.currentStreak + " day" + (workoutModel.currentStreak !== 1 ? "s" : "") + " streak" : ""
+                    text: workoutModel ? (workoutModel.currentStreak !== 1 ? qsTr("%1 days streak") : qsTr("%1 day streak")).arg(workoutModel.currentStreak) : ""
                     font.pixelSize: 18
                     font.bold: true
                     color: "white"
@@ -746,7 +910,7 @@ Page {
             // Best streak (smaller text)
             Text {
                 Layout.alignment: Qt.AlignHCenter
-                text: workoutModel ? "Personal best: " + workoutModel.longestStreak + " day" + (workoutModel.longestStreak !== 1 ? "s" : "") : ""
+                text: workoutModel ? (workoutModel.longestStreak !== 1 ? qsTr("Personal best: %1 days") : qsTr("Personal best: %1 day")).arg(workoutModel.longestStreak) : ""
                 font.pixelSize: 12
                 color: "white"
                 visible: workoutModel && workoutModel.longestStreak > workoutModel.currentStreak && workoutModel.longestStreak > 0
@@ -848,7 +1012,7 @@ Page {
                 
                 // Day headers
                 Repeater {
-                    model: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+                    model: [qsTr("Sun"), qsTr("Mon"), qsTr("Tue"), qsTr("Wed"), qsTr("Thu"), qsTr("Fri"), qsTr("Sat")]
                     Text {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 30
@@ -939,7 +1103,7 @@ Page {
             // Close button
             Button {
                 Layout.alignment: Qt.AlignHCenter
-                text: "Close"
+                text: qsTr("Close")
                 onClicked: calendarPopup.close()
             }
         }

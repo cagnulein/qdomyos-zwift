@@ -81,6 +81,8 @@ class ftmsbike : public bike {
     double maxGears() override;
     double minGears() override;
     void enableManualResistancePowerAdjustment(resistance_t resistance);
+    static resistance_t normalizedResistanceForDevice(const QString &deviceName, double rawResistance);
+    static resistance_t rawResistanceForDevice(const QString &deviceName, resistance_t displayedResistance);
 
     // Most FTMS bikes can use QZ's software ERG emulation, but FS-YK devices
     // should stay on direct resistance control because it doesn't send the current resistance value and it conflicts
@@ -188,6 +190,7 @@ class ftmsbike : public bike {
     bool VFSPINBIKE = false;
     bool SS2K = false;
     bool DIRETO_XR = false;
+    bool INCONDI_S150I = false;
     bool JFBK5_0 = false;
     bool BIKE_ = false;
     bool SMB1 = false;
@@ -209,6 +212,7 @@ class ftmsbike : public bike {
     bool MRK_S28 = false;
     bool MRK_S36C = false;
     bool HAMMER = false;
+    bool HS_5000L = false;
     bool H9115 = false;
     bool YPBM = false;
     bool SPORT01 = false;

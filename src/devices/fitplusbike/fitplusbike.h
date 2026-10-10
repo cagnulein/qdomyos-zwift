@@ -81,6 +81,8 @@ class fitplusbike : public bike {
     bool merach_MRK = false;
     bool H9110_OSAKA = false;
     bool virtufitEtappe = false;
+    bool virtufitLayoutDetected = false;
+    bool validFrameSeen = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

@@ -57,13 +57,23 @@ WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
 }
 
 WorkoutModel::~WorkoutModel() {
-    m_workerThread->quit();
-    m_workerThread->wait();
+    if (m_workerThread) {
+        m_workerThread->quit();
+        m_workerThread->wait();
+    }
     QSqlDatabase::removeDatabase(FitDatabaseProcessor::DB_CONNECTION_NAME + "_main");
 }
 
 void WorkoutModel::refresh() {
-    if (m_isLoading) return;
+    if (!m_worker) {
+        // the database did not open: nothing to load, and nobody would end the loading state
+        return;
+    }
+    if (m_isLoading) {
+        // the running load may have started before the newest workouts reached the database
+        m_refreshPending = true;
+        return;
+    }
 
     m_isLoading = true;
     emit loadingStatusChanged();
@@ -88,6 +98,11 @@ void WorkoutModel::onWorkoutsLoaded(const QList<QVariantMap>& workouts) {
 
     m_isLoading = false;
     emit loadingStatusChanged();
+
+    if (m_refreshPending) {
+        m_refreshPending = false;
+        refresh();
+    }
 }
 
 bool WorkoutModel::isLoading() const {
@@ -549,45 +564,45 @@ void WorkoutModel::calculateStreaks() {
 
 QString WorkoutModel::getStreakMessage(int streak) const {
     if (streak == 0) {
-        return "Let's create a streak!";
+        return tr("Let's create a streak!");
     } else if (streak == 1) {
-        return "Great start! 🚀";
+        return tr("Great start! 🚀");
     } else if (streak == 2) {
-        return "Building momentum! 💪";
+        return tr("Building momentum! 💪");
     } else if (streak == 3) {
-        return "Three days strong! 🎯";
+        return tr("Three days strong! 🎯");
     } else if (streak >= 4 && streak <= 6) {
-        return "Amazing dedication! ⭐";
+        return tr("Amazing dedication! ⭐");
     } else if (streak == 7) {
-        return "One week warrior! 🏆";
+        return tr("One week warrior! 🏆");
     } else if (streak >= 8 && streak <= 13) {
-        return "Unstoppable force! 🔥";
+        return tr("Unstoppable force! 🔥");
     } else if (streak == 14) {
-        return "Two weeks champion! 👑";
+        return tr("Two weeks champion! 👑");
     } else if (streak >= 15 && streak <= 20) {
-        return "Legendary consistency! ⚡";
+        return tr("Legendary consistency! ⚡");
     } else if (streak >= 21 && streak <= 29) {
-        return "Fitness machine! 🤖";
+        return tr("Fitness machine! 🤖");
     } else if (streak == 30) {
-        return "One month master! 🎊";
+        return tr("One month master! 🎊");
     } else if (streak >= 31 && streak <= 59) {
-        return "Discipline incarnate! 💎";
+        return tr("Discipline incarnate! 💎");
     } else if (streak == 60) {
-        return "Two months titan! 🏅";
+        return tr("Two months titan! 🏅");
     } else if (streak >= 61 && streak <= 89) {
-        return "Workout legend! 🌟";
+        return tr("Workout legend! 🌟");
     } else if (streak == 90) {
-        return "Three months beast! 🦁";
+        return tr("Three months beast! 🦁");
     } else if (streak >= 91 && streak <= 179) {
-        return "Fitness deity! ✨";
+        return tr("Fitness deity! ✨");
     } else if (streak == 180) {
-        return "Half-year hero! 🎖️";
+        return tr("Half-year hero! 🎖️");
     } else if (streak >= 181 && streak <= 364) {
-        return "Unstoppable legend! 🔱";
+        return tr("Unstoppable legend! 🔱");
     } else if (streak == 365) {
-        return "FULL YEAR CHAMPION! 👑🔥";
+        return tr("FULL YEAR CHAMPION! 👑🔥");
     } else {
-        return "Beyond legendary! 🌟✨";
+        return tr("Beyond legendary! 🌟✨");
     }
 }
 
