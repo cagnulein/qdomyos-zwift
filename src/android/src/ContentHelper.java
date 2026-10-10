@@ -63,6 +63,42 @@ public class ContentHelper {
         return -1;
     }
 
+    public static boolean copyFileToFile(String sourcePath, String destinationPath) {
+        if (sourcePath == null || sourcePath.isEmpty() || destinationPath == null || destinationPath.isEmpty()) {
+            return false;
+        }
+
+        java.io.FileInputStream inputStream = null;
+        java.io.FileOutputStream outputStream = null;
+        try {
+            inputStream = new java.io.FileInputStream(sourcePath);
+            outputStream = new java.io.FileOutputStream(destinationPath, false);
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, read);
+            }
+            outputStream.flush();
+            return true;
+        } catch (Exception e) {
+            QLog.d("ContentHelper", "copyFileToFile failed " + e);
+            return false;
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (Exception ignored) {
+            }
+            try {
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     public static boolean copyContentToFile(Context context, Uri uri, String destinationPath) {
         if (context == null || uri == null || destinationPath == null || destinationPath.isEmpty()) {
             return false;

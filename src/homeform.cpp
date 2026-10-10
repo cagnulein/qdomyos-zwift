@@ -11440,27 +11440,19 @@ void homeform::migrateAndroidDataToDocuments() {
             const QString backupPath = destinationPath + QStringLiteral(".backup");
             QFile::remove(stagingPath);
             QFile::remove(backupPath);
-            QFile sourceFile(sourcePath);
-            QFile stagingFile(stagingPath);
-            copied = sourceFile.open(QIODevice::ReadOnly) &&
-                     stagingFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
-            if (copied) {
-                constexpr qint64 copyChunkSize = 1024 * 1024;
-                while (!sourceFile.atEnd()) {
-                    const QByteArray chunk = sourceFile.read(copyChunkSize);
-                    if (chunk.isEmpty() && !sourceFile.atEnd()) {
-                        copied = false;
-                        break;
-                    }
-                    if (stagingFile.write(chunk) != chunk.size()) {
-                        copied = false;
-                        break;
-                    }
-                }
-                copied = copied && stagingFile.flush();
+            QAndroidJniObject javaSourcePath = QAndroidJniObject::fromString(sourcePath);
+            QAndroidJniObject javaStagingPath = QAndroidJniObject::fromString(stagingPath);
+            copied = QAndroidJniObject::callStaticMethod<jboolean>(
+                "org/cagnulen/qdomyoszwift/ContentHelper",
+                "copyFileToFile",
+                "(Ljava/lang/String;Ljava/lang/String;)Z",
+                javaSourcePath.object<jstring>(),
+                javaStagingPath.object<jstring>());
+            if (clearAndroidJniException("ContentHelper.copyFileToFile")) {
+                copied = false;
             }
-            sourceFile.close();
-            stagingFile.close();
+            qDebug() << "Android storage migration Java copy" << sourcePath
+                     << "->" << stagingPath << copied;
             if (copied) {
                 const bool stagedFileReady = QFileInfo::exists(stagingPath) &&
                                               QFileInfo(stagingPath).size() == sourceInfo.size();
