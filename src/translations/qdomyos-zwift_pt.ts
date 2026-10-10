@@ -1446,6 +1446,29 @@ Deseja atualizar as configurações do QZ?</translation>
     </message>
 </context>
 <context>
+    <name>SettingsFormatField</name>
+    <message>
+        <source>Enter the height in centimetres</source>
+        <translation>Introduza a altura em centímetros</translation>
+    </message>
+    <message>
+        <source>Enter the height as feet&apos;inches, e.g. 5&apos;10&quot;</source>
+        <translation>Introduza a altura como pés&apos;polegadas, p. ex. 5&apos;10&quot;</translation>
+    </message>
+    <message>
+        <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
+        <translation>Introduza um endereço IP ou um nome de anfitrião, p. ex. 192.168.1.10</translation>
+    </message>
+    <message>
+        <source>Enter an IP address, e.g. 192.168.1.10</source>
+        <translation>Introduza um endereço IP, p. ex. 192.168.1.10</translation>
+    </message>
+    <message>
+        <source>Enter the time as hh:mm:ss</source>
+        <translation>Introduza o tempo como hh:mm:ss</translation>
+    </message>
+</context>
+<context>
     <name>SettingsList</name>
     <message>
         <location filename="../SettingsList.qml" line="25"/>
@@ -1461,6 +1484,33 @@ Deseja atualizar as configurações do QZ?</translation>
         <location filename="../SettingsList.qml" line="126"/>
         <source>Other folders</source>
         <translation>Outras pastas</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsNumberField</name>
+    <message>
+        <source>The value cannot be negative</source>
+        <translation>O valor não pode ser negativo</translation>
+    </message>
+    <message>
+        <source>Enter a whole number</source>
+        <translation>Introduza um número inteiro</translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>Introduza um número</translation>
+    </message>
+    <message>
+        <source>Allowed range: %1 to %2</source>
+        <translation>Permitido: de %1 a %2</translation>
+    </message>
+    <message>
+        <source>Minimum: %1</source>
+        <translation>Mínimo: %1</translation>
+    </message>
+    <message>
+        <source>Maximum: %1</source>
+        <translation>Máximo: %1</translation>
     </message>
 </context>
 <context>

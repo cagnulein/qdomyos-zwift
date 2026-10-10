@@ -1446,6 +1446,29 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SettingsFormatField</name>
+    <message>
+        <source>Enter the height in centimetres</source>
+        <translation>Введіть зріст у сантиметрах</translation>
+    </message>
+    <message>
+        <source>Enter the height as feet&apos;inches, e.g. 5&apos;10&quot;</source>
+        <translation>Введіть зріст як фути&apos;дюйми, наприклад 5&apos;10&quot;</translation>
+    </message>
+    <message>
+        <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
+        <translation>Введіть IP-адресу або ім’я хоста, наприклад 192.168.1.10</translation>
+    </message>
+    <message>
+        <source>Enter an IP address, e.g. 192.168.1.10</source>
+        <translation>Введіть IP-адресу, наприклад 192.168.1.10</translation>
+    </message>
+    <message>
+        <source>Enter the time as hh:mm:ss</source>
+        <translation>Введіть час у форматі гг:хх:сс</translation>
+    </message>
+</context>
+<context>
     <name>SettingsList</name>
     <message>
         <location filename="../SettingsList.qml" line="25"/>
@@ -1461,6 +1484,33 @@ Do you want to update QZ settings?</source>
         <location filename="../SettingsList.qml" line="126"/>
         <source>Other folders</source>
         <translation>Інші папки</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsNumberField</name>
+    <message>
+        <source>The value cannot be negative</source>
+        <translation>Значення не може бути від’ємним</translation>
+    </message>
+    <message>
+        <source>Enter a whole number</source>
+        <translation>Введіть ціле число</translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>Введіть число</translation>
+    </message>
+    <message>
+        <source>Allowed range: %1 to %2</source>
+        <translation>Допустимо: від %1 до %2</translation>
+    </message>
+    <message>
+        <source>Minimum: %1</source>
+        <translation>Мінімум: %1</translation>
+    </message>
+    <message>
+        <source>Maximum: %1</source>
+        <translation>Максимум: %1</translation>
     </message>
 </context>
 <context>

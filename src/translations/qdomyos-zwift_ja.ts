@@ -1446,6 +1446,29 @@ QZの設定を更新しますか?</translation>
     </message>
 </context>
 <context>
+    <name>SettingsFormatField</name>
+    <message>
+        <source>Enter the height in centimetres</source>
+        <translation>身長をセンチメートルで入力してください</translation>
+    </message>
+    <message>
+        <source>Enter the height as feet&apos;inches, e.g. 5&apos;10&quot;</source>
+        <translation>身長をフィート&apos;インチで入力してください（例: 5&apos;10&quot;）</translation>
+    </message>
+    <message>
+        <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
+        <translation>IPアドレスまたはホスト名を入力してください（例: 192.168.1.10）</translation>
+    </message>
+    <message>
+        <source>Enter an IP address, e.g. 192.168.1.10</source>
+        <translation>IPアドレスを入力してください（例: 192.168.1.10）</translation>
+    </message>
+    <message>
+        <source>Enter the time as hh:mm:ss</source>
+        <translation>時間を hh:mm:ss の形式で入力してください</translation>
+    </message>
+</context>
+<context>
     <name>SettingsList</name>
     <message>
         <location filename="../SettingsList.qml" line="25"/>
@@ -1461,6 +1484,33 @@ QZの設定を更新しますか?</translation>
         <location filename="../SettingsList.qml" line="126"/>
         <source>Other folders</source>
         <translation>その他のフォルダー</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsNumberField</name>
+    <message>
+        <source>The value cannot be negative</source>
+        <translation>負の値は使用できません</translation>
+    </message>
+    <message>
+        <source>Enter a whole number</source>
+        <translation>整数を入力してください</translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>数値を入力してください</translation>
+    </message>
+    <message>
+        <source>Allowed range: %1 to %2</source>
+        <translation>許容範囲: %1～%2</translation>
+    </message>
+    <message>
+        <source>Minimum: %1</source>
+        <translation>最小: %1</translation>
+    </message>
+    <message>
+        <source>Maximum: %1</source>
+        <translation>最大: %1</translation>
     </message>
 </context>
 <context>

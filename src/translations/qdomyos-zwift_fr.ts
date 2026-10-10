@@ -1446,6 +1446,29 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
     </message>
 </context>
 <context>
+    <name>SettingsFormatField</name>
+    <message>
+        <source>Enter the height in centimetres</source>
+        <translation>Saisissez la taille en centimètres</translation>
+    </message>
+    <message>
+        <source>Enter the height as feet&apos;inches, e.g. 5&apos;10&quot;</source>
+        <translation>Saisissez la taille en pieds&apos;pouces, p. ex. 5&apos;10&quot;</translation>
+    </message>
+    <message>
+        <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
+        <translation>Saisissez une adresse IP ou un nom d’hôte, p. ex. 192.168.1.10</translation>
+    </message>
+    <message>
+        <source>Enter an IP address, e.g. 192.168.1.10</source>
+        <translation>Saisissez une adresse IP, p. ex. 192.168.1.10</translation>
+    </message>
+    <message>
+        <source>Enter the time as hh:mm:ss</source>
+        <translation>Saisissez la durée au format hh:mm:ss</translation>
+    </message>
+</context>
+<context>
     <name>SettingsList</name>
     <message>
         <location filename="../SettingsList.qml" line="25"/>
@@ -1461,6 +1484,33 @@ Voulez-vous mettre à jour les paramètres de QZ ?</translation>
         <location filename="../SettingsList.qml" line="126"/>
         <source>Other folders</source>
         <translation>Autres dossiers</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsNumberField</name>
+    <message>
+        <source>The value cannot be negative</source>
+        <translation>La valeur ne peut pas être négative</translation>
+    </message>
+    <message>
+        <source>Enter a whole number</source>
+        <translation>Saisissez un nombre entier</translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>Saisissez un nombre</translation>
+    </message>
+    <message>
+        <source>Allowed range: %1 to %2</source>
+        <translation>Autorisé : de %1 à %2</translation>
+    </message>
+    <message>
+        <source>Minimum: %1</source>
+        <translation>Minimum : %1</translation>
+    </message>
+    <message>
+        <source>Maximum: %1</source>
+        <translation>Maximum : %1</translation>
     </message>
 </context>
 <context>

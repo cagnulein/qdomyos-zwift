@@ -1446,6 +1446,29 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
     </message>
 </context>
 <context>
+    <name>SettingsFormatField</name>
+    <message>
+        <source>Enter the height in centimetres</source>
+        <translation>Größe in Zentimetern eingeben</translation>
+    </message>
+    <message>
+        <source>Enter the height as feet&apos;inches, e.g. 5&apos;10&quot;</source>
+        <translation>Größe als Fuß&apos;Zoll eingeben, z. B. 5&apos;10&quot;</translation>
+    </message>
+    <message>
+        <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
+        <translation>IP-Adresse oder Hostnamen eingeben, z. B. 192.168.1.10</translation>
+    </message>
+    <message>
+        <source>Enter an IP address, e.g. 192.168.1.10</source>
+        <translation>IP-Adresse eingeben, z. B. 192.168.1.10</translation>
+    </message>
+    <message>
+        <source>Enter the time as hh:mm:ss</source>
+        <translation>Zeit als hh:mm:ss eingeben</translation>
+    </message>
+</context>
+<context>
     <name>SettingsList</name>
     <message>
         <location filename="../SettingsList.qml" line="25"/>
@@ -1461,6 +1484,33 @@ Möchten Sie die QZ-Einstellungen aktualisieren?</translation>
         <location filename="../SettingsList.qml" line="126"/>
         <source>Other folders</source>
         <translation>Andere Ordner</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsNumberField</name>
+    <message>
+        <source>The value cannot be negative</source>
+        <translation>Der Wert darf nicht negativ sein</translation>
+    </message>
+    <message>
+        <source>Enter a whole number</source>
+        <translation>Ganze Zahl eingeben</translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>Zahl eingeben</translation>
+    </message>
+    <message>
+        <source>Allowed range: %1 to %2</source>
+        <translation>Erlaubt: %1 bis %2</translation>
+    </message>
+    <message>
+        <source>Minimum: %1</source>
+        <translation>Minimum: %1</translation>
+    </message>
+    <message>
+        <source>Maximum: %1</source>
+        <translation>Maximum: %1</translation>
     </message>
 </context>
 <context>
