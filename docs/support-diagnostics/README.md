@@ -4,7 +4,7 @@ This directory contains reusable diagnostic intake guidance for QZ support. It f
 
 ## Categories
 
-- [Connection and device discovery](connection-and-discovery.md)
+- [Connection and device discovery, including protocol selection](connection-and-discovery.md)
 - [Third-party app integration](third-party-apps.md)
 - [Crashes and unexpected exits](crashes.md)
 - [Heart rate source diagnostics](heart-rate.md)
@@ -17,8 +17,7 @@ This directory contains reusable diagnostic intake guidance for QZ support. It f
 - [Virtual device settings diagnostics](virtual-device-settings.md)
 - [Workout recording and history](workout-recording.md)
 - [Power and training metrics](power-metrics.md)
-- [Device protocol selection](device-protocol-selection.md)
-- [Bluetooth capture quality](bluetooth-captures.md)
+
 
 ## How to use these guides
 
