@@ -2422,6 +2422,8 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: ftpTextField
+                            minimum: 1
+                            maximum: 2000
                             text: settings.ftp
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -2460,6 +2462,8 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: ftpRunTextField
+                            minimum: 1
+                            maximum: 2000
                             text: settings.ftp_run
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -2906,6 +2910,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: heartRateZone1TextField
+                                    maximum: 100
                                     text: settings.heart_rate_zone1
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -2932,6 +2937,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: heartRateZone2TextField
+                                    maximum: 100
                                     text: settings.heart_rate_zone2
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -2958,6 +2964,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: heartRateZone3TextField
+                                    maximum: 100
                                     text: settings.heart_rate_zone3
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -2984,6 +2991,7 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: heartRateZone4TextField
+                                    maximum: 100
                                     text: settings.heart_rate_zone4
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -3360,22 +3368,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Gear Value:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: specificGearValueField
+                            signed: true
                             text: settings.gears_current_value_f
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             enabled: gearsRestoreValueDelegate.checked
-                            onAccepted: settings.gears_current_value_f = text
+                            onAccepted: settings.gears_current_value_f = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            enabled: gearsRestoreValueDelegate.checked
+                            enabled: gearsRestoreValueDelegate.checked && specificGearValueField.valid
                             onClicked: {
-                                settings.gears_current_value_f = specificGearValueField.text
+                                settings.gears_current_value_f = specificGearValueField.value
                                 toast.show(qsTr("Setting saved!"))
                             }
                         }
@@ -5575,8 +5584,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("TDF1 IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: proformTDF1IPTextField
+                                    format: "ip"
                                     text: settings.proformtdf1ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -5587,6 +5597,7 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: proformTDF1IPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proformtdf1ip = proformTDF1IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -5599,8 +5610,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("TDF4 IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: proformTDF4IPTextField
+                                    format: "ip"
                                     text: settings.proformtdf4ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -5612,6 +5624,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okproformTDF4IPButton
                                     text: qsTr("OK")
+                                    enabled: proformTDF4IPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proformtdf4ip = proformTDF4IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -5623,8 +5636,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("TDF Companion IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: proformTDFCompanionIPTextField
+                                    format: "ip"
                                     text: settings.tdf_10_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -5636,6 +5650,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okproformTDFCompanionIPButton
                                     text: qsTr("OK")
+                                    enabled: proformTDFCompanionIPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.tdf_10_ip = proformTDFCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -6384,20 +6399,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Floating Window Width:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: floatingWidthField
+                            decimals: 0
                             text: settings.floating_width
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.floating_width = text
+                            onAccepted: settings.floating_width = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okFloatingWidthButton
                             text: qsTr("OK")
+                            enabled: floatingWidthField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.floating_width = floatingWidthField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.floating_width = floatingWidthField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6421,20 +6438,22 @@ import AndroidStatusBar 1.0
                             text: qsTr("Floating Window Height:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: floatingHeightField
+                            decimals: 0
                             text: settings.floating_height
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.floating_height = text
+                            onAccepted: settings.floating_height = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okFloatingHeightButton
                             text: qsTr("OK")
+                            enabled: floatingHeightField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.floating_height = floatingHeightField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.floating_height = floatingHeightField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6458,20 +6477,23 @@ import AndroidStatusBar 1.0
                             text: qsTr("Floating Window % Transparency:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: floatingTransparencyField
+                            decimals: 0
+                            maximum: 100
                             text: settings.floating_transparency
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.floating_transparency = text
+                            onAccepted: settings.floating_transparency = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okFloatingTransparencyButton
                             text: qsTr("OK")
+                            enabled: floatingTransparencyField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.floating_transparency = floatingTransparencyField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.floating_transparency = floatingTransparencyField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -6791,19 +6813,21 @@ import AndroidStatusBar 1.0
                                     text: qsTr("2nd line tile text size:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsNumberField {
                                     id: secondLineTextSizeField
+                                    decimals: 0
                                     text: settings.theme_tile_secondline_textsize
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: settings.theme_tile_secondline_textsize = text
+                                    onAccepted: settings.theme_tile_secondline_textsize = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: secondLineTextSizeField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.theme_tile_secondline_textsize = secondLineTextSizeField.text; window.settings_restart_to_apply = true;  toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.theme_tile_secondline_textsize = secondLineTextSizeField.value; window.settings_restart_to_apply = true;  toast.show(qsTr("Setting saved!")); }
                                 }
                             }
                         }
@@ -7843,19 +7867,21 @@ import AndroidStatusBar 1.0
                             text: qsTr("Poll Time:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: zwiftPollTimeTextField
+                            decimals: 0
                             text: settings.zwift_api_poll
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.zwift_api_poll = text
+                            onAccepted: settings.zwift_api_poll = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: zwiftPollTimeTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.value; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9411,8 +9437,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("PID Recovery Zone Lower Limit (%):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: pidHrRecoveryZoneLimitTextField
+                            maximum: 100
                             text: settings.trainprogram_pid_hr_recovery_zone_limit
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -9421,8 +9448,9 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: pidHrRecoveryZoneLimitTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_pid_hr_recovery_zone_limit = parseFloat(pidHrRecoveryZoneLimitTextField.text); toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.trainprogram_pid_hr_recovery_zone_limit = pidHrRecoveryZoneLimitTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9445,7 +9473,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("PID Pushy Zone Limit:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: pidHrPushyZoneLimitTextField
                             text: settings.trainprogram_pid_hr_pushy_zone_limit
                             horizontalAlignment: Text.AlignRight
@@ -9455,8 +9483,9 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: pidHrPushyZoneLimitTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.trainprogram_pid_hr_pushy_zone_limit = parseFloat(pidHrPushyZoneLimitTextField.text); toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.trainprogram_pid_hr_pushy_zone_limit = pidHrPushyZoneLimitTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -9507,8 +9536,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("1 mile pace (total time):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramPace1mileTextField
+                            format: "time"
                             text: (paddingZeros(formatLimitDecimals((settings.pacef_1mile * 1.60934) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_1mile * 1.60934) / 60) % 60,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals((((settings.pacef_1mile * 1.60934) % 60)),0).toString(), 2))
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -9519,6 +9549,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramPace1Mile
                             text: qsTr("OK")
+                            enabled: trainProgramPace1mileTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_1mile = (((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]))) / 1.60934; toast.show(qsTr("Setting saved!")); }
                         }
@@ -9544,8 +9575,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("5 km pace (total time):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramPace5kmTextField
+                            format: "time"
                             text: (paddingZeros(formatLimitDecimals((settings.pacef_5km * 5) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_5km * 5) / 60) % 60,0).toString(), 2) + ":" + paddingZeros((formatLimitDecimals(((settings.pacef_5km * 5) % 60),0)).toString(), 2))
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -9556,6 +9588,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramPace5km
                             text: qsTr("OK")
+                            enabled: trainProgramPace5kmTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_5km = (((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]))) / 5; toast.show(qsTr("Setting saved!")); }
                         }
@@ -9581,8 +9614,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("10 km pace (total time):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramPace10kmTextField
+                            format: "time"
                             text: (paddingZeros(formatLimitDecimals((settings.pacef_10km * 10) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_10km * 10) / 60) % 60,0).toString(), 2) + ":" + paddingZeros((formatLimitDecimals(((settings.pacef_10km * 10) % 60),0)).toString(), 2))
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -9593,6 +9627,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramPace10KM
                             text: qsTr("OK")
+                            enabled: trainProgramPace10kmTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_10km = (((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]))) / 10; toast.show(qsTr("Setting saved!")); }
                         }
@@ -9618,8 +9653,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Half Marathon pace (total time):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramPaceHalfMarathonTextField
+                            format: "time"
                             text: (paddingZeros(formatLimitDecimals((settings.pacef_halfmarathon * 21) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_halfmarathon * 21) / 60) % 60,0).toString(), 2) + ":" + paddingZeros((formatLimitDecimals(((settings.pacef_halfmarathon * 21) % 60),0)).toString(), 2))
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -9630,6 +9666,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramPaceHalfMarathon
                             text: qsTr("OK")
+                            enabled: trainProgramPaceHalfMarathonTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_halfmarathon = (((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]))) / 21; toast.show(qsTr("Setting saved!")); }
                         }
@@ -9655,8 +9692,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Marathon pace (total time):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramPaceMarathonTextField
+                            format: "time"
                             text: (paddingZeros(formatLimitDecimals((settings.pacef_marathon * 42) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_marathon * 42) / 60) % 60,0).toString(), 2) + ":" + paddingZeros((formatLimitDecimals(((settings.pacef_marathon * 42) % 60),0)).toString(), 2))
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -9667,6 +9705,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramPaceMarathon
                             text: qsTr("OK")
+                            enabled: trainProgramPaceMarathonTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pacef_marathon = (((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]))) / 42; toast.show(qsTr("Setting saved!")); }
                         }
@@ -9692,8 +9731,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Warmup Speed (pace):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramWarmupSpeedTextField
+                            format: "time"
                             text: paceSecondsToTime(settings.trainprogram_warmup_speed)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -9703,6 +9743,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramWarmupSpeed
                             text: qsTr("OK")
+                            enabled: trainProgramWarmupSpeedTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_warmup_speed = timeToPaceSeconds(trainProgramWarmupSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
@@ -9715,8 +9756,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Cooldown Speed (pace):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramCooldownSpeedTextField
+                            format: "time"
                             text: paceSecondsToTime(settings.trainprogram_cooldown_speed)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -9726,6 +9768,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramCooldownSpeed
                             text: qsTr("OK")
+                            enabled: trainProgramCooldownSpeedTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_cooldown_speed = timeToPaceSeconds(trainProgramCooldownSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
@@ -9738,8 +9781,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Rest Speed (pace):")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: trainProgramRestSpeedTextField
+                            format: "time"
                             text: paceSecondsToTime(settings.trainprogram_rest_speed)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -9749,6 +9793,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTrainProgramRestSpeed
                             text: qsTr("OK")
+                            enabled: trainProgramRestSpeedTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.trainprogram_rest_speed = timeToPaceSeconds(trainProgramRestSpeedTextField.text); toast.show(qsTr("Setting saved!")); }
                         }
@@ -10899,8 +10944,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Proform IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: proformtreadmillIPTextField
+                                    format: "ip"
                                     text: settings.proformtreadmillip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -10912,6 +10958,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okproformtreadmillIPButton
                                     text: qsTr("OK")
+                                    enabled: proformtreadmillIPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proformtreadmillip = proformtreadmillIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -10923,8 +10970,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Nordictrack 2950 IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: nordictrack2950IPTextField
+                                    format: "ip"
                                     text: settings.nordictrack_2950_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -10936,6 +10984,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: oknordictrack2950IPButton
                                     text: qsTr("OK")
+                                    enabled: nordictrack2950IPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.nordictrack_2950_ip = nordictrack2950IPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -12497,8 +12546,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("ProForm Rower IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: proformRowerIPTextField
+                                    format: "ip"
                                     text: settings.proform_rower_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -12508,6 +12558,7 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: proformRowerIPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proform_rower_ip = proformRowerIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -12742,8 +12793,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Companion IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: proformEllipticalCompanionIPTextField
+                                    format: "ip"
                                     text: settings.proform_elliptical_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -12754,6 +12806,7 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: proformEllipticalCompanionIPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.proform_elliptical_ip = proformEllipticalCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -13008,20 +13061,21 @@ import AndroidStatusBar 1.0
                             text: qsTr("Max Watt:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsNumberField {
                             id: wattMaxTextField
                             text: settings.watt_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.watt_max = text
+                            onAccepted: settings.watt_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okWattMaxButton
                             text: qsTr("OK")
+                            enabled: wattMaxTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_max = wattMaxTextField.text; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.watt_max = wattMaxTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -16576,8 +16630,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("OSC IP:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsFormatField {
                                     id: oscIPTextField
+                                    format: "ip"
                                     text: settings.osc_ip
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -16588,6 +16643,7 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: oscIPTextField.valid
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.osc_ip = oscIPTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
