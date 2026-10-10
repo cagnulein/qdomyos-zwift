@@ -91,6 +91,7 @@ class fitshowtreadmill : public treadmill {
   private:
     bool checkIncomingPacket(const uint8_t *data, uint8_t data_len) const;
     void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void cancelPendingStartTarget(const QString &reason);
     void btinit(bool startTape);
     void writeCharacteristic(const uint8_t *data, uint8_t data_len, const QString &info = QString());
     bool writePayload(const uint8_t *data, uint8_t data_len, const QString &info = QString());
