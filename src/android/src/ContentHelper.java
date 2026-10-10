@@ -80,7 +80,7 @@ public class ContentHelper {
         }
         Uri uri = null;
         try (FileInputStream input = new FileInputStream(sourcePath)) {
-            String normalized = relativePath.replace('\\\\', '/');
+            String normalized = relativePath.replace('\\', '/');
             int separator = normalized.lastIndexOf('/');
             String name = separator >= 0 ? normalized.substring(separator + 1) : normalized;
             String parent = separator >= 0 ? normalized.substring(0, separator) : "";
