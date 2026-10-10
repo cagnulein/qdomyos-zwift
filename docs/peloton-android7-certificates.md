@@ -18,9 +18,16 @@ both by Android version and by domain:
   certificates for those domains (and everywhere else), without loading
   the extra ISRG roots. The Android resource version qualifier selects this
   file automatically, without runtime branching or additional permissions.
-- **Android 6.0 and earlier (API <=23):** Android does not support Network
-  Security Configuration. The packaged certificate files cannot change the
-  system trust store there.
+- **Android 5.0–6.0 (API 21–23, QZ's current minimum is API 21):**
+  Android does not support Network Security Configuration. Bundling the PEM
+  files in the APK does not make its WebView trust them. There is **no
+  automatic Android 5/6 fix in this pull request**. The only low-level
+  alternatives would require a separate, audited implementation or an
+  explicit user decision to install a verified root CA into the device's
+  user trust store. Android 5/6 generally trust user-installed CAs, but
+  installation changes trust for other apps on the device and is *not*
+  restricted to Peloton; avoid automated or silent enrollment. Never use
+  `SslErrorHandler.proceed()` to bypass failed certificate verification.
 
 Those two Peloton hosts were suspected in the reporter's investigation; the
 console logs did **not** associate each failed certificate request with its
