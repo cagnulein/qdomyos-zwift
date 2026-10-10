@@ -262,6 +262,25 @@ static const uint16_t FEC_DEVICE_NUMBER = 12345;
 
 Change it if multiple bridges will be used in the same area.
 
+## Host-side tests (no bike, no Garmin)
+
+A small regression suite is included under `host_tests/`. It validates:
+
+- QZ-style watt gain round-trip
+- UART metrics parsing
+- UART `T4` target-power conversion
+- FE-C page 49 little-endian target-power decoding
+- the critical firmware constants for `/control`, `WATTS_GOAL`, FE-C device type and target-power capability
+
+Run it from this folder:
+
+```sh
+python3 -m unittest discover -s host_tests -v
+```
+
+These tests do not replace the real ANT radio test, but they catch the most
+important protocol/regression mistakes before flashing hardware.
+
 ## Garmin test
 
 1. Start the ProForm bike and make sure its Wi-Fi control endpoint is reachable.
