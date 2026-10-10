@@ -290,6 +290,7 @@ devices/pafersrower/pafersrower.cpp \
 devices/paferstreadmill/paferstreadmill.cpp \
 peloton.cpp \
 powerzonepack.cpp \
+devices/fitpro/fitprocodec.cpp \
 devices/proformbike/proformbike.cpp \
 devices/proformelliptical/proformelliptical.cpp \
 devices/proformtreadmill/proformtreadmill.cpp \
@@ -822,6 +823,7 @@ devices/npecablebike/npecablebike.h \
 devices/pafersbike/pafersbike.h \
 devices/pafersrower/pafersrower.h \
 devices/paferstreadmill/paferstreadmill.h \
+devices/fitpro/fitprocodec.h \
 peloton.h \
 powerzonepack.h \
 devices/proformbike/proformbike.h \
