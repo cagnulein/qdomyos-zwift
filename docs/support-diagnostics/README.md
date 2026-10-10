@@ -17,6 +17,8 @@ This directory contains reusable diagnostic intake guidance for QZ support. It f
 - [Virtual device settings diagnostics](virtual-device-settings.md)
 - [Workout recording and history](workout-recording.md)
 - [Power and training metrics](power-metrics.md)
+- [Device protocol selection](device-protocol-selection.md)
+- [Bluetooth capture quality](bluetooth-captures.md)
 
 ## How to use these guides
 
