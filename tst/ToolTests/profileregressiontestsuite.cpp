@@ -329,6 +329,20 @@ TEST_F(ProfileRegressionTestSuite, SameGeneralOptionsEmailDoesNotIdentifyProfile
     startTwoProfiles(false, true);
 }
 
+TEST_F(ProfileRegressionTestSuite, StorageLocationIsNotCopiedIntoProfiles)
+{
+    QSettings settings;
+    settings.setValue(QZSettings::android_documents_folder, true);
+    settings.setValue(QZSettings::profile_name, QStringLiteral("Jan"));
+    settings.setValue(QZSettings::weight, 64);
+    settings.sync();
+
+    saveProfileReal(QStringLiteral("Jan"));
+
+    QSettings saved(profilePath(QStringLiteral("Jan")), QSettings::IniFormat);
+    EXPECT_FALSE(saved.contains(QZSettings::android_documents_folder));
+}
+
 TEST_F(ProfileRegressionTestSuite, DifferentGarminAccountsRemainScoped)
 {
     startTwoProfiles(false, false);
