@@ -1,0 +1,57 @@
+name: Build XIAO ANT+ FE-C firmware
+
+on:
+  push:
+    branches:
+      - feature/proform-wifi-ant-fec-bridge
+    paths:
+      - "QZ_ESP32/ProFormWifiANTFEC/xiao_nrf52840/**"
+      - ".github/workflows/build-proform-ant-fec-xiao.yml"
+  workflow_dispatch:
+
+jobs:
+  build-xiao:
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/nrfconnect/sdk-nrf-toolchain:v2.7.0
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout QZ
+        uses: actions/checkout@v4
+
+      - name: Fetch nRF Connect SDK 2.7.0 with ANT
+        run: |
+          mkdir -p /work/ncs
+          cd /work/ncs
+          west init -m https://github.com/nrfconnect/sdk-nrf --mr v2.7.0
+          west config manifest.group-filter +ant
+          west update --narrow -o=--depth=1
+          west zephyr-export
+
+      - name: Build XIAO nRF52840 firmware
+        run: |
+          cd /work/ncs
+          west build -p always --no-sysbuild \
+            -b xiao_ble \
+            "$GITHUB_WORKSPACE/QZ_ESP32/ProFormWifiANTFEC/xiao_nrf52840" \
+            -d "$GITHUB_WORKSPACE/xiao-build"
+
+      - name: Collect firmware
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/firmware"
+          cp "$GITHUB_WORKSPACE/xiao-build/zephyr/zephyr.uf2" \
+             "$GITHUB_WORKSPACE/firmware/QZ-ProForm-ANT-FEC-XIAO-nRF52840.uf2"
+          cp "$GITHUB_WORKSPACE/xiao-build/zephyr/zephyr.hex" \
+             "$GITHUB_WORKSPACE/firmware/QZ-ProForm-ANT-FEC-XIAO-nRF52840.hex"
+          sha256sum "$GITHUB_WORKSPACE/firmware/"* > \
+             "$GITHUB_WORKSPACE/firmware/SHA256SUMS.txt"
+
+      - name: Upload ready-to-flash firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: QZ-ProForm-ANT-FEC-XIAO-nRF52840
+          path: firmware/
+          if-no-files-found: error
+          retention-days: 90
