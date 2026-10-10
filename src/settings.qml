@@ -1792,6 +1792,7 @@ import AndroidStatusBar 1.0
             property bool pafers_rower: false
             property bool android_notification_prompt_disabled: false
             property bool android_notification_v2: true
+            property bool nordictrack_gx_le: false
         }
 
 
@@ -5369,7 +5370,8 @@ import AndroidStatusBar 1.0
                                     "Proform CSX210",
                                     "Nordictrack GX 4.5 Pro",
                                     "Proform 325 CSX PFEX439210 INT.0",
-                                    "NordicTrack VR21"
+                                    "NordicTrack VR21",
+                                    "NordicTrack GX LE"
                                 ]
 
                                 // Initialize when the accordion content becomes visible
@@ -5408,7 +5410,8 @@ import AndroidStatusBar 1.0
                                                     settings.proform_csx210 ? 19 : 
                                                     settings.nordictrack_gx_4_5_pro ? 20 :
                                                     settings.proform_bike_325_csx_PFEX439210INT_0 ? 21 : 
-                                                    settings.nordictrack_vr21 ? 22 : 0;
+                                                    settings.nordictrack_vr21 ? 22 :
+                                                    settings.nordictrack_gx_le ? 23 : 0;
 
                                     console.log("bikeModelComboBox selected model: " + selectedModel);
                                     if (selectedModel >= 0) {
@@ -5445,6 +5448,7 @@ import AndroidStatusBar 1.0
                                     settings.nordictrack_vr21 = false;
                                     settings.proform_bike_325_csx_PFEX439210INT_0 = false;
                                     settings.nordictrack_gx_4_5_pro = false;
+                                    settings.nordictrack_gx_le = false;
 
                                     // Set corresponding setting for selected model
                                     switch (currentIndex) {
@@ -5470,6 +5474,7 @@ import AndroidStatusBar 1.0
                                         case 20: settings.nordictrack_gx_4_5_pro = true; break;
                                         case 21: settings.proform_bike_325_csx_PFEX439210INT_0 = true; break;
                                         case 22: settings.nordictrack_vr21 = true; break;
+                                        case 23: settings.nordictrack_gx_le = true; break;
                                     }
 
                                     window.settings_restart_to_apply = true;
