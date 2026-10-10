@@ -39,3 +39,31 @@ FitShow previously used the Runn-versus-machine speed difference **at the moment
 - Repeat with the option disabled: previous behavior is preserved.
 
 The controller's pure C++ policy has automated regression scenarios in `tst/ToolTests/treadmillrunnclosedlooptests.cpp`. **Hardware validation is still required before merging.**
+
+
+## FitShow initial workout interval: startup sequencing (#4167)
+
+The October 10 Android log exposed a **separate** FitShow problem: a new workout's
+first target speed was sent while the treadmill was still in the start countdown.
+The FitShow BLE control point acknowledged the command, but the motor remained at
+the 0.8 km/h starting speed. The user confirmed that the motor only accelerated
+after a physical console speed button was pressed.
+
+For FitShow only, QZ now retains the latest requested speed and incline while a
+QZ-initiated start is pending and until a *valid physical RUNNING status packet*
+arrives. The FitShow command combines speed and incline, so deferring only speed
+would be insufficient. When RUNNING is confirmed, the next driver update sends
+the latest target exactly once through the existing Bluetooth command queue.
+
+A stop, pause, safety/error status, or BLE disconnection cancels the waiting
+speed and incline and resets the correction state, preventing stale targets from
+being applied on a later run. Ordinary speed changes on an already-running
+FitShow treadmill are unaffected.
+
+Regression tests: `tst/ToolTests/fitshowstartspeedgatetests.cpp`.
+
+**Hardware retest:** start a workout whose first interval is 10 km/h from a
+stopped treadmill. Do not use the speed controls. Verify in the debug log that
+`FitShow startup: RUNNING confirmed` precedes `writing speed 10` and that
+the motor reaches the requested speed. Repeat after stop/restart and with a
+different first-interval speed.
