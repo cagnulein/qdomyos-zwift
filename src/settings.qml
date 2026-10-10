@@ -2152,12 +2152,13 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: uiZoomTextField
+                            minimum: 10
                             text: settings.ui_zoom
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.ui_zoom = value
+                            onAccepted: if (valid) settings.ui_zoom = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -2278,8 +2279,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Player Height") + "(" + (settings.miles_unit?"ft/in":"cm") + ")"
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsFormatField {
                             id: heightTextField
+                            format: settings.miles_unit ? "heightFtIn" : "heightCm"
                             text: settings.miles_unit ? Math.floor(settings.height / 30.48) + "'" + Math.round((settings.height % 30.48) / 2.54) + '"' : settings.height
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -2300,6 +2302,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okHeightButton
                             text: qsTr("OK")
+                            enabled: heightTextField.valid
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 if (settings.miles_unit) {
@@ -3067,12 +3070,14 @@ import AndroidStatusBar 1.0
                                         }
                                         SettingsNumberField {
                                             id: heartRateMaxOverrideValueTextField
+                                            minimum: 100
+                                            maximum: 250
                                             text: settings.heart_max_override_value
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.heart_max_override_value = value
+                                            onAccepted: if (valid) settings.heart_max_override_value = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
@@ -3158,12 +3163,14 @@ import AndroidStatusBar 1.0
                                         }
                                         SettingsNumberField {
                                             id: powerFromHeartPWR1TextField
+                                            minimum: 1
+                                            maximum: 2000
                                             text: settings.power_hr_pwr1
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                            onAccepted: settings.power_hr_pwr1 = value
+                                            onAccepted: if (valid) settings.power_hr_pwr1 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
@@ -3184,12 +3191,14 @@ import AndroidStatusBar 1.0
                                         }
                                         SettingsNumberField {
                                             id: powerFromHeartHR1TextField
+                                            minimum: 30
+                                            maximum: 250
                                             text: settings.power_hr_hr1
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                            onAccepted: settings.power_hr_hr1 = value
+                                            onAccepted: if (valid) settings.power_hr_hr1 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
@@ -3210,12 +3219,14 @@ import AndroidStatusBar 1.0
                                         }
                                         SettingsNumberField {
                                             id: powerFromHeartPWR2TextField
+                                            minimum: 1
+                                            maximum: 2000
                                             text: settings.power_hr_pwr2
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                            onAccepted: settings.power_hr_pwr2 = value
+                                            onAccepted: if (valid) settings.power_hr_pwr2 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
@@ -3236,12 +3247,14 @@ import AndroidStatusBar 1.0
                                         }
                                         SettingsNumberField {
                                             id: powerFromHeartHR2TextField
+                                            minimum: 30
+                                            maximum: 250
                                             text: settings.power_hr_hr2
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                            onAccepted: settings.power_hr_hr2 = value
+                                            onAccepted: if (valid) settings.power_hr_hr2 = value
                                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
@@ -3370,13 +3383,15 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: specificGearValueField
+                            minimum: -9999
+                            maximum: 9999
                             signed: true
                             text: settings.gears_current_value_f
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             enabled: gearsRestoreValueDelegate.checked
-                            onAccepted: settings.gears_current_value_f = value
+                            onAccepted: if (valid) settings.gears_current_value_f = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -3784,6 +3799,8 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: bikeResistanceOffsetTextField
+                            minimum: -100
+                            maximum: 100
                             signed: true
                             decimals: 0
                             text: settings.bike_resistance_offset
@@ -3791,7 +3808,7 @@ import AndroidStatusBar 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.bike_resistance_offset = value
+                            onAccepted: if (valid) settings.bike_resistance_offset = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -4259,13 +4276,15 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: automaticVirtualShiftingGearUpCadenceTextField
+                                    minimum: 0
+                                    maximum: 250
                                     decimals: 0
                                     text: settings.automatic_virtual_shifting_gear_up_cadence
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.automatic_virtual_shifting_gear_up_cadence = value
+                                    onAccepted: if (valid) settings.automatic_virtual_shifting_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -4310,13 +4329,15 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: automaticVirtualShiftingGearDownCadenceTextField
+                                    minimum: 0
+                                    maximum: 250
                                     decimals: 0
                                     text: settings.automatic_virtual_shifting_gear_down_cadence
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.automatic_virtual_shifting_gear_down_cadence = value
+                                    onAccepted: if (valid) settings.automatic_virtual_shifting_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -4371,13 +4392,15 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: automaticVirtualShiftingClimbGearUpCadenceTextField
+                                    minimum: 0
+                                    maximum: 250
                                     decimals: 0
                                     text: settings.automatic_virtual_shifting_climb_gear_up_cadence
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_up_cadence = value
+                                    onAccepted: if (valid) settings.automatic_virtual_shifting_climb_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -4422,13 +4445,15 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: automaticVirtualShiftingClimbGearDownCadenceTextField
+                                    minimum: 0
+                                    maximum: 250
                                     decimals: 0
                                     text: settings.automatic_virtual_shifting_climb_gear_down_cadence
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.automatic_virtual_shifting_climb_gear_down_cadence = value
+                                    onAccepted: if (valid) settings.automatic_virtual_shifting_climb_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -4483,13 +4508,15 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: automaticVirtualShiftingSprintGearUpCadenceTextField
+                                    minimum: 0
+                                    maximum: 250
                                     decimals: 0
                                     text: settings.automatic_virtual_shifting_sprint_gear_up_cadence
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_up_cadence = value
+                                    onAccepted: if (valid) settings.automatic_virtual_shifting_sprint_gear_up_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -4534,13 +4561,15 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: automaticVirtualShiftingSprintGearDownCadenceTextField
+                                    minimum: 0
+                                    maximum: 250
                                     decimals: 0
                                     text: settings.automatic_virtual_shifting_sprint_gear_down_cadence
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.automatic_virtual_shifting_sprint_gear_down_cadence = value
+                                    onAccepted: if (valid) settings.automatic_virtual_shifting_sprint_gear_down_cadence = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -4831,13 +4860,15 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: echelonResistanceOffsetTextField
+                                    minimum: -100
+                                    maximum: 100
                                     signed: true
                                     text: settings.echelon_resistance_offset
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.echelon_resistance_offset = value
+                                    onAccepted: if (valid) settings.echelon_resistance_offset = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -5989,13 +6020,15 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: antBikeDeviceNumberTextField
+                                    minimum: 0
+                                    maximum: 65535
                                     decimals: 0
                                     text: settings.ant_bike_device_number
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.ant_bike_device_number = value
+                                    onAccepted: if (valid) settings.ant_bike_device_number = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -6201,13 +6234,15 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: antHeartDeviceNumberTextField
+                            minimum: 0
+                            maximum: 65535
                             decimals: 0
                             text: settings.ant_heart_device_number
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.ant_heart_device_number = value
+                            onAccepted: if (valid) settings.ant_heart_device_number = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -6401,12 +6436,13 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: floatingWidthField
+                            minimum: 1
                             decimals: 0
                             text: settings.floating_width
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.floating_width = value
+                            onAccepted: if (valid) settings.floating_width = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -6440,12 +6476,13 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: floatingHeightField
+                            minimum: 1
                             decimals: 0
                             text: settings.floating_height
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.floating_height = value
+                            onAccepted: if (valid) settings.floating_height = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -6815,12 +6852,14 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: secondLineTextSizeField
+                                    minimum: 1
+                                    maximum: 100
                                     decimals: 0
                                     text: settings.theme_tile_secondline_textsize
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onAccepted: settings.theme_tile_secondline_textsize = value
+                                    onAccepted: if (valid) settings.theme_tile_secondline_textsize = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -7869,12 +7908,13 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: zwiftPollTimeTextField
+                            minimum: 1
                             decimals: 0
                             text: settings.zwift_api_poll
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onAccepted: settings.zwift_api_poll = value
+                            onAccepted: if (valid) settings.zwift_api_poll = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -9351,6 +9391,8 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: treadmillPidHRminTextField
+                            minimum: 0
+                            maximum: 250
                             decimals: 0
                             text: settings.treadmill_pid_heart_min
                             horizontalAlignment: Text.AlignRight
@@ -9375,6 +9417,8 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: treadmillPidHRmaxTextField
+                            minimum: 0
+                            maximum: 250
                             decimals: 0
                             text: settings.treadmill_pid_heart_max
                             horizontalAlignment: Text.AlignRight
@@ -9898,13 +9942,14 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: trainProgramRandomDurationTextField
+                            minimum: 1
                             decimals: 0
                             text: settings.trainprogram_total
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.trainprogram_total = value
+                            onAccepted: if (valid) settings.trainprogram_total = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -9925,12 +9970,13 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: trainProgramRandomPeriodTextField
+                            minimum: 1
                             text: settings.trainprogram_period_seconds
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.trainprogram_period_seconds = value
+                            onAccepted: if (valid) settings.trainprogram_period_seconds = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -10337,13 +10383,15 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: treadmillInclinationMinTextField
+                            minimum: -100
+                            maximum: 100
                             signed: true
                             text: settings.treadmill_incline_min
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_incline_min = value
+                            onAccepted: if (valid) settings.treadmill_incline_min = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -10375,12 +10423,14 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: treadmillInclinationMaxTextField
+                            minimum: -100
+                            maximum: 100
                             text: settings.treadmill_incline_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.treadmill_incline_max = value
+                            onAccepted: if (valid) settings.treadmill_incline_max = value
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
@@ -11479,13 +11529,14 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: pollDeviceTimeTextField
+                                    minimum: 1
                                     decimals: 0
                                     text: settings.poll_device_time
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.poll_device_time = value
+                                    onAccepted: if (valid) settings.poll_device_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -14391,6 +14442,8 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedCorrectionThresholdTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.power_sensor_speed_correction_threshold
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -15134,12 +15187,14 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: fitmetriaFanFitMinTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.fitmetria_fanfit_min
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitmetria_fanfit_min = value
+                                    onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -15159,12 +15214,14 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: fitmetriaFanFitMaxTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.fitmetria_fanfit_max
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitmetria_fanfit_max = value
+                                    onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -15232,12 +15289,14 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: headWindMinTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.fitmetria_fanfit_min
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitmetria_fanfit_min = value
+                                    onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -15255,12 +15314,14 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: headWindMaxTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.fitmetria_fanfit_max
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitmetria_fanfit_max = value
+                                    onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -15327,12 +15388,14 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: eliteAriaMinTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.fitmetria_fanfit_min
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitmetria_fanfit_min = value
+                                    onAccepted: if (valid) settings.fitmetria_fanfit_min = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -15350,12 +15413,14 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: eliteAriaMaxTextField
+                                    minimum: 0
+                                    maximum: 100
                                     text: settings.fitmetria_fanfit_max
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.fitmetria_fanfit_max = value
+                                    onAccepted: if (valid) settings.fitmetria_fanfit_max = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -15775,13 +15840,14 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
 																		id: zwiftDevPollTimeTextField
+																		minimum: 1
 																		decimals: 0
                                     text: settings.poll_device_time
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.poll_device_time = value
+                                    onAccepted: if (valid) settings.poll_device_time = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -16401,13 +16467,15 @@ import AndroidStatusBar 1.0
                                         }
                                         SettingsNumberField {
                                             id: dirconServerPortTextField
+                                            minimum: 1
+                                            maximum: 65535
                                             decimals: 0
                                             text: settings.dircon_server_base_port
                                             horizontalAlignment: Text.AlignRight
                                             Layout.fillHeight: false
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
-                                            onAccepted: settings.dircon_server_base_port = value
+                                            onAccepted: if (valid) settings.dircon_server_base_port = value
                                         }
                                         Button {
                                             id: okDirconServerPort
@@ -16474,13 +16542,15 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: mqttPortTextField
+                                    minimum: 1
+                                    maximum: 65535
                                     decimals: 0
                                     text: settings.mqtt_port
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhDigitsOnly
-                                    onAccepted: settings.mqtt_port = value
+                                    onAccepted: if (valid) settings.mqtt_port = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
@@ -16657,6 +16727,8 @@ import AndroidStatusBar 1.0
                                 }
                                 SettingsNumberField {
                                     id: oscPortTextField
+                                    minimum: 1
+                                    maximum: 65535
                                     decimals: 0
                                     text: settings.osc_port
                                     horizontalAlignment: Text.AlignRight
@@ -16664,7 +16736,7 @@ import AndroidStatusBar 1.0
                                     inputMethodHints: Qt.ImhDigitsOnly
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    onAccepted: settings.osc_port = value
+                                    onAccepted: if (valid) settings.osc_port = value
                                     onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {

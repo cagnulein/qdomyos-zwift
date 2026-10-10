@@ -1448,6 +1448,14 @@ Deseja atualizar as configurações do QZ?</translation>
 <context>
     <name>SettingsFormatField</name>
     <message>
+        <source>Enter the height in centimetres</source>
+        <translation>Introduza a altura em centímetros</translation>
+    </message>
+    <message>
+        <source>Enter the height as feet&apos;inches, e.g. 5&apos;10&quot;</source>
+        <translation>Introduza a altura como pés&apos;polegadas, p. ex. 5&apos;10&quot;</translation>
+    </message>
+    <message>
         <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
         <translation>Introduza um endereço IP ou um nome de anfitrião, p. ex. 192.168.1.10</translation>
     </message>

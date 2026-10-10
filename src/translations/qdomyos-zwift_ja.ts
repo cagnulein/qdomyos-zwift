@@ -1448,6 +1448,14 @@ QZの設定を更新しますか?</translation>
 <context>
     <name>SettingsFormatField</name>
     <message>
+        <source>Enter the height in centimetres</source>
+        <translation>身長をセンチメートルで入力してください</translation>
+    </message>
+    <message>
+        <source>Enter the height as feet&apos;inches, e.g. 5&apos;10&quot;</source>
+        <translation>身長をフィート&apos;インチで入力してください（例: 5&apos;10&quot;）</translation>
+    </message>
+    <message>
         <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
         <translation>IPアドレスまたはホスト名を入力してください（例: 192.168.1.10）</translation>
     </message>

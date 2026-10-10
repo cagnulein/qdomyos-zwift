@@ -1448,6 +1448,14 @@ Do you want to update QZ settings?</source>
 <context>
     <name>SettingsFormatField</name>
     <message>
+        <source>Enter the height in centimetres</source>
+        <translation>请以厘米为单位输入身高</translation>
+    </message>
+    <message>
+        <source>Enter the height as feet&apos;inches, e.g. 5&apos;10&quot;</source>
+        <translation>请按 英尺&apos;英寸 输入身高，例如 5&apos;10&quot;</translation>
+    </message>
+    <message>
         <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
         <translation>请输入 IP 地址或主机名，例如 192.168.1.10</translation>
     </message>
