@@ -101,14 +101,7 @@ QString openEndedRowLabel(const trainrow &row) {
 
 namespace {
 QString sanitizeTrainingProgramName(const QString &input) {
-    QString trimmed = input.trimmed();
-    if (trimmed.isEmpty()) {
-        trimmed = QStringLiteral("Workout");
-    }
-    QRegularExpression invalid(QStringLiteral("[^A-Za-z0-9_\\- ]"));
-    trimmed.replace(invalid, QStringLiteral("_"));
-    trimmed.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
-    return trimmed;
+    return homeform::safeFileName(input, QStringLiteral("Workout"));
 }
 
 QString uniqueTrainingProgramName(const QString &trainingDir, const QString &baseName) {

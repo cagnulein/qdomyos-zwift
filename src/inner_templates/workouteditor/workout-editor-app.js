@@ -1411,7 +1411,8 @@
         } else if (baseName.toLowerCase().endsWith('.zwo')) {
             baseName = baseName.slice(0, -4);
         }
-        return baseName.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, '_');
+        // Keep any letters (Cyrillic, accents, CJK...): only replace characters a file name cannot hold
+        return baseName.trim().replace(/\s+/g, '_').replace(/[\\/:*?"<>|\u0000-\u001F]/g, '_').slice(0, 100).replace(/^\.+|\.+$/g, '') || 'Workout';
     }
 
     function normalizeDevice(key) {

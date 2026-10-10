@@ -1019,6 +1019,78 @@ ApplicationWindow {
         }
     }
 
+    Popup {
+        id: androidNotificationPopup
+        parent: Overlay.overlay
+        modal: true
+        focus: true
+        closePolicy: Popup.NoAutoClose
+        width: Math.min(window.width - 40, 460)
+        height: Math.min(window.height - 60, 380)
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        visible: rootItem.androidNotificationPromptRequested
+
+        background: Rectangle {
+            radius: 8
+            color: Material.background
+            border.color: Material.accent
+            border.width: 1
+        }
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 16
+            spacing: 12
+
+            Label {
+                width: parent.width
+                text: qsTr("Connection lost in the background")
+                font.bold: true
+                font.pixelSize: 20
+                wrapMode: Text.WordWrap
+            }
+
+            ScrollView {
+                width: parent.width
+                height: parent.height - androidNotificationButtons.height - 52
+                clip: true
+
+                TextArea {
+                    width: androidNotificationPopup.width - 56
+                    readOnly: true
+                    wrapMode: TextEdit.Wrap
+                    text:
+                        qsTr("Android cut QZ's network while it was in the background, so the app connected to QZ over Wi-Fi (Zwift, for example) lost it.\n\n") +
+                        qsTr("The Android notification keeps QZ running in the background. Enable it now? The workout keeps going, no restart needed.")
+                }
+            }
+
+            // Flow, not Row: three buttons don't fit one row on a phone once translated
+            Flow {
+                id: androidNotificationButtons
+                width: parent.width
+                spacing: 12
+                layoutDirection: Qt.RightToLeft
+
+                Button {
+                    text: qsTr("Enable")
+                    onClicked: rootItem.android_notification_prompt_enable()
+                }
+
+                Button {
+                    text: qsTr("Not now")
+                    onClicked: rootItem.android_notification_prompt_dismiss(false)
+                }
+
+                Button {
+                    text: qsTr("Don't ask again")
+                    onClicked: rootItem.android_notification_prompt_dismiss(true)
+                }
+            }
+        }
+    }
+
     MessageDialog {
         id: stravaLogoutConfirm
         text: qsTr("Strava")

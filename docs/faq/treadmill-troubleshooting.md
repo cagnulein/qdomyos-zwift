@@ -114,3 +114,11 @@ A Garmin Virtual Run or Garmin Companion bridge is not required for this setup.
 5. Pair Zwift with QZ as the treadmill source.
 
 QZ's current Stryd implementation supports using the external sensor as a treadmill source, including the `power_sensor_as_treadmill` configuration.
+
+## How can I temporarily hold my treadmill incline instead of following Zwift's automatic incline?
+
+If QZ is following Zwift's automatic incline but you want to hold a manually selected incline (for example, during a cooldown), tap the **magnet / auto-resistance icon** at the top of QZ to pause automatic control. Set the desired incline using the treadmill's own controls and leave QZ connected to continue recording the treadmill's reported speed, incline and elevation gain.
+
+The toggle pauses **automatic speed control as well as incline control**; it is not an incline-only lock. Tap it again to request automatic control when needed, but verify that incoming Zwift grade updates actually resume before relying on it for a subsequent climb.
+
+In a confirmed treadmill support case, pausing automatic control allowed the user to hold a 15% incline while continuing to record the workout. The user also reported that automatic incline did not reliably resume afterward; that separate problem remains under investigation.

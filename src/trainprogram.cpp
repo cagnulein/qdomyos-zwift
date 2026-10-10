@@ -1,5 +1,6 @@
 #include "trainprogram.h"
 #include "zwiftworkout.h"
+#include "workoutimport.h"
 #include "homeform.h"
 #include <QFile>
 #include <QMutexLocker>
@@ -1923,7 +1924,16 @@ bool trainprogram::hasTargetPower(const QString &filename) {
 void trainprogram::save(const QString &filename) { saveXML(filename, rows, loadedDeviceType); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
-    if (zwiftworkout::isZwiftWorkoutFile(filename, Extension)
+    if (workoutimport::isSupportedFile(filename, Extension)) {
+        QString description = "";
+        QString tags = "";
+        trainprogram *program =
+            new trainprogram(workoutimport::load(filename, Extension, &description), b, &description, &tags);
+        if (b && b->device()) {
+            program->loadedDeviceType = b->device()->deviceType();
+        }
+        return program;
+    } else if (zwiftworkout::isZwiftWorkoutFile(filename, Extension)
 #ifdef Q_OS_ANDROID
             || filename.toUpper().contains(".ZWO")
 #endif

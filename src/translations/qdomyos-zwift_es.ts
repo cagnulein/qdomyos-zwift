@@ -1346,6 +1346,11 @@ Do you want to update QZ settings?</source>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Dispositivo Zwift: ¡ACTUALIZA EL FIRMWARE!</translation>
     </message>
+    <message>
+        <location filename="../homeform.cpp" line="10663"/>
+        <source>Android notification enabled</source>
+        <translation>Notificación de Android activada</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1441,6 +1446,29 @@ Do you want to update QZ settings?</source>
     </message>
 </context>
 <context>
+    <name>SettingsFormatField</name>
+    <message>
+        <source>Enter the height in centimetres</source>
+        <translation>Introduce la altura en centímetros</translation>
+    </message>
+    <message>
+        <source>Enter the height as feet&apos;inches, e.g. 5&apos;10&quot;</source>
+        <translation>Introduce la altura como pies&apos;pulgadas, p. ej. 5&apos;10&quot;</translation>
+    </message>
+    <message>
+        <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
+        <translation>Introduce una dirección IP o un nombre de host, p. ej. 192.168.1.10</translation>
+    </message>
+    <message>
+        <source>Enter an IP address, e.g. 192.168.1.10</source>
+        <translation>Introduce una dirección IP, p. ej. 192.168.1.10</translation>
+    </message>
+    <message>
+        <source>Enter the time as hh:mm:ss</source>
+        <translation>Introduce el tiempo como hh:mm:ss</translation>
+    </message>
+</context>
+<context>
     <name>SettingsList</name>
     <message>
         <location filename="../SettingsList.qml" line="25"/>
@@ -1456,6 +1484,33 @@ Do you want to update QZ settings?</source>
         <location filename="../SettingsList.qml" line="126"/>
         <source>Other folders</source>
         <translation>Otras carpetas</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsNumberField</name>
+    <message>
+        <source>The value cannot be negative</source>
+        <translation>El valor no puede ser negativo</translation>
+    </message>
+    <message>
+        <source>Enter a whole number</source>
+        <translation>Introduce un número entero</translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>Introduce un número</translation>
+    </message>
+    <message>
+        <source>Allowed range: %1 to %2</source>
+        <translation>Permitido: de %1 a %2</translation>
+    </message>
+    <message>
+        <source>Minimum: %1</source>
+        <translation>Mínimo: %1</translation>
+    </message>
+    <message>
+        <source>Maximum: %1</source>
+        <translation>Máximo: %1</translation>
     </message>
 </context>
 <context>
@@ -1527,8 +1582,8 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <location filename="../TrainingProgramsList.qml" line="71"/>
-        <source>Training programs (*.xml *.zwo)</source>
-        <translation>Programas de entrenamiento (*.xml *.zwo)</translation>
+        <source>Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)</source>
+        <translation>Programas de entrenamiento (*.xml *.zwo *.mrc *.erg *.json *.xsr)</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsList.qml" line="71"/>
@@ -1570,8 +1625,8 @@ Do you want to update QZ settings?</source>
     </message>
     <message>
         <location filename="../TrainingProgramsListJS.qml" line="94"/>
-        <source>Training programs (*.xml *.zwo)</source>
-        <translation>Programas de entrenamiento (*.xml *.zwo)</translation>
+        <source>Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)</source>
+        <translation>Programas de entrenamiento (*.xml *.zwo *.mrc *.erg *.json *.xsr)</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsListJS.qml" line="94"/>
@@ -4688,6 +4743,40 @@ In the next window, allow access to the QZ folder.</source>
 ¿Quieres buscarlos?
 
 En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1048"/>
+        <source>Connection lost in the background</source>
+        <translation>Conexión perdida en segundo plano</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1064"/>
+        <source>Android cut QZ&apos;s network while it was in the background, so the app connected to QZ over Wi-Fi (Zwift, for example) lost it.
+
+</source>
+        <translation>Android cortó la red de QZ mientras estaba en segundo plano, por lo que la app conectada a QZ por Wi-Fi (por ejemplo, Zwift) perdió la conexión.
+
+</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1065"/>
+        <source>The Android notification keeps QZ running in the background. Enable it now? The workout keeps going, no restart needed.</source>
+        <translation>La notificación de Android mantiene QZ en funcionamiento en segundo plano. ¿Activarla ahora? El entrenamiento continúa, no hace falta reiniciar.</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1077"/>
+        <source>Enable</source>
+        <translation>Activar</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1082"/>
+        <source>Not now</source>
+        <translation>Ahora no</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1087"/>
+        <source>Don&apos;t ask again</source>
+        <translation>No volver a preguntar</translation>
     </message>
 </context>
 <context>

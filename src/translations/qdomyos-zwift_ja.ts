@@ -1346,6 +1346,11 @@ QZの設定を更新しますか?</translation>
         <source>Zwift device: UPGRADE THE FIRMWARE!</source>
         <translation>Zwiftデバイス: ファームウェアを更新してください!</translation>
     </message>
+    <message>
+        <location filename="../homeform.cpp" line="10663"/>
+        <source>Android notification enabled</source>
+        <translation>Androidバックグラウンド通知保持を有効にしました</translation>
+    </message>
 </context>
 <context>
     <name>QPlatformTheme</name>
@@ -1441,6 +1446,29 @@ QZの設定を更新しますか?</translation>
     </message>
 </context>
 <context>
+    <name>SettingsFormatField</name>
+    <message>
+        <source>Enter the height in centimetres</source>
+        <translation>身長をセンチメートルで入力してください</translation>
+    </message>
+    <message>
+        <source>Enter the height as feet&apos;inches, e.g. 5&apos;10&quot;</source>
+        <translation>身長をフィート&apos;インチで入力してください（例: 5&apos;10&quot;）</translation>
+    </message>
+    <message>
+        <source>Enter an IP address or a host name, e.g. 192.168.1.10</source>
+        <translation>IPアドレスまたはホスト名を入力してください（例: 192.168.1.10）</translation>
+    </message>
+    <message>
+        <source>Enter an IP address, e.g. 192.168.1.10</source>
+        <translation>IPアドレスを入力してください（例: 192.168.1.10）</translation>
+    </message>
+    <message>
+        <source>Enter the time as hh:mm:ss</source>
+        <translation>時間を hh:mm:ss の形式で入力してください</translation>
+    </message>
+</context>
+<context>
     <name>SettingsList</name>
     <message>
         <location filename="../SettingsList.qml" line="25"/>
@@ -1456,6 +1484,33 @@ QZの設定を更新しますか?</translation>
         <location filename="../SettingsList.qml" line="126"/>
         <source>Other folders</source>
         <translation>その他のフォルダー</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsNumberField</name>
+    <message>
+        <source>The value cannot be negative</source>
+        <translation>負の値は使用できません</translation>
+    </message>
+    <message>
+        <source>Enter a whole number</source>
+        <translation>整数を入力してください</translation>
+    </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>数値を入力してください</translation>
+    </message>
+    <message>
+        <source>Allowed range: %1 to %2</source>
+        <translation>許容範囲: %1～%2</translation>
+    </message>
+    <message>
+        <source>Minimum: %1</source>
+        <translation>最小: %1</translation>
+    </message>
+    <message>
+        <source>Maximum: %1</source>
+        <translation>最大: %1</translation>
     </message>
 </context>
 <context>
@@ -1527,8 +1582,8 @@ QZの設定を更新しますか?</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsList.qml" line="71"/>
-        <source>Training programs (*.xml *.zwo)</source>
-        <translation>トレーニングプログラム (*.xml *.zwo)</translation>
+        <source>Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)</source>
+        <translation>トレーニングプログラム (*.xml *.zwo *.mrc *.erg *.json *.xsr)</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsList.qml" line="71"/>
@@ -1570,8 +1625,8 @@ QZの設定を更新しますか?</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsListJS.qml" line="94"/>
-        <source>Training programs (*.xml *.zwo)</source>
-        <translation>トレーニングプログラム (*.xml *.zwo)</translation>
+        <source>Training programs (*.xml *.zwo *.mrc *.erg *.json *.xsr)</source>
+        <translation>トレーニングプログラム (*.xml *.zwo *.mrc *.erg *.json *.xsr)</translation>
     </message>
     <message>
         <location filename="../TrainingProgramsListJS.qml" line="94"/>
@@ -4696,6 +4751,40 @@ In the next window, allow access to the QZ folder.</source>
 検索しますか？
 
 次の画面でQZフォルダーへのアクセスを許可してください。</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1048"/>
+        <source>Connection lost in the background</source>
+        <translation>バックグラウンドで接続が切れました</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1064"/>
+        <source>Android cut QZ&apos;s network while it was in the background, so the app connected to QZ over Wi-Fi (Zwift, for example) lost it.
+
+</source>
+        <translation>QZ がバックグラウンドにある間に Android がネットワークを遮断したため、Wi-Fi で QZ に接続していたアプリ（Zwift など）の接続が切れました。
+
+</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1065"/>
+        <source>The Android notification keeps QZ running in the background. Enable it now? The workout keeps going, no restart needed.</source>
+        <translation>Androidバックグラウンド通知保持を使うと、QZ はバックグラウンドでも動作し続けます。今すぐ有効にしますか？トレーニングは中断されず、再起動も不要です。</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1077"/>
+        <source>Enable</source>
+        <translation>有効にする</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1082"/>
+        <source>Not now</source>
+        <translation>後で</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="1087"/>
+        <source>Don&apos;t ask again</source>
+        <translation>今後表示しない</translation>
     </message>
 </context>
 <context>

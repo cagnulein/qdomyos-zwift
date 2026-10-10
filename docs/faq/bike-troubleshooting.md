@@ -93,3 +93,41 @@ QZ's Wi-Fi connection to a ProForm TDF bike uses the bike's configured IP addres
 4. To prevent the problem from recurring, reserve a fixed DHCP address for the bike in your router, or otherwise configure the router so the bike always receives the same IP.
 
 In a confirmed support case, the bike's IP address had changed; updating the address restored the QZ connection immediately.
+
+
+## My bike does not have native ERG mode. How can I improve QZ's ERG emulation?
+
+For supported bikes where QZ has to emulate ERG by selecting resistance levels, QZ learns the relationship between **cadence, power, and resistance** and uses that data to choose a resistance for the requested target power.
+
+If ERG is working but the resistance changes are too coarse or QZ jumps between unexpected levels, spend some time building a better power curve:
+
+1. Use a normal free ride with QZ running.
+2. Change resistance manually from the bike's own controls/display.
+3. Pedal through the resistance levels you normally use for ERG workouts.
+4. Stay on each resistance level for roughly 30 seconds at a cadence similar to the cadence you normally use in ERG mode.
+5. Repeat across a useful range of resistance levels and power outputs.
+
+You do not need Zwift open during this learning phase; QZ is the component collecting the cadence/power/resistance relationship. You also do not need to run Zwift's trainer calibration for this QZ-emulated ERG setup. If Zwift's calibration screen waits for the device, it can be ignored for this workflow.
+
+The more representative data QZ has around your normal cadence and power range, the better it can estimate which resistance level should produce a requested wattage. On bikes with discrete resistance levels, some jumps can still be unavoidable because an exact target power may fall between two available levels.
+
+In a confirmed support case, QZ's ERG emulation was working on a bike without native ERG; the recommended learning procedure was then used to improve the resistance selection for ramp workouts.
+
+## MyWhoosh cannot discover QZ's virtual trainer on an Echelon console. Which virtual-device options should I check?
+
+If QZ is already connected to an unlocked Echelon bike and its own metrics work, but MyWhoosh on another device cannot see QZ as a trainer, check for special-purpose virtual-device options left enabled in **Experimental Settings**.
+
+1. Keep the normal **Virtual Bluetooth Device** enabled.
+2. Disable **Virtual iFit**, **Virtual Echelon**, and **Virtual Only Heart Rate** if they were enabled for previous experiments or setup procedures.
+3. Fully close and restart QZ, reconnect it to the physical bike, and then rescan for QZ's virtual trainer from MyWhoosh.
+4. Pair MyWhoosh with the QZ virtual trainer rather than directly with the Echelon bike.
+
+In a confirmed Echelon EX-4S+ support case, disabling Virtual iFit and Virtual Echelon alone did not restore discovery. After **Virtual Only Heart Rate** was also disabled, MyWhoosh immediately recognized QZ. This does not isolate a single setting as the cause; the working configuration had all three special-purpose modes disabled.
+
+**Exception:** If your bike still requires the **Virtual Echelon** unlock handshake, complete that separate unlock procedure first. These steps apply when the bike is already unlocked and QZ needs to advertise a normal trainer to MyWhoosh.
+
+## QZ connects to my devices, but the dashboard tiles have disappeared. How do I restore them?
+
+If QZ opens to its main screen without the expected speed, cadence, power, or gear tiles, try running QZ's initial **setup wizard** again to restore the dashboard layout. After completing the wizard, return to the main screen and check that the tiles have reappeared before investigating the bike connection or virtual gearing.
+
+A support user explicitly confirmed that rerunning the wizard restored missing tiles while QZ was still detecting the connected Wahoo devices. This is a dashboard-layout issue, not evidence that the trainer itself has lost Bluetooth connectivity.

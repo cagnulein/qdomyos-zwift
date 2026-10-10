@@ -28,11 +28,13 @@ SOURCES += \
         ToolTests/testsettingssecuritytestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
         ToolTests/zwiftworkouttestsuite.cpp \
+        ToolTests/workoutimporttestsuite.cpp \
         Tools/testsettings.cpp \
         Tools/typeidgenerator.cpp \
         Devices/TestSchwinn411510EParser.cpp \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
+        Devices/TestNautilusTreadmillParser.cpp \
         Devices/TestFtmsBikeResistance.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
@@ -74,6 +76,7 @@ HEADERS += \
     Devices/devicetestdataindex.h \
     Devices/TestSchwinn411510EParser.h \
     Devices/TestApexBikeParser.h \
+    Devices/TestNautilusTreadmillParser.h \
     Devices/TestFtmsBikeResistance.h \
     Devices/TestTrxAppGateUsBellipticalParser.h \
     Devices/TestTrxAppGateUsTreadmillParser.h \

@@ -470,6 +470,15 @@ void DataObject::setVisible(bool visible) {
 
 homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     m_singleton = this;
+    // the Android notification prompt waits for the user to come back to QZ
+    if (QGuiApplication *guiApp = qobject_cast<QGuiApplication *>(QCoreApplication::instance())) {
+        connect(guiApp, &QGuiApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
+            if (state == Qt::ApplicationActive && m_androidNotificationPromptPending) {
+                m_androidNotificationPromptPending = false;
+                setAndroidNotificationPromptRequested(true);
+            }
+        });
+    }
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     QString unit = QStringLiteral("km");
@@ -1739,6 +1748,20 @@ QString homeform::getWritableAppDir() {
     path = QDir::currentPath() + "/";
 #endif
     return path;
+}
+
+// Keep any letters (Cyrillic, accents, CJK...): only replace characters a file name cannot hold
+QString homeform::safeFileName(const QString &name, const QString &fallback) {
+    QString safe = name.trimmed();
+    safe.replace(QRegularExpression(QStringLiteral("[\\\\/:*?\"<>|\\x00-\\x1F]")), QStringLiteral("_"));
+    safe.replace(QRegularExpression(QStringLiteral("\\s+")), QStringLiteral("_"));
+    // File names are limited to 255 bytes and non-Latin letters take 2-3 bytes each in UTF-8
+    safe.truncate(100);
+    safe.remove(QRegularExpression(QStringLiteral("^\\.+|\\.+$")));
+    if (safe.isEmpty()) {
+        safe = fallback;
+    }
+    return safe;
 }
 
 void homeform::backup() {
@@ -10622,6 +10645,59 @@ void homeform::echelon_dismiss_enable_prompt() {
     setEchelonEnablePromptRequested(false);
 }
 
+void homeform::backgroundNetworkLost() {
+#ifdef Q_OS_ANDROID
+    QSettings settings;
+    if (settings.value(QZSettings::android_notification_v2, QZSettings::default_android_notification_v2).toBool() ||
+        settings.value(QZSettings::android_notification_prompt_disabled,
+                       QZSettings::default_android_notification_prompt_disabled)
+            .toBool()) {
+        return;
+    }
+    qDebug() << "backgroundNetworkLost: Android notification prompt on resume";
+    if (QGuiApplication::applicationState() == Qt::ApplicationActive) {
+        setAndroidNotificationPromptRequested(true);
+    } else {
+        m_androidNotificationPromptPending = true;
+    }
+#endif
+}
+
+void homeform::android_notification_prompt_enable() {
+    setAndroidNotificationPromptRequested(false);
+#ifdef Q_OS_ANDROID
+    QSettings settings;
+    settings.setValue(QZSettings::android_notification_v2, true);
+    android_notification_apply(true);
+    setToastRequested(QObject::tr("Android notification enabled"));
+#endif
+}
+
+void homeform::android_notification_apply(bool enabled) {
+#ifdef Q_OS_ANDROID
+    if (enabled) {
+        // same call bluetooth.cpp makes at startup: QZ is in the foreground now, so the service can
+        // start right away and the running workout doesn't need a restart
+        QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
+            QtAndroid::androidContext().object(), javaNotification.object<jstring>());
+    } else {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
+    }
+#else
+    Q_UNUSED(enabled);
+#endif
+}
+
+void homeform::android_notification_prompt_dismiss(bool dontAskAgain) {
+    setAndroidNotificationPromptRequested(false);
+    if (dontAskAgain) {
+        QSettings settings;
+        settings.setValue(QZSettings::android_notification_prompt_disabled, true);
+    }
+}
+
 bool homeform::isStravaLoggedIn() {
     QSettings settings;
     return !settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken).toString().isEmpty();
@@ -12230,8 +12306,7 @@ void homeform::intervalsicu_download_workout_completed(QNetworkReply *reply) {
                 }
 
                 // Sanitize filename
-                QString safeName = workoutName;
-                safeName.replace(QRegExp("[^a-zA-Z0-9_\\-]"), "_");
+                QString safeName = safeFileName(workoutName, QStringLiteral("Workout"));
 
                 // Add date prefix
                 QString today = QDate::currentDate().toString("yyyy-MM-dd");
