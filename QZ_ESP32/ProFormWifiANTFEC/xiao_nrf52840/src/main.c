@@ -57,6 +57,7 @@ static const uint8_t FEC_STATE_IN_USE = 3;
 
 // FE-C pages used by this bridge.
 static const uint8_t PAGE_GENERAL_FE_DATA = 16;
+static const uint8_t PAGE_GENERAL_SETTINGS = 17;
 static const uint8_t PAGE_SPECIFIC_TRAINER = 25;
 static const uint8_t PAGE_TARGET_POWER = 49;
 static const uint8_t PAGE_FE_CAPABILITIES = 54;
@@ -248,6 +249,27 @@ static void build_page16(uint8_t page[8])
     page[7] = (uint8_t)((FEC_STATE_IN_USE << 4) | 0x04);
 }
 
+static void build_page17(uint8_t page[8])
+{
+    memset(page, 0xFF, 8);
+
+    page[0] = PAGE_GENERAL_SETTINGS;
+    page[1] = 0xFF;
+    page[2] = 0xFF;
+    page[3] = 0xFF; // cycle length unavailable
+
+    // Incline invalid. The bridge does not advertise FE-C simulation mode.
+    put_u16_le(&page[4], 0x7FFF);
+
+    /*
+     * Resistance level is not normalized by QZ's ProForm Wi-Fi driver to the
+     * FE-C 0.5% scale. Keep it invalid rather than inventing a conversion.
+     * This page is nevertheless requestable for FE-C controller discovery.
+     */
+    page[6] = 0xFF;
+    page[7] = (uint8_t)(FEC_STATE_IN_USE << 4);
+}
+
 static void build_page25(uint8_t page[8])
 {
     const uint16_t power = metrics.power_w;
@@ -329,6 +351,9 @@ static bool build_requested_page(uint8_t page_number, uint8_t page[8])
     case PAGE_GENERAL_FE_DATA:
         build_page16(page);
         return true;
+    case PAGE_GENERAL_SETTINGS:
+        build_page17(page);
+        return true;
     case PAGE_SPECIFIC_TRAINER:
         build_page25(page);
         return true;
@@ -381,20 +406,24 @@ static void send_next_fec_page(void)
     } else {
         /*
          * Normal FE-C broadcast pattern:
-         *  - pages 16 and 25 carry live trainer data
-         *  - page 54 is inserted periodically to advertise ERG capability
-         *  - common pages 80/81 are sent periodically for identification
+         *  - page 16 exactly once every five transmissions
+         *  - page 25 in the remaining live-data slots
+         *  - page 54 and common pages 80/81 periodically replace page-25 slots
+         *
+         * Keeping page 16 on an absolute modulo-5 cadence avoids disturbing
+         * the FE-C required page-16 pattern when background pages are inserted.
          */
-        const uint32_t slot = tx_count++ & 0x3F;
+        const uint32_t frame = tx_count++;
+        const uint32_t background_slot = frame & 0x3F;
 
-        if (slot == 60) {
-            build_page54(page);
-        } else if (slot == 61) {
-            build_page80(page);
-        } else if (slot == 62) {
-            build_page81(page);
-        } else if ((slot & 0x01) == 0) {
+        if ((frame % 5U) == 0U) {
             build_page16(page);
+        } else if (background_slot == 61U) {
+            build_page54(page);
+        } else if (background_slot == 62U) {
+            build_page80(page);
+        } else if (background_slot == 63U) {
+            build_page81(page);
         } else {
             build_page25(page);
         }
