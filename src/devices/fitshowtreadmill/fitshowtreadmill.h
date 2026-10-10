@@ -26,6 +26,7 @@
 #include <QDateTime>
 #include <QObject>
 
+#include "fitshowstartspeedgate.h"
 #include "treadmill.h"
 #include "virtualdevices/virtualtreadmill.h"
 
@@ -90,6 +91,7 @@ class fitshowtreadmill : public treadmill {
   private:
     bool checkIncomingPacket(const uint8_t *data, uint8_t data_len) const;
     void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void cancelPendingStartTarget(const QString &reason);
     void btinit(bool startTape);
     void writeCharacteristic(const uint8_t *data, uint8_t data_len, const QString &info = QString());
     bool writePayload(const uint8_t *data, uint8_t data_len, const QString &info = QString());
@@ -126,6 +128,7 @@ class fitshowtreadmill : public treadmill {
     bool IS_STATUS_ERRO = false;
     bool IS_STATUS_SAFETY = false;
     bool IS_RUNNING = false;
+    FitShowStartSpeedGate m_startSpeedGate;
     int ERRNO = -1;
     int SYS_CONTROL_CMD = 0;
     int CURRENT_STATUS = 0;
