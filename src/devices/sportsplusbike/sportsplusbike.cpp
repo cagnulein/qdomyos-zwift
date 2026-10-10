@@ -1,4 +1,5 @@
 #include "sportsplusbike.h"
+#include "carefitnessparser.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -219,49 +220,94 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         // double resistance = GetResistanceFromPacket(newValue);
         kcal = GetKcalFromPacket(newValue);
     } else if (carefitness_bike) {
-        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled"))) {
-            m_watt = wattsFromResistance(currentResistance().value());
-        }
-        emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+        carefitness_protocol = carefitness::detectProtocol(carefitness_protocol, newValue);
 
-        if (newValue.at(1) == 0x30) {
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+        if (carefitness_protocol == carefitness::Protocol::Cv385) {
+            const carefitness::Telemetry telemetry = carefitness::parsePacket(carefitness_protocol, newValue);
+            const bool powerSensorDisabled =
+                settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"));
+            const bool cadenceSensorDisabled =
+                settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"));
+
+            cadence = currentCadence().value();
+            if (telemetry.hasCadence && cadenceSensorDisabled) {
+                cadence = telemetry.cadence;
+                cadence_eval = true;
+                // wattsFromResistance() uses Cadence as its table input.
+                Cadence = cadence;
+            }
+            if (telemetry.hasSpeed) {
+                Speed = telemetry.speed;
+            }
+
+            if (powerSensorDisabled) {
+                m_watt = wattsFromResistance(currentResistance().value());
+            }
+            emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+            emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
+
+            if (!firstCharChanged) {
+                Distance +=
+                    ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
+            }
+
+            lastTimeCharChanged = now;
+            kcal +=
+                ((((0.048 * ((double)watts()) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                                                                  //* 3.5) / 200 ) / 60
+        } else {
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                uint8_t hexint = ((uint8_t)newValue.at(3));
-                cadence = (((hexint & 0xF0) >> 4) * 10) + (hexint & 0x0F);
+                m_watt = wattsFromResistance(currentResistance().value());
+            }
+            emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+
+            if (newValue.at(1) == 0x30) {
+                if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                        .toString()
+                        .startsWith(QStringLiteral("Disabled"))) {
+                    uint8_t hexint = ((uint8_t)newValue.at(3));
+                    cadence = (((hexint & 0xF0) >> 4) * 10) + (hexint & 0x0F);
+                    cadence_eval = true;
+                }
+            } else {
+                cadence = currentCadence().value();
                 cadence_eval = true;
             }
-        } else {
-            cadence = currentCadence().value();
-            cadence_eval = true;
-        }
-        double speed = 0.37497622 * ((double)Cadence.value());
+            double speed = 0.37497622 * ((double)Cadence.value());
 
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = speed;
-        } else {
-            Speed = metric::calculateSpeedFromPower(
-                watts(), Inclination.value(), Speed.value(),
-                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-        }
-        emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = speed;
+            } else {
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            }
+            emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
 
-        if (!firstCharChanged) {
-            Distance +=
-                ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
-        }
+            if (!firstCharChanged) {
+                Distance +=
+                    ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
+            }
 
-        lastTimeCharChanged = now;
-        kcal +=
-            ((((0.048 * ((double)watts()) + 1.19) *
-               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-              200.0) /
-             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
-                                                              //* 3.5) / 200 ) / 60
+            lastTimeCharChanged = now;
+            kcal +=
+                ((((0.048 * ((double)watts()) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                                                                  //* 3.5) / 200 ) / 60
+        }
     } else {
         if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
@@ -518,6 +564,8 @@ void sportsplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
         ht_variant_bike = isSportsPlusHTVariantName(bluetoothDevice.name());
+        carefitness_protocol = carefitness::Protocol::Unknown;
+        carefitness_bike = false;
         if ((bluetoothDevice.name().toUpper().contains(QStringLiteral("CARE")) &&
              bluetoothDevice.name().length() >= 11)) // CARE9040177 - Carefitness CV-351)
         {

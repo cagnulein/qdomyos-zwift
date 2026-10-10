@@ -26,6 +26,7 @@
 #include <QTime>
 
 #include "devices/bike.h"
+#include "devices/sportsplusbike/carefitnessparser.h"
 #include "virtualdevices/virtualbike.h"
 
 class sportsplusbike : public bike {
@@ -75,6 +76,7 @@ class sportsplusbike : public bike {
 
     bool carefitness_bike = false;
     bool ht_variant_bike = false;
+    carefitness::Protocol carefitness_protocol = carefitness::Protocol::Unknown;
 
     const resistance_t max_resistance = 24;
 
