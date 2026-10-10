@@ -463,6 +463,16 @@ class homeform : public QObject {
         return m_locationServices;
     }
 
+    // Asks Android again: Bluetooth and Location may be switched on after the app started
+    Q_INVOKABLE bool refreshLocationServices() {
+#ifdef Q_OS_ANDROID
+        m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/LocationHelper", "start", "(Landroid/content/Context;)Z",
+            QtAndroid::androidContext().object());
+#endif
+        return m_locationServices;
+    }
+
     Q_INVOKABLE void enableLocationServices() {
 #ifdef Q_OS_ANDROID
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/LocationHelper", "requestPermissions",

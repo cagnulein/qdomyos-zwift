@@ -166,6 +166,59 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #ifndef Q_OS_WIN
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &bluetooth::finished);
 #endif
+#ifdef Q_OS_ANDROID
+        // With Bluetooth off the scan fails at once and finished() never comes, so the rescan loop
+        // in finished() never started: the equipment was not found until the user tapped the
+        // Bluetooth icon or restarted the app. Treat this failure as an empty scan.
+        // Android only: on iOS every new scan may show the system "Turn On Bluetooth" alert again.
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 2, 0))
+        connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::errorOccurred, this,
+#else
+        connect(discoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this,
+#endif
+                [this](QBluetoothDeviceDiscoveryAgent::Error error) {
+                    debug(QStringLiteral("BTLE scanning error ") + QString::number(error) + QStringLiteral(" ") +
+                          discoveryAgent->errorString());
+                    if (error == QBluetoothDeviceDiscoveryAgent::PoweredOffError) {
+                        if (!bluetoothOffPoll.isActive())
+                            bluetoothOffPoll.start();
+                        finished();
+                    }
+                },
+                // start() reports the error from inside itself, the first time in this constructor:
+                // finished() must run once the app has connected to our signals
+                Qt::QueuedConnection);
+        // ...and scan as soon as Bluetooth is switched on, rather than at the next rescan (up to 60 s later)
+        auto bluetoothSwitchedOn = [this]() {
+            bluetoothOffPoll.stop();
+            if (device() || !discoveryAgent || discoveryAgent->isActive())
+                return;
+            debug(QStringLiteral("BTLE scanning, Bluetooth switched on"));
+            rescanCount = 0;
+            rescanStartedMs = 0;
+            this->startDiscovery();
+        };
+        QBluetoothLocalDevice *localDevice = new QBluetoothLocalDevice(this);
+        connect(localDevice, &QBluetoothLocalDevice::hostModeStateChanged, this,
+                [bluetoothSwitchedOn](QBluetoothLocalDevice::HostMode mode) {
+                    if (mode != QBluetoothLocalDevice::HostPoweredOff)
+                        bluetoothSwitchedOn();
+                });
+        // Qt 5 learns about Bluetooth only from the scan mode broadcast, and switching Bluetooth on
+        // from the quick settings may never send one: then the equipment was found only at the next
+        // rescan. So the adapter is also asked directly, by the same check that start() makes.
+        bluetoothOffPoll.setInterval(2000);
+        connect(&bluetoothOffPoll, &QTimer::timeout, this, [this, bluetoothSwitchedOn]() {
+            if (device()) {
+                bluetoothOffPoll.stop();
+                return;
+            }
+            QAndroidJniObject adapter = QAndroidJniObject::callStaticObjectMethod(
+                "android/bluetooth/BluetoothAdapter", "getDefaultAdapter", "()Landroid/bluetooth/BluetoothAdapter;");
+            if (adapter.isValid() && adapter.callMethod<jint>("getState") == 12) // BluetoothAdapter.STATE_ON
+                bluetoothSwitchedOn();
+        });
+#endif
         // Safety net: on some platforms (e.g. Android containers/emulators without a functional
         // Bluetooth adapter, such as Waydroid) the discovery agent's finished()/timeout signal never
         // fires even though a discoveryAgent object was created, leaving fake devices (Fake
@@ -204,6 +257,10 @@ void bluetooth::finished() {
         // rebooting or still held by the previous app session was never found again.
         // The pause grows from 3 s to 60 s and scanning gives up after 10 minutes (the device list
         // refresh starts it again), so an app left open without equipment does not scan for hours.
+        // With Bluetooth off a rescan only fails again: bluetoothOffPoll starts the search once it
+        // is on, and the 10 minutes are counted from then
+        if (bluetoothOffPoll.isActive())
+            return;
         if (!device()) {
             const qint64 now = QDateTime::currentMSecsSinceEpoch();
             if (!rescanStartedMs)
