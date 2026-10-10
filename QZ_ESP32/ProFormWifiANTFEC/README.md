@@ -242,6 +242,7 @@ Current ANT+ side:
 - ANT+ RF frequency 2457 MHz
 - 4 Hz channel period
 - General FE Data page 16
+- General Settings page 17 (requestable; incline/cycle length/resistance are currently reported invalid rather than guessed)
 - Specific Trainer Data page 25
 - Target Power page 49 receive/response
 - FE Capabilities page 54
@@ -293,8 +294,9 @@ The first hardware test should specifically verify:
 3. ProForm acceptance of `WATTS_GOAL` and compensated `Target Watts`.
 4. Correct feedback scaling at `WATT_GAIN = 0.85`.
 5. FE-C page scheduling and page-70/page-71 behavior expected by the Garmin.
-6. UART stability while both radios are active.
-7. Recovery after ProForm Wi-Fi/WebSocket reconnection.
+6. Whether the Garmin requires a normalized General Settings page-17 resistance value; QZ's ProForm Wi-Fi driver does not currently expose a trustworthy FE-C 0.5% resistance mapping, so the prototype returns it as invalid.
+7. UART stability while both radios are active.
+8. Recovery after ProForm Wi-Fi/WebSocket reconnection; the last ERG target is queued and replayed after reconnect.
 
 Simulation mode can be added later by implementing FE-C page 51 and mapping its
 grade request to the appropriate ProForm incline/resistance behavior.
