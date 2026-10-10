@@ -78,6 +78,8 @@ static HardwareSerial antSerial(2);
 
 static bool webSocketConnected = false;
 static bool ergModeSelected = false;
+// Keep the last Garmin ERG request while Wi-Fi/WebSocket is reconnecting.
+static float pendingErgWatts = 0.0f;
 static uint32_t lastWiFiAttemptMs = 0;
 static uint32_t lastMetricsForwardMs = 0;
 static uint32_t lastBleNotifyMs = 0;
@@ -142,6 +144,15 @@ static void applyErgTarget(float requestedWatts) {
   // ANT+ FE-C target-power range is 0..4000 W. Keep requests bounded even if
   // a malformed UART message reaches us.
   requestedWatts = constrain(requestedWatts, 1.0f, 4000.0f);
+
+  if (!webSocketConnected) {
+    pendingErgWatts = requestedWatts;
+    Serial.printf("[ERG] Queued %.2f W while ProForm WebSocket is disconnected\n",
+                  requestedWatts);
+    return;
+  }
+
+  pendingErgWatts = 0.0f;
 
   if (!ergModeSelected) {
     sendProFormSet("Workout Type", WORKOUT_TYPE_ERG);
@@ -313,6 +324,11 @@ static void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       ergModeSelected = false;
       Serial.printf("[ProForm] WebSocket connected: ws://%s%s\n",
                     PROFORM_BIKE_IP, PROFORM_WS_PATH);
+      if (pendingErgWatts > 0.0f) {
+        const float pending = pendingErgWatts;
+        pendingErgWatts = 0.0f;
+        applyErgTarget(pending);
+      }
       break;
 
     case WStype_DISCONNECTED:
