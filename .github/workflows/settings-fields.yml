@@ -1,0 +1,40 @@
+name: Settings fields
+
+on:
+  pull_request:
+    paths:
+      - 'src/settings.qml'
+      - 'src/settings-treadmill-inclination-override.qml'
+      - 'src/SettingsNumberField.qml'
+      - 'src/SettingsFormatField.qml'
+      - 'tools/check_settings_fields.py'
+      - 'tst/qml/**'
+      - '.github/workflows/settings-fields.yml'
+  workflow_dispatch:
+
+jobs:
+  check-settings-fields:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check how the settings pages use the fields
+        run: python3 tools/check_settings_fields.py
+
+      - name: Install Qt Quick Test
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends qtdeclarative5-dev-tools qml-module-qttest \
+            qml-module-qtquick2 qml-module-qtquick-controls2 qml-module-qtquick-templates2 \
+            qml-module-qtquick-window2
+
+      - name: Test the field components
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QT_QUICK_CONTROLS_STYLE: Material
+          QT_QUICK_BACKEND: software
+        run: |
+          runner=$(command -v qmltestrunner || echo /usr/lib/qt5/bin/qmltestrunner)
+          "$runner" -input tst/qml

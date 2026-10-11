@@ -10,6 +10,15 @@ Page {
     property int currentStep: 0
     property var selectedOptions: ({})
 
+    // Called by main.qml on the Android back button: go back one wizard step
+    function handleBack() {
+        if (stackViewLocal.depth > 1) {
+            stackViewLocal.pop()
+            return true
+        }
+        return false
+    }
+
     // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
     function stripRssi(deviceName) {
         return deviceName.replace(/ \(\d+%\)$/, "")
@@ -75,6 +84,10 @@ Page {
 
         property color textColor: "#800080"
         property color backgroundColor: "white"
+        // A translated label can be wider than the screen: cap the button and wrap the text.
+        // Capped by the screen, not by parent.width: in a GridLayout the parent's width comes
+        // from the buttons themselves, and the loop squeezed them on Android
+        Layout.maximumWidth: stackViewLocal.width * 0.8
 
         signal activated()
 
@@ -93,6 +106,7 @@ Page {
             font.pixelSize: 20
             text: parent.text
             color: parent.textColor
+            wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             Accessible.ignored: true
@@ -111,14 +125,17 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Welcome to QZ")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
@@ -131,6 +148,9 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Welcome to QZ")
                         font.pixelSize: 28
@@ -139,6 +159,9 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Created by Roberto Viola")
                         font.pixelSize: 24
@@ -172,7 +195,10 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("How can I help you?")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -180,11 +206,14 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("How can I help you?")
                         font.pixelSize: 24
@@ -228,7 +257,10 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("What's your fitness device?")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -236,11 +268,14 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("What's your fitness device?")
                         font.pixelSize: 24
@@ -249,7 +284,7 @@ Page {
                     }
 
                     Repeater {
-                        model: ["Bike", "Treadmill", "Rower", "Elliptical"]
+                        model: [QT_TR_NOOP("Bike"), QT_TR_NOOP("Treadmill"), QT_TR_NOOP("Rower"), QT_TR_NOOP("Elliptical")]
                         delegate: WizardButton {
                             Layout.alignment: Qt.AlignHCenter
                             text: qsTr(modelData)
@@ -286,18 +321,24 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Choose your preferred app")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Choose your preferred app")
                         font.pixelSize: 24
@@ -322,10 +363,10 @@ Page {
                         rowSpacing: 20
                         columnSpacing: 20
                         Repeater {
-                            model: ["Peloton", "Zwift", "MyWhoosh", "Rouvy", "Kinomap", "Indievelo", "Fulgaz", "EXR", "Other app", "QZ Standalone"]
+                            model: ["Peloton", "Zwift", "MyWhoosh", "Rouvy", "Kinomap", "Indievelo", "Fulgaz", "EXR", QT_TR_NOOP("Other app"), QT_TR_NOOP("QZ Standalone")]
                             delegate: WizardButton {
                                 Layout.preferredWidth: 150
-                                text: modelData
+                                text: qsTr(modelData)
                                 onActivated: {
                                     selectedOptions.step3 = modelData
                                     if (modelData === "Peloton") {
@@ -363,18 +404,24 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Connect to Peloton")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Connect to Peloton")
                         font.pixelSize: 24
@@ -442,18 +489,24 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Peloton Difficulty")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Peloton Difficulty")
                         font.pixelSize: 24
@@ -472,6 +525,9 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Difficulty")
                         font.pixelSize: 20
@@ -479,16 +535,16 @@ Page {
                         color: "white"
                     }
 
-                    ComboBox {
+                    ValueComboBox {
                         id: pelotonDifficultyTextField
                         model: [ "lower", "upper", "average" ]
-                        displayText: settings.peloton_difficulty
+                        labels: ({ "lower": qsTr("lower"), "upper": qsTr("upper"), "average": qsTr("average") })
+                        value: settings.peloton_difficulty
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignHCenter
                         onActivated: {
                             console.log("combomodel activated" + pelotonDifficultyTextField.currentIndex)
-                            displayText = pelotonDifficultyTextField.currentValue
-                            settings.peloton_difficulty = pelotonDifficultyTextField.displayText;
+                            settings.peloton_difficulty = pelotonDifficultyTextField.currentValue;
                         }
                         Accessible.role: Accessible.ComboBox
                         Accessible.name: qsTr("Peloton difficulty level")
@@ -499,7 +555,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Finish")
                         onActivated: {
-                            settings.peloton_difficulty = pelotonDifficultyTextField.displayText;
+                            settings.peloton_difficulty = pelotonDifficultyTextField.value;
                             stackViewLocal.push(finalStepComponent)
                         }
                     }
@@ -524,18 +580,24 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Bike Resistance Level")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Bike Resistance Level")
                         font.pixelSize: 24
@@ -595,18 +657,24 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Custom Configurations")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Custom Configurations")
                         font.pixelSize: 20
@@ -650,18 +718,24 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Select a feature")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select a feature")
                         font.pixelSize: 24
@@ -670,15 +744,16 @@ Page {
                     }
 
                     Repeater {
+                        // Untranslated keys: onActivated compares against them, so the model must not go through qsTr()
                         model: [
-                            qsTr("Auto-incline with treadmill and Zwift"),
-                            qsTr("Auto-resistance with Peloton"),
-                            qsTr("Zwift Click or Zwift Play"),
-                            qsTr("Virtual Shifting")
+                            QT_TR_NOOP("Auto-incline with treadmill and Zwift"),
+                            QT_TR_NOOP("Auto-resistance with Peloton"),
+                            QT_TR_NOOP("Zwift Click or Zwift Play"),
+                            QT_TR_NOOP("Virtual Shifting")
                         ]
                         delegate: WizardButton {
                             Layout.alignment: Qt.AlignHCenter
-                            text: modelData
+                            text: qsTr(modelData)
                             onActivated: {
                                 selectedOptions.step2Help = modelData
                                 if(modelData === "Auto-incline with treadmill and Zwift")
@@ -715,18 +790,24 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Zwift Credentials")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Zwift Credentials")
                         font.pixelSize: 24
@@ -745,6 +826,9 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Username")
                         font.pixelSize: 20
@@ -765,6 +849,9 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Password")
                         font.pixelSize: 20
@@ -817,18 +904,24 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Zwift Play and Click")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 24
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Zwift Play and Click")
                         font.pixelSize: 20
@@ -934,18 +1027,24 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Virtual Shifting")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Virtual Shifting")
                         font.pixelSize: 24
@@ -992,18 +1091,24 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Custom Configurations")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Custom Configurations")
                         font.pixelSize: 20
@@ -1046,18 +1151,24 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Thank you for setting up QZ!")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Thank you for setting up QZ!")
                         font.pixelSize: 20
@@ -1104,7 +1215,10 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Select Your Fitness Device")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -1112,11 +1226,14 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select Your Fitness Device")
                         font.pixelSize: 24
@@ -1126,16 +1243,16 @@ Page {
 
                     RowLayout {
                         spacing: 10
-                        ComboBox {
+                        ValueComboBox {
                             id: filterDeviceTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.filter_device
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.filter_device
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + filterDeviceTextField.currentIndex)
-                                displayText = filterDeviceTextField.currentValue
                             }
                             Accessible.role: Accessible.ComboBox
                             Accessible.name: qsTr("Fitness device")
@@ -1158,7 +1275,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
                         onActivated: {
-                            settings.filter_device = stripRssi(filterDeviceTextField.displayText);
+                            settings.filter_device = stripRssi(filterDeviceTextField.value);
                             stackViewLocal.push(unitSelectionComponent)
                         }
                     }
@@ -1179,7 +1296,10 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Unit System")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -1187,11 +1307,14 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Unit System")
                         font.pixelSize: 24
@@ -1200,16 +1323,19 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select your preferred unit system")
                         font.pixelSize: 20
                         color: "white"
                     }
 
-                    ComboBox {
+                    UiComboBox {
                         id: unitSystemComboBox
                         Layout.alignment: Qt.AlignHCenter
-                        model: ["Metric", "Imperial"]
+                        model: [qsTr("Metric"), qsTr("Imperial")]
                         currentIndex: settings.miles_unit ? 1 : 0
                         Accessible.role: Accessible.ComboBox
                         Accessible.name: qsTr("Unit system")
@@ -1245,7 +1371,10 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("User Information")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -1253,11 +1382,14 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("User Information")
                         font.pixelSize: 24
@@ -1266,8 +1398,11 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Weight (" + ((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg") + ")")
+                        text: qsTr("Weight (%1)").arg((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg")
                         font.pixelSize: 20
                         color: "white"
                     }
@@ -1300,6 +1435,9 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Age")
                         font.pixelSize: 20
@@ -1318,17 +1456,22 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Gender")
                         font.pixelSize: 20
                         color: "white"
                     }
 
-                    ComboBox {
+                    ValueComboBox {
                         id: genderComboBox
                         Layout.alignment: Qt.AlignHCenter
                         model: ["Male", "Female"]
+                        labels: ({ "Male": qsTr("Male"), "Female": qsTr("Female") })
                         currentIndex: settings.sex === "Male" ? 0 : 1
+                        value: settings.sex === "Male" ? "Male" : "Female"
                         Accessible.role: Accessible.ComboBox
                         Accessible.name: qsTr("Gender")
                         Accessible.description: qsTr("Used for calorie calculations")
@@ -1344,7 +1487,7 @@ Page {
                         onActivated: {
                             settings.weight = weightSpinBox.realValue
                             settings.age = ageSpinBox.value
-                            settings.sex = genderComboBox.currentText
+                            settings.sex = genderComboBox.value
                             stackViewLocal.push(heartRateDeviceSelectionComponent)
                         }
                     }
@@ -1365,7 +1508,10 @@ Page {
         WizardStep {
             accessibleTitle: qsTr("Select Your Heart Rate Device")
             ScrollView {
-                contentWidth: -1
+                contentWidth: availableWidth
+                topPadding: 16
+                // Qt 5.15 keeps a stale implicit height after text wraps: size the content by the column itself
+                contentHeight: contentChildren[0].height
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.fill: parent
                 Layout.preferredHeight: parent.height
@@ -1373,11 +1519,14 @@ Page {
                 Layout.fillHeight: true
 
                 ColumnLayout {
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 20
                     width: parent.width * 0.9
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Select Your Heart Rate Device")
                         font.pixelSize: 24
@@ -1398,16 +1547,16 @@ Page {
                         spacing: 10
                         Layout.fillWidth: true
 
-                        ComboBox {
+                        ValueComboBox {
                             id: heartBeltNameTextField
                             model: rootItem.bluetoothDevices
-                            displayText: settings.heart_rate_belt_name
+                            labels: ({ "Disabled": qsTr("Disabled") })
+                            value: settings.heart_rate_belt_name
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
-                                displayText = heartBeltNameTextField.currentValue
                             }
                             Accessible.role: Accessible.ComboBox
                             Accessible.name: qsTr("Heart rate belt")
@@ -1423,6 +1572,9 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Or select a smartwatch option:")
                         font.pixelSize: 20
@@ -1441,6 +1593,9 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Download the QZ Companion App there")
                         color: "white"
@@ -1458,6 +1613,9 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Download the QZ Companion App there")
                         color: "white"
@@ -1475,6 +1633,9 @@ Page {
                     }
 
                     AccessibleText {
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Download the QZ Companion App there")
                         color: "white"
@@ -1488,7 +1649,7 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                         text: qsTr("Next")
                         onActivated: {
-                            settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.displayText);
+                            settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.value);
                             settings.garmin_companion = false
                             stackViewLocal.push(step3Component)
                         }

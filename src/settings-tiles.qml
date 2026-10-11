@@ -7,6 +7,11 @@ import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    // The page height from the column itself, as on the settings page: after a turn of the screen
+    // ScrollView stopped following the height of its only child on a phone
+    contentHeight: tilesColumn.implicitHeight
+    leftPadding: window.contentSideMargin
+    rightPadding: window.contentSideMargin
     focus: true
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
@@ -371,8 +376,14 @@ ScrollView {
 
 
     ColumnLayout {
+        id: tilesColumn
         spacing: 0
-        anchors.fill: parent
+        // Not tied to the bottom: the height of the column is the content height of the page, so
+        // fill made an anchor loop; on a turn of the screen Qt gave up on it and the height stayed
+        // as it was - a section opened after it could not be scrolled to its end
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
 
         NewPageElement {
             id: labelShortcutsSettings
@@ -396,7 +407,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: speedOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_speed_order
@@ -441,7 +452,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: inclinationOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_inclination_order
@@ -502,7 +513,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: cadenceOrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_cadence_order
@@ -548,7 +559,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: elevationOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_elevation_order
@@ -579,7 +590,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: negativeInclinationOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_negative_inclination_order
@@ -623,7 +634,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: caloriesOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_calories_order
@@ -668,7 +679,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: odometerOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_odometer_order
@@ -729,7 +740,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: paceOrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_pace_order
@@ -762,7 +773,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: avgpaceOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_avg_pace_order
@@ -794,7 +805,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: gradeAdjustedPaceOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_grade_adjusted_pace_order
@@ -808,7 +819,7 @@ ScrollView {
                     id: okgradeAdjustedPaceOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_grade_adjusted_pace_order = gradeAdjustedPaceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_grade_adjusted_pace_order = gradeAdjustedPaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -852,7 +863,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: resistanceOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_resistance_order
@@ -913,7 +924,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: wattOrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_watt_order
@@ -959,7 +970,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: weightLossOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_weight_loss_order
@@ -1005,7 +1016,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: avgwattOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_avgwatt_order
@@ -1051,7 +1062,7 @@ ScrollView {
 						  Layout.fillWidth: true
 						  horizontalAlignment: Text.AlignRight
 						}
-					 ComboBox {
+					 UiComboBox {
 					     id: avgwattLapOrderTextField
 						  model: rootItem.tile_order
 						  displayText: settings.tile_avg_watt_lap_order
@@ -1083,7 +1094,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: ftpOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_ftp_order
@@ -1157,7 +1168,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: heartrateOrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_heart_order
@@ -1190,7 +1201,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: fanOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_fan_order
@@ -1235,7 +1246,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: joulsOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_jouls_order
@@ -1280,7 +1291,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: elapsedOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_elapsed_order
@@ -1325,7 +1336,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: movingTimeOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_moving_time_order
@@ -1370,7 +1381,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pelotonOffsetOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_peloton_offset_order
@@ -1415,7 +1426,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pelotonRemainingOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_peloton_remaining_order
@@ -1461,7 +1472,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pelotonDifficultyOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_peloton_difficulty_order
@@ -1493,7 +1504,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: lapElapsedOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_lapelapsed_order
@@ -1540,7 +1551,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: peloton_resistanceOrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_peloton_resistance_order
@@ -1586,7 +1597,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_resistanceOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_target_resistance_order
@@ -1606,7 +1617,7 @@ ScrollView {
         }
 
         Label {
-            text: qsTr("Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile.")
+            text: qsTr("Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile. During a Peloton class (bike only), +/- shifts the class's resistance target up or down for the rest of the ride.")
             font.bold: true
             font.italic: true
             font.pixelSize: Qt.application.font.pixelSize - 2
@@ -1632,7 +1643,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_peloton_resistanceOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_target_peloton_resistance_order
@@ -1677,7 +1688,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_cadenceOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_target_cadence_order
@@ -1722,7 +1733,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_powerOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_target_power_order
@@ -1768,7 +1779,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_zoneOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_target_zone_order
@@ -1813,7 +1824,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_speedOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_target_speed_order
@@ -1845,7 +1856,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_paceOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_target_pace_order
@@ -1877,7 +1888,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_inclineOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_target_incline_order
@@ -1908,7 +1919,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: watt_kgOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_watt_kg_order
@@ -1953,7 +1964,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: gearsOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_gears_order
@@ -1997,7 +2008,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: biggearsOrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_biggears_order
@@ -2044,6 +2055,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: remainingTimeTrainingProgramRowEnabledAccordion
+            //: Tile title: time left in the current step (row) of the workout program, not rowing and not a lap.
             title: qsTr("Remaining Time/Row")
             linkedBoolSetting: "tile_remainingtimetrainprogramrow_enabled"
             settings: settings
@@ -2055,7 +2067,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: remainingTimeTrainingProgramRowOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_remainingtimetrainprogramrow_order
@@ -2089,6 +2101,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: nextRowsTrainingProgramRowEnabledAccordion
+            //: Tile title: the next steps (rows) of the loaded workout program, not a table row and not rowing.
             title: qsTr("Next Rows")
             linkedBoolSetting: "tile_nextrowstrainprogram_enabled"
             settings: settings
@@ -2100,7 +2113,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: nextRowsTrainingProgramOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_nextrowstrainprogram_order
@@ -2145,7 +2158,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: metsOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_mets_order
@@ -2190,7 +2203,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: targetmetsOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_targetmets_order
@@ -2222,7 +2235,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: datetimeOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_datetime_order
@@ -2267,7 +2280,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: strokes_countOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_strokes_count_order
@@ -2312,7 +2325,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: strokes_lengthOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_strokes_length_order
@@ -2357,7 +2370,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: steeringAngleOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_steering_angle_order
@@ -2402,7 +2415,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pidHROrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_pid_hr_order
@@ -2447,7 +2460,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: extInclineOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_ext_incline_order
@@ -2492,7 +2505,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: strideLengthOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_instantaneous_stride_length_order
@@ -2537,7 +2550,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: groundContactOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_ground_contact_order
@@ -2582,7 +2595,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: verticalOscillationOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_vertical_oscillation_order
@@ -2627,7 +2640,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pacelast500mOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_pace_last500m_order
@@ -2659,7 +2672,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: stepCountOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_step_count_order
@@ -2691,7 +2704,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: ergModeOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_erg_mode_order
@@ -2721,7 +2734,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: rssOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_rss_order
@@ -2753,7 +2766,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance1TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_1_order
@@ -2862,7 +2875,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance2TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_2_order
@@ -2971,7 +2984,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance3TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_3_order
@@ -3080,7 +3093,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance4TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_4_order
@@ -3189,7 +3202,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance5TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_5_order
@@ -3298,7 +3311,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed1TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_1_order
@@ -3411,7 +3424,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed2TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_2_order
@@ -3524,7 +3537,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed3TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_3_order
@@ -3637,7 +3650,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed4TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_4_order
@@ -3750,7 +3763,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed5TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_5_order
@@ -3863,7 +3876,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination1TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_1_order
@@ -3972,7 +3985,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination2TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_2_order
@@ -4081,7 +4094,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination3TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_3_order
@@ -4190,7 +4203,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination4TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_4_order
@@ -4299,7 +4312,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination5TextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_5_order
@@ -4407,7 +4420,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone1OrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_1_order
@@ -4508,7 +4521,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone2OrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_2_order
@@ -4609,7 +4622,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone3OrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_3_order
@@ -4710,7 +4723,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone4OrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_4_order
@@ -4811,7 +4824,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone5OrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_5_order
@@ -4912,7 +4925,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone6OrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_6_order
@@ -5013,7 +5026,7 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone7OrderTextField
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_7_order
@@ -5127,7 +5140,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone1OrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_1_order
@@ -5172,7 +5185,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone2OrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_2_order
@@ -5217,7 +5230,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone3OrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_3_order
@@ -5262,7 +5275,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone4OrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_4_order
@@ -5307,7 +5320,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone5OrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_5_order
@@ -5381,7 +5394,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: coretemperatureOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_coretemperature_order
@@ -5426,7 +5439,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: heatTimeInZone1OrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_heat_time_in_zone_1_order
@@ -5471,7 +5484,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: heatTimeInZone2OrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_heat_time_in_zone_2_order
@@ -5516,7 +5529,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: heatTimeInZone3OrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_heat_time_in_zone_3_order
@@ -5561,7 +5574,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: heatTimeInZone4OrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_heat_time_in_zone_4_order
@@ -5605,7 +5618,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: autoVirtualShiftingCruiseOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_auto_virtual_shifting_cruise_order
@@ -5648,7 +5661,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: autoVirtualShiftingClimbOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_auto_virtual_shifting_climb_order
@@ -5691,7 +5704,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: autoVirtualShiftingSprintOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_auto_virtual_shifting_sprint_order
@@ -5734,7 +5747,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: powerAvgOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_power_avg_order
@@ -5778,7 +5791,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrvOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_hrv_order

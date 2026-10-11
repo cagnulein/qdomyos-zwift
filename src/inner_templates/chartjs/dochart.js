@@ -37,6 +37,10 @@ function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
 }
 
+function zoneLabel(number) {
+    return t('chart.zoneNumber', 'zone {number}').replace('{number}', number);
+}
+
 function isTrueSetting(value) {
     return value === true || value === 'true' || value === 1 || value === '1';
 }
@@ -209,10 +213,10 @@ function process_arr(arr) {
             $('.workout_image').attr("src","bike.png");
     }
     $('.workout_image').attr("crossOrigin","anonymous");
-    $('.watts_avg').text('Watt AVG: ' + Math.floor(watts_avg));
-    $('.watts_max').text('Watt MAX: ' + watts_max);
-    $('.heart_avg').text('Heart Rate AVG: ' + Math.floor(heart_avg));
-    $('.heart_max').text('Heart Rate MAX: ' + heart_max);
+    $('.watts_avg').text(t('chart.wattAvgValue', 'Watt AVG: {value}').replace('{value}', Math.floor(watts_avg)));
+    $('.watts_max').text(t('chart.wattMaxValue', 'Watt MAX: {value}').replace('{value}', watts_max));
+    $('.heart_avg').text(t('chart.heartRateAvgValue', 'Heart Rate AVG: {value}').replace('{value}', Math.floor(heart_avg)));
+    $('.heart_max').text(t('chart.heartRateMaxValue', 'Heart Rate MAX: {value}').replace('{value}', heart_max));
 
     $('.summary_watts_avg').text(Math.floor(watts_avg) + ' W');
     $('.summary_jouls').text(Math.floor(jouls / 1000.0) + ' kJ');
@@ -332,7 +336,7 @@ function process_arr(arr) {
                         top: 2,
                         bottom: 2
                     },
-                    text:'Watt'
+                    text:t('metric.watt', 'Watt')
                 },
                 tooltips: {
                     mode: 'index',
@@ -444,13 +448,13 @@ function process_arr(arr) {
                         stepSize: 1,
                         autoSkip: false,
                         callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
-                            value === ftpZones[0] * 0.8 ? 'zone 1' :
-                            value === ftpZones[0] ? 'zone 2' :
-                            value === ftpZones[1] ? 'zone 3' :
-                            value === ftpZones[2] ? 'zone 4' :
-                            value === ftpZones[3] ? 'zone 5' :
-                            value === ftpZones[4] ? 'zone 6' :
-                            value === ftpZones[5] ? 'zone 7' : undefined : undefined,
+                            value === ftpZones[0] * 0.8 ? zoneLabel(1) :
+                            value === ftpZones[0] ? zoneLabel(2) :
+                            value === ftpZones[1] ? zoneLabel(3) :
+                            value === ftpZones[2] ? zoneLabel(4) :
+                            value === ftpZones[3] ? zoneLabel(5) :
+                            value === ftpZones[4] ? zoneLabel(6) :
+                            value === ftpZones[5] ? zoneLabel(7) : undefined : undefined,
                         color: 'black',
                         padding: -50,
                         align: 'end',
@@ -537,7 +541,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Heart Rate'
+                    text:t('chart.heartRate', 'Heart Rate')
                 },
                 tooltips: {
                     mode: 'index',
@@ -631,11 +635,11 @@ function process_arr(arr) {
                         stepSize: 1,
                         autoSkip: false,
                         callback: value => heartZoneLabelPositions.includes(value) ?
-                            value === heartZoneLabelPositions[0] ? 'zone 1' :
-                            value === heartZoneLabelPositions[1] ? 'zone 2' :
-                            value === heartZoneLabelPositions[2] ? 'zone 3' :
-                            value === heartZoneLabelPositions[3] ? 'zone 4' :
-                            value === heartZoneLabelPositions[4] ? 'zone 5' : undefined : undefined,
+                            value === heartZoneLabelPositions[0] ? zoneLabel(1) :
+                            value === heartZoneLabelPositions[1] ? zoneLabel(2) :
+                            value === heartZoneLabelPositions[2] ? zoneLabel(3) :
+                            value === heartZoneLabelPositions[3] ? zoneLabel(4) :
+                            value === heartZoneLabelPositions[4] ? zoneLabel(5) : undefined : undefined,
                         color: 'black',
                         padding: -50,
                         align: 'end',
@@ -707,7 +711,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Resistance vs Target Resistance'
+                    text:t('chart.resistanceVsTarget', 'Resistance vs Target Resistance')
                 },
                 tooltips: {
                     mode: 'index',
@@ -824,7 +828,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Peloton Resistance vs Target Peloton Resistance'
+                    text:t('chart.pelotonResistanceVsTarget', 'Peloton Resistance vs Target Peloton Resistance')
                 },
                 tooltips: {
                     mode: 'index',
@@ -941,7 +945,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Cadence vs Target Cadence'
+                    text:t('chart.cadenceVsTarget', 'Cadence vs Target Cadence')
                 },
                 tooltips: {
                     mode: 'index',
@@ -1004,7 +1008,7 @@ function process_arr(arr) {
         type: 'bar',
         plugins: [backgroundFill],
         data: {
-            labels: ['zone 1', 'zone 2', 'zone 3', 'zone 4', 'zone 5', 'zone 6', 'zone 7' ],
+            labels: [zoneLabel(1), zoneLabel(2), zoneLabel(3), zoneLabel(4), zoneLabel(5), zoneLabel(6), zoneLabel(7) ],
             datasets: [
                 {
                     data: distributionPowerZones,
@@ -1042,7 +1046,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Power Distribution'
+                    text:t('chart.powerDistribution', 'Power Distribution')
                 },
                 tooltips: {
                     mode: 'index',
@@ -1138,7 +1142,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Speed and Inclination'
+                    text:t('chart.speedAndInclination', 'Speed and Inclination')
                 },
                 tooltips: {
                     mode: 'index',

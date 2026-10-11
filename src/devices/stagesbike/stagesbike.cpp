@@ -175,7 +175,7 @@ void stagesbike::serviceDiscovered(const QBluetoothUuid &gatt) {
         settings.setValue(QZSettings::ftms_bike, bluetoothDevice.name());
         qDebug() << "forcing FTMS bike since it has FTMS";
         if(homeform::singleton())
-            homeform::singleton()->setToastRequested("FTMS bike found, restart the app to apply the change!");
+            homeform::singleton()->setToastRequested(QObject::tr("FTMS bike found, restart the app to apply the change!"));
     }
 }
 
@@ -311,16 +311,17 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                 index += 2;
             }
 
-            int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
+            int32_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
             if (deltaT < 0) {
-                deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
+                deltaT = LastCrankEventTime + 65536 - oldLastCrankEventTime;
             }
 
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 if (CrankRevs != oldCrankRevs && deltaT) {
-                    double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
+                    double cadence = (static_cast<double>(CrankRevs - oldCrankRevs) / static_cast<double>(deltaT)) *
+                                     time_division * 60.0;
                     if (!crank_rev_present)
                         cadence =
                             cadence /
