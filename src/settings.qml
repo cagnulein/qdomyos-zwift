@@ -1889,6 +1889,7 @@ import AndroidStatusBar 1.0
 
                 TextField {
                     id: settingsSearchTextField
+                    Accessible.name: qsTr("Search settings")
                     Layout.fillWidth: true
                     placeholderText: qsTr("Search settings")
                     selectByMouse: true
@@ -1998,6 +1999,7 @@ import AndroidStatusBar 1.0
                                 }
 
                                 Switch {
+                                    Accessible.name: entry._translatedName || entry.name || entry.key
                                     visible: entry.catalogKind === "setting" && entry.type === "boolean"
                                     checked: visible ? settingsPane.settingValue(entry) : false
                                     onClicked: settingsPane.setSettingValue(entry, checked)
@@ -2035,6 +2037,7 @@ import AndroidStatusBar 1.0
 
                                 TextField {
                                     id: searchSettingTextField
+                                    Accessible.name: entry._translatedName || entry.name || entry.key
                                     Layout.fillWidth: true
                                     Layout.minimumWidth: 0
                                     text: visible ? settingsPane.settingValue(entry) : ""
@@ -2052,6 +2055,7 @@ import AndroidStatusBar 1.0
 
                             UiComboBox {
                                 id: searchSettingComboBox
+                                Accessible.name: entry._translatedName || entry.name || entry.key
                                 visible: entry.catalogKind === "setting" && settingsPane.optionValues(entry).length > 0
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
@@ -2092,6 +2096,7 @@ import AndroidStatusBar 1.0
 
                             UiComboBox {
                                 id: searchVirtualComboBox
+                                Accessible.name: entry._translatedName || entry.name || entry.key
                                 visible: entry.catalogKind === "virtual"
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
@@ -2196,6 +2201,7 @@ import AndroidStatusBar 1.0
                         }
                         UiComboBox {
                             id: appLanguageCombo
+                            Accessible.name: qsTr("App Language:")
                             model: appLanguageOptions
                             textRole: "label"
                             Layout.fillHeight: false
@@ -2893,6 +2899,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: heartBeltNameTextField
+                            Accessible.name: qsTr("Heart Belt Name:")
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             value: settings.heart_rate_belt_name
@@ -3727,6 +3734,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Up:")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_up
                                     onActivated: { settings.mywhoosh_link_left_up = currentIndex; window.settings_restart_to_apply = true; }
@@ -3739,6 +3747,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Down:")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_down
                                     onActivated: { settings.mywhoosh_link_left_down = currentIndex; window.settings_restart_to_apply = true; }
@@ -3751,6 +3760,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Left:")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_left
                                     onActivated: { settings.mywhoosh_link_left_left = currentIndex; window.settings_restart_to_apply = true; }
@@ -3763,6 +3773,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Right:")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_right
                                     onActivated: { settings.mywhoosh_link_left_right = currentIndex; window.settings_restart_to_apply = true; }
@@ -3775,6 +3786,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Shoulder:")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_shoulder
                                     onActivated: { settings.mywhoosh_link_left_shoulder = currentIndex; window.settings_restart_to_apply = true; }
@@ -3787,6 +3799,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Power:")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_left_power
                                     onActivated: { settings.mywhoosh_link_left_power = currentIndex; window.settings_restart_to_apply = true; }
@@ -3807,6 +3820,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Y:")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_y
                                     onActivated: { settings.mywhoosh_link_right_y = currentIndex; window.settings_restart_to_apply = true; }
@@ -3819,6 +3833,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right A:")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_a
                                     onActivated: { settings.mywhoosh_link_right_a = currentIndex; window.settings_restart_to_apply = true; }
@@ -3831,6 +3846,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right B:")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_b
                                     onActivated: { settings.mywhoosh_link_right_b = currentIndex; window.settings_restart_to_apply = true; }
@@ -3843,6 +3859,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Z:")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_z
                                     onActivated: { settings.mywhoosh_link_right_z = currentIndex; window.settings_restart_to_apply = true; }
@@ -3855,6 +3872,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Shoulder:")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_shoulder
                                     onActivated: { settings.mywhoosh_link_right_shoulder = currentIndex; window.settings_restart_to_apply = true; }
@@ -3867,6 +3885,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Power:")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down"), qsTr("Steer Left"), qsTr("Steer Right"), qsTr("U-Turn"), qsTr("Camera Angle"), qsTr("Emote"), qsTr("Tuck"), qsTr("Nav Up"), qsTr("Nav Down"), qsTr("Nav Left"), qsTr("Nav Right"), qsTr("Select/Confirm"), qsTr("Back/Cancel"), qsTr("Menu"), qsTr("Home")]
                                     currentIndex: settings.mywhoosh_link_right_power
                                     onActivated: { settings.mywhoosh_link_right_power = currentIndex; window.settings_restart_to_apply = true; }
@@ -4801,6 +4820,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsBikeTextField
+                            Accessible.name: qsTr("FTMS Bike:")
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             value: settings.ftms_bike
@@ -5674,6 +5694,7 @@ import AndroidStatusBar 1.0
                             }
 
                             UiComboBox {
+                                Accessible.name: qsTr("Specific Model:")
                                 Layout.fillWidth: true
                                 id: bikeModelComboBox
                                 property bool initialized: false
@@ -6072,6 +6093,7 @@ import AndroidStatusBar 1.0
                                 }
                                 TextField {
                                     id: freebeatSerialPortTextField
+                                    Accessible.name: qsTr("Serial Port:")
                                     text: settings.freebeat_serialport
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
@@ -7291,8 +7313,12 @@ import AndroidStatusBar 1.0
                             fillMode: Image.PreserveAspectFit
                             visible: true
                             width: parent.width
+                            Accessible.ignored: true
                         }
                         Layout.fillWidth: true
+                        Accessible.role: Accessible.Button
+                        Accessible.name: qsTr("Connect to Peloton")
+                        Accessible.description: qsTr("Opens the Peloton login page")
                         onClicked: {
                             peloton_connect_clicked()
                         }
@@ -8779,6 +8805,7 @@ import AndroidStatusBar 1.0
 
                             TextField {
                                 id: mfaCodeTextField
+                                Accessible.name: qsTr("Enter MFA code")
                                 placeholderText: qsTr("Enter MFA code")
                                 horizontalAlignment: Text.AlignHCenter
                                 Layout.fillWidth: true
@@ -8873,6 +8900,7 @@ import AndroidStatusBar 1.0
 
                     UiComboBox {
                         id: garminDeviceComboBoxDelegate
+                        Accessible.name: qsTr("Garmin device for FIT file")
                         model: [
                             "Approach G10",
                             "Approach G80",
@@ -9567,6 +9595,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         TextField {
                             id: garminDeviceSerialTextField
+                            Accessible.name: qsTr("Garmin device UNIT ID")
                             text: settings.garmin_device_serial
                             Layout.fillWidth: true
                             Layout.preferredWidth: 250
@@ -9895,6 +9924,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: pidHrRecoveryZoneLimitTextField
+                            Accessible.name: qsTr("PID Recovery Zone Lower Limit (%):")
                             maximum: 100
                             text: settings.trainprogram_pid_hr_recovery_zone_limit
                             horizontalAlignment: Text.AlignRight
@@ -9931,6 +9961,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: pidHrPushyZoneLimitTextField
+                            Accessible.name: qsTr("PID Pushy Zone Limit:")
                             text: settings.trainprogram_pid_hr_pushy_zone_limit
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -10209,6 +10240,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsFormatField {
                             id: trainProgramWarmupSpeedTextField
+                            Accessible.name: qsTr("Warmup Speed (pace):")
                             format: "time"
                             text: paceSecondsToTime(settings.trainprogram_warmup_speed)
                             horizontalAlignment: Text.AlignRight
@@ -10234,6 +10266,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsFormatField {
                             id: trainProgramCooldownSpeedTextField
+                            Accessible.name: qsTr("Cooldown Speed (pace):")
                             format: "time"
                             text: paceSecondsToTime(settings.trainprogram_cooldown_speed)
                             horizontalAlignment: Text.AlignRight
@@ -10259,6 +10292,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsFormatField {
                             id: trainProgramRestSpeedTextField
+                            Accessible.name: qsTr("Rest Speed (pace):")
                             format: "time"
                             text: paceSecondsToTime(settings.trainprogram_rest_speed)
                             horizontalAlignment: Text.AlignRight
@@ -11120,6 +11154,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsTreadmillTextField
+                            Accessible.name: qsTr("FTMS Treadmill:")
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             value: settings.ftms_treadmill
@@ -11178,6 +11213,7 @@ import AndroidStatusBar 1.0
                             }
 
                             UiComboBox {
+                                Accessible.name: qsTr("Specific Model:")
                                 Layout.fillWidth: true
                                 id: treadmillModelComboBox
                                 property bool initialized: false
@@ -13057,6 +13093,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsRowerTextField
+                            Accessible.name: qsTr("FTMS Rower:")
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             value: settings.ftms_rower
@@ -13281,6 +13318,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: ftmsEllipticalTextField
+                            Accessible.name: qsTr("FTMS Elliptical:")
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             value: settings.ftms_elliptical
@@ -13532,6 +13570,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         ValueComboBox {
                             id: filterDeviceTextField
+                            Accessible.name: qsTr("Manual Device:")
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
                             value: settings.filter_device
@@ -13694,6 +13733,7 @@ import AndroidStatusBar 1.0
                         }
                         SettingsNumberField {
                             id: wattMaxTextField
+                            Accessible.name: qsTr("Max Watt:")
                             text: settings.watt_max
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -14674,6 +14714,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 ValueComboBox {
                                     id: cadenceSensorNameTextField
+                                    Accessible.name: qsTr("Cadence Sensor:")
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     value: settings.cadence_sensor_name
@@ -15092,6 +15133,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedCorrectionThresholdTextField
+                                    Accessible.name: qsTr("Power sensor speed correction threshold (%):")
                                     minimum: 0
                                     maximum: 100
                                     text: settings.power_sensor_speed_correction_threshold
@@ -15210,6 +15252,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedInclinationCoeffATextField
+                                    Accessible.name: qsTr("Power Sensor Speed/Incline Coefficient A:")
                                     signed: true
                                     text: settings.power_sensor_speed_inclination_coeff_a
                                     horizontalAlignment: Text.AlignRight
@@ -15233,6 +15276,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 SettingsNumberField {
                                     id: powerSensorSpeedInclinationCoeffBTextField
+                                    Accessible.name: qsTr("Power Sensor Speed/Incline Coefficient B:")
                                     signed: true
                                     text: settings.power_sensor_speed_inclination_coeff_b
                                     horizontalAlignment: Text.AlignRight
@@ -15270,6 +15314,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 ValueComboBox {
                                     id: powerSensorNameTextField
+                                    Accessible.name: qsTr("Power Sensor:")
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     value: settings.power_sensor_name
@@ -15336,6 +15381,7 @@ import AndroidStatusBar 1.0
                                         spacing: 10
                                         ValueComboBox {
                                             id: eliteRizerNameTextField
+                                            Accessible.name: labelEliteRizerName.text
                                             model: rootItem.bluetoothDevices
                                             labels: ({ "Disabled": qsTr("Disabled") })
                                             value: settings.elite_rizer_name
@@ -15409,6 +15455,7 @@ import AndroidStatusBar 1.0
                                         spacing: 10
                                         ValueComboBox {
                                             id: eliteSterzoSmartNameTextField
+                                            Accessible.name: labelEliteSterzoSmartName.text
                                             model: rootItem.bluetoothDevices
                                             labels: ({ "Disabled": qsTr("Disabled") })
                                             value: settings.elite_sterzo_smart_name
@@ -15456,6 +15503,7 @@ import AndroidStatusBar 1.0
                                 spacing: 10
                                 ValueComboBox {
                                     id: ftmsAccessoryNameTextField
+                                    Accessible.name: qsTr("SmartSpin2k device:")
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
                                     value: settings.ftms_accessory_name
@@ -16476,6 +16524,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Shifter Up (LS1):")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_ls1
                                     onActivated: settings.zwiftplay_gear_ls1 = currentIndex
@@ -16488,6 +16537,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Shifter Down (LS2):")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_ls2
                                     onActivated: settings.zwiftplay_gear_ls2 = currentIndex
@@ -16500,6 +16550,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Shifter Up (RS1):")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rs1
                                     onActivated: settings.zwiftplay_gear_rs1 = currentIndex
@@ -16512,6 +16563,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Shifter Down (RS2):")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rs2
                                     onActivated: settings.zwiftplay_gear_rs2 = currentIndex
@@ -16524,6 +16576,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Left Paddle (ZL):")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_paddle_left
                                     onActivated: settings.zwiftplay_gear_paddle_left = currentIndex
@@ -16536,6 +16589,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Right Paddle (ZR):")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_paddle_right
                                     onActivated: settings.zwiftplay_gear_paddle_right = currentIndex
@@ -16548,6 +16602,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Power Up (LB):")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_lb
                                     onActivated: settings.zwiftplay_gear_lb = currentIndex
@@ -16560,6 +16615,7 @@ import AndroidStatusBar 1.0
                                     Layout.fillWidth: true
                                 }
                                 UiComboBox {
+                                    Accessible.name: qsTr("Ride On (RB):")
                                     model: [qsTr("Disabled"), qsTr("Gear Up"), qsTr("Gear Down")]
                                     currentIndex: settings.zwiftplay_gear_rb
                                     onActivated: settings.zwiftplay_gear_rb = currentIndex
