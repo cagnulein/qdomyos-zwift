@@ -1127,6 +1127,10 @@ ApplicationWindow {
         id: headerToolbar
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
         topPadding: getTopPadding()
+        // Clear of the side system bar and the cutout held sideways, as the page stack: with
+        // button navigation the bar on the right covered the rightmost button
+        leftPadding: getLeftPadding()
+        rightPadding: getRightPadding()
 
         ToolButton {
             id: toolButton
@@ -1666,7 +1670,10 @@ ApplicationWindow {
             id: stackView
             initialItem: "Home.qml"
             anchors.fill: parent
-            anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
+            // Clear of the bottom system bar in any orientation: held sideways with gesture
+            // navigation the bar stays at the bottom (with buttons it moves to the side, and the
+            // bottom inset is 0 then)
+            anchors.bottomMargin: getBottomPadding()
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
             focus: true
