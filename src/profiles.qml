@@ -176,7 +176,9 @@ ColumnLayout {
             ListView {
                 id: list
                 property bool clicked: false
-                anchors.fill: parent
+                Layout.fillWidth: true
+                Layout.preferredHeight: 120
+                clip: true
                 ListModel {
                     id: profileModel
                 }
