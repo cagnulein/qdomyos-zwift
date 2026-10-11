@@ -275,4 +275,34 @@ ColumnLayout {
             bottom: parent.bottom
         }
     }
+
+    MouseArea {
+        id: profileTapArea
+        anchors.fill: parent
+        z: 10000
+        propagateComposedEvents: true
+        function profileIndexAt(x, y) {
+            const point = profileTapArea.mapToItem(list, x, y)
+            const profileIndex = Math.floor(point.y / 40)
+            return point.x >= 0 && point.x <= list.width &&
+                   profileIndex >= 0 && profileIndex < profileModel.count ? profileIndex : -1
+        }
+        onPressed: {
+            mouse.accepted = profileIndexAt(mouse.x, mouse.y) >= 0
+        }
+        onClicked: {
+            const profileIndex = profileIndexAt(mouse.x, mouse.y)
+            if (profileIndex >= 0)
+                list.selectProfile(profileIndex)
+            else
+                mouse.accepted = false
+        }
+        onPressAndHold: {
+            const profileIndex = profileIndexAt(mouse.x, mouse.y)
+            if (profileIndex >= 0)
+                list.deleteProfile(profileIndex)
+            else
+                mouse.accepted = false
+        }
+    }
 }
