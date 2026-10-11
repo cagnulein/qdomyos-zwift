@@ -217,7 +217,7 @@ void domyoselliptical::update() {
         btinit_changyow(false);
         // else
         //    btinit_telink(false);
-    } else if (initDone) {
+    } else if (initDone && !waitForChangYowInitReady) {
 
         update_metrics(true, watts());
 
