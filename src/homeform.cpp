@@ -9317,10 +9317,11 @@ void homeform::trainprogram_autostart_requested() {
     }
 
     if (dev && !dev->isPaused()) {
-        // Device is running, call Start() twice (pause then start)
-        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+        // Pause and resume QZ to start the program, without sending STOP/START
+        // commands to the physical device (Domyos ellipticals lose console telemetry).
+        QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
         QThread::msleep(200);
-        QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this]() { Start_inner(false); }, Qt::QueuedConnection);
     } else {
         // Device is paused/stopped, call Start() once
         QMetaObject::invokeMethod(this, "Start", Qt::QueuedConnection);
