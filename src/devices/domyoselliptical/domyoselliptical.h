@@ -11,7 +11,6 @@
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
 #include <QtCore/qbytearray.h>
-#include <QtCore/qelapsedtimer.h>
 
 #ifndef Q_OS_ANDROID
 #include <QtCore/qcoreapplication.h>
@@ -83,8 +82,7 @@ class domyoselliptical : public elliptical {
     QQueue<WriteRequest> writeQueue;
     bool isWriting = false;
     bool currentWriteWaitingForResponse = false;
-    bool retryInitialChangYowInit = false;
-    QElapsedTimer changYowInitRetryElapsed;
+    uint16_t initTimeoutElapsed = 0;
     QTimer *writeTimeoutTimer = nullptr;
 
     enum _BIKE_TYPE {
