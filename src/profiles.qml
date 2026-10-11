@@ -197,6 +197,30 @@ ColumnLayout {
                         }
                     }
                 }
+                function selectProfile(profileIndex) {
+                    list.clicked = true
+                    const selectedFileName = profileModel.get(profileIndex, "fileName")
+                    if (selectedFileName)
+                        profileNameTextField.text = selectedFileName.substring(0, selectedFileName.length - 4)
+                    if (profileIndex == list.currentIndex) {
+                        const fileUrl = profileModel.get(profileIndex, "fileUrl")
+                        if (fileUrl) {
+                            loadSettings(fileUrl)
+                            quitDialog.visible = true
+                        }
+                    } else {
+                        if (list.currentItem)
+                            list.currentItem.textColor = Material.color(Material.Grey)
+                        list.currentIndex = profileIndex
+                    }
+                }
+                function deleteProfile(profileIndex) {
+                    list.clicked = true
+                    const selectedFileName = profileModel.get(profileIndex, "fileName")
+                    deleteDialog.informativeText = selectedFileName.substring(0, selectedFileName.length - 4)
+                    deleteDialog.fileUrl = profileModel.get(profileIndex, "fileUrl")
+                    deleteDialog.visible = true
+                }
                 Component.onCompleted: refreshProfiles()
                 model: profileModel
                 delegate: Component {
@@ -208,39 +232,16 @@ ColumnLayout {
                         z: 1
                         Text {
                             id: fileTextBox
+                            width: Math.max(list.width, implicitWidth)
+                            height: 40
                             color: Material.color(Material.Grey)
                             font.pixelSize: Qt.application.font.pixelSize * 1.6
                             text: fileName.substring(0, fileName.length-4)
-                        }
-                        MouseArea {
-                            anchors.fill: parent
-                            z: 100
-                            onClicked: {
-                                list.clicked = true;
-                                console.log('onclicked ' + index+ " count "+list.count);
-                                const selectedFileName = profileModel.get(index, 'fileName');
-                                if (selectedFileName) {
-                                    profileNameTextField.text = selectedFileName.substring(0, selectedFileName.length - 4);
-                                }
-                                if (index == list.currentIndex) {
-                                    let fileUrl = profileModel.get(list.currentIndex, 'fileUrl');
-                                    if (fileUrl) {
-                                        loadSettings(fileUrl);
-                                        quitDialog.visible = true
-                                    }
-                                }
-                                else {
-                                    if (list.currentItem)
-                                        list.currentItem.textColor = Material.color(Material.Grey)
-                                    list.currentIndex = index
-                                }
-                            }
-                            onPressAndHold: {
-                                list.clicked = true;
-                                console.log('onPressAndHold ' + index+ " count "+list.count);
-                                deleteDialog.informativeText = profileModel.get(index, 'fileName').substring(0, fileName.length-4)
-                                deleteDialog.fileUrl = profileModel.get(index, 'fileUrl')
-                                deleteDialog.visible = true
+                            MouseArea {
+                                anchors.fill: parent
+                                z: 100
+                                onClicked: list.selectProfile(index)
+                                onPressAndHold: list.deleteProfile(index)
                             }
                         }
                     }
