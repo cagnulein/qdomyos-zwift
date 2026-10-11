@@ -7278,8 +7278,17 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelPelotonPassword
-                            text: qsTr("Password:") + ((rootItem.pelotonLogin===-1)?"":(rootItem.pelotonLogin===1?"\u2705":"\u274c"))
+                            text: qsTr("Password:") + ((rootItem.pelotonLogin===-1 || Qt.platform.os === "android")?"":(rootItem.pelotonLogin===1?"\u2705":"\u274c"))
                             Layout.fillWidth: true
+                            // Android has no reliable emoji font for the login result, so it is drawn
+                            ShapeIcon {
+                                visible: Qt.platform.os === "android" && rootItem.pelotonLogin !== -1
+                                x: parent.contentWidth + 4
+                                anchors.verticalCenter: parent.verticalCenter
+                                name: rootItem.pelotonLogin === 1 ? "check_circle" : "cancel"
+                                size: 18
+                                color: rootItem.pelotonLogin === 1 ? "#4caf50" : "#f44336"
+                            }
                         }
                         TextField {
                             id: pelotonPasswordTextField
@@ -7594,8 +7603,17 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelPZPPassword
-                            text: qsTr("PZP Password:") + ((rootItem.pzpLogin===-1)?"":(rootItem.pzpLogin===1?"\u2705":"\u274c"))
+                            text: qsTr("PZP Password:") + ((rootItem.pzpLogin===-1 || Qt.platform.os === "android")?"":(rootItem.pzpLogin===1?"\u2705":"\u274c"))
                             Layout.fillWidth: true
+                            // Android has no reliable emoji font for the login result, so it is drawn
+                            ShapeIcon {
+                                visible: Qt.platform.os === "android" && rootItem.pzpLogin !== -1
+                                x: parent.contentWidth + 4
+                                anchors.verticalCenter: parent.verticalCenter
+                                name: rootItem.pzpLogin === 1 ? "check_circle" : "cancel"
+                                size: 18
+                                color: rootItem.pzpLogin === 1 ? "#4caf50" : "#f44336"
+                            }
                         }
                         TextField {
                             id: pzpPasswordTextField
@@ -8112,8 +8130,17 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelZwiftPassword
-                            text: qsTr("Password:") + ((rootItem.zwiftLogin===-1)?"":(rootItem.zwiftLogin===1?"\u2705":"\u274c"))
+                            text: qsTr("Password:") + ((rootItem.zwiftLogin===-1 || Qt.platform.os === "android")?"":(rootItem.zwiftLogin===1?"\u2705":"\u274c"))
                             Layout.fillWidth: true
+                            // Android has no reliable emoji font for the login result, so it is drawn
+                            ShapeIcon {
+                                visible: Qt.platform.os === "android" && rootItem.zwiftLogin !== -1
+                                x: parent.contentWidth + 4
+                                anchors.verticalCenter: parent.verticalCenter
+                                name: rootItem.zwiftLogin === 1 ? "check_circle" : "cancel"
+                                size: 18
+                                color: rootItem.zwiftLogin === 1 ? "#4caf50" : "#f44336"
+                            }
                         }
                         TextField {
                             id: zwiftPasswordTextField
