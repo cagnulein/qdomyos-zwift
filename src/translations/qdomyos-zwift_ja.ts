@@ -2207,6 +2207,38 @@ QZの設定を更新しますか?</translation>
         <source>Elevation</source>
         <translation>標高</translation>
     </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>数値を入力してください</translation>
+    </message>
+    <message>
+        <source>Allowed range: {min} to {max}</source>
+        <translation>許容範囲: {min}～{max}</translation>
+    </message>
+    <message>
+        <source>Minimum: {min}</source>
+        <translation>最小: {min}</translation>
+    </message>
+    <message>
+        <source>Maximum: {max}</source>
+        <translation>最大: {max}</translation>
+    </message>
+    <message>
+        <source>Enter the duration as hh:mm:ss</source>
+        <translation>時間は hh:mm:ss の形式で入力してください</translation>
+    </message>
+    <message>
+        <source>The duration must be longer than 0</source>
+        <translation>時間は 0 より長くしてください</translation>
+    </message>
+    <message>
+        <source>Enter the pace as mm:ss, at least 1:00</source>
+        <translation>ペースは mm:ss の形式で、1:00 以上で入力してください</translation>
+    </message>
+    <message>
+        <source>Interval {number}, {field}: {error}</source>
+        <translation>インターバル {number}、{field}: {error}</translation>
+    </message>
 </context>
 <context>
     <name>Wizard</name>

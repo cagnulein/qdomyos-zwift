@@ -250,6 +250,14 @@ const WebTranslationEntry entries[] = {
     {"metric.resistanceTitle", QT_TRANSLATE_NOOP("WebTranslations", "Resistance")},
     {"metric.altitude", QT_TRANSLATE_NOOP("WebTranslations", "Altitude")},
     {"metric.elevationTitle", QT_TRANSLATE_NOOP("WebTranslations", "Elevation")},
+    {"workoutEditor.enterNumber", QT_TRANSLATE_NOOP("WebTranslations", "Enter a number")},
+    {"workoutEditor.allowedRange", QT_TRANSLATE_NOOP("WebTranslations", "Allowed range: {min} to {max}")},
+    {"workoutEditor.minimum", QT_TRANSLATE_NOOP("WebTranslations", "Minimum: {min}")},
+    {"workoutEditor.maximum", QT_TRANSLATE_NOOP("WebTranslations", "Maximum: {max}")},
+    {"workoutEditor.durationFormat", QT_TRANSLATE_NOOP("WebTranslations", "Enter the duration as hh:mm:ss")},
+    {"workoutEditor.durationZero", QT_TRANSLATE_NOOP("WebTranslations", "The duration must be longer than 0")},
+    {"workoutEditor.paceFormat", QT_TRANSLATE_NOOP("WebTranslations", "Enter the pace as mm:ss, at least 1:00")},
+    {"workoutEditor.fixField", QT_TRANSLATE_NOOP("WebTranslations", "Interval {number}, {field}: {error}")},
 };
 } // namespace
 

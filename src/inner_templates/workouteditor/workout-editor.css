@@ -250,6 +250,19 @@ button.small {
     align-self: flex-start;
 }
 
+.field input.invalid {
+    border-color: var(--danger-color);
+}
+
+.field-error {
+    font-size: 0.75rem;
+    color: var(--danger-color);
+}
+
+.field-error:empty {
+    display: none;
+}
+
 .field-with-buttons {
     display: flex;
     align-items: center;
