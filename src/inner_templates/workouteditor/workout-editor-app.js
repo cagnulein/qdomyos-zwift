@@ -858,7 +858,7 @@
                     enableCheckbox.checked = isEnabled;
                     enableCheckbox.dataset.index = index;
                     enableCheckbox.dataset.key = field.key;
-                    enableCheckbox.setAttribute('aria-label', `Enable ${resolveFieldLabel(field)} for interval ${index + 1}`);
+                    enableCheckbox.setAttribute('aria-label', `Enable ${resolveFieldLabel(field, row)} for interval ${index + 1}`);
                     enableCheckbox.addEventListener('change', (e) => {
                         const checked = e.target.checked;
                         row['__enabled_' + field.key] = checked;
@@ -911,7 +911,7 @@
                     checkbox.dataset.key = field.key;
                     checkbox.dataset.type = field.type;
                     checkbox.setAttribute('aria-labelledby', `interval-${index}-${field.key}-label`);
-                    checkbox.setAttribute('aria-label', `${resolveFieldLabel(field)} for interval ${index + 1}`);
+                    checkbox.setAttribute('aria-label', `${resolveFieldLabel(field, row)} for interval ${index + 1}`);
                     checkbox.addEventListener('change', handleFieldChange);
                     fieldWrap.appendChild(checkbox);
                 } else if (field.type === 'select') {
@@ -942,7 +942,7 @@
                     input.dataset.key = field.key;
                     input.dataset.type = field.type;
                     input.setAttribute('aria-labelledby', `interval-${index}-${field.key}-label`);
-                    input.setAttribute('aria-label', `${resolveFieldLabel(field)} for interval ${index + 1}`);
+                    input.setAttribute('aria-label', `${resolveFieldLabel(field, row)} for interval ${index + 1}`);
                     if (field.type === 'duration') {
                         input.type = 'text';
                         input.value = value || '00:05:00';
@@ -972,14 +972,14 @@
                         decreaseBtn.textContent = '-';
                         decreaseBtn.type = 'button';
                         decreaseBtn.title = t('common.decrease', 'Decrease');
-                        decreaseBtn.setAttribute('aria-label', `Decrease ${resolveFieldLabel(field)} for interval ${index + 1}`);
+                        decreaseBtn.setAttribute('aria-label', `Decrease ${resolveFieldLabel(field, row)} for interval ${index + 1}`);
                         decreaseBtn.addEventListener('click', () => handleIncrement(input, field, -1));
 
                         const increaseBtn = document.createElement('button');
                         increaseBtn.textContent = '+';
                         increaseBtn.type = 'button';
                         increaseBtn.title = t('common.increase', 'Increase');
-                        increaseBtn.setAttribute('aria-label', `Increase ${resolveFieldLabel(field)} for interval ${index + 1}`);
+                        increaseBtn.setAttribute('aria-label', `Increase ${resolveFieldLabel(field, row)} for interval ${index + 1}`);
                         increaseBtn.addEventListener('click', () => handleIncrement(input, field, 1));
 
                         inputWrapper.appendChild(decreaseBtn);

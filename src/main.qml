@@ -1270,6 +1270,11 @@ ApplicationWindow {
             id: toolButtonSettingsSearch
             text: "\uD83D\uDD0D"
             font.pixelSize: Qt.application.font.pixelSize * 1.25
+            Accessible.role: Accessible.Button
+            Accessible.name: qsTr("Search settings")
+            Accessible.focusable: !drawer.opened
+            Accessible.ignored: drawer.opened
+            Accessible.onPressAction: clicked()
             onClicked: {
                 if (headerToolbar.settingsPageActive)
                     stackView.currentItem.showSettingsSearch()
