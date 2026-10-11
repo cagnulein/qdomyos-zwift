@@ -5,6 +5,7 @@ on:
     paths:
       - 'src/settings.qml'
       - 'src/settings-treadmill-inclination-override.qml'
+      - 'src/settings-tts.qml'
       - 'src/SettingsNumberField.qml'
       - 'src/SettingsFormatField.qml'
       - 'tools/check_settings_fields.py'
