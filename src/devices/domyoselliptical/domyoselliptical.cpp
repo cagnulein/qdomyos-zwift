@@ -17,7 +17,7 @@ using namespace std::chrono_literals;
 
 namespace {
 const QByteArray kChangYowInitProbe = QByteArray::fromHex("f0c801b9");
-const QByteArray kChangYowInitReadyAck = QByteArray::fromHex("f0d801c9");
+constexpr qint64 kChangYowInitRetryFallbackMs = 5000;
 }
 
 domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, bool testResistance,
@@ -39,14 +39,20 @@ domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, 
     writeTimeoutTimer = new QTimer(this);
     writeTimeoutTimer->setSingleShot(true);
     connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
-        if (waitForChangYowInitReady && currentWriteWaitingForResponse && isWriting && writeBuffer &&
+        if (retryInitialChangYowInit && currentWriteWaitingForResponse && isWriting && writeBuffer &&
             *writeBuffer == kChangYowInitProbe && gattCommunicationChannelService &&
             gattCommunicationChannelService->state() == QLowEnergyService::ServiceState::ServiceDiscovered &&
             m_control && m_control->state() != QLowEnergyController::UnconnectedState) {
-            emit debug(QStringLiteral("ChangYow init probe not acknowledged yet - retrying"));
-            gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
-            writeTimeoutTimer->start(300);
-            return;
+            if (changYowInitRetryElapsed.isValid() &&
+                changYowInitRetryElapsed.elapsed() < kChangYowInitRetryFallbackMs) {
+                emit debug(QStringLiteral("ChangYow initial init timeout - retrying"));
+                gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+                writeTimeoutTimer->start(300);
+                return;
+            }
+
+            emit debug(QStringLiteral("ChangYow initial init still timing out after 5 seconds - continuing as fallback"));
+            retryInitialChangYowInit = false;
         }
 
         emit debug(QStringLiteral("writeCharacteristic timeout - processing next in queue"));
@@ -57,6 +63,10 @@ domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, 
 
     connect(this, &domyoselliptical::packetReceived, this, [this]() {
         if (currentWriteWaitingForResponse && isWriting) {
+            if (retryInitialChangYowInit && writeBuffer && *writeBuffer == kChangYowInitProbe) {
+                emit debug(QStringLiteral("ChangYow initial init response received - continuing startup"));
+                retryInitialChangYowInit = false;
+            }
             writeTimeoutTimer->stop();
             isWriting = false;
             currentWriteWaitingForResponse = false;
@@ -217,7 +227,7 @@ void domyoselliptical::update() {
         btinit_changyow(false);
         // else
         //    btinit_telink(false);
-    } else if (initDone && !waitForChangYowInitReady) {
+    } else if (initDone && !retryInitialChangYowInit) {
 
         update_metrics(true, watts());
 
@@ -327,20 +337,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
-    bool completesPendingWrite = newValue.length() != 20;
-    if (waitForChangYowInitReady && currentWriteWaitingForResponse && isWriting) {
-        if (newValue == kChangYowInitReadyAck) {
-            emit debug(QStringLiteral("ChangYow console ready - init ACK received"));
-            waitForChangYowInitReady = false;
-        } else {
-            // While the console is still booting it may emit unrelated notifications.
-            // Do not let them advance the init queue: only the C8 -> D8 ACK proves
-            // that the ChangYow command channel is ready.
-            completesPendingWrite = false;
-        }
-    }
-
-    if (completesPendingWrite) {
+    if (newValue.length() != 20) {
         emit debug(QStringLiteral("packetReceived!"));
         emit packetReceived();
     }
@@ -487,8 +484,9 @@ void domyoselliptical::btinit_changyow(bool startTape) {
     uint8_t initDataStart13[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xbd};
 
     if (!startTape && !initDone) {
-        waitForChangYowInitReady = true;
-        emit debug(QStringLiteral("Waiting for ChangYow init ACK before continuing startup"));
+        retryInitialChangYowInit = true;
+        changYowInitRetryElapsed.restart();
+        emit debug(QStringLiteral("Retrying the first ChangYow init command on timeout for up to 5 seconds"));
     }
 
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
