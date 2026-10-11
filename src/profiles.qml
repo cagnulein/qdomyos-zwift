@@ -173,12 +173,13 @@ ColumnLayout {
         color: Material.backgroundColor
         isOpen: true        
         accordionContent: ColumnLayout {
-            ListView {
+            Column {
                 id: list
                 property bool clicked: false
+                property int currentIndex: -1
                 Layout.fillWidth: true
-                Layout.preferredHeight: 120
-                clip: true
+                Layout.preferredHeight: Math.max(profileModel.count * 40, 40)
+                width: parent.width
                 ListModel {
                     id: profileModel
                 }
@@ -222,30 +223,19 @@ ColumnLayout {
                     deleteDialog.visible = true
                 }
                 Component.onCompleted: refreshProfiles()
-                model: profileModel
-                delegate: Button {
-                    width: Math.max(list.width, 320)
-                    height: 40
-                    flat: true
-                    highlighted: index === list.currentIndex
-                    text: fileName.substring(0, fileName.length - 4)
-                    onClicked: list.selectProfile(index)
-                    onPressAndHold: list.deleteProfile(index)
+                Repeater {
+                    model: profileModel
+                    delegate: Button {
+                        width: Math.max(list.width, 320)
+                        height: 40
+                        flat: true
+                        highlighted: index === list.currentIndex
+                        text: fileName.substring(0, fileName.length - 4)
+                        onClicked: list.selectProfile(index)
+                        onPressAndHold: list.deleteProfile(index)
+                    }
                 }
-                highlight: Rectangle {
-                    color: Material.color(Material.Green)
-                    z:3
-                    radius: 5
-                    opacity: 0.4
-                    focus: true
-                    /*Text {
-                        anchors.centerIn: parent
-                        text: 'Selected ' + profileModel.get(list.currentIndex, "fileName")
-                        color: "white"
-                    }*/
-                }
-                focus: true
-                onCurrentItemChanged: {
+                onCurrentIndexChanged: {
                     if (list.currentIndex < 0 || list.currentIndex >= profileModel.count)
                         return
                     let fileUrl = profileModel.get(list.currentIndex, 'fileUrl');
