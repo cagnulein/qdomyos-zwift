@@ -914,6 +914,11 @@ jobs:
 
             echo "All permissions granted successfully"
 
+            # Older emulator images expose no usable Bluetooth GATT server.
+            # Disable only the virtual-device Bluetooth setting in this test sandbox;
+            # do not change the production default or the APK sources.
+            if [ "${{ matrix.api-level }}" -le 29 ]; then adb shell run-as org.cagnulen.qdomyoszwift sh -c 'mkdir -p "files/.config/Roberto Viola" && printf "[General]\\nvirtual_device_bluetooth=false\\n" > "files/.config/Roberto Viola/qDomyos-Zwift.conf"'; adb shell run-as org.cagnulen.qdomyoszwift sh -c 'grep -n "virtual_device_bluetooth" "files/.config/Roberto Viola/qDomyos-Zwift.conf"'; fi
+
             # Start the main activity
             adb shell am start -n org.cagnulen.qdomyoszwift/org.cagnulen.qdomyoszwift.CustomQtActivity
 
