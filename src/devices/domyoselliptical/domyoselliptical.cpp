@@ -34,15 +34,12 @@ domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, 
     writeTimeoutTimer = new QTimer(this);
     writeTimeoutTimer->setSingleShot(true);
     connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
-        if (!initDone) {
-            if (initTimeoutElapsed < 5000) {
-                initTimeoutElapsed += 300;
-                gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
-                writeTimeoutTimer->start(300);
-                return;
-            }
-            initDone = true;
+        if (!initDone && initTimeouts++ < 16) {
+            gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+            writeTimeoutTimer->start(300);
+            return;
         }
+        initDone = true;
 
         emit debug(QStringLiteral("writeCharacteristic timeout - processing next in queue"));
         isWriting = false;
@@ -325,6 +322,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (newValue.length() != 20) {
         emit debug(QStringLiteral("packetReceived!"));
+
         emit packetReceived();
     }
 
@@ -470,7 +468,7 @@ void domyoselliptical::btinit_changyow(bool startTape) {
     uint8_t initDataStart13[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xbd};
 
     if (!startTape)
-        initTimeoutElapsed = 0;
+        initTimeouts = 0;
 
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
