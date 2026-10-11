@@ -229,25 +229,12 @@ ColumnLayout {
                     delegate: Button {
                         width: Math.max(list.width, 320)
                         height: 40
+                        y: index * 40
                         flat: true
                         highlighted: index === list.currentIndex
                         text: fileName.substring(0, fileName.length - 4)
                         onClicked: list.selectProfile(index)
                         onPressAndHold: list.deleteProfile(index)
-                    }
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    z: 1000
-                    onClicked: {
-                        const profileIndex = Math.floor(mouse.y / 40)
-                        if (profileIndex >= 0 && profileIndex < profileModel.count)
-                            list.selectProfile(profileIndex)
-                    }
-                    onPressAndHold: {
-                        const profileIndex = Math.floor(mouse.y / 40)
-                        if (profileIndex >= 0 && profileIndex < profileModel.count)
-                            list.deleteProfile(profileIndex)
                     }
                 }
                 onCurrentIndexChanged: {
