@@ -723,6 +723,9 @@ jobs:
       - name: Build QZ for Android (4 ABIs)
         run: |
           lrelease src/qdomyos-zwift.pri
+          # qmake reads defaults.pri after command-line assignments; force all ABIs
+          # required by the Android emulator and customer x86_64 target.
+          sed -i 's/^ANDROID_ABIS = .*/ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64/' defaults.pri
           # CONFIG+=debug matches the real reference build validated against the Mac-built
           # APK: it keeps .so unstripped (matching the reference almost byte-for-byte) and,
           # with this custom Qt, naturally leaves android-extra-libs unset - the bundled
