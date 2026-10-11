@@ -202,6 +202,10 @@ Page {
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
+                // the search status may have two lines ("<device> found" and the countdown): the line
+                // grows upwards, so they are set closer to keep the first one off the buttons
+                horizontalAlignment: Text.AlignHCenter
+                lineHeight: text.indexOf("\n") >= 0 ? 0.8 : 1
                 text: page.searchStatus !== "" ? page.searchStatus : rootItem.info
             }
         }

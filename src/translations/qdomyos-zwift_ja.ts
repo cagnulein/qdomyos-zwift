@@ -3547,6 +3547,10 @@ This may take a few moments on first startup.</source>
         <translation>次の検索まで%1秒</translation>
     </message>
     <message>
+        <source>%1 found</source>
+        <translation>%1 を検出</translation>
+    </message>
+    <message>
         <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
         <translation>AndroidではBluetooth検索は30秒間に5回までです。次の検索は%1秒後に始まります</translation>
     </message>

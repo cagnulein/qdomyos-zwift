@@ -1914,8 +1914,11 @@ void homeform::refresh_bluetooth_devices_clicked() {
 QString homeform::bluetoothSearchStatus() {
     if (!bluetoothManager || bluetoothManager->device())
         return QString();
+    // while scanning, the last device found shows that QZ is finding something (useful for troubleshooting)
+    const QString scanning = lastFoundDevice.isEmpty() ? tr("Searching for the device...")
+                                                       : tr("%1 found").arg(lastFoundDevice);
     if (bluetoothManager->isSearching())
-        return tr("Searching for the device...");
+        return scanning;
     if (bluetoothManager->searchStopped())
         return tr("Search stopped, tap the Bluetooth icon");
     if (!bluetoothManager->nextSearchMs())
@@ -1923,8 +1926,12 @@ QString homeform::bluetoothSearchStatus() {
     const qint64 left = bluetoothManager->nextSearchMs() - QDateTime::currentMSecsSinceEpoch();
     // the timer may fire a little late: the search is about to start
     if (left <= 0)
-        return tr("Searching for the device...");
-    return tr("Next search in %1 s").arg((left + 999) / 1000);
+        return scanning;
+    const QString countdown = tr("Next search in %1 s").arg((left + 999) / 1000);
+    // the device name may be long: the countdown goes to a second line
+    if (lastFoundDevice.isEmpty())
+        return countdown;
+    return tr("%1 found").arg(lastFoundDevice) + QStringLiteral("\n") + countdown;
 }
 
 void homeform::bluetoothSearchNow() {
@@ -4797,6 +4804,7 @@ void homeform::deviceFound(const QString &name) {
         return;
     }
 
+    lastFoundDevice = name;
     emit bluetoothDevicesChanged(bluetoothDevices());
 
     if (m_labelHelp == false) {

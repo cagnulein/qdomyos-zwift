@@ -3543,6 +3543,10 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <translation>Próxima búsqueda en %1 s</translation>
     </message>
     <message>
+        <source>%1 found</source>
+        <translation>%1 encontrado</translation>
+    </message>
+    <message>
         <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
         <translation>Android permite 5 búsquedas Bluetooth en 30 s, la siguiente empieza en %1 s</translation>
     </message>
