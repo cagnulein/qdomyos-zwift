@@ -11442,7 +11442,23 @@ void homeform::loadSettings(const QUrl &filename) {
     }
 }
 
-void homeform::deleteSettings(const QUrl &filename) { QFile(filename.toLocalFile()).remove(); }
+void homeform::deleteSettings(const QUrl &filename) {
+#ifdef Q_OS_ANDROID
+    if (filename.toString().startsWith(QStringLiteral("content://"))) {
+        QAndroidJniObject uriString = QAndroidJniObject::fromString(filename.toString());
+        const jboolean deleted = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/ContentHelper",
+            "deleteContentUri",
+            "(Landroid/content/Context;Ljava/lang/String;)Z",
+            QtAndroid::androidContext().object(),
+            uriString.object<jstring>());
+        clearAndroidJniException("ContentHelper.deleteContentUri");
+        qDebug() << "delete profile content URI" << filename << static_cast<bool>(deleted);
+        return;
+    }
+#endif
+    QFile(filename.toLocalFile()).remove();
+}
 void homeform::restoreSettings() { 
     QZSettings::restoreAll(); 
     if (garminConnect) {
@@ -11457,6 +11473,72 @@ QString homeform::getProfileDir() {
     QString path = getWritableAppDir() + "profiles";
     QDir().mkdir(path);
     return path;
+}
+
+QVariantList homeform::getProfileFiles() {
+    QVariantList profiles;
+
+    auto appendProfile = [&profiles](const QString &fileName, const QUrl &fileUrl) {
+        if (fileName.isEmpty() || !fileName.endsWith(QStringLiteral(".qzs"), Qt::CaseInsensitive)) {
+            return;
+        }
+        for (const QVariant &existing : profiles) {
+            if (existing.toMap().value(QStringLiteral("fileName")).toString() == fileName) {
+                return;
+            }
+        }
+        QVariantMap profile;
+        profile.insert(QStringLiteral("fileName"), fileName);
+        profile.insert(QStringLiteral("fileBaseName"), QFileInfo(fileName).completeBaseName());
+        profile.insert(QStringLiteral("fileUrl"), fileUrl);
+        profiles.append(profile);
+    };
+
+#ifdef Q_OS_ANDROID
+    QSettings settings;
+    const bool usePublicDocuments =
+        settings.value(QZSettings::android_documents_folder,
+                       QZSettings::default_android_documents_folder).toBool() ||
+        QOperatingSystemVersion::current() >=
+            QOperatingSystemVersion(QOperatingSystemVersion::Android, 14);
+
+    if (usePublicDocuments) {
+        QAndroidJniObject relativeDirectory = QAndroidJniObject::fromString(QStringLiteral("profiles"));
+        QAndroidJniObject files = QAndroidJniObject::callStaticObjectMethod(
+            "org/cagnulen/qdomyoszwift/ContentHelper",
+            "listPublicDocumentsFiles",
+            "(Landroid/content/Context;Ljava/lang/String;)[Ljava/lang/String;",
+            QtAndroid::androidContext().object(),
+            relativeDirectory.object<jstring>());
+        if (!clearAndroidJniException("ContentHelper.listPublicDocumentsFiles") && files.isValid()) {
+            jobjectArray fileArray = files.object<jobjectArray>();
+            if (fileArray) {
+                QAndroidJniEnvironment env;
+                const jsize fileCount = env->GetArrayLength(fileArray);
+                for (jsize i = 0; i < fileCount; ++i) {
+                    QAndroidJniObject uriObject = env->GetObjectArrayElement(fileArray, i);
+                    if (!uriObject.isValid()) {
+                        continue;
+                    }
+                    const QString uri = uriObject.toString();
+                    appendProfile(getFileNameFromContentUri(uri), QUrl(uri));
+                }
+            }
+        }
+    }
+#endif
+
+    // Keep the filesystem path as a fallback for desktop, legacy Android
+    // storage, and files which predate MediaStore indexing.
+    const QFileInfoList files = QDir(getProfileDir()).entryInfoList(
+        QStringList() << QStringLiteral("*.qzs"),
+        QDir::Files,
+        QDir::Name | QDir::Reversed);
+    for (const QFileInfo &file : files) {
+        appendProfile(file.fileName(), QUrl::fromLocalFile(file.absoluteFilePath()));
+    }
+
+    return profiles;
 }
 
 void homeform::saveProfile(QString profilename) {

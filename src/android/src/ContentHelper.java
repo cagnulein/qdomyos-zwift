@@ -2,6 +2,7 @@ package org.cagnulen.qdomyoszwift;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -15,6 +16,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import org.cagnulen.qdomyoszwift.QLog;
 
 public class ContentHelper {
@@ -103,6 +107,82 @@ public class ContentHelper {
             return false;
         }
     }
+
+    /**
+     * Enumerate profile files stored in the public Documents/QZ directory.
+     *
+     * Android 10 scoped storage does not make MediaStore-owned files reliably
+     * visible to Qt's FolderListModel through a file:// directory. Querying
+     * MediaStore returns stable content URIs which the caller can open through
+     * ContentResolver.
+     */
+    public static String[] listPublicDocumentsFiles(Context context, String relativeDirectory) {
+        if (context == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return new String[0];
+        }
+
+        String directory = relativeDirectory == null ? "" : relativeDirectory.replace('\\', '/');
+        while (directory.startsWith("/")) {
+            directory = directory.substring(1);
+        }
+        while (directory.endsWith("/")) {
+            directory = directory.substring(0, directory.length() - 1);
+        }
+
+        String relativePath = Environment.DIRECTORY_DOCUMENTS + "/QZ/"
+                + (directory.isEmpty() ? "" : directory + "/");
+        Uri collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+        List<String> result = new ArrayList<>();
+        String[] projection = new String[] {
+                MediaStore.MediaColumns._ID,
+                MediaStore.MediaColumns.DISPLAY_NAME
+        };
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(
+                    collection,
+                    projection,
+                    MediaStore.MediaColumns.RELATIVE_PATH + "=?",
+                    new String[] {relativePath},
+                    MediaStore.MediaColumns.DISPLAY_NAME + " COLLATE NOCASE DESC");
+            if (cursor != null) {
+                int idIndex = cursor.getColumnIndex(MediaStore.MediaColumns._ID);
+                int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+                while (cursor.moveToNext()) {
+                    if (idIndex < 0 || nameIndex < 0) {
+                        continue;
+                    }
+                    String name = cursor.getString(nameIndex);
+                    if (name == null || !name.toLowerCase(Locale.US).endsWith(".qzs")) {
+                        continue;
+                    }
+                    long id = cursor.getLong(idIndex);
+                    result.add(ContentUris.withAppendedId(collection, id).toString());
+                }
+            }
+        } catch (Exception e) {
+            QLog.d("ContentHelper", "listPublicDocumentsFiles query failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return result.toArray(new String[0]);
+    }
+
+    public static boolean deleteContentUri(Context context, String uriString) {
+        if (context == null || uriString == null || uriString.isEmpty()) {
+            return false;
+        }
+        try {
+            Uri uri = Uri.parse(uriString);
+            return uri != null && context.getContentResolver().delete(uri, null, null) > 0;
+        } catch (Exception e) {
+            QLog.d("ContentHelper", "deleteContentUri failed " + e);
+            return false;
+        }
+    }
+
     public static boolean copyContentToFile(Context context, Uri uri, String destinationPath) {
         if (context == null || uri == null || destinationPath == null || destinationPath.isEmpty()) {
             return false;

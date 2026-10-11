@@ -3,7 +3,6 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import Qt.labs.platform 1.1
-import Qt.labs.folderlistmodel 2.15
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.0 as FileDialogClass
 
@@ -75,6 +74,8 @@ ColumnLayout {
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
             deleteSettings(fileUrl)
+            list.refreshProfiles()
+            deleteDialog.close()
         }
         onNoClicked: {
             deleteDialog.close()
@@ -87,6 +88,7 @@ ColumnLayout {
         text: qsTr("Profile saved correctly!")
         buttons: (MessageDialog.Ok)
         onOkClicked: {
+            list.refreshProfiles()
             stackView.pop();
         }
     }
@@ -158,6 +160,7 @@ ColumnLayout {
             onClicked: {
                 console.log("folder is " + rootItem.getWritableAppDir() + 'profiles')
                 saveProfile(profileNameTextField.text);
+                list.refreshProfiles()
                 saveDialog.visible = true;
             }
         }
@@ -174,31 +177,26 @@ ColumnLayout {
                 id: list
                 property bool clicked: false
                 anchors.fill: parent
-                FolderListModel {
-                    id: folderModel
-                    nameFilters: ["*.qzs"]
-                    folder: "file://" + rootItem.getProfileDir()
-                    showDotAndDotDot: false
-                    showDirs: false
-                    sortReversed: true
-                    onStatusChanged: {
-                        if(folderModel.status ==
-                                FolderListModel.Ready && list.clicked == false) {
-                            for(var i=0; i<folderModel.count; i++) {
-                                if(folderModel.get(i,
-                                                   "fileBaseName") === settings.profile_name) {
-                                    list.currentIndex = i;
-                                    return;
-                                }
-                            }
+                ListModel {
+                    id: profileModel
+                }
+                function refreshProfiles() {
+                    profileModel.clear()
+                    const profiles = rootItem.getProfileFiles()
+                    for (var i = 0; i < profiles.length; ++i) {
+                        profileModel.append(profiles[i])
+                    }
+                    list.clicked = false
+                    list.currentIndex = -1
+                    for (var j = 0; j < profileModel.count; ++j) {
+                        if (profileModel.get(j, "fileBaseName") === settings.profile_name) {
+                            list.currentIndex = j
+                            return
                         }
                     }
-                    Component.onCompleted: {
-                        // on Windows it doesn't update the folder
-                        folderModel.folder = "file://" + rootItem.getProfileDir();
-                    }
                 }
-                model: folderModel
+                Component.onCompleted: refreshProfiles()
+                model: profileModel
                 delegate: Component {
                     Rectangle {
                         property alias textColor: fileTextBox.color
@@ -218,12 +216,12 @@ ColumnLayout {
                             onClicked: {
                                 list.clicked = true;
                                 console.log('onclicked ' + index+ " count "+list.count);
-                                const selectedFileName = folderModel.get(index, 'fileName');
+                                const selectedFileName = profileModel.get(index, 'fileName');
                                 if (selectedFileName) {
                                     profileNameTextField.text = selectedFileName.substring(0, selectedFileName.length - 4);
                                 }
                                 if (index == list.currentIndex) {
-                                    let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
+                                    let fileUrl = profileModel.get(list.currentIndex, 'fileUrl');
                                     if (fileUrl) {
                                         loadSettings(fileUrl);
                                         quitDialog.visible = true
@@ -238,8 +236,8 @@ ColumnLayout {
                             onPressAndHold: {
                                 list.clicked = true;
                                 console.log('onPressAndHold ' + index+ " count "+list.count);
-                                deleteDialog.informativeText = folderModel.get(index, 'fileName').substring(0, fileName.length-4)
-                                deleteDialog.fileUrl = folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL')
+                                deleteDialog.informativeText = profileModel.get(index, 'fileName').substring(0, fileName.length-4)
+                                deleteDialog.fileUrl = profileModel.get(index, 'fileUrl')
                                 deleteDialog.visible = true
                             }
                         }
@@ -253,18 +251,22 @@ ColumnLayout {
                     focus: true
                     /*Text {
                         anchors.centerIn: parent
-                        text: 'Selected ' + folderModel.get(list.currentIndex, "fileName")
+                        text: 'Selected ' + profileModel.get(list.currentIndex, "fileName")
                         color: "white"
                     }*/
                 }
                 focus: true
                 onCurrentItemChanged: {
-                    let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
+                    if (list.currentIndex < 0 || list.currentIndex >= profileModel.count)
+                        return
+                    let fileUrl = profileModel.get(list.currentIndex, 'fileUrl');
                     if (fileUrl) {
-                        for(var i=0; i<folderModel.count; i++) {
-                            list.itemAtIndex(i).textColor = Material.color(Material.Grey)
+                        for(var i=0; i<profileModel.count; i++) {
+                            if (list.itemAtIndex(i))
+                                list.itemAtIndex(i).textColor = Material.color(Material.Grey)
                         }
-                        list.currentItem.textColor = Material.color(Material.Yellow)
+                        if (list.currentItem)
+                            list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                     }
                 }

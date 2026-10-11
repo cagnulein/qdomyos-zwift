@@ -682,6 +682,7 @@ public:
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
     Q_INVOKABLE static QString getProfileDir();
+    Q_INVOKABLE static QVariantList getProfileFiles();
     Q_INVOKABLE static void clearFiles();
     Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
     Q_INVOKABLE void openAndroidDocumentPicker(const QString &kind);

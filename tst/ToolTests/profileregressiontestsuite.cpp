@@ -272,6 +272,26 @@ TEST_F(ProfileRegressionTestSuite, JasonFailureSequence)
     startTwoProfiles(false, false);
 }
 
+TEST_F(ProfileRegressionTestSuite, ProfileFileListContainsBothProfiles)
+{
+    startTwoProfiles(false, false);
+
+    const QVariantList files = homeform::getProfileFiles();
+    ASSERT_EQ(files.size(), 2);
+
+    QStringList names;
+    for (const QVariant &value : files) {
+        const QVariantMap profile = value.toMap();
+        ASSERT_TRUE(profile.contains(QStringLiteral("fileName")));
+        ASSERT_TRUE(profile.contains(QStringLiteral("fileBaseName")));
+        ASSERT_TRUE(profile.contains(QStringLiteral("fileUrl")));
+        names << profile.value(QStringLiteral("fileBaseName")).toString();
+        EXPECT_TRUE(profile.value(QStringLiteral("fileUrl")).toUrl().isValid());
+    }
+    EXPECT_TRUE(names.contains(QStringLiteral("Jan")));
+    EXPECT_TRUE(names.contains(QStringLiteral("Jay")));
+}
+
 TEST_F(ProfileRegressionTestSuite, ChildProcessLoadsProfilesAfterRestart)
 {
     if (qgetenv("QZ_PROFILE_TEST_CHILD") != "1")
