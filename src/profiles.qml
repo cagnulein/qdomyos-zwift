@@ -212,8 +212,6 @@ ColumnLayout {
                             quitDialog.visible = true
                         }
                     } else {
-                        if (list.currentItem)
-                            list.currentItem.textColor = Material.color(Material.Grey)
                         list.currentIndex = profileIndex
                     }
                 }
