@@ -1962,6 +1962,58 @@ QZの設定を更新しますか?</translation>
         <translation>心拍数 &lt;{value} bpm</translation>
     </message>
     <message>
+        <source>W</source>
+        <translation>W</translation>
+    </message>
+    <message>
+        <source>kJ</source>
+        <translation>kJ</translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation>kcal</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>rpm</source>
+        <translation>rpm</translation>
+    </message>
+    <message>
+        <source>bpm</source>
+        <translation>bpm</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>km/h</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>mph</translation>
+    </message>
+    <message>
+        <source>min/km</source>
+        <translation>分/km</translation>
+    </message>
+    <message>
+        <source>min/mi</source>
+        <translation>分/mi</translation>
+    </message>
+    <message>
+        <source>lvl</source>
+        <translation>lvl</translation>
+    </message>
+    <message>
+        <source>spm</source>
+        <translation>spm</translation>
+    </message>
+    <message>
         <source>Marathon</source>
         <translation>マラソン</translation>
     </message>
@@ -2415,6 +2467,14 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>体重 (%1)</translation>
     </message>
     <message>
+        <source>lbs</source>
+        <translation>lbs</translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation>kg</translation>
+    </message>
+    <message>
         <source>Age</source>
         <translation>年齢</translation>
     </message>
@@ -2588,6 +2648,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Failed to load training program. Please check if the file exists.</source>
         <translation>トレーニングプログラムの読み込みに失敗しました。ファイルが存在するか確認してください。</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation>kcal</translation>
     </message>
     <message>
         <source>Import FIT File...</source>
@@ -3054,8 +3126,12 @@ This may take a few moments on first startup.</source>
         <translation>パワー平滑化</translation>
     </message>
     <message>
+        <source>Off</source>
+        <translation>オフ</translation>
+    </message>
+    <message>
         <source>HRV (ms)</source>
-        <translation type="vanished">HRV（ms）</translation>
+        <translation>HRV（ms）</translation>
     </message>
     <message>
         <source>PID Heart</source>
@@ -3082,6 +3158,22 @@ This may take a few moments on first startup.</source>
         <translation>歩数</translation>
     </message>
     <message>
+        <source>Odometer (m)</source>
+        <translation>走行距離 (m)</translation>
+    </message>
+    <message>
+        <source>Pace (m/500m)</source>
+        <translation>ペース (m/500m)</translation>
+    </message>
+    <message>
+        <source>Avg Pace (m/500m)</source>
+        <translation>平均ペース (m/500m)</translation>
+    </message>
+    <message>
+        <source>T.Pace(m/500m)</source>
+        <translation>目標ペース(m/500m)</translation>
+    </message>
+    <message>
         <source>Stop</source>
         <translation>ストップ</translation>
     </message>
@@ -3092,6 +3184,26 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Pause</source>
         <translation>一時停止</translation>
+    </message>
+    <message>
+        <source>offset </source>
+        <translation>オフセット </translation>
+    </message>
+    <message>
+        <source> /min</source>
+        <translation> /分</translation>
+    </message>
+    <message>
+        <source> sec.</source>
+        <translation> 秒</translation>
+    </message>
+    <message>
+        <source>Incl: </source>
+        <translation>傾斜: </translation>
+    </message>
+    <message>
+        <source>%1%2W</source>
+        <translation>%1%2W</translation>
     </message>
     <message>
         <source>Rec.</source>
@@ -3138,6 +3250,26 @@ This may take a few moments on first startup.</source>
     <message>
         <source>N/A</source>
         <translation>該当なし</translation>
+    </message>
+    <message>
+        <source>3s avg</source>
+        <translation>3秒平均</translation>
+    </message>
+    <message>
+        <source>5s avg</source>
+        <translation>5秒平均</translation>
+    </message>
+    <message>
+        <source>Gain: </source>
+        <translation>ゲイン: </translation>
+    </message>
+    <message>
+        <source>MIN: </source>
+        <translation>最小: </translation>
+    </message>
+    <message>
+        <source>W </source>
+        <translation>W </translation>
     </message>
     <message>
         <source>, speed </source>
@@ -3335,6 +3467,40 @@ This may take a few moments on first startup.</source>
     <message>
         <source>The workout file could not be opened.</source>
         <translation>ワークアウトファイルを開けませんでした。</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>m</source>
+        <comment>unit: meters</comment>
+        <translation>m</translation>
+    </message>
+    <message>
+        <source>Kg</source>
+        <translation>kg</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation>cm</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>ft</source>
+        <translation>ft</translation>
+    </message>
+    <message>
+        <source>in</source>
+        <comment>unit: inches</comment>
+        <translation>in</translation>
+    </message>
+    <message>
+        <source>Oz</source>
+        <translation>oz</translation>
     </message>
     <message>
         <source>Watts</source>
@@ -3875,8 +4041,24 @@ In the next window, allow access to the QZ folder.</source>
         <translation>ユーザーの体重</translation>
     </message>
     <message>
+        <source>lbs</source>
+        <translation>lbs</translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation>kg</translation>
+    </message>
+    <message>
         <source>Player Height</source>
         <translation>ユーザーの身長</translation>
+    </message>
+    <message>
+        <source>ft/in</source>
+        <translation>ft/in</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation>cm</translation>
     </message>
     <message>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
@@ -5292,6 +5474,14 @@ In the next window, allow access to the QZ folder.</source>
         <translation>ウォーキングの最小速度:</translation>
     </message>
     <message>
+        <source>mph</source>
+        <translation>mph</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>km/h</translation>
+    </message>
+    <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
         <translation>Pelotonウォーキングセッションの最低速度です。0に設定すると無効になります。ウォーキングワークアウトのすべての目標速度に適用されます。</translation>
     </message>
@@ -5764,6 +5954,14 @@ Please enter it below:</source>
     <message>
         <source>Marathon</source>
         <translation>マラソン</translation>
+    </message>
+    <message>
+        <source>5 km</source>
+        <translation>5 km</translation>
+    </message>
+    <message>
+        <source>10 km</source>
+        <translation>10 km</translation>
     </message>
     <message>
         <source>Select the default Pace to be used when the ZWO file does not indicate a precise pace.</source>
@@ -6555,6 +6753,14 @@ IMPORTANT NOTES:
         <translation>距離に基づいてFITファイルに自動ラップを記録できます。単位：%1 デフォルト：0（無効）。</translation>
     </message>
     <message>
+        <source>Mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>KM</source>
+        <translation>km</translation>
+    </message>
+    <message>
         <source>Inclination Delay:</source>
         <translation>傾斜変更の遅延秒数：</translation>
     </message>
@@ -7336,7 +7542,7 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     </message>
     <message>
         <source>Pafers Rower</source>
-        <translation type="unfinished"></translation>
+        <translation>Pafers ローイングマシン</translation>
     </message>
 </context>
 <context>
@@ -7953,6 +8159,14 @@ AとBの両方が0の場合、QZはデフォルトの計算式（9.8 × 体重 �
     <message>
         <source>Preset Speed 1</source>
         <translation>プリセット速度 1</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>mph</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>km/h</translation>
     </message>
     <message>
         <source>Preset Speed 2</source>

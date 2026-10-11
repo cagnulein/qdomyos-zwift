@@ -1962,6 +1962,58 @@ Do you want to update QZ settings?</source>
         <translation>心率 &lt;{value} bpm</translation>
     </message>
     <message>
+        <source>W</source>
+        <translation>W</translation>
+    </message>
+    <message>
+        <source>kJ</source>
+        <translation>kJ</translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation>kcal</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>rpm</source>
+        <translation>rpm</translation>
+    </message>
+    <message>
+        <source>bpm</source>
+        <translation>bpm</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>km/h</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>mph</translation>
+    </message>
+    <message>
+        <source>min/km</source>
+        <translation>分钟/公里</translation>
+    </message>
+    <message>
+        <source>min/mi</source>
+        <translation>分钟/英里</translation>
+    </message>
+    <message>
+        <source>lvl</source>
+        <translation>级</translation>
+    </message>
+    <message>
+        <source>spm</source>
+        <translation>spm</translation>
+    </message>
+    <message>
         <source>Marathon</source>
         <translation>马拉松</translation>
     </message>
@@ -2415,6 +2467,14 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>体重（%1）</translation>
     </message>
     <message>
+        <source>lbs</source>
+        <translation>lbs</translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation>kg</translation>
+    </message>
+    <message>
         <source>Age</source>
         <translation>年龄</translation>
     </message>
@@ -2588,6 +2648,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Failed to load training program. Please check if the file exists.</source>
         <translation>无法加载训练计划。请检查文件是否存在。</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation>kcal</translation>
     </message>
     <message>
         <source>Import FIT File...</source>
@@ -3054,8 +3126,12 @@ This may take a few moments on first startup.</source>
         <translation>功率平滑</translation>
     </message>
     <message>
+        <source>Off</source>
+        <translation>关</translation>
+    </message>
+    <message>
         <source>HRV (ms)</source>
-        <translation type="vanished">HRV (毫秒)</translation>
+        <translation>HRV (毫秒)</translation>
     </message>
     <message>
         <source>PID Heart</source>
@@ -3082,6 +3158,22 @@ This may take a few moments on first startup.</source>
         <translation>步数</translation>
     </message>
     <message>
+        <source>Odometer (m)</source>
+        <translation>里程 (m)</translation>
+    </message>
+    <message>
+        <source>Pace (m/500m)</source>
+        <translation>配速 (m/500m)</translation>
+    </message>
+    <message>
+        <source>Avg Pace (m/500m)</source>
+        <translation>平均配速 (m/500m)</translation>
+    </message>
+    <message>
+        <source>T.Pace(m/500m)</source>
+        <translation>目标配速(m/500m)</translation>
+    </message>
+    <message>
         <source>Stop</source>
         <translation>停止</translation>
     </message>
@@ -3092,6 +3184,26 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Pause</source>
         <translation>暂停</translation>
+    </message>
+    <message>
+        <source>offset </source>
+        <translation>偏移 </translation>
+    </message>
+    <message>
+        <source> /min</source>
+        <translation> /分钟</translation>
+    </message>
+    <message>
+        <source> sec.</source>
+        <translation> 秒</translation>
+    </message>
+    <message>
+        <source>Incl: </source>
+        <translation>坡度: </translation>
+    </message>
+    <message>
+        <source>%1%2W</source>
+        <translation>%1%2W</translation>
     </message>
     <message>
         <source>Rec.</source>
@@ -3138,6 +3250,26 @@ This may take a few moments on first startup.</source>
     <message>
         <source>N/A</source>
         <translation>无</translation>
+    </message>
+    <message>
+        <source>3s avg</source>
+        <translation>3秒平均</translation>
+    </message>
+    <message>
+        <source>5s avg</source>
+        <translation>5秒平均</translation>
+    </message>
+    <message>
+        <source>Gain: </source>
+        <translation>增益: </translation>
+    </message>
+    <message>
+        <source>MIN: </source>
+        <translation>最小: </translation>
+    </message>
+    <message>
+        <source>W </source>
+        <translation>W </translation>
     </message>
     <message>
         <source>, speed </source>
@@ -3339,6 +3471,40 @@ This may take a few moments on first startup.</source>
     <message>
         <source>The workout file could not be opened.</source>
         <translation>无法打开训练文件。</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>m</source>
+        <comment>unit: meters</comment>
+        <translation>m</translation>
+    </message>
+    <message>
+        <source>Kg</source>
+        <translation>kg</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation>cm</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>ft</source>
+        <translation>ft</translation>
+    </message>
+    <message>
+        <source>in</source>
+        <comment>unit: inches</comment>
+        <translation>in</translation>
+    </message>
+    <message>
+        <source>Oz</source>
+        <translation>oz</translation>
     </message>
     <message>
         <source>Watts</source>
@@ -3879,8 +4045,24 @@ In the next window, allow access to the QZ folder.</source>
         <translation>玩家体重</translation>
     </message>
     <message>
+        <source>lbs</source>
+        <translation>lbs</translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation>kg</translation>
+    </message>
+    <message>
         <source>Player Height</source>
         <translation>玩家身高</translation>
+    </message>
+    <message>
+        <source>ft/in</source>
+        <translation>ft/in</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation>cm</translation>
     </message>
     <message>
         <source>Enter your height for more accurate BMR and active calories calculation. Use centimeters for metric or feet&apos;inches&quot; format (e.g., 5&apos;10&quot;) for imperial units.</source>
@@ -4960,6 +5142,14 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Peloton 跑步机步行课程的难度级别。1 为简单，10 为困难。</translation>
     </message>
     <message>
+        <source>mph</source>
+        <translation>mph</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>km/h</translation>
+    </message>
+    <message>
         <source>Rower Level:</source>
         <translation>划船级别：</translation>
     </message>
@@ -5748,6 +5938,14 @@ Please enter it below:</source>
     <message>
         <source>Marathon</source>
         <translation>马拉松</translation>
+    </message>
+    <message>
+        <source>5 km</source>
+        <translation>5 km</translation>
+    </message>
+    <message>
+        <source>10 km</source>
+        <translation>10 km</translation>
     </message>
     <message>
         <source>Select the default Pace to be used when the ZWO file does not indicate a precise pace.</source>
@@ -6551,6 +6749,14 @@ IMPORTANT NOTES:
         <translation>可以根据距离在 FIT 文件中自动计圈。单位：%1 默认：0（禁用）。</translation>
     </message>
     <message>
+        <source>Mi</source>
+        <translation>Mi</translation>
+    </message>
+    <message>
+        <source>KM</source>
+        <translation>KM</translation>
+    </message>
+    <message>
         <source>Inclination Delay:</source>
         <translation>坡度延迟：</translation>
     </message>
@@ -7332,7 +7538,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Pafers Rower</source>
-        <translation type="unfinished"></translation>
+        <translation>Pafers 划船机</translation>
     </message>
 </context>
 <context>
@@ -7949,6 +8155,14 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Preset Speed 1</source>
         <translation>预设速度 1</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>mph</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>km/h</translation>
     </message>
     <message>
         <source>Preset Speed 2</source>
