@@ -21,6 +21,15 @@
         return fallback || key;
     }
 
+    // A translated screen reader name with its {placeholders} filled in
+    function tAria(key, fallback, values) {
+        let text = t(key, fallback);
+        Object.keys(values).forEach(name => {
+            text = text.split(`{${name}}`).join(values[name]);
+        });
+        return text;
+    }
+
     const FIELD_DEFS = [
         { key: 'name', labelKey: 'workoutEditor.label', label: 'Label', type: 'text', group: 'basic', devices: 'all' },
         { key: 'duration', labelKey: 'workoutEditor.duration', label: 'Duration', type: 'duration', group: 'basic', devices: 'all' },
@@ -204,10 +213,12 @@
         cacheDom();
         bindEvents();
         // The interval fields and the chart legend are built in JavaScript, and the translations
-        // usually arrive after the first render: rebuild them once they are here
+        // usually arrive after the first render: rebuild them once they are here (updateStatus for
+        // the screen reader name of the chart)
         document.addEventListener('qz-translations-updated', () => {
             renderIntervals();
             updateChart();
+            updateStatus();
         });
         bootstrap();
         if (window.QZ_OFFLINE) {
@@ -800,7 +811,7 @@
             selectBox.type = 'checkbox';
             selectBox.checked = !!row.__selected;
             selectBox.title = t('workoutEditor.selectInterval', 'Select interval');
-            selectBox.setAttribute('aria-label', `Select interval ${index + 1}`);
+            selectBox.setAttribute('aria-label', tAria('workoutEditor.selectIntervalLabel', 'Select interval {number}', { number: index + 1 }));
             selectBox.addEventListener('change', event => {
                 row.__selected = event.target.checked;
                 card.classList.toggle('selected', row.__selected);
@@ -819,10 +830,11 @@
 
             const actions = document.createElement('div');
             actions.className = 'card-actions';
-            actions.appendChild(actionButton('↑', () => moveInterval(index, -1), index === 0, `Move interval ${index + 1} up`));
-            actions.appendChild(actionButton('↓', () => moveInterval(index, 1), index === state.intervals.length - 1, `Move interval ${index + 1} down`));
-            actions.appendChild(actionButton(t('common.copy', 'Copy'), () => duplicateInterval(index), false, `Copy interval ${index + 1}`));
-            actions.appendChild(actionButton(t('common.del', 'Del'), () => removeInterval(index), state.intervals.length === 1, `Delete interval ${index + 1}`));
+            const intervalNumber = { number: index + 1 };
+            actions.appendChild(actionButton('↑', () => moveInterval(index, -1), index === 0, tAria('workoutEditor.moveIntervalUpLabel', 'Move interval {number} up', intervalNumber)));
+            actions.appendChild(actionButton('↓', () => moveInterval(index, 1), index === state.intervals.length - 1, tAria('workoutEditor.moveIntervalDownLabel', 'Move interval {number} down', intervalNumber)));
+            actions.appendChild(actionButton(t('common.copy', 'Copy'), () => duplicateInterval(index), false, tAria('workoutEditor.copyIntervalLabel', 'Copy interval {number}', intervalNumber)));
+            actions.appendChild(actionButton(t('common.del', 'Del'), () => removeInterval(index), state.intervals.length === 1, tAria('workoutEditor.deleteIntervalLabel', 'Delete interval {number}', intervalNumber)));
             header.appendChild(actions);
             card.appendChild(header);
 
@@ -858,7 +870,7 @@
                     enableCheckbox.checked = isEnabled;
                     enableCheckbox.dataset.index = index;
                     enableCheckbox.dataset.key = field.key;
-                    enableCheckbox.setAttribute('aria-label', `Enable ${resolveFieldLabel(field, row)} for interval ${index + 1}`);
+                    enableCheckbox.setAttribute('aria-label', tAria('workoutEditor.enableFieldLabel', 'Enable {field} for interval {number}', { field: resolveFieldLabel(field, row), number: index + 1 }));
                     enableCheckbox.addEventListener('change', (e) => {
                         const checked = e.target.checked;
                         row['__enabled_' + field.key] = checked;
@@ -911,7 +923,7 @@
                     checkbox.dataset.key = field.key;
                     checkbox.dataset.type = field.type;
                     checkbox.setAttribute('aria-labelledby', `interval-${index}-${field.key}-label`);
-                    checkbox.setAttribute('aria-label', `${resolveFieldLabel(field, row)} for interval ${index + 1}`);
+                    checkbox.setAttribute('aria-label', tAria('workoutEditor.fieldLabel', '{field} for interval {number}', { field: resolveFieldLabel(field, row), number: index + 1 }));
                     checkbox.addEventListener('change', handleFieldChange);
                     fieldWrap.appendChild(checkbox);
                 } else if (field.type === 'select') {
@@ -942,7 +954,7 @@
                     input.dataset.key = field.key;
                     input.dataset.type = field.type;
                     input.setAttribute('aria-labelledby', `interval-${index}-${field.key}-label`);
-                    input.setAttribute('aria-label', `${resolveFieldLabel(field, row)} for interval ${index + 1}`);
+                    input.setAttribute('aria-label', tAria('workoutEditor.fieldLabel', '{field} for interval {number}', { field: resolveFieldLabel(field, row), number: index + 1 }));
                     if (field.type === 'duration') {
                         input.type = 'text';
                         input.value = value || '00:05:00';
@@ -972,14 +984,14 @@
                         decreaseBtn.textContent = '-';
                         decreaseBtn.type = 'button';
                         decreaseBtn.title = t('common.decrease', 'Decrease');
-                        decreaseBtn.setAttribute('aria-label', `Decrease ${resolveFieldLabel(field, row)} for interval ${index + 1}`);
+                        decreaseBtn.setAttribute('aria-label', tAria('workoutEditor.decreaseFieldLabel', 'Decrease {field} for interval {number}', { field: resolveFieldLabel(field, row), number: index + 1 }));
                         decreaseBtn.addEventListener('click', () => handleIncrement(input, field, -1));
 
                         const increaseBtn = document.createElement('button');
                         increaseBtn.textContent = '+';
                         increaseBtn.type = 'button';
                         increaseBtn.title = t('common.increase', 'Increase');
-                        increaseBtn.setAttribute('aria-label', `Increase ${resolveFieldLabel(field, row)} for interval ${index + 1}`);
+                        increaseBtn.setAttribute('aria-label', tAria('workoutEditor.increaseFieldLabel', 'Increase {field} for interval {number}', { field: resolveFieldLabel(field, row), number: index + 1 }));
                         increaseBtn.addEventListener('click', () => handleIncrement(input, field, 1));
 
                         inputWrapper.appendChild(decreaseBtn);
@@ -1554,7 +1566,11 @@
         selectors.statusDuration.textContent = formattedDuration;
         selectors.statusIntervals.textContent = String(state.intervals.length);
         if (selectors.workoutChart) {
-            selectors.workoutChart.setAttribute('aria-label', `${selectors.name.value.trim() || 'Untitled workout'} preview chart. ${state.intervals.length} intervals. Total duration ${formattedDuration}.`);
+            selectors.workoutChart.setAttribute('aria-label', tAria('workoutEditor.chartDescription', '{name} preview chart. {count} intervals. Total duration {duration}.', {
+                name: selectors.name.value.trim() || t('workoutEditor.untitledWorkout', 'Untitled Workout'),
+                count: state.intervals.length,
+                duration: formattedDuration
+            }));
         }
     }
 

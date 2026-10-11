@@ -132,6 +132,45 @@ const WebTranslationEntry entries[] = {
     {"workoutEditor.time", QT_TRANSLATE_NOOP("WebTranslations", "Time")},
     {"workoutEditor.durationValue", QT_TRANSLATE_NOOP("WebTranslations", "Duration {value}")},
     {"workoutEditor.intervalsCount", QT_TRANSLATE_NOOP("WebTranslations", "{count} intervals")},
+    // Names read by a screen reader (TalkBack, VoiceOver) in the workout editor, not shown on screen
+    {"workoutEditor.workoutNameLabel", QT_TRANSLATE_NOOP("WebTranslations", "Workout name")},
+    {"workoutEditor.deviceTypeLabel", QT_TRANSLATE_NOOP("WebTranslations", "Workout device type")},
+    {"workoutEditor.newWorkoutLabel", QT_TRANSLATE_NOOP("WebTranslations", "Create a new workout")},
+    {"workoutEditor.pasteXmlLabel", QT_TRANSLATE_NOOP("WebTranslations", "Paste XML from the Clipboard to the Workout Editor")},
+    {"workoutEditor.saveWorkoutLabel", QT_TRANSLATE_NOOP("WebTranslations", "Save workout")},
+    {"workoutEditor.saveStartLabel", QT_TRANSLATE_NOOP("WebTranslations", "Save workout and start it")},
+    {"workoutEditor.advancedLabel", QT_TRANSLATE_NOOP("WebTranslations", "Show advanced interval fields")},
+    {"workoutEditor.controlsLabel", QT_TRANSLATE_NOOP("WebTranslations", "Workout editor controls")},
+    {"workoutEditor.addIntervalLabel", QT_TRANSLATE_NOOP("WebTranslations", "Add interval")},
+    {"workoutEditor.repeatSelectionLabel", QT_TRANSLATE_NOOP("WebTranslations", "Repeat selected intervals")},
+    {"workoutEditor.clearIntervalsLabel", QT_TRANSLATE_NOOP("WebTranslations", "Clear all intervals")},
+    {"workoutEditor.chartLabel", QT_TRANSLATE_NOOP("WebTranslations", "Workout preview chart")},
+    {"workoutEditor.legendLabel", QT_TRANSLATE_NOOP("WebTranslations", "Chart legend")},
+    {"workoutEditor.programsLabel", QT_TRANSLATE_NOOP("WebTranslations", "Saved workout programs")},
+    {"workoutEditor.loadProgramLabel", QT_TRANSLATE_NOOP("WebTranslations", "Load selected workout program")},
+    {"workoutEditor.deleteProgramLabel", QT_TRANSLATE_NOOP("WebTranslations", "Delete selected workout program")},
+    {"workoutEditor.refreshProgramsLabel", QT_TRANSLATE_NOOP("WebTranslations", "Refresh workout program list")},
+    //: Screen reader name; {number} is the interval number (1, 2, ...)
+    {"workoutEditor.selectIntervalLabel", QT_TRANSLATE_NOOP("WebTranslations", "Select interval {number}")},
+    //: Screen reader name; {number} is the interval number (1, 2, ...)
+    {"workoutEditor.moveIntervalUpLabel", QT_TRANSLATE_NOOP("WebTranslations", "Move interval {number} up")},
+    //: Screen reader name; {number} is the interval number (1, 2, ...)
+    {"workoutEditor.moveIntervalDownLabel", QT_TRANSLATE_NOOP("WebTranslations", "Move interval {number} down")},
+    //: Screen reader name; {number} is the interval number (1, 2, ...)
+    {"workoutEditor.copyIntervalLabel", QT_TRANSLATE_NOOP("WebTranslations", "Copy interval {number}")},
+    //: Screen reader name; {number} is the interval number (1, 2, ...)
+    {"workoutEditor.deleteIntervalLabel", QT_TRANSLATE_NOOP("WebTranslations", "Delete interval {number}")},
+    //: Screen reader name of a field checkbox; {field} is the field name (Duration, Power (W)...), {number} the interval number
+    {"workoutEditor.enableFieldLabel", QT_TRANSLATE_NOOP("WebTranslations", "Enable {field} for interval {number}")},
+    //: Screen reader name of a field; {field} is the field name (Duration, Power (W)...), {number} the interval number
+    {"workoutEditor.fieldLabel", QT_TRANSLATE_NOOP("WebTranslations", "{field} for interval {number}")},
+    //: Screen reader name of the - button; {field} is the field name (Duration, Power (W)...), {number} the interval number
+    {"workoutEditor.decreaseFieldLabel", QT_TRANSLATE_NOOP("WebTranslations", "Decrease {field} for interval {number}")},
+    //: Screen reader name of the + button; {field} is the field name (Duration, Power (W)...), {number} the interval number
+    {"workoutEditor.increaseFieldLabel", QT_TRANSLATE_NOOP("WebTranslations", "Increase {field} for interval {number}")},
+    //: Screen reader description of the chart; {name} is the workout name, {count} the number of intervals, {duration} like 0:45:00
+    {"workoutEditor.chartDescription", QT_TRANSLATE_NOOP("WebTranslations", "{name} preview chart. {count} intervals. Total duration {duration}.")},
+    {"common.dialogInputLabel", QT_TRANSLATE_NOOP("WebTranslations", "Dialog input")},
     {"trainingBrowser.title", QT_TRANSLATE_NOOP("WebTranslations", "Training Programs Browser")},
     {"trainingBrowser.filter", QT_TRANSLATE_NOOP("WebTranslations", "Filter:")},
     {"trainingBrowser.searchPlaceholder", QT_TRANSLATE_NOOP("WebTranslations", "Search...")},
