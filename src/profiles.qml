@@ -223,28 +223,14 @@ ColumnLayout {
                 }
                 Component.onCompleted: refreshProfiles()
                 model: profileModel
-                delegate: Component {
-                    Rectangle {
-                        property alias textColor: fileTextBox.color
-                        width: parent.width
-                        height: 40
-                        color: Material.backgroundColor
-                        z: 1
-                        Text {
-                            id: fileTextBox
-                            width: Math.max(list.width, implicitWidth)
-                            height: 40
-                            color: Material.color(Material.Grey)
-                            font.pixelSize: Qt.application.font.pixelSize * 1.6
-                            text: fileName.substring(0, fileName.length-4)
-                            MouseArea {
-                                anchors.fill: parent
-                                z: 100
-                                onClicked: list.selectProfile(index)
-                                onPressAndHold: list.deleteProfile(index)
-                            }
-                        }
-                    }
+                delegate: Button {
+                    width: Math.max(list.width, 320)
+                    height: 40
+                    flat: true
+                    highlighted: index === list.currentIndex
+                    text: fileName.substring(0, fileName.length - 4)
+                    onClicked: list.selectProfile(index)
+                    onPressAndHold: list.deleteProfile(index)
                 }
                 highlight: Rectangle {
                     color: Material.color(Material.Green)
@@ -264,12 +250,6 @@ ColumnLayout {
                         return
                     let fileUrl = profileModel.get(list.currentIndex, 'fileUrl');
                     if (fileUrl) {
-                        for(var i=0; i<profileModel.count; i++) {
-                            if (list.itemAtIndex(i))
-                                list.itemAtIndex(i).textColor = Material.color(Material.Grey)
-                        }
-                        if (list.currentItem)
-                            list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                     }
                 }
