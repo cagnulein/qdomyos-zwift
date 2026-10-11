@@ -827,8 +827,8 @@ jobs:
             arch: x86
             android-version: "Android 9.0"
           - api-level: 29
-            target: default
-            arch: x86
+            target: google_apis
+            arch: x86_64
             android-version: "Android 10"
           - api-level: 30
             target: google_apis
