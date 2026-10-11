@@ -346,13 +346,15 @@ HomeForm {
             // Non-writable static tiles: this item is the single accessible element (leaf).
             // Writable tiles: parent is a container (children expose value + +/- buttons).
             // Large button tiles: the RoundButton child handles accessibility.
-            // When the StackView is disabled (drawer open), id1.enabled is false via
-            // Qt's enabled propagation, so all tiles disappear from the accessibility tree.
+            // While the side menu is open the tiles leave the accessibility tree, each by its own
+            // drawer.opened check: Accessible.ignored on the StackView hides only the StackView
+            // (Qt 5 still exposes its children), and disabling the StackView is not an option
+            // since it kept pages pushed from the menu invisible.
             Accessible.role: Accessible.StaticText
             Accessible.name: name + ": " + value
             Accessible.description: secondLine !== "" ? secondLine : qsTr("Current value: ") + value
-            Accessible.focusable: !largeButton && !writable && id1.enabled
-            Accessible.ignored: largeButton || writable || !id1.enabled
+            Accessible.focusable: !largeButton && !writable && id1.enabled && !drawer.opened
+            Accessible.ignored: largeButton || writable || !id1.enabled || drawer.opened
 
 
             SequentialAnimation on rotation {
@@ -439,8 +441,8 @@ HomeForm {
                 Accessible.role: Accessible.StaticText
                 Accessible.name: name + ": " + value
                 Accessible.description: qsTr("Adjustable. Current value: ") + value
-                Accessible.focusable: writable && id1.enabled
-                Accessible.ignored: !writable || !id1.enabled
+                Accessible.focusable: writable && id1.enabled && !drawer.opened
+                Accessible.ignored: !writable || !id1.enabled || drawer.opened
             }
             Text {
                 objectName: "secondLine"
@@ -503,8 +505,8 @@ HomeForm {
                 Accessible.role: Accessible.Button
                 Accessible.name: value.length > 0 ? qsTr("Decrease ") + name + qsTr(", current value ") + value : qsTr("Decrease ") + name
                 Accessible.description: value.length > 0 ? qsTr("Decrease the value of ") + name + qsTr(". Current value ") + value : qsTr("Decrease the value of ") + name
-                Accessible.focusable: id1.enabled
-                Accessible.ignored: !id1.enabled
+                Accessible.focusable: id1.enabled && !drawer.opened
+                Accessible.ignored: !id1.enabled || drawer.opened
                 Accessible.onPressAction: { minus_clicked(objectName) }
             }
             RoundButton {
@@ -523,8 +525,8 @@ HomeForm {
                 Accessible.role: Accessible.Button
                 Accessible.name: value.length > 0 ? qsTr("Increase ") + name + qsTr(", current value ") + value : qsTr("Increase ") + name
                 Accessible.description: value.length > 0 ? qsTr("Increase the value of ") + name + qsTr(". Current value ") + value : qsTr("Increase the value of ") + name
-                Accessible.focusable: id1.enabled
-                Accessible.ignored: !id1.enabled
+                Accessible.focusable: id1.enabled && !drawer.opened
+                Accessible.ignored: !id1.enabled || drawer.opened
                 Accessible.onPressAction: { plus_clicked(objectName) }
             }
             RoundButton {
@@ -544,8 +546,8 @@ HomeForm {
                 Accessible.role: Accessible.Button
                 Accessible.name: largeButtonLabel
                 Accessible.description: name + ": " + largeButtonLabel
-                Accessible.focusable: id1.enabled
-                Accessible.ignored: !id1.enabled
+                Accessible.focusable: id1.enabled && !drawer.opened
+                Accessible.ignored: !id1.enabled || drawer.opened
                 Accessible.onPressAction: { largeButton_clicked(objectName) }
             }
         }
