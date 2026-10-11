@@ -235,6 +235,12 @@ ColumnLayout {
                         text: fileName.substring(0, fileName.length - 4)
                         onClicked: list.selectProfile(index)
                         onPressAndHold: list.deleteProfile(index)
+                        MouseArea {
+                            anchors.fill: parent
+                            z: 100
+                            onClicked: list.selectProfile(index)
+                            onPressAndHold: list.deleteProfile(index)
+                        }
                     }
                 }
                 onCurrentIndexChanged: {
