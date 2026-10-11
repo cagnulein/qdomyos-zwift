@@ -31,9 +31,6 @@
         return UNIT_KEYS[unit] ? t(UNIT_KEYS[unit], unit) : unit;
     }
 
-    // Seconds, mm:ss or hh:mm:ss; anything else ("1.5", "5m", "1:2:3:4") is not a duration
-    const DURATION_PATTERN = /^\s*\d+(\s*:\s*\d+){0,2}\s*$/;
-
     const FIELD_DEFS = [
         { key: 'name', labelKey: 'workoutEditor.label', label: 'Label', type: 'text', group: 'basic', devices: 'all' },
         { key: 'duration', labelKey: 'workoutEditor.duration', label: 'Duration', type: 'duration', group: 'basic', devices: 'all' },
@@ -968,6 +965,10 @@
                     }
                     // Use 'change' event for duration, pace, and number fields to prevent keyboard from closing during typing
                     input.addEventListener(field.type === 'duration' || field.type === 'pace' || field.type === 'number' ? 'change' : 'input', handleFieldChange);
+                    if (field.type === 'duration' || field.type === 'pace' || field.type === 'number') {
+                        // Show the reason while typing; the value itself is taken on 'change'
+                        input.addEventListener('input', handleFieldInput);
+                    }
                     if (field.type === 'number') {
                         // Text a number field cannot parse (e.g. "14,5") leaves value empty and may not fire 'change'
                         input.addEventListener('blur', handleNumberBlur);
@@ -1210,6 +1211,26 @@
         updateStatus();
     }
 
+    function handleFieldInput(event) {
+        const target = event.target;
+        const row = state.intervals[Number(target.dataset.index)];
+        const field = FIELD_DEFS.find(f => f.key === target.dataset.key);
+        if (!row || !field) {
+            return;
+        }
+        // Check the text as typed against a copy, without touching the interval or re-rendering
+        const typed = Object.assign({}, row);
+        if (field.type === 'number') {
+            typed[field.key] = target.value === '' ? undefined : Number(target.value);
+            typed['__bad_' + field.key] = !!(target.validity && target.validity.badInput);
+        } else if (field.type === 'duration') {
+            typed[field.key] = target.value.trim();
+        } else if (field.type === 'pace') {
+            typed.__bad_pace = isValidPace(target.value, formatPaceInput(target.value)) ? undefined : target.value;
+        }
+        showFieldError(target, fieldError(field, typed));
+    }
+
     function handleNumberBlur(event) {
         const target = event.target;
         const index = Number(target.dataset.index);
@@ -1261,7 +1282,7 @@
         }
         if (field.type === 'duration') {
             const text = row[field.key];
-            if (!DURATION_PATTERN.test(text || '')) {
+            if (!isDurationText(text)) {
                 return t('workoutEditor.durationFormat', 'Enter the duration as hh:mm:ss');
             }
             if (!parseDuration(text)) {
@@ -1734,8 +1755,26 @@
         return `${hh}:${mm}:${ss}`;
     }
 
+    function isDigits(text) {
+        if (!text) {
+            return false;
+        }
+        for (const ch of text) {
+            if (ch < '0' || ch > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Seconds, mm:ss or hh:mm:ss; anything else ("1.5", "5m", "1:2:3:4") is not a duration
+    function isDurationText(text) {
+        const parts = String(text || '').split(':').map(part => part.trim());
+        return parts.length <= 3 && parts.every(isDigits);
+    }
+
     function parseDuration(text) {
-        if (!text || !DURATION_PATTERN.test(text)) {
+        if (!text || !isDurationText(text)) {
             return 0;
         }
         const parts = text.split(':').map(part => parseInt(part, 10));
@@ -1786,11 +1825,25 @@
     // Pace as typed: minutes with an optional separator and seconds ("6:30", "6,30", "630");
     // seconds up to 59 and at least 1:00 – the same floor as the -/+ buttons
     function isValidPace(raw, formatted) {
-        if (!/^\s*\d+([:.,]\d+)?\s*$/.test(raw || '')) {
+        const text = String(raw || '').trim();
+        let separator = -1;
+        for (let i = 0; i < text.length; i++) {
+            if (':.,'.indexOf(text[i]) >= 0) {
+                if (separator >= 0) {
+                    return false;
+                }
+                separator = i;
+            }
+        }
+        const minutesText = separator >= 0 ? text.slice(0, separator) : text;
+        if (!isDigits(minutesText) || (separator >= 0 && !isDigits(text.slice(separator + 1)))) {
             return false;
         }
-        const match = /^(\d+):(\d{2})$/.exec(formatted);
-        return !!match && Number(match[2]) <= 59 && Number(match[1]) >= 1;
+        const parts = String(formatted || '').split(':');
+        if (parts.length !== 2 || parts[1].length !== 2) {
+            return false;
+        }
+        return Number(parts[1]) <= 59 && Number(parts[0]) >= 1;
     }
 
     function formatPaceInput(text) {
