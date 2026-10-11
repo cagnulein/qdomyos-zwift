@@ -2043,6 +2043,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(xcxBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
                 xcxBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(xcxBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("BODYSCULPTURE")) &&
+                       !trxappgateusbBike && !ftmsBike && filter) {
+                // Body Sculpture BC7330G uses the proprietary iConsole+ protocol, not FTMS.
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                trxappgateusbBike =
+                    new trxappgateusbbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(trxappgateusbBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(trxappgateusbBike, &trxappgateusbbike::debug, this, &bluetooth::debug);
+                trxappgateusbBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(trxappgateusbBike);
             } else if (((b.name().toUpper().startsWith("INDOORCYCLE")) ||
                         ((b.name().toUpper().startsWith("MAGNUS ")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) &&
                        !cycleopsphantomBike && filter) {
