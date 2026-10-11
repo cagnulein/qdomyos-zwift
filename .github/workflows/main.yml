@@ -922,14 +922,31 @@ jobs:
 
             # Verify the app is running
             echo "Checking if app is running..."
-            # Use different ps commands for different Android versions
-            adb shell "ps -A 2>/dev/null || ps" > process_list.txt
+            # Android 7 and older reject the -A option but may still return success.
+            adb shell "ps -A" > process_list.txt 2>&1 || true
+            if grep -q "bad pid\|unknown option" process_list.txt; then
+              adb shell ps > process_list.txt 2>&1 || true
+            fi
             # Debug: show all processes to understand the format
             echo "=== All running processes ==="
             cat process_list.txt | head -20
             echo "=== Looking for our app ==="
 
-            grep -q "qdomyos" process_list.txt || (echo "App process not found in process list" && echo "TEST FAILED: App process not running" && exit 1)
+            if ! grep -q "qdomyos" process_list.txt; then
+              echo "App process not found in process list"
+              echo "TEST FAILED: App process not running"
+              echo "=== Activity state ==="
+              adb shell dumpsys activity activities > activity_state.txt 2>&1 || true
+              cat activity_state.txt | tail -n 80
+              echo "=== Package state ==="
+              adb shell dumpsys package org.cagnulen.qdomyoszwift > package_state.txt 2>&1 || true
+              cat package_state.txt | tail -n 80
+              echo "=== Full logcat ==="
+              adb logcat -d > full_logcat.txt 2>&1 || true
+              adb logcat -d | grep -i "qdomyos\|crash\|error\|exception\|fatal\|linker" | tail -n 100 || true
+              adb logcat -d | grep -i "qdomyos\|crash\|error\|exception\|fatal\|linker" > qdomyos_logcat.txt 2>&1 || true
+              exit 1
+            fi
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
             echo "=== Checking app info ==="
             adb shell dumpsys package org.cagnulen.qdomyoszwift | grep -A5 -B5 "state"
@@ -972,6 +989,8 @@ jobs:
             screenshot.png
             screenshot_orientation_*.png
             process_list.txt
+            activity_state.txt
+            package_state.txt
             full_logcat.txt
             qdomyos_logcat.txt
           if-no-files-found: warn                
