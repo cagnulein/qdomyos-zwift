@@ -25,3 +25,9 @@ Connect the bike to QZ first and confirm cadence/power data and resistance contr
 Yes. QZ includes a dedicated Flywheel bike driver for supported ICG/Life Fitness bikes. For an IC7, enable the relevant option under **QZ Settings > Bike Options > Flywheel Bike Options** and connect the bike to QZ first. Verify that the bike's live metrics update in QZ, then pair **MyWhoosh with QZ's virtual bike** as the power/cadence source.
 
 Zwift is not required for this connection path. This is verified setup guidance based on QZ's Flywheel bike implementation; it does not imply that every IC7 console firmware or every control feature has been tested.
+
+## Can KayakFirst connect to MyWhoosh through QZ?
+
+Yes. A KayakFirst ergometer was confirmed working with QZ and MyWhoosh. Pair the machine with QZ first, then select the QZ virtual device in MyWhoosh. The [Rowing FAQ](rowing.md) explains the available virtual rower and PM5 compatibility settings.
+
+**Watt Gain** changes the power value reported by QZ, not the physical effort. A gain of 2 doubles the reported watts. QZ may round a distance such as 317 metres to 0.3 km in its summary; this is a display rounding difference, not necessarily a tracking error.
