@@ -9862,6 +9862,16 @@ Padrão: A = -0.96, B = 1.33</translation>
         <source>In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.</source>
         <translation>Na horizontal, deixa uma margem do lado da câmera para que o recorte não cubra o conteúdo. Desative para o conteúdo se estender sob o recorte. Padrão é ligado.</translation>
     </message>
+    <message>
+        <location filename="../settings.qml" line="229"/>
+        <source>Hidden on its page right now: change it here</source>
+        <translation>Oculta na própria página no momento: altere-a aqui</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="234"/>
+        <source>Turn on “%1” to change this setting</source>
+        <translation>Ative “%1” para alterar esta configuração</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

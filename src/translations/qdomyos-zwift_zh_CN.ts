@@ -9902,6 +9902,16 @@ Default: A = -0.96, B = 1.33</source>
         <source>In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.</source>
         <translation>横屏时在摄像头一侧留出边距，以免挖孔遮挡内容。关闭后内容会延伸到挖孔下方。默认开启。</translation>
     </message>
+    <message>
+        <location filename="../settings.qml" line="229"/>
+        <source>Hidden on its page right now: change it here</source>
+        <translation>当前在其所在页面中隐藏：请在此处更改</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="234"/>
+        <source>Turn on “%1” to change this setting</source>
+        <translation>开启“%1”后才能更改此设置</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

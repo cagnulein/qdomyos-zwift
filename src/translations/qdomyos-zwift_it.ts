@@ -9854,6 +9854,16 @@ Predefinito: A = -0.96, B = 1.33</translation>
         <source>In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.</source>
         <translation>In orizzontale lascia un margine dal lato della fotocamera, così il foro non copre il contenuto. Disattiva per estendere il contenuto sotto il foro. Attivo per impostazione predefinita.</translation>
     </message>
+    <message>
+        <location filename="../settings.qml" line="229"/>
+        <source>Hidden on its page right now: change it here</source>
+        <translation>Al momento nascosta nella sua pagina: modificala qui</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="234"/>
+        <source>Turn on “%1” to change this setting</source>
+        <translation>Attiva “%1” per modificare questa impostazione</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

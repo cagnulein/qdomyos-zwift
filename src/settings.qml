@@ -44,16 +44,356 @@ import AndroidStatusBar 1.0
         property bool settingsSearchActive: false
         property bool settingsSearchPending: false
         property string initialProfileSettingsSnapshot: ""
+        // Where every setting is on the settings pages (settings-index-worker.js), for a search
+        // result to open the setting itself
+        property var settingsIndex: null
+        property bool settingsIndexLoading: false
+        readonly property var settingsIndexPages: ["settings.qml", "settings-tiles.qml", "settings-tts.qml",
+                                                   "settings-shortcuts.qml", "settings-treadmill-inclination-override.qml",
+                                                   "gears.qml", "custominclinationresistance.qml"]
+        // A result tapped before the index was built: opened once the index arrives
+        property var pendingJump: null
+        property var pendingReveal: null
+        // The search a result was opened from: back returns to it
+        property var searchReturn: null
+        // The glow of the last jump: gone at once when back returns to the results
+        property var activeGlow: null
+        // Set while back puts the old query into the field: its onTextChanged must not search
+        property bool restoringSearch: false
+
+        // The sources of the settings pages, read once and parsed off the GUI thread
+        function loadSettingsIndex() {
+            if (settingsIndex || settingsIndexLoading)
+                return
+            settingsIndexLoading = true
+            var pages = []
+            var left = settingsIndexPages.length
+            settingsIndexPages.forEach(function (file) {
+                var xhr = new XMLHttpRequest()
+                xhr.open("GET", "qrc:/" + file)
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState !== XMLHttpRequest.DONE)
+                        return
+                    pages.push({ file: file, source: (xhr.status === 200 || xhr.status === 0) ? xhr.responseText : "" })
+                    if (--left === 0)
+                        settingsIndexWorker.sendMessage({ pages: pages })
+                }
+                xhr.send()
+            })
+        }
+
+        WorkerScript {
+            id: settingsIndexWorker
+            source: "settings-index-worker.js"
+            onMessage: {
+                settingsPane.settingsIndex = messageObject.map
+                settingsPane.settingsIndexLoading = false
+                if (settingsPane.pendingJump) {
+                    var entry = settingsPane.pendingJump
+                    settingsPane.pendingJump = null
+                    settingsPane.jumpToSetting(entry)
+                }
+            }
+        }
+
+        function findItem(item, predicate) {
+            if (!item)
+                return null
+            var kids = item.children
+            for (var i = 0; i < kids.length; i++) {
+                if (predicate(kids[i]))
+                    return kids[i]
+                var found = findItem(kids[i], predicate)
+                if (found)
+                    return found
+            }
+            return null
+        }
+
+        function normalizedLabel(text) {
+            return String(text).replace(/:\s*$/, "").trim().toLowerCase()
+        }
+
+        function settingLabels(entry, context) {
+            var name = entry.name || entry.key
+            return [name, qsTranslate(context, name), qsTranslate(context, name + ":"), entry._translatedName || ""]
+                .map(normalizedLabel)
+        }
+
+        // A section title without its emoji ("Maps 🗺️") for a message
+        function plainTitle(text) {
+            return String(text).replace(/\s*(?:[\uD83C-\uD83E][\uDC00-\uDFFF]|[⌀-⏿☀-➿])️?/g, "").trim()
+        }
+
+        // A text field keeps the focus (and the keyboard) until another control takes it
+        function dropTextFocus() {
+            var item = window.activeFocusItem
+            if (item && item.cursorPosition !== undefined) {
+                item.focus = false
+                Qt.inputMethod.hide()
+            }
+        }
+
+        function currentSearch(viaPush) {
+            return { query: settingsSearchTextField.text, results: filteredSettings,
+                     scroll: contentItem.contentY, viaPush: viaPush }
+        }
+
+        // A page among the results ("Wahoo Options"): back from it lands on the results
+        function openPageResult(entry) {
+            searchReturn = currentSearch(true)
+            // Or the search field takes the focus back with the keyboard on the way back
+            dropTextFocus()
+            stackView.push(entry.target)
+        }
+
+        // A search result opens the setting itself: its page, its sections, scrolled to it and
+        // lit for a moment. Without a label to find, the innermost section is shown.
+        function jumpToSetting(entry) {
+            // The index is built in the background: without it the jump knows no section
+            if (!settingsIndex) {
+                pendingJump = entry
+                loadSettingsIndex()
+                return
+            }
+            var where = settingsIndex[entry.key] || null
+            // A setting made of others ("Specific Model": a picker over one switch per model) is
+            // not on the page by its own key: it stands where the settings it is made of are
+            if (!where) {
+                var persistent = settingsCatalog.settings || []
+                for (var v = 0; v < persistent.length && !where; v++)
+                    if (persistent[v].virtualParent === entry.key)
+                        where = settingsIndex[persistent[v].key] || null
+            }
+            // A setting that is on no page: the result is the only place to change it, the tap
+            // leaves the results as they are
+            if (!where)
+                return
+            var page = settingsPane
+            var context = "settings"
+            searchReturn = currentSearch(false)
+            if (where.file !== "settings.qml") {
+                searchReturn.viaPush = true
+                stackView.push(where.file)
+                page = stackView.currentItem
+                context = where.file.replace(/\.qml$/, "")
+            }
+            settingsSearchTextField.text = ""
+            dropTextFocus()
+
+            var container = page.contentItem
+            var switchedOff = null
+            var opened = []
+            for (var i = 0; i < where.chain.length; i++) {
+                var wanted = qsTranslate(context, where.chain[i])
+                var english = where.chain[i]
+                // Starts with: some titles carry a medal emoji after the translated text
+                var section = findItem(container, function (item) {
+                    return item.isOpen !== undefined && item.accordionContent !== undefined &&
+                           typeof item.title === "string" &&
+                           (item.title.indexOf(wanted) === 0 || item.title.indexOf(english) === 0)
+                })
+                if (!section)
+                    break
+                // A section that is a switched-off setting itself (Wahoo direct connect): opened
+                // by force it showed its switch as on. It is lit instead, to be turned on first
+                if (section.linkedBoolSetting && !section.isOpen) {
+                    switchedOff = section
+                    break
+                }
+                if (!section.isOpen)
+                    opened.push(section)
+                section.isOpen = true
+                container = section
+            }
+            var names = settingLabels(entry, context)
+            function named(item) {
+                // The unit a label carries on the page ("Bike Weight (kg)") is not in the name
+                return typeof item.text === "string" && item.text.length > 0 &&
+                       (names.indexOf(normalizedLabel(item.text)) >= 0 ||
+                        names.indexOf(normalizedLabel(item.text.replace(/\s*\([^()]*\)\s*:?\s*$/, ""))) >= 0)
+            }
+            var target = switchedOff ? switchedOff : findItem(container, function (item) {
+                return item.visible && named(item)
+            })
+            // A setting its page hides with the current values ("Use kg for weight" shows only
+            // with miles on) - the whole section was lit instead. Back to the results, the
+            // sections opened on the way closed again: the result has the control itself
+            if (!target && findItem(container, named)) {
+                for (var k = 0; k < opened.length; k++)
+                    opened[k].isOpen = false
+                if (searchReturn.viaPush)
+                    stackView.pop()
+                else
+                    restoreSearch()
+                toast.show(qsTr("Hidden on its page right now: change it here"))
+                return
+            }
+            // The fields of a switched-off section are not on the page yet
+            if (switchedOff)
+                toast.show(qsTr("Turn on “%1” to change this setting").arg(plainTitle(switchedOff.title)))
+            pendingReveal = { flickable: page.contentItem, target: target || container }
+            revealTimer.restart()
+        }
+
+        // Back (main.qml navigateBack) after a result was opened on this page: the results again
+        function handleBack() {
+            if (!searchReturn)
+                return false
+            restoreSearch()
+            return true
+        }
+
+        function restoreSearch() {
+            if (activeGlow)
+                activeGlow.destroy()
+            activeGlow = null
+            var back = searchReturn
+            searchReturn = null
+            // The search bar may have been closed with its button meanwhile
+            settingsSearchVisible = true
+            restoringSearch = true
+            settingsSearchTextField.text = back.query
+            restoringSearch = false
+            settingsSearchActive = back.query.trim().length > 0
+            settingsSearchPending = false
+            filteredSettings = back.results
+            // After the list is laid out again
+            contentItem.contentY = 0
+            Qt.callLater(function () {
+                contentItem.contentY = Math.max(0, Math.min(back.scroll, contentItem.contentHeight - contentItem.height))
+            })
+        }
+
+        // A result on another page (Tiles...): back from it lands on the results. A result on
+        // this page is forgotten once another page opens over it, or coming back from that
+        // page would bring the old search up
+        StackView.onActivated: {
+            if (searchReturn && searchReturn.viaPush)
+                restoreSearch()
+        }
+        StackView.onDeactivated: {
+            if (searchReturn && !searchReturn.viaPush)
+                searchReturn = null
+        }
+
+        function revealPending() {
+            var reveal = pendingReveal
+            pendingReveal = null
+            if (!reveal || !reveal.flickable || !reveal.target)
+                return
+            var flickable = reveal.flickable
+            var target = reveal.target
+            // The whole row when the label sits in one (label, field, OK). A row only: a switch
+            // in a small column with its description was lit with all of it
+            var row = (target.parent && String(target.parent).indexOf("Row") >= 0 &&
+                       target.parent.height > target.height && target.parent.height < 200)
+                      ? target.parent : target
+            var at = row.mapToItem(flickable.contentItem, 0, 0)
+            flickable.contentY = Math.max(0, Math.min(at.y - 96, flickable.contentHeight - flickable.height))
+            // Nothing to light when not even a section was found: the whole page would glow
+            if (target === flickable)
+                return
+            // On the flickable, not in its content: a ScrollView takes the content height from
+            // the only child of the content, a second child would zero it and throw the page to
+            // the top. So the highlight follows the scroll itself.
+            activeGlow = settingHighlight.createObject(flickable, { flickable: flickable, row: row })
+        }
+
+        Timer {
+            id: revealTimer
+            // The sections just opened have to be laid out before the position is read
+            interval: 250
+            onTriggered: settingsPane.revealPending()
+        }
+
+        Component {
+            id: settingHighlight
+            Rectangle {
+                id: glow
+                property Item flickable
+                property Item row
+                property int ticks: 0
+                radius: 12
+                // The sections above are still opening (their height animates) when the row is
+                // first measured: the row moves after it, so the glow and the scroll follow it
+                function follow() {
+                    if (!flickable || !row)
+                        return
+                    ticks++
+                    // The finger wins: once the page is touched the glow stops scrolling it
+                    if (flickable.dragging || flickable.moving)
+                        ticks = 1000
+                    if (ticks <= 20) {
+                        var at = row.mapToItem(flickable.contentItem, 0, 0).y
+                        flickable.contentY = Math.max(0, Math.min(at - 96, flickable.contentHeight - flickable.height))
+                    }
+                    // Around the row itself, a little wider than its text, which starts at its
+                    // very edge; a lone label is as wide as its text: up to the same indent on the
+                    // right
+                    var pos = row.mapToItem(flickable, 0, 0)
+                    var w = row.width < flickable.width * 0.6 ? flickable.width - 2 * pos.x
+                                                              : Math.min(row.width, flickable.width - 2 * pos.x)
+                    if (w < row.width / 2)
+                        w = row.width
+                    // A title label: without the space it keeps above itself, and with the
+                    // control it names right under it ("FTMS Bike:" over its list and OK)
+                    var top = pos.y
+                    var bottom = pos.y + row.height
+                    if (String(row).indexOf("Label") >= 0) {
+                        if (row.topPadding > 0)
+                            top += row.topPadding
+                        var next = nextShown(row)
+                        if (next && next.text === undefined) {
+                            var nextPos = next.mapToItem(flickable, 0, 0)
+                            if (nextPos.y >= top && nextPos.y - bottom < 24)
+                                bottom = Math.max(bottom, nextPos.y + next.height)
+                        }
+                    }
+                    x = Math.max(0, pos.x - 6)
+                    width = Math.min(pos.x + w + 6, flickable.width) - x
+                    y = top - 2
+                    height = bottom - top + 4
+                }
+                function nextShown(item) {
+                    var siblings = item.parent ? item.parent.children : []
+                    for (var i = 0; i < siblings.length; i++) {
+                        if (siblings[i] !== item)
+                            continue
+                        for (var j = i + 1; j < siblings.length; j++)
+                            if (siblings[j].visible && siblings[j].height > 0)
+                                return siblings[j]
+                    }
+                    return null
+                }
+                Component.onCompleted: follow()
+                Timer { interval: 40; repeat: true; running: true; onTriggered: glow.follow() }
+                color: Qt.rgba(Material.accent.r, Material.accent.g, Material.accent.b, 0.22)
+                SequentialAnimation {
+                    running: true
+                    PauseAnimation { duration: 1200 }
+                    NumberAnimation { target: glow; property: "opacity"; to: 0; duration: 800 }
+                    ScriptAction { script: glow.destroy() }
+                }
+            }
+        }
 
         function showSettingsSearch() {
             settingsSearchVisible = true
             loadSettingsCatalog()
+            loadSettingsIndex()
+            // The search bar is the top row of the page: bring it into view from any scroll
+            // position (after a result was opened the page is deep in a section)
+            if (settingsPane.contentItem)
+                settingsPane.contentItem.contentY = 0
             Qt.callLater(function() {
                 settingsSearchTextField.forceActiveFocus()
             })
         }
 
         function hideSettingsSearch() {
+            // The search closed is done with: back no longer brings its results up
+            searchReturn = null
             settingsSearchDebounceTimer.stop()
             settingsSearchTextField.text = ""
             settingsSearchVisible = false
@@ -1894,7 +2234,11 @@ import AndroidStatusBar 1.0
                     placeholderText: qsTr("Search settings")
                     selectByMouse: true
                     inputMethodHints: Qt.ImhNoPredictiveText
+                    // A new search of one's own: back no longer returns to the previous one
+                    onTextEdited: settingsPane.searchReturn = null
                     onTextChanged: {
+                        if (settingsPane.restoringSearch)
+                            return
                         settingsPane.settingsSearchActive = text.trim().length > 0
                         settingsSearchDebounceTimer.stop()
                         if (settingsPane.settingsSearchActive) {
@@ -1956,10 +2300,18 @@ import AndroidStatusBar 1.0
 
                         Rectangle {
                             anchors.fill: parent
-                            color: "transparent"
+                            color: resultArea.pressed ? Qt.rgba(0.5, 0.5, 0.5, 0.2) : "transparent"
                             border.color: Material.color(Material.Grey)
                             border.width: 1
                             radius: 2
+                        }
+
+                        // A tap on the card (not on its controls) opens the setting itself
+                        MouseArea {
+                            id: resultArea
+                            anchors.fill: parent
+                            onClicked: entry.catalogKind === "page" ? settingsPane.openPageResult(entry)
+                                                                    : settingsPane.jumpToSetting(entry)
                         }
 
                         ColumnLayout {
@@ -2007,7 +2359,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     visible: entry.catalogKind === "page"
                                     text: qsTr("Open")
-                                    onClicked: stackView.push(entry.target)
+                                    onClicked: settingsPane.openPageResult(entry)
                                 }
                             }
 
