@@ -9858,6 +9858,16 @@ Standard: A = -0.96, B = 1.33</translation>
         <source>In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.</source>
         <translation>Lässt im Querformat auf der Kameraseite einen Rand, damit die Kameraaussparung den Inhalt nicht verdeckt. Ausschalten, damit der Inhalt bis unter die Aussparung reicht. Standard: an.</translation>
     </message>
+    <message>
+        <location filename="../settings.qml" line="229"/>
+        <source>Hidden on its page right now: change it here</source>
+        <translation>Auf ihrer Seite gerade ausgeblendet: hier ändern</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="234"/>
+        <source>Turn on “%1” to change this setting</source>
+        <translation>Aktivieren Sie „%1“, um diese Einstellung zu ändern</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

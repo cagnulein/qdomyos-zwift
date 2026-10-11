@@ -9842,6 +9842,16 @@ Default: A = -0.96, B = 1.33</source>
         <source>Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.</source>
         <translation>Удаляет с устройства все журналы QZ, файлы .fit и изображения QZ (QZ сохраняет их для каждой тренировки), не затрагивая сохранённые профили и настройки.</translation>
     </message>
+    <message>
+        <location filename="../settings.qml" line="229"/>
+        <source>Hidden on its page right now: change it here</source>
+        <translation>Сейчас скрыта на своей странице – меняйте её здесь</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="234"/>
+        <source>Turn on “%1” to change this setting</source>
+        <translation>Включите «%1», чтобы изменить эту настройку</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

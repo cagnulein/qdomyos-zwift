@@ -9878,6 +9878,16 @@ Par défaut : A = -0.96, B = 1.33</translation>
         <source>In landscape, keeps a margin on the camera side so the camera hole does not cover the content. Turn off to let the content extend under the camera cutout. Default is on.</source>
         <translation>En paysage, laisse une marge du côté de la caméra pour que l&apos;encoche ne masque pas le contenu. Désactivez pour que le contenu passe sous l&apos;encoche. Activé par défaut.</translation>
     </message>
+    <message>
+        <location filename="../settings.qml" line="229"/>
+        <source>Hidden on its page right now: change it here</source>
+        <translation>Masqué sur sa page pour l’instant : modifiez-le ici</translation>
+    </message>
+    <message>
+        <location filename="../settings.qml" line="234"/>
+        <source>Turn on “%1” to change this setting</source>
+        <translation>Activez « %1 » pour modifier ce paramètre</translation>
+    </message>
 </context>
 <context>
     <name>settings-shortcuts</name>

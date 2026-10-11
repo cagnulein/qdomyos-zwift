@@ -11,6 +11,7 @@
         <file>Home.qml</file>
         <file>settings.qml</file>
         <file>settings-catalog.json</file>
+        <file>settings-index-worker.js</file>
         <file>AccordionElement.qml</file>
         <file>AccordionCheckElement.qml</file>
         <file>icons/arrow-collapse-vertical.png</file>
