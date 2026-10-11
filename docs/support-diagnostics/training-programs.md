@@ -23,3 +23,39 @@
 - The Treadmill Speed Forcing value determines whether speed control is expected from the training path and should be checked before interpreting a log.
 - A short log with no manual speed-button presses makes the source of a speed command much easier to identify.
 - The GPX file is only needed after the basic control-path test shows that the behavior follows the route.
+
+## Program start causes metrics or the console display to stop updating
+
+### Provide first
+
+- Machine model, QZ version, and the workout type (built-in, Workout Editor, or imported).
+- Compare a short session without a program to one with the program. State separately whether QZ metrics, the machine console, and physical resistance or speed still respond.
+- Identify the exact start action and when the values stop updating.
+
+### If still unclear
+
+- Capture short QZ debug logs for both tests with the time of program start and the first missing metric.
+- If available, record QZ tiles and the machine console during the transition. Provide the workout definition only if the issue depends on a particular program.
+
+### Why it matters
+
+- The comparison isolates workout-start behavior from initial Bluetooth discovery problems.
+- Console display, live telemetry, and physical control can fail independently.
+
+## Unexpected speed corrections during heart-rate-controlled intervals
+
+### Provide first
+
+- Treadmill model, QZ version, target heart-rate interval, and whether the controller adjusts speed or incline.
+- A specific expected-versus-observed speed or interval transition, and whether manual speed changes were made on the console or in QZ.
+- Compare the same short interval with no manual adjustments.
+
+### If still unclear
+
+- Share the affected workout XML or Workout Editor interval settings, including target zone and speed limits.
+- Provide a short QZ debug log covering the unexpected change and the next row transition, with approximate times of manual inputs.
+
+### Why it matters
+
+- Comparing manual and hands-off runs distinguishes competing speed requests from the normal heart-rate controller.
+- Workout row transitions, commands sent by QZ, and the treadmill's physical response must be checked separately. Manual console inputs may not be recorded as distinct QZ events.
