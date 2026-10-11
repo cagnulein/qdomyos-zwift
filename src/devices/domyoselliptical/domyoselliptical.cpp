@@ -15,6 +15,11 @@
 
 using namespace std::chrono_literals;
 
+namespace {
+const QByteArray kChangYowInitProbe = QByteArray::fromHex("f0c801b9");
+const QByteArray kChangYowInitReadyAck = QByteArray::fromHex("f0d801c9");
+}
+
 domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, bool testResistance,
                                    int8_t bikeResistanceOffset, double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -34,6 +39,16 @@ domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, 
     writeTimeoutTimer = new QTimer(this);
     writeTimeoutTimer->setSingleShot(true);
     connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
+        if (waitForChangYowInitReady && currentWriteWaitingForResponse && isWriting && writeBuffer &&
+            *writeBuffer == kChangYowInitProbe && gattCommunicationChannelService &&
+            gattCommunicationChannelService->state() == QLowEnergyService::ServiceState::ServiceDiscovered &&
+            m_control && m_control->state() != QLowEnergyController::UnconnectedState) {
+            emit debug(QStringLiteral("ChangYow init probe not acknowledged yet - retrying"));
+            gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+            writeTimeoutTimer->start(300);
+            return;
+        }
+
         emit debug(QStringLiteral("writeCharacteristic timeout - processing next in queue"));
         isWriting = false;
         currentWriteWaitingForResponse = false;
@@ -312,9 +327,21 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
-    if (newValue.length() != 20) {
-        emit debug(QStringLiteral("packetReceived!"));
+    bool completesPendingWrite = newValue.length() != 20;
+    if (waitForChangYowInitReady && currentWriteWaitingForResponse && isWriting) {
+        if (newValue == kChangYowInitReadyAck) {
+            emit debug(QStringLiteral("ChangYow console ready - init ACK received"));
+            waitForChangYowInitReady = false;
+        } else {
+            // While the console is still booting it may emit unrelated notifications.
+            // Do not let them advance the init queue: only the C8 -> D8 ACK proves
+            // that the ChangYow command channel is ready.
+            completesPendingWrite = false;
+        }
+    }
 
+    if (completesPendingWrite) {
+        emit debug(QStringLiteral("packetReceived!"));
         emit packetReceived();
     }
 
@@ -458,6 +485,11 @@ void domyoselliptical::btinit_changyow(bool startTape) {
                                  0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x14, 0x01, 0xff, 0xff};
 
     uint8_t initDataStart13[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xbd};
+
+    if (!startTape && !initDone) {
+        waitForChangYowInitReady = true;
+        emit debug(QStringLiteral("Waiting for ChangYow init ACK before continuing startup"));
+    }
 
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
