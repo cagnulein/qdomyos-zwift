@@ -537,7 +537,7 @@ Page {
                                     text: {
                                         var useMiles = settings && settings.miles_unit
                                         var displayDistance = useMiles ? (distance / 1.60934) : distance
-                                        return "📏 " + displayDistance.toFixed(2) + (useMiles ? " mi" : " km")
+                                        return "📏 " + displayDistance.toFixed(2) + " " + (useMiles ? qsTr("mi") : qsTr("km"))
                                     }
                                 }
                             }
@@ -547,8 +547,8 @@ Page {
 
                                 Text {
                                     text: Qt.platform.os === "android" ? 
-                                          wrapEmoji("🔥") + " " + Math.round(calories) + " kcal" : 
-                                          "🔥 " + Math.round(calories) + " kcal"
+                                          wrapEmoji("🔥") + " " + Math.round(calories) + " " + qsTr("kcal") :
+                                          "🔥 " + Math.round(calories) + " " + qsTr("kcal")
                                     textFormat: Qt.platform.os === "android" ? Text.RichText : Text.PlainText
                                 }
                             }

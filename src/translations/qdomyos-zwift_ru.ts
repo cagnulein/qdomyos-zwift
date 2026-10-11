@@ -1962,6 +1962,58 @@ Do you want to update QZ settings?</source>
         <translation>Пульс &lt;{value} уд/мин</translation>
     </message>
     <message>
+        <source>W</source>
+        <translation>Вт</translation>
+    </message>
+    <message>
+        <source>kJ</source>
+        <translation>кДж</translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation>ккал</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>км</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>миль</translation>
+    </message>
+    <message>
+        <source>rpm</source>
+        <translation>об/мин</translation>
+    </message>
+    <message>
+        <source>bpm</source>
+        <translation>уд/мин</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>км/ч</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>миль/ч</translation>
+    </message>
+    <message>
+        <source>min/km</source>
+        <translation>мин/км</translation>
+    </message>
+    <message>
+        <source>min/mi</source>
+        <translation>мин/милю</translation>
+    </message>
+    <message>
+        <source>lvl</source>
+        <translation>ур.</translation>
+    </message>
+    <message>
+        <source>spm</source>
+        <translation>гр/мин</translation>
+    </message>
+    <message>
         <source>Marathon</source>
         <translation>Марафон</translation>
     </message>
@@ -2415,6 +2467,14 @@ The following questions will customize QZ for your equipment and goals.</source>
         <translation>Вес (%1)</translation>
     </message>
     <message>
+        <source>lbs</source>
+        <translation>фунт</translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation>кг</translation>
+    </message>
+    <message>
         <source>Age</source>
         <translation>Возраст</translation>
     </message>
@@ -2588,6 +2648,18 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Failed to load training program. Please check if the file exists.</source>
         <translation>Не удалось загрузить программу тренировки. Проверьте, существует ли файл.</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>миль</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>км</translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation>ккал</translation>
     </message>
     <message>
         <source>Upload to Strava</source>
@@ -3042,12 +3114,54 @@ This may take a few moments on first startup.</source>
         <translation>Мощность</translation>
     </message>
     <message>
+        <source>km</source>
+        <translation>км</translation>
+    </message>
+    <message>
+        <source>m</source>
+        <comment>unit: meters</comment>
+        <translation>м</translation>
+    </message>
+    <message>
+        <source>Kg</source>
+        <translation>кг</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation>см</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>миль</translation>
+    </message>
+    <message>
+        <source>ft</source>
+        <translation>фут</translation>
+    </message>
+    <message>
+        <source>in</source>
+        <comment>unit: inches</comment>
+        <translation>дюйм</translation>
+    </message>
+    <message>
+        <source>Oz</source>
+        <translation>унц.</translation>
+    </message>
+    <message>
         <source>AVG Watts</source>
         <translation>Ср. мощность</translation>
     </message>
     <message>
         <source>Power Avg</source>
         <translation>Усредн. мощности</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Выкл.</translation>
+    </message>
+    <message>
+        <source>HRV (ms)</source>
+        <translation>ВСР (мс)</translation>
     </message>
     <message>
         <source>PID Heart</source>
@@ -3074,6 +3188,22 @@ This may take a few moments on first startup.</source>
         <translation>Шаги</translation>
     </message>
     <message>
+        <source>Odometer (m)</source>
+        <translation>Пробег (м)</translation>
+    </message>
+    <message>
+        <source>Pace (m/500m)</source>
+        <translation>Темп (мин/500 м)</translation>
+    </message>
+    <message>
+        <source>Avg Pace (m/500m)</source>
+        <translation>Ср. темп (мин/500 м)</translation>
+    </message>
+    <message>
+        <source>T.Pace(m/500m)</source>
+        <translation>Ц.темп (мин/500 м)</translation>
+    </message>
+    <message>
         <source>Stop</source>
         <translation>Стоп</translation>
     </message>
@@ -3084,6 +3214,26 @@ This may take a few moments on first startup.</source>
     <message>
         <source>Pause</source>
         <translation>Пауза</translation>
+    </message>
+    <message>
+        <source>offset </source>
+        <translation>смещ. </translation>
+    </message>
+    <message>
+        <source> /min</source>
+        <translation> /мин</translation>
+    </message>
+    <message>
+        <source> sec.</source>
+        <translation> с</translation>
+    </message>
+    <message>
+        <source>Incl: </source>
+        <translation>Накл.: </translation>
+    </message>
+    <message>
+        <source>%1%2W</source>
+        <translation>%1%2 Вт</translation>
     </message>
     <message>
         <source>Rec.</source>
@@ -3130,6 +3280,26 @@ This may take a few moments on first startup.</source>
     <message>
         <source>N/A</source>
         <translation>Н/Д</translation>
+    </message>
+    <message>
+        <source>3s avg</source>
+        <translation>Ср. 3 с</translation>
+    </message>
+    <message>
+        <source>5s avg</source>
+        <translation>Ср. 5 с</translation>
+    </message>
+    <message>
+        <source>Gain: </source>
+        <translation>Коэф.: </translation>
+    </message>
+    <message>
+        <source>MIN: </source>
+        <translation>Мин.: </translation>
+    </message>
+    <message>
+        <source>W </source>
+        <translation> Вт </translation>
     </message>
     <message>
         <source>, speed </source>
@@ -4776,6 +4946,22 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Вес велосипеда (%1)</translation>
     </message>
     <message>
+        <source>lbs</source>
+        <translation>фунт</translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation>кг</translation>
+    </message>
+    <message>
+        <source>ft/in</source>
+        <translation>фут/дюйм</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation>см</translation>
+    </message>
+    <message>
         <source>OpenBikeControl</source>
         <translation>OpenBikeControl</translation>
     </message>
@@ -5210,6 +5396,14 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Walking Min Speed:</source>
         <translation>Мин. скорость ходьбы:</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>миль/ч</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>км/ч</translation>
     </message>
     <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
@@ -5724,6 +5918,14 @@ Please enter it below:</source>
     <message>
         <source>Marathon</source>
         <translation>Марафон</translation>
+    </message>
+    <message>
+        <source>5 km</source>
+        <translation>5 км</translation>
+    </message>
+    <message>
+        <source>10 km</source>
+        <translation>10 км</translation>
     </message>
     <message>
         <source>Select the default Pace to be used when the ZWO file does not indicate a precise pace.</source>
@@ -6507,6 +6709,14 @@ IMPORTANT NOTES:
         <translation>Можно автоматически отмечать круги в FIT-файле по дистанции. Единица: %1. По умолчанию: 0 (выключено).</translation>
     </message>
     <message>
+        <source>Mi</source>
+        <translation>мили</translation>
+    </message>
+    <message>
+        <source>KM</source>
+        <translation>км</translation>
+    </message>
+    <message>
         <source>Inclination Delay:</source>
         <translation>Задержка наклона:</translation>
     </message>
@@ -7272,7 +7482,7 @@ Default: A = -0.96, B = 1.33</source>
     </message>
     <message>
         <source>Pafers Rower</source>
-        <translation type="unfinished"></translation>
+        <translation>Гребной тренажёр Pafers</translation>
     </message>
 </context>
 <context>
@@ -7877,6 +8087,14 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Preset Speed 1</source>
         <translation>Предустановка скорости 1</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>миль/ч</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>км/ч</translation>
     </message>
     <message>
         <source>Preset Speed 2</source>

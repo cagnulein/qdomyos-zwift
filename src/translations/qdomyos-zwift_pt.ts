@@ -1962,6 +1962,58 @@ Deseja atualizar as configurações do QZ?</translation>
         <translation>FC &lt;{value} bpm</translation>
     </message>
     <message>
+        <source>W</source>
+        <translation>W</translation>
+    </message>
+    <message>
+        <source>kJ</source>
+        <translation>kJ</translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation>kcal</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>rpm</source>
+        <translation>rpm</translation>
+    </message>
+    <message>
+        <source>bpm</source>
+        <translation>bpm</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>km/h</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>mph</translation>
+    </message>
+    <message>
+        <source>min/km</source>
+        <translation>min/km</translation>
+    </message>
+    <message>
+        <source>min/mi</source>
+        <translation>min/mi</translation>
+    </message>
+    <message>
+        <source>lvl</source>
+        <translation>nív.</translation>
+    </message>
+    <message>
+        <source>spm</source>
+        <translation>spm</translation>
+    </message>
+    <message>
         <source>Marathon</source>
         <translation>Maratona</translation>
     </message>
@@ -2415,6 +2467,14 @@ As seguintes perguntas personalizarão o QZ para o seu equipamento e objetivos.<
         <translation>Peso (%1)</translation>
     </message>
     <message>
+        <source>lbs</source>
+        <translation>lbs</translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation>kg</translation>
+    </message>
+    <message>
         <source>Age</source>
         <translation>Idade</translation>
     </message>
@@ -2588,6 +2648,18 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>Failed to load training program. Please check if the file exists.</source>
         <translation>Falha ao carregar o programa de treino. Verifique se o arquivo existe.</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>kcal</source>
+        <translation>kcal</translation>
     </message>
     <message>
         <source>Import FIT File...</source>
@@ -3050,6 +3122,14 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Média móvel de potência</translation>
     </message>
     <message>
+        <source>Off</source>
+        <translation>Desligado</translation>
+    </message>
+    <message>
+        <source>HRV (ms)</source>
+        <translation>VFC (ms)</translation>
+    </message>
+    <message>
         <source>PID Heart</source>
         <translation>Manter FC</translation>
     </message>
@@ -3074,6 +3154,22 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
         <translation>Contagem de passos</translation>
     </message>
     <message>
+        <source>Odometer (m)</source>
+        <translation>Odômetro (m)</translation>
+    </message>
+    <message>
+        <source>Pace (m/500m)</source>
+        <translation>Ritmo (m/500m)</translation>
+    </message>
+    <message>
+        <source>Avg Pace (m/500m)</source>
+        <translation>Ritmo méd. (m/500m)</translation>
+    </message>
+    <message>
+        <source>T.Pace(m/500m)</source>
+        <translation>Ritmo alvo (m/500m)</translation>
+    </message>
+    <message>
         <source>Stop</source>
         <translation>Parar</translation>
     </message>
@@ -3084,6 +3180,26 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>Pause</source>
         <translation>Pausar</translation>
+    </message>
+    <message>
+        <source>offset </source>
+        <translation>desvio </translation>
+    </message>
+    <message>
+        <source> /min</source>
+        <translation> /min</translation>
+    </message>
+    <message>
+        <source> sec.</source>
+        <translation> seg.</translation>
+    </message>
+    <message>
+        <source>Incl: </source>
+        <translation>Incl.: </translation>
+    </message>
+    <message>
+        <source>%1%2W</source>
+        <translation>%1%2W</translation>
     </message>
     <message>
         <source>Rec.</source>
@@ -3130,6 +3246,26 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>N/A</source>
         <translation>N/D</translation>
+    </message>
+    <message>
+        <source>3s avg</source>
+        <translation>Méd. 3s</translation>
+    </message>
+    <message>
+        <source>5s avg</source>
+        <translation>Méd. 5s</translation>
+    </message>
+    <message>
+        <source>Gain: </source>
+        <translation>Ganho: </translation>
+    </message>
+    <message>
+        <source>MIN: </source>
+        <translation>MÍN: </translation>
+    </message>
+    <message>
+        <source>W </source>
+        <translation>W </translation>
     </message>
     <message>
         <source>, speed </source>
@@ -3327,6 +3463,40 @@ Isso pode levar alguns instantes na primeira inicialização.</translation>
     <message>
         <source>The workout file could not be opened.</source>
         <translation>Não foi possível abrir o arquivo do treino.</translation>
+    </message>
+    <message>
+        <source>km</source>
+        <translation>km</translation>
+    </message>
+    <message>
+        <source>m</source>
+        <comment>unit: meters</comment>
+        <translation>m</translation>
+    </message>
+    <message>
+        <source>Kg</source>
+        <translation>Kg</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation>cm</translation>
+    </message>
+    <message>
+        <source>mi</source>
+        <translation>mi</translation>
+    </message>
+    <message>
+        <source>ft</source>
+        <translation>ft</translation>
+    </message>
+    <message>
+        <source>in</source>
+        <comment>unit: inches</comment>
+        <translation>in</translation>
+    </message>
+    <message>
+        <source>Oz</source>
+        <translation>Oz</translation>
     </message>
     <message>
         <source>Watts</source>
@@ -5152,6 +5322,22 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Escolha Automático para seguir o idioma do seu dispositivo, ou selecione um idioma específico para QZ. É necessário reiniciar.</translation>
     </message>
     <message>
+        <source>lbs</source>
+        <translation>lbs</translation>
+    </message>
+    <message>
+        <source>kg</source>
+        <translation>kg</translation>
+    </message>
+    <message>
+        <source>ft/in</source>
+        <translation>ft/in</translation>
+    </message>
+    <message>
+        <source>cm</source>
+        <translation>cm</translation>
+    </message>
+    <message>
         <source>Invalid format! Use feet&apos;inches (e.g., 6&apos;2&quot;)</source>
         <translation>Formato inválido! Use pés&apos;polegadas (ex: 6&apos;2&quot;)</translation>
     </message>
@@ -5254,6 +5440,14 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
     <message>
         <source>Walking Min Speed:</source>
         <translation>Velocidade Mínima de Caminhada:</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>mph</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>km/h</translation>
     </message>
     <message>
         <source>Minimum speed for Peloton walking sessions. Set to 0 to disable. Applied to all speed targets in walking workouts.</source>
@@ -5728,6 +5922,14 @@ Insira-o abaixo:</translation>
     <message>
         <source>Marathon</source>
         <translation>Maratona</translation>
+    </message>
+    <message>
+        <source>5 km</source>
+        <translation>5 km</translation>
+    </message>
+    <message>
+        <source>10 km</source>
+        <translation>10 km</translation>
     </message>
     <message>
         <source>Select the default Pace to be used when the ZWO file does not indicate a precise pace.</source>
@@ -6519,6 +6721,14 @@ OBSERVAÇÕES IMPORTANTES:
         <translation>Você pode marcar voltas automáticas no arquivo FIT com base na distância. Unidade: %1 Padrão: 0 (desativado).</translation>
     </message>
     <message>
+        <source>Mi</source>
+        <translation>Mi</translation>
+    </message>
+    <message>
+        <source>KM</source>
+        <translation>KM</translation>
+    </message>
+    <message>
         <source>Inclination Delay:</source>
         <translation>Atraso de Inclinação:</translation>
     </message>
@@ -7292,7 +7502,7 @@ Padrão: A = -0.96, B = 1.33</translation>
     </message>
     <message>
         <source>Pafers Rower</source>
-        <translation type="unfinished"></translation>
+        <translation>Remo Pafers</translation>
     </message>
 </context>
 <context>
@@ -7913,6 +8123,14 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <source>Preset Speed 1</source>
         <translation>Velocidade Pré-definida 1</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>mph</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>km/h</translation>
     </message>
     <message>
         <source>Preset Speed 2</source>

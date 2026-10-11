@@ -21,6 +21,16 @@
         return fallback || key;
     }
 
+    // Units are stored and compared in English ('W', '% FTP'); only the displayed text is translated
+    const UNIT_KEYS = {
+        'W': 'unit.w', 'rpm': 'unit.rpm', 'km': 'unit.km', 'mi': 'unit.mi', 'km/h': 'unit.kmh', 'mph': 'unit.mph',
+        'min/km': 'unit.minPerKm', 'min/mi': 'unit.minPerMi', 'lvl': 'unit.level', 'spm': 'unit.spm'
+    };
+
+    function unitLabel(unit) {
+        return UNIT_KEYS[unit] ? t(UNIT_KEYS[unit], unit) : unit;
+    }
+
     const FIELD_DEFS = [
         { key: 'name', labelKey: 'workoutEditor.label', label: 'Label', type: 'text', group: 'basic', devices: 'all' },
         { key: 'duration', labelKey: 'workoutEditor.duration', label: 'Duration', type: 'duration', group: 'basic', devices: 'all' },
@@ -908,7 +918,7 @@
                     (field.options || []).forEach(opt => {
                         const option = document.createElement('option');
                         option.value = opt;
-                        option.textContent = opt;
+                        option.textContent = unitLabel(opt);
                         const currentVal = String(row[field.key] !== undefined ? row[field.key] : (field.defaultValue !== undefined ? field.defaultValue : ''));
                         if (currentVal === opt) {
                             option.selected = true;
@@ -1000,20 +1010,20 @@
         }
         const label = field.labelKey ? t(field.labelKey, field.label) : field.label;
         if (field.unitKey === 'distance') {
-            return `${label} (${state.miles ? 'mi' : 'km'})`;
+            return `${label} (${unitLabel(state.miles ? 'mi' : 'km')})`;
         }
         if (field.unitKey === 'speed') {
-            return `${label} (${state.miles ? 'mph' : 'km/h'})`;
+            return `${label} (${unitLabel(state.miles ? 'mph' : 'km/h')})`;
         }
         if (field.unitKey === 'pace') {
-            return `${label} (${state.miles ? 'min/mi' : 'min/km'})`;
+            return `${label} (${unitLabel(state.miles ? 'min/mi' : 'min/km')})`;
         }
         if ((field.key === 'powerfrom' || field.key === 'powerto') && interval) {
             const unit = interval.powerrampunit || 'W';
-            return `${label} (${unit})`;
+            return `${label} (${unitLabel(unit)})`;
         }
         if (field.unitSuffix) {
-            return `${label} (${field.unitSuffix})`;
+            return `${label} (${unitLabel(field.unitSuffix)})`;
         }
         return label;
     }
@@ -1451,7 +1461,7 @@
             key: def.key,
             label: def.label(),
             color: def.color,
-            unit: typeof def.unit === 'function' ? def.unit() : def.unit,
+            unit: unitLabel(typeof def.unit === 'function' ? def.unit() : def.unit),
             axis: def.axis,
             axisLabel: typeof def.axisLabel === 'function' ? def.axisLabel() : def.axisLabel,
             axisPosition: def.axisPosition,
