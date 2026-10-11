@@ -236,6 +236,20 @@ ColumnLayout {
                         onPressAndHold: list.deleteProfile(index)
                     }
                 }
+                MouseArea {
+                    anchors.fill: parent
+                    z: 1000
+                    onClicked: {
+                        const profileIndex = Math.floor(mouse.y / 40)
+                        if (profileIndex >= 0 && profileIndex < profileModel.count)
+                            list.selectProfile(profileIndex)
+                    }
+                    onPressAndHold: {
+                        const profileIndex = Math.floor(mouse.y / 40)
+                        if (profileIndex >= 0 && profileIndex < profileModel.count)
+                            list.deleteProfile(profileIndex)
+                    }
+                }
                 onCurrentIndexChanged: {
                     if (list.currentIndex < 0 || list.currentIndex >= profileModel.count)
                         return
