@@ -59,6 +59,7 @@ body {
 
 input[type="text"],
 input[type="number"],
+textarea,
 select,
 button {
     background: var(--panel-color);
@@ -103,6 +104,20 @@ button.danger {
 button.small {
     padding: 4px 8px;
     font-size: 0.8rem;
+}
+
+button.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+}
+
+button.icon-button svg {
+    width: 18px;
+    height: 18px;
 }
 
 .checkbox-label {
@@ -248,6 +263,13 @@ button.small {
 .field input[type="checkbox"] {
     width: auto;
     align-self: flex-start;
+}
+
+textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 140px;
+    font: inherit;
 }
 
 .field-with-buttons {
@@ -499,4 +521,22 @@ canvas {
 
 .custom-dialog-footer button {
     min-width: 80px;
+}
+
+.prompt-dialog-content {
+    width: 90%;
+    max-width: 680px;
+}
+
+.prompt-dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.prompt-dialog-body p {
+    margin: 0;
+    color: var(--muted-color);
+    font-size: 0.85rem;
+    line-height: 1.4;
 }
