@@ -179,6 +179,7 @@ ColumnLayout {
                 property int currentIndex: -1
                 Layout.fillWidth: true
                 Layout.preferredHeight: Math.max(profileModel.count * 40, 40)
+                height: Math.max(profileModel.count * 40, 40)
                 width: parent.width
                 ListModel {
                     id: profileModel

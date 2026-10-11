@@ -64,5 +64,6 @@ ColumnLayout {
         id: contentPlaceholder
         visible: rootElement.isOpen
         Layout.fillWidth: true;
+        implicitHeight: childrenRect.height
     }
 }
