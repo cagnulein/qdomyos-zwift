@@ -1247,8 +1247,23 @@ ApplicationWindow {
 
         ToolButton {
             id: toolButtonSettingsSearch
-            text: "\uD83D\uDD0D"
-            font.pixelSize: Qt.application.font.pixelSize * 1.25
+            // Draw the magnifier instead of relying on platform emoji font fallback.
+            Canvas {
+                anchors.centerIn: parent
+                width: 22
+                height: 22
+                onPaint: {
+                    var ctx = getContext("2d")
+                    ctx.clearRect(0, 0, width, height)
+                    ctx.strokeStyle = "#ffffff"
+                    ctx.lineWidth = 2
+                    ctx.beginPath()
+                    ctx.arc(9, 9, 6, 0, 2 * Math.PI)
+                    ctx.moveTo(13.5, 13.5)
+                    ctx.lineTo(20, 20)
+                    ctx.stroke()
+                }
+            }
             onClicked: {
                 if (headerToolbar.settingsPageActive)
                     stackView.currentItem.showSettingsSearch()
