@@ -15,11 +15,6 @@
 
 using namespace std::chrono_literals;
 
-namespace {
-const QByteArray kChangYowInitProbe = QByteArray::fromHex("f0c801b9");
-constexpr qint64 kChangYowInitRetryFallbackMs = 5000;
-}
-
 domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, bool testResistance,
                                    int8_t bikeResistanceOffset, double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT, deviceType());
@@ -39,20 +34,16 @@ domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, 
     writeTimeoutTimer = new QTimer(this);
     writeTimeoutTimer->setSingleShot(true);
     connect(writeTimeoutTimer, &QTimer::timeout, this, [this]() {
-        if (retryInitialChangYowInit && currentWriteWaitingForResponse && isWriting && writeBuffer &&
-            *writeBuffer == kChangYowInitProbe && gattCommunicationChannelService &&
-            gattCommunicationChannelService->state() == QLowEnergyService::ServiceState::ServiceDiscovered &&
-            m_control && m_control->state() != QLowEnergyController::UnconnectedState) {
-            if (changYowInitRetryElapsed.isValid() &&
-                changYowInitRetryElapsed.elapsed() < kChangYowInitRetryFallbackMs) {
-                emit debug(QStringLiteral("ChangYow initial init timeout - retrying"));
+        if (!initDone && writeBuffer) {
+            initTimeoutElapsed += 300;
+            if (initTimeoutElapsed < 5000) {
+                emit debug(QStringLiteral("init timeout - retrying"));
                 gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
                 writeTimeoutTimer->start(300);
                 return;
             }
-
-            emit debug(QStringLiteral("ChangYow initial init still timing out after 5 seconds - continuing as fallback"));
-            retryInitialChangYowInit = false;
+            emit debug(QStringLiteral("init still timing out after 5 seconds - continuing"));
+            initDone = true;
         }
 
         emit debug(QStringLiteral("writeCharacteristic timeout - processing next in queue"));
@@ -63,10 +54,7 @@ domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, 
 
     connect(this, &domyoselliptical::packetReceived, this, [this]() {
         if (currentWriteWaitingForResponse && isWriting) {
-            if (retryInitialChangYowInit && writeBuffer && *writeBuffer == kChangYowInitProbe) {
-                emit debug(QStringLiteral("ChangYow initial init response received - continuing startup"));
-                retryInitialChangYowInit = false;
-            }
+            initDone = true;
             writeTimeoutTimer->stop();
             isWriting = false;
             currentWriteWaitingForResponse = false;
@@ -227,7 +215,7 @@ void domyoselliptical::update() {
         btinit_changyow(false);
         // else
         //    btinit_telink(false);
-    } else if (initDone && !retryInitialChangYowInit) {
+    } else if (initDone) {
 
         update_metrics(true, watts());
 
@@ -483,11 +471,8 @@ void domyoselliptical::btinit_changyow(bool startTape) {
 
     uint8_t initDataStart13[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xbd};
 
-    if (!startTape && !initDone) {
-        retryInitialChangYowInit = true;
-        changYowInitRetryElapsed.restart();
-        emit debug(QStringLiteral("Retrying the first ChangYow init command on timeout for up to 5 seconds"));
-    }
+    if (!startTape && !initDone)
+        initTimeoutElapsed = 0;
 
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
@@ -507,7 +492,6 @@ void domyoselliptical::btinit_changyow(bool startTape) {
         writeCharacteristic(initDataStart13, sizeof(initDataStart13), QStringLiteral("init"), false, true);
     }
 
-    initDone = true;
 }
 
 void domyoselliptical::btinit_telink(bool startTape) {
