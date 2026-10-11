@@ -167,6 +167,7 @@ ColumnLayout {
     }
 
     StaticAccordionElement {
+        z: 10
         title: qsTr("Profiles")
         indicatRectColor: Material.color(Material.Grey)
         textColor: Material.color(Material.Grey)
@@ -227,6 +228,7 @@ ColumnLayout {
                 Repeater {
                     model: profileModel
                     delegate: Button {
+                        z: 1000
                         width: Math.max(list.width, 320)
                         height: 40
                         y: index * 40
