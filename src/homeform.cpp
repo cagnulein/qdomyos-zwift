@@ -1906,6 +1906,30 @@ void homeform::refresh_bluetooth_devices_clicked() {
     bluetoothManager->restart();
 }
 
+QString homeform::bluetoothSearchStatus() {
+    if (!bluetoothManager || bluetoothManager->device())
+        return QString();
+    if (bluetoothManager->isSearching())
+        return tr("Searching for the device...");
+    if (bluetoothManager->searchStopped())
+        return tr("Search stopped, tap the Bluetooth icon");
+    if (!bluetoothManager->nextSearchMs())
+        return QString();
+    const qint64 left = bluetoothManager->nextSearchMs() - QDateTime::currentMSecsSinceEpoch();
+    // the timer may fire a little late: the search is about to start
+    if (left <= 0)
+        return tr("Searching for the device...");
+    return tr("Next search in %1 s").arg((left + 999) / 1000);
+}
+
+void homeform::bluetoothSearchNow() {
+    if (!bluetoothManager || bluetoothManager->device())
+        return;
+    const int waitSec = bluetoothManager->searchNow();
+    if (waitSec > 0)
+        setToastRequested(tr("Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s").arg(waitSec));
+}
+
 void homeform::selectGymModeDevice(const QString &deviceName) {
     if (!bluetoothManager)
         return;

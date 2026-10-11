@@ -4325,6 +4325,22 @@ This may take a few moments on first startup.</source>
         <source>The workout history database could not be opened.</source>
         <translation>ワークアウト履歴のデータベースを開けませんでした。</translation>
     </message>
+    <message>
+        <source>Searching for the device...</source>
+        <translation>機器を検索しています...</translation>
+    </message>
+    <message>
+        <source>Search stopped, tap the Bluetooth icon</source>
+        <translation>検索を停止しました。Bluetoothアイコンをタップしてください</translation>
+    </message>
+    <message>
+        <source>Next search in %1 s</source>
+        <translation>次の検索まで%1秒</translation>
+    </message>
+    <message>
+        <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
+        <translation>AndroidではBluetooth検索は30秒間に5回までです。次の検索は%1秒後に始まります</translation>
+    </message>
 </context>
 <context>
     <name>main</name>

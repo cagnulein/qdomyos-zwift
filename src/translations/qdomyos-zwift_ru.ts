@@ -4309,6 +4309,22 @@ This may take a few moments on first startup.</source>
         <source>The workout history database could not be opened.</source>
         <translation>Не удалось открыть базу истории тренировок.</translation>
     </message>
+    <message>
+        <source>Searching for the device...</source>
+        <translation>Поиск тренажёра…</translation>
+    </message>
+    <message>
+        <source>Search stopped, tap the Bluetooth icon</source>
+        <translation>Поиск остановлен, нажмите значок Bluetooth</translation>
+    </message>
+    <message>
+        <source>Next search in %1 s</source>
+        <translation>Следующий поиск через %1 с</translation>
+    </message>
+    <message>
+        <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
+        <translation>Android разрешает 5 поисков Bluetooth за 30 с, следующий начнётся через %1 с</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
