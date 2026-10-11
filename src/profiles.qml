@@ -201,6 +201,7 @@ ColumnLayout {
                     }
                 }
                 function selectProfile(profileIndex) {
+                    console.log("PROFILE_SELECT", profileIndex)
                     list.clicked = true
                     const selectedFileName = profileModel.get(profileIndex, "fileName")
                     if (selectedFileName)
@@ -282,6 +283,7 @@ ColumnLayout {
         function profileIndexAt(x, y) {
             const point = profileTapArea.mapToItem(list, x, y)
             const profileIndex = Math.floor(point.y / 40)
+            console.log("PROFILE_TAP", x, y, point.x, point.y, profileIndex)
             return point.x >= 0 && point.x <= list.width &&
                    profileIndex >= 0 && profileIndex < profileModel.count ? profileIndex : -1
         }
