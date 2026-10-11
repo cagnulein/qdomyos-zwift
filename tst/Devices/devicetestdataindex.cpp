@@ -1360,6 +1360,11 @@ void DeviceTestDataIndex::Initialize() {
     // Toorx AppGate USB Bike General
     auto toorxAppGateUSBBikeExclusions ={ GetTypeId<trxappgateusbtreadmill>() };
 
+    // Body Sculpture BC7330G uses the proprietary iConsole+ protocol independently of Toorx settings.
+    RegisterNewDeviceTestData(DeviceIndex::BodySculpture203)
+        ->expectDevice<trxappgateusbbike>()
+        ->acceptDeviceName("BODYSCULPTURE", DeviceNameComparison::StartsWithIgnoreCase);
+
     // Toorx AppGate USB Bike
     RegisterNewDeviceTestData(DeviceIndex::ToorxAppGateUSBBike)
         ->expectDevice<trxappgateusbbike>()        

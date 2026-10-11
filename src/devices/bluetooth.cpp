@@ -3039,6 +3039,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (upperDeviceName.startsWith(QStringLiteral("TUN ")) ||
                         upperDeviceName.startsWith(QStringLiteral("FITHIWAY")) ||
                         upperDeviceName.startsWith(QStringLiteral("FIT HI WAY")) ||
+                        upperDeviceName.startsWith(QStringLiteral("BODYSCULPTURE")) ||
                         upperDeviceName.startsWith(QStringLiteral("BIKZU_")) ||
                         upperDeviceName.startsWith(QStringLiteral("PASYOU-")) ||
                         upperDeviceName.startsWith(QStringLiteral("VIRTUFIT")) ||
