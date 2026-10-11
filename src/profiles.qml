@@ -144,6 +144,14 @@ ColumnLayout {
             onAccepted: settings.profile_name = text
             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
         }
+        ComboBox {
+            id: profileSelector
+            Layout.preferredWidth: 150
+            model: profileModel
+            textRole: "fileBaseName"
+            currentIndex: list.currentIndex
+            onActivated: list.selectProfile(index)
+        }
         Button {
             id: addProfileButton
             text: "+"
