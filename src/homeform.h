@@ -242,6 +242,11 @@ class homeform : public QObject {
     QQmlApplicationEngine *getEngine() { return engine; }
 
     QByteArray currentPelotonImage();
+    // Status line of the search for the equipment on the home page, with the last device found;
+    // empty once it is connected
+    Q_INVOKABLE QString bluetoothSearchStatus();
+    // Tap on the Bluetooth icon: search right away, or when Android allows it again (with a toast saying when)
+    Q_INVOKABLE void bluetoothSearchNow();
     Q_INVOKABLE void save_screenshot() {
 
         QString path = getWritableAppDir();
@@ -460,6 +465,16 @@ class homeform : public QObject {
     }
 
     Q_INVOKABLE bool locationServices() {
+        return m_locationServices;
+    }
+
+    // Asks Android again: Bluetooth and Location may be switched on after the app started
+    Q_INVOKABLE bool refreshLocationServices() {
+#ifdef Q_OS_ANDROID
+        m_locationServices = QAndroidJniObject::callStaticMethod<jboolean>(
+            "org/cagnulen/qdomyoszwift/LocationHelper", "start", "(Landroid/content/Context;)Z",
+            QtAndroid::androidContext().object());
+#endif
         return m_locationServices;
     }
 
@@ -703,6 +718,7 @@ public:
     static QString getAndroidDataAppDir();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
+    static QString safeFileName(const QString &name, const QString &fallback);
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
     Q_INVOKABLE bool startTrainingProgramFromFile(const QString &filePath);
@@ -1016,6 +1032,8 @@ public:
     int m_topBarHeight = 120;
     QString m_info = QStringLiteral("Connecting...");
     bool m_labelHelp = true;
+    // last device found by the Bluetooth search, shown by bluetoothSearchStatus() until the equipment is connected
+    QString lastFoundDevice;
     bool m_generalPopupVisible = false;
     bool m_pelotonPopupVisible = false;
     bool m_LicensePopupVisible = false;

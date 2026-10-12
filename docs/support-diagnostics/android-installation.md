@@ -22,3 +22,21 @@
 - Built-in fitness-machine consoles can differ substantially from normal phones/tablets even when both run Android, so identifying where QZ is installed is important before changing QZ settings.
 - The exact failure point helps distinguish an Android permission/restart problem from Bluetooth discovery or machine-protocol problems.
 - A QZ debug log may end before an application crash is explained; an Android bug/crash report can provide the platform-level reason for the exit.
+
+## Android refuses to install a QZ test APK
+
+### Provide first
+
+- Device model and Android version.
+- Installed QZ version and the source of both the installed version and the attempted test APK.
+- Exact installer error text or screenshot, and available storage.
+
+### If still unclear
+
+- Back up QZ settings before considering uninstalling a working installation.
+- If ADB is available, collect the Android package manager's full install error code with the same APK.
+
+### Why it matters
+
+- Package installation errors occur before QZ starts and cannot be explained by QZ runtime logs.
+- Build source and installer error help distinguish signing, compatibility, and storage problems.

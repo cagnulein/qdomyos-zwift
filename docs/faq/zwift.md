@@ -65,3 +65,9 @@ This physical reference does not need to change when switching between training 
 In QZ's Zwift Play/controller settings, enable **Buttons debouncing** and reconnect the controllers. This option filters repeated button/shift events that can otherwise cause multiple gear changes from a single press. Test with deliberate individual presses before changing other gearing settings.
 
 The setting is implemented in the Zwift Ride/Play controller input handling and covered by controller tests. It is not a fix for an incorrect gear table or for mismatched gear numbers between Zwift and QZ; those are separate settings.
+
+## My lowest virtual gear feels too hard or each shift changes resistance too much. Can I use smaller gear steps?
+
+For QZ's **local virtual gearing**, try reducing **Gears Gain** under **QZ Settings > Bike Options** from **1.0** to **0.2**. Save the setting and test individual gear-up and gear-down presses.
+
+The current code uses Gears Gain to control the step applied to local gear changes. **Custom Gear Table** and **Zwift Gear Ratio** modes instead use whole-gear steps, so the same adjustment does not apply to those modes. Gears Gain does not directly change your physical chainring/cog settings. A support user explicitly confirmed that **0.2** helped with an overly hard low-gear experience.

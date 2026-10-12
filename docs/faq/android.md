@@ -38,3 +38,13 @@ In a confirmed support case, an older Play Store build did not appear in Health 
 If the device is powered on, is not connected to another app, and still does not appear in QZ on Android, verify that Bluetooth and Location are enabled and that QZ has the requested Bluetooth and location permissions. If Android offers precise location access, allow it, then return to QZ and refresh the device list.
 
 QZ's Android build requests Bluetooth discovery/connection and location permissions. In a confirmed support case, a bike that was otherwise ready to connect appeared immediately after precise location permission was granted.
+
+## How can I resize QZ's floating window on Android to show more metrics?
+
+If QZ's floating window is too short and you have to scroll to see the metrics, change the window dimensions rather than pinching its contents:
+
+1. Open **QZ Settings > General UI Options**.
+2. Increase **Floating Window Height** from the default **210** to, for example, **400** or **450**. Adjust **Floating Window Width** if necessary.
+3. Save the settings, then close and reopen the floating window.
+
+Pinching changes the displayed content size, not the floating window dimensions. The width and height settings are implemented in QZ's Android floating-window code. This is verified setup guidance; a customer confirmation is not yet available.

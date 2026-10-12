@@ -150,6 +150,7 @@ DEFINE_DEVICE(TacxNeoBike, "Tacx Neo Bike");
 DEFINE_DEVICE(TacxNeo2Bike, "Tacx Neo 2 Bike");
 DEFINE_DEVICE(TechnoGymMyRunTreadmillRFComm, "TechnoGym MyRun Treadmill RF Comm");
 DEFINE_DEVICE(TechnoGymMyRunTreadmill, "TechnoGym MyRun Treadmill");
+DEFINE_DEVICE(BodySculpture203, "Body Sculpture BC7330G");
 DEFINE_DEVICE(ToorxAppGateUSBBike_EnabledInSettings, "Toorx AppGate USB Bike (Enabled in settings)");
 DEFINE_DEVICE(ToorxAppGateUSBBike, "Toorx AppGate USB Bike");
 DEFINE_DEVICE(ToorxAppGateUSBTreadmill, "Toorx AppGate USB Treadmill");
