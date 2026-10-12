@@ -87,6 +87,8 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         settings.value(QZSettings::proform_rower_ip, QZSettings::default_proform_rower_ip).toString();
     bool waterrower_usb_ctor =
         settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
+    bool sportstech_f75_treadmill_ctor =
+        settings.value(QZSettings::sportstech_f75_treadmill, QZSettings::default_sportstech_f75_treadmill).toBool();
     bool fake_bike =
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fake_treadmill =
@@ -108,7 +110,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
                                         fakedevice_rower_ctor || !nordictrack_2950_ip.isEmpty() ||
                                         !tdf_10_ip_ctor.isEmpty() || !proform_elliptical_ip_ctor.isEmpty() ||
                                         !proform_rower_ip_ctor.isEmpty() || antbike_ctor || android_antbike_ctor ||
-                                        waterrower_usb_ctor;
+                                        waterrower_usb_ctor || sportstech_f75_treadmill_ctor;
 
     if (!gymMode && settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() &&
         !pelotonBike) {
@@ -317,8 +319,10 @@ void bluetooth::finished() {
     bool fakedevice_treadmill =
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     bool waterrower_usb = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
+    bool sportstech_f75_treadmill =
+        settings.value(QZSettings::sportstech_f75_treadmill, QZSettings::default_sportstech_f75_treadmill).toBool();
     // wifi devices on windows
-    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike || waterrower_usb) {
+    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || !proform_elliptical_ip.isEmpty() || !proform_rower_ip.isEmpty() || antbike || android_antbike || waterrower_usb || sportstech_f75_treadmill) {
         // faking a bluetooth device for non-BLE devices
         qDebug() << "faking a bluetooth device for non-BLE device";
         deviceDiscovered(QBluetoothDeviceInfo());
@@ -779,6 +783,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport).toString();
     QString csaferowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
     bool waterrowerUSBEnabled = settings.value(QZSettings::waterrower_usb, QZSettings::default_waterrower_usb).toBool();
+    bool sportstechF75Enabled =
+        settings.value(QZSettings::sportstech_f75_treadmill, QZSettings::default_sportstech_f75_treadmill).toBool();
     QString csafeellipticalSerialPort =
         settings.value(QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port).toString();
     bool manufacturerDeviceFound = false;
@@ -1138,6 +1144,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(csafeRower);
 
+#ifdef Q_OS_ANDROID
+            } else if (sportstechF75Enabled && !sportstechF75Treadmill) {
+                qDebug() << QStringLiteral("Sportstech F75 Android serial enabled");
+                this->stopDiscovery();
+                sportstechF75Treadmill = new sportstechf75treadmill();
+                emit deviceConnected(b);
+                connect(sportstechF75Treadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(sportstechF75Treadmill, &sportstechf75treadmill::debug, this, &bluetooth::debug);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(sportstechF75Treadmill);
+#endif
             } else if (waterrowerUSBEnabled && !waterRowerUSB) {
                 qDebug() << QStringLiteral("WaterRower USB enabled, creating USB rower device");
                 this->stopDiscovery();
@@ -4261,6 +4281,11 @@ void bluetooth::restart() {
         delete waterRowerUSB;
         waterRowerUSB = nullptr;
     }
+    if (sportstechF75Treadmill) {
+
+        delete sportstechF75Treadmill;
+        sportstechF75Treadmill = nullptr;
+    }
     if (powerBike) {
 
         delete powerBike;
@@ -4902,6 +4927,8 @@ bluetoothdevice *bluetooth::device() {
         return smartrowRower;
     } else if (waterRowerUSB) {
         return waterRowerUSB;
+    } else if (sportstechF75Treadmill) {
+        return sportstechF75Treadmill;
     } else if (yesoulBike) {
         return yesoulBike;
     } else if (proformBike) {

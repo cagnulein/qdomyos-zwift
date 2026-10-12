@@ -2105,6 +2105,9 @@ class QZSettings {
     static const QString waterrower_usb;
     static constexpr bool default_waterrower_usb = false;
 
+    static const QString sportstech_f75_treadmill;
+    static constexpr bool default_sportstech_f75_treadmill = false;
+
     static const QString ftms_rower;
     static const QString default_ftms_rower;
 

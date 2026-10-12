@@ -2115,6 +2115,7 @@ import AndroidStatusBar 1.0
             property int mywhoosh_link_camera_value: 1
             property int mywhoosh_link_emote_value: 1
             property bool waterrower_usb: false
+            property bool sportstech_f75_treadmill: false
             property string freebeat_serialport: ""
             property bool nordictrack_elliptical_s700: false
             property bool virtual_device_tacx: false
@@ -10563,8 +10564,37 @@ import AndroidStatusBar 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.virtual_device_force_bike = checked; window.settings_restart_to_apply = true; }
                     }
+
+                    IndicatorOnlySwitch {
+                        id: sportstechF75TreadmillDelegate
+                        text: qsTr("Sportstech F75 Android serial")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.sportstech_f75_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.sportstech_f75_treadmill = checked; window.settings_restart_to_apply = true; }
+                    }
+
                     Label {
                         text: qsTr("Turn on to convert your treadmill output to bike output when riding on Zwift. QZ sends your treadmill metrics to Zwift over Bluetooth so that you can participate as a bike rider. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    Label {
+                        text: qsTr("Enable the Sportstech F75/ZY-Treadmill Android serial profile. It uses /dev/ttyS1 at 9600 baud and must only be enabled on the treadmill panel. Default is off; restart QZ after changing this setting.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

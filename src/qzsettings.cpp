@@ -776,6 +776,7 @@ const QString QZSettings::default_csafe_rower = QStringLiteral("");
 const QString QZSettings::csafe_elliptical_port = QStringLiteral("csafe_elliptical_port");
 const QString QZSettings::default_csafe_elliptical_port = QStringLiteral("");
 const QString QZSettings::waterrower_usb = QStringLiteral("waterrower_usb");
+const QString QZSettings::sportstech_f75_treadmill = QStringLiteral("sportstech_f75_treadmill");
 const QString QZSettings::ftms_rower = QStringLiteral("ftms_rower");
 const QString QZSettings::default_ftms_rower = QStringLiteral("Disabled");
 const QString QZSettings::ftms_elliptical = QStringLiteral("ftms_elliptical");
@@ -1310,7 +1311,7 @@ const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral
 const QString QZSettings::android_notification_prompt_disabled = QStringLiteral("android_notification_prompt_disabled");
 const QString QZSettings::android_notification_v2 = QStringLiteral("android_notification_v2");
 
-const uint32_t allSettingsCount = 1017;
+const uint32_t allSettingsCount = 1018;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1936,6 +1937,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::csafe_rower, QZSettings::default_csafe_rower},
     {QZSettings::csafe_elliptical_port, QZSettings::default_csafe_elliptical_port},
     {QZSettings::waterrower_usb, QZSettings::default_waterrower_usb},
+    {QZSettings::sportstech_f75_treadmill, QZSettings::default_sportstech_f75_treadmill},
     {QZSettings::ftms_rower, QZSettings::default_ftms_rower},
     {QZSettings::ftms_elliptical, QZSettings::default_ftms_elliptical},
     {QZSettings::zwift_workout_ocr, QZSettings::default_zwift_workout_ocr},
