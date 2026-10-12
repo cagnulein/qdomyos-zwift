@@ -221,7 +221,8 @@ void proformwifibike::forceResistance(double requestResistance) {
 
     double inc = qRound(requestResistance / 0.5) * 0.5;
     QString send;
-    if (inclinationAvailableByHardware()) {
+    const bool inclinationCommand = inclinationAvailableByHardware();
+    if (inclinationCommand) {
         if(max_incline_supported > 0 && inc > max_incline_supported)
             inc = max_incline_supported;
         send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
@@ -230,7 +231,8 @@ void proformwifibike::forceResistance(double requestResistance) {
     }
 
     qDebug() << "forceResistance" << send;
-    websocket.sendTextMessage(send);
+    if (websocket.sendTextMessage(send) >= 0 && inclinationCommand)
+        lastAppliedGearModifier = gearsModifier();
 }
 
 void proformwifibike::setTargetWatts(double watts) {
@@ -306,6 +308,16 @@ void proformwifibike::innerWriteResistance() {
         forceResistance(requestInclination + gearsModifier()); // since this bike doesn't have the concept of resistance,
                                                        // i'm using the gears in the inclination
         requestInclination = -100;
+    } else if (!erg_mode && inclinationAvailableByHardware() && autoResistanceEnable &&
+               !noWriteResistance && lastPhysicalIncline != -100 &&
+               qAbs(gearsModifier() - lastAppliedGearModifier) > 0.001) {
+        // A standalone gear change does not populate requestInclination.
+        // Keep a stable base so rapid gear changes do not accumulate offsets.
+        if (lastRawRequestedInclinationValue == -100)
+            lastRawRequestedInclinationValue = lastPhysicalIncline - lastAppliedGearModifier;
+        emit debug(QStringLiteral("writing inclination due to gears ") +
+                   QString::number(lastRawRequestedInclinationValue));
+        forceResistance(lastRawRequestedInclinationValue + gearsModifier());
     }
 }
 
@@ -504,6 +516,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     if (!values[QStringLiteral("Actual Incline")].isUndefined()) {
         bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
         double incline = values[QStringLiteral("Actual Incline")].toString().toDouble();
+        lastPhysicalIncline = incline;
         // if the bike has the inclination, QZ is using it to change the resistance when it's not in ERG mode.
         // so I would like to keep the real inclination value instead of showing to the user the modified inclination + gears.
         // this is very helpful when you're following a GPX for example
@@ -514,6 +527,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     } else if (!values[QStringLiteral("Incline")].isUndefined()) {
         bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
         double incline = values[QStringLiteral("Incline")].toString().toDouble();
+        lastPhysicalIncline = incline;
         // if the bike has the inclination, QZ is using it to change the resistance when it's not in ERG mode.
         // so I would like to keep the real inclination value instead of showing to the user the modified inclination + gears.
         // this is very helpful when you're following a GPX for example
@@ -564,7 +578,8 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
                     }
                     if (value != 0.0) {
                         setGears(gears() + value);
-                        forceResistance(lastRawRequestedInclinationValue + gearsModifier()); // to force an immediate change
+                        if (lastRawRequestedInclinationValue != -100)
+                            forceResistance(lastRawRequestedInclinationValue + gearsModifier()); // to force an immediate change
                     }
                 } else {
                     double value = 0;
