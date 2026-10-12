@@ -123,6 +123,7 @@ class kettlerracersbike : public bike {
     bool firstCadenceSent = false;
     struct NotificationSubscription {
         QLowEnergyService *service = nullptr;
+        QLowEnergyCharacteristic characteristic;
         QLowEnergyDescriptor descriptor;
         QString label;
     };

@@ -788,12 +788,12 @@ void kettlerracersbike::queueNotificationSubscription(QLowEnergyService *service
     }
 
     for (const auto &subscription : notificationSubscriptions) {
-        if (subscription.service == service && subscription.descriptor.uuid() == descriptor.uuid()) {
+        if (subscription.service == service && subscription.characteristic.uuid() == characteristic.uuid()) {
             return;
         }
     }
 
-    notificationSubscriptions.append({service, descriptor, label});
+    notificationSubscriptions.append({service, characteristic, descriptor, label});
 }
 
 void kettlerracersbike::startNextNotificationSubscription() {
