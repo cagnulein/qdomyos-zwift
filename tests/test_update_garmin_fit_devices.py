@@ -2,6 +2,7 @@ import sys
 import tempfile
 import unittest
 from unittest import mock
+import difflib
 from pathlib import Path
 
 sys.dont_write_bytecode = True
@@ -82,7 +83,7 @@ class GarminFitUpdaterTest(unittest.TestCase):
             updater.locate_control(QML + QML)
 
     def test_malformed_model_rejected(self):
-        broken = QML.replace('"D2Airvenu",', 'someFunction(),', 1)
+        broken = QML.replace('productId: 2187', 'productId: "not-a-number"', 1)
         with self.assertRaises(updater.UpdateError):
             updater.update_qml(broken, self.catalog)
 
@@ -146,6 +147,77 @@ class GarminFitUpdaterTest(unittest.TestCase):
             "VARIA_RCT715", "VIRB_360", "GPSMAP66I", "CONNECTIQ_SIMULATOR",
         }
         self.assertTrue(all(not updater.eligible(macro) for macro in excluded))
+
+    def test_pre_refactor_catalog_is_preserved_exactly(self):
+        """Every original Garmin/Tacx/Zwift device keeps the same name and FIT Product ID."""
+        fixture = ROOT / "tests/fixtures/garmin_fit_devices_baseline.tsv"
+        baseline = {}
+        for row in fixture.read_text(encoding="utf-8").splitlines():
+            macro, raw_id, display = row.split("\t")
+            self.assertNotIn(macro, baseline)
+            baseline[macro] = (int(raw_id), display)
+        self.assertEqual(len(baseline), 224)
+        start, end = updater.locate_control(QML)
+        actual = {d.macro: (d.product, d.display) for d in updater.parse_current(QML[start:end])}
+        for macro, expected in baseline.items():
+            self.assertIn(macro, actual)
+            self.assertEqual(actual[macro], expected, macro)
+        self.assertEqual(actual["Tacx"], (88888, "Tacx"))
+        self.assertEqual(actual["Zwift"], (99999, "Zwift"))
+
+    def test_three_new_garmin_product_ids(self):
+        start, end = updater.locate_control(QML)
+        actual = {d.macro: d.product for d in updater.parse_current(QML[start:end])}
+        self.assertEqual(actual["APPROACH_S72_43MM"], 4874)
+        self.assertEqual(actual["APPROACH_S72_47MM"], 4875)
+        self.assertEqual(actual["ENDURO4"], 5169)
+
+    def test_selector_uses_stable_product_ids(self):
+        start, end = updater.locate_control(QML)
+        control = QML[start:end]
+        self.assertIn('textRole: "name"', control)
+        self.assertIn('valueRole: "productId"', control)
+        self.assertIn("indexOfValue(settings.fit_file_garmin_device_training_effect_device)", control)
+        self.assertIn("indexOfValue(3122) // Edge 830", control)
+        self.assertIn("onActivated:", control)
+        self.assertIn("settings.fit_file_garmin_device_training_effect_device = currentValue", control)
+        self.assertNotIn("onCurrentIndexChanged:", control)
+        devices = updater.parse_current(control)
+        by_id = {device.product: i for i, device in enumerate(devices)}
+        for device in devices:
+            self.assertEqual(devices[by_id[device.product]], device)
+        self.assertNotEqual(by_id[3122], 20)  # Previous hard-coded default index was wrong.
+
+    def test_next_update_inserts_only_one_model_line(self):
+        extra_id = 60001
+        updated, added, original = updater.update_qml(QML, dict(self.catalog, FENIX_FUTURE=extra_id))
+        self.assertEqual([(d.macro, d.product) for d in added], [("FENIX_FUTURE", extra_id)])
+        diffs = list(difflib.unified_diff(QML.splitlines(), updated.splitlines()))
+        additions = [line for line in diffs if line.startswith("+") and not line.startswith("+++")]
+        removals = [line for line in diffs if line.startswith("-") and not line.startswith("---")]
+        self.assertEqual(len(additions), 1, diffs)
+        self.assertEqual(removals, [], diffs)
+        self.assertIn("productId: 60001", additions[0])
+        begin, end = updater.locate_control(updated)
+        after = updater.parse_current(updated[begin:end])
+        self.assertEqual(len(after), len(original) + 1)
+        self.assertEqual({d.macro: (d.product, d.display) for d in original},
+                         {d.macro: (d.product, d.display) for d in after if d.macro != "FENIX_FUTURE"})
+
+    def test_update_rejects_product_id_collision(self):
+        with self.assertRaises(updater.UpdateError):
+            updater.update_qml(QML, dict(self.catalog, FENIX_FUTURE=3122))
+
+    def test_invalid_models_and_duplicate_ids_are_rejected(self):
+        begin, end = updater.locate_control(QML)
+        control = QML[begin:end]
+        with self.assertRaises(updater.UpdateError):
+            updater.parse_current(control.replace('productId: 1405', 'productId: 3085', 1))
+        with self.assertRaises(updater.UpdateError):
+            updater.parse_current(control.replace('valueRole: "productId"', 'valueRole: "name"', 1))
+        with self.assertRaises(updater.UpdateError):
+            updater.parse_current(control.replace('name: "Approach G10"', 'name: "Approach G80"', 1))
+
 
 
 if __name__ == "__main__":
