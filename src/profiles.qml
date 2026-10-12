@@ -221,6 +221,10 @@ ColumnLayout {
                             onClicked: {
                                 list.clicked = true;
                                 console.log('onclicked ' + index+ " count "+list.count);
+                                const selectedFileName = folderModel.get(index, 'fileName');
+                                if (selectedFileName) {
+                                    profileNameTextField.text = selectedFileName.substring(0, selectedFileName.length - 4);
+                                }
                                 if (index == list.currentIndex) {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                                     if (fileUrl) {
