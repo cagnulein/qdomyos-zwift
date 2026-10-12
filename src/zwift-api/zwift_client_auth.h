@@ -63,14 +63,14 @@ public slots:
         refreshInProgress = true;
         if (haveValidRefreshToken()) {
             QUrl url("https://secure.zwift.com/auth/realms/zwift/tokens/access/codes");
-            QUrlQuery query;
-            query.addQueryItem("refresh_token", refresh_token);
-            query.addQueryItem("grant_type", "refresh_token");
-            query.addQueryItem("client_id", "Zwift_Mobile_Link");
-            url.setQuery(query);
+            QUrlQuery postData;
+            postData.addQueryItem("refresh_token", refresh_token);
+            postData.addQueryItem("grant_type", "refresh_token");
+            postData.addQueryItem("client_id", "Zwift_Mobile_Link");
 
             QNetworkRequest request(url);
-            QNetworkReply* reply = networkManager.get(request);
+            request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+            QNetworkReply* reply = networkManager.post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
             connect(reply, &QNetworkReply::finished, [=]() {
                 handleTokenResponse(reply);
             });
