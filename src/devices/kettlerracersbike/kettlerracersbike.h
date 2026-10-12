@@ -49,6 +49,13 @@ class kettlerracersbike : public bike {
     void sendHandshake(const QByteArray &seed);
     void requestHandshakeSeed();
     void subscribeKettlerNotifications();
+    void maybeStartNotificationSubscriptions();
+    void queueNotificationSubscription(QLowEnergyService *service,
+                                       const QLowEnergyCharacteristic &characteristic,
+                                       const QString &label);
+    void startNextNotificationSubscription();
+    void finishNotificationSubscription(const QString &reason);
+    void completeNotificationSubscriptions();
     void forceInclination(double inclination);
     uint16_t watts() override;
     double bikeResistanceToPeloton(double resistance);
@@ -109,9 +116,19 @@ class kettlerracersbike : public bike {
     bool handshakeRequested = false;
     bool handshakeDone = false;
     bool notificationsSubscribed = false;
+    bool notificationSetupStarted = false;
+    bool notificationSubscriptionInProgress = false;
     bool kettlerServiceReady = false;
     bool connectedAndDiscoveredEmitted = false;
     bool firstCadenceSent = false;
+    struct NotificationSubscription {
+        QLowEnergyService *service = nullptr;
+        QLowEnergyDescriptor descriptor;
+        QString label;
+    };
+    QList<NotificationSubscription> notificationSubscriptions;
+    NotificationSubscription activeNotificationSubscription;
+    QTimer notificationSubscriptionTimer;
     bool pendingSCommandResponse = false;
     bool slopeControlEnabled = false;
     QElapsedTimer slopePowerTimer;
@@ -138,6 +155,7 @@ class kettlerracersbike : public bike {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
+    void notificationSubscriptionTimeout();
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
