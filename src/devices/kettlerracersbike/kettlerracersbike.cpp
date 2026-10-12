@@ -302,11 +302,10 @@ void kettlerracersbike::changePower(int32_t power) {
     if (power < 0)
         power = 0;
 
-    // Use Qt Bluetooth for all platforms
-    uint8_t powerData[2];
-    powerData[0] = (uint8_t)(power & 0xFF);
-    powerData[1] = (uint8_t)((power >> 8) & 0xFF);
-    writeCharacteristic(powerData, sizeof(powerData), QStringLiteral("changePower ") + QString::number(power) + "W", false, false);
+    // Keep calculating and tracking the requested power, but do not send the
+    // power command while isolating the Kettler notification/connection path.
+    qDebug() << "changePower BLE write disabled for Kettler diagnostic test";
+    return;
 }
 
 void kettlerracersbike::forceInclination(double inclination) {
