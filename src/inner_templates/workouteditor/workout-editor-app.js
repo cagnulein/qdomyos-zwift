@@ -95,7 +95,8 @@
         minSpeed: -1,
         maxSpeed: -1,
         maxResistance: -1,
-        mets: -1
+        mets: -1,
+        fanspeed: -1
     };
 
     // Custom dialog system for iOS WebView compatibility
@@ -940,13 +941,17 @@
                     input.dataset.type = field.type;
                     if (field.type === 'duration') {
                         input.type = 'text';
-                        input.value = value || '00:05:00';
+                        input.value = value !== undefined && value !== null ? value : '00:05:00';
                         input.placeholder = 'hh:mm:ss';
                     } else if (field.type === 'pace') {
                         input.type = 'text';
-                        // Calculate pace from speed
+                        // Calculate pace from speed; keep text that failed the check so the user can fix it
                         const speedValue = field.syncWith ? row[field.syncWith] : null;
-                        input.value = speedValue ? speedToPace(speedValue) : '';
+                        if (row.__bad_pace !== undefined) {
+                            input.value = row.__bad_pace;
+                        } else {
+                            input.value = speedValue ? speedToPace(speedValue) : '';
+                        }
                         input.placeholder = 'mm:ss';
                     } else if (field.type === 'text') {
                         input.type = 'text';
@@ -960,6 +965,14 @@
                     }
                     // Use 'change' event for duration, pace, and number fields to prevent keyboard from closing during typing
                     input.addEventListener(field.type === 'duration' || field.type === 'pace' || field.type === 'number' ? 'change' : 'input', handleFieldChange);
+                    if (field.type === 'duration' || field.type === 'pace' || field.type === 'number') {
+                        // Show the reason while typing; the value itself is taken on 'change'
+                        input.addEventListener('input', handleFieldInput);
+                    }
+                    if (field.type === 'number') {
+                        // Text a number field cannot parse (e.g. "14,5") leaves value empty and may not fire 'change'
+                        input.addEventListener('blur', handleNumberBlur);
+                    }
 
                     // Add +/- buttons for duration, number, and pace fields
                     if (field.type === 'duration' || field.type === 'number' || field.type === 'pace') {
@@ -982,6 +995,14 @@
                     } else {
                         fieldWrap.appendChild(input);
                     }
+
+                    const errorText = document.createElement('div');
+                    errorText.className = 'field-error';
+                    errorText.id = `field-error-${index}-${field.key}`;
+                    errorText.setAttribute('aria-live', 'polite');
+                    fieldWrap.appendChild(errorText);
+                    input.setAttribute('aria-describedby', errorText.id);
+                    showFieldError(input, isEnabled ? fieldError(field, row) : '');
                 }
 
                 grid.appendChild(fieldWrap);
@@ -1051,12 +1072,26 @@
             state.intervals[index][key] = target.checked;
         } else if (type === 'duration') {
             const seconds = parseDuration(target.value);
-            const normalized = formatDuration(seconds);
-            state.intervals[index][key] = normalized;
-            target.value = normalized;
+            if (seconds) {
+                const normalized = formatDuration(seconds);
+                state.intervals[index][key] = normalized;
+                target.value = normalized;
+            } else {
+                // Keep what the user typed: it is shown with the reason and blocks saving
+                state.intervals[index][key] = target.value.trim();
+            }
+            showFieldError(target, fieldError(FIELD_DEFS.find(f => f.key === key), state.intervals[index]));
         } else if (type === 'pace') {
+            const raw = target.value;
             // Format pace input as mm:ss
-            const formatted = formatPaceInput(target.value);
+            const formatted = formatPaceInput(raw);
+            if (!isValidPace(raw, formatted)) {
+                // Keep the typed text and the current speed until the pace is fixed
+                state.intervals[index].__bad_pace = raw;
+                showFieldError(target, fieldError(FIELD_DEFS.find(f => f.key === key), state.intervals[index]));
+                return;
+            }
+            delete state.intervals[index].__bad_pace;
             target.value = formatted;
             // Convert pace to speed and update speed field
             const speed = paceToSpeed(formatted);
@@ -1075,9 +1110,18 @@
         } else if (type === 'number') {
             const raw = target.value;
             state.intervals[index][key] = raw === '' ? undefined : Number(raw);
+            // The browser reports unparsable text (e.g. "14,5") as an empty value
+            if (target.validity && target.validity.badInput) {
+                state.intervals[index]['__bad_' + key] = true;
+            } else {
+                delete state.intervals[index]['__bad_' + key];
+            }
             // If this is a speed field, re-render to update pace (uses 'change' event so keyboard is already closed)
             if (key === 'speed') {
+                delete state.intervals[index].__bad_pace;
                 renderIntervals();
+            } else {
+                showFieldError(target, fieldError(FIELD_DEFS.find(f => f.key === key), state.intervals[index]));
             }
         } else {
             const raw = target.value;
@@ -1109,6 +1153,7 @@
             const normalized = formatDuration(newSeconds);
             state.intervals[index][key] = normalized;
             input.value = normalized;
+            showFieldError(input, fieldError(field, state.intervals[index]));
         } else if (type === 'pace') {
             // Increment/decrement pace by 5 seconds
             // Note: increasing pace value means slower (more time per distance unit)
@@ -1120,6 +1165,7 @@
             const seconds = newSeconds % 60;
             const newPace = minutes + ':' + seconds.toString().padStart(2, '0');
             input.value = newPace;
+            delete state.intervals[index].__bad_pace;
 
             // Convert to speed and update
             const speed = paceToSpeed(newPace);
@@ -1150,15 +1196,148 @@
 
             state.intervals[index][key] = newValue;
             input.value = newValue;
+            delete state.intervals[index]['__bad_' + key];
 
             // If this is speed, re-render to update pace
             if (key === 'speed') {
+                delete state.intervals[index].__bad_pace;
                 renderIntervals();
+            } else {
+                showFieldError(input, fieldError(field, state.intervals[index]));
             }
         }
 
         updateChart();
         updateStatus();
+    }
+
+    function handleFieldInput(event) {
+        const target = event.target;
+        const row = state.intervals[Number(target.dataset.index)];
+        const field = FIELD_DEFS.find(f => f.key === target.dataset.key);
+        if (!row || !field) {
+            return;
+        }
+        // Check the text as typed against a copy, without touching the interval or re-rendering
+        const typed = Object.assign({}, row);
+        if (field.type === 'number') {
+            typed[field.key] = target.value === '' ? undefined : Number(target.value);
+            typed['__bad_' + field.key] = !!(target.validity && target.validity.badInput);
+        } else if (field.type === 'duration') {
+            typed[field.key] = target.value.trim();
+        } else if (field.type === 'pace') {
+            typed.__bad_pace = isValidPace(target.value, formatPaceInput(target.value)) ? undefined : target.value;
+        }
+        showFieldError(target, fieldError(field, typed));
+    }
+
+    function handleNumberBlur(event) {
+        const target = event.target;
+        const index = Number(target.dataset.index);
+        const key = target.dataset.key;
+        const row = state.intervals[index];
+        if (!row || !target.validity) {
+            return;
+        }
+        const bad = target.validity.badInput;
+        if (bad === !!row['__bad_' + key]) {
+            return;
+        }
+        // Text the browser could not parse, or such text cleared (value stays "" so 'change' does not fire)
+        row[key] = undefined;
+        if (bad) {
+            row['__bad_' + key] = true;
+        } else {
+            delete row['__bad_' + key];
+        }
+        showFieldError(target, fieldError(FIELD_DEFS.find(f => f.key === key), row));
+        updateChart();
+    }
+
+    // Input checks: the message shown under a field, or '' when the value is fine.
+    // Out-of-range values are kept as typed (and values loaded from a file are shown as they are), never reset.
+    function fieldError(field, row) {
+        if (!field) {
+            return '';
+        }
+        if (field.type === 'number') {
+            if (row['__bad_' + field.key]) {
+                return t('workoutEditor.enterNumber', 'Enter a number');
+            }
+            const value = row[field.key];
+            if (value === undefined || value === null || value === '') {
+                return '';
+            }
+            const hasMin = field.min !== undefined;
+            const hasMax = field.max !== undefined;
+            if ((hasMin && value < field.min) || (hasMax && value > field.max)) {
+                if (hasMin && hasMax) {
+                    return t('workoutEditor.allowedRange', 'Allowed range: {min} to {max}').replace('{min}', field.min).replace('{max}', field.max);
+                }
+                return hasMin
+                    ? t('workoutEditor.minimum', 'Minimum: {min}').replace('{min}', field.min)
+                    : t('workoutEditor.maximum', 'Maximum: {max}').replace('{max}', field.max);
+            }
+            return '';
+        }
+        if (field.type === 'duration') {
+            const text = row[field.key];
+            if (!isDurationText(text)) {
+                return t('workoutEditor.durationFormat', 'Enter the duration as hh:mm:ss');
+            }
+            if (!parseDuration(text)) {
+                return t('workoutEditor.durationZero', 'The duration must be longer than 0');
+            }
+            return '';
+        }
+        if (field.type === 'pace' && row.__bad_pace !== undefined) {
+            return t('workoutEditor.paceFormat', 'Enter the pace as mm:ss, at least 1:00');
+        }
+        return '';
+    }
+
+    function showFieldError(input, message) {
+        // Look up within the field: during rendering the card is not in the document yet
+        const fieldWrap = input.closest('.field');
+        const errorText = fieldWrap && fieldWrap.querySelector('.field-error');
+        if (errorText) {
+            errorText.textContent = message;
+        }
+        input.classList.toggle('invalid', !!message);
+        if (message) {
+            input.setAttribute('aria-invalid', 'true');
+        } else {
+            input.removeAttribute('aria-invalid');
+        }
+    }
+
+    // Fields of an interval that go into the saved file, with their check message.
+    function intervalErrors(row) {
+        const errors = [];
+        const durationEnabled = row.__enabled_duration !== false;
+        FIELD_DEFS.forEach(field => {
+            if (field.linkedTo || !isFieldValidForDevice(field, state.device)) {
+                return;
+            }
+            const enabled = field.noToggle ? true
+                : (field.syncWith ? row['__enabled_' + field.syncWith] !== false : row['__enabled_' + field.key] !== false);
+            if (!enabled) {
+                return;
+            }
+            if ((field.key === 'duration' && !durationEnabled) || (field.key === 'distance' && durationEnabled)) {
+                return;
+            }
+            // The power ramp is saved only when both ends are enabled
+            if ((field.key === 'powerfrom' || field.key === 'powerto') &&
+                (row.__enabled_powerfrom === false || row.__enabled_powerto === false)) {
+                return;
+            }
+            const message = fieldError(field, row);
+            if (message) {
+                errors.push({ field, message });
+            }
+        });
+        return errors;
     }
 
     function moveInterval(index, delta) {
@@ -1313,6 +1492,28 @@
         const sanitized = sanitizeName(nameInput || state.lastSaved || 'Workout');
         if (!state.intervals.length) {
             announce(t('workoutEditor.addAtLeastOneInterval', 'Add at least one interval'), true);
+            return null;
+        }
+        for (let i = 0; i < state.intervals.length; i++) {
+            const errors = intervalErrors(state.intervals[i]);
+            if (!errors.length) {
+                continue;
+            }
+            const { field, message } = errors[0];
+            if (field.group === 'advanced' && !state.showAdvanced) {
+                // The field would be saved but is hidden: show it so it can be fixed
+                state.showAdvanced = true;
+                selectors.advanced.checked = true;
+                renderIntervals();
+            }
+            const input = selectors.intervalList.querySelector(`input[data-index="${i}"][data-key="${field.key}"]:not([type="checkbox"])`);
+            if (input && input.scrollIntoView) {
+                input.scrollIntoView({ block: 'center' });
+            }
+            announce(t('workoutEditor.fixField', 'Interval {number}, {field}: {error}')
+                .replace('{number}', i + 1)
+                .replace('{field}', resolveFieldLabel(field, state.intervals[i]))
+                .replace('{error}', message), true);
             return null;
         }
         const list = [];
@@ -1554,8 +1755,26 @@
         return `${hh}:${mm}:${ss}`;
     }
 
-    function parseDuration(text) {
+    function isDigits(text) {
         if (!text) {
+            return false;
+        }
+        for (const ch of text) {
+            if (ch < '0' || ch > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Seconds, mm:ss or hh:mm:ss; anything else ("1.5", "5m", "1:2:3:4") is not a duration
+    function isDurationText(text) {
+        const parts = String(text || '').split(':').map(part => part.trim());
+        return parts.length <= 3 && parts.every(isDigits);
+    }
+
+    function parseDuration(text) {
+        if (!text || !isDurationText(text)) {
             return 0;
         }
         const parts = text.split(':').map(part => parseInt(part, 10));
@@ -1601,6 +1820,30 @@
         }
         const speed = 60 / totalMinutes;
         return Math.round(speed * 10) / 10; // round to 1 decimal
+    }
+
+    // Pace as typed: minutes with an optional separator and seconds ("6:30", "6,30", "630");
+    // seconds up to 59 and at least 1:00 – the same floor as the -/+ buttons
+    function isValidPace(raw, formatted) {
+        const text = String(raw || '').trim();
+        let separator = -1;
+        for (let i = 0; i < text.length; i++) {
+            if (':.,'.indexOf(text[i]) >= 0) {
+                if (separator >= 0) {
+                    return false;
+                }
+                separator = i;
+            }
+        }
+        const minutesText = separator >= 0 ? text.slice(0, separator) : text;
+        if (!isDigits(minutesText) || (separator >= 0 && !isDigits(text.slice(separator + 1)))) {
+            return false;
+        }
+        const parts = String(formatted || '').split(':');
+        if (parts.length !== 2 || parts[1].length !== 2) {
+            return false;
+        }
+        return Number(parts[1]) <= 59 && Number(parts[0]) >= 1;
     }
 
     function formatPaceInput(text) {

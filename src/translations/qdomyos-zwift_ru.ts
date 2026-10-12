@@ -2207,6 +2207,38 @@ Do you want to update QZ settings?</source>
         <source>Elevation</source>
         <translation>Набор высоты</translation>
     </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>Введите число</translation>
+    </message>
+    <message>
+        <source>Allowed range: {min} to {max}</source>
+        <translation>Допустимо: от {min} до {max}</translation>
+    </message>
+    <message>
+        <source>Minimum: {min}</source>
+        <translation>Минимум: {min}</translation>
+    </message>
+    <message>
+        <source>Maximum: {max}</source>
+        <translation>Максимум: {max}</translation>
+    </message>
+    <message>
+        <source>Enter the duration as hh:mm:ss</source>
+        <translation>Введите длительность в формате чч:мм:сс</translation>
+    </message>
+    <message>
+        <source>The duration must be longer than 0</source>
+        <translation>Длительность должна быть больше 0</translation>
+    </message>
+    <message>
+        <source>Enter the pace as mm:ss, at least 1:00</source>
+        <translation>Введите темп в формате мм:сс, не меньше 1:00</translation>
+    </message>
+    <message>
+        <source>Interval {number}, {field}: {error}</source>
+        <translation>Интервал {number}, {field}: {error}</translation>
+    </message>
 </context>
 <context>
     <name>Wizard</name>

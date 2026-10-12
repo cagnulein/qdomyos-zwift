@@ -2207,6 +2207,38 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
         <source>Elevation</source>
         <translation>Altitudine</translation>
     </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>Inserisci un numero</translation>
+    </message>
+    <message>
+        <source>Allowed range: {min} to {max}</source>
+        <translation>Consentito: da {min} a {max}</translation>
+    </message>
+    <message>
+        <source>Minimum: {min}</source>
+        <translation>Minimo: {min}</translation>
+    </message>
+    <message>
+        <source>Maximum: {max}</source>
+        <translation>Massimo: {max}</translation>
+    </message>
+    <message>
+        <source>Enter the duration as hh:mm:ss</source>
+        <translation>Inserisci la durata come hh:mm:ss</translation>
+    </message>
+    <message>
+        <source>The duration must be longer than 0</source>
+        <translation>La durata deve essere maggiore di 0</translation>
+    </message>
+    <message>
+        <source>Enter the pace as mm:ss, at least 1:00</source>
+        <translation>Inserisci il passo come mm:ss, almeno 1:00</translation>
+    </message>
+    <message>
+        <source>Interval {number}, {field}: {error}</source>
+        <translation>Intervallo {number}, {field}: {error}</translation>
+    </message>
 </context>
 <context>
     <name>Wizard</name>

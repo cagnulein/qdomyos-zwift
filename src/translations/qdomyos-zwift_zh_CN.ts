@@ -2207,6 +2207,38 @@ Do you want to update QZ settings?</source>
         <source>Elevation</source>
         <translation>爬升</translation>
     </message>
+    <message>
+        <source>Enter a number</source>
+        <translation>请输入数字</translation>
+    </message>
+    <message>
+        <source>Allowed range: {min} to {max}</source>
+        <translation>允许范围：{min} 至 {max}</translation>
+    </message>
+    <message>
+        <source>Minimum: {min}</source>
+        <translation>最小值：{min}</translation>
+    </message>
+    <message>
+        <source>Maximum: {max}</source>
+        <translation>最大值：{max}</translation>
+    </message>
+    <message>
+        <source>Enter the duration as hh:mm:ss</source>
+        <translation>请按 hh:mm:ss 格式输入时长</translation>
+    </message>
+    <message>
+        <source>The duration must be longer than 0</source>
+        <translation>时长必须大于 0</translation>
+    </message>
+    <message>
+        <source>Enter the pace as mm:ss, at least 1:00</source>
+        <translation>请按 mm:ss 格式输入配速，至少 1:00</translation>
+    </message>
+    <message>
+        <source>Interval {number}, {field}: {error}</source>
+        <translation>间隔 {number}，{field}：{error}</translation>
+    </message>
 </context>
 <context>
     <name>Wizard</name>
