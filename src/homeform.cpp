@@ -11495,14 +11495,17 @@ QVariantList homeform::getProfileFiles() {
     };
 
 #ifdef Q_OS_ANDROID
-    QSettings settings;
-    const bool usePublicDocuments =
-        settings.value(QZSettings::android_documents_folder,
-                       QZSettings::default_android_documents_folder).toBool() ||
+    // Profile enumeration must not depend on the storage-routing toggle. A
+    // previous run, an upgrade, or a restored QSettings file can leave this
+    // toggle disabled while the profiles already exist in MediaStore's public
+    // Documents/QZ/profiles directory. Hiding those files makes the chooser
+    // disagree with the user's visible storage. The toggle still controls
+    // migration and writes; enumeration reads both public and legacy storage.
+    const bool canUsePublicDocuments =
         QOperatingSystemVersion::current() >=
-            QOperatingSystemVersion(QOperatingSystemVersion::Android, 14);
+        QOperatingSystemVersion(QOperatingSystemVersion::Android, 10);
 
-    if (usePublicDocuments) {
+    if (canUsePublicDocuments) {
         QAndroidJniObject relativeDirectory = QAndroidJniObject::fromString(QStringLiteral("profiles"));
         QAndroidJniObject files = QAndroidJniObject::callStaticObjectMethod(
             "org/cagnulen/qdomyoszwift/ContentHelper",
