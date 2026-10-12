@@ -11431,7 +11431,12 @@ void homeform::loadSettings(const QUrl &filename) {
             settings.remove(baseKey);
         }
     }
-    
+
+    // The profile dialog can quit the Android process immediately after
+    // loadSettings(). Flush the selected profile before that quit so the next
+    // process reads the loaded profile instead of the previous QSettings state.
+    settings.sync();
+
     // Emit signal when settings are loaded as they might contain user profile changes
     if (homeform::singleton()) {
         if (homeform::singleton()->garminConnect) {

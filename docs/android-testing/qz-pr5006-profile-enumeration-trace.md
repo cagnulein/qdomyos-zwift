@@ -45,4 +45,4 @@ The changed C++ code is not yet in a new Android APK on the Mac. A new Android a
 
 ## Follow-up fix
 
-The first Android runtime verification of commit `920f8060c` confirmed public MediaStore enumeration with `android_documents_folder=false`, but exposed two QML interaction defects: redundant nested and page-level `MouseArea` overlays could intercept profile `Button` events, and `ListModel.get()` was called with an unsupported second property argument. The overlays were removed and all model reads now use `get(index).property`. This follow-up requires a new Android artifact and a fresh two-stage selection/load verification.
+The follow-up runtime test also found that the loaded profile was not durable across an immediate Android quit/relaunch: `loadSettings()` updated the in-process field and showed the dialog, but the next process read `default`. `homeform::loadSettings()` now calls `settings.sync()` before emitting the profile-change signal, flushing `profile_name` before the restart path.
