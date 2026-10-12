@@ -7,7 +7,7 @@
 
 namespace {
 
-constexpr int kWidth = 800;
+constexpr int kWidth = 480;
 constexpr int kHeight = 480;
 constexpr size_t kPixelCount = kWidth * kHeight;
 constexpr uint32_t kBackground = 0x081220;
@@ -113,19 +113,19 @@ void centerText(int x, int y, int width, int scale, uint32_t color, const char *
 }
 
 void drawBadge(int x, const char *title, const char *state, uint32_t color) {
-  fillRect(x, 78, 248, 78, kCard);
-  fillRect(x, 78, 6, 78, color);
-  drawText(x + 20, 91, 2, kMuted, title);
-  drawText(x + 20, 121, 2, color, state);
+  fillRect(x, 70, 145, 64, kCard);
+  fillRect(x, 70, 4, 64, color);
+  drawText(x + 10, 80, 1, kMuted, title);
+  drawText(x + 10, 105, 1, color, state);
 }
 
 void drawMetricCard(int x, const char *title, const char *value, const char *unit,
                     uint32_t accent) {
-  fillRect(x, 174, 248, 270, kCard);
-  fillRect(x, 174, 248, 5, accent);
-  centerText(x, 198, 248, 2, kMuted, title);
-  centerText(x, 255, 248, 11, kWhite, value);
-  centerText(x, 374, 248, 2, accent, unit);
+  fillRect(x, 148, 145, 286, kCard);
+  fillRect(x, 148, 145, 5, accent);
+  centerText(x, 174, 145, 1, kMuted, title);
+  centerText(x, 246, 145, 5, kWhite, value);
+  centerText(x, 350, 145, 1, accent, unit);
 }
 
 }  // namespace
@@ -154,7 +154,7 @@ bool lcdDashboardBegin() {
   if (lcd == nullptr || !lcd->isOverState(esp_panel::drivers::LCD::State::BEGIN) ||
       lcd->getFrameWidth() != kWidth || lcd->getFrameHeight() != kHeight ||
       lcd->getFrameColorBits() != 16) {
-    Serial.println("[LCD] LCD did not reach 800x480 RGB565 ready state");
+    Serial.println("[LCD] LCD did not reach 480x480 RGB565 ready state");
     return false;
   }
 
@@ -163,7 +163,7 @@ bool lcdDashboardBegin() {
     backlight->on();
   }
 
-  Serial.println("[LCD] 4.3-inch 800x480 dashboard ready");
+  Serial.println("[LCD] 3.95-inch 480x480 dashboard ready");
   return true;
 }
 
@@ -173,12 +173,12 @@ void lcdDashboardUpdate(const LcdDashboardData &data) {
   }
 
   fillRect(0, 0, kWidth, kHeight, kBackground);
-  fillRect(0, 0, kWidth, 62, kHeader);
-  drawText(24, 15, 4, kWhite, "QZ PROFORM BRIDGE");
+  fillRect(0, 0, kWidth, 56, kHeader);
+  drawText(18, 13, 3, kWhite, "QZ PROFORM BRIDGE");
 
-  drawBadge(20, "WIFI", data.wifiConnected ? "CONNESSO" : "OFFLINE",
+  drawBadge(10, "WIFI", data.wifiConnected ? "CONNESSO" : "OFFLINE",
             data.wifiConnected ? kGreen : kRed);
-  drawBadge(276, "BICI / WEBSOCKET", data.bikeConnected ? "CONNESSA" : "OFFLINE",
+  drawBadge(167, "BICI / WS", data.bikeConnected ? "CONNESSA" : "OFFLINE",
             data.bikeConnected ? kGreen : kRed);
 
   const char *antState = "XIAO OFFLINE";
@@ -193,7 +193,7 @@ void lcdDashboardUpdate(const LcdDashboardData &data) {
     antState = "PRONTO / ATTESA";
     antColor = kOrange;
   }
-  drawBadge(532, "ANT+ FE-C", antState, antColor);
+  drawBadge(324, "ANT+ FE-C", antState, antColor);
 
   char watts[16] = "---";
   char cadence[16] = "---";
@@ -206,10 +206,10 @@ void lcdDashboardUpdate(const LcdDashboardData &data) {
     snprintf(target, sizeof(target), "%.0f", data.requestedWatts);
   }
 
-  drawMetricCard(20, "WATT ATTUALI", watts, "W", kBlue);
-  drawMetricCard(276, "CADENZA", cadence, "RPM", rgb888(189, 96, 255));
-  drawMetricCard(532, "WATT RICHIESTI", target, "ERG / FE-C", kOrange);
-  centerText(0, 458, kWidth, 1, kMuted,
+  drawMetricCard(10, "WATT ATTUALI", watts, "W", kBlue);
+  drawMetricCard(167, "CADENZA", cadence, "RPM", rgb888(189, 96, 255));
+  drawMetricCard(324, "WATT RICHIESTI", target, "ERG / FE-C", kOrange);
+  centerText(0, 453, kWidth, 1, kMuted,
              "I DATI SONO LETTI DALLA BICI PROFORM SULLA RETE WI-FI");
 
   if (!lcd->drawBitmap(0, 0, kWidth, kHeight, pixels, -1)) {

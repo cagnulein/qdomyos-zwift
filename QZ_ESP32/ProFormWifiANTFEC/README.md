@@ -2,7 +2,7 @@
 
 This prototype turns the two-board combination below into a standalone bridge for a
 ProForm/iFit Wi-Fi bike. The ESP32 code has two variants: the original ESP-WROOM-32
-DevKitC sketch and an ESP32-S3-LCD-EV build with a live dashboard on its 4.3-inch display.
+DevKitC sketch and an ESP32-S3-LCD-EV build with a live dashboard on its 3.95-inch display.
 
 - **AYWHP ESP32 DevKitC / ESP-WROOM-32**
   - Wi-Fi client for the ProForm bike
@@ -10,7 +10,7 @@ DevKitC sketch and an ESP32-S3-LCD-EV build with a live dashboard on its 4.3-inc
   - BLE Cycling Power peripheral
   - ERG target translation
 - **ESP32-S3-LCD-EV alternative**
-  - 4.3-inch 800x480 dashboard for Wi-Fi, bike WebSocket, ANT+ FE-C, current watts,
+  - 3.95-inch 480x480 dashboard for Wi-Fi, bike WebSocket, ANT+ FE-C, current watts,
     cadence and the latest Garmin requested watts
   - UART2 on GPIO5/TX and GPIO4/RX to avoid the LCD's GPIO16/17 signals
 - **Seeed Studio XIAO nRF52840**
@@ -102,7 +102,7 @@ The ProForm bike and ESP32 must be reachable on the same IP network.
 
 ### ESP32-S3-LCD-EV with dashboard
 
-For the ESP32-S3-LCD-EV with the 4.3-inch SUB3 screen, open:
+For the ESP32-S3-LCD-EV with the 3.95-inch SUB2 screen, open:
 
 `esp32_s3_lcd_ev/esp32_s3_lcd_ev.ino`
 
