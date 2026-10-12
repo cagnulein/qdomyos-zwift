@@ -211,9 +211,13 @@ def update_qml(qml: str, catalog: dict[str, int]) -> tuple[str, list[Device], li
         f"{case_indent}case {i}: settings.fit_file_garmin_device_training_effect_device = {d.product}; break;  // {d.macro}"
         for i, d in enumerate(devices)
     )
+    # Only an explicit user selection should persist an ID. During startup,
+    # currentIndex can change as the model is initialized or restored.
+    # Accept the old handler as input and keep onActivated on future updates.
     control, count = re.subn(
-        r"(?ms)(\s*onCurrentIndexChanged:\s*\{\n\s*switch\(currentIndex\)\s*\{\n).*?(^[ \t]*\}\n[ \t]*\})",
-        lambda m: m.group(1)+case_lines+"\n"+m.group(2), control, count=1,
+        r"(?ms)(\s*(?:onCurrentIndexChanged|onActivated):\s*\{\n\s*switch\(currentIndex\)\s*\{\n).*?(^[ \t]*\}\n[ \t]*\})",
+        lambda m: m.group(1).replace("onCurrentIndexChanged", "onActivated", 1)+case_lines+"\n"+m.group(2),
+        control, count=1,
     )
     if count != 1:
         raise UpdateError("failed to replace Garmin switch mapping")
