@@ -14,6 +14,7 @@
  *
  *   XIAO -> ESP32:
  *     T4,<target_power_quarter_watts>
+ *     A,<channel_ready>,<last_FE-C_RX_age_ms>
  *
  * The ANT FE-C target power page (49 / 0x31) encodes target power in 0.25 W.
  */
@@ -110,6 +111,9 @@ static uint8_t requested_transmissions;
 static bool requested_ack;
 
 static uint32_t tx_count;
+static bool fec_channel_ready;
+static uint32_t last_fec_rx_ms;
+static uint32_t last_status_tx_ms;
 
 // -----------------------------------------------------------------------------
 // Small endian helpers
@@ -155,6 +159,22 @@ static void publish_pending_target_to_esp32(void)
 
     char line[32];
     snprintf(line, sizeof(line), "T4,%u\n", (unsigned int)raw);
+    uart_write_string(line);
+}
+
+static void publish_ant_status(void)
+{
+    const uint32_t now = k_uptime_get_32();
+    uint32_t rx_age_ms = 0xFFFFU;
+
+    if (last_fec_rx_ms != 0U) {
+        rx_age_ms = MIN(now - last_fec_rx_ms, 0xFFFEU);
+    }
+
+    char line[32];
+    snprintf(line, sizeof(line), "A,%u,%u\n",
+             fec_channel_ready ? 1U : 0U,
+             (unsigned int)rx_age_ms);
     uart_write_string(line);
 }
 
@@ -503,6 +523,7 @@ static void ant_evt_handler(ant_evt_t *evt)
         break;
 
     case EVENT_RX:
+        last_fec_rx_ms = k_uptime_get_32();
         if (evt->message.ANT_MESSAGE_ucMesgID == MESG_BROADCAST_DATA_ID ||
             evt->message.ANT_MESSAGE_ucMesgID == MESG_ACKNOWLEDGED_DATA_ID ||
             evt->message.ANT_MESSAGE_ucMesgID == MESG_BURST_DATA_ID) {
@@ -586,13 +607,21 @@ int main(void)
     }
 
     if (setup_ant_fec() != 0) {
+        publish_ant_status();
         k_oops();
         return 0;
     }
+    fec_channel_ready = true;
+    publish_ant_status();
+    last_status_tx_ms = k_uptime_get_32();
 
     for (;;) {
         service_uart();
         publish_pending_target_to_esp32();
+        if (k_uptime_get_32() - last_status_tx_ms >= 1000U) {
+            last_status_tx_ms = k_uptime_get_32();
+            publish_ant_status();
+        }
         k_sleep(K_MSEC(2));
     }
 

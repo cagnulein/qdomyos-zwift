@@ -183,6 +183,12 @@ static void applyErgTarget(float requestedWatts) {
 
 static void processAntUartLine(const String &line) {
   unsigned int targetX4 = 0;
+  unsigned int antReady = 0;
+  unsigned int antRxAgeMs = 0xFFFF;
+
+  if (sscanf(line.c_str(), "A,%u,%u", &antReady, &antRxAgeMs) == 2) {
+    return;
+  }
 
   if (sscanf(line.c_str(), "T4,%u", &targetX4) == 1) {
     const float targetWatts = static_cast<float>(targetX4) / 4.0f;

@@ -1,13 +1,18 @@
 # ProForm Wi-Fi -> BLE + ANT+ FE-C bridge
 
 This prototype turns the two-board combination below into a standalone bridge for a
-ProForm/iFit Wi-Fi bike:
+ProForm/iFit Wi-Fi bike. The ESP32 code has two variants: the original ESP-WROOM-32
+DevKitC sketch and an ESP32-S3-LCD-EV build with a live dashboard on its 4.3-inch display.
 
 - **AYWHP ESP32 DevKitC / ESP-WROOM-32**
   - Wi-Fi client for the ProForm bike
   - WebSocket implementation derived from QZ's `proformwifibike` behavior
   - BLE Cycling Power peripheral
   - ERG target translation
+- **ESP32-S3-LCD-EV alternative**
+  - 4.3-inch 800x480 dashboard for Wi-Fi, bike WebSocket, ANT+ FE-C, current watts,
+    cadence and the latest Garmin requested watts
+  - UART2 on GPIO5/TX and GPIO4/RX to avoid the LCD's GPIO16/17 signals
 - **Seeed Studio XIAO nRF52840**
   - ANT+ FE-C trainer peripheral
   - receives FE-C Target Power commands from a Garmin
@@ -95,6 +100,29 @@ static constexpr float WATT_GAIN = 0.85f;
 
 The ProForm bike and ESP32 must be reachable on the same IP network.
 
+### ESP32-S3-LCD-EV with dashboard
+
+For the ESP32-S3-LCD-EV with the 4.3-inch SUB3 screen, open:
+
+`esp32_s3_lcd_ev/esp32_s3_lcd_ev.ino`
+
+Enter the Wi-Fi SSID, password and bike IP in the configuration constants at the
+top of the sketch. This variant uses GPIO5 as ESP32 TX to XIAO RX (D7), GPIO4 as
+ESP32 RX from XIAO TX (D6), and a shared GND. Do not use the DevKitC GPIO16/17
+UART wiring on this board; those pins are assigned to the display.
+
+Select **ESP32-S3 Dev Module**, 16 MB flash, OPI PSRAM and a 3 MB application
+partition. Install the same WebSockets and ArduinoJson libraries listed below,
+plus **ESP32_Display_Panel 1.0.0 or later** and its Arduino dependencies. The
+display library requires **Arduino ESP32 core 3.1.0 or later**. The dashboard is
+read-only and updates twice per second. It shows current power and cadence only
+while bike telemetry is fresh, and keeps the last requested ERG watts visible.
+
+The ANT+ badge reports the XIAO channel state. `READY / WAITING` means the FE-C
+channel is open but no Garmin FE-C traffic was recently received; `FE-C ACTIVE`
+means the XIAO has recently received ANT+ FE-C traffic. An offline badge means
+the S3 has not received the XIAO status heartbeat.
+
 ### ESP32 Arduino dependencies
 
 Use an ESP32 Arduino core suitable for the ESP32 DevKitC / ESP-WROOM-32 and
@@ -102,6 +130,8 @@ install:
 
 - **arduinoWebSockets** by Links2004
 - **ArduinoJson 7.x**
+- For the ESP32-S3-LCD-EV sketch: **ESP32_Display_Panel 1.0.0 or later** and
+  **Arduino ESP32 core 3.1.0 or later**
 
 BLE support comes from the ESP32 Arduino core.
 
@@ -184,6 +214,10 @@ The Zephyr `xiao_ble` target supports the XIAO's UF2 bootloader.
 3. A drive named `XIAO BLE` appears.
 4. Copy `build/zephyr/zephyr.uf2` to that drive.
 
+Rebuild and flash the XIAO firmware from the current source to enable the ANT+
+status heartbeat used by the S3 dashboard. The committed prebuilt image from
+the original PR predates this heartbeat.
+
 An SWD debugger can also be used.
 
 ## Wiring
@@ -245,6 +279,16 @@ T4,1000
 
 The ESP32 converts 1000 / 4 to 250 W and applies the QZ ERG compensation before
 sending the ProForm command.
+
+The XIAO also sends a status heartbeat once per second for the S3 dashboard:
+
+```text
+A,<channel_ready>,<age_of_last_FE-C_receive_ms>
+```
+
+An age of `65535` means no FE-C receive event has been seen since startup. The
+heartbeat distinguishes an open ANT+ channel from recent FE-C traffic; it does
+not claim that a Garmin is paired when no traffic has arrived.
 
 ## FE-C implementation
 
