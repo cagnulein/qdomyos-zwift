@@ -156,6 +156,7 @@
 #include "devices/trxappgateusbrower/trxappgateusbrower.h"
 #include "devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h"
 #include "devices/waterrowerusb/waterrowerusb.h"
+#include "devices/sportstechf75treadmill/sportstechf75treadmill.h"
 #include "devices/ultrasportbike/ultrasportbike.h"
 #include "devices/wahookickrheadwind/wahookickrheadwind.h"
 #include "devices/wahookickrsnapbike/wahookickrsnapbike.h"
@@ -304,6 +305,7 @@ class bluetooth : public QObject, public SignalHandler {
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
     waterrowerusb *waterRowerUSB = nullptr;
+    sportstechf75treadmill *sportstechF75Treadmill = nullptr;
     sunnyfitstepper *sunnyfitStepper = nullptr;
     echelonstride *echelonStride = nullptr;
     echelonstairclimber *echelonStairclimber = nullptr;

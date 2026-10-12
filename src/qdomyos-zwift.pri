@@ -307,6 +307,7 @@ devices/skandikawiribike/skandikawiribike.cpp \
 devices/smartrowrower/smartrowrower.cpp \
 devices/smartspin2k/smartspin2k.cpp \
 devices/waterrowerusb/waterrowerusb.cpp \
+devices/sportstechf75treadmill/sportstechf75treadmill.cpp \
 smtpclient/src/emailaddress.cpp \
 smtpclient/src/mimeattachment.cpp \
 smtpclient/src/mimecontentformatter.cpp \
@@ -843,6 +844,7 @@ devices/skandikawiribike/skandikawiribike.h \
 devices/smartrowrower/smartrowrower.h \
 devices/smartspin2k/smartspin2k.h \
 devices/waterrowerusb/waterrowerusb.h \
+devices/sportstechf75treadmill/sportstechf75treadmill.h \
 smtpclient/src/SmtpMime \
 smtpclient/src/emailaddress.h \
 smtpclient/src/mimeattachment.h \

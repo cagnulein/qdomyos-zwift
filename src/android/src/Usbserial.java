@@ -235,6 +235,33 @@ public class Usbserial {
         return lastReadLen;
     }
 
+    public static boolean isOpen() {
+        return localSerialFd != null || port != null;
+    }
+
+    public static void close() {
+        if (localSerialFd != null) {
+            try {
+                Os.close(localSerialFd);
+            }
+            catch (ErrnoException e) {
+                QLog.d("QZ", "UsbSerial local serial close failed: " + e.getMessage());
+            }
+        }
+        localSerialFd = null;
+        localSerialMode = false;
+        lastReadLen = 0;
+        if (port != null) {
+            try {
+                port.close();
+            }
+            catch (IOException e) {
+                QLog.d("QZ", "UsbSerial close failed: " + e.getMessage());
+            }
+            port = null;
+        }
+    }
+
     public static byte[] read() {
         if(localSerialMode) {
             if(localSerialFd == null) {
