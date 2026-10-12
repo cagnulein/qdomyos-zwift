@@ -2115,7 +2115,6 @@ import AndroidStatusBar 1.0
             property int mywhoosh_link_camera_value: 1
             property int mywhoosh_link_emote_value: 1
             property bool waterrower_usb: false
-            property bool sportstech_f75_treadmill: false
             property string freebeat_serialport: ""
             property bool nordictrack_elliptical_s700: false
             property bool virtual_device_tacx: false
@@ -2135,6 +2134,7 @@ import AndroidStatusBar 1.0
             property bool android_notification_v2: true
             property bool nordictrack_gx_le: false
             property bool proform_treadmill_305_cst: false
+            property bool sportstech_f75_treadmill: false
         }
 
 
