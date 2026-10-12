@@ -94,7 +94,7 @@ void sportstechf75treadmill::readSerial() {
         "org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
     const jint length = QAndroidJniObject::callStaticMethod<jint>(
         "org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
-    if (env->ExceptionCheck() || length <= 0 || data.isNull()) {
+    if (env->ExceptionCheck() || length <= 0) {
         if (env->ExceptionCheck()) {
             env->ExceptionClear();
         }
@@ -102,6 +102,9 @@ void sportstechf75treadmill::readSerial() {
     }
 
     jbyteArray bytes = data.object<jbyteArray>();
+    if (!bytes) {
+        return;
+    }
     jbyte *raw = env->GetByteArrayElements(bytes, nullptr);
     if (raw) {
         receiveBuffer.append(reinterpret_cast<const char *>(raw), length);
