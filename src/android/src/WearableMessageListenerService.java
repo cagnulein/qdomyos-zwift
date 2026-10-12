@@ -25,7 +25,7 @@ public class WearableMessageListenerService extends Service implements
     private GoogleApiClient googleApiClient;
     private MessageClient mWearableClient;
     private String TAG = "WearableMessageListenerService";
-    private static int heart_rate = 0;
+    private static volatile int heart_rate = 0;
 
     @Override
     public void onCreate() {
@@ -68,9 +68,13 @@ public class WearableMessageListenerService extends Service implements
             } else if (event.getType() == DataEvent.TYPE_CHANGED) {
                 QLog.d(TAG, "DataItem changed: " + event.getDataItem().getUri() + " " + event.getDataItem().getUri().getPath());
                 if ("/qz".equals(event.getDataItem().getUri().getPath())) {
-                    heart_rate = DataMap.fromByteArray(event.getDataItem().getData())
-                            .getInt("heart_rate", 0);
-                    QLog.d(TAG, "Heart from " + event.getDataItem().getUri() + ": " + heart_rate);
+                    try {
+                        heart_rate = DataMap.fromByteArray(event.getDataItem().getData())
+                                .getInt("heart_rate", 0);
+                        QLog.d(TAG, "Heart from " + event.getDataItem().getUri() + ": " + heart_rate);
+                    } catch (RuntimeException e) {
+                        QLog.e(TAG, "Invalid heart rate DataItem " + event.getDataItem().getUri() + ": " + e);
+                    }
                 }
             }
         }
