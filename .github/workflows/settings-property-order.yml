@@ -1,0 +1,31 @@
+name: Settings property order
+
+on:
+  pull_request:
+    paths:
+      - 'src/settings.qml'
+      - 'tools/check_settings_property_order.py'
+      - '.github/workflows/settings-property-order.yml'
+  workflow_dispatch:
+
+jobs:
+  check-settings-property-order:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch pull request base
+        if: github.event_name == 'pull_request'
+        run: git fetch origin "${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
+
+      - name: Check persistent settings property order
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check_settings_property_order.py "origin/${{ github.base_ref }}"
+
+      - name: Check script on manual run
+        if: github.event_name == 'workflow_dispatch'
+        run: python3 tools/check_settings_property_order.py "HEAD^"

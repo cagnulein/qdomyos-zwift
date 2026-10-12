@@ -340,6 +340,13 @@
             return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
         }
 
+        // Only the displayed unit is translated; SERIES_DEFS keep the English one
+        var UNIT_KEYS = { 'W': 'unit.w', 'rpm': 'unit.rpm', 'km/h': 'unit.kmh', 'lvl': 'unit.level', 'spm': 'unit.spm' };
+
+        function unitLabel(unit) {
+            return UNIT_KEYS[unit] ? tq(UNIT_KEYS[unit], unit) : unit;
+        }
+
         // Check if running in Qt WebView (offline mode)
         window.QZ_OFFLINE = false;
         if (typeof window.qt !== 'undefined' ||
@@ -376,7 +383,12 @@
             if (!Array.isArray(arr) || arr.length === 0) return [];
             return arr.map(function(val, idx) {
                 if (val !== null && typeof val === 'object' && val.x !== undefined) {
-                    return { x: val.x, y: val.y };
+                    return {
+                        x: val.x,
+                        y: val.y,
+                        openEnded: !!val.openEnded,
+                        segmentLabel: val.segmentLabel || ''
+                    };
                 }
                 return { x: idx, y: val };
             });
@@ -542,6 +554,8 @@
                 inclination: Array.isArray(workout.inclination) ? workout.inclination : [],
                 resistance: Array.isArray(workout.resistance) ? workout.resistance : [],
                 cadence: Array.isArray(workout.cadence) ? workout.cadence : [],
+                segments: Array.isArray(workout.segments) ? workout.segments : [],
+                hasOpenEndedSteps: !!workout.hasOpenEndedSteps,
                 deviceType: workout.deviceType || 'bike'
             };
 
@@ -600,7 +614,7 @@
                         key: def.key,
                         label: tq(def.labelKey, def.label),
                         color: def.color,
-                        unit: def.unit,
+                        unit: unitLabel(def.unit),
                         axis: def.axis,
                         axisLabel: tq(def.axisLabelKey, def.axisLabel),
                         axisPosition: def.axisPosition,

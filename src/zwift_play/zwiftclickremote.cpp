@@ -18,6 +18,8 @@ volatile int8_t AbstractZapDevice::risingEdge = 0;
 QTimer* AbstractZapDevice::autoRepeatTimer = nullptr;
 bool AbstractZapDevice::lastButtonPlus = false;
 QDateTime AbstractZapDevice::lastFrame = QDateTime::currentDateTime();
+bool AbstractZapDevice::lastRideGearPlus = false;
+QDateTime AbstractZapDevice::lastRideGearFrame;
 
 zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap) {
 #ifdef Q_OS_IOS
@@ -50,7 +52,7 @@ void zwiftclickremote::update() {
         countRxTimeout++;
         if(countRxTimeout == 10) {
             if(homeform::singleton())
-                homeform::singleton()->setToastRequested("Zwift device: UPGRADE THE FIRMWARE!");
+                homeform::singleton()->setToastRequested(QObject::tr("Zwift device: UPGRADE THE FIRMWARE!"));
         }
         // Keepalive: re-send RideOn every 3 seconds to prevent Click V2 deep-sleep (causes HCI 0x08 drop).
         // Applies to LEFT and RIGHT types only; NONE is the old Zwift Click which uses a different protocol.

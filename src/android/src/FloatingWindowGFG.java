@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -106,6 +107,7 @@ public class FloatingWindowGFG extends Service {
                   webView.measure(100, 100);
                   webView.setAlpha(Float.valueOf(FloatingHandler._alpha) / 100.0f);
                   settings.setBuiltInZoomControls(true);
+                  settings.setDisplayZoomControls(false);
                   settings.setUseWideViewPort(true);
                   settings.setDomStorageEnabled(true);
                   QLog.d("QZ","loadurl");
@@ -173,7 +175,7 @@ public class FloatingWindowGFG extends Service {
 				float initialTouchX;
 				float initialTouchY;
 				boolean isDragging = false;
-				final int TOUCH_THRESHOLD = 10; // Threshold for distinguishing tap vs drag
+				final int TOUCH_THRESHOLD = ViewConfiguration.get(FloatingWindowGFG.this).getScaledTouchSlop(); // density-aware threshold for distinguishing tap vs drag
 
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {

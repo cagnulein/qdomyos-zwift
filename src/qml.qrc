@@ -2,12 +2,16 @@
     <qresource prefix="/">
         <file>HomeForm.ui.qml</file>
         <file>main.qml</file>
+        <file>EmailValidator.qml</file>
+        <file>SettingsNumberField.qml</file>
+        <file>SettingsFormatField.qml</file>
         <file>Page1Form.ui.qml</file>
         <file>Page2Form.ui.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>Home.qml</file>
         <file>settings.qml</file>
         <file>settings-catalog.json</file>
+        <file>settings-index-worker.js</file>
         <file>AccordionElement.qml</file>
         <file>AccordionCheckElement.qml</file>
         <file>icons/arrow-collapse-vertical.png</file>
@@ -88,6 +92,7 @@
         <file>gpx/St Andrews to Pittenweem.gpx</file>
         <file>GPXList.qml</file>
         <file>WorkoutsHistory.qml</file>
+        <file>ShapeIcon.qml</file>
         <file>WorkoutTypeTag.qml</file>
         <file>inner_templates/previewchart/ajax-loader.gif</file>
         <file>inner_templates/previewchart/chart.htm</file>
@@ -105,6 +110,7 @@
         <file>WebStravaAuth.qml</file>
         <file>Toast.qml</file>
         <file>ToastManager.qml</file>
+        <file>sounds/training-program-segment.wav</file>
         <file>inner_templates/chartjs/elliptical.png</file>
         <file>inner_templates/chartjs/row.png</file>
         <file>inner_templates/chartjs/run.png</file>
@@ -129,7 +135,10 @@
         <file>Wizard.qml</file>
         <file>gears.qml</file>
         <file>customgears.qml</file>
+        <file>custominclinationresistance.qml</file>
         <file>IndicatorOnlySwitch.qml</file>
+        <file>ValueComboBox.qml</file>
+        <file>UiComboBox.qml</file>
         <file>StaticAccordionElement.qml</file>
         <file>inner_templates/chartjs/dotreadmillchartlive.js</file>
         <file>inner_templates/chartjs/treadmillchartlive.htm</file>
