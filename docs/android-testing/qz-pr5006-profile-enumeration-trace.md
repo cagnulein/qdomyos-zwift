@@ -39,10 +39,24 @@ No production Bluetooth workaround was added. No profile files or app data were 
   - `ChildProcessLoadsProfilesAfterRestart`
   - `RealProcessRestartPreservesBothProfiles`
 
-## Not yet verified
-
-The changed C++ code is not yet in a new Android APK on the Mac. A new Android artifact from the exact branch/commit must be built, verified, installed on `qz_arm64_api29`, and tested with `android_documents_folder=false` while `Jan.qzs` and `Jay.qzs` remain in MediaStore. The UI verdict must include a fresh screenshot and UIAutomator dump showing both names, followed by selecting and loading `Jay`.
-
 ## Follow-up fix
 
-The next runtime test showed why `settings.sync()` alone was insufficient: the QML `Settings.profile_name` property still held `default` and could overwrite the C++ value during component teardown. `selectProfile()` now assigns `settings.profile_name` from the selected filename before calling `loadSettings()`.
+The runtime test showed why `settings.sync()` alone was insufficient: the QML `Settings.profile_name` property still held `default` and could overwrite the C++ value during component teardown. `selectProfile()` now assigns `settings.profile_name` from the selected filename before calling `loadSettings()`.
+
+## Final Android verification
+
+The exact remote head `8772d08d8f3c7dd325fcc6ab96c4b923f9a87c7f` produced GitHub Actions run `38245337234`, Android build job `114797671560`, with the Android build step successful. The downloaded APK was verified with:
+
+- SHA-256: `91364448648f415886ed11ee03e3092f1d54aeaa81adf48fa69170259ff0e74b`
+- Package: `org.cagnulen.qdomyoszwift`
+- Activity: `org.cagnulen.qdomyoszwift.CustomQtActivity`
+- ABIs: `armeabi-v7a`, `arm64-v8a`, `x86`, `x86_64`
+
+On `qz_arm64_api29` (`API 29`, `arm64-v8a`, `emulator64_arm64`), with `android_documents_folder=false` and `virtual_device_bluetooth=false` only in the emulator runtime:
+
+1. MediaStore contained `Jay.qzs` and `Jan.qzs` in `Documents/QZ/profiles/`.
+2. A fresh UIAutomator dump and screenshot showed both `Jay` and `Jan` in the QZ Profiles page.
+3. The first tap selected `Jay`; the second tap displayed `Profile loaded` and the quit/restart prompt.
+4. After confirming restart and dismissing the first-run disclaimer, a fresh Profiles screenshot and UIAutomator dump showed the profile name and selector as `Jay`, with both `Jay` and `Jan` still listed.
+
+This closes the requested enumeration, selection, load, and restart-persistence verification. The overall GitHub Actions workflow was not declared fully green: unrelated matrix jobs were still queued/in progress or had independent failures when this verification completed.
