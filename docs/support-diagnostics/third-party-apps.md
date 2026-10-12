@@ -69,3 +69,21 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - Starting from a known state makes the connection order visible and reduces ambiguity from stale Bluetooth sessions.
 - One controlled action creates a clear point in the log where the expected command can be compared with what QZ actually received and sent.
 - Changing one setting at a time makes A/B logs directly comparable and helps distinguish configuration effects from intermittent connection behavior.
+
+## Resistance levels differ between the bike and QZ
+
+### Provide first
+
+- Bike model, QZ version, and the number of physical resistance levels.
+- Minimum and maximum resistance displayed in QZ, with one example of a jump.
+- Whether changes originate from the bike, QZ, or the external training app.
+
+### If still unclear
+
+- Close training apps, turn off Auto Resistance, and slowly sweep the bike's physical resistance levels. Note the values shown in QZ.
+- Share a short debug log or video of the sweep. Test automatic control separately.
+
+### Why it matters
+
+- The physical scale can differ from values reported over Bluetooth.
+- Separating manual and automatic tests distinguishes telemetry mapping from control commands.
