@@ -5,11 +5,13 @@
 #include <QTimer>
 
 #include "devices/treadmill.h"
+#include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualtreadmill.h"
 
 class sportstechf75treadmill : public treadmill {
     Q_OBJECT
   public:
-    sportstechf75treadmill();
+    sportstechf75treadmill(bool noHeartService);
     ~sportstechf75treadmill() override;
 
     bool connected() override;
@@ -17,7 +19,11 @@ class sportstechf75treadmill : public treadmill {
     double minStepSpeed() override { return 1.0; }
 
   private slots:
+    void changeInclinationRequested(double grade, double percentage);
     void update();
+
+  signals:
+    void debug(QString string);
 
   private:
     void openSerial();
@@ -33,6 +39,8 @@ class sportstechf75treadmill : public treadmill {
     QByteArray receiveBuffer;
     bool serialOpened = false;
     bool commandActive = false;
+    bool noHeartService = false;
+    bool firstStateChanged = false;
     int lastCommandSpeed = -1;
     int lastCommandIncline = -100;
 };

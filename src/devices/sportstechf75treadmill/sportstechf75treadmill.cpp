@@ -22,7 +22,8 @@ constexpr int kCommandStart = 0xA2;
 constexpr int kCommandStop = 0x00;
 }
 
-sportstechf75treadmill::sportstechf75treadmill() {
+sportstechf75treadmill::sportstechf75treadmill(bool noHeartService) {
+    this->noHeartService = noHeartService;
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
 
@@ -201,6 +202,13 @@ void sportstechf75treadmill::parseFrames() {
     }
 }
 
+void sportstechf75treadmill::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0) {
+        percentage = 0;
+    }
+    changeInclination(grade, percentage);
+}
+
 void sportstechf75treadmill::update() {
     if (!serialAvailable()) {
         return;
@@ -211,6 +219,32 @@ void sportstechf75treadmill::update() {
 
     QSettings settings;
     update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toDouble()));
+
+    // Keep the standard QZ virtual-device behavior for treadmill profiles.
+    if (!firstStateChanged && !hasVirtualDevice()) {
+        const bool virtualDeviceEnabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        const bool forceBike =
+            settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+        if (virtualDeviceEnabled) {
+            if (!forceBike) {
+                emit debug(QStringLiteral("creating virtual treadmill interface..."));
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                connect(virtualTreadmill, &virtualtreadmill::debug, this, &sportstechf75treadmill::debug);
+                connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                        &sportstechf75treadmill::changeInclinationRequested);
+                setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
+            } else {
+                emit debug(QStringLiteral("creating virtual bike interface..."));
+                auto virtualBike = new virtualbike(this);
+                connect(virtualBike, &virtualbike::changeInclination, this,
+                        &sportstechf75treadmill::changeInclinationRequested);
+                setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+            }
+        }
+        emit connectedAndDiscovered();
+        firstStateChanged = true;
+    }
 
     const int requestedSpeed = qBound(0, qRound(lastRequestedSpeed().value()), 25);
     const int requestedIncline = qBound(0, qRound(lastRequestedInclination().value()), 25);

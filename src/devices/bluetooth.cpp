@@ -1148,7 +1148,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (sportstechF75Enabled && !sportstechF75Treadmill) {
                 qDebug() << QStringLiteral("Sportstech F75 Android serial enabled");
                 this->stopDiscovery();
-                sportstechF75Treadmill = new sportstechf75treadmill();
+                sportstechF75Treadmill = new sportstechf75treadmill(noHeartService);
                 emit deviceConnected(b);
                 connect(sportstechF75Treadmill, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
