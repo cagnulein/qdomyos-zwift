@@ -1,2 +1,2 @@
-70788b3c068ec4755f6e2d3241763ab2e2e666b5417cd69b15b3724f7aa60d6a  /__w/qdomyos-zwift/qdomyos-zwift/firmware/QZ-ProForm-ANT-FEC-XIAO-nRF52840.hex
-504ab0d4d21654ab510ac2b1bc847d5309f78214b9fbca83c2bc31c84cff8152  /__w/qdomyos-zwift/qdomyos-zwift/firmware/QZ-ProForm-ANT-FEC-XIAO-nRF52840.uf2
+cbdc4123099a03787b0a6ecc84840c669c4cb4fbba68a4394d457fd1298fd7be  /__w/qdomyos-zwift/qdomyos-zwift/firmware/QZ-ProForm-ANT-FEC-XIAO-nRF52840.hex
+3930233354c103ecd32cdba8732e77bf7176d377e20600c688ea1938f7c1a4f2  /__w/qdomyos-zwift/qdomyos-zwift/firmware/QZ-ProForm-ANT-FEC-XIAO-nRF52840.uf2
