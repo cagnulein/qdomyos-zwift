@@ -218,6 +218,7 @@ ColumnLayout {
                     if (selectedFileName)
                         profileNameTextField.text = selectedFileName.substring(0, selectedFileName.length - 4)
                     if (profileIndex == list.currentIndex) {
+                        settings.profile_name = profileNameTextField.text
                         const fileUrl = profileModel.get(profileIndex).fileUrl
                         if (fileUrl) {
                             loadSettings(fileUrl)

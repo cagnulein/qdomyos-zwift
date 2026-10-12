@@ -45,4 +45,4 @@ The changed C++ code is not yet in a new Android APK on the Mac. A new Android a
 
 ## Follow-up fix
 
-The follow-up runtime test also found that the loaded profile was not durable across an immediate Android quit/relaunch: `loadSettings()` updated the in-process field and showed the dialog, but the next process read `default`. `homeform::loadSettings()` now calls `settings.sync()` before emitting the profile-change signal, flushing `profile_name` before the restart path.
+The next runtime test showed why `settings.sync()` alone was insufficient: the QML `Settings.profile_name` property still held `default` and could overwrite the C++ value during component teardown. `selectProfile()` now assigns `settings.profile_name` from the selected filename before calling `loadSettings()`.
