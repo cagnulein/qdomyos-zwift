@@ -82,6 +82,7 @@ void proformtreadmill::forceIncline(double incline) {
         write[10] = 0x00;
         write[11] = 0x10;
         write[12] = (uint8_t)incline;
+        write[14] = write[11] + write[12] + 0x11;
     } else if (freemotion_t10_9b_hci) {
         // Native Freemotion T10.9B incline writes use the 0x01/0x02 selector,
         // a little-endian hundredths value, and the 0x12 checksum base.
