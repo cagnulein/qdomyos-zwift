@@ -44,8 +44,13 @@ public:
             return access_token;
         } else {
             updateTokenData();
-            return access_token;
+            return QString(); // Never reuse an expired bearer token while refreshing.
         }
+    }
+
+    void invalidateAccessToken() {
+        access_token_expiration = 0;
+        updateTokenData();
     }
 
 signals:
@@ -53,6 +58,9 @@ signals:
 
 public slots:
     void updateTokenData() {
+        if (refreshInProgress)
+            return;
+        refreshInProgress = true;
         if (haveValidRefreshToken()) {
             QUrl url("https://secure.zwift.com/auth/realms/zwift/tokens/access/codes");
             QUrlQuery query;
@@ -85,6 +93,7 @@ public slots:
 
 private slots:
     void handleTokenResponse(QNetworkReply* reply) {
+        refreshInProgress = false;
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responseData = reply->readAll();
             QJsonDocument jsonDocument = QJsonDocument::fromJson(responseData);
@@ -114,6 +123,7 @@ private slots:
     }
 
 private:
+    bool refreshInProgress = false;
     QNetworkAccessManager networkManager;
 };
 
