@@ -80,10 +80,14 @@ void fillRect(int x, int y, int width, int height, uint32_t color) {
   const int y1 = min(kHeight, y + height);
   for (int row = y0; row < y1; ++row) {
     for (int col = x0; col < x1; ++col) {
-      const size_t offset = (static_cast<size_t>(row) * kWidth + col) * 3;
-      pixels[offset] = static_cast<uint8_t>((color >> 16) & 0xFF);
-      pixels[offset + 1] = static_cast<uint8_t>((color >> 8) & 0xFF);
-      pixels[offset + 2] = static_cast<uint8_t>(color & 0xFF);
+      const uint8_t red = static_cast<uint8_t>((color >> 16) & 0xFF);
+      const uint8_t green = static_cast<uint8_t>((color >> 8) & 0xFF);
+      const uint8_t blue = static_cast<uint8_t>(color & 0xFF);
+      const uint16_t rgb565 = static_cast<uint16_t>(
+          ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3));
+      const size_t offset = (static_cast<size_t>(row) * kWidth + col) * 2;
+      pixels[offset] = static_cast<uint8_t>(rgb565 & 0xFF);
+      pixels[offset + 1] = static_cast<uint8_t>(rgb565 >> 8);
     }
   }
 }
@@ -128,9 +132,9 @@ void drawMetricCard(int x, const char *title, const char *value, const char *uni
 
 bool lcdDashboardBegin() {
   pixels = static_cast<uint8_t *>(heap_caps_malloc(
-      kPixelCount * 3, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
+      kPixelCount * 2, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
   if (pixels == nullptr) {
-    pixels = static_cast<uint8_t *>(malloc(kPixelCount * 3));
+    pixels = static_cast<uint8_t *>(malloc(kPixelCount * 2));
   }
   if (pixels == nullptr) {
     Serial.println("[LCD] Unable to allocate the dashboard framebuffer");
@@ -146,7 +150,7 @@ bool lcdDashboardBegin() {
 
   lcd = board->getLCD();
   if (lcd == nullptr || lcd->getFrameWidth() != kWidth || lcd->getFrameHeight() != kHeight ||
-      lcd->getFrameColorBits() != 24) {
+      lcd->getFrameColorBits() != 16) {
     Serial.println("[LCD] Expected the 800x480 SUB3 display");
     return false;
   }
