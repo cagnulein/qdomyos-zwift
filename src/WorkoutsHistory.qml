@@ -116,6 +116,7 @@ Page {
             // Calendar Icon Button - positioned absolutely on the left
             Button {
                 id: calendarButton
+                Accessible.name: qsTr("Filter by date")
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.leftMargin: window.contentSideMargin
@@ -154,6 +155,39 @@ Page {
                 }
             }
 
+            // Clear Filter Button - right of the calendar; before the title and the import button, as a screen reader goes through the header in this order
+            Button {
+                id: clearFilterButton
+                Accessible.name: qsTr("Clear Filter")
+                // next to the calendar that set the filter; small, so the title keeps its room
+                anchors.left: calendarButton.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.leftMargin: 6
+                width: 32
+                height: 32
+                visible: workoutModel && workoutModel.isDateFiltered
+
+                background: Rectangle {
+                    radius: 16
+                    color: clearFilterButton.pressed ? "#ff6666" : "#ff8888"
+                    border.color: "#ff4444"
+                    border.width: 1
+                }
+
+                contentItem: Text {
+                    text: "×"
+                    color: "white"
+                    font.pixelSize: 20
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                onClicked: {
+                    workoutModel.clearDateFilter()
+                }
+            }
+
             // Title with filter status - between the buttons, shrinking on narrow screens
             Column {
                 anchors.left: clearFilterButton.visible ? clearFilterButton.right : calendarButton.right
@@ -188,6 +222,7 @@ Page {
             // Import Button - on the right: a single .fit file, or every workout of the QZ folder
             Button {
                 id: importButton
+                Accessible.name: qsTr("Import workouts")
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.rightMargin: window.contentSideMargin
@@ -222,39 +257,6 @@ Page {
                 }
 
                 onClicked: importMenu.popup(importButton, 0, importButton.height)
-            }
-
-            // Clear Filter Button - left of the import button
-            Button {
-                id: clearFilterButton
-                // next to the calendar that set the filter; small, so the title keeps its room
-                anchors.left: calendarButton.right
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.leftMargin: 6
-                width: 32
-                height: 32
-                visible: workoutModel && workoutModel.isDateFiltered
-
-                background: Rectangle {
-                    radius: 16
-                    color: clearFilterButton.pressed ? "#ff6666" : "#ff8888"
-                    border.color: "#ff4444"
-                    border.width: 1
-                }
-
-                contentItem: Text {
-                    text: "×"
-                    Accessible.name: qsTr("Clear Filter")
-                    color: "white"
-                    font.pixelSize: 20
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                onClicked: {
-                    workoutModel.clearDateFilter()
-                }
             }
         }
 
@@ -310,6 +312,12 @@ Page {
 
             delegate: SwipeDelegate {
                 id: swipeDelegate
+                // The row is a list item for Qt 5, which has no press action for a screen reader: with
+                // the handler a double tap opens the workout
+                Accessible.onPressAction: swipeDelegate.clicked()
+                // The row has no text of its own: without a name a screen reader stops on the texts
+                // inside it, which cannot be pressed, and the workout cannot be opened
+                Accessible.name: title + ", " + date + ", " + duration
                 width: parent.width
                 height: 135
 
@@ -388,6 +396,7 @@ Page {
                         
                         // Peloton URL button
                         Button {
+                            Accessible.name: qsTr("Open on Peloton")
                             width: 40
                             height: 45
                             visible: workoutModel && workoutModel.getWorkoutSource(model.id) === "PELOTON" && 
@@ -425,6 +434,7 @@ Page {
                         
                         // Training Program button
                         Button {
+                            Accessible.name: qsTr("Load training program")
                             width: 40
                             height: 45
                             visible: workoutModel && workoutModel.hasTrainingProgram(model.id)
@@ -622,9 +632,18 @@ Page {
     }
 
     Menu {
+        // A MenuItem has no press action for a screen reader in Qt 5 (its role is reset to
+        // MenuItem): it is read, but a double tap does nothing without the handler
+        // The name is set as well: the one Qt takes from the text was empty for TalkBack on a phone
         id: importMenu
+        // Modal, as the calendar: otherwise a screen reader touching an item got the workout
+        // row under the menu; no dim, so it looks as before
+        modal: true
+        dim: false
 
         MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             text: qsTr("Import FIT File...")
             onTriggered: {
                 if (Qt.platform.os === "android") {
@@ -636,6 +655,8 @@ Page {
         }
 
         MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             // after a reinstall the workouts of the previous install stay in this folder,
             // but Android hides them from the app until the folder is picked once
             text: qsTr("Import from QZ Folder...")
@@ -662,7 +683,14 @@ Page {
     }
 
     Menu {
+        // A MenuItem has no press action for a screen reader in Qt 5 (its role is reset to
+        // MenuItem): it is read, but a double tap does nothing without the handler
+        // The name is set as well: the one Qt takes from the text was empty for TalkBack on a phone
         id: uploadMenu
+        // Modal, as the calendar: otherwise a screen reader touching an item got the workout
+        // row under the menu; no dim, so it looks as before
+        modal: true
+        dim: false
 
         property int workoutId: -1
         property string workoutTitle: ""
@@ -671,24 +699,32 @@ Page {
         title: workoutTitle
 
         MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             text: qsTr("Upload to Strava")
             visible: rootItem && rootItem.isStravaLoggedIn()
             onTriggered: rootItem.uploadHistoricalWorkoutToStrava(uploadMenu.filePath)
         }
 
         MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             text: qsTr("Upload to Garmin")
             visible: rootItem && rootItem.isGarminUploadConfigured()
             onTriggered: rootItem.uploadHistoricalWorkoutToGarmin(uploadMenu.filePath)
         }
 
         MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             text: qsTr("Upload to Intervals.icu")
             visible: rootItem && rootItem.isIntervalsICUUploadConfigured()
             onTriggered: rootItem.uploadHistoricalWorkoutToIntervalsICU(uploadMenu.filePath)
         }
 
         MenuItem {
+            Accessible.onPressAction: triggered()
+            Accessible.name: text
             text: qsTr("Upload to Apple Health")
             visible: Qt.platform.os === "ios" &&
                      workoutModel &&
@@ -1017,6 +1053,7 @@ Page {
                 
                 Button {
                     text: "<"
+                    Accessible.name: qsTr("Previous month")
                     onClicked: calendar.selectedDate = new Date(calendar.selectedDate.getFullYear(), calendar.selectedDate.getMonth() - 1, 1)
                 }
                 
@@ -1030,6 +1067,7 @@ Page {
                 
                 Button {
                     text: ">"
+                    Accessible.name: qsTr("Next month")
                     onClicked: calendar.selectedDate = new Date(calendar.selectedDate.getFullYear(), calendar.selectedDate.getMonth() + 1, 1)
                 }
             }
@@ -1076,7 +1114,26 @@ Page {
                         property bool isCurrentMonth: modelData.currentMonth
                         property bool hasWorkout: modelData.hasWorkout
                         property bool isToday: dayDate.toDateString() === new Date().toDateString()
-                        
+
+                        // A day is a rectangle with a MouseArea: a screen reader sees it only as a button
+                        // with a name and a press action; days of the other months do nothing on a tap
+                        Accessible.role: Accessible.Button
+                        Accessible.name: dayDate.toLocaleDateString(Qt.locale(), Locale.LongFormat) + (hasWorkout ? ", " + qsTr("has a workout") : "")
+                        Accessible.ignored: !isCurrentMonth
+                        Accessible.onPressAction: selectDay()
+
+                        function selectDay() {
+                            if (isCurrentMonth) {
+                                var year = dayDate.getFullYear();
+                                var month = dayDate.getMonth() + 1; // i mesi JS sono 0-indicizzati
+                                var day = dayDate.getDate();
+                                var dateString = year + "-" + (month < 10 ? '0' + month : month) + "-" + (day < 10 ? '0' + day : day);
+
+                                workoutModel.setDateFilter(dateString);
+                                calendarPopup.close();
+                            }
+                        }
+
                         color: {
                             if (mouseArea.pressed) return "#e3f2fd"
                             if (isToday) return "#bbdefb"
@@ -1123,17 +1180,7 @@ Page {
                             id: mouseArea
                             anchors.fill: parent
                             
-                            onClicked: {
-                                if (isCurrentMonth) {
-                                    var year = dayDate.getFullYear();
-                                    var month = dayDate.getMonth() + 1; // i mesi JS sono 0-indicizzati
-                                    var day = dayDate.getDate();
-                                    var dateString = year + "-" + (month < 10 ? '0' + month : month) + "-" + (day < 10 ? '0' + day : day);
-
-                                    workoutModel.setDateFilter(dateString);
-                                    calendarPopup.close();
-                                }
-                            }
+                            onClicked: parent.selectDay()
                         }
                     }
                 }

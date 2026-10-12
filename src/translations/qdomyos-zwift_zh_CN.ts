@@ -2789,6 +2789,34 @@ This may take a few moments on first startup.</source>
         <source>Importing workouts...</source>
         <translation>正在导入训练...</translation>
     </message>
+    <message>
+        <source>Filter by date</source>
+        <translation>按日期筛选</translation>
+    </message>
+    <message>
+        <source>Import workouts</source>
+        <translation>导入训练</translation>
+    </message>
+    <message>
+        <source>Load training program</source>
+        <translation>加载训练计划</translation>
+    </message>
+    <message>
+        <source>Open on Peloton</source>
+        <translation>在 Peloton 中打开</translation>
+    </message>
+    <message>
+        <source>Previous month</source>
+        <translation>上个月</translation>
+    </message>
+    <message>
+        <source>Next month</source>
+        <translation>下个月</translation>
+    </message>
+    <message>
+        <source>has a workout</source>
+        <translation>有训练</translation>
+    </message>
 </context>
 <context>
     <name>charts</name>
