@@ -1,0 +1,31 @@
+name: Garmin FIT device updater tests
+
+on:
+  pull_request:
+    paths:
+      - src/settings.qml
+      - scripts/update_garmin_fit_devices.py
+      - tests/test_update_garmin_fit_devices.py
+      - tests/fixtures/garmin_fit_devices_baseline.tsv
+      - .github/workflows/test-garmin-fit-devices.yml
+  push:
+    paths:
+      - src/settings.qml
+      - scripts/update_garmin_fit_devices.py
+      - tests/test_update_garmin_fit_devices.py
+      - tests/fixtures/garmin_fit_devices_baseline.tsv
+      - .github/workflows/test-garmin-fit-devices.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check Garmin FIT device mappings and updater
+        run: python3 -m unittest -v tests/test_update_garmin_fit_devices.py
