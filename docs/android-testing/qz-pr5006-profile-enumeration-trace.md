@@ -45,4 +45,4 @@ The changed C++ code is not yet in a new Android APK on the Mac. A new Android a
 
 ## Follow-up fix
 
-The first Android runtime verification of commit `920f8060c` confirmed public MediaStore enumeration with `android_documents_folder=false`, but exposed unreliable row tap handling: redundant nested and page-level `MouseArea` overlays could intercept the profile `Button` events. Those overlays were removed from `src/profiles.qml`; the delegate `Button` now owns click and long-press handling. This follow-up requires a new Android artifact and a fresh two-stage selection/load verification.
+The first Android runtime verification of commit `920f8060c` confirmed public MediaStore enumeration with `android_documents_folder=false`, but exposed two QML interaction defects: redundant nested and page-level `MouseArea` overlays could intercept profile `Button` events, and `ListModel.get()` was called with an unsupported second property argument. The overlays were removed and all model reads now use `get(index).property`. This follow-up requires a new Android artifact and a fresh two-stage selection/load verification.

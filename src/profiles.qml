@@ -206,7 +206,7 @@ ColumnLayout {
                     list.clicked = false
                     list.currentIndex = -1
                     for (var j = 0; j < profileModel.count; ++j) {
-                        if (profileModel.get(j, "fileBaseName") === settings.profile_name) {
+                        if (profileModel.get(j).fileBaseName === settings.profile_name) {
                             list.currentIndex = j
                             return
                         }
@@ -214,11 +214,11 @@ ColumnLayout {
                 }
                 function selectProfile(profileIndex) {
                     list.clicked = true
-                    const selectedFileName = profileModel.get(profileIndex, "fileName")
+                    const selectedFileName = profileModel.get(profileIndex).fileName
                     if (selectedFileName)
                         profileNameTextField.text = selectedFileName.substring(0, selectedFileName.length - 4)
                     if (profileIndex == list.currentIndex) {
-                        const fileUrl = profileModel.get(profileIndex, "fileUrl")
+                        const fileUrl = profileModel.get(profileIndex).fileUrl
                         if (fileUrl) {
                             loadSettings(fileUrl)
                             quitDialog.visible = true
@@ -229,9 +229,9 @@ ColumnLayout {
                 }
                 function deleteProfile(profileIndex) {
                     list.clicked = true
-                    const selectedFileName = profileModel.get(profileIndex, "fileName")
+                    const selectedFileName = profileModel.get(profileIndex).fileName
                     deleteDialog.informativeText = selectedFileName.substring(0, selectedFileName.length - 4)
-                    deleteDialog.fileUrl = profileModel.get(profileIndex, "fileUrl")
+                    deleteDialog.fileUrl = profileModel.get(profileIndex).fileUrl
                     deleteDialog.visible = true
                 }
                 Component.onCompleted: refreshProfiles()
@@ -252,7 +252,7 @@ ColumnLayout {
                 onCurrentIndexChanged: {
                     if (list.currentIndex < 0 || list.currentIndex >= profileModel.count)
                         return
-                    let fileUrl = profileModel.get(list.currentIndex, 'fileUrl');
+                    let fileUrl = profileModel.get(list.currentIndex).fileUrl;
                     if (fileUrl) {
                         console.log(fileUrl + ' selected');
                     }
