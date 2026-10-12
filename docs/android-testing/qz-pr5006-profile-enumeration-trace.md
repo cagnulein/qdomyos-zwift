@@ -43,6 +43,6 @@ No production Bluetooth workaround was added. No profile files or app data were 
 
 The changed C++ code is not yet in a new Android APK on the Mac. A new Android artifact from the exact branch/commit must be built, verified, installed on `qz_arm64_api29`, and tested with `android_documents_folder=false` while `Jan.qzs` and `Jay.qzs` remain in MediaStore. The UI verdict must include a fresh screenshot and UIAutomator dump showing both names, followed by selecting and loading `Jay`.
 
-## Status
+## Follow-up fix
 
-Local fix prepared and tested. No GitHub push or customer delivery was performed in this step. Secrets and remote credentials are intentionally not recorded.
+The first Android runtime verification of commit `920f8060c` confirmed public MediaStore enumeration with `android_documents_folder=false`, but exposed unreliable row tap handling: redundant nested and page-level `MouseArea` overlays could intercept the profile `Button` events. Those overlays were removed from `src/profiles.qml`; the delegate `Button` now owns click and long-press handling. This follow-up requires a new Android artifact and a fresh two-stage selection/load verification.
