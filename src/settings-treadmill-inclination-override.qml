@@ -78,6 +78,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverrideGainTextField
+                Accessible.name: qsTr("Inclination Override Gain:")
                 signed: true
                 text: settings.treadmill_inclination_ovveride_gain
                 horizontalAlignment: Text.AlignRight
@@ -103,6 +104,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverrideOffsetTextField
+                Accessible.name: qsTr("Inclination Override Offset:")
                 signed: true
                 text: settings.treadmill_inclination_ovveride_offset
                 horizontalAlignment: Text.AlignRight
@@ -129,6 +131,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride0TextField
+                Accessible.name: qsTr("Override 0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_0
                 horizontalAlignment: Text.AlignRight
@@ -154,6 +157,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride05TextField
+                Accessible.name: qsTr("Override 0.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_05
                 horizontalAlignment: Text.AlignRight
@@ -179,6 +183,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride10TextField
+                Accessible.name: qsTr("Override 1.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_10
                 horizontalAlignment: Text.AlignRight
@@ -204,6 +209,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride15TextField
+                Accessible.name: qsTr("Override 1.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_15
                 horizontalAlignment: Text.AlignRight
@@ -229,6 +235,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride20TextField
+                Accessible.name: qsTr("Override 2.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_20
                 horizontalAlignment: Text.AlignRight
@@ -254,6 +261,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride25TextField
+                Accessible.name: qsTr("Override 2.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_25
                 horizontalAlignment: Text.AlignRight
@@ -279,6 +287,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride30TextField
+                Accessible.name: qsTr("Override 3.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_30
                 horizontalAlignment: Text.AlignRight
@@ -304,6 +313,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride35TextField
+                Accessible.name: qsTr("Override 3.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_35
                 horizontalAlignment: Text.AlignRight
@@ -329,6 +339,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride40TextField
+                Accessible.name: qsTr("Override 4.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_40
                 horizontalAlignment: Text.AlignRight
@@ -354,6 +365,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride45TextField
+                Accessible.name: qsTr("Override 4.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_45
                 horizontalAlignment: Text.AlignRight
@@ -379,6 +391,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride50TextField
+                Accessible.name: qsTr("Override 5.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_50
                 horizontalAlignment: Text.AlignRight
@@ -404,6 +417,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride55TextField
+                Accessible.name: qsTr("Override 5.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_55
                 horizontalAlignment: Text.AlignRight
@@ -429,6 +443,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride60TextField
+                Accessible.name: qsTr("Override 6.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_60
                 horizontalAlignment: Text.AlignRight
@@ -454,6 +469,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride65TextField
+                Accessible.name: qsTr("Override 6.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_65
                 horizontalAlignment: Text.AlignRight
@@ -479,6 +495,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride70TextField
+                Accessible.name: qsTr("Override 7.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_70
                 horizontalAlignment: Text.AlignRight
@@ -504,6 +521,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride75TextField
+                Accessible.name: qsTr("Override 7.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_75
                 horizontalAlignment: Text.AlignRight
@@ -529,6 +547,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride80TextField
+                Accessible.name: qsTr("Override 8.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_80
                 horizontalAlignment: Text.AlignRight
@@ -554,6 +573,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride85TextField
+                Accessible.name: qsTr("Override 8.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_85
                 horizontalAlignment: Text.AlignRight
@@ -579,6 +599,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride90TextField
+                Accessible.name: qsTr("Override 9.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_90
                 horizontalAlignment: Text.AlignRight
@@ -604,6 +625,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride95TextField
+                Accessible.name: qsTr("Override 9.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_95
                 horizontalAlignment: Text.AlignRight
@@ -629,6 +651,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride100TextField
+                Accessible.name: qsTr("Override 10.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_100
                 horizontalAlignment: Text.AlignRight
@@ -654,6 +677,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride105TextField
+                Accessible.name: qsTr("Override 10.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_105
                 horizontalAlignment: Text.AlignRight
@@ -679,6 +703,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride110TextField
+                Accessible.name: qsTr("Override 11.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_110
                 horizontalAlignment: Text.AlignRight
@@ -704,6 +729,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride115TextField
+                Accessible.name: qsTr("Override 11.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_115
                 horizontalAlignment: Text.AlignRight
@@ -729,6 +755,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride120TextField
+                Accessible.name: qsTr("Override 12.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_120
                 horizontalAlignment: Text.AlignRight
@@ -754,6 +781,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride125TextField
+                Accessible.name: qsTr("Override 12.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_125
                 horizontalAlignment: Text.AlignRight
@@ -779,6 +807,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride130TextField
+                Accessible.name: qsTr("Override 13.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_130
                 horizontalAlignment: Text.AlignRight
@@ -804,6 +833,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride135TextField
+                Accessible.name: qsTr("Override 13.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_135
                 horizontalAlignment: Text.AlignRight
@@ -829,6 +859,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride140TextField
+                Accessible.name: qsTr("Override 14.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_140
                 horizontalAlignment: Text.AlignRight
@@ -854,6 +885,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride145TextField
+                Accessible.name: qsTr("Override 14.5%:")
                 signed: true
                 text: settings.treadmill_inclination_override_145
                 horizontalAlignment: Text.AlignRight
@@ -879,6 +911,7 @@ ScrollView {
             }
             SettingsNumberField {
                 id: treadmillOverride150TextField
+                Accessible.name: qsTr("Override 15.0%:")
                 signed: true
                 text: settings.treadmill_inclination_override_150
                 horizontalAlignment: Text.AlignRight

@@ -2789,6 +2789,34 @@ Al primo avvio potrebbe richiedere qualche istante.</translation>
         <source>Importing workouts...</source>
         <translation>Importazione degli allenamenti...</translation>
     </message>
+    <message>
+        <source>Filter by date</source>
+        <translation>Filtra per data</translation>
+    </message>
+    <message>
+        <source>Import workouts</source>
+        <translation>Importa allenamenti</translation>
+    </message>
+    <message>
+        <source>Load training program</source>
+        <translation>Carica programma di allenamento</translation>
+    </message>
+    <message>
+        <source>Open on Peloton</source>
+        <translation>Apri in Peloton</translation>
+    </message>
+    <message>
+        <source>Previous month</source>
+        <translation>Mese precedente</translation>
+    </message>
+    <message>
+        <source>Next month</source>
+        <translation>Mese successivo</translation>
+    </message>
+    <message>
+        <source>has a workout</source>
+        <translation>allenamento presente</translation>
+    </message>
 </context>
 <context>
     <name>charts</name>

@@ -2789,6 +2789,34 @@ This may take a few moments on first startup.</source>
         <source>Importing workouts...</source>
         <translation>ワークアウトをインポート中...</translation>
     </message>
+    <message>
+        <source>Filter by date</source>
+        <translation>日付でフィルター</translation>
+    </message>
+    <message>
+        <source>Import workouts</source>
+        <translation>ワークアウトをインポート</translation>
+    </message>
+    <message>
+        <source>Load training program</source>
+        <translation>トレーニングプログラムを読み込む</translation>
+    </message>
+    <message>
+        <source>Open on Peloton</source>
+        <translation>Pelotonで開く</translation>
+    </message>
+    <message>
+        <source>Previous month</source>
+        <translation>前の月</translation>
+    </message>
+    <message>
+        <source>Next month</source>
+        <translation>次の月</translation>
+    </message>
+    <message>
+        <source>has a workout</source>
+        <translation>ワークアウトあり</translation>
+    </message>
 </context>
 <context>
     <name>charts</name>

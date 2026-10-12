@@ -2789,6 +2789,34 @@ This may take a few moments on first startup.</source>
         <source>Importing workouts...</source>
         <translation>Импорт тренировок...</translation>
     </message>
+    <message>
+        <source>Filter by date</source>
+        <translation>Фильтр по дате</translation>
+    </message>
+    <message>
+        <source>Import workouts</source>
+        <translation>Импортировать тренировки</translation>
+    </message>
+    <message>
+        <source>Load training program</source>
+        <translation>Загрузить программу тренировки</translation>
+    </message>
+    <message>
+        <source>Open on Peloton</source>
+        <translation>Открыть в Peloton</translation>
+    </message>
+    <message>
+        <source>Previous month</source>
+        <translation>Предыдущий месяц</translation>
+    </message>
+    <message>
+        <source>Next month</source>
+        <translation>Следующий месяц</translation>
+    </message>
+    <message>
+        <source>has a workout</source>
+        <translation>есть тренировка</translation>
+    </message>
 </context>
 <context>
     <name>charts</name>
