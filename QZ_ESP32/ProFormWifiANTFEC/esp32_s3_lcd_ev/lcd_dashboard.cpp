@@ -143,16 +143,24 @@ bool lcdDashboardBegin() {
 
   board = new esp_panel::board::Board();
   board->init();
-  if (!board->begin()) {
-    Serial.println("[LCD] Board/display initialization failed");
-    return false;
+  const bool boardReady = board->begin();
+  if (!boardReady) {
+    // Board::begin() also initializes the touch controller. The dashboard does
+    // not use touch, so keep going if the LCD itself reached BEGIN successfully.
+    Serial.println("[LCD] Board initialization incomplete; checking LCD state");
   }
 
   lcd = board->getLCD();
-  if (lcd == nullptr || lcd->getFrameWidth() != kWidth || lcd->getFrameHeight() != kHeight ||
+  if (lcd == nullptr || !lcd->isOverState(esp_panel::drivers::LCD::State::BEGIN) ||
+      lcd->getFrameWidth() != kWidth || lcd->getFrameHeight() != kHeight ||
       lcd->getFrameColorBits() != 16) {
-    Serial.println("[LCD] Expected the 800x480 SUB3 display");
+    Serial.println("[LCD] LCD did not reach 800x480 RGB565 ready state");
     return false;
+  }
+
+  auto *backlight = board->getBacklight();
+  if (backlight != nullptr) {
+    backlight->on();
   }
 
   Serial.println("[LCD] 4.3-inch 800x480 dashboard ready");
