@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add new FIT Garmin products to the device selector in src/settings.qml.
+"""Add new FIT Garmin products to the value-role device selector in src/settings.qml.
 
 The catalog is Garmin's generated ``fit_profile.hpp`` from the official FIT SDK.
 Products missing from QZ in device families already represented by QZ are
@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 DEFAULT_URL = "https://raw.githubusercontent.com/garmin/fit-cpp-sdk/main/src/fit_profile.hpp"
-UPDATER_VERSION = "3"
+UPDATER_VERSION = "4"
 MIN_CATALOG_SIZE = 300
 # Garmin's FIT profile has no device-category field, so use explicit prefixes for
 # consumer watches and cycling computers that can produce activity FIT files.
@@ -111,34 +111,34 @@ def locate_control(qml: str) -> tuple[int, int]:
 
 
 def parse_current(control: str) -> list[Device]:
+    # Each display name and FIT Product ID live together on one QML model line.
+    # Reject malformed or duplicate entries instead of silently dropping devices.
+    if not re.search(r'^\s*textRole:\s*"name"\s*$', control, re.MULTILINE):
+        raise UpdateError("Garmin ComboBox is missing textRole")
+    if not re.search(r'^\s*valueRole:\s*"productId"\s*$', control, re.MULTILINE):
+        raise UpdateError("Garmin ComboBox is missing valueRole")
     model_matches = list(re.finditer(r"(?ms)^(\s*)model:\s*\[\n(.*?)^\1\]", control))
     if len(model_matches) != 1:
         raise UpdateError(f"expected one model in Garmin ComboBox, found {len(model_matches)}")
-    names = re.findall(r'^\s*"([^"\\]+)",?\s*$', model_matches[0].group(2), re.MULTILINE)
-    nonblank = [line for line in model_matches[0].group(2).splitlines() if line.strip()]
-    if len(names) != len(nonblank) or len(names) < 2:
-        raise UpdateError("Garmin model contains unexpected QML syntax")
-    index_pairs = re.findall(
-        r"settings\.fit_file_garmin_device_training_effect_device === (\d+)\) return (\d+);\s*//\s*([A-Za-z0-9_]+)\s*$",
-        control,
-        re.MULTILINE,
+    model_lines = [line for line in model_matches[0].group(2).splitlines() if line.strip()]
+    line_re = re.compile(
+        r'^\s*\{\s*name:\s*"([^"\\]+)",\s*productId:\s*(\d+)\s*\}\s*,?\s*//\s*([A-Za-z0-9_]+)\s*$'
     )
-    case_pairs = re.findall(
-        r"case (\d+): settings\.fit_file_garmin_device_training_effect_device = (\d+); break;\s*//\s*([A-Za-z0-9_]+)\s*$",
-        control,
-        re.MULTILINE,
-    )
-    if len(index_pairs) != len(names) or len(case_pairs) != len(names):
-        raise UpdateError("Garmin model and index mappings have different lengths")
     devices = []
-    for index, (name, current, case) in enumerate(zip(names, index_pairs, case_pairs)):
-        iproduct, iindex, macro = current
-        cindex, cproduct, cmacro = case
-        if int(iindex) != index or int(cindex) != index or iproduct != cproduct or macro != cmacro:
-            raise UpdateError(f"inconsistent Garmin mapping at index {index}")
-        devices.append(Device(macro, int(iproduct), name))
-    if len({d.macro for d in devices}) != len(devices) or len({d.product for d in devices}) != len(devices):
-        raise UpdateError("current Garmin list contains duplicates")
+    for line in model_lines:
+        match = line_re.fullmatch(line)
+        if not match:
+            raise UpdateError(f"malformed Garmin model line: {line.strip()}")
+        name, raw_id, macro = match.groups()
+        devices.append(Device(macro, int(raw_id), name))
+    if len(devices) < 2:
+        raise UpdateError("Garmin model is unexpectedly small")
+    if len({d.macro for d in devices}) != len(devices):
+        raise UpdateError("current Garmin list contains duplicate macro names")
+    if len({d.product for d in devices}) != len(devices):
+        raise UpdateError("current Garmin list contains duplicate FIT Product IDs")
+    if len({d.display for d in devices}) != len(devices):
+        raise UpdateError("current Garmin list contains duplicate display names")
     return devices
 
 
@@ -176,48 +176,35 @@ def update_qml(qml: str, catalog: dict[str, int]) -> tuple[str, list[Device], li
     start, end = locate_control(qml)
     control = qml[start:end]
     current = parse_current(control)
-    real = [d for d in current if d.macro not in ("Tacx", "Zwift")]
-    special = [d for d in current if d.macro in ("Tacx", "Zwift")]
     known = {d.macro for d in current}
+    known_ids = {d.product for d in current}
     added = [Device(m, p, display_name(m)) for m, p in catalog.items() if m not in known and eligible(m)]
     if not added:
         return qml, [], current
-    # Display-name substitutions (including FR -> Forerunner) are already
-    # applied to new entries above. Sort afterwards so the visible QML model and
-    # both index mappings always remain in the same alphabetical order.
-    devices = sorted(real + added + special, key=lambda d: (d.display.casefold(), d.macro))
-    indent = re.search(r"(?m)^(\s*)model:", control).group(1)
+    for device in added:
+        if device.product in known_ids:
+            raise UpdateError(f"new Garmin device reuses FIT Product ID {device.product}: {device.macro}")
+    devices = sorted(current + added, key=lambda d: (d.display.casefold(), d.macro))
+    indent = re.search(r"(?m)^([ \t]*)model:", control).group(1)
     item_indent = indent + "    "
-    model_body = "\n".join(f'{item_indent}"{d.display}"{"," if i < len(devices)-1 else ""}' for i, d in enumerate(devices))
-    control, count = re.subn(r"(?ms)^(\s*model:\s*\[)\n.*?^(\s*\])", lambda m: m.group(1)+"\n"+model_body+"\n"+m.group(2), control, count=1)
+    model_body = "\n".join(
+        f'{item_indent}{{ name: "{d.display}", productId: {d.product} }}'
+        f'{"," if i < len(devices) - 1 else ""} // {d.macro}'
+        for i, d in enumerate(devices)
+    )
+    control, count = re.subn(
+        r"(?ms)^([ \t]*model:\s*\[)\n.*?^([ \t]*\])",
+        lambda m: m.group(1) + "\n" + model_body + "\n" + m.group(2),
+        control,
+        count=1,
+    )
     if count != 1:
         raise UpdateError("failed to replace Garmin model")
-    index_indent = re.search(r"(?m)^(\s*)if \(settings\.fit_file_garmin_device_training_effect_device", control).group(1)
-    current_lines = "\n".join(
-        f"{index_indent}if (settings.fit_file_garmin_device_training_effect_device === {d.product}) return {i};  // {d.macro}"
-        for i, d in enumerate(devices)
-    )
-    control, count = re.subn(
-        r"(?ms)(\s*currentIndex:\s*\{\n).*?(^[ \t]*return \d+;[ \t]*// Default to Edge 830)",
-        lambda m: m.group(1)+current_lines+"\n"+m.group(2), control, count=1,
-    )
-    if count != 1:
-        raise UpdateError("failed to replace Garmin currentIndex mapping")
-    case_indent = re.search(r"(?m)^(\s*)case \d+: settings\.fit_file_garmin_device_training_effect_device", control).group(1)
-    case_lines = "\n".join(
-        f"{case_indent}case {i}: settings.fit_file_garmin_device_training_effect_device = {d.product}; break;  // {d.macro}"
-        for i, d in enumerate(devices)
-    )
-    control, count = re.subn(
-        r"(?ms)(\s*onCurrentIndexChanged:\s*\{\n\s*switch\(currentIndex\)\s*\{\n).*?(^[ \t]*\}\n[ \t]*\})",
-        lambda m: m.group(1)+case_lines+"\n"+m.group(2), control, count=1,
-    )
-    if count != 1:
-        raise UpdateError("failed to replace Garmin switch mapping")
     updated = qml[:start] + control + qml[end:]
     if updated[:start] != qml[:start] or updated[start + len(control):] != qml[end:]:
         raise UpdateError("content outside Garmin ComboBox changed")
-    parse_current(control)
+    if parse_current(control) != devices:
+        raise UpdateError("generated Garmin model did not round-trip")
     return updated, added, current
 
 
