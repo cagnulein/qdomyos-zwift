@@ -70,6 +70,12 @@ class proformtreadmill : public treadmill {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    // Used only when no model-specific QZ profile is selected. Known profiles
+    // keep their existing initialization, polling and telemetry path.
+    bool fitproFallback = false;
+    bool fitproFallbackValidated = false;
+    uint8_t fitproFallbackDevice = 0x04;
+    QList<QByteArray> fitproFallbackRxPackets;
 
     bool nordictrack10 = false;
     bool nordictrackt70 = false;

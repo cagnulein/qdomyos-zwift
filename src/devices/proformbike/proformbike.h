@@ -77,6 +77,13 @@ class proformbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    // Generic FitPro path for an unprofiled 00001533 device. Model-specific
+    // profiles remain the primary path until their wire behavior is proven
+    // equivalent to the APK codec.
+    bool fitproFallback = false;
+    bool fitproFallbackValidated = false;
+    uint8_t fitproFallbackDevice = 0x07;
+    QList<QByteArray> fitproFallbackRxPackets;
 
     bool proform_studio = false;
     bool proform_tdf_10 = false;
