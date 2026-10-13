@@ -679,7 +679,7 @@ void trainprogram::scheduler() {
         // Diagnostic-only snapshot of the entire Zwift auto-incline prerequisite chain.
         // Log only when the state changes so the once-per-second update loop stays readable.
         {
-            static QString previousZwiftGateState;
+            static int previousZwiftGateState = -1;
             const bool hasDevice = bluetoothManager && bluetoothManager->device();
             const bool eligibleDevice = hasDevice && (bluetoothManager->device()->deviceType() == TREADMILL ||
                                                        bluetoothManager->device()->deviceType() == ELLIPTICAL);
@@ -689,9 +689,11 @@ void trainprogram::scheduler() {
             const bool tokenValid = authExists && zwift_auth_token->haveValidAccessToken();
             const bool worldReady = zwift_world != nullptr;
             const bool automaticInclination = settings.value(QZSettings::zwift_api_autoinclination, QZSettings::default_zwift_api_autoinclination).toBool();
-            const QString state = QStringLiteral("%1/%2/%3/%4/%5/%6/%7")
-                                      .arg(hasDevice).arg(eligibleDevice).arg(configuredUsername)
-                                      .arg(authExists).arg(tokenAvailable).arg(worldReady).arg(automaticInclination);
+            const int state = (int(hasDevice) << 0) | (int(eligibleDevice) << 1) |
+                              (int(configuredUsername) << 2) | (int(authExists) << 3) |
+                              (int(tokenAvailable) << 4) | (int(worldReady) << 5) |
+                              (int(automaticInclination) << 6) | (int(tokenValid) << 7) |
+                              (int(zwift_player_id != -1) << 8);
             if (state != previousZwiftGateState) {
                 qDebug() << "[DIRK-ZWIFT-AUTH] AUTO-INCLINE GATE"
                          << "devicePresent=" << hasDevice
