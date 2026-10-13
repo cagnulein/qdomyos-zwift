@@ -305,10 +305,10 @@ void kettlerracersbike::changePower(int32_t power) {
     if (power < 0)
         power = 0;
 
-    // Keep calculating and tracking the requested power, but do not send the
-    // power command while isolating the Kettler notification/connection path.
-    qDebug() << "changePower BLE write disabled for Kettler diagnostic test";
-    return;
+    uint8_t powerData[2];
+    powerData[0] = (uint8_t)(power & 0xFF);
+    powerData[1] = (uint8_t)((power >> 8) & 0xFF);
+    writeCharacteristic(powerData, sizeof(powerData), QStringLiteral("changePower ") + QString::number(power) + "W", false, false);
 }
 
 void kettlerracersbike::forceInclination(double inclination) {
@@ -1140,7 +1140,7 @@ void kettlerracersbike::cscPacketReceived(const QByteArray &packet) {
 
             if (wheelTimeDelta > 0) {
                 // Speed calculation (assuming wheel circumference of 2.1m)
-                double speed = (wheelRevDelta * 2.1 * 1024.0) / (wheelTimeDelta * 3.6);
+                double speed = (wheelRevDelta * 2.1 * 1024.0 * 3.6) / wheelTimeDelta;
                 Speed = speed;
                 qDebug() << QStringLiteral("Current Speed: ") << Speed.value();
             }
