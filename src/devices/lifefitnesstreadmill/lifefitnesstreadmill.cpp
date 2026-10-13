@@ -1,4 +1,5 @@
 #include "lifefitnesstreadmill.h"
+#include "lifefitnessworkout.h"
 
 #include "devices/ftmsbike/ftmsbike.h"
 #include "ios/lockscreen.h"
@@ -65,6 +66,16 @@ lifefitnesstreadmill::lifefitnesstreadmill(bool noWriteResistance, bool noHeartS
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &lifefitnesstreadmill::update);
     refresh->start(200ms);
+}
+
+void lifefitnesstreadmill::setLifeFitnessWorkout(const QList<QByteArray> &summaryFrames,
+                                                 const QList<QByteArray> &detailFrames) {
+    lifeFitnessSummaryFrames = summaryFrames;
+    lifeFitnessDetailFrames = detailFrames;
+    lifeFitnessWorkoutAvailable = !lifeFitnessSummaryFrames.isEmpty() && !lifeFitnessDetailFrames.isEmpty();
+    lifeFitnessDetailTransferInProgress = false;
+    if (lifeFitnessWorkoutAvailable)
+        emit debug(QStringLiteral("Life Fitness workout prepared for the next login"));
 }
 
 lifefitnesstreadmill::FtmsTreadmillData
@@ -160,7 +171,7 @@ lifefitnesstreadmill::parseFtmsTreadmillData(const QByteArray &data) {
 
 void lifefitnesstreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
                                                uint8_t *data, uint8_t data_len, QString info, bool disable_log,
-                                               bool wait_for_response) {
+                                               bool wait_for_response, bool force_response) {
     QEventLoop loop;
     QTimer timeout;
 
@@ -177,12 +188,17 @@ void lifefitnesstreadmill::writeCharacteristic(QLowEnergyService *service, QLowE
         timeout.singleShot(3000, &loop, SLOT(quit()));
     }
 
+    if (force_response && !(characteristic.properties() & QLowEnergyCharacteristic::Write)) {
+        emit debug(QStringLiteral("Life Fitness characteristic does not support acknowledged writes: ") + info);
+        return;
+    }
+
     if (writeBuffer) {
         delete writeBuffer;
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (characteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse)
+    if (!force_response && characteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse)
         service->writeCharacteristic(characteristic, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
     else
         service->writeCharacteristic(characteristic, *writeBuffer);
@@ -426,12 +442,13 @@ void lifefitnesstreadmill::btinit() {
             loop.exec();
         };
         auto writeData = [&](QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
-                             const QByteArray &data, const QString &info, bool redact = false) {
+                             const QByteArray &data, const QString &info, bool redact = false,
+                             bool forceResponse = false) {
             if (!service || !characteristic.isValid())
                 return;
             QByteArray payload = data;
             writeCharacteristic(service, characteristic, reinterpret_cast<uint8_t *>(payload.data()),
-                                static_cast<uint8_t>(payload.size()), info, redact, false);
+                                static_cast<uint8_t>(payload.size()), info, redact, false, forceResponse);
             pace();
         };
         auto writeProfileField = [&](quint16 uuid, const QByteArray &data, const QString &info) {
@@ -489,12 +506,20 @@ void lifefitnesstreadmill::btinit() {
         const QByteArray height = QByteArray(1, static_cast<char>(rawHeight & 0xff)) +
                                   QByteArray(1, static_cast<char>((rawHeight >> 8) & 0xff));
         writeProfileField(0x2A8E, height, QStringLiteral("Life Fitness height"));
-        if (presetSummary.size() != 9) {
-            emit debug(QStringLiteral("Life Fitness profile/HMAC sent; preset summary must contain 9 bytes of hex"));
-            return;
+        if (lifeFitnessWorkoutAvailable) {
+            for (const QByteArray &frame : qAsConst(lifeFitnessSummaryFrames)) {
+                writeData(gattCustomService1, gattWriteChar2CustomService1, frame,
+                          QStringLiteral("Life Fitness workout library frame"), false, true);
+            }
+            emit debug(QStringLiteral("Life Fitness workout library advertised"));
+        } else {
+            if (presetSummary.size() != 9) {
+                emit debug(QStringLiteral("Life Fitness profile/HMAC sent; preset summary must contain 9 bytes of hex"));
+                return;
+            }
+            writeData(gattCustomService1, gattWriteChar2CustomService1, presetSummary,
+                      QStringLiteral("Life Fitness preset summary"), true);
         }
-        writeData(gattCustomService1, gattWriteChar2CustomService1, presetSummary,
-                  QStringLiteral("Life Fitness preset summary"), true);
         writeData(gattCustomService1, gattWriteChar1CustomService1, QByteArray(1, char(0x02)),
                   QStringLiteral("Life Fitness login complete"));
         if (!waitForLifeFitnessState(QByteArray::fromHex("0401"))) {
@@ -756,6 +781,35 @@ void lifefitnesstreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
+void lifefitnesstreadmill::sendLifeFitnessWorkout(int index) {
+    if (!lifeFitnessWorkoutAvailable || index != 0) {
+        emit debug(QStringLiteral("Life Fitness console requested an unknown workout index"));
+        return;
+    }
+    if (lifeFitnessDetailTransferInProgress) {
+        emit debug(QStringLiteral("Life Fitness workout transfer already in progress"));
+        return;
+    }
+    if (!gattCustomService1 || !gattPresetDetailCharacteristic.isValid()) {
+        emit debug(QStringLiteral("Life Fitness preset detail characteristic is unavailable"));
+        return;
+    }
+    if (Speed.value() > 0.0) {
+        emit debug(QStringLiteral("Life Fitness workout transfer refused while treadmill is moving"));
+        return;
+    }
+
+    lifeFitnessDetailTransferInProgress = true;
+    for (const QByteArray &frame : qAsConst(lifeFitnessDetailFrames)) {
+        QByteArray payload = frame;
+        writeCharacteristic(gattCustomService1, gattPresetDetailCharacteristic,
+                            reinterpret_cast<uint8_t *>(payload.data()), static_cast<uint8_t>(payload.size()),
+                            QStringLiteral("Life Fitness workout detail frame"), false, false, true);
+    }
+    lifeFitnessDetailTransferInProgress = false;
+    emit debug(QStringLiteral("Life Fitness workout detail transfer dispatched"));
+}
+
 void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                                  const QByteArray &newValue) {
     double heart = 0; // NOTE : Should be initialized with a value to shut clang-analyzer's
@@ -773,6 +827,13 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
+
+    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("5da55aa8-9cb2-11e5-8994-feff819cdc9f"))) {
+        int index = -1;
+        if (lifefitnessworkout::parseSelectionEvent(newValue, &index))
+            sendLifeFitnessWorkout(index);
+        return;
+    }
 
     if (characteristic.uuid() == gattCurrentStateCharacteristic.uuid()) {
         lastLifeFitnessState = newValue;
@@ -1051,6 +1112,7 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     QBluetoothUuid _gattWriteChar1CustomService1(QStringLiteral("5da558dc-9cb2-11e5-8994-feff819cdc9f"));
     QBluetoothUuid _gattWriteChar2CustomService1(QStringLiteral("5da569e2-9cb2-11e5-8994-feff819cdc9f"));
+    QBluetoothUuid _gattPresetDetailCharacteristic(QStringLiteral("5da56ab6-9cb2-11e5-8994-feff819cdc9f"));
     QBluetoothUuid _gattWriteChar3CustomService2(QStringLiteral("5da54cf2-9cb2-11e5-8994-feff819cdc9f"));
     QBluetoothUuid _gattWriteChar4CustomService2(QStringLiteral("ce78e85e-9cb6-11e5-8994-feff819cdc9f"));
     QBluetoothUuid _gattWriteChar5CustomService3(QStringLiteral("c52d3161-d1a1-11e3-9c1a-0800200c9a66"));
@@ -1116,6 +1178,11 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                            c.uuid() == _gattWriteChar2CustomService1) {
                     qDebug() << QStringLiteral("Custom service and Control Point 2 found");
                     gattWriteChar2CustomService1 = c;
+                    gattCustomService1 = s;
+                } else if (c.properties() & QLowEnergyCharacteristic::Write &&
+                           c.uuid() == _gattPresetDetailCharacteristic) {
+                    qDebug() << QStringLiteral("Life Fitness preset detail characteristic found");
+                    gattPresetDetailCharacteristic = c;
                     gattCustomService1 = s;
                 } else if (c.properties() & QLowEnergyCharacteristic::Write &&
                            c.uuid() == _gattWriteChar3CustomService2) {
@@ -1224,6 +1291,8 @@ void lifefitnesstreadmill::serviceScanDone(void) {
 
     initRequest = false;
     firstStateChanged = 0;
+    lifeFitnessDetailTransferInProgress = false;
+    gattPresetDetailCharacteristic = QLowEnergyCharacteristic();
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));

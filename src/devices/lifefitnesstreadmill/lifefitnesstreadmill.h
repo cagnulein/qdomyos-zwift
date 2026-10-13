@@ -61,6 +61,7 @@ class lifefitnesstreadmill : public treadmill {
 
     lifefitnesstreadmill(bool noWriteResistance, bool noHeartService);
     static FtmsTreadmillData parseFtmsTreadmillData(const QByteArray &data);
+    void setLifeFitnessWorkout(const QList<QByteArray> &summaryFrames, const QList<QByteArray> &detailFrames);
     bool connected() override;
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
@@ -72,7 +73,8 @@ class lifefitnesstreadmill : public treadmill {
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
-                             uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
+                             uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false,
+                             bool force_response = false);
     void waitForAPacket();
     bool waitForLifeFitnessState(const QByteArray &expectedState, int timeoutMs = 10000);
     bool fetchLifeFitnessServiceProfile(const QString &username, const QString &password, QByteArray &hmac,
@@ -90,6 +92,7 @@ class lifefitnesstreadmill : public treadmill {
     QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteChar1CustomService1;
     QLowEnergyCharacteristic gattWriteChar2CustomService1;
+    QLowEnergyCharacteristic gattPresetDetailCharacteristic;
     QLowEnergyCharacteristic gattWriteChar3CustomService2;
     QLowEnergyCharacteristic gattWriteChar4CustomService2;
     QLowEnergyCharacteristic gattCurrentStateCharacteristic;
@@ -109,6 +112,10 @@ class lifefitnesstreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+    QList<QByteArray> lifeFitnessSummaryFrames;
+    QList<QByteArray> lifeFitnessDetailFrames;
+    bool lifeFitnessWorkoutAvailable = false;
+    bool lifeFitnessDetailTransferInProgress = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -141,6 +148,7 @@ class lifefitnesstreadmill : public treadmill {
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     void update();
+    void sendLifeFitnessWorkout(int index);
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 
