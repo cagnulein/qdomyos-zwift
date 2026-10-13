@@ -408,7 +408,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
             Resistance = requestResistance;
         
         if(JFBK5_0 || DIRETO_XR || YPBM || FIT_BK || ZIPRO_RAVE || SPEEDRACEX || MRK_S28 || USDC_D700 || FS_YK || TUNTURI_E50_168 ||
-           INCONDI_S150I) {
+           INCONDI_S150I || FS_SB_RCR) {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
             write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
             write[2] = ((uint16_t)requestResistance * 10) >> 8;
@@ -1049,7 +1049,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     m_pelotonResistance = res;
                 }
 
-                if (!resistance_received && !DU30_bike && !SL010 && !FS_YK && !isManualResistanceBike() &&
+                if (!resistance_received && !DU30_bike && !SL010 && !FS_YK && !FS_SB_RCR && !isManualResistanceBike() &&
                     shouldUseCalculatedResistanceFallback(now)) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
@@ -1352,7 +1352,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
                 qDebug() << QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value());
 
-                if (!FS_YK && !isManualResistanceBike()) {
+                if (!FS_YK && !FS_SB_RCR && !isManualResistanceBike()) {
                     if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
                             .toBool())
                         Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
@@ -1552,7 +1552,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     m_pelotonResistance = res;
                 }
 
-                if (!FS_YK && !isManualResistanceBike() && shouldUseCalculatedResistanceFallback(now)) {
+                if (!FS_YK && !FS_SB_RCR && !isManualResistanceBike() && shouldUseCalculatedResistanceFallback(now)) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
                     emit debug(QStringLiteral("Current Resistance (calculated fallback): ") +
@@ -2317,6 +2317,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             ergModeSupported = false;
             Resistance = 1;
             max_resistance = cscbike::customResistanceMax();
+        } else if(device.name().toUpper().startsWith("FS-SB-RCR")) {
+            qDebug() << QStringLiteral("FS-SB-RCR found - keeping native resistance levels");
+            FS_SB_RCR = true;
         } else if(device.name().toUpper().startsWith("FS-YK-")) {
             qDebug() << QStringLiteral("FS-YK- found");
             FS_YK = true;
