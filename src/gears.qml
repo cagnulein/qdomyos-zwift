@@ -370,6 +370,7 @@ ScrollView {
                 }
 
                 SpinBox {
+                    Accessible.name: qsTr("Chainring Size") + ": " + value
                     from: 1
                     to: 999
                     value: selectedCranksetSize
@@ -395,6 +396,7 @@ ScrollView {
                     Layout.maximumWidth: chainringColumn.width - 20
                 }
                 SpinBox {
+                    Accessible.name: qsTr("Cog Size") + ": " + value
                     from: 1
                     to: 999
                     value: selectedCogSize
@@ -415,6 +417,7 @@ ScrollView {
             ColumnLayout {
                 UiComboBox {
                        id: wheelSizeCombo
+                       Accessible.name: qsTr("Virtual Wheel Size") + ": " + displayText
                        width: parent.width
                        currentIndex: initialWheelSizeIndex
                        textRole: "text"
@@ -547,6 +550,7 @@ ScrollView {
 
             UiComboBox {
                 id: profileCombo
+                Accessible.name: qsTr("Preset Gear Profiles") + ": " + displayText
                 width: parent.width
                 textRole: "text"
                 displayText: currentIndex < 0 ? qsTr("Select a profile...") : model.get(currentIndex).text
@@ -740,6 +744,7 @@ ScrollView {
 
                                 SpinBox {
                                     id: cranksetSpinBox
+                                    Accessible.name: qsTr("Gear") + " " + gear + ", " + qsTr("Chainring") + ": " + value
                                     anchors.centerIn: parent
                                     width: parent.width * 0.8
                                     height: 30
@@ -810,6 +815,7 @@ ScrollView {
 
                                 SpinBox {
                                     id: cogSpinBox
+                                    Accessible.name: qsTr("Gear") + " " + gear + ", " + qsTr("Rear Cog") + ": " + value
                                     anchors.centerIn: parent
                                     width: parent.width * 0.8
                                     height: 30
