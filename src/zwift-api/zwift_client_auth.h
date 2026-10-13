@@ -18,6 +18,8 @@
 #include <QJsonParseError>
 #include <QRegularExpression>
 #include <QSslError>
+#include <QSslCipher>
+#include <QSslConfiguration>
 #include <QStringList>
 #endif
 
@@ -189,6 +191,8 @@ private slots:
                  << "wireUsernameDecodesOnceCorrectly=" << (!passwordGrant || QUrl::fromPercentEncoding(encodedUser) == username)
                  << "wirePasswordDecodesOnceCorrectly=" << (!passwordGrant || QUrl::fromPercentEncoding(encodedPass) == password)
                  << "wireUsernameContainsDoubleEncodedAt=" << encodedUser.contains("%2540")
+                 << "wireUsernameHasUnescapedPlus=" << encodedUser.contains('+')
+                 << "wirePasswordHasUnescapedPlus=" << encodedPass.contains('+')
                  << "refreshTokenPresent=" << !refresh_token.isEmpty()
                  << "refreshTokenLength=" << refresh_token.size()
                  << "refreshTokenFingerprint=" << shortTokenFingerprint(refresh_token)
