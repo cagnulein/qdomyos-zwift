@@ -210,7 +210,9 @@ public class Usbserial {
                return;
 
             try {
-                Os.write(localSerialFd, bytes, 0, bytes.length);
+                int written = Os.write(localSerialFd, bytes, 0, bytes.length);
+                QLog.d("QZ", "UsbSerial local serial TX " + written + "/" + bytes.length +
+                        " bytes: " + bytesToHex(bytes, bytes.length));
             }
             catch (ErrnoException | IOException e) {
                 QLog.d("QZ","UsbSerial local serial write failed: " + e.getMessage());
@@ -279,8 +281,12 @@ public class Usbserial {
                     return receiveData;
                 }
 
+                QLog.d("QZ", "UsbSerial local serial poll ready=" + ready +
+                        " revents=" + pollFd.revents);
+
                 lastReadLen = Os.read(localSerialFd, receiveData, 0, receiveData.length);
-                QLog.d("QZ","UsbSerial local serial reading " + lastReadLen);
+                QLog.d("QZ", "UsbSerial local serial RX " + lastReadLen +
+                        " bytes: " + bytesToHex(receiveData, lastReadLen));
             }
             catch (ErrnoException | IOException e) {
                 lastReadLen = 0;

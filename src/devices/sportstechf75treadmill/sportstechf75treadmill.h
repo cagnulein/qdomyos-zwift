@@ -31,7 +31,10 @@ class sportstechf75treadmill : public treadmill {
     void readSerial();
     void parseFrames();
     void handleFrame(const QByteArray &frame);
+    void sendFrame(const QByteArray &frame);
+    void sendStartupCommand();
     void sendCommand(int command, int data1, int data2);
+    QByteArray startupFrame() const;
     QByteArray commandFrame(int command, int data1, int data2) const;
     bool serialAvailable() const;
 

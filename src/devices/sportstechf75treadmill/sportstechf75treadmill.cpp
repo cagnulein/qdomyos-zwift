@@ -67,6 +67,7 @@ void sportstechf75treadmill::openSerial() {
         return;
     }
     qDebug() << "Sportstech F75 serial opened at" << kDevicePath << kBaudRate;
+    sendStartupCommand();
 #else
     qWarning() << "Sportstech F75 serial profile is available on Android only";
 #endif
@@ -107,11 +108,35 @@ void sportstechf75treadmill::readSerial() {
     }
     jbyte *raw = env->GetByteArrayElements(bytes, nullptr);
     if (raw) {
-        receiveBuffer.append(reinterpret_cast<const char *>(raw), length);
+        const QByteArray chunk(reinterpret_cast<const char *>(raw), length);
+        qDebug() << "Sportstech F75 RX chunk" << chunk.toHex(' ');
+        receiveBuffer.append(chunk);
+        qDebug() << "Sportstech F75 RX buffer" << receiveBuffer.toHex(' ');
         env->ReleaseByteArrayElements(bytes, raw, JNI_ABORT);
     }
 #else
     Q_UNUSED(receiveBuffer);
+#endif
+}
+
+QByteArray sportstechf75treadmill::startupFrame() const {
+    // The vendor APK sends this immediately after opening the UART:
+    // SendOtherCommand(0x20, new int[12]).  Its frame is
+    // FB 5A title payload[12] checksum FC, with checksum over bytes 1..14.
+    QByteArray frame(17, static_cast<char>(0));
+    frame[0] = static_cast<char>(kFrameStart);
+    frame[1] = static_cast<char>(0x5A);
+    frame[2] = static_cast<char>(0x20);
+    frame[15] = static_cast<char>((0x5A + 0x20) & 0xFF);
+    frame[16] = static_cast<char>(kFrameEnd);
+    return frame;
+}
+
+void sportstechf75treadmill::sendStartupCommand() {
+#ifdef Q_OS_ANDROID
+    if (serialAvailable()) {
+        sendFrame(startupFrame());
+    }
 #endif
 }
 
@@ -133,13 +158,12 @@ QByteArray sportstechf75treadmill::commandFrame(int command, int data1, int data
     return frame;
 }
 
-void sportstechf75treadmill::sendCommand(int command, int data1, int data2) {
+void sportstechf75treadmill::sendFrame(const QByteArray &frame) {
 #ifdef Q_OS_ANDROID
     if (!serialAvailable()) {
         return;
     }
 
-    const QByteArray frame = commandFrame(command, data1, data2);
     QAndroidJniEnvironment env;
     jbyteArray bytes = env->NewByteArray(frame.size());
     env->SetByteArrayRegion(bytes, 0, frame.size(), reinterpret_cast<const jbyte *>(frame.constData()));
@@ -147,14 +171,18 @@ void sportstechf75treadmill::sendCommand(int command, int data1, int data2) {
     env->DeleteLocalRef(bytes);
     qDebug() << "Sportstech F75 TX" << frame.toHex(' ');
 #else
-    Q_UNUSED(command);
-    Q_UNUSED(data1);
-    Q_UNUSED(data2);
+    Q_UNUSED(frame);
 #endif
 }
 
+void sportstechf75treadmill::sendCommand(int command, int data1, int data2) {
+    sendFrame(commandFrame(command, data1, data2));
+}
+
 void sportstechf75treadmill::handleFrame(const QByteArray &frame) {
+    qDebug() << "Sportstech F75 RX candidate" << frame.toHex(' ');
     if (frame.size() != 5 || static_cast<uint8_t>(frame.at(1)) != 0x60) {
+        qDebug() << "Sportstech F75 RX ignored frame" << frame.toHex(' ');
         return;
     }
 
@@ -167,6 +195,7 @@ void sportstechf75treadmill::handleFrame(const QByteArray &frame) {
     }
 
     // The APK's 0x60 telemetry frame carries integer km/h and incline values.
+    qDebug() << "Sportstech F75 RX telemetry speed" << speed << "incline" << incline;
     speedSensor(speed);
     inclinationSensor(incline, incline);
 }
@@ -192,10 +221,14 @@ void sportstechf75treadmill::parseFrames() {
         } else {
             // Unknown FD functions are discarded one byte at a time so that a
             // later valid frame can still be recovered from the stream.
+            qDebug() << "Sportstech F75 RX unknown FD function" << Qt::hex << function
+                     << Qt::dec << receiveBuffer.toHex(' ');
             receiveBuffer.remove(0, 1);
             continue;
         }
         if (receiveBuffer.size() < frameLength) {
+            qDebug() << "Sportstech F75 RX partial frame" << receiveBuffer.toHex(' ')
+                     << "need" << frameLength;
             return;
         }
 
