@@ -730,6 +730,12 @@ public:
     // the workout history page was shown: a pending offer to recover the workouts of a
     // previous install is made there (historyRecoveryOfferRequested)
     Q_INVOKABLE void historyPageOpened();
+    // the list of training programs was shown: programs of a previous install hidden in the
+    // training folder are restored with a saved folder grant, or the user is asked once
+    // (trainingRestoreOfferRequested)
+    Q_INVOKABLE void trainingProgramsPageOpened();
+    // the user agreed: the folder picker opens, even with a saved grant
+    Q_INVOKABLE void restoreTrainingPrograms();
     bool fitImportRunning() const { return m_fitImportRunning; }
     Q_INVOKABLE void setFitImportRunning(bool running) {
         if (m_fitImportRunning != running) {
@@ -1113,6 +1119,8 @@ public:
     bool startFitFolderImport(bool allowPicker);
     void offerHistoryRecovery();
     void maybeOfferHistoryRecovery();
+    bool startTrainingFolderRestore(bool allowPicker);
+    static bool trainingFolderHasLockedFiles();
     int historyWorkoutCount();
     QString m_historyDatabasePath;
     bool m_historyDatabaseIsNew = false;
@@ -1122,6 +1130,10 @@ public:
     // automatic import after a new database: no toast when nothing new was found
     bool m_fitImportQuiet = false;
     bool m_fitImportRunning = false;
+    // one attempt per run: a restore that finds nothing must not repeat on every visit
+    bool m_trainingRestoreTried = false;
+    // restore through a saved grant: no toast when nothing was restored
+    bool m_trainingRestoreQuiet = false;
     WorkoutModel *workoutModel = nullptr;
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
@@ -1355,6 +1367,10 @@ public:
     // a new history database was started and the workouts of a previous install may be
     // hidden in the QZ folder: QML asks whether to look for them (importFitFolder())
     void historyRecoveryOfferRequested();
+    // programs of a previous install are hidden in the training folder: QML asks whether to
+    // look for them (restoreTrainingPrograms())
+    void trainingRestoreOfferRequested();
+    void trainingProgramsRestored();
     void fitImportRunningChanged();
     void signalChanged(QString value);
     void startTextChanged(QString value);

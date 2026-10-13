@@ -122,8 +122,11 @@ public class ContentHelper {
 
         File destinationFile = new File(destinationDir, fileName);
         if (destinationFile.exists() && !destinationFile.delete()) {
-            QLog.d("ContentHelper", "importContentToAppDir could not replace " + destinationFile.getAbsolutePath());
-            return "";
+            // after a reinstall a file of the previous install keeps its name in the folder, but
+            // this install can neither replace nor read it: the picked file goes under a free name
+            QLog.d("ContentHelper", "importContentToAppDir could not replace " + destinationFile.getAbsolutePath()
+                + ", importing under another name");
+            return importContentNextToLockedFile(context, uri, destinationDir, fileName);
         }
 
         if (!copyContentToFile(context, uri, destinationFile.getAbsolutePath())) {
@@ -134,6 +137,42 @@ public class ContentHelper {
         }
 
         return destinationFile.getAbsolutePath();
+    }
+
+    // Copies uri as fileName with a "_N" suffix, for a name held by a file this install cannot
+    // replace. Picking the same file again reuses the earlier copy, so only the variants of this
+    // name are compared, not the whole folder.
+    private static String importContentNextToLockedFile(Context context, Uri uri, File destinationDir,
+                                                        String fileName) {
+        int dot = fileName.lastIndexOf('.');
+        String base = dot > 0 ? fileName.substring(0, dot) : fileName;
+        String extension = dot > 0 ? fileName.substring(dot) : "";
+        File copy = null;
+        for (int attempt = 1; attempt < 100 && copy == null; attempt++) {
+            File candidate = new File(destinationDir, base + "_" + attempt + extension);
+            if (!candidate.exists()) {
+                copy = candidate;
+            }
+        }
+        if (copy == null) {
+            QLog.d("ContentHelper", "importContentToAppDir found no free name for " + fileName);
+            return "";
+        }
+        if (!copyContentToFile(context, uri, copy.getAbsolutePath())) {
+            if (copy.exists()) {
+                copy.delete();
+            }
+            return "";
+        }
+        for (int attempt = 1; attempt < 100; attempt++) {
+            File other = new File(destinationDir, base + "_" + attempt + extension);
+            if (!other.equals(copy) && other.isFile() && other.length() == copy.length()
+                && sameContent(other, copy)) {
+                copy.delete();
+                return other.getAbsolutePath();
+            }
+        }
+        return copy.getAbsolutePath();
     }
 
     // Copies a picked file into destinationDirPath without replacing anything there: a file with
@@ -263,7 +302,8 @@ public class ContentHelper {
         return total;
     }
 
-    private static boolean isReadable(File file) {
+    // false for a file of a previous install: still listed under its name, but not openable
+    public static boolean isReadable(File file) {
         java.io.FileInputStream stream = null;
         try {
             stream = new java.io.FileInputStream(file);
