@@ -6,14 +6,21 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.SparseArray;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.WindowInsets;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
+import android.view.accessibility.AccessibilityNodeProvider;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 import android.view.WindowManager;
@@ -83,6 +90,9 @@ public class CustomQtActivity extends QtActivity {
     // (a back gesture or press the user aborted) is dropped too, so it no longer goes back.
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+            scheduleAccessibilityRefresh();
+        }
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && !injectingBackKey) {
             if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
                 backDownSentToQt = true;
@@ -128,6 +138,87 @@ public class CustomQtActivity extends QtActivity {
                         }
                     }
                 });
+    }
+
+    // Qt 5.15.0 sends a screen reader no accessibility events at all (on Android its
+    // notifyAccessibilityUpdate() is a FIXME until 5.15.3, scrolling is reported from 5.15.11),
+    // so TalkBack keeps the nodes it cached: after a page is pushed it still walks the page
+    // under it, and after a scroll it still has the rows that came into view where they were.
+    // Telling Android that the subtree of Qt's accessibility view changed drops that cache.
+    // Sent after the user lets go of the screen (a two finger scroll, a double tap, which
+    // TalkBack ends with a real tap) or presses back, and again later, as a fling or a page
+    // transition may still be moving then.
+    private static final long[] ACCESSIBILITY_REFRESH_DELAYS_MS = {400, 1500};
+    private final Handler accessibilityHandler = new Handler(Looper.getMainLooper());
+    private final Runnable accessibilityRefresh = new Runnable() {
+        @Override
+        public void run() {
+            sendAccessibilityTreeChanged();
+        }
+    };
+    private View qtAccessibilityView = null;
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        boolean handled = super.dispatchTouchEvent(event);
+        int action = event.getActionMasked();
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            scheduleAccessibilityRefresh();
+        }
+        return handled;
+    }
+
+    private void scheduleAccessibilityRefresh() {
+        if (!accessibilityEnabled()) {
+            return;
+        }
+        accessibilityHandler.removeCallbacks(accessibilityRefresh);
+        for (long delay : ACCESSIBILITY_REFRESH_DELAYS_MS) {
+            accessibilityHandler.postDelayed(accessibilityRefresh, delay);
+        }
+    }
+
+    private boolean accessibilityEnabled() {
+        AccessibilityManager manager = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+        return manager != null && manager.isEnabled();
+    }
+
+    private void sendAccessibilityTreeChanged() {
+        if (!accessibilityEnabled()) {
+            return;
+        }
+        View view = qtAccessibilityView;
+        if (view == null || !view.isAttachedToWindow() || view.getAccessibilityNodeProvider() == null) {
+            view = findQtAccessibilityView(getWindow().getDecorView());
+            qtAccessibilityView = view;
+        }
+        ViewParent parent = view != null ? view.getParent() : null;
+        if (parent == null) {
+            return;
+        }
+        AccessibilityEvent event = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
+        event.setContentChangeTypes(AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE);
+        view.onInitializeAccessibilityEvent(event);
+        parent.requestSendAccessibilityEvent(view, event);
+    }
+
+    // The plain View that Qt adds over its surface while accessibility is on: the one whose node
+    // provider is Qt's. Only plain Views are asked, so a WebView does not start its own provider.
+    private static View findQtAccessibilityView(View view) {
+        if (view.getClass() == View.class) {
+            AccessibilityNodeProvider provider = view.getAccessibilityNodeProvider();
+            if (provider != null && provider.getClass().getName().startsWith("org.qtproject.")) {
+                return view;
+            }
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                View found = findQtAccessibilityView(group.getChildAt(i));
+                if (found != null) return found;
+            }
+        }
+        return null;
     }
 
     // Traverse the view hierarchy to find Qt's rendering surface (SurfaceView or TextureView)
