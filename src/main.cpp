@@ -487,6 +487,7 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
 // Global thread and writer instance
 static QThread *logThread = nullptr;
 static LogWriter *logWriter = nullptr;
+static bool logDebugEnabled = QZSettings::default_log_debug;
 
 void initializeLogThread() {
     if (!logThread) {
@@ -499,8 +500,7 @@ void initializeLogThread() {
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 
-    QSettings settings;
-    static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+    const bool logdebug = logDebugEnabled;
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     if ( (logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
@@ -715,6 +715,7 @@ int main(int argc, char *argv[]) {
     qRegisterMetaType<uint32_t>("uint32_t");
     qRegisterMetaType<FIT_SPORT>("FIT_SPORT");
 
+    logDebugEnabled = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     // Foreground/background switches: Android may throttle or kill QZ in the background, and without this the
@@ -729,7 +730,7 @@ int main(int argc, char *argv[]) {
     // myMessageOutput() drops every message when the log is off (same condition as there), so don't
     // build the messages nobody reads: the dump of all the settings and the Qt Bluetooth debug output,
     // which Qt formats for every packet once its category is enabled
-    const bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
+    const bool logdebug = logDebugEnabled;
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     const bool logEnabled = forceQml ? logdebug : logs;
 #else
