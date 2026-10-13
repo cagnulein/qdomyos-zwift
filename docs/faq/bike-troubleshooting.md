@@ -11,6 +11,8 @@ If QZ recognizes the bike but cadence, power, speed, or other bike data are not 
 
 This can restore the normal bike data stream when the Garmin ANT bike option interferes with the connection.
 
+**ANT Bike Over Garmin Watch** is an input mode for obtaining bike metrics via a Garmin watch, not the option for sending QZ's Bluetooth-bike metrics *to* a Garmin watch. For live output on supported Android hardware, use **Ant+ Options > Ant+ Cadence** (which also sends power) and pair the corresponding ANT+ sensor with the watch. If live watch recording is not required, use QZ's Garmin Connect integration for the completed workout instead. See [Integrations and authentication](integrations.md).
+
 ### Why can incline still show zero?
 
 Bike resistance and incline are different values. A Yesoul bike may report resistance without reporting a real incline value. QZ's incline tile can instead be populated by an external source such as Zwift or a GPX route. A resistance-to-incline conversion requires a specific mapping and should not be assumed from the resistance percentage alone.
