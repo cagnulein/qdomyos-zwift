@@ -675,6 +675,38 @@ void trainprogram::scheduler() {
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
         
+#if QZ_ZWIFT_AUTH_DIAGNOSTICS
+        // Diagnostic-only snapshot of the entire Zwift auto-incline prerequisite chain.
+        // Log only when the state changes so the once-per-second update loop stays readable.
+        {
+            static QString previousZwiftGateState;
+            const bool hasDevice = bluetoothManager && bluetoothManager->device();
+            const bool eligibleDevice = hasDevice && (bluetoothManager->device()->deviceType() == TREADMILL ||
+                                                       bluetoothManager->device()->deviceType() == ELLIPTICAL);
+            const bool configuredUsername = !settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().isEmpty();
+            const bool authExists = zwift_auth_token != nullptr;
+            const bool tokenAvailable = authExists && !zwift_auth_token->access_token.isEmpty();
+            const bool tokenValid = authExists && zwift_auth_token->haveValidAccessToken();
+            const bool worldReady = zwift_world != nullptr;
+            const bool automaticInclination = settings.value(QZSettings::zwift_api_autoinclination, QZSettings::default_zwift_api_autoinclination).toBool();
+            const QString state = QStringLiteral("%1/%2/%3/%4/%5/%6/%7")
+                                      .arg(hasDevice).arg(eligibleDevice).arg(configuredUsername)
+                                      .arg(authExists).arg(tokenAvailable).arg(worldReady).arg(automaticInclination);
+            if (state != previousZwiftGateState) {
+                qDebug() << "[DIRK-ZWIFT-AUTH] AUTO-INCLINE GATE"
+                         << "devicePresent=" << hasDevice
+                         << "eligibleDevice=" << eligibleDevice
+                         << "usernameConfigured=" << configuredUsername
+                         << "authObjectPresent=" << authExists
+                         << "accessTokenPresent=" << tokenAvailable
+                         << "accessTokenStillValid=" << tokenValid
+                         << "worldCreated=" << worldReady
+                         << "playerIdKnown=" << (zwift_player_id != -1)
+                         << "autoInclinationEnabled=" << automaticInclination;
+                previousZwiftGateState = state;
+            }
+        }
+#endif
         if(bluetoothManager->device() && (bluetoothManager->device()->deviceType() == TREADMILL || bluetoothManager->device()->deviceType() == ELLIPTICAL) &&
            settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token &&
            zwift_auth_token->access_token.length() > 0) {
