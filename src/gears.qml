@@ -6,9 +6,11 @@ import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    // The column with its margins, which are not in its implicit height
+    contentHeight: chainringColumn.implicitHeight + 2 * chainringColumn.anchors.margins
     focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.fill: parent
+    // No anchors: the page is pushed on the StackView, which sizes it to fill and warned about
+    // conflicting anchors
     id: gearSettingsWindow
     visible: true
     clip: true
@@ -311,6 +313,8 @@ ScrollView {
         var temp = gearRows
         gearRows = []
         gearRows = temp
+        // Without it the table kept the removed gears and the reset was not saved
+        gearConfigurationChanged(gearRows)
     }
 
     // Signals to notify when values change
@@ -319,7 +323,11 @@ ScrollView {
     signal restoreDefaultWheelDiameter()
 
     ColumnLayout {
-        anchors.fill: parent
+        // Not tied to the bottom: the column height would come from the content height made from
+        // it (binding loop on contentHeight)
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
         anchors.margins: 20
         spacing: 20
         id: chainringColumn
@@ -576,11 +584,12 @@ ScrollView {
         GroupBox {
             title: qsTr("Virtual Gear Table")
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: parent.height
+            // The table is as tall as its rows and the page scrolls as one: the table had the rest
+            // of the page, but the page is as tall as its content, so the rest was nothing and only
+            // the header of the table showed
 
             ColumnLayout {
-                anchors.fill: parent
+                width: parent.width
                 spacing: 10
 
                 // Updated Buttons Row
@@ -677,7 +686,10 @@ ScrollView {
                 ListView {
                     id: gearTable
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    Layout.preferredHeight: contentHeight
+                    // The page margins are not in the implicit height: never squeeze the rows
+                    Layout.minimumHeight: contentHeight
+                    interactive: false
                     clip: true
                     property int currentRow: -1
                     model: ListModel {
