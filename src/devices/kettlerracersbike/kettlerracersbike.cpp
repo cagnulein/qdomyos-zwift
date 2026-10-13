@@ -838,11 +838,9 @@ void kettlerracersbike::completeNotificationSubscriptions() {
     notificationsSubscribed = true;
     emit debug(QStringLiteral("Kettler notification subscriptions complete"));
 
-    // Do not send a control write here. The historical Racer S logs show that
-    // telemetry starts from notifications alone, while the current capture
-    // reports a CharacteristicWriteError for the startup 00 00 write.
+    // Do not force a control write here. Telemetry starts from notifications
+    // alone; power control must begin only after an explicit ERG request.
     QTimer::singleShot(0, this, [this]() {
-        updateSlopeTargetPower(true);
         if (!connectedAndDiscoveredEmitted) {
             initRequest = true;
             emit connectedAndDiscovered();
