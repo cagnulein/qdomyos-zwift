@@ -7037,7 +7037,7 @@ void homeform::update() {
 
             if ((!trainProgram || (trainProgram && !trainProgram->isStarted())) &&
                 !((bike *)bluetoothManager->device())->ergModeSupportedAvailableBySoftware() &&
-                ((bike *)bluetoothManager->device())->lastRequestedPower().value() > 0 && m_overridePower) {
+                ((bike *)bluetoothManager->device())->lastRequestedPower().value() > 0 && m_overridePower && autoResistance()) {
                 qDebug() << QStringLiteral("using target power tile for ERG workout manually");
                 ((bike *)bluetoothManager->device())
                     ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value());
