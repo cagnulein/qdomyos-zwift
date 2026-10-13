@@ -14,13 +14,20 @@ CharacteristicWriteProcessor2AD9::CharacteristicWriteProcessor2AD9(double bikeRe
 int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArray &data, QByteArray &reply) {
     if (data.size()) {
         BLUETOOTH_TYPE dt = Bike->deviceType();
+        QSettings settings;
+        char cmd = data.at(0);
+        if (cmd == FTMS_SET_TARGET_POWER) {
+            settings.setValue(QZSettings::zwift_erg, true);
+        } else if (cmd == FTMS_SET_TARGET_INCLINATION ||
+                   cmd == FTMS_SET_TARGET_RESISTANCE_LEVEL ||
+                   cmd == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+            settings.setValue(QZSettings::zwift_erg, false);
+        }
         if (dt == BIKE || dt == ROWING) {
-            QSettings settings;
             bool force_resistance =
                 settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
                     .toBool();
             bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
-            char cmd = data.at(0);
             emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), data);
             if (cmd == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
 

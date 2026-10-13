@@ -86,7 +86,7 @@ private:
     static MyWhooshLink *s_instance;
 
     void sendAction(Action action, bool keyDown = true);
-    void sendSteering(int value);
+    void sendSteering(Action direction, bool keyDown);
     void sendButtonStateMessage(const QList<QPair<quint8, quint8>> &actions);
     quint8 actionToButtonId(Action action) const;
     quint8 actionToButtonState(Action action, bool keyDown) const;
@@ -106,7 +106,7 @@ private:
 
     bool enabled;
     bool overrideGears;
-    static const int PORT = 21587;
+    static const int PORT = 36867;
 
     // Button action mappings
     Action leftUpAction;

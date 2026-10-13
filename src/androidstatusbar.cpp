@@ -60,6 +60,16 @@ void AndroidStatusBar::onInsetsChanged(int top, int bottom, int left, int right,
     }
 }
 
+void AndroidStatusBar::onSystemBarSideInsetsChanged(int left, int right)
+{
+    if (m_systemBarLeft != left || m_systemBarRight != right) {
+        m_systemBarLeft = left;
+        m_systemBarRight = right;
+        qDebug() << "System bar side insets changed - Left:" << m_systemBarLeft << "Right:" << m_systemBarRight;
+        emit insetsChanged();
+    }
+}
+
 #ifdef Q_OS_ANDROID
 // JNI method with standard naming convention
 extern "C" JNIEXPORT void JNICALL
@@ -73,6 +83,17 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_onInsetsChanged(JNIEnv *env, job
     if (AndroidStatusBar::instance()) {
         AndroidStatusBar::instance()->onInsetsChanged(top, bottom, left, right, waterfallTop, waterfallBottom,
                                                        waterfallLeft, waterfallRight);
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_onSystemBarSideInsetsChanged(JNIEnv *env, jobject thiz, jint left,
+                                                                                 jint right)
+{
+    Q_UNUSED(env);
+    Q_UNUSED(thiz);
+    if (AndroidStatusBar::instance()) {
+        AndroidStatusBar::instance()->onSystemBarSideInsetsChanged(left, right);
     }
 }
 #endif

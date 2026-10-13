@@ -69,12 +69,12 @@ Page {
                             enabled: rootItem.device
                             smooth: true
 
-                            // VoiceOver accessibility — ignored when parent is disabled (drawer open)
+                            // VoiceOver accessibility – ignored while the side menu is open (see Home.qml)
                             Accessible.role: Accessible.Indicator
                             Accessible.name: qsTr("Bluetooth connection")
                             Accessible.description: rootItem.device ? qsTr("Device connected") : qsTr("Device not connected")
                             Accessible.focusable: treadmill_connection.enabled
-                            Accessible.ignored: !page.enabled
+                            Accessible.ignored: !page.enabled || drawer.opened
                         }
                         ColorOverlay {
                             anchors.fill: treadmill_connection
@@ -114,8 +114,8 @@ Page {
                     Accessible.role: Accessible.Button
                     Accessible.name: rootItem.startText
                     Accessible.description: qsTr("Start workout")
-                    Accessible.focusable: page.enabled
-                    Accessible.ignored: !page.enabled
+                    Accessible.focusable: page.enabled && !drawer.opened
+                    Accessible.ignored: !page.enabled || drawer.opened
                 }
                 ColorOverlay {
                     anchors.fill: start
@@ -145,8 +145,8 @@ Page {
                     Accessible.role: Accessible.Button
                     Accessible.name: rootItem.stopText
                     Accessible.description: qsTr("Stop workout")
-                    Accessible.focusable: page.enabled
-                    Accessible.ignored: !page.enabled
+                    Accessible.focusable: page.enabled && !drawer.opened
+                    Accessible.ignored: !page.enabled || drawer.opened
                 }
                 ColorOverlay {
                     anchors.fill: stop
@@ -178,8 +178,8 @@ Page {
                     Accessible.role: Accessible.Button
                     Accessible.name: qsTr("Lap")
                     Accessible.description: qsTr("Record a new lap")
-                    Accessible.focusable: page.enabled && rootItem.lap
-                    Accessible.ignored: !page.enabled
+                    Accessible.focusable: page.enabled && !drawer.opened && rootItem.lap
+                    Accessible.ignored: !page.enabled || drawer.opened
                 }
                 ColorOverlay {
                     anchors.fill: lap
@@ -205,6 +205,8 @@ Page {
         Label {
             id: lblHelp
             width: parent.width
+            leftPadding: window.contentSideMargin
+            rightPadding: window.contentSideMargin
             anchors.top: row1.bottom
             anchors.topMargin: 30
             text: qsTr("This app should automatically connect to your bike, treadmill, or rower.\n\nIf it doesn't, check that:\n- the Echelon/Domyos app is closed while QZ is running\n- Bluetooth and Bluetooth permissions are enabled\n- your equipment is turned on before starting QZ\n- you have restarted your device\n\nIf your bike or treadmill disconnects every 30 seconds, disable the Virtual Device setting in the left bar.\n\nFor help, contact roberto.viola83@gmail.com.\n\nHave a nice ride!\n\nQZ disclaims liability for incidental or consequential damages and assumes no responsibility for any loss or damage caused by use or misuse of the app.\n\nRoberto Viola")

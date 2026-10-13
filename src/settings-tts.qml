@@ -6,6 +6,8 @@ import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    leftPadding: window.contentSideMargin
+    rightPadding: window.contentSideMargin
     focus: true
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent

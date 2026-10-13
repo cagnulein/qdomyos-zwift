@@ -489,6 +489,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     
     @objc func addMetrics(power: Double, cadence: Double, speed: Double, kcal: Double, steps: Double, deviceType: UInt8, distance: Double, totalKcal: Double, elevationGain: Double = 0, heartRate: Double = 0) {
         SwiftDebug.qtDebug("WorkoutTracking: GET DATA: \(Date())")
+        SwiftDebug.qtDebug("WorkoutTracking: received elevation gain: \(elevationGain)m")
 
         if !WorkoutTracking.workoutInProgress {
             if power > 0 && WorkoutTracking.firstWorkout {

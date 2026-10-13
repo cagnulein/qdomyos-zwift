@@ -40,9 +40,10 @@ class nautilustreadmill : public treadmill {
     bool canHandleSpeedChange() override { return false; }
     bool canHandleInclineChange() override { return false; }    
 
+    static double speedFromPacket(const QByteArray &packet);
+    static double inclinationFromPacket(const QByteArray &packet);
+
   private:
-    double GetSpeedFromPacket(const QByteArray &packet);
-    double GetInclinationFromPacket(const QByteArray &packet);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     void updateDisplay(uint16_t elapsed);

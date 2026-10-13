@@ -360,6 +360,10 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = cadence;
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
     }
 
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
