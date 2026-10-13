@@ -31,3 +31,11 @@ Zwift is not required for this connection path. This is verified setup guidance 
 Yes. A KayakFirst ergometer was confirmed working with QZ and MyWhoosh. Pair the machine with QZ first, then select the QZ virtual device in MyWhoosh. The [Rowing FAQ](rowing.md) explains the available virtual rower and PM5 compatibility settings.
 
 **Watt Gain** changes the power value reported by QZ, not the physical effort. A gain of 2 doubles the reported watts. QZ may round a distance such as 317 metres to 0.3 km in its summary; this is a display rounding difference, not necessarily a tracking error.
+
+## Can I use a self-powered Domyos EB900B bike with QZ and MyWhoosh?
+
+Yes. A Domyos EB900B advertising as `Domyos-Bike-xxxx` was confirmed working with QZ and MyWhoosh. QZ includes a dedicated driver for the `Domyos-Bike` Bluetooth-name prefix.
+
+Start pedaling to power the bike, open QZ, and confirm its live metrics are updating. Then run MyWhoosh on a second device and pair it with QZ's virtual bike. QZ connects directly to the bike; the manufacturer's E Connected app does not need to act as a bridge.
+
+The support case confirmed Bluetooth pairing, MyWhoosh receiving data, and manual resistance changes. Reliable automatic resistance changes from MyWhoosh gradients were **not** confirmed.
