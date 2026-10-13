@@ -193,7 +193,7 @@ private slots:
                  << "refreshTokenLength=" << refresh_token.size()
                  << "refreshTokenFingerprint=" << shortTokenFingerprint(refresh_token)
                  << "accessTokenPresent=" << !access_token.isEmpty()
-                 << "accessTokenExpiryMs=" << access_token_expiration;
+                 << "accessTokenExpiryMs=" << (access_token.isEmpty() ? 0 : access_token_expiration);
         connect(reply, &QNetworkReply::sslErrors, this, [this](const QList<QSslError> &errors) {
             for (const QSslError &error : errors)
                 qDebug() << "[DIRK-ZWIFT-AUTH] TLS ERROR" << safeAuthDiagnostic(error.errorString());
