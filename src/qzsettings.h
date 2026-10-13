@@ -2470,7 +2470,10 @@ class QZSettings {
     static const QString default_peloton_code;
     
     static const QString proform_carbon_tl_PFTL59720;
-    static constexpr bool default_proform_carbon_tl_PFTL59720 = false;    
+    static constexpr bool default_proform_carbon_tl_PFTL59720 = false;
+
+    static const QString freemotion_t10_9b_hci;
+    static constexpr bool default_freemotion_t10_9b_hci = false;
 
     static const QString proform_treadmill_sport_70;
     static constexpr bool default_proform_treadmill_sport_70 = false;
@@ -3308,6 +3311,8 @@ class QZSettings {
     static constexpr bool default_proform_treadmill_cst_505_pftl59420_0 = false;
     static const QString proform_treadmill_105_cst;
     static constexpr bool default_proform_treadmill_105_cst = false;
+    static const QString proform_treadmill_305_cst;
+    static constexpr bool default_proform_treadmill_305_cst = false;
 
     /**
      * @brief When enabled together with fakedevice_treadmill, derives treadmill Speed from

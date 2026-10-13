@@ -131,3 +131,20 @@ In a confirmed Echelon EX-4S+ support case, disabling Virtual iFit and Virtual E
 If QZ opens to its main screen without the expected speed, cadence, power, or gear tiles, try running QZ's initial **setup wizard** again to restore the dashboard layout. After completing the wizard, return to the main screen and check that the tiles have reappeared before investigating the bike connection or virtual gearing.
 
 A support user explicitly confirmed that rerunning the wizard restored missing tiles while QZ was still detecting the connected Wahoo devices. This is a dashboard-layout issue, not evidence that the trainer itself has lost Bluetooth connectivity.
+
+## My Wahoo KICKR is detected but will not connect or provide metrics. Could an old Bluetooth pairing be involved?
+
+An old system-level Bluetooth pairing can leave stale service information on a phone. In addition to checking for competing fitness apps or nearby phones:
+
+1. Close QZ and other training apps.
+2. In the phone's Bluetooth settings, find the trainer's saved pairing, if present, and choose **Forget/Unpair**.
+3. Power-cycle the trainer and reopen QZ to let it discover and connect again.
+4. If the issue persists, try QZ with the trainer on a second phone to distinguish phone-specific Bluetooth cache behavior from a trainer problem.
+
+A KICKR CORE support user confirmed that connectivity worked again after the pairing/cache troubleshooting. The reply did not isolate which check was decisive, so this is a diagnostic workaround, not a guaranteed fix.
+
+## My Thinkrider X5 shows virtual gear changes in Zwift but the trainer does not change resistance. What should I check?
+
+First confirm QZ receives the trainer's metrics and that Zwift pairs **QZ** as the controllable/resistance device, not just as a power source.
+
+In a confirmed Android support case, the successful troubleshooting instructions were to update QZ to a current **Play Store beta** build, set **FTMS Bike** under **QZ Settings > Bike Options** to **Disabled** if a device was manually forced there, restart QZ, and test again. The rider confirmed resistance control worked afterward. Since the two changes were made together, the thread does not isolate which one fixed the problem. Do not disable FTMS indiscriminately on unrelated trainers.

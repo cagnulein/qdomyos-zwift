@@ -23,3 +23,22 @@
 - Multi-purpose speed/cadence sensors can advertise similarly while being mounted in different modes, so the physical role of each sensor must be known before interpreting the settings.
 - A stale or different **Manual Device** selection can conflict with the accessory selection and is easy to miss when only the normal sensor page is checked.
 - Verifying that the sensor works directly in another app separates a basic sensor/Bluetooth problem from a QZ device-selection or startup problem.
+
+## Cadence intermittently drops to zero while power keeps updating
+
+### Provide first
+
+- Name the bike/trainer and external power meter (including model), plus the QZ version and platform.
+- State which device supplies **power** and which supplies **cadence** in QZ, and whether **Use cadence from the power sensor** is enabled.
+- Confirm whether cadence drops to zero **inside QZ** as well as in the training app, while power continues updating normally. Give the approximate duration and frequency of the drops.
+
+### If still unclear
+
+- Record a short QZ debug log containing two or three drops during steady pedaling, with approximate timestamps. A brief screen recording of the QZ power and cadence tiles can help align the events.
+- If the trainer also reports cadence, run a separate short comparison using the trainer's cadence source instead of the power meter; change only the cadence source between tests.
+
+### Why it matters
+
+- A zero already visible in QZ points to the sensor-to-QZ data path, not the receiving training application's pairing.
+- A power meter can continue reporting watts while its crank-revolution/cadence information is absent or not advancing. Recording both metrics distinguishes a cadence-specific dropout from a complete Bluetooth disconnect.
+- Comparing independent cadence sources identifies whether the issue follows the external power meter or QZ's broader device connection.

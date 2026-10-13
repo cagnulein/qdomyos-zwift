@@ -16,6 +16,8 @@ Page {
     property alias stop: stop
     property alias lap: lap
     property alias row: row
+    // Search for the equipment ("Next search in 12 s"), set by Home.qml while no device is connected
+    property string searchStatus: ""
 
     Settings {
 	     id: settings
@@ -79,6 +81,12 @@ Page {
                             anchors.fill: treadmill_connection
                             source: treadmill_connection
                             color: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
+                        }
+                        // No device yet: a tap searches right away instead of waiting for the next search
+                        // (with a device connected bluetoothSearchNow() does nothing)
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: rootItem.bluetoothSearchNow()
                         }
                     }
                     Image {
@@ -194,7 +202,11 @@ Page {
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                text: rootItem.info
+                // the search status may have two lines ("<device> found" and the countdown): the line
+                // grows upwards, so they are set closer to keep the first one off the buttons
+                horizontalAlignment: Text.AlignHCenter
+                lineHeight: text.indexOf("\n") >= 0 ? 0.8 : 1
+                text: page.searchStatus !== "" ? page.searchStatus : rootItem.info
             }
         }
 

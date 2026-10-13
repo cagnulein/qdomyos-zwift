@@ -340,6 +340,13 @@
             return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
         }
 
+        // Only the displayed unit is translated; SERIES_DEFS keep the English one
+        var UNIT_KEYS = { 'W': 'unit.w', 'rpm': 'unit.rpm', 'km/h': 'unit.kmh', 'lvl': 'unit.level', 'spm': 'unit.spm' };
+
+        function unitLabel(unit) {
+            return UNIT_KEYS[unit] ? tq(UNIT_KEYS[unit], unit) : unit;
+        }
+
         // Check if running in Qt WebView (offline mode)
         window.QZ_OFFLINE = false;
         if (typeof window.qt !== 'undefined' ||
@@ -607,7 +614,7 @@
                         key: def.key,
                         label: tq(def.labelKey, def.label),
                         color: def.color,
-                        unit: def.unit,
+                        unit: unitLabel(def.unit),
                         axis: def.axis,
                         axisLabel: tq(def.axisLabelKey, def.axisLabel),
                         axisPosition: def.axisPosition,

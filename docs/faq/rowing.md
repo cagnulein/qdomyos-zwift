@@ -59,3 +59,15 @@ QZ supports selecting an external Bluetooth cadence sensor as a cadence source i
 4. Verify that cadence/stroke-rate values update while the sensor moves.
 
 A cycling cadence sensor measures rotations, not actual rowing strokes. Its placement and movement therefore determine whether the resulting stroke-rate values are meaningful. This is a supported input/virtual-device configuration, not a guarantee of accurate rowing power, pace, or stroke detection from the sensor alone.
+
+## Can a BH Fitness AQUO Dual / Pafers rower automatically change resistance during a QZ workout?
+
+Yes, in QZ builds that support **Resistance** in the **Rower Workout Editor**, compatible Pafers rowers can follow programmed resistance levels.
+
+1. In **QZ Settings > Rower**, remove the Pafers device from **FTMS Rower** or set that selector to **Disabled**.
+2. Enable **Pafers Rower** under **Pafers Options**, restart QZ, and confirm that live rowing metrics and manual resistance changes work.
+3. Open **Workout Editor** and select **Rower**.
+4. Enable **Resistance** for the intervals that should change the machine level; for example, enter levels **3**, **5**, then **3** in consecutive intervals.
+5. Save and start the workout and verify the rower's physical resistance changes at the interval boundaries.
+
+**Resistance** and **Power (W)** are different targets. Entering only a watt target is not a substitute for setting explicit resistance levels. A BH Fitness AQUO Dual R309U support user confirmed that the rower automatically changed resistance during timed intervals, including on an Android 8.1 tablet. See also `docs/workout-editor.md`.

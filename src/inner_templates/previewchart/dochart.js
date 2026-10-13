@@ -189,18 +189,18 @@ function process_arr(arr) {
     var avgResistance = validResistance > 0 ? Math.round(resistanceSum / validResistance) : 0;
     var totalJouls = watts_avg > 0 ? ((watts_avg * arr.length) / 1000).toFixed(1) : 0;
     
-    $('.summary_watts_avg').text(Math.floor(watts_avg) + ' W');
-    $('.summary_watts_max').text(Math.floor(watts_max) + ' W');
-    $('.summary_jouls').text(totalJouls + ' kJ');
-    $('.summary_calories').text(totalCalories + ' kcal');
-    $('.summary_distance').text((totalDistance * miles).toFixed(2) + (miles === 1 ? ' km' : ' mi'));
-    $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' rpm');
-    $('.summary_cadence_max').text(Math.floor(cadence_max) + ' rpm');
-    $('.summary_resistance_avg').text(avgResistance + ' lvl');
-    $('.summary_heart_avg').text(Math.floor(heart_avg) + ' bpm');
-    $('.summary_heart_max').text(Math.floor(heart_max) + ' bpm');
-    $('.summary_speed_avg').text((speed_avg * miles).toFixed(1) + (miles === 1 ? ' km/h' : ' mph'));
-    $('.summary_speed_max').text((speed_max * miles).toFixed(1) + (miles === 1 ? ' km/h' : ' mph'));
+    $('.summary_watts_avg').text(Math.floor(watts_avg) + ' ' + t('unit.w', 'W'));
+    $('.summary_watts_max').text(Math.floor(watts_max) + ' ' + t('unit.w', 'W'));
+    $('.summary_jouls').text(totalJouls + ' ' + t('unit.kj', 'kJ'));
+    $('.summary_calories').text(totalCalories + ' ' + t('unit.kcal', 'kcal'));
+    $('.summary_distance').text((totalDistance * miles).toFixed(2) + ' ' + (miles === 1 ? t('unit.km', 'km') : t('unit.mi', 'mi')));
+    $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' ' + t('unit.rpm', 'rpm'));
+    $('.summary_cadence_max').text(Math.floor(cadence_max) + ' ' + t('unit.rpm', 'rpm'));
+    $('.summary_resistance_avg').text(avgResistance + ' ' + t('unit.level', 'lvl'));
+    $('.summary_heart_avg').text(Math.floor(heart_avg) + ' ' + t('unit.bpm', 'bpm'));
+    $('.summary_heart_max').text(Math.floor(heart_max) + ' ' + t('unit.bpm', 'bpm'));
+    $('.summary_speed_avg').text((speed_avg * miles).toFixed(1) + ' ' + (miles === 1 ? t('unit.kmh', 'km/h') : t('unit.mph', 'mph')));
+    $('.summary_speed_max').text((speed_max * miles).toFixed(1) + ' ' + (miles === 1 ? t('unit.kmh', 'km/h') : t('unit.mph', 'mph')));
 
     const backgroundFill = {
       id: 'custom_canvas_background_color',

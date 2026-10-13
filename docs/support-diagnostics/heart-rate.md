@@ -23,3 +23,23 @@
 - A configured **Heart Rate Belt Name** tells QZ to look for that external sensor; this can be inappropriate when the sensor is already connected to the machine and the machine is forwarding HR.
 - **Disable HRM from the machinery** determines whether HR reported by the fitness machine is allowed to be used. This is especially important when an external HR source is expected to override built-in or machine-forwarded HR.
 - Testing one HR path at a time distinguishes sensor-discovery problems from source-selection conflicts before a full debug log is needed.
+
+## Wear OS watch shows heart rate, but QZ on the phone stays at zero
+
+### Provide first
+
+- Phone model, Android version, watch model, Wear OS version, and QZ versions on both devices.
+- Confirm the phone and watch are paired and connected, and whether the QZ watch app displays a changing heart-rate value during a started session.
+- State whether the phone QZ app receives any heart-rate value while the watch session is running, and whether other machine metrics continue updating.
+
+### If still unclear
+
+- Restart both devices and repeat a short test, noting whether the watch session starts and remains active.
+- Provide a short QZ debug log from the phone, the approximate test time, and screenshots showing the watch reading and phone's missing value.
+- State whether the behavior began after an Android, Wear OS, or QZ update; test a newer build only if support requests it.
+
+### Why it matters
+
+- A live reading on the watch proves local measurement, not delivery to the phone.
+- Distinguishing watch-session startup, watch-to-phone connectivity, and phone-side reception helps isolate the failed stage without confusing it with the bike connection.
+- Exact OS and QZ versions are important when the watch and phone communication path changes between platform releases.

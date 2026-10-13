@@ -38,3 +38,24 @@ In a confirmed support case, an older Play Store build did not appear in Health 
 If the device is powered on, is not connected to another app, and still does not appear in QZ on Android, verify that Bluetooth and Location are enabled and that QZ has the requested Bluetooth and location permissions. If Android offers precise location access, allow it, then return to QZ and refresh the device list.
 
 QZ's Android build requests Bluetooth discovery/connection and location permissions. In a confirmed support case, a bike that was otherwise ready to connect appeared immediately after precise location permission was granted.
+
+## How can I resize QZ's floating window on Android to show more metrics?
+
+If QZ's floating window is too short and you have to scroll to see the metrics, change the window dimensions rather than pinching its contents:
+
+1. Open **QZ Settings > General UI Options**.
+2. Increase **Floating Window Height** from the default **210** to, for example, **400** or **450**. Adjust **Floating Window Width** if necessary.
+3. Save the settings, then close and reopen the floating window.
+
+Pinching changes the displayed content size, not the floating window dimensions. The width and height settings are implemented in QZ's Android floating-window code. This is verified setup guidance; a customer confirmation is not yet available.
+
+## A QZ Android test build will not extract or says it conflicts with the installed package. What should I do?
+
+Two different installation problems need different fixes:
+
+1. If the downloaded artifact ZIP reports **Unexpected end of archive** or fails to extract completely, **download it again** from the build's original GitHub Actions artifact link and extract the new download before installing the APK.
+2. If the APK extracts but Android reports that the new package **conflicts with the existing package**, an existing QZ installation may use a different signing certificate. Android will not install a differently signed APK as an in-place update.
+3. **Back up or export important QZ settings, profiles, and workout data first**, if they are stored locally and you need to keep them. Uninstalling the current QZ app can delete its local data.
+4. Only if the normal update is blocked by that package/signature conflict, uninstall the existing QZ installation, install the extracted test APK, and restore your saved settings as needed.
+
+Normally, compatible QZ Android builds can be installed over an existing installation without losing settings. **Do not uninstall by default.** In a confirmed support case, downloading the artifact again fixed the incomplete ZIP, and removing the conflicting existing installation allowed the test APK to be installed and run.
