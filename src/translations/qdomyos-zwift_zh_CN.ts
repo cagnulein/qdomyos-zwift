@@ -3618,6 +3618,146 @@ This may take a few moments on first startup.</source>
         <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
         <translation>Android 允许 30 秒内进行 5 次蓝牙搜索，下一次将在 %1 秒后开始</translation>
     </message>
+    <message>
+        <source>Great workout!</source>
+        <translation>训练很棒！</translation>
+    </message>
+    <message>
+        <source>Average Speed: %1</source>
+        <translation>平均速度：%1</translation>
+    </message>
+    <message>
+        <source>Max Speed: %1</source>
+        <translation>最高速度：%1</translation>
+    </message>
+    <message>
+        <source>Calories burned: %1</source>
+        <translation>消耗卡路里：%1</translation>
+    </message>
+    <message>
+        <source>Distance: %1</source>
+        <translation>距离：%1</translation>
+    </message>
+    <message>
+        <source>Elevation Gain (%1): %2</source>
+        <translation>爬升高度（%1）：%2</translation>
+    </message>
+    <message>
+        <source>Average Watt: %1</source>
+        <translation>平均功率：%1</translation>
+    </message>
+    <message>
+        <source>Max Watt: %1</source>
+        <translation>最大功率：%1</translation>
+    </message>
+    <message>
+        <source>Average Watt/Kg: %1</source>
+        <translation>平均功率体重比（W/kg）：%1</translation>
+    </message>
+    <message>
+        <source>Max Watt/Kg: %1</source>
+        <translation>最大功率体重比（W/kg）：%1</translation>
+    </message>
+    <message>
+        <source>Average Heart Rate: %1</source>
+        <translation>平均心率：%1</translation>
+    </message>
+    <message>
+        <source>Max Heart Rate: %1</source>
+        <translation>最大心率：%1</translation>
+    </message>
+    <message>
+        <source>Heart Rate Z%1: %2</source>
+        <translation>心率区间 %1 时长：%2</translation>
+    </message>
+    <message>
+        <source>Total Output: %1</source>
+        <translation>总功（kJ）：%1</translation>
+    </message>
+    <message>
+        <source>Elapsed Time: %1</source>
+        <translation>已用时间：%1</translation>
+    </message>
+    <message>
+        <source>Moving Time: %1</source>
+        <translation>运动时间：%1</translation>
+    </message>
+    <message>
+        <source>Weight Loss (%1): %2</source>
+        <translation>减重（%1）：%2</translation>
+    </message>
+    <message>
+        <source>Estimated VO2Max: %1</source>
+        <translation>预估 VO2Max：%1</translation>
+    </message>
+    <message>
+        <source>Running Stress Score: %1</source>
+        <translation>跑步压力评分：%1</translation>
+    </message>
+    <message>
+        <source>5 Seconds Power: %1W %2W/Kg</source>
+        <translation>5 秒功率：%1 W，%2 W/kg</translation>
+    </message>
+    <message>
+        <source>1 Minute Power: %1W %2W/Kg</source>
+        <translation>1 分钟功率：%1 W，%2 W/kg</translation>
+    </message>
+    <message>
+        <source>5 Minutes Power: %1W %2W/Kg</source>
+        <translation>5 分钟功率：%1 W，%2 W/kg</translation>
+    </message>
+    <message>
+        <source>Estimated FTP: %1W</source>
+        <translation>预估 FTP：%1 W</translation>
+    </message>
+    <message>
+        <source>FTP IMPROVED +%1W!</source>
+        <translation>FTP 提升 +%1 W！</translation>
+    </message>
+    <message>
+        <source>Average Cadence: %1</source>
+        <translation>平均踏频：%1</translation>
+    </message>
+    <message>
+        <source>Max Cadence: %1</source>
+        <translation>最大踏频：%1</translation>
+    </message>
+    <message>
+        <source>Average Resistance: %1</source>
+        <translation>平均阻力：%1</translation>
+    </message>
+    <message>
+        <source>Max Resistance: %1</source>
+        <translation>最大阻力：%1</translation>
+    </message>
+    <message>
+        <source>Average Peloton Resistance: %1</source>
+        <translation>平均 Peloton 阻力：%1</translation>
+    </message>
+    <message>
+        <source>Max Peloton Resistance: %1</source>
+        <translation>最大 Peloton 阻力：%1</translation>
+    </message>
+    <message>
+        <source>Average Pace: %1</source>
+        <translation>平均配速：%1</translation>
+    </message>
+    <message>
+        <source>Max Pace: %1</source>
+        <translation>最快配速：%1</translation>
+    </message>
+    <message>
+        <source>Average Strokes Length: %1</source>
+        <translation>平均划桨长度：%1</translation>
+    </message>
+    <message>
+        <source>meters</source>
+        <translation>m</translation>
+    </message>
+    <message>
+        <source>feet</source>
+        <translation>ft</translation>
+    </message>
 </context>
 <context>
     <name>main</name>

@@ -3602,6 +3602,146 @@ This may take a few moments on first startup.</source>
         <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
         <translation>Android разрешает 5 поисков Bluetooth за 30 с, следующий начнётся через %1 с</translation>
     </message>
+    <message>
+        <source>Great workout!</source>
+        <translation>Отличная тренировка!</translation>
+    </message>
+    <message>
+        <source>Average Speed: %1</source>
+        <translation>Средняя скорость: %1</translation>
+    </message>
+    <message>
+        <source>Max Speed: %1</source>
+        <translation>Максимальная скорость: %1</translation>
+    </message>
+    <message>
+        <source>Calories burned: %1</source>
+        <translation>Сожжено калорий: %1</translation>
+    </message>
+    <message>
+        <source>Distance: %1</source>
+        <translation>Дистанция: %1</translation>
+    </message>
+    <message>
+        <source>Elevation Gain (%1): %2</source>
+        <translation>Набор высоты (%1): %2</translation>
+    </message>
+    <message>
+        <source>Average Watt: %1</source>
+        <translation>Средняя мощность: %1</translation>
+    </message>
+    <message>
+        <source>Max Watt: %1</source>
+        <translation>Максимальная мощность: %1</translation>
+    </message>
+    <message>
+        <source>Average Watt/Kg: %1</source>
+        <translation>Средняя мощность (Вт/кг): %1</translation>
+    </message>
+    <message>
+        <source>Max Watt/Kg: %1</source>
+        <translation>Максимальная мощность (Вт/кг): %1</translation>
+    </message>
+    <message>
+        <source>Average Heart Rate: %1</source>
+        <translation>Средний пульс: %1</translation>
+    </message>
+    <message>
+        <source>Max Heart Rate: %1</source>
+        <translation>Максимальный пульс: %1</translation>
+    </message>
+    <message>
+        <source>Heart Rate Z%1: %2</source>
+        <translation>Время в пульсовой зоне %1: %2</translation>
+    </message>
+    <message>
+        <source>Total Output: %1</source>
+        <translation>Суммарная работа (кДж): %1</translation>
+    </message>
+    <message>
+        <source>Elapsed Time: %1</source>
+        <translation>Общее время: %1</translation>
+    </message>
+    <message>
+        <source>Moving Time: %1</source>
+        <translation>Время в движении: %1</translation>
+    </message>
+    <message>
+        <source>Weight Loss (%1): %2</source>
+        <translation>Потеря веса (%1): %2</translation>
+    </message>
+    <message>
+        <source>Estimated VO2Max: %1</source>
+        <translation>Расчётный VO2Max: %1</translation>
+    </message>
+    <message>
+        <source>Running Stress Score: %1</source>
+        <translation>Индекс беговой нагрузки: %1</translation>
+    </message>
+    <message>
+        <source>5 Seconds Power: %1W %2W/Kg</source>
+        <translation>Мощность за 5 секунд: %1 Вт, %2 Вт/кг</translation>
+    </message>
+    <message>
+        <source>1 Minute Power: %1W %2W/Kg</source>
+        <translation>Мощность за 1 минуту: %1 Вт, %2 Вт/кг</translation>
+    </message>
+    <message>
+        <source>5 Minutes Power: %1W %2W/Kg</source>
+        <translation>Мощность за 5 минут: %1 Вт, %2 Вт/кг</translation>
+    </message>
+    <message>
+        <source>Estimated FTP: %1W</source>
+        <translation>Расчётный FTP: %1 Вт</translation>
+    </message>
+    <message>
+        <source>FTP IMPROVED +%1W!</source>
+        <translation>FTP ВЫРОС: +%1 Вт!</translation>
+    </message>
+    <message>
+        <source>Average Cadence: %1</source>
+        <translation>Средний каденс: %1</translation>
+    </message>
+    <message>
+        <source>Max Cadence: %1</source>
+        <translation>Максимальный каденс: %1</translation>
+    </message>
+    <message>
+        <source>Average Resistance: %1</source>
+        <translation>Среднее сопротивление: %1</translation>
+    </message>
+    <message>
+        <source>Max Resistance: %1</source>
+        <translation>Максимальное сопротивление: %1</translation>
+    </message>
+    <message>
+        <source>Average Peloton Resistance: %1</source>
+        <translation>Среднее сопротивление Peloton: %1</translation>
+    </message>
+    <message>
+        <source>Max Peloton Resistance: %1</source>
+        <translation>Максимальное сопротивление Peloton: %1</translation>
+    </message>
+    <message>
+        <source>Average Pace: %1</source>
+        <translation>Средний темп: %1</translation>
+    </message>
+    <message>
+        <source>Max Pace: %1</source>
+        <translation>Максимальный темп: %1</translation>
+    </message>
+    <message>
+        <source>Average Strokes Length: %1</source>
+        <translation>Средняя длина гребка: %1</translation>
+    </message>
+    <message>
+        <source>meters</source>
+        <translation>м</translation>
+    </message>
+    <message>
+        <source>feet</source>
+        <translation>фут</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
