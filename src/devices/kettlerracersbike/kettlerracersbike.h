@@ -112,7 +112,6 @@ class kettlerracersbike : public bike {
     double lastGearValue = -1;
     double lastGearModifierValue = 0;
     bool resistance_received = false;
-    bool primedNotifyStart = false;
     bool handshakeRequested = false;
     bool handshakeDone = false;
     bool notificationsSubscribed = false;

@@ -838,14 +838,10 @@ void kettlerracersbike::completeNotificationSubscriptions() {
     notificationsSubscribed = true;
     emit debug(QStringLiteral("Kettler notification subscriptions complete"));
 
-    // Match the Zwift order: no control write and no ready signal before all
-    // notification subscriptions have completed.
+    // Do not send a control write here. The historical Racer S logs show that
+    // telemetry starts from notifications alone, while the current capture
+    // reports a CharacteristicWriteError for the startup 00 00 write.
     QTimer::singleShot(0, this, [this]() {
-        if (!primedNotifyStart && gattWriteCharKettlerId.isValid()) {
-            uint8_t zero[2] = {0x00, 0x00};
-            writeCharacteristic(zero, sizeof(zero), QStringLiteral("prime notifications"), false, false);
-            primedNotifyStart = true;
-        }
         updateSlopeTargetPower(true);
         if (!connectedAndDiscoveredEmitted) {
             initRequest = true;
