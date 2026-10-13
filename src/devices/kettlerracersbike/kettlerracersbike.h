@@ -119,7 +119,6 @@ class kettlerracersbike : public bike {
     bool notificationSubscriptionInProgress = false;
     bool kettlerServiceReady = false;
     bool connectedAndDiscoveredEmitted = false;
-    bool firstCadenceSent = false;
     struct NotificationSubscription {
         QLowEnergyService *service = nullptr;
         QLowEnergyCharacteristic characteristic;

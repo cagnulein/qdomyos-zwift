@@ -1168,12 +1168,6 @@ void kettlerracersbike::cscPacketReceived(const QByteArray &packet) {
                     lastGoodCadence = QDateTime::currentDateTime();
                     qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value();
 
-                    // Send inclination 1.5 on first cadence value received
-                    if (!firstCadenceSent) {
-                        firstCadenceSent = true;
-                        emit debug(QStringLiteral("First cadence received, sending inclination 1.5"));
-                        forceInclination(1.5);
-                    }
                 }
             }
         }
