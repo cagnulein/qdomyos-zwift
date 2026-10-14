@@ -308,7 +308,8 @@ public class CustomQtActivity extends QtActivity {
                 public void run() {
                     ViewParent parent = host.getParent();
                     AccessibilityNodeInfo node = qt.createAccessibilityNodeInfo(virtualViewId);
-                    if (node != null && parent != null) {
+                    // a press that closed the page leaves Qt an empty node for the id
+                    if (node != null && parent != null && (node.isClickable() || node.isCheckable())) {
                         AccessibilityEvent event = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_VIEW_CLICKED);
                         event.setSource(host, virtualViewId);
                         event.setPackageName(host.getContext().getPackageName());

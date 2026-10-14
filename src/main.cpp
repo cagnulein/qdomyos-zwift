@@ -41,6 +41,7 @@
 #include "keepawakehelper.h"
 #include <QAccessible>
 #include <QAndroidJniObject>
+#include <QKeyEvent>
 #include <QQuickItem>
 #include <QtAndroid>
 #include <jni.h>
@@ -615,8 +616,9 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeScrollToAccessibleObject(J
 }
 
 // CustomQtActivity: TalkBack's double tap on this accessible object (Android UI thread). Qt 5.15
-// does nothing for a Button there and turns a switch without its clicked(), so a button is clicked
-// here as by a tap, on the Qt thread; anything else gets Qt's own press (Accessible.onPressAction).
+// does nothing for a Button there and turns a switch without its clicked(), so a button gets the
+// space key a keyboard presses it with (nextCheckState() with exclusive groups, clicked(), its
+// Action), on the Qt thread; anything else gets Qt's own press (Accessible.onPressAction).
 extern "C" JNIEXPORT void JNICALL
 Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *env, jclass clazz, jint id) {
     Q_UNUSED(env)
@@ -633,11 +635,10 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *en
             if (object->inherits("QQuickAbstractButton")) {
                 if (!object->property("enabled").toBool())
                     return;
-                if (object->property("checkable").toBool()) {
-                    QMetaObject::invokeMethod(object, "toggle");
-                    QMetaObject::invokeMethod(object, "toggled");
-                }
-                QMetaObject::invokeMethod(object, "clicked");
+                QKeyEvent press(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
+                QKeyEvent release(QEvent::KeyRelease, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
+                QCoreApplication::sendEvent(object, &press);
+                QCoreApplication::sendEvent(object, &release);
             } else if (QAccessibleActionInterface *actions = iface->actionInterface()) {
                 const QStringList names = actions->actionNames();
                 if (names.contains(QAccessibleActionInterface::pressAction()))
