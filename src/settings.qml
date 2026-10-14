@@ -326,6 +326,27 @@ import AndroidStatusBar 1.0
             toast.show("Setting saved!")
         }
 
+        // loadSettings() updates the native QSettings store directly. Keep this
+        // QML Settings instance in sync before it can write its cached values
+        // back during a profile save or application restart.
+        Connections {
+            target: rootItem
+            function onUserProfileChanged() {
+                var profileName = rootItem.profileSetting("profile_name")
+                var weight = rootItem.profileSetting("weight")
+                var height = rootItem.profileSetting("height")
+                var sex = rootItem.profileSetting("sex")
+                if (profileName !== undefined && profileName !== null)
+                    settings.profile_name = profileName
+                if (weight !== undefined && weight !== null)
+                    settings.weight = weight
+                if (height !== undefined && height !== null)
+                    settings.height = height
+                if (sex !== undefined && sex !== null)
+                    settings.sex = sex
+            }
+        }
+
         // always add a property at the end of the file to avoid corruption of the settings when loading old versions
         Settings {
             id: settings
