@@ -369,7 +369,8 @@ static void startWebSocket() {
   webSocket.begin(PROFORM_BIKE_IP, PROFORM_WS_PORT, PROFORM_WS_PATH);
   webSocket.onEvent(webSocketEvent);
   webSocket.setReconnectInterval(3000);
-  webSocket.enableHeartbeat(15000, 3000, 2);
+  // This ProForm endpoint remains stable without client heartbeat pings.
+  webSocket.disableHeartbeat();
 }
 
 static void maintainWiFi() {
