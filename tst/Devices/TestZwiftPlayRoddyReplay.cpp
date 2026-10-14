@@ -12,6 +12,7 @@
 #include <QThread>
 #include <QVariant>
 #include <QVector>
+#include <iostream>
 
 // Real notifications from Roddy's iOS build 1448 / Zwift Play firmware 2.0.1
 // log of October 14, 2026. Only BLE payloads are included: no personal data.
@@ -247,7 +248,10 @@ StreamResult replayCompleteCapturedStream(bool swap) {
         EXPECT_GE(relativeMs, lastTimeMs);
         lastTimeMs = relativeMs;
         const QByteArray payload = QByteArray::fromHex(line.mid(sep + 1));
-        EXPECT_FALSE(payload.isEmpty());
+        if (payload.isEmpty()) {
+            ADD_FAILURE() << "Empty payload in BLE replay fixture";
+            continue;
+        }
         EXPECT_EQ(static_cast<quint8>(payload.at(0)), 0x23);
         device.processCharacteristic(QStringLiteral("Async"), payload, AbstractZapDevice::RIGHT);
         ++result.frames;
