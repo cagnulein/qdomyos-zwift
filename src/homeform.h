@@ -1193,6 +1193,8 @@ public:
     void ten_hz();
     void checkClipboardForWorkout();
     double heartRateMax();
+    bool adjustTreadmillPidHeartRate(bool increaseLoad, double minSpeed, double maxSpeed,
+                                     const QString &reason);
     void backup();
     bool getDevice();
     bool getLap();

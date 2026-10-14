@@ -2136,6 +2136,7 @@ import AndroidStatusBar 1.0
             property bool proform_treadmill_305_cst: false
             property bool freemotion_t10_9b_hci: false
             property bool treadmill_runn_closed_loop: false
+            property string treadmill_pid_heart_control: "Speed"
         }
 
 
@@ -9762,8 +9763,32 @@ import AndroidStatusBar 1.0
                         }
                     }
 
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTreadmillPidHRControl
+                            text: qsTr("PID HR actuator:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: treadmillPidHRControlTextField
+                            model: [ "Speed", "Inclination" ]
+                            currentIndex: settings.treadmill_pid_heart_control === "Inclination" ? 1 : 0
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                settings.treadmill_pid_heart_control = treadmillPidHRControlTextField.currentText;
+                                toast.show(qsTr("Setting saved!"));
+                            }
+                        }
+                    }
+
                     Label {
-                        text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.")
+                        text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

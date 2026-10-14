@@ -67,6 +67,7 @@ QString openEndedRowLabel(const trainrow &row) {
     item[QStringLiteral("speed")] = row.speed;                                                              \
     item[QStringLiteral("minSpeed")] = row.minSpeed;                                                        \
     item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
+    item[QStringLiteral("maxInclination")] = row.maxInclination; \
     item[QStringLiteral("fanspeed")] = row.fanspeed;                                                        \
     if (row.inclination >= -50) {\
         item[QStringLiteral("inclination")] = row.inclination;\
@@ -92,6 +93,7 @@ QString openEndedRowLabel(const trainrow &row) {
     item[QStringLiteral("zoneHR")] = row.zoneHR;                                                            \
     item[QStringLiteral("HRmin")] = row.HRmin;                                                              \
     item[QStringLiteral("HRmax")] = row.HRmax;                                                              \
+    item[QStringLiteral("pidHRMode")] = trainprogram::pidHrModeToString(row.pidHrMode);\
     item[QStringLiteral("HRabove")] = row.HRabove;                                                          \
     item[QStringLiteral("HRbelow")] = row.HRbelow;                                                          \
     item[QStringLiteral("latitude")] = row.latitude;                                                        \
@@ -1145,6 +1147,9 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             if (row.contains(QStringLiteral("maxSpeed"))) {
                 tR.maxSpeed = row[QStringLiteral("maxSpeed")].toDouble();
             }
+            if (row.contains(QStringLiteral("maxInclination"))) {
+                tR.maxInclination = row[QStringLiteral("maxInclination")].toDouble();
+            }
             if (row.contains(QStringLiteral("fanspeed"))) {
                 tR.fanspeed = row[QStringLiteral("fanspeed")].toInt();
             }
@@ -1201,6 +1206,9 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             }
             if (row.contains(QStringLiteral("HRmax"))) {
                 tR.HRmax = row[QStringLiteral("HRmax")].toInt();
+            }
+            if (row.contains(QStringLiteral("pidHRMode"))) {
+                tR.pidHrMode = trainprogram::pidHrModeFromString(row[QStringLiteral("pidHRMode")].toString());
             }
             if (row.contains(QStringLiteral("HRabove"))) {
                 tR.HRabove = row[QStringLiteral("HRabove")].toInt();
