@@ -1112,21 +1112,47 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             bool destinationReady = destinationInfo.exists();
             bool copied = false;
             if (!destinationIsNewer) {
+                const QString stagingPath = destinationPath + QStringLiteral(".migrating");
+                const QString backupPath = destinationPath + QStringLiteral(".backup");
+                QFile::remove(stagingPath);
+                QFile::remove(backupPath);
                 QAndroidJniObject javaSourcePath = QAndroidJniObject::fromString(sourcePath);
                 QAndroidJniObject javaRelativePath = QAndroidJniObject::fromString(relativePath);
                 copied = QAndroidJniObject::callStaticMethod<jboolean>(
                     "org/cagnulen/qdomyoszwift/ContentHelper",
-                    "replacePublicDocumentsFile",
+                    "copyFileToPublicDocuments",
                     "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Z",
                     QtAndroid::androidActivity().object(),
                     javaSourcePath.object<jstring>(),
                     javaRelativePath.object<jstring>());
-                if (clearAndroidJniException("ContentHelper.replacePublicDocumentsFile")) {
+                if (clearAndroidJniException("ContentHelper.copyFileToPublicDocuments")) {
                     copied = false;
                 }
                 destinationReady = copied;
-                qDebug() << "Android storage migration MediaStore replace" << sourcePath
+                qDebug() << "Android storage migration MediaStore copy" << sourcePath
                          << "->" << relativePath << copied;
+                if (copied && !destinationReady) {
+                    const bool stagedFileReady = QFileInfo::exists(stagingPath) &&
+                                                  QFileInfo(stagingPath).size() == sourceInfo.size();
+
+                    bool movedOldDestination = true;
+                    if (stagedFileReady && QFile::exists(destinationPath)) {
+                        movedOldDestination = QFile::rename(destinationPath, backupPath);
+                    }
+                    destinationReady = stagedFileReady && movedOldDestination &&
+                                       QFile::rename(stagingPath, destinationPath);
+                    if (destinationReady) {
+                        QFile::remove(backupPath);
+                    } else {
+                        QFile::remove(stagingPath);
+                        if (movedOldDestination && QFile::exists(backupPath)) {
+                            QFile::rename(backupPath, destinationPath);
+                        }
+                    }
+                }
+                if (!destinationReady) {
+                    QFile::remove(stagingPath);
+                }
             }
 
             qDebug() << "Android storage migration file" << sourcePath
@@ -11341,41 +11367,6 @@ void homeform::loadSettings(const QUrl &filename) {
                baseKey == QZSettings::garmin_oauth1_token ||
                baseKey == QZSettings::garmin_oauth1_token_secret;
     };
-
-    auto isPreservedGlobalKey = [](const QString &key) {
-        if (key == QZSettings::android_documents_folder ||
-            key == QZSettings::cryptoKeySettingsProfiles) {
-            return true;
-        }
-        for (const QString &baseKey : {QZSettings::strava_accesstoken,
-                                       QZSettings::strava_refreshtoken,
-                                       QZSettings::strava_lastrefresh,
-                                       QZSettings::strava_expires,
-                                       QZSettings::garmin_access_token,
-                                       QZSettings::garmin_refresh_token,
-                                       QZSettings::garmin_token_type,
-                                       QZSettings::garmin_expires_at,
-                                       QZSettings::garmin_refresh_token_expires_at,
-                                       QZSettings::garmin_oauth1_token,
-                                       QZSettings::garmin_oauth1_token_secret,
-                                       QZSettings::garmin_last_refresh}) {
-            if (key.startsWith(baseKey + QStringLiteral("_"))) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    // Replace the profile snapshot instead of overlaying it on the previous
-    // profile. Account-scoped token records for other accounts stay global;
-    // every other key is owned by the profile snapshot written by saveProfile.
-    const QStringList activeKeys = settings.allKeys();
-    for (const QString &key : activeKeys) {
-        if (!isPreservedGlobalKey(key)) {
-            settings.remove(key);
-        }
-    }
-
     bool importedGarminTokenForProfile = false;
 
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
@@ -11656,29 +11647,6 @@ void homeform::saveProfile(QString profilename) {
         }
     }
     settings2Save.sync();
-
-#ifdef Q_OS_ANDROID
-    if (QOperatingSystemVersion::current() >=
-        QOperatingSystemVersion(QOperatingSystemVersion::Android, 10)) {
-        QAndroidJniObject sourcePath = QAndroidJniObject::fromString(settings2Save.fileName());
-        QAndroidJniObject relativePath = QAndroidJniObject::fromString(
-            QStringLiteral("profiles/") + profilename + QStringLiteral(".qzs"));
-        const jboolean replaced = QAndroidJniObject::callStaticMethod<jboolean>(
-            "org/cagnulen/qdomyoszwift/ContentHelper",
-            "replacePublicDocumentsFile",
-            "(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Z",
-            QtAndroid::androidContext().object(),
-            sourcePath.object<jstring>(),
-            relativePath.object<jstring>());
-        if (!clearAndroidJniException("ContentHelper.replacePublicDocumentsFile") && replaced) {
-            QFile::remove(settings2Save.fileName());
-            qDebug() << "profile saved to canonical public storage" << relativePath.toString();
-        } else {
-            qWarning() << "profile public storage update failed" << relativePath.toString();
-        }
-    }
-#endif
-
     qDebug() << "homeform::saveProfile path" << settings2Save.fileName()
              << "status" << settings2Save.status();
 }
