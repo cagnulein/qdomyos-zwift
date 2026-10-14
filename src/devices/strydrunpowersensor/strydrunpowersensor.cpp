@@ -418,6 +418,8 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         Cadence = cadence;
         emit cadenceChanged(cadence);
         if (treadmill_from_sensor) {
+            Speed = speed;
+
             emit speedChanged(speed);
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCadenceChanged.msecsTo(now)));
