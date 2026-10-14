@@ -3,6 +3,9 @@
 #include "zwift_play/zwiftPlayDevice.h"
 
 #include <QByteArray>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QObject>
 #include <QSettings>
 #include <QStringList>
@@ -195,4 +198,87 @@ TEST(ZwiftPlayRoddyReplay, AnalogLocationIndependentOfDetectedControllerSide) {
         EXPECT_EQ(events.up, 1) << "side=" << side;
         EXPECT_EQ(events.down, 1) << "side=" << side;
     }
+}
+
+
+namespace {
+struct StreamResult {
+    int frames = 0;
+    int up = 0;
+    int down = 0;
+    int left = 0;
+    int right = 0;
+};
+
+StreamResult replayCompleteCapturedStream(bool swap) {
+    // Replay all 553 packets in the captured order. Debouncing is disabled
+    // here because processing them without the original 51.5-second delay
+    // would otherwise change QDateTime-dependent filtering decisions.
+    SettingsGuard settings;
+    settings.configure(swap, false, true);
+    ZwiftPlayDevice device;
+    Events events;
+    events.attach(device);
+
+    const QString fixtureName = QStringLiteral("zwift-play-roddy-2026-10-14.frames");
+    QFile trace(QStringLiteral("Devices/fixtures/") + fixtureName);
+    if (!trace.exists()) {
+        const QDir sourceDir(QFileInfo(QString::fromUtf8(__FILE__)).absolutePath());
+        trace.setFileName(sourceDir.filePath(QStringLiteral("fixtures/") + fixtureName));
+    }
+    StreamResult result;
+    if (!trace.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        ADD_FAILURE() << "Could not open BLE replay fixture: " << trace.fileName().toStdString();
+        return result;
+    }
+    qint64 lastTimeMs = -1;
+    while (!trace.atEnd()) {
+        const QByteArray line = trace.readLine().trimmed();
+        if (line.isEmpty() || line.startsWith('#'))
+            continue;
+        const int sep = line.indexOf('\t');
+        if (sep <= 0) {
+            ADD_FAILURE() << "Invalid frame fixture row: " << line.constData();
+            continue;
+        }
+        bool ok = false;
+        const qint64 relativeMs = line.left(sep).toLongLong(&ok);
+        EXPECT_TRUE(ok);
+        EXPECT_GE(relativeMs, lastTimeMs);
+        lastTimeMs = relativeMs;
+        const QByteArray payload = QByteArray::fromHex(line.mid(sep + 1));
+        EXPECT_FALSE(payload.isEmpty());
+        EXPECT_EQ(static_cast<quint8>(payload.at(0)), 0x23);
+        device.processCharacteristic(QStringLiteral("Async"), payload, AbstractZapDevice::RIGHT);
+        ++result.frames;
+    }
+    result.up = events.up;
+    result.down = events.down;
+    result.left = events.leftPaddle;
+    result.right = events.rightPaddle;
+    return result;
+}
+} // namespace
+
+TEST(ZwiftPlayRoddyReplay, All553CapturedFramesBothSwapModes) {
+    const StreamResult normal = replayCompleteCapturedStream(false);
+    const StreamResult swapped = replayCompleteCapturedStream(true);
+    EXPECT_EQ(normal.frames, 553);
+    EXPECT_EQ(swapped.frames, 553);
+    EXPECT_GT(normal.left, 0);
+    EXPECT_GT(normal.right, 0);
+    EXPECT_GT(normal.up, 0);
+    EXPECT_GT(normal.down, 0);
+    // Swap should invert direction but never change recognition of a paddle
+    // when replaying the very same input sequence.
+    EXPECT_EQ(normal.up, swapped.down);
+    EXPECT_EQ(normal.down, swapped.up);
+    EXPECT_EQ(normal.left, swapped.left);
+    EXPECT_EQ(normal.right, swapped.right);
+
+    std::cout << "Roddy 553-frame replay (debounce OFF for offline timing): "
+              << "normal: up=" << normal.up << ", down=" << normal.down
+              << ", left=" << normal.left << ", right=" << normal.right
+              << "; swapped: up=" << swapped.up << ", down=" << swapped.down
+              << std::endl;
 }
