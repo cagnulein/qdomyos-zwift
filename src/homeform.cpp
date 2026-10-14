@@ -11019,6 +11019,7 @@ void homeform::sendMail() {
     QSettings settings;
 
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    bool weight_kg_unit = settings.value(QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit).toBool();
     double unit_conversion = 1.0;
     double meter_feet_conversion = 1.0;
     QString meter_feet_unit = tr("meters");
@@ -11039,11 +11040,15 @@ void homeform::sendMail() {
 
     if (miles) {
         unit_conversion = 0.621371; // clang, don't touch it!
-        weightLossUnit = tr("Oz");
         meter_feet_conversion = 3.28084;
         meter_feet_unit = tr("feet");
     }
-    WeightLoss = (miles ? bluetoothManager->device()->weightLoss() * 35.274 : bluetoothManager->device()->weightLoss());
+    // same rule as the Weight Loss tile: ounces only when the weight is not shown in kg
+    if (miles && !weight_kg_unit) {
+        weightLossUnit = tr("Oz");
+    }
+    WeightLoss = ((miles && !weight_kg_unit) ? bluetoothManager->device()->weightLoss() * 35.274
+                                             : bluetoothManager->device()->weightLoss());
 
     // Now we create a MimeMessage object. This will be the email.
 
@@ -11144,28 +11149,39 @@ void homeform::sendMail() {
                 .arg(QString::number(((treadmill *)bluetoothManager->device())->runningStressScore(), 'f', 0)) +
             QStringLiteral("\n");
     }
+    // powerPeak() returns -1 when the workout is shorter than the window: such lines are left out
     double peak = metric::powerPeak(&Session, 5);
     double weightKg = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
-    textMessage +=
-        tr("5 Seconds Power: %1W %2W/Kg").arg(QString::number(peak, 'f', 0), QString::number(peak / weightKg, 'f', 1)) +
-        QStringLiteral("\n");
+    if (peak >= 0) {
+        textMessage += tr("5 Seconds Power: %1W %2W/Kg")
+                           .arg(QString::number(peak, 'f', 0), QString::number(peak / weightKg, 'f', 1)) +
+                       QStringLiteral("\n");
+    }
     peak = metric::powerPeak(&Session, 60);
-    textMessage +=
-        tr("1 Minute Power: %1W %2W/Kg").arg(QString::number(peak, 'f', 0), QString::number(peak / weightKg, 'f', 1)) +
-        QStringLiteral("\n");
+    if (peak >= 0) {
+        textMessage += tr("1 Minute Power: %1W %2W/Kg")
+                           .arg(QString::number(peak, 'f', 0), QString::number(peak / weightKg, 'f', 1)) +
+                       QStringLiteral("\n");
+    }
     peak = metric::powerPeak(&Session, 5 * 60);
-    textMessage +=
-        tr("5 Minutes Power: %1W %2W/Kg").arg(QString::number(peak, 'f', 0), QString::number(peak / weightKg, 'f', 1)) +
-        QStringLiteral("\n");
+    if (peak >= 0) {
+        textMessage += tr("5 Minutes Power: %1W %2W/Kg")
+                           .arg(QString::number(peak, 'f', 0), QString::number(peak / weightKg, 'f', 1)) +
+                       QStringLiteral("\n");
+    }
 
     // FTP
     double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
-    peak = (metric::powerPeak(&Session, 20 * 60) * 0.95) * 0.95;
-    textMessage += tr("Estimated FTP: %1W").arg(QString::number(peak, 'f', 0)) + QStringLiteral(" ");
-    if(peak > ftpSetting) {
-        textMessage += QStringLiteral(" ") + tr("FTP IMPROVED +%1W!").arg(QString::number(peak - ftpSetting, 'f', 0));
+    peak = metric::powerPeak(&Session, 20 * 60);
+    if (peak >= 0) {
+        peak = (peak * 0.95) * 0.95;
+        textMessage += tr("Estimated FTP: %1W").arg(QString::number(peak, 'f', 0)) + QStringLiteral(" ");
+        if (peak > ftpSetting) {
+            textMessage +=
+                QStringLiteral(" ") + tr("FTP IMPROVED +%1W!").arg(QString::number(peak - ftpSetting, 'f', 0));
+        }
+        textMessage += QStringLiteral("\n");
     }
-    textMessage += QStringLiteral("\n");
 
     if (bluetoothManager->device()->deviceType() == BIKE) {
         textMessage +=
