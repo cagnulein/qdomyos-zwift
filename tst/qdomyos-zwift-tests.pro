@@ -42,6 +42,8 @@ SOURCES += \
         Devices/TestTrxAppGateUsTreadmillParser.cpp \
         Devices/TestKeepBikeParser.cpp \
         Devices/TestWahooKickrRunParser.cpp \
+        Devices/TestLifeFitness95TParser.cpp \
+        Devices/TestLifeFitnessWorkout.cpp \
         Devices/TestRenphoBikeKnobGears.cpp \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
@@ -84,6 +86,8 @@ HEADERS += \
     Devices/TestTrxAppGateUsTreadmillParser.h \
     Devices/TestKeepBikeParser.h \
     Devices/TestWahooKickrRunParser.h \
+    Devices/TestLifeFitness95TParser.h \
+    Devices/TestLifeFitnessWorkout.h \
     Devices/TestRenphoBikeKnobGears.h \
     Devices/TestNordictrackEllipticalS700Parser.h \
     Devices/TestXcxBikeParser.h \

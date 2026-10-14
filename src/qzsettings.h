@@ -875,6 +875,27 @@ class QZSettings {
     static const QString life_fitness_ic5;
     static constexpr bool default_life_fitness_ic5 = false;
 
+    static const QString life_fitness_first_name;
+    static const QString default_life_fitness_first_name;
+
+    static const QString life_fitness_last_name;
+    static const QString default_life_fitness_last_name;
+
+    static const QString life_fitness_username;
+    static const QString default_life_fitness_username;
+
+    static const QString life_fitness_password;
+    static const QString default_life_fitness_password;
+
+    static const QString life_fitness_api_key;
+    static const QString default_life_fitness_api_key;
+
+    static const QString life_fitness_token;
+    static const QString default_life_fitness_token;
+
+    static const QString life_fitness_preset_summary;
+    static const QString default_life_fitness_preset_summary;
+
     static const QString technogym_bike;
     static constexpr bool default_technogym_bike = false;
 
