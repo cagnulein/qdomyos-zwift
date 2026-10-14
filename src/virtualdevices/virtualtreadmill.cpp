@@ -102,7 +102,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             services << (QBluetoothUuid::ServiceClassUuid::RunningSpeedAndCadence);
         }
 
-        if (noHeartService == false) {
+        if (!echelon && noHeartService == false) {
             services << QBluetoothUuid::HeartRate;
         }
 
