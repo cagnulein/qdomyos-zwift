@@ -5538,6 +5538,18 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <translation>Resultados de búsqueda</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Modificados</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>No hay ajustes modificados</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Ajustes modificados</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Abrir</translation>
     </message>
