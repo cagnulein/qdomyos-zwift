@@ -85,3 +85,17 @@ The current code uses Gears Gain to control the step applied to local gear chang
 QZ's settings UI explicitly warns that enabling **Get Gears from Zwift** together with QZ's **Zwift Play/Click** controller options can cause conflicts, and offers to disable those options. If using Zwift on **Apple TV** over QZ's Wi-Fi/DIRCON virtual-trainer connection, this setup also leaves the Apple TV's Bluetooth connection available for Zwift Click; see [Apple TV/Wi-Fi bridging](integrations.md).
 
 **This is not the MyWhoosh setup.** For MyWhoosh with QZ/OpenBikeControl, the Click normally connects to QZ and **Get Gears from Zwift** is disabled; see [MyWhoosh](mywhoosh.md). The specific reports of disappearing Click controllers or overly strong resistance in Zwift were still being investigated, so this is code-verified configuration guidance rather than a claimed confirmed fix for those symptoms.
+
+## Why did Zwift become slower after I lowered Watt Gain, even though Speed Gain is still 1?
+
+**Watt Gain scales the power that QZ reports**, not how hard the bike physically feels. For example, **Watt Gain = 0.6** turns a 200 W reported reading into approximately **120 W** (before any other applicable adjustments). QZ's watt-metric implementation applies that multiplier to positive power values.
+
+When Zwift receives power from QZ, it uses that power along with its own ride physics to calculate the avatar's **virtual speed**. Lowering the reported power can therefore make the avatar slower, **even if Speed Gain stays at 1**. Speed Gain is a separate adjustment to a measured speed value; it is not a way to preserve Zwift's power-based virtual speed after changing Watt Gain.
+
+For an accurate starting point:
+
+1. Under QZ's **Advanced Settings**, restore **Watt Gain = 1.0** and **Watt Offset = 0**, unless you have a specific, measured calibration reason to use another value.
+2. Confirm that QZ shows plausible power readings from the bike and that Zwift is connected to QZ as the power source.
+3. If the bike has adjustable resistance but no mechanical gears, you can enable **QZ Settings > Tiles Options > Gears** to experiment with QZ's local virtual shifting. This changes the resistance/gearing experience; it does not require a physical cassette.
+
+A support user reported much lower virtual speed after reducing Watt Gain, then reported that restoring **1.0** resolved the immediate issue. Do not change Watt Gain simply to manipulate a race result; it changes the power value delivered to the training app. For a broader explanation of console versus virtual speed, see [the public FAQ](../qz_faq_public.md).

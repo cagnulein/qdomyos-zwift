@@ -203,3 +203,13 @@ A useful two-device setup is:
 4. In Kinomap, add the equipment again using **FTMS** and select QZ's virtual device.
 
 In a confirmed support case, Kinomap had retained old connections and was interfering with the intended QZ bridge. Cleaning up those saved connections and using the FTMS path restored the expected connection and resistance behavior.
+
+## My Garmin watch finds QZ as a Bluetooth sensor on iPhone but cannot pair. Will Garmin Upload still work?
+
+**Yes, the two connections have different purposes.** A Garmin watch may *discover* QZ's virtual Bluetooth advertisement without successfully connecting to it as a usable bike sensor. Seeing the device name in the Garmin sensor search does not guarantee that the watch supports the specific Bluetooth service and pairing path exposed by QZ.
+
+An **iPhone cannot transmit ANT+**, so QZ running on iOS cannot use the Android ANT+ sensor-broadcast method to send cycling or treadmill metrics directly to a Garmin watch. Enabling QZ's **Garmin Bluetooth Sensor** compatibility option does not add ANT+ to an iPhone or guarantee that every Garmin watch can connect over Bluetooth.
+
+If your aim is to have the completed ride in **Garmin Connect**, keep **Garmin Upload / Garmin Connect integration** enabled in QZ, record the workout in QZ and finish/save the session. QZ then uploads the completed activity and its available metrics to Garmin Connect **after the workout**, rather than feeding a live data stream into the watch's own activity recording.
+
+In a confirmed iPhone/bike support case, Garmin Connect uploads already worked although a Garmin Epix Pro Gen 2 discovered QZ and then failed the Bluetooth sensor pairing. If you specifically need a live ANT+ feed to the watch, use an appropriate **Android device with ANT+ transmission capability** and a supported QZ broadcast profile instead; see the live ANT+ guidance above.
