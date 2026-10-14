@@ -605,9 +605,16 @@ int main(int argc, char *argv[]) {
         const QString pendingProfilePath = QString::fromUtf8(pendingMarker.readAll()).trimmed();
         pendingMarker.close();
         pendingMarker.remove();
-        if (!pendingProfilePath.isEmpty() && QFile::exists(pendingProfilePath)) {
-            profileToLoad = QUrl::fromLocalFile(pendingProfilePath);
-            qDebug() << "Loading pending profile" << pendingProfilePath;
+        if (!pendingProfilePath.isEmpty()) {
+            const QUrl pendingUrl(pendingProfilePath);
+            if ((pendingUrl.scheme() == QStringLiteral("content")) ||
+                (pendingUrl.isLocalFile() && QFile::exists(pendingUrl.toLocalFile()))) {
+                profileToLoad = pendingUrl;
+                qDebug() << "Loading pending profile" << pendingUrl;
+            } else if (pendingUrl.scheme().isEmpty() && QFile::exists(pendingProfilePath)) {
+                profileToLoad = QUrl::fromLocalFile(pendingProfilePath);
+                qDebug() << "Loading pending profile" << profileToLoad;
+            }
         }
     }
 #endif

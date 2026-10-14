@@ -8845,7 +8845,12 @@ QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
         return sourcePath;
     }
 
-    const QString destinationDir = getWritableAppDir() + subfolder + "/";
+    QString destinationDir;
+    if (subfolder == QStringLiteral("settings")) {
+        destinationDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/settings/");
+    } else {
+        destinationDir = getWritableAppDir() + subfolder + QStringLiteral("/");
+    }
     QDir().mkpath(destinationDir);
     QString filename = getFileNameFromContentUri(file.toString());
     if (filename.isEmpty() && !sourcePath.isEmpty()) {
@@ -8904,7 +8909,7 @@ void homeform::profile_open_clicked(const QUrl &fileName) {
 #ifdef Q_OS_ANDROID
     const QString copiedFile = copyAndroidContentsURI(fileName, "profiles");
     if (!copiedFile.isEmpty()) {
-        restartWithProfile(QFileInfo(copiedFile).completeBaseName());
+        restartWithProfile(QUrl::fromLocalFile(copiedFile).toString());
     }
 #else
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
@@ -11692,16 +11697,20 @@ void homeform::restart() {
 #endif
 }
 
-void homeform::restartWithProfile(const QString &profileName) {
-    const QString trimmedProfileName = profileName.trimmed();
-    if (trimmedProfileName.isEmpty()) {
-        qWarning() << "Cannot restart without a profile name";
+void homeform::restartWithProfile(const QString &profileSource) {
+    const QString trimmedProfileSource = profileSource.trimmed();
+    if (trimmedProfileSource.isEmpty()) {
+        qWarning() << "Cannot restart without a profile source";
         return;
     }
 
-    const QString profilePath = getProfileDir() + QStringLiteral("/") + trimmedProfileName + QStringLiteral(".qzs");
-    if (!QFile::exists(profilePath)) {
-        qWarning() << "Cannot restart with missing profile" << profilePath;
+    QUrl sourceUrl(trimmedProfileSource);
+    if (sourceUrl.scheme().isEmpty()) {
+        sourceUrl = QUrl::fromLocalFile(trimmedProfileSource);
+    }
+    if (!sourceUrl.isValid() || (sourceUrl.isLocalFile() && !QFile::exists(sourceUrl.toLocalFile())) ||
+        (sourceUrl.scheme() != QStringLiteral("file") && sourceUrl.scheme() != QStringLiteral("content"))) {
+        qWarning() << "Cannot restart with invalid profile source" << trimmedProfileSource;
         return;
     }
 
@@ -11712,10 +11721,10 @@ void homeform::restartWithProfile(const QString &profileName) {
         qWarning() << "Cannot persist pending profile" << marker.fileName();
         return;
     }
-    marker.write(profilePath.toUtf8());
+    marker.write(sourceUrl.toString(QUrl::FullyEncoded).toUtf8());
     marker.close();
 
-    qDebug() << "Profile selected for next restart" << profilePath;
+    qDebug() << "Profile selected for next restart" << sourceUrl;
     // The user is explicitly asked to restart. Do not spawn a second Qt
     // process from the Android activity; the next normal launch consumes the
     // marker before any QML Settings objects are created.
