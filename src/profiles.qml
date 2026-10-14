@@ -13,7 +13,7 @@ ColumnLayout {
 
     signal profile_open_clicked(url name)
     property string pendingProfileName: ""
-    property string pendingProfileSource: ""
+    property url pendingProfileSource: ""
 
     Connections {
         target: rootItem
@@ -228,7 +228,7 @@ ColumnLayout {
                             // would let cached values from the old profile be
                             // written back during teardown.
                             pendingProfileName = profileNameTextField.text
-                            pendingProfileSource = fileUrl.toString()
+                            pendingProfileSource = fileUrl
                             quitDialog.visible = true
                         }
                     } else {

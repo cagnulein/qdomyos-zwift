@@ -46,23 +46,17 @@ The current patch keeps one storage root end to end:
 
 No production Bluetooth workaround was added. No profile files or app data were deleted by the test procedure.
 
-## Current verification
+## Current verification before the URI fix
 
-- Commit: `4f4aa073bf60ed5795a74ca9701d5aa277fbd37b`.
-- `make -j1`: passed.
-- `qmllint src/profiles.qml`: passed.
-- `git diff --check`: passed.
-- `ProfileRegressionTestSuite`: 21 tests run, 19 passed, 2 known skips; no failures.
-- GitHub Actions run `38548393050`: Android build passed and Android emulator tests passed on API 24, 26, 28, 29, 30, 31, 33, 35, and 36.
-- Artifact `11886102214` (`peloton-v1-grupetto`): SHA-256 `9f0086c5c025cd3f6a5dd67db105f3e6257554da7da368b97cd75e18490c15ef`.
-- APK package: `org.cagnulen.qdomyoszwift`; activity: `org.cagnulen.qdomyoszwift.CustomQtActivity`; ABIs include `arm64-v8a`.
+- Commit tested: `06d4cda5fc0dc69a06d7f2aaca1b719b67053a3c`.
+- Local `make -j1`, `qmllint src/profiles.qml`, `git diff --check`, and `ProfileRegressionTestSuite` passed (21 tests, 19 passed, 2 known skips).
+- GitHub Actions run `38556230098` produced artifact `11890760814` (`peloton-v1-grupetto`), SHA-256 `2f4a7a0f1c4dc528d7943a5f48e49d45c42d1997d40726938b8952fe884ccf5`.
+- APK package: `org.cagnulen.qdomyoszwift`; ABIs include `arm64-v8a`; installed on `qz_arm64_api29` without clearing app data.
 
-On `qz_arm64_api29` (`API 29`, `arm64-v8a`, `emulator64_arm64`), the exact artifact was installed without clearing app data. The test routing was `android_documents_folder=false`; Bluetooth was disabled only in the emulator test fixture/runtime.
+The exact artifact showed the chooser correctly listing `Jay` and `Jan`, while the emulator had both canonical rows and old duplicate MediaStore rows (`Jan (1).qzs`, `Jay (1).qzs`). Selecting Jan showed the expected `Profile loaded` restart dialog. The subsequent restart exposed a URI transport bug: the pending marker contained `file:[object%20Object]` instead of the selected `content://.../Jan.qzs` URI. QZ therefore retained Jay's values (`81 kg`, `180 cm`, `Female`) while the profile label had become Jan. This is a confirmed reproduction, not a successful persistence result.
 
-1. The Profiles page showed both `Jay` and `Jan`, with the active selector matching the loaded profile.
-2. `Jan → Jay`: tapping the selected row twice showed `Profile loaded`; confirming `Yes` exited QZ and wrote only the private pending-restart marker containing the canonical `Jay.qzs` path. No second profile copy was created.
-3. After a normal manual relaunch, the marker was consumed, `homeform::loadSettings` loaded `Jay.qzs`, and the active configuration showed `Jay`, `81 kg`, `180 cm`, `Female`, `FTP 200`, and `virtual_device_bluetooth=false`.
-4. `Jay → Jan`: the same flow consumed the marker and loaded `Jan.qzs`. General Options visibly showed `75 kg`, `175 cm`, age `35`, `Male`; after scrolling, `FTP 200` and Critical Power Run `200` were visible.
-5. The new process stayed on QZ after both relaunches; no new Bluetooth crash occurred. The old process logs a pre-existing Qt/QML teardown SIGSEGV while exiting after `Yes` (`QQmlMetaType::qmlRemoveModuleRegistration`). It does not prevent the requested manual relaunch, but it should be tracked separately from profile persistence.
+## URI transport correction
 
-The overall GitHub Actions workflow may still remain non-green because unrelated Linux/Windows/Raspberry jobs have independent failures; all Android build and emulator jobs for this commit passed.
+The pending profile source now remains a typed QML `url` and is passed to `homeform::restartWithProfile(const QUrl &)`. The Android profile import path also passes a `QUrl` directly. This removes the lossy JavaScript string conversion that created `file:[object%20Object]`.
+
+The URI correction is locally built and tested; its exact Android artifact and simulator verification are pending. No production Bluetooth workaround was added, and no profile files or app data were deleted during testing.
