@@ -42,7 +42,7 @@ The current patch keeps one storage root end to end:
 - Otherwise the chooser uses only the legacy app-data root.
 - A local profile file is loaded directly; only a `content://` import is copied into the active root.
 - Loading a profile replaces the active snapshot instead of overlaying it, while preserving storage routing, the profile encryption key, and account-scoped token records.
-- The profile page no longer loads into the live process. It records the selected name and restarts with `-profile`; startup loads the snapshot before QML `Settings` instances are created, preventing stale QML values from being written back during teardown.
+- The profile page does not load into the live process. It records the selected profile path in a small private pending-restart marker and exits; the next normal launch consumes that marker before QML `Settings` instances are created. This avoids stale QML values being written back during teardown.
 
 No production Bluetooth workaround was added. No profile files or app data were deleted by the test procedure.
 

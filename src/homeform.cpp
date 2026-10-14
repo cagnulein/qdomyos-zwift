@@ -11699,22 +11699,27 @@ void homeform::restartWithProfile(const QString &profileName) {
         return;
     }
 
-    QStringList arguments = qApp->arguments();
-    for (int i = arguments.size() - 1; i >= 1; --i) {
-        if (arguments.at(i) == QStringLiteral("-profile")) {
-            arguments.removeAt(i);
-            if (i < arguments.size()) {
-                arguments.removeAt(i);
-            }
-        }
+    const QString profilePath = getProfileDir() + QStringLiteral("/") + trimmedProfileName + QStringLiteral(".qzs");
+    if (!QFile::exists(profilePath)) {
+        qWarning() << "Cannot restart with missing profile" << profilePath;
+        return;
     }
-    arguments << QStringLiteral("-profile") << trimmedProfileName;
 
-    qDebug() << "Restarting with profile" << trimmedProfileName;
+    const QString markerDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(markerDir);
+    QFile marker(markerDir + QStringLiteral("/qz-pending-profile"));
+    if (!marker.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        qWarning() << "Cannot persist pending profile" << marker.fileName();
+        return;
+    }
+    marker.write(profilePath.toUtf8());
+    marker.close();
+
+    qDebug() << "Profile selected for next restart" << profilePath;
+    // The user is explicitly asked to restart. Do not spawn a second Qt
+    // process from the Android activity; the next normal launch consumes the
+    // marker before any QML Settings objects are created.
     qApp->quit();
-#if !defined(Q_OS_DARWIN) && !defined(Q_OS_IOS) && !defined(Q_OS_WINRT)
-    QProcess::startDetached(qApp->arguments()[0], arguments);
-#endif
 }
 
 double homeform::heartRateMax() {
