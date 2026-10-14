@@ -9773,16 +9773,15 @@ import AndroidStatusBar 1.0
                         ComboBox {
                             id: treadmillPidHRControlTextField
                             model: [ "Speed", "Inclination" ]
-                            displayText: settings.treadmill_pid_heart_control
+                            currentIndex: settings.treadmill_pid_heart_control === "Inclination" ? 1 : 0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onActivated: displayText = treadmillPidHRControlTextField.currentValue
                         }
                         Button {
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
-                                settings.treadmill_pid_heart_control = treadmillPidHRControlTextField.displayText;
+                                settings.treadmill_pid_heart_control = treadmillPidHRControlTextField.currentText;
                                 toast.show(qsTr("Setting saved!"));
                             }
                         }
