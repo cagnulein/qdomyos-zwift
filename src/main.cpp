@@ -609,7 +609,42 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeScrollToAccessibleObject(J
             QQuickItem *item = iface && iface->isValid() ? qobject_cast<QQuickItem *>(iface->object()) : nullptr;
             if (item && item->isVisible() && scrollItemIntoView(item))
                 QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
-                                                          "accessibilityContentScrolled", "()V");
+                                                          "accessibilityTreeChanged", "()V");
+        },
+        Qt::QueuedConnection);
+}
+
+// CustomQtActivity: TalkBack's double tap on this accessible object (Android UI thread). Qt 5.15
+// does nothing for a Button there and turns a switch without its clicked(), so a button is clicked
+// here as by a tap, on the Qt thread; anything else gets Qt's own press (Accessible.onPressAction).
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *env, jclass clazz, jint id) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (!QCoreApplication::instance())
+        return;
+    QMetaObject::invokeMethod(
+        QCoreApplication::instance(),
+        [id] {
+            QAccessibleInterface *iface = QAccessible::accessibleInterface(QAccessible::Id(id));
+            if (!iface || !iface->isValid() || !iface->object())
+                return;
+            QObject *object = iface->object();
+            if (object->inherits("QQuickAbstractButton")) {
+                if (!object->property("enabled").toBool())
+                    return;
+                if (object->property("checkable").toBool()) {
+                    QMetaObject::invokeMethod(object, "toggle");
+                    QMetaObject::invokeMethod(object, "toggled");
+                }
+                QMetaObject::invokeMethod(object, "clicked");
+            } else if (QAccessibleActionInterface *actions = iface->actionInterface()) {
+                const QStringList names = actions->actionNames();
+                if (names.contains(QAccessibleActionInterface::pressAction()))
+                    actions->doAction(QAccessibleActionInterface::pressAction());
+                else if (names.contains(QAccessibleActionInterface::toggleAction()))
+                    actions->doAction(QAccessibleActionInterface::toggleAction());
+            }
         },
         Qt::QueuedConnection);
 }
