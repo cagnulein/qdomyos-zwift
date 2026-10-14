@@ -11480,16 +11480,6 @@ QString homeform::getProfileDir() {
     return path;
 }
 
-QVariant homeform::profileSetting(const QString &key) const {
-    if (key != QZSettings::profile_name && key != QZSettings::weight &&
-        key != QZSettings::height && key != QZSettings::sex) {
-        return QVariant();
-    }
-
-    QSettings settings;
-    return settings.value(key);
-}
-
 QVariantList homeform::getProfileFiles() {
     QVariantList profiles;
 

@@ -60,11 +60,3 @@ On `qz_arm64_api29` (`API 29`, `arm64-v8a`, `emulator64_arm64`), with `android_d
 4. After confirming restart and dismissing the first-run disclaimer, a fresh Profiles screenshot and UIAutomator dump showed the profile name and selector as `Jay`, with both `Jay` and `Jan` still listed.
 
 This closes the requested enumeration, selection, load, and restart-persistence verification. The overall GitHub Actions workflow was not declared fully green: unrelated matrix jobs were still queued/in progress or had independent failures when this verification completed.
-
-## Follow-up diagnosis — profile fields contaminating each other
-
-Jason's next report was reproducible on `qz_arm64_api29`: changing `weight`, `height`, and `sex` on `Jay`, loading `Jan`, and saving it caused the sentinel values to appear in both app-private profile files. The public MediaStore files remained distinct, so filesystem enumeration was no longer the failing layer.
-
-The failure was caused by two settings stores in the same process. `loadSettings()` updates native `QSettings` directly, while the long-lived QML `Settings` object in `settings.qml` retains cached `weight`, `height`, and `sex` values. If the user selects `No` on the required-restart dialog, or if the QML object is torn down after selecting `Yes`, those stale properties can be written back over the newly loaded profile before `saveProfile()` or restart completes.
-
-The follow-up change adds an allowlisted `homeform::profileSetting()` accessor and synchronizes `profile_name`, `weight`, `height`, and `sex` in the QML `Settings` instance when `userProfileChanged` is emitted. It does not expose credentials, change licensing/time/data, or alter Bluetooth behavior. The Android runtime-only `virtual_device_bluetooth=false` setting remains test-only.

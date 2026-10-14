@@ -240,7 +240,6 @@ class homeform : public QObject {
     QQmlApplicationEngine *getEngine() { return engine; }
 
     QByteArray currentPelotonImage();
-    Q_INVOKABLE QVariant profileSetting(const QString &key) const;
     Q_INVOKABLE void save_screenshot() {
 
         QString path = getWritableAppDir();
