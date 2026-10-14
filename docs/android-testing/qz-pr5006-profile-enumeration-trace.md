@@ -68,17 +68,3 @@ Jason's next report was reproducible on `qz_arm64_api29`: changing `weight`, `he
 The failure was caused by two settings stores in the same process. `loadSettings()` updates native `QSettings` directly, while the long-lived QML `Settings` object in `settings.qml` retains cached `weight`, `height`, and `sex` values. If the user selects `No` on the required-restart dialog, or if the QML object is torn down after selecting `Yes`, those stale properties can be written back over the newly loaded profile before `saveProfile()` or restart completes.
 
 The follow-up change adds an allowlisted `homeform::profileSetting()` accessor and synchronizes `profile_name`, `weight`, `height`, and `sex` in the QML `Settings` instance when `userProfileChanged` is emitted. It does not expose credentials, change licensing/time/data, or alter Bluetooth behavior. The Android runtime-only `virtual_device_bluetooth=false` setting remains test-only.
-
-## Follow-up verification on Jason's profile set
-
-Commit `b8efd47156fa287ee25be6309f40e88aa6e8a8a9` was built by GitHub Actions run `38518063745`; the `android-build` job `115701251759` and steps 19–24 all passed. Artifact `11875102515` (`peloton-v1-grupetto`) produced an APK with SHA-256 `b72efdb773ffa5b0f4a0512eec7c437b5fab631cef4a0d48102cc2192ceebbc2`, package `org.cagnulen.qdomyoszwift`, and `arm64-v8a` support. The overall workflow remained `failure` because unrelated matrix jobs failed; this does not invalidate the successful Android job.
-
-On `qz_arm64_api29` (`emulator-5558`, API 29, `arm64-v8a`), without clearing app data:
-
-1. The public MediaStore files were confirmed as `Jay.qzs` and `Jan.qzs`, each 33.77 kB in `Documents/QZ/profiles/`.
-2. `Jay` was saved with sentinels `81 kg / 180 cm / Female`; its effective private profile remained distinct.
-3. Loading the public `Jan.qzs` through `Other folders`, choosing `No` on the restart prompt, and opening General Options showed `75 kg / 175 cm / Male` rather than the stale Jay values.
-4. Saving `Jan` left the effective private files distinct: `Jay=81/180/Female`, `Jan=175/Male`.
-5. After force-stop/restart (with only the emulator runtime Bluetooth flag set false), General Options still showed `75 kg / 175 cm / Male`; Profiles showed `Jan` selected and both `Jay` and `Jan` listed.
-
-This closes the reported profile-field contamination on the real ARM64/API29 emulator. The Jason draft remains unsent.
