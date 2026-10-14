@@ -14,3 +14,4 @@ struct LcdDashboardData {
 
 bool lcdDashboardBegin();
 void lcdDashboardUpdate(const LcdDashboardData &data);
+int lcdDashboardReadErgAdjustment();

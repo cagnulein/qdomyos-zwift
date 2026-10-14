@@ -21,7 +21,7 @@ constexpr uint32_t kRed = 0xF87272;
 constexpr uint32_t kBlue = 0x4D9FFF;
 
 // Five columns per glyph, with the low bit at the top of each column.
-// Character order: digits, uppercase letters, space, dash, period, colon, slash, question mark.
+// Character order: digits, uppercase letters, space, dash, period, colon, slash, question mark, plus.
 const uint8_t kFont[][5] = {
     {0x3E, 0x51, 0x49, 0x45, 0x3E}, {0x00, 0x42, 0x7F, 0x40, 0x00},
     {0x42, 0x61, 0x51, 0x49, 0x46}, {0x21, 0x41, 0x45, 0x4B, 0x31},
@@ -44,11 +44,14 @@ const uint8_t kFont[][5] = {
     {0x00, 0x00, 0x00, 0x00, 0x00}, {0x08, 0x08, 0x08, 0x08, 0x08},
     {0x00, 0x60, 0x60, 0x00, 0x00}, {0x00, 0x36, 0x36, 0x00, 0x00},
     {0x20, 0x10, 0x08, 0x04, 0x02}, {0x02, 0x01, 0x51, 0x09, 0x06},
+    {0x08, 0x08, 0x3E, 0x08, 0x08},
 };
 
 esp_panel::board::Board *board = nullptr;
 esp_panel::drivers::LCD *lcd = nullptr;
+esp_panel::drivers::Touch *touch = nullptr;
 uint8_t *pixels = nullptr;
+bool touchWasDown = false;
 
 uint32_t rgb888(uint8_t red, uint8_t green, uint8_t blue) {
   return (static_cast<uint32_t>(red) << 16) |
@@ -69,6 +72,7 @@ const uint8_t *glyphFor(char value) {
     case '.': return kFont[38];
     case ':': return kFont[39];
     case '/': return kFont[40];
+    case '+': return kFont[42];
     default: return kFont[41];
   }
 }
@@ -128,6 +132,11 @@ void drawMetricCard(int x, const char *title, const char *value, const char *uni
   centerText(x, 350, 145, 1, accent, unit);
 }
 
+void drawTargetButton(int x, const char *label, uint32_t color) {
+  fillRect(x, 375, 60, 52, color);
+  centerText(x, 389, 60, 3, kWhite, label);
+}
+
 }  // namespace
 
 bool lcdDashboardBegin() {
@@ -151,6 +160,7 @@ bool lcdDashboardBegin() {
   }
 
   lcd = board->getLCD();
+  touch = board->getTouch();
   if (lcd == nullptr || !lcd->isOverState(esp_panel::drivers::LCD::State::BEGIN) ||
       lcd->getFrameWidth() != kWidth || lcd->getFrameHeight() != kHeight ||
       lcd->getFrameColorBits() != 16) {
@@ -209,10 +219,40 @@ void lcdDashboardUpdate(const LcdDashboardData &data) {
   drawMetricCard(10, "WATT ATTUALI", watts, "W", kBlue);
   drawMetricCard(167, "CADENZA", cadence, "RPM", rgb888(189, 96, 255));
   drawMetricCard(324, "WATT RICHIESTI", target, "ERG / FE-C", kOrange);
+  drawTargetButton(334, "-", kBlue);
+  drawTargetButton(400, "+", kGreen);
   centerText(0, 453, kWidth, 1, kMuted,
              "I DATI SONO LETTI DALLA BICI PROFORM SULLA RETE WI-FI");
 
   if (!lcd->drawBitmap(0, 0, kWidth, kHeight, pixels, -1)) {
     Serial.println("[LCD] Dashboard frame write failed");
   }
+}
+
+int lcdDashboardReadErgAdjustment() {
+  if (touch == nullptr || !touch->isOverState(esp_panel::drivers::Touch::State::BEGIN)) {
+    return 0;
+  }
+
+  esp_panel::drivers::TouchPoint point;
+  const int points = touch->readPoints(&point, 1, 0);
+  if (points <= 0) {
+    touchWasDown = false;
+    return 0;
+  }
+  if (touchWasDown) {
+    return 0;
+  }
+  touchWasDown = true;
+
+  if (point.y < 375 || point.y >= 427) {
+    return 0;
+  }
+  if (point.x >= 334 && point.x < 394) {
+    return -1;
+  }
+  if (point.x >= 400 && point.x < 460) {
+    return 1;
+  }
+  return 0;
 }

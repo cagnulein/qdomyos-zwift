@@ -172,7 +172,7 @@ static void applyErgTarget(float requestedWatts) {
   const float bikeTargetWatts = requestedWatts / WATT_GAIN;
   sendProFormSet("Target Watts", String(bikeTargetWatts, 2));
 
-  Serial.printf("[ERG] Garmin %.2f W -> ProForm %.2f W (gain %.3f)\n",
+  Serial.printf("[ERG] Target %.2f W -> ProForm %.2f W (gain %.3f)\n",
                 requestedWatts, bikeTargetWatts, WATT_GAIN);
 }
 
@@ -530,6 +530,17 @@ void loop() {
   serviceAntUart();
   forwardMetricsToAnt();
   notifyBleCyclingPower();
+
+  const int ergAdjustment = lcdDashboardReadErgAdjustment();
+  if (ergAdjustment != 0) {
+    if (requestedErgWatts <= 0.0f) {
+      applyErgTarget(100.0f);
+    } else {
+      const float nextTarget = constrain(requestedErgWatts + ergAdjustment * 5.0f,
+                                          1.0f, 4000.0f);
+      applyErgTarget(nextTarget);
+    }
+  }
 
   if (millis() - lastDashboardUpdateMs >= 500) {
     lastDashboardUpdateMs = millis();
