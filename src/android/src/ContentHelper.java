@@ -108,6 +108,100 @@ public class ContentHelper {
         }
     }
 
+    public static boolean replacePublicDocumentsFile(Context context, String sourcePath, String relativePath) {
+        if (context == null || sourcePath == null || sourcePath.isEmpty() || relativePath == null || relativePath.isEmpty()) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return false;
+        }
+
+        String normalized = relativePath.replace('\\', '/');
+        int separator = normalized.lastIndexOf('/');
+        String name = separator >= 0 ? normalized.substring(separator + 1) : normalized;
+        String parent = separator >= 0 ? normalized.substring(0, separator) : "";
+        String relativeDirectory = Environment.DIRECTORY_DOCUMENTS + "/QZ/"
+                + (parent.isEmpty() ? "" : parent + "/");
+        ContentResolver resolver = context.getContentResolver();
+        Uri collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+        Uri target = null;
+        List<Uri> duplicates = new ArrayList<>();
+        Cursor cursor = null;
+        try {
+            cursor = resolver.query(
+                    collection,
+                    new String[] {MediaStore.MediaColumns._ID},
+                    MediaStore.MediaColumns.RELATIVE_PATH + "=? AND "
+                            + MediaStore.MediaColumns.DISPLAY_NAME + "=?",
+                    new String[] {relativeDirectory, name},
+                    MediaStore.MediaColumns._ID + " ASC");
+            if (cursor != null) {
+                int idIndex = cursor.getColumnIndex(MediaStore.MediaColumns._ID);
+                while (idIndex >= 0 && cursor.moveToNext()) {
+                    Uri uri = ContentUris.withAppendedId(collection, cursor.getLong(idIndex));
+                    if (target == null) {
+                        target = uri;
+                    } else {
+                        duplicates.add(uri);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            QLog.d("ContentHelper", "replacePublicDocumentsFile query failed " + e);
+            return false;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        try (FileInputStream input = new FileInputStream(sourcePath)) {
+            if (target == null) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+                values.put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream");
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, relativeDirectory);
+                values.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                target = resolver.insert(collection, values);
+                if (target == null) {
+                    return false;
+                }
+            } else {
+                ContentValues pending = new ContentValues();
+                pending.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                resolver.update(target, pending, null, null);
+            }
+
+            try (OutputStream output = resolver.openOutputStream(target, "wt")) {
+                if (output == null) {
+                    return false;
+                }
+                byte[] buffer = new byte[64 * 1024];
+                int count;
+                while ((count = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, count);
+                }
+            }
+
+            ContentValues ready = new ContentValues();
+            ready.put(MediaStore.MediaColumns.IS_PENDING, 0);
+            resolver.update(target, ready, null, null);
+            for (Uri duplicate : duplicates) {
+                resolver.delete(duplicate, null, null);
+            }
+            return true;
+        } catch (Exception e) {
+            if (target != null) {
+                try {
+                    resolver.delete(target, null, null);
+                } catch (Exception ignored) {
+                }
+            }
+            Log.e("ContentHelper", "replacePublicDocumentsFile failed", e);
+            return false;
+        }
+    }
+
     /**
      * Enumerate profile files stored in the public Documents/QZ directory.
      *
