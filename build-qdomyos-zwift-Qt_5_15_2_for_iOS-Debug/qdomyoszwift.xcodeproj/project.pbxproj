@@ -264,6 +264,9 @@
 		873CD22427EF8E18000131BC /* inappproductqmltype.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873CD22127EF8E18000131BC /* inappproductqmltype.cpp */; };
 		873CD22C27EF8E4B000131BC /* iosinapppurchasebackend.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873CD22827EF8E4B000131BC /* iosinapppurchasebackend.mm */; };
 		873CD22D27EF8E4B000131BC /* iosinapppurchaseproduct.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873CD22927EF8E4B000131BC /* iosinapppurchaseproduct.mm */; };
+		A5C0A00127EF8E4B000131BC /* moc_iosinapppurchasebackend.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917E27EE5FE7002535E1 /* moc_iosinapppurchasebackend.cpp */; };
+		A5C0A00227EF8E4B000131BC /* moc_iosinapppurchaseproduct.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917927EE5FE7002535E1 /* moc_iosinapppurchaseproduct.cpp */; };
+		A5C0A00327EF8E4B000131BC /* moc_iosinapppurchasetransaction.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917A27EE5FE7002535E1 /* moc_iosinapppurchasetransaction.cpp */; };
 		873CD22F27EF8EC1000131BC /* StoreKit.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 873CD22E27EF8EC1000131BC /* StoreKit.framework */; };
 		873CD23027EF8EF5000131BC /* iosinapppurchasetransaction.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873CD22727EF8E4B000131BC /* iosinapppurchasetransaction.mm */; };
 		873D388B29B0D745006A2611 /* ConnectIQ.xcframework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 873D388A29B0D744006A2611 /* ConnectIQ.xcframework */; };
@@ -1785,7 +1788,7 @@
 		87EB917B27EE5FE7002535E1 /* moc_inapppurchasebackend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inapppurchasebackend.cpp; sourceTree = "<group>"; };
 		87EB917C27EE5FE7002535E1 /* moc_nautilusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_nautilusbike.cpp; sourceTree = "<group>"; };
 		87EB917D27EE5FE7002535E1 /* moc_inappstoreqmltype.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inappstoreqmltype.cpp; sourceTree = "<group>"; };
-		87EB917E27EE5FE7002535E1 /* moc_iosinapppurchasebackend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_iosinapppurchasebackend.cpp; sourceTree = "<group>"; };
+		87EB917E27EE5FE7002535E1 /* moc_iosinapppurchasebackend.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = moc_iosinapppurchasebackend.cpp; sourceTree = "<group>"; };
 		87EB917F27EE5FE7002535E1 /* qdomyoszwift_qmltyperegistrations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = qdomyoszwift_qmltyperegistrations.cpp; sourceTree = "<group>"; };
 		87EB918027EE5FE7002535E1 /* moc_inappproductqmltype.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inappproductqmltype.cpp; sourceTree = "<group>"; };
 		87EB918127EE5FE7002535E1 /* moc_inappproduct.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inappproduct.cpp; sourceTree = "<group>"; };
@@ -3894,6 +3897,7 @@
 				E858A5D7A16BAF2837B51B61 /* fit.cpp in Compile Sources */,
 				874823FE2B935ADA006F3CA1 /* moc_ergtable.cpp in Compile Sources */,
 				873CD22C27EF8E4B000131BC /* iosinapppurchasebackend.mm in Compile Sources */,
+				A5C0A00127EF8E4B000131BC /* moc_iosinapppurchasebackend.cpp in Compile Sources */,
 				873824EC27E647A8004F1B46 /* abstractserver.cpp in Compile Sources */,
 				87DF68BD25E2675100FCDA46 /* moc_eslinkertreadmill.cpp in Compile Sources */,
 				87646C2027B5064600F82131 /* bhfitnesselliptical.cpp in Compile Sources */,
@@ -4159,6 +4163,7 @@
 				8768D1FD2850820B00F58E3A /* moc_nordictrackifitadbtreadmill.cpp in Compile Sources */,
 				87D5DC402823047D008CCDE7 /* truetreadmill.cpp in Compile Sources */,
 				873CD23027EF8EF5000131BC /* iosinapppurchasetransaction.mm in Compile Sources */,
+				A5C0A00327EF8E4B000131BC /* moc_iosinapppurchasetransaction.cpp in Compile Sources */,
 				6943DA124B60175E1F9EBD1B /* virtualbike.cpp in Compile Sources */,
 				8719FEDF280AA0330099159F /* characteristicnotifier2acc.cpp in Compile Sources */,
 				8780D947264FB8AC00192D41 /* smartspin2k.cpp in Compile Sources */,
@@ -4180,6 +4185,7 @@
 				614192CB787D12C3E98ADE55 /* lockscreen.mm in Compile Sources */,
 				87A0C4BB262329A600121A76 /* npecablebike.cpp in Compile Sources */,
 				873CD22D27EF8E4B000131BC /* iosinapppurchaseproduct.mm in Compile Sources */,
+				A5C0A00227EF8E4B000131BC /* moc_iosinapppurchaseproduct.cpp in Compile Sources */,
 				873CD20727EF8D8A000131BC /* inappproduct.cpp in Compile Sources */,
 				872088EB2CE6543C008C2C17 /* moc_mqttpublisher.cpp in Compile Sources */,
 				872088EC2CE6543C008C2C17 /* moc_qmqttclient.cpp in Compile Sources */,
