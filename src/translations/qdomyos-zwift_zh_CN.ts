@@ -1539,6 +1539,10 @@ Do you want to update QZ settings?</source>
         <translation>最高速度</translation>
     </message>
     <message>
+        <source>Max Incline</source>
+        <translation>最大坡度</translation>
+    </message>
+    <message>
         <source>Max Resistance</source>
         <translation>最大阻力</translation>
     </message>
@@ -6029,7 +6033,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZ 控制您的跑步机或自行车，帮助您保持在设定的心率区间内。请开启此项，设置目标心率区间，然后点击确定。例如，输入 2 即可在心率区间 2 训练，跑步机将自动调整速度（或自行车阻力），以使您的心率保持在区间 2。QZ 会每 40 秒以小增量逐渐增加或减少您的速度（或自行车阻力），从而达到并维持目标心率区间。在锻炼过程中，您可以使用“保持心率区间”卡片上的“+”和“-”按钮更改目标心率区间。</translation>
+        <translation type="vanished">QZ 控制您的跑步机或自行车，帮助您保持在设定的心率区间内。请开启此项，设置目标心率区间，然后点击确定。例如，输入 2 即可在心率区间 2 训练，跑步机将自动调整速度（或自行车阻力），以使您的心率保持在区间 2。QZ 会每 40 秒以小增量逐渐增加或减少您的速度（或自行车阻力），从而达到并维持目标心率区间。在锻炼过程中，您可以使用“保持心率区间”卡片上的“+”和“-”按钮更改目标心率区间。</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -7747,6 +7751,14 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>开启“%1”后才能更改此设置</translation>
+    </message>
+    <message>
+        <source>PID HR actuator:</source>
+        <translation>保持心率区间调节项：</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ 控制您的跑步机或自行车，帮助您保持在设定的心率区间内。全局设置“保持心率区间调节项”为跑步机选择速度或坡度；训练中的单个间歇可以在训练编辑器中覆盖此设置。“保持心率区间”卡片只更改目标心率区间。</translation>
     </message>
     <message>
         <source>Pafers Rower</source>

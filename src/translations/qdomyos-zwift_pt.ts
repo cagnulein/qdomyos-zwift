@@ -1539,6 +1539,10 @@ Deseja atualizar as configurações do QZ?</translation>
         <translation>Velocidade máxima</translation>
     </message>
     <message>
+        <source>Max Incline</source>
+        <translation>Inclinação máxima</translation>
+    </message>
+    <message>
         <source>Max Resistance</source>
         <translation>Resistência máxima</translation>
     </message>
@@ -6013,7 +6017,7 @@ Insira-o abaixo:</translation>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>O QZ controla sua esteira ou bicicleta para mantê-lo dentro de uma Zona de Frequência Cardíaca escolhida. Ligue, defina uma zona alvo de frequência cardíaca (FC) para treinar e clique em OK. Por exemplo, insira 2 para treinar na zona FC 2 e a esteira ajustará automaticamente a velocidade (ou resistência na bicicleta) para manter sua frequência cardíaca na zona 2. O QZ aumenta ou diminui gradualmente sua velocidade (ou resistência da bicicleta) em pequenos incrementos a cada 40 segundos para atingir e manter sua zona alvo de FC. Durante o treino, você pode exibir e usar os botões ‘+’ e ‘-’ no bloco Zona de FC alvo para alterar a zona alvo de FC.</translation>
+        <translation type="vanished">O QZ controla sua esteira ou bicicleta para mantê-lo dentro de uma Zona de Frequência Cardíaca escolhida. Ligue, defina uma zona alvo de frequência cardíaca (FC) para treinar e clique em OK. Por exemplo, insira 2 para treinar na zona FC 2 e a esteira ajustará automaticamente a velocidade (ou resistência na bicicleta) para manter sua frequência cardíaca na zona 2. O QZ aumenta ou diminui gradualmente sua velocidade (ou resistência da bicicleta) em pequenos incrementos a cada 40 segundos para atingir e manter sua zona alvo de FC. Durante o treino, você pode exibir e usar os botões ‘+’ e ‘-’ no bloco Zona de FC alvo para alterar a zona alvo de FC.</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -7711,6 +7715,14 @@ Padrão: A = -0.96, B = 1.33</translation>
     <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Ative “%1” para alterar esta configuração</translation>
+    </message>
+    <message>
+        <source>PID HR actuator:</source>
+        <translation>Manter FC por meio de:</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>O QZ controla sua esteira ou bicicleta para mantê-lo dentro de uma zona de frequência cardíaca escolhida. A configuração geral &quot;Manter FC por meio de&quot; escolhe velocidade ou inclinação nas esteiras; um intervalo do treino pode substituí-la no Editor de treino. O bloco &quot;Zona de FC alvo&quot; altera apenas a zona de FC alvo.</translation>
     </message>
     <message>
         <source>Pafers Rower</source>
