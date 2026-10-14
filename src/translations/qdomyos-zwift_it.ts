@@ -6645,6 +6645,10 @@ NOTE IMPORTANTI:
         <translation>PID FC – attuatore:</translation>
     </message>
     <message>
+        <source>Speed</source>
+        <translation>Velocità</translation>
+    </message>
+    <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
         <translation>QZ controlla il tuo tapis roulant o la tua bici per mantenerti in una zona FC scelta. L&apos;impostazione generale &quot;PID FC – attuatore&quot; sceglie velocità o inclinazione per i tapis roulant; un intervallo dell&apos;allenamento può sostituirla nell&apos;Editor di allenamento. La piastrella &quot;PID Zona FC&quot; cambia solo la zona FC target.</translation>
     </message>

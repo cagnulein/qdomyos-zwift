@@ -9770,9 +9770,11 @@ import AndroidStatusBar 1.0
                             text: qsTr("PID HR actuator:")
                             Layout.fillWidth: true
                         }
-                        ComboBox {
+                        ValueComboBox {
                             id: treadmillPidHRControlTextField
                             model: [ "Speed", "Inclination" ]
+                            labels: ({ "Speed": qsTr("Speed"), "Inclination": qsTr("Inclination") })
+                            value: settings.treadmill_pid_heart_control
                             currentIndex: settings.treadmill_pid_heart_control === "Inclination" ? 1 : 0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -9781,7 +9783,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
-                                settings.treadmill_pid_heart_control = treadmillPidHRControlTextField.currentText;
+                                settings.treadmill_pid_heart_control = treadmillPidHRControlTextField.value;
                                 toast.show(qsTr("Setting saved!"));
                             }
                         }

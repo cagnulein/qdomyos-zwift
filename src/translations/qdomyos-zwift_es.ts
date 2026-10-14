@@ -6349,6 +6349,10 @@ Por favor, ingrésalo a continuación:</translation>
         <translation>Inclinación</translation>
     </message>
     <message>
+        <source>Speed</source>
+        <translation>Velocidad</translation>
+    </message>
+    <message>
         <source>Echelon Options</source>
         <translation>Opciones de Echelon</translation>
     </message>

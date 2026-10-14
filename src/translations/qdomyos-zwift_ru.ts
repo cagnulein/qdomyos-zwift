@@ -6341,6 +6341,10 @@ Please enter it below:</source>
         <translation>Наклон</translation>
     </message>
     <message>
+        <source>Speed</source>
+        <translation>Скорость</translation>
+    </message>
+    <message>
         <source>Echelon Options</source>
         <translation>Параметры Echelon</translation>
     </message>
