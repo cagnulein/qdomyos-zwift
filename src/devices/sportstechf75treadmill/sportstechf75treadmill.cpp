@@ -315,12 +315,17 @@ void sportstechf75treadmill::update() {
 
     const int requestedSpeed = qBound(0, qRound(lastRequestedSpeed().value()), 25);
     const int requestedIncline = qBound(0, qRound(lastRequestedInclination().value()), 25);
+    // The vendor app starts the belt with a non-zero target speed.  QZ can
+    // otherwise reach Start with a zero target, which produces an A2 start
+    // frame that leaves the controller stopped.  Keep the minimum only for
+    // the active command path; a later user speed request replaces it.
+    const int commandSpeed = qMax(1, requestedSpeed);
 
     if (requestStart != -1) {
-        sendCommand(kCommandStart, requestedIncline, requestedSpeed);
-        sendRunningCommand(requestedSpeed, requestedIncline);
+        sendCommand(kCommandStart, requestedIncline, commandSpeed);
+        sendRunningCommand(commandSpeed, requestedIncline);
         requestStart = -1;
-        lastCommandSpeed = requestedSpeed;
+        lastCommandSpeed = commandSpeed;
         lastCommandIncline = requestedIncline;
         commandActive = true;
         runningCommandTicks = 0;
@@ -336,11 +341,11 @@ void sportstechf75treadmill::update() {
         lastCommandIncline = -100;
     }
 
-    if (commandActive && (requestedSpeed != lastCommandSpeed || requestedIncline != lastCommandIncline)) {
-        sendCommand(kCommandRun, requestedIncline, requestedSpeed);
-        sendRunningCommand(requestedSpeed, requestedIncline);
+    if (commandActive && (commandSpeed != lastCommandSpeed || requestedIncline != lastCommandIncline)) {
+        sendCommand(kCommandRun, requestedIncline, commandSpeed);
+        sendRunningCommand(commandSpeed, requestedIncline);
         runningCommandTicks = 0;
-        lastCommandSpeed = requestedSpeed;
+        lastCommandSpeed = commandSpeed;
         lastCommandIncline = requestedIncline;
     }
 
@@ -348,7 +353,7 @@ void sportstechf75treadmill::update() {
     // 200 ms.  Without this keep-alive the console accepts the start frame but
     // remains stopped, even though RX telemetry is present.
     if (commandActive && ++runningCommandTicks >= 2) {
-        sendRunningCommand(requestedSpeed, requestedIncline);
+        sendRunningCommand(commandSpeed, requestedIncline);
         runningCommandTicks = 0;
     }
 }
