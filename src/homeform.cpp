@@ -1529,13 +1529,15 @@ void homeform::removeOldWorkoutImages() {
             .entryInfoList(QStringList() << QStringLiteral("*.jpg") << QStringLiteral("*.png"), QDir::Files);
     int removed = 0;
     for (const QFileInfo &f : list) {
-        if (isQzWorkoutImageName(f.fileName()) && f.lastModified() < limit && QFile::remove(f.filePath())) {
+        if (!isQzWorkoutImageName(f.fileName()) || f.lastModified() >= limit)
+            continue;
+        if (QFile::remove(f.filePath()))
             removed++;
-        }
+        else
+            // e.g. Android 11+: files left by a previous installation can't be removed by the new one
+            qDebug() << "cannot remove old workout image" << f.fileName();
     }
-    if (removed) {
-        qDebug() << "removed old workout images" << removed;
-    }
+    qDebug() << "removed old workout images" << removed << "of" << list.length() << "images";
 }
 
 void homeform::keyMediaPrevious() {
