@@ -873,6 +873,7 @@ const QString QZSettings::tile_erg_mode_enabled = QStringLiteral("tile_erg_mode_
 const QString QZSettings::tile_erg_mode_order = QStringLiteral("tile_erg_mode_order");
 const QString QZSettings::toorx_srx_3500 = QStringLiteral("toorx_srx_3500");
 const QString QZSettings::stryd_speed_instead_treadmill = QStringLiteral("stryd_speed_instead_treadmill");
+const QString QZSettings::treadmill_runn_closed_loop = QStringLiteral("treadmill_runn_closed_loop");
 const QString QZSettings::inclination_delay_seconds = QStringLiteral("inclination_delay_seconds");
 const QString QZSettings::ergDataPoints = QStringLiteral("ergDataPoints");
 const QString QZSettings::default_ergDataPoints = QStringLiteral("");
@@ -931,6 +932,7 @@ const QString QZSettings::default_peloton_expires = QStringLiteral("");
 const QString QZSettings::peloton_code = QStringLiteral("peloton_code");
 const QString QZSettings::default_peloton_code = QStringLiteral("");
 const QString QZSettings::proform_carbon_tl_PFTL59720 = QStringLiteral("proform_carbon_tl_PFTL59720");
+const QString QZSettings::freemotion_t10_9b_hci = QStringLiteral("freemotion_t10_9b_hci");
 const QString QZSettings::proform_treadmill_sport_70 = QStringLiteral("proform_treadmill_sport_70");
 const QString QZSettings::peloton_date_format = QStringLiteral("peloton_date_format");
 const QString QZSettings::default_peloton_date_format = QStringLiteral("MM/dd/yy");
@@ -1146,6 +1148,7 @@ const QString QZSettings::taurua_ic90 = QStringLiteral("taurua_ic90");
 const QString QZSettings::proform_csx210 = QStringLiteral("proform_csx210");
 const QString QZSettings::nordictrack_vr21 = QStringLiteral("nordictrack_vr21");
 const QString QZSettings::proform_bike_325_csx_PFEX439210INT_0 = QStringLiteral("proform_bike_325_csx_PFEX439210INT_0");
+const QString QZSettings::nordictrack_gx_le = QStringLiteral("nordictrack_gx_le");
 const QString QZSettings::skandika_wiri_x2000_protocol = QStringLiteral("skandika_wiri_x2000_protocol");
 const QString QZSettings::trainprogram_auto_lap_on_segment = QStringLiteral("trainprogram_auto_lap_on_segment");
 const QString QZSettings::kingsmith_r2_enable_hw_buttons = QStringLiteral("kingsmith_r2_enable_hw_buttons");
@@ -1155,6 +1158,7 @@ const QString QZSettings::proform_carbon_tlx_v84_314_treadmill = QStringLiteral(
 const QString QZSettings::proform_carbon_tl_PFTL59723_6 = QStringLiteral("proform_carbon_tl_PFTL59723_6");
 const QString QZSettings::proform_treadmill_cst_505_pftl59420_0 = QStringLiteral("proform_treadmill_cst_505_pftl59420_0");
 const QString QZSettings::proform_treadmill_105_cst = QStringLiteral("proform_treadmill_105_cst");
+const QString QZSettings::proform_treadmill_305_cst = QStringLiteral("proform_treadmill_305_cst");
 const QString QZSettings::applewatch_as_treadmill_speed = QStringLiteral("applewatch_as_treadmill_speed");
 const QString QZSettings::horizon_treadmill_omega_z = QStringLiteral("horizon_treadmill_omega_z");
 const QString QZSettings::nordictrack_elliptical_s700 = QStringLiteral("nordictrack_elliptical_s700");
@@ -1325,7 +1329,7 @@ const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral
 const QString QZSettings::android_notification_prompt_disabled = QStringLiteral("android_notification_prompt_disabled");
 const QString QZSettings::android_notification_v2 = QStringLiteral("android_notification_v2");
 
-const uint32_t allSettingsCount = 1022;
+const uint32_t allSettingsCount = 1026;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2030,6 +2034,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_erg_mode_order, QZSettings::default_tile_erg_mode_order},
     {QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500},
     {QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill},
+    {QZSettings::treadmill_runn_closed_loop, QZSettings::default_treadmill_runn_closed_loop},
     {QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds},
     {QZSettings::ergDataPoints, QZSettings::default_ergDataPoints},
     {QZSettings::proform_carbon_tl, QZSettings::default_proform_carbon_tl},
@@ -2079,6 +2084,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_expires, QZSettings::default_peloton_expires},
     {QZSettings::peloton_code, QZSettings::default_peloton_code},
     {QZSettings::proform_carbon_tl_PFTL59720, QZSettings::default_proform_carbon_tl_PFTL59720},
+    {QZSettings::freemotion_t10_9b_hci, QZSettings::default_freemotion_t10_9b_hci},
     {QZSettings::proform_treadmill_sport_70, QZSettings::default_proform_treadmill_sport_70},
     {QZSettings::peloton_date_format, QZSettings::default_peloton_date_format},
     {QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination},
@@ -2255,6 +2261,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::taurua_ic90, QZSettings::default_taurua_ic90},
     {QZSettings::proform_csx210, QZSettings::default_proform_csx210},
     {QZSettings::proform_bike_325_csx_PFEX439210INT_0, QZSettings::default_proform_bike_325_csx_PFEX439210INT_0},
+    {QZSettings::nordictrack_gx_le, QZSettings::default_nordictrack_gx_le},
     {QZSettings::skandika_wiri_x2000_protocol, QZSettings::default_skandika_wiri_x2000_protocol},
     {QZSettings::trainprogram_auto_lap_on_segment, QZSettings::default_trainprogram_auto_lap_on_segment},
     {QZSettings::kingsmith_r2_enable_hw_buttons, QZSettings::default_kingsmith_r2_enable_hw_buttons},
@@ -2350,6 +2357,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_carbon_tl_PFTL59723_6, QZSettings::default_proform_carbon_tl_PFTL59723_6},
     {QZSettings::proform_treadmill_cst_505_pftl59420_0, QZSettings::default_proform_treadmill_cst_505_pftl59420_0},
     {QZSettings::proform_treadmill_105_cst, QZSettings::default_proform_treadmill_105_cst},
+    {QZSettings::proform_treadmill_305_cst, QZSettings::default_proform_treadmill_305_cst},
     {QZSettings::applewatch_as_treadmill_speed, QZSettings::default_applewatch_as_treadmill_speed},
     {QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z},
     {QZSettings::nordictrack_elliptical_s700, QZSettings::default_nordictrack_elliptical_s700},

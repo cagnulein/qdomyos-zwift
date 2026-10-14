@@ -22,3 +22,41 @@
 - Built-in fitness-machine consoles can differ substantially from normal phones/tablets even when both run Android, so identifying where QZ is installed is important before changing QZ settings.
 - The exact failure point helps distinguish an Android permission/restart problem from Bluetooth discovery or machine-protocol problems.
 - A QZ debug log may end before an application crash is explained; an Android bug/crash report can provide the platform-level reason for the exit.
+
+## Android refuses to install a QZ test APK
+
+### Provide first
+
+- Device model and Android version.
+- Installed QZ version and the source of both the installed version and the attempted test APK.
+- Exact installer error text or screenshot, and available storage.
+
+### If still unclear
+
+- Back up QZ settings before considering uninstalling a working installation.
+- If ADB is available, collect the Android package manager's full install error code with the same APK.
+
+### Why it matters
+
+- Package installation errors occur before QZ starts and cannot be explained by QZ runtime logs.
+- Build source and installer error help distinguish signing, compatibility, and storage problems.
+
+## QZ runs on an embedded Android treadmill console but receives no telemetry
+
+### Provide first
+
+- Exact treadmill and console model, Android version, QZ build, and whether QZ is installed directly on the console.
+- State whether the console itself displays changing speed or incline while QZ remains at zero; distinguish physical treadmill buttons from QZ buttons.
+- Confirm whether the manufacturer's dashboard or an overlay remains running when QZ starts, and whether QZ is expected to use a serial/UART connection rather than Bluetooth.
+
+### If still unclear
+
+- Run a short controlled test with QZ in the foreground and the manufacturer application stopped, where safe and supported; note if the manufacturer overlay reappears after pressing Start.
+- Share the relevant QZ machine-specific setting and a debug log covering startup plus a single speed or incline change.
+- If ADB access is available, report whether the manufacturer app/service restarts or continues to hold the serial port. Do not disable safety controls or permanently remove system packages.
+
+### Why it matters
+
+- A proprietary console may show live values through its own application while QZ cannot read the shared serial interface.
+- Physical controls, QZ commands, and telemetry are separate paths; testing them independently avoids mistaking a port-ownership conflict for an external training-app problem.
+- A startup log and the manufacturer's app state distinguish serial access contention from missing decoding or control support.

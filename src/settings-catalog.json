@@ -2,7 +2,7 @@
   "$schema": "https://qdomyos-zwift.local/settings-catalog.schema.json",
   "schemaVersion": 1,
   "format": "qdomyos-zwift-settings-catalog",
-  "settingCount": 1018,
+  "settingCount": 1022,
   "pages": [
     {
       "key": "page_custom_gear_table",
@@ -175,6 +175,10 @@
         {
           "label": "NordicTrack VR21",
           "sets": "nordictrack_vr21"
+        },
+        {
+          "label": "NordicTrack GX LE",
+          "sets": "nordictrack_gx_le"
         }
       ],
       "restartRequired": true
@@ -450,6 +454,14 @@
         {
           "label": "ProForm Trainer 8.0 PFTL59721.0",
           "sets": "proform_trainer_8_0_pftl59721_0"
+        },
+        {
+          "label": "ProForm 305 CST PETL59817.0",
+          "sets": "proform_treadmill_305_cst"
+        },
+        {
+          "label": "Freemotion T10.9B (HCI snoop)",
+          "sets": "freemotion_t10_9b_hci"
         }
       ],
       "restartRequired": true
@@ -13360,6 +13372,21 @@
       "restartRequired": true
     },
     {
+      "key": "nordictrack_gx_le",
+      "name": "NordicTrack GX LE",
+      "description": null,
+      "parent": "Proform/Norditrack Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "virtualOption",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "virtualParent": "nordictrack_bike_model",
+      "restartRequired": true
+    },
+    {
       "key": "gymstick_gx6_0_elliptical",
       "name": "Gymstick GX6.0",
       "description": null,
@@ -14664,6 +14691,21 @@
     {
       "key": "proform_treadmill_105_cst",
       "name": "Proform Treadmill 105 Cst",
+      "description": null,
+      "parent": "Proform/Nordictrack Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "virtualOption",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "virtualParent": "nordictrack_treadmill_model",
+      "restartRequired": true
+    },
+    {
+      "key": "proform_treadmill_305_cst",
+      "name": "Proform Treadmill 305 Cst PETL59817.0",
       "description": null,
       "parent": "Proform/Nordictrack Options",
       "type": "boolean",
@@ -16048,7 +16090,7 @@
       "key": "pafers_rower",
       "name": "Pafers Rower",
       "description": null,
-      "parent": "Pafers Options",
+      "parent": "Rower Options",
       "type": "boolean",
       "qmlType": "bool",
       "control": "switch",
@@ -16083,6 +16125,35 @@
       "visible": true,
       "defaultValue": true,
       "defaultExpression": "true",
+      "options": null,
+      "restartRequired": false
+    },
+    {
+      "key": "freemotion_t10_9b_hci",
+      "name": "Freemotion T10 9B Hci",
+      "description": "Freemotion T10.9B profile matching the captured HCI snoop.",
+      "parent": "Proform/Nordictrack Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "virtualOption",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
+      "options": null,
+      "virtualParent": "nordictrack_treadmill_model",
+      "restartRequired": true
+    },
+    {
+      "key": "treadmill_runn_closed_loop",
+      "name": "Runn/Stryd closed-loop treadmill speed correction",
+      "description": "Gradually correct QZ-controlled treadmill speeds using filtered Runn/Stryd speed on drivers with independent machine telemetry. Requires Use speed from the power sensor. Disabled by default.",
+      "parent": "Power Sensor Options",
+      "type": "boolean",
+      "qmlType": "bool",
+      "control": "switch",
+      "visible": true,
+      "defaultValue": false,
+      "defaultExpression": "false",
       "options": null,
       "restartRequired": false
     }
@@ -16893,6 +16964,7 @@
       "nordictrack_treadmill_x14i": "proformTreadmillAccordion",
       "nordictrack_tseries5_treadmill": "proformTreadmillAccordion",
       "nordictrack_vr21": "proformBikeAccordion",
+      "nordictrack_gx_le": "proformBikeAccordion",
       "nordictrack_x22i": "proformTreadmillAccordion",
       "nordictrackadbbike_resistance": "proformBikeAccordion",
       "norditrack_s25_treadmill": "proformTreadmillAccordion",
@@ -16907,7 +16979,7 @@
       "pacef_marathon": "trainingProgramOptionsAccordion",
       "pafers_treadmill": "pafersTreadmillAccordion",
       "pafers_treadmill_bh_iboxster_plus": "pafersTreadmillAccordion",
-      "pafers_rower": "pafersTreadmillAccordion",
+      "pafers_rower": "ftmsRowerTextField",
       "pause_on_start": "generalOptionsAccordion",
       "pause_on_start_treadmill": "treadmillAccordion",
       "peloton_auto_start_with_intro": "pelotonAccordion",
@@ -16957,6 +17029,7 @@
       "proform_bike_sb": "proformBikeAccordion",
       "proform_carbon_tl": "proformTreadmillAccordion",
       "proform_carbon_tl_PFTL59720": "proformTreadmillAccordion",
+      "freemotion_t10_9b_hci": "proformTreadmillAccordion",
       "proform_carbon_tl_PFTL59722c": "proformTreadmillAccordion",
       "proform_carbon_tl_PFTL59723_6": "proformTreadmillAccordion",
       "proform_carbon_tlx_treadmill": "proformTreadmillAccordion",
@@ -16985,6 +17058,7 @@
       "proform_trainer_8_0_pftl59721_0": "proformTreadmillAccordion",
       "proform_trainer_9_0": "proformTreadmillAccordion",
       "proform_treadmill_105_cst": "proformTreadmillAccordion",
+      "proform_treadmill_305_cst": "proformTreadmillAccordion",
       "proform_treadmill_1500_pro": "proformTreadmillAccordion",
       "proform_treadmill_1800i": "proformTreadmillAccordion",
       "proform_treadmill_505_cst": "proformTreadmillAccordion",
@@ -17069,6 +17143,7 @@
       "stryd_add_inclination_gain": "powerSensorOptionsAccordion",
       "stryd_inclination_instead_treadmill": "powerSensorOptionsAccordion",
       "stryd_speed_instead_treadmill": "powerSensorOptionsAccordion",
+      "treadmill_runn_closed_loop": "powerSensorOptionsAccordion",
       "taurua_ic90": "toorxTreadmillAccordion",
       "tdf_10_ip": "proformBikeAccordion",
       "technogym_bike": "technogymBikeAccordion",
@@ -17501,6 +17576,7 @@
       "nordictrack_treadmill_x14i": "settings.qml",
       "nordictrack_tseries5_treadmill": "settings.qml",
       "nordictrack_vr21": "settings.qml",
+      "nordictrack_gx_le": "settings.qml",
       "nordictrack_x22i": "settings.qml",
       "nordictrackadbbike_resistance": "settings.qml",
       "norditrack_s25_treadmill": "settings.qml",
@@ -17575,6 +17651,7 @@
       "proform_bike_sb": "settings.qml",
       "proform_carbon_tl": "settings.qml",
       "proform_carbon_tl_PFTL59720": "settings.qml",
+      "freemotion_t10_9b_hci": "settings.qml",
       "proform_carbon_tl_PFTL59722c": "settings.qml",
       "proform_carbon_tl_PFTL59723_6": "settings.qml",
       "proform_carbon_tlx_treadmill": "settings.qml",
@@ -17603,6 +17680,7 @@
       "proform_trainer_8_0_pftl59721_0": "settings.qml",
       "proform_trainer_9_0": "settings.qml",
       "proform_treadmill_105_cst": "settings.qml",
+      "proform_treadmill_305_cst": "settings.qml",
       "proform_treadmill_1500_pro": "settings.qml",
       "proform_treadmill_1800i": "settings.qml",
       "proform_treadmill_505_cst": "settings.qml",
@@ -17758,6 +17836,7 @@
       "stryd_add_inclination_gain": "settings.qml",
       "stryd_inclination_instead_treadmill": "settings.qml",
       "stryd_speed_instead_treadmill": "settings.qml",
+      "treadmill_runn_closed_loop": "settings.qml",
       "tacx_neo2_peloton": "settings.qml",
       "tacxneo2_disable_negative_inclination": "settings.qml",
       "taurua_ic90": "settings.qml",
@@ -18480,6 +18559,7 @@
       "nordictrack_treadmill_x14i": 11235,
       "nordictrack_tseries5_treadmill": 11250,
       "nordictrack_vr21": 6116,
+      "nordictrack_gx_le": 6117,
       "nordictrack_x22i": 11214,
       "nordictrackadbbike_resistance": 6292,
       "norditrack_s25_treadmill": 11211,
@@ -18543,6 +18623,7 @@
       "proform_bike_sb": 6108,
       "proform_carbon_tl": 11236,
       "proform_carbon_tl_PFTL59720": 11244,
+      "freemotion_t10_9b_hci": 17400,
       "proform_carbon_tl_PFTL59722c": 11251,
       "proform_carbon_tl_PFTL59723_6": 11269,
       "proform_carbon_tlx_treadmill": 11267,
@@ -18571,6 +18652,7 @@
       "proform_trainer_8_0_pftl59721_0": 11275,
       "proform_trainer_9_0": 11265,
       "proform_treadmill_105_cst": 11272,
+      "proform_treadmill_305_cst": 11276,
       "proform_treadmill_1500_pro": 11252,
       "proform_treadmill_1800i": 11228,
       "proform_treadmill_505_cst": 11218,
@@ -18723,6 +18805,7 @@
       "stryd_add_inclination_gain": 14824,
       "stryd_inclination_instead_treadmill": 14770,
       "stryd_speed_instead_treadmill": 14743,
+      "treadmill_runn_closed_loop": 14744,
       "tacx_neo2_peloton": 5979,
       "tacxneo2_disable_negative_inclination": 5993,
       "taurua_ic90": 12624,

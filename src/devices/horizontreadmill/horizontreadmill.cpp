@@ -974,12 +974,20 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         
         if (requestSpeed != -1) {
+            // In Runn closed-loop mode the displayed Speed belongs to the sensor,
+            // not the motor. Check the motor's independent telemetry instead.
+            const bool useMachineSpeed =
+                settings.value(QZSettings::treadmill_runn_closed_loop,
+                               QZSettings::default_treadmill_runn_closed_loop).toBool() &&
+                settings.value(QZSettings::stryd_speed_instead_treadmill,
+                               QZSettings::default_stryd_speed_instead_treadmill).toBool();
+            const double speedForControl = useMachineSpeed ? rawSpeed.value() : currentSpeed().value();
             bool minSpeed =
-                fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
+                fabs(requestSpeed - float_one_point_round(speedForControl)) >= (minStepSpeed() - 0.09);
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
             qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
-                     << float_one_point_round(currentSpeed().value());
-            if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
+                     << float_one_point_round(speedForControl);
+            if (float_one_point_round(requestSpeed) != float_one_point_round(speedForControl) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
                 forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(float_one_point_round(requestSpeed));

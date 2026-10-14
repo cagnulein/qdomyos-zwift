@@ -65,3 +65,23 @@ This physical reference does not need to change when switching between training 
 In QZ's Zwift Play/controller settings, enable **Buttons debouncing** and reconnect the controllers. This option filters repeated button/shift events that can otherwise cause multiple gear changes from a single press. Test with deliberate individual presses before changing other gearing settings.
 
 The setting is implemented in the Zwift Ride/Play controller input handling and covered by controller tests. It is not a fix for an incorrect gear table or for mismatched gear numbers between Zwift and QZ; those are separate settings.
+
+## My lowest virtual gear feels too hard or each shift changes resistance too much. Can I use smaller gear steps?
+
+For QZ's **local virtual gearing**, try reducing **Gears Gain** under **QZ Settings > Bike Options** from **1.0** to **0.2**. Save the setting and test individual gear-up and gear-down presses.
+
+The current code uses Gears Gain to control the step applied to local gear changes. **Custom Gear Table** and **Zwift Gear Ratio** modes instead use whole-gear steps, so the same adjustment does not apply to those modes. Gears Gain does not directly change your physical chainring/cog settings. A support user explicitly confirmed that **0.2** helped with an overly hard low-gear experience.
+
+## Should Zwift Click pair to Zwift or QZ when using "Get Gears from Zwift"?
+
+**Pair Zwift Click directly to Zwift** when Zwift is responsible for virtual shifting and QZ is bridging the trainer. In this configuration, QZ receives gear changes from Zwift; QZ should not also try to take ownership of the same Click/Play controllers.
+
+1. Connect the physical trainer to QZ and confirm that power and cadence update on the QZ dashboard.
+2. Under **QZ Settings > Accessories**, disable **Zwift Click** and **Zwift Play**. Those options are for connecting the controllers directly to QZ.
+3. Under **QZ Settings > Zwift Options**, enable **Get Gears from Zwift**. Restart QZ when prompted.
+4. In Zwift, pair the **QZ virtual trainer** (often shown as **Wahoo KICKR 0000**) as the **Power Source**, **Cadence**, and **Controllable/Resistance** device. Select QZ's forwarded heart-rate source in the Heart Rate field if desired. Do not substitute the physical trainer for just one of the trainer roles, as that bypasses QZ for that role.
+5. Pair **Zwift Click to Zwift itself**, rather than pairing the controller to QZ.
+
+QZ's settings UI explicitly warns that enabling **Get Gears from Zwift** together with QZ's **Zwift Play/Click** controller options can cause conflicts, and offers to disable those options. If using Zwift on **Apple TV** over QZ's Wi-Fi/DIRCON virtual-trainer connection, this setup also leaves the Apple TV's Bluetooth connection available for Zwift Click; see [Apple TV/Wi-Fi bridging](integrations.md).
+
+**This is not the MyWhoosh setup.** For MyWhoosh with QZ/OpenBikeControl, the Click normally connects to QZ and **Get Gears from Zwift** is disabled; see [MyWhoosh](mywhoosh.md). The specific reports of disappearing Click controllers or overly strong resistance in Zwift were still being investigated, so this is code-verified configuration guidance rather than a claimed confirmed fix for those symptoms.

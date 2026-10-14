@@ -203,12 +203,34 @@ HomeForm {
     }
 
     Timer {
+        id: searchStatusTimer
+        // Always running: rootItem.device blinks while no device is connected (it drives the icon),
+        // and bluetoothSearchStatus() is empty once a device is connected
+        interval: 1000; repeat: true; triggeredOnStart: true; running: true
+        onTriggered: searchStatus = rootItem.bluetoothSearchStatus()
+    }
+
+    Timer {
         id: checkStartStopFromWeb
         interval: 200; running: true; repeat: true
         onTriggered: {if(rootItem.stopRequested) {rootItem.stopRequested = false; inner_stop(); }}
     }
 
     property bool locationServiceRequsted: false
+    // Bluetooth and Location as Android reports them now, not only at app start: switched on from
+    // the quick settings, the questions about them go away.
+    // Home.qml is created before homeform sets rootItem: until then assume "on", so the question
+    // doesn't flash at start; setting rootItem re-evaluates the binding with the real value
+    property bool locationServicesOn: typeof rootItem === "undefined" || rootItem.locationServices()
+    // "No" answered: not asked again until the next start
+    property bool locationServicesDeclined: false
+
+    Timer {
+        interval: 2000; repeat: true
+        // only while a question about them is open: devices without GPS never report Location on
+        running: !locationServicesOn && (locationServicesDialog.visible || locationServiceRequsted)
+        onTriggered: locationServicesOn = rootItem.refreshLocationServices()
+    }
 
     MessageDialog {
         id: locationServicesDialog
@@ -219,8 +241,11 @@ HomeForm {
             locationServiceRequsted = true
             rootItem.enableLocationServices()
         }
-        onNoClicked: remindLocationServicesDialog.visible = true
-        visible: !rootItem.locationServices() && !locationServiceRequsted && !settings.skipLocationServicesDialog
+        onNoClicked: {
+            locationServicesDeclined = true
+            remindLocationServicesDialog.visible = true
+        }
+        visible: !locationServicesOn && !locationServiceRequsted && !locationServicesDeclined && !settings.skipLocationServicesDialog
     }
 
     MessageDialog {
@@ -239,7 +264,7 @@ HomeForm {
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
-        visible: locationServiceRequsted
+        visible: locationServiceRequsted && !locationServicesOn
     }
 
     Timer {

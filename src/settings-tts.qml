@@ -98,21 +98,23 @@ ScrollView {
                 text: qsTr("Summary Each Seconds:")
                 Layout.fillWidth: true
             }
-            TextField {
+            SettingsNumberField {
                 id: ttsSummarySecTextField
                 text: settings.tts_summary_sec
+                decimals: 0
+                minimum: 1
                 horizontalAlignment: Text.AlignRight
                 Layout.fillHeight: false
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.tts_summary_sec = text
+                onAccepted: if (valid) settings.tts_summary_sec = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
             Button {
                 id: okTTSSummarySec
                 text: qsTr("OK")
+                enabled: ttsSummarySecTextField.valid
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: { settings.tts_summary_sec = ttsSummarySecTextField.text; toast.show(qsTr("Setting saved!")); }
+                onClicked: { settings.tts_summary_sec = ttsSummarySecTextField.value; toast.show(qsTr("Setting saved!")); }
             }
         }
         SwitchDelegate {
