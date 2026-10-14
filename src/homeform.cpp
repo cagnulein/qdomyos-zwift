@@ -11026,6 +11026,7 @@ void homeform::sendMail() {
     QSettings settings;
 
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    bool weight_kg_unit = settings.value(QZSettings::weight_kg_unit, QZSettings::default_weight_kg_unit).toBool();
     double unit_conversion = 1.0;
     double meter_feet_conversion = 1.0;
     QString meter_feet_unit = tr("meters");
@@ -11046,11 +11047,15 @@ void homeform::sendMail() {
 
     if (miles) {
         unit_conversion = 0.621371; // clang, don't touch it!
-        weightLossUnit = tr("Oz");
         meter_feet_conversion = 3.28084;
         meter_feet_unit = tr("feet");
     }
-    WeightLoss = (miles ? bluetoothManager->device()->weightLoss() * 35.274 : bluetoothManager->device()->weightLoss());
+    // same rule as the Weight Loss tile: ounces only when the weight is not shown in kg
+    if (miles && !weight_kg_unit) {
+        weightLossUnit = tr("Oz");
+    }
+    WeightLoss = ((miles && !weight_kg_unit) ? bluetoothManager->device()->weightLoss() * 35.274
+                                             : bluetoothManager->device()->weightLoss());
 
     // Now we create a MimeMessage object. This will be the email.
 
