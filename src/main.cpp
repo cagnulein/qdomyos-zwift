@@ -42,6 +42,7 @@
 #include <QAccessible>
 #include <QAndroidJniObject>
 #include <QKeyEvent>
+#include <QPointer>
 #include <QQuickItem>
 #include <QtAndroid>
 #include <jni.h>
@@ -616,38 +617,35 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeScrollToAccessibleObject(J
 }
 
 // CustomQtActivity: TalkBack's double tap on this accessible object (Android UI thread). Qt 5.15
-// does nothing for a Button there and turns a switch without its clicked(), so a button gets the
-// space key a keyboard presses it with (nextCheckState() with exclusive groups, clicked(), its
-// Action), on the Qt thread; anything else gets Qt's own press (Accessible.onPressAction).
-extern "C" JNIEXPORT void JNICALL
+// does nothing for a button there (QQuickAbstractButton has no accessible press yet) and answers
+// false, after which TalkBack taps the middle of the node: that misses the indicator of a switch
+// with a MouseArea over it (IndicatorOnlySwitch) and may hit something else on a moved page. A
+// button gets the space key a keyboard presses it with instead (nextCheckState() with exclusive
+// groups, clicked(), its Action), on the Qt thread, and true is answered. For anything else false
+// is answered and Qt's own press runs, as before. The object is looked at on this thread, as Qt's
+// own accessibility calls of 5.15 do.
+extern "C" JNIEXPORT jboolean JNICALL
 Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *env, jclass clazz, jint id) {
     Q_UNUSED(env)
     Q_UNUSED(clazz)
     if (!QCoreApplication::instance())
-        return;
+        return false;
+    QAccessibleInterface *iface = QAccessible::accessibleInterface(QAccessible::Id(id));
+    if (!iface || !iface->isValid() || !iface->object() || !iface->object()->inherits("QQuickAbstractButton"))
+        return false;
+    QPointer<QObject> button = iface->object();
     QMetaObject::invokeMethod(
         QCoreApplication::instance(),
-        [id] {
-            QAccessibleInterface *iface = QAccessible::accessibleInterface(QAccessible::Id(id));
-            if (!iface || !iface->isValid() || !iface->object())
+        [button] {
+            if (!button || !button->property("enabled").toBool())
                 return;
-            QObject *object = iface->object();
-            if (object->inherits("QQuickAbstractButton")) {
-                if (!object->property("enabled").toBool())
-                    return;
-                QKeyEvent press(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
-                QKeyEvent release(QEvent::KeyRelease, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
-                QCoreApplication::sendEvent(object, &press);
-                QCoreApplication::sendEvent(object, &release);
-            } else if (QAccessibleActionInterface *actions = iface->actionInterface()) {
-                const QStringList names = actions->actionNames();
-                if (names.contains(QAccessibleActionInterface::pressAction()))
-                    actions->doAction(QAccessibleActionInterface::pressAction());
-                else if (names.contains(QAccessibleActionInterface::toggleAction()))
-                    actions->doAction(QAccessibleActionInterface::toggleAction());
-            }
+            QKeyEvent press(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
+            QKeyEvent release(QEvent::KeyRelease, Qt::Key_Space, Qt::NoModifier, QStringLiteral(" "));
+            QCoreApplication::sendEvent(button, &press);
+            QCoreApplication::sendEvent(button, &release);
         },
         Qt::QueuedConnection);
+    return true;
 }
 #endif
 

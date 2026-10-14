@@ -54,8 +54,8 @@ public class CustomQtActivity extends QtActivity {
     private static native void nativeOnFitImportStarted();
     // TalkBack put its focus on this accessible object: scroll it into view
     private static native void nativeScrollToAccessibleObject(int id);
-    // TalkBack's double tap on this accessible object: press it on the Qt thread
-    private static native void nativeAccessibleClick(int id);
+    // TalkBack's double tap on this accessible object: true when it is a button Qt presses
+    private static native boolean nativeAccessibleClick(int id);
 
     private void dispatchOAuthCallback(Intent intent) {
         if (intent == null) {
@@ -232,10 +232,10 @@ public class CustomQtActivity extends QtActivity {
     // stops on an item below the screen, its frame is drawn off screen and a double tap misses it.
     // On such a focus Qt is asked to scroll the item into view (nativeScrollToAccessibleObject),
     // and once it did, accessibilityTreeChanged() lets TalkBack read the new positions.
-    // A double tap is pressed by nativeAccessibleClick: Qt 5.15 does nothing for a Button and
-    // answers false, which a screen reader may follow with a tap of its own, so a press could
-    // also run twice. TalkBack gets true, a clicked event (it reads a new switch state from it)
-    // and a tree refresh for what the press opened or added.
+    // A double tap on a button is pressed by nativeAccessibleClick (Qt 5.15 does nothing for a
+    // button and answers false, after which TalkBack taps the middle of the node). TalkBack gets
+    // true, a clicked event (it reads a new switch state from it) and a tree refresh for what the
+    // press opened or added. Anything else goes to Qt, as before.
     // A value control of Qt (a spin box, a slider: an item with scroll actions and no children)
     // is a View to TalkBack, which lets only a seek bar change its value with a swipe up or down;
     // it is called one, the swipe sends the scroll actions Qt handles, and the new name, which
@@ -272,17 +272,13 @@ public class CustomQtActivity extends QtActivity {
         @Override
         public boolean performAction(int virtualViewId, int action, Bundle arguments) {
             if (action == AccessibilityNodeInfo.ACTION_CLICK && virtualViewId != View.NO_ID) {
-                AccessibilityNodeInfo node = qt.createAccessibilityNodeInfo(virtualViewId);
-                boolean pressable = node != null && (node.isClickable() || node.isCheckable());
-                if (node != null) {
-                    node.recycle();
+                boolean pressed;
+                try {
+                    pressed = nativeAccessibleClick(virtualViewId);
+                } catch (UnsatisfiedLinkError e) {
+                    pressed = false;
                 }
-                if (pressable) {
-                    try {
-                        nativeAccessibleClick(virtualViewId);
-                    } catch (UnsatisfiedLinkError e) {
-                        return qt.performAction(virtualViewId, action, arguments);
-                    }
+                if (pressed) {
                     afterClick(virtualViewId);
                     return true;
                 }
