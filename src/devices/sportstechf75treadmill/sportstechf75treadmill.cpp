@@ -140,6 +140,37 @@ void sportstechf75treadmill::sendStartupCommand() {
 #endif
 }
 
+QByteArray sportstechf75treadmill::runningFrame(int speed, int incline) const {
+    // The vendor sends this 0x60 running-parameter frame continuously while
+    // active.  The first three values are workout counters; zero is safe for
+    // the control path and keeps this profile independent of QZ's statistics.
+    // Frame: FB 60 time[2] distance[2] calories[2] speed incline checksum FC.
+    QByteArray frame(12, static_cast<char>(0));
+    frame[0] = static_cast<char>(kFrameStart);
+    frame[1] = static_cast<char>(0x60);
+    frame[8] = static_cast<char>(qBound(0, speed, 255));
+    frame[9] = static_cast<char>(qBound(0, incline, 255));
+
+    int checksum = 0;
+    for (int i = 1; i <= 9; ++i) {
+        checksum += static_cast<uint8_t>(frame.at(i));
+    }
+    frame[10] = static_cast<char>(checksum & 0xFF);
+    frame[11] = static_cast<char>(kFrameEnd);
+    return frame;
+}
+
+void sportstechf75treadmill::sendRunningCommand(int speed, int incline) {
+#ifdef Q_OS_ANDROID
+    if (serialAvailable()) {
+        sendFrame(runningFrame(speed, incline));
+    }
+#else
+    Q_UNUSED(speed);
+    Q_UNUSED(incline);
+#endif
+}
+
 QByteArray sportstechf75treadmill::commandFrame(int command, int data1, int data2) const {
     // This is the exact six-byte frame built by the APK's SerialPort class:
     // FB command data1 data2 checksum FC, checksum over command..data2.
@@ -287,10 +318,12 @@ void sportstechf75treadmill::update() {
 
     if (requestStart != -1) {
         sendCommand(kCommandStart, requestedIncline, requestedSpeed);
+        sendRunningCommand(requestedSpeed, requestedIncline);
         requestStart = -1;
         lastCommandSpeed = requestedSpeed;
         lastCommandIncline = requestedIncline;
         commandActive = true;
+        runningCommandTicks = 0;
         emit tapeStarted();
     }
 
@@ -298,13 +331,24 @@ void sportstechf75treadmill::update() {
         sendCommand(kCommandStop, 0, 0);
         requestStop = -1;
         commandActive = false;
+        runningCommandTicks = 0;
         lastCommandSpeed = -1;
         lastCommandIncline = -100;
     }
 
     if (commandActive && (requestedSpeed != lastCommandSpeed || requestedIncline != lastCommandIncline)) {
         sendCommand(kCommandRun, requestedIncline, requestedSpeed);
+        sendRunningCommand(requestedSpeed, requestedIncline);
+        runningCommandTicks = 0;
         lastCommandSpeed = requestedSpeed;
         lastCommandIncline = requestedIncline;
+    }
+
+    // The vendor M100msThread repeats SendRunningParamter approximately every
+    // 200 ms.  Without this keep-alive the console accepts the start frame but
+    // remains stopped, even though RX telemetry is present.
+    if (commandActive && ++runningCommandTicks >= 2) {
+        sendRunningCommand(requestedSpeed, requestedIncline);
+        runningCommandTicks = 0;
     }
 }
