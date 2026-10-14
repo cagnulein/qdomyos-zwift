@@ -332,6 +332,16 @@ ScrollView {
             ColumnLayout {
                 IndicatorOnlySwitch {
                     id: wahooWithoutWheelDiameterDelegate
+                    // a switch TalkBack can turn: Qt 5.15 gives a SwitchDelegate no action of its
+                    // own (and puts back its ListItem role), and the tap TalkBack sends instead goes
+                    // to the middle of the row, which the MouseArea of IndicatorOnlySwitch ignores
+                    Accessible.name: text
+                    Accessible.checkable: true
+                    Accessible.checked: checked
+                    Accessible.onPressAction: {
+                        checked = !checked
+                        clicked()
+                    }
                     text: qsTr("Without Wheel Diameter Protocol")
                     spacing: 0
                     bottomPadding: 0
@@ -346,6 +356,8 @@ ScrollView {
                 }
 
                 Label {
+                    // a stop of its own: otherwise TalkBack reads the whole group in one go
+                    Accessible.focusable: true
                     text: qsTr("Enable this for simplified Wahoo protocol that adds gears directly to grade instead of using wheel diameter changes. Default is false.")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
@@ -363,6 +375,7 @@ ScrollView {
 
             ColumnLayout {
                 Label {
+                    Accessible.focusable: true
                     text: qsTr("Tooth count of your chainring on the bike you are currently riding on your trainer - enter 42 for Zwift Ride")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
@@ -390,6 +403,7 @@ ScrollView {
 
             ColumnLayout {
                 Label {
+                    Accessible.focusable: true
                     text: qsTr("Tooth count of your rear cog on your trainer - enter 14 if you have the Zwift Cog")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
@@ -745,6 +759,16 @@ ScrollView {
                                 SpinBox {
                                     id: cranksetSpinBox
                                     Accessible.name: qsTr("Gear") + " " + gear + ", " + qsTr("Chainring") + ": " + value
+                                    // TalkBack changes the value with increase()/decrease(), which do not emit
+                                    // valueModified, the signal that saves the table
+                                    Accessible.onIncreaseAction: {
+                                        increase()
+                                        valueModified()
+                                    }
+                                    Accessible.onDecreaseAction: {
+                                        decrease()
+                                        valueModified()
+                                    }
                                     anchors.centerIn: parent
                                     width: parent.width * 0.8
                                     height: 30
@@ -816,6 +840,14 @@ ScrollView {
                                 SpinBox {
                                     id: cogSpinBox
                                     Accessible.name: qsTr("Gear") + " " + gear + ", " + qsTr("Rear Cog") + ": " + value
+                                    Accessible.onIncreaseAction: {
+                                        increase()
+                                        valueModified()
+                                    }
+                                    Accessible.onDecreaseAction: {
+                                        decrease()
+                                        valueModified()
+                                    }
                                     anchors.centerIn: parent
                                     width: parent.width * 0.8
                                     height: 30
