@@ -191,6 +191,7 @@ object FitProDeviceService {
     @JvmStatic fun getCurrentWatts(): Double = (latest.power ?: 0).toDouble()
     @JvmStatic fun getCurrentCadence(): Double = (latest.cadence ?: 0).toDouble()
     @JvmStatic fun getCurrentRpm(): Double = (latest.cadence ?: 0).toDouble()
+    @JvmStatic fun getCurrentStrokeRate(): Double = (latest.strokeRate ?: 0).toDouble()
     // Rescale the FitPro level onto the machine's real resistance range when the user has configured
     // it (QZ "Max. Resistance" bike option). Integer floor division is an exact inverse of the
     // catalog-scale ceil mapping for every level (verified against hardware logs). When the setting
@@ -211,6 +212,7 @@ object FitProDeviceService {
     @JvmStatic fun getCurrentHeartRate(): Double = (latest.heartRate ?: 0).toDouble()
     @JvmStatic fun getCurrentFanSpeed(): Int = 0
     @JvmStatic fun getCurrentStrokesCount(): Double = (latest.strokeCount ?: 0).toDouble()
+    @JvmStatic fun getCurrentDistance(): Double = (latest.distance ?: 0f).toDouble()
     @JvmStatic fun getCurrentStrokesLength(): Double = 0.0
     @JvmStatic fun getCurrentPaceSeconds(): Int = latest.splitTime ?: 0
     @JvmStatic fun getCurrentLast500mPaceSeconds(): Int = latest.avgSplitTime ?: 0

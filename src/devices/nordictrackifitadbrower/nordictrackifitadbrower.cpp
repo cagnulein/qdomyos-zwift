@@ -444,7 +444,6 @@ void nordictrackifitadbrower::forceResistance(double resistance) {}
 void nordictrackifitadbrower::update() {
 
     QSettings settings;
-    update_metrics(false, 0);
 
     if (initRequest) {
         initRequest = false;
@@ -469,6 +468,56 @@ void nordictrackifitadbrower::update() {
         // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
         requestStop = -1;
     }
+
+#ifdef Q_OS_ANDROID
+    // FitPro updates its cached sample asynchronously. Copy the latest sample into the
+    // rower metrics before update_metrics() and the virtual rower publish their values.
+    if (grpcInitialized) {
+        const double currentSpeed = getGrpcSpeed();
+        const int currentPaceSeconds = getGrpcPaceSeconds();
+        const int currentLast500mPaceSeconds = getGrpcLast500mPaceSeconds();
+        const double currentResistance = getGrpcResistance();
+        const double currentWatts = getGrpcWatts();
+        const double currentStrokeRate = getGrpcStrokeRate();
+        const double currentStrokesCount = getGrpcStrokesCount();
+        const double currentDistance = getGrpcDistance();
+
+        // The FitPro pace fields are seconds per 500 m; QZ rower speed is km/h.
+        const int paceSeconds = currentPaceSeconds > 0 ? currentPaceSeconds : currentLast500mPaceSeconds;
+        const double paceSpeed = paceSeconds > 0 ? 1800.0 / paceSeconds : 0.0;
+        const double resolvedSpeed = currentSpeed > 0 ? currentSpeed : paceSpeed;
+
+        if (resolvedSpeed != Speed.value()) {
+            Speed = resolvedSpeed;
+            emit debug(QString("FitPro Speed: %1").arg(resolvedSpeed));
+        }
+        if (currentResistance != Resistance.value()) {
+            Resistance = currentResistance;
+            resistanceReadFromTM = currentResistance > 0;
+            emit debug(QString("FitPro Resistance: %1").arg(currentResistance));
+        }
+        if (currentWatts != m_watt.value()) {
+            m_watt = currentWatts;
+            wattReadFromTM = currentWatts > 0;
+            emit debug(QString("FitPro Watts: %1").arg(currentWatts));
+        }
+        if (currentStrokeRate != Cadence.value()) {
+            Cadence = currentStrokeRate;
+            cadenceReadFromTM = currentStrokeRate > 0;
+            emit debug(QString("FitPro Stroke Rate: %1").arg(currentStrokeRate));
+        }
+        if (currentStrokesCount != StrokesCount.value()) {
+            StrokesCount = currentStrokesCount;
+            emit debug(QString("FitPro Strokes: %1").arg(currentStrokesCount));
+        }
+        if (currentDistance != Distance.value()) {
+            Distance = currentDistance;
+            emit debug(QString("FitPro Distance: %1 km").arg(currentDistance));
+        }
+    }
+#endif
+
+    update_metrics(false, 0);
 }
 
 uint16_t nordictrackifitadbrower::watts() { 
@@ -638,6 +687,21 @@ double nordictrackifitadbrower::getGrpcCadence() {
     return 0.0;
 }
 
+double nordictrackifitadbrower::getGrpcStrokeRate() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        double strokeRate = QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
+            "getCurrentStrokeRate",
+            "()D"
+        );
+        qDebug() << "getGrpcStrokeRate() returned:" << strokeRate;
+        return strokeRate;
+    }
+#endif
+    return 0.0;
+}
+
 double nordictrackifitadbrower::getGrpcStrokesCount() {
 #ifdef Q_OS_ANDROID
     if (grpcInitialized) {
@@ -648,6 +712,21 @@ double nordictrackifitadbrower::getGrpcStrokesCount() {
         );
         qDebug() << "getGrpcStrokesCount() returned:" << strokesCount;
         return strokesCount;
+    }
+#endif
+    return 0.0;
+}
+
+double nordictrackifitadbrower::getGrpcDistance() {
+#ifdef Q_OS_ANDROID
+    if (grpcInitialized) {
+        double distance = QAndroidJniObject::callStaticMethod<jdouble>(
+            "org/cagnulen/qdomyoszwift/FitProDeviceService",
+            "getCurrentDistance",
+            "()D"
+        );
+        qDebug() << "getGrpcDistance() returned:" << distance << "km";
+        return distance;
     }
 #endif
     return 0.0;
