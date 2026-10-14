@@ -139,7 +139,7 @@ TEST(ZwiftPlayRoddyReplay, SecondaryButtonsDisabled) {
     frame(device, kLeftShift);
     frame(device, kIdle);
     // RS1 as seen in the current Zwift Ride button-map format.
-    frame(device, "2308ffdfbfff0f1a04080010001a04080110001a04080210001a0408031000");
+    frame(device, "2308ffdfffff0f1a04080010001a04080110001a04080210001a0408031000");
     EXPECT_EQ(events.leftShift, 1);
     EXPECT_EQ(events.up, 0);
     EXPECT_EQ(events.down, 0);
@@ -156,7 +156,7 @@ TEST(ZwiftPlayRoddyReplay, SecondaryButtonsMapped) {
     frame(device, kLeftShift);
     EXPECT_EQ(events.down, 1);
     frame(device, kIdle);
-    frame(device, "2308ffdfbfff0f1a04080010001a04080110001a04080210001a0408031000");
+    frame(device, "2308ffdfffff0f1a04080010001a04080110001a04080210001a0408031000");
     EXPECT_EQ(events.up, 1);
 }
 
