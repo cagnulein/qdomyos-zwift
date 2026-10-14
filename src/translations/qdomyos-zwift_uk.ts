@@ -7041,6 +7041,14 @@ IMPORTANT NOTES:
         <translation>Якщо до QZ під’єднано Bluetooth-доріжку та датчик Stryd і ви хочете брати швидкість зі Stryd, а не з доріжки, увімкніть це налаштування. Типово: вимкнено.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Корекція швидкості доріжки за Runn/Stryd (зворотний зв’язок)</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Експериментально: QZ плавно підправляє задану ним швидкість доріжки за даними Runn/Stryd, якщо драйвер доріжки передає власні виміри швидкості. Потрібне налаштування «Швидкість із датчика потужності». Типово: вимкнено.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Поріг корекції швидкості за датчиком потужності (%):</translation>
     </message>

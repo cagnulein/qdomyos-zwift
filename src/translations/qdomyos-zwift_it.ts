@@ -7161,6 +7161,14 @@ NOTE IMPORTANTI:
         <translation>Se hai un tapis roulant Bluetooth e anche un dispositivo Stryd collegato a QZ e desideri utilizzare la velocità dello Stryd invece di quella del tapis roulant, attiva questa opzione. Predefinito: disattivato.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Correzione della velocità del tapis roulant ad anello chiuso con Runn/Stryd</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Sperimentale: corregge gradualmente la velocità del tapis roulant controllata da QZ in base ai dati di Runn/Stryd, quando il driver fornisce misure di velocità proprie della macchina. Richiede &quot;Utilizza la velocità dal sensore di potenza&quot;. Predefinito: disabilitato.</translation>
+    </message>
+    <message>
         <source>Use inclination from the power sensor</source>
         <translation>Utilizza l&apos;inclinazione dal sensore di potenza</translation>
     </message>

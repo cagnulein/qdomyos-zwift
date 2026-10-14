@@ -7085,6 +7085,14 @@ IMPORTANT NOTES:
         <translation>Bluetooth対応トレッドミルとStrydデバイスの両方をQZに接続している場合に、トレッドミルの速度ではなくStrydの速度データを使用したい場合はこれを有効にします&#x3000;デフォルト：無効</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Runn/Strydによるトレッドミル速度のクローズドループ補正</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>実験的機能：ドライバーがマシン独自の速度測定値を提供する場合、Runn/Strydのフィードバックを使って、QZが制御するトレッドミルの速度を少しずつ補正します。「パワーセンサーの速度を使用」が必要です。デフォルト：無効。</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>パワーセンサー速度補正のしきい値（%）：</translation>
     </message>

@@ -7065,6 +7065,14 @@ NOTES IMPORTANTES :
         <translation>Si vous avez un tapis de course Bluetooth et un appareil Stryd connecté à QZ et que vous souhaitez utiliser la vitesse du Stryd au lieu de celle du tapis de course, activez ceci. Par défaut : désactivé.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Correction de la vitesse du tapis en boucle fermée avec Runn/Stryd</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Expérimental : corrige progressivement la vitesse du tapis commandée par QZ d&apos;après le retour de Runn/Stryd, lorsque le pilote fournit ses propres mesures de vitesse de la machine. Nécessite « Utiliser la vitesse du capteur de puissance ». Par défaut : désactivé.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Seuil de correction de vitesse du capteur de puissance (%) :</translation>
     </message>

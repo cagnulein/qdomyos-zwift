@@ -7053,6 +7053,14 @@ OBSERVAÇÕES IMPORTANTES:
         <translation>Se você tiver uma esteira Bluetooth e também um dispositivo Stryd conectado ao QZ e quiser usar a velocidade do Stryd em vez da velocidade da esteira, ative esta opção. Padrão: desativado.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Correção da velocidade da esteira em malha fechada com Runn/Stryd</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Experimental: corrige gradualmente a velocidade da esteira controlada pelo QZ com os dados do Runn/Stryd, quando o driver fornece medições de velocidade próprias da máquina. Requer &quot;Usar a velocidade do sensor de potência&quot;. Padrão: desativado.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Limite de correção de velocidade do sensor de potência (%):</translation>
     </message>

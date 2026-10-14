@@ -7049,6 +7049,14 @@ WICHTIGE HINWEISE:
         <translation>Wenn Sie ein Bluetooth Laufband und ein Stryd Gerät mit QZ verbunden haben und die Geschwindigkeit von Stryd anstelle der Geschwindigkeit des Laufbands verwenden möchten, aktivieren Sie dies. Standardmäßig: deaktiviert.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Laufbandgeschwindigkeit per Runn/Stryd im geschlossenen Regelkreis korrigieren</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Experimentell: korrigiert die von QZ gesteuerte Laufbandgeschwindigkeit schrittweise anhand der Rückmeldung von Runn/Stryd, wenn der Treiber eigene Geschwindigkeitsmesswerte des Geräts liefert. Erfordert „Geschwindigkeit des Leistungssensors verwenden“. Standard: deaktiviert.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Schwelle der Geschwindigkeitskorrektur per Leistungssensor (%):</translation>
     </message>

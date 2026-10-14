@@ -7081,6 +7081,14 @@ IMPORTANT NOTES:
         <translation>如果您连接了蓝牙跑步机和 Stryd 设备到 QZ，并且想使用 Stryd 的速度而不是跑步机的速度，请启用此项。默认：禁用。</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Runn/Stryd 闭环跑步机速度校正</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>实验性功能：当驱动程序提供跑步机自身的速度测量值时，根据 Runn/Stryd 的反馈逐步校正由 QZ 控制的跑步机速度。需要启用“使用功率传感器速度”。默认值：禁用。</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>功率传感器速度校正阈值（%）：</translation>
     </message>

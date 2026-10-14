@@ -16068,7 +16068,7 @@
     {
       "key": "treadmill_runn_closed_loop",
       "name": "Runn/Stryd closed-loop treadmill speed correction",
-      "description": "Gradually correct QZ-controlled treadmill speeds using filtered Runn/Stryd speed on drivers with independent machine telemetry. Requires Use speed from the power sensor. Disabled by default.",
+      "description": "Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires 'Use speed from the power sensor'. Disabled by default.",
       "parent": "Power Sensor Options",
       "type": "boolean",
       "qmlType": "bool",

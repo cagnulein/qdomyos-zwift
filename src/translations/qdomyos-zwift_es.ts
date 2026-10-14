@@ -7053,6 +7053,14 @@ NOTAS IMPORTANTES:
         <translation>Si tienes una cinta de correr Bluetooth y un dispositivo Stryd conectado a QZ, y deseas usar la velocidad del Stryd en lugar de la de la cinta de correr, activa esta opción. Por defecto: deshabilitado.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Corrección de velocidad de la cinta en lazo cerrado con Runn/Stryd</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Experimental: corrige gradualmente la velocidad de la cinta controlada por QZ con los datos de Runn/Stryd, cuando el controlador proporciona mediciones de velocidad propias de la máquina. Requiere &quot;Usa la velocidad del sensor de potencia&quot;. Predeterminado: desactivado.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Umbral de corrección de velocidad del sensor de potencia (%):</translation>
     </message>
