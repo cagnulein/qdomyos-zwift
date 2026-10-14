@@ -64,7 +64,9 @@ public class ContentHelper {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             return false;
         }
+
         Uri uri = null;
+        boolean created = false;
         try (FileInputStream input = new FileInputStream(sourcePath)) {
             String normalized = relativePath.replace('\\', '/');
             int separator = normalized.lastIndexOf('/');
@@ -72,17 +74,53 @@ public class ContentHelper {
             String parent = separator >= 0 ? normalized.substring(0, separator) : "";
             String relativeDirectory = Environment.DIRECTORY_DOCUMENTS + "/QZ/"
                     + (parent.isEmpty() ? "" : parent + "/");
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
-            values.put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream");
-            values.put(MediaStore.MediaColumns.RELATIVE_PATH, relativeDirectory);
-            values.put(MediaStore.MediaColumns.IS_PENDING, 1);
             ContentResolver resolver = context.getContentResolver();
-            uri = resolver.insert(MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), values);
+            Uri collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+
+            ArrayList<Uri> matches = new ArrayList<>();
+            Cursor cursor = null;
+            try {
+                cursor = resolver.query(
+                        collection,
+                        new String[] {MediaStore.MediaColumns._ID},
+                        MediaStore.MediaColumns.DISPLAY_NAME + "=? AND "
+                                + MediaStore.MediaColumns.RELATIVE_PATH + "=?",
+                        new String[] {name, relativeDirectory},
+                        MediaStore.MediaColumns._ID + " ASC");
+                if (cursor != null) {
+                    int idIndex = cursor.getColumnIndex(MediaStore.MediaColumns._ID);
+                    while (idIndex >= 0 && cursor.moveToNext()) {
+                        matches.add(ContentUris.withAppendedId(collection, cursor.getLong(idIndex)));
+                    }
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+
+            if (matches.isEmpty()) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+                values.put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream");
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, relativeDirectory);
+                values.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                uri = resolver.insert(collection, values);
+                created = true;
+            } else {
+                uri = matches.get(0);
+                ContentValues pending = new ContentValues();
+                pending.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                resolver.update(uri, pending, null, null);
+                for (int i = 1; i < matches.size(); ++i) {
+                    resolver.delete(matches.get(i), null, null);
+                }
+            }
             if (uri == null) {
                 return false;
             }
-            try (OutputStream output = resolver.openOutputStream(uri)) {
+
+            try (OutputStream output = resolver.openOutputStream(uri, "wt")) {
                 if (output == null) {
                     return false;
                 }
@@ -99,7 +137,13 @@ public class ContentHelper {
         } catch (Exception e) {
             if (uri != null) {
                 try {
-                    context.getContentResolver().delete(uri, null, null);
+                    if (created) {
+                        context.getContentResolver().delete(uri, null, null);
+                    } else {
+                        ContentValues ready = new ContentValues();
+                        ready.put(MediaStore.MediaColumns.IS_PENDING, 0);
+                        context.getContentResolver().update(uri, ready, null, null);
+                    }
                 } catch (Exception ignored) {
                 }
             }
