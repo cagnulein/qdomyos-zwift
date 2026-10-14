@@ -57,6 +57,6 @@ The exact artifact showed the chooser correctly listing `Jay` and `Jan`, while t
 
 ## URI transport correction
 
-The pending profile source now remains a typed QML `url` and is passed to `homeform::restartWithProfile(const QUrl &)`. The Android profile import path also passes a `QUrl` directly. This removes the lossy JavaScript string conversion that created `file:[object%20Object]`.
+The pending profile source now remains as the original QML URL value in a `var` property and is passed to `homeform::restartWithProfile(const QUrl &)`. The Android profile import path also passes a `QUrl` directly. This removes the lossy JavaScript string conversion that created `file:[object%20Object]`.
 
 The URI correction is locally built and tested; its exact Android artifact and simulator verification are pending. No production Bluetooth workaround was added, and no profile files or app data were deleted during testing.

@@ -13,7 +13,7 @@ ColumnLayout {
 
     signal profile_open_clicked(url name)
     property string pendingProfileName: ""
-    property url pendingProfileSource: ""
+    property var pendingProfileSource: null
 
     Connections {
         target: rootItem
