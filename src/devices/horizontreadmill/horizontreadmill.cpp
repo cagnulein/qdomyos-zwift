@@ -974,12 +974,20 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         
         if (requestSpeed != -1) {
+            // In Runn closed-loop mode the displayed Speed belongs to the sensor,
+            // not the motor. Check the motor's independent telemetry instead.
+            const bool useMachineSpeed =
+                settings.value(QZSettings::treadmill_runn_closed_loop,
+                               QZSettings::default_treadmill_runn_closed_loop).toBool() &&
+                settings.value(QZSettings::stryd_speed_instead_treadmill,
+                               QZSettings::default_stryd_speed_instead_treadmill).toBool();
+            const double speedForControl = useMachineSpeed ? rawSpeed.value() : currentSpeed().value();
             bool minSpeed =
-                fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
+                fabs(requestSpeed - float_one_point_round(speedForControl)) >= (minStepSpeed() - 0.09);
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
             qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
-                     << float_one_point_round(currentSpeed().value());
-            if (float_one_point_round(requestSpeed) != float_one_point_round(currentSpeed().value()) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
+                     << float_one_point_round(speedForControl);
+            if (float_one_point_round(requestSpeed) != float_one_point_round(speedForControl) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
                 forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(float_one_point_round(requestSpeed));
@@ -1266,7 +1274,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL && !SF_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1275,7 +1283,6 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                                 false, false);
         }
 
-        uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
         if(BOWFLEX_T9) {
             requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
         }
@@ -1285,9 +1292,15 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                 requestSpeed *= miles_conversion;   // JFTM T202 expects FTMS target speed in miles
             }
         }
-        uint16_t speed_int = round(requestSpeed * 100);
-        writeS[1] = speed_int & 0xFF;
-        writeS[2] = speed_int >> 8;
+        uint16_t speed_int = round(requestSpeed * (SW3925EAI_TREADMILL ? 10 : 100));
+        uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
+        if (SW3925EAI_TREADMILL) {
+            // SW3925EAI reads the high byte as tenths of km/h.
+            writeS[2] = speed_int & 0xFF;
+        } else {
+            writeS[1] = speed_int & 0xFF;
+            writeS[2] = speed_int >> 8;
+        }
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceSpeed"), false, false);
@@ -2621,6 +2634,10 @@ void horizontreadmill::serviceScanDone(void) {
                 qDebug() << s << "skipping (DOMYOS-TC will use only FTMS)";
                 continue;
             }
+            if (TM55_TREADMILL && s != _FTMSServiceId) {
+                qDebug() << s << "skipping (TM55 treadmill will use only FTMS 0x1826)";
+                continue;
+            }
 
             qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
@@ -2657,6 +2674,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         QSettings settings;
         bluetoothDevice = device;
         JFTM_T202 = device.name().toUpper().startsWith(QStringLiteral("JFTM T202"));
+        SW3925EAI_TREADMILL = device.name().toUpper().startsWith(QStringLiteral("SW3925EAI-"));
+        if (SW3925EAI_TREADMILL) {
+            qDebug() << QStringLiteral("SW3925EAI FTMS speed workaround ON!");
+        }
 
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
             mobvoi_tmp_treadmill = true;
@@ -2770,6 +2791,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("TM6500 treadmill found");
             TM6500 = true;
             minInclination = -3.0;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TM55-"))) {
+            qDebug() << QStringLiteral("TM55 treadmill found; will use only FTMS service (0x1826)");
+            TM55_TREADMILL = true;
         } else if (device.name().toUpper().startsWith(QStringLiteral("MRK-T"))) {
             qDebug() << QStringLiteral("MERACH treadmill workaround ON!");
             MERACH_TREADMILL = true;
@@ -2783,6 +2807,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("FS- treadmill found");
             FS_TREADMILL = true;
             maxInclination = 40.0;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("SF-T"))) {
+            qDebug() << QStringLiteral("SF-T treadmill found");
+            SF_TREADMILL = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {

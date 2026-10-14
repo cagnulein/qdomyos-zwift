@@ -286,6 +286,7 @@ devices/nautiluselliptical/nautiluselliptical.cpp \
 devices/nautilustreadmill/nautilustreadmill.cpp \
 devices/npecablebike/npecablebike.cpp \
 devices/pafersbike/pafersbike.cpp \
+devices/pafersrower/pafersrower.cpp \
 devices/paferstreadmill/paferstreadmill.cpp \
 peloton.cpp \
 powerzonepack.cpp \
@@ -354,6 +355,7 @@ devices/m3ibike/m3ibike.cpp \
 devices/domyosbike/domyosbike.cpp \
 scanrecordresult.cpp \
 windows_zwift_incline_paddleocr_thread.cpp \
+workoutimport.cpp \
 zwiftworkout.cpp
    
 macx: SOURCES += macos/lockscreen.mm
@@ -818,6 +820,7 @@ devices/nautiluselliptical/nautiluselliptical.h \
 devices/nautilustreadmill/nautilustreadmill.h \
 devices/npecablebike/npecablebike.h \
 devices/pafersbike/pafersbike.h \
+devices/pafersrower/pafersrower.h \
 devices/paferstreadmill/paferstreadmill.h \
 peloton.h \
 powerzonepack.h \
@@ -893,6 +896,7 @@ wobjectimpl.h \
 devices/yesoulbike/yesoulbike.h \
 scanrecordresult.h \
 windows_zwift_incline_paddleocr_thread.h \
+workoutimport.h \
 zwiftworkout.h
 
 

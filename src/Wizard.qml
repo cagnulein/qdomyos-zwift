@@ -10,6 +10,15 @@ Page {
     property int currentStep: 0
     property var selectedOptions: ({})
 
+    // Called by main.qml on the Android back button: go back one wizard step
+    function handleBack() {
+        if (stackViewLocal.depth > 1) {
+            stackViewLocal.pop()
+            return true
+        }
+        return false
+    }
+
     // Strip the RSSI proximity suffix (e.g. " (75%)") before saving device names
     function stripRssi(deviceName) {
         return deviceName.replace(/ \(\d+%\)$/, "")
@@ -1246,7 +1255,7 @@ Page {
                         color: "white"
                     }
 
-                    ComboBox {
+                    UiComboBox {
                         id: unitSystemComboBox
                         Layout.alignment: Qt.AlignHCenter
                         model: [qsTr("Metric"), qsTr("Imperial")]
@@ -1313,7 +1322,7 @@ Page {
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Weight (%1)").arg((settings.miles_unit && !settings.weight_kg_unit) ? "lbs" : "kg")
+                        text: qsTr("Weight (%1)").arg((settings.miles_unit && !settings.weight_kg_unit) ? qsTr("lbs") : qsTr("kg"))
                         font.pixelSize: 20
                         color: "white"
                     }

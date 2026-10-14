@@ -56,13 +56,13 @@ ApplicationWindow {
     function getLeftPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
-               AndroidStatusBar.leftInset : 0;
+               (settings.android_landscape_cutout_margin ? AndroidStatusBar.leftInset : AndroidStatusBar.systemBarLeftInset) : 0;
     }
 
     function getRightPadding() {
         if (Qt.platform.os !== "android" || AndroidStatusBar.apiLevel < 31) return 0;
         return (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) ?
-               AndroidStatusBar.rightInset : 0;
+               (settings.android_landscape_cutout_margin ? AndroidStatusBar.rightInset : AndroidStatusBar.systemBarRightInset) : 0;
     }
 
     // Side margin for text, after the Material 3 window margins (16 on compact windows
@@ -140,6 +140,11 @@ ApplicationWindow {
     property bool settings_restart_to_apply: false
     property bool gymModePopupDismissed: false
 
+    // rootItem comes from homeform, created only after this file is loaded (main.cpp): for about
+    // a second the bindings on it fail and keep their defaults - every header button shown in a
+    // squashed bar. The header and the page wait for it
+    readonly property bool rootReady: typeof rootItem !== "undefined" && rootItem !== null
+
     Settings {
         id: settings
         property string profile_name: "default"        
@@ -216,6 +221,8 @@ ApplicationWindow {
         property string shortcut_lap: ""
         property string shortcut_start_stop: ""
         property string shortcut_stop: ""
+        property bool android_landscape_cutout_margin: true
+        property bool android_landscape_cutout_prompt_shown: false
     }
 
 
@@ -368,30 +375,65 @@ ApplicationWindow {
         }
     }*/
 
-    Keys.onBackPressed: {
-        if(OS_VERSION === "Android") {
-            toast.show("Pressed it quickly to close the app!")
-            timer.pressBack();
+    // Shared by the toolbar "◄" button and the Android back button.
+    // stepInsidePage: pages with their own inner navigation (Wizard, training programs
+    // list) first go back one step there, via their handleBack().
+    // Returns false when there is nothing to go back to (home page).
+    function navigateBack(stepInsidePage) {
+        if (stepInsidePage && stackView.currentItem && typeof stackView.currentItem.handleBack === "function" &&
+                stackView.currentItem.handleBack()) {
+            return true
         }
-    }
-    Timer{
-        id: timer
+        if (stackView.depth <= 1) {
+            return false
+        }
 
-        property bool backPressed: false
-        repeat: false
-        interval: 200//ms
-        onTriggered: backPressed = false
-        function pressBack(){
-            if(backPressed){
-                timer.stop()
-                backPressed = false
-                Qt.callLater(Qt.quit)
-            }
-            else{
-                backPressed = true
-                timer.start()
-            }
+        var remindToSaveProfile = headerToolbar.settingsPageActive &&
+                stackView.currentItem &&
+                typeof stackView.currentItem.profileSaveReminderNeeded === "function" &&
+                stackView.currentItem.profileSaveReminderNeeded()
+        var activeProfileName = settings.profile_name
+
+        if(window.settings_restart_to_apply === true) {
+            window.settings_restart_to_apply = false;
+            popupRestartApp.visible = true;
         }
+
+        stackView.pop()
+        toolButtonLoadSettings.visible = false;
+        toolButtonSaveSettings.visible = false;
+        rootItem.sortTiles()
+        if (remindToSaveProfile) {
+            toast.show(qsTr("Remember to save profile \"%1\" if you want to keep these changes in this profile.").arg(activeProfileName))
+        }
+        return true
+    }
+
+    // On Android an unhandled back key closes the window, which quits the app.
+    // (Keys.onBackPressed cannot be attached to ApplicationWindow: it is not an Item.)
+    // Popups and the drawer close themselves on back before this is reached.
+    // Android 16+ with targetSdk 36 no longer sends the back key to the app unless
+    // AndroidManifest.xml sets android:enableOnBackInvokedCallback="false".
+    onClosing: {
+        if (OS_VERSION !== "Android") {
+            return
+        }
+        if (navigateBack(true)) {
+            close.accepted = false
+            return
+        }
+        if (backToExitTimer.running) {
+            return  // second press within the interval: let the app close
+        }
+        close.accepted = false
+        backToExitTimer.start()
+        toast.show(qsTr("Press back again to exit"), backToExitTimer.interval)
+    }
+
+    Timer {
+        id: backToExitTimer
+        repeat: false
+        interval: 2000 // ms
     }
 
     Popup {
@@ -773,6 +815,55 @@ ApplicationWindow {
         visible: false
     }
 
+    // In landscape the camera side keeps an empty margin as wide as the cutout. The first time
+    // it happens (the cutout inset is wider than the system bar one), ask once whether to let
+    // the content go under the cutout instead. The delay lets the rotation settle first.
+    readonly property bool landscapeCutoutPromptDue: Qt.platform.os === "android" && AndroidStatusBar.apiLevel >= 31 &&
+        (Screen.orientation === Qt.LandscapeOrientation || Screen.orientation === Qt.InvertedLandscapeOrientation) &&
+        settings.android_landscape_cutout_margin && !settings.android_landscape_cutout_prompt_shown &&
+        // the cutout safe inset also covers curved (waterfall) edges, which are not a camera
+        (AndroidStatusBar.leftInset > Math.max(AndroidStatusBar.systemBarLeftInset, AndroidStatusBar.waterfallLeftInset) ||
+         AndroidStatusBar.rightInset > Math.max(AndroidStatusBar.systemBarRightInset, AndroidStatusBar.waterfallRightInset))
+
+    Timer {
+        interval: 5000
+        running: window.landscapeCutoutPromptDue
+        onTriggered: {
+            settings.android_landscape_cutout_prompt_shown = true
+            popupLandscapeCutout.visible = true
+        }
+    }
+
+    MessageDialog {
+        id: popupLandscapeCutout
+        text: qsTr("Camera Cutout")
+        informativeText: qsTr("In landscape, QZ keeps a margin on the camera side so the camera hole does not cover the content.\nDo you want to use the full screen width instead?\n\nYou can change it later in Settings > General UI Options > Keep Content Clear of the Camera Cutout.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: settings.android_landscape_cutout_margin = false
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    // a new workout history database was started (first start, reinstall, database removed):
+    // the workouts of a previous install may still be in the QZ folder, hidden from the app
+    MessageDialog {
+        id: popupHistoryRecovery
+        text: qsTr("Workout History")
+        informativeText: qsTr("Workouts of a previous installation may still be in the QZ folder.\nDo you want to look for them?\n\nIn the next window, allow access to the QZ folder.")
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: rootItem.importFitFolder()
+        onNoClicked: this.visible = false
+        visible: false
+    }
+
+    Connections {
+        target: rootItem
+        ignoreUnknownSignals: true
+        function onHistoryRecoveryOfferRequested() {
+            popupHistoryRecovery.visible = true
+        }
+    }
+
     // a device changed a setting on its own (auto-detection): the message says what QZ found and why it must restart
     MessageDialog {
         id: popupRestartAppDetected
@@ -933,6 +1024,78 @@ ApplicationWindow {
         }
     }
 
+    Popup {
+        id: androidNotificationPopup
+        parent: Overlay.overlay
+        modal: true
+        focus: true
+        closePolicy: Popup.NoAutoClose
+        width: Math.min(window.width - 40, 460)
+        height: Math.min(window.height - 60, 380)
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        visible: rootItem.androidNotificationPromptRequested
+
+        background: Rectangle {
+            radius: 8
+            color: Material.background
+            border.color: Material.accent
+            border.width: 1
+        }
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 16
+            spacing: 12
+
+            Label {
+                width: parent.width
+                text: qsTr("Connection lost in the background")
+                font.bold: true
+                font.pixelSize: 20
+                wrapMode: Text.WordWrap
+            }
+
+            ScrollView {
+                width: parent.width
+                height: parent.height - androidNotificationButtons.height - 52
+                clip: true
+
+                TextArea {
+                    width: androidNotificationPopup.width - 56
+                    readOnly: true
+                    wrapMode: TextEdit.Wrap
+                    text:
+                        qsTr("Android cut QZ's network while it was in the background, so the app connected to QZ over Wi-Fi (Zwift, for example) lost it.\n\n") +
+                        qsTr("The Android notification keeps QZ running in the background. Enable it now? The workout keeps going, no restart needed.")
+                }
+            }
+
+            // Flow, not Row: three buttons don't fit one row on a phone once translated
+            Flow {
+                id: androidNotificationButtons
+                width: parent.width
+                spacing: 12
+                layoutDirection: Qt.RightToLeft
+
+                Button {
+                    text: qsTr("Enable")
+                    onClicked: rootItem.android_notification_prompt_enable()
+                }
+
+                Button {
+                    text: qsTr("Not now")
+                    onClicked: rootItem.android_notification_prompt_dismiss(false)
+                }
+
+                Button {
+                    text: qsTr("Don't ask again")
+                    onClicked: rootItem.android_notification_prompt_dismiss(true)
+                }
+            }
+        }
+    }
+
     MessageDialog {
         id: stravaLogoutConfirm
         text: qsTr("Strava")
@@ -967,8 +1130,14 @@ ApplicationWindow {
         contentHeight: toolButton.implicitHeight
         Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
+        // Opacity, not visible: some pages set headerToolbar.visible themselves
+        opacity: window.rootReady ? 1 : 0
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
         topPadding: getTopPadding()
+        // Clear of the side system bar and the cutout held sideways, as the page stack: with
+        // button navigation the bar on the right covered the rightmost button
+        leftPadding: getLeftPadding()
+        rightPadding: getRightPadding()
 
         ToolButton {
             id: toolButton
@@ -977,24 +1146,9 @@ ApplicationWindow {
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
-                    var remindToSaveProfile = headerToolbar.settingsPageActive &&
-                            stackView.currentItem &&
-                            typeof stackView.currentItem.profileSaveReminderNeeded === "function" &&
-                            stackView.currentItem.profileSaveReminderNeeded()
-                    var activeProfileName = settings.profile_name
-
-                    if(window.settings_restart_to_apply === true) {
-                        window.settings_restart_to_apply = false;
-                        popupRestartApp.visible = true;
-                    }
-
-                    stackView.pop()
-                    toolButtonLoadSettings.visible = false;
-                    toolButtonSaveSettings.visible = false;
-                    rootItem.sortTiles()
-                    if (remindToSaveProfile) {
-                        toast.show(qsTr("Remember to save profile \"%1\" if you want to keep these changes in this profile.").arg(activeProfileName))
-                    }
+                    // Back to the settings search results after one of them was opened, as the
+                    // back key does; the other pages keep their own back buttons
+                    navigateBack(!!(stackView.currentItem && stackView.currentItem.searchReturn))
                 } else {
                     drawer.open()
                 }
@@ -1100,8 +1254,29 @@ ApplicationWindow {
 
         ToolButton {
             id: toolButtonSettingsSearch
-            text: "\uD83D\uDD0D"
-            font.pixelSize: Qt.application.font.pixelSize * 1.25
+            Accessible.name: qsTr("Search settings")
+            // A drawn magnifier instead of the emoji: the emoji is blank on devices without a
+            // glyph for it. Painted once, again only when the colour changes
+            Canvas {
+                id: settingsSearchIcon
+                property color color: toolButtonSettingsSearch.Material.foreground
+                anchors.centerIn: parent
+                // Drawn at the pixel density of the screen and scaled down, so it stays sharp
+                width: 24 * Screen.devicePixelRatio
+                height: 24 * Screen.devicePixelRatio
+                scale: 1 / Screen.devicePixelRatio
+                onColorChanged: requestPaint()
+                onPaint: {
+                    var ctx = getContext("2d")
+                    ctx.reset()
+                    // Material Symbols "search", viewBox 0 -960 960 960
+                    ctx.scale(width / 960, height / 960)
+                    ctx.translate(0, 960)
+                    ctx.path = "M380-320q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
+                    ctx.fillStyle = color
+                    ctx.fill()
+                }
+            }
             onClicked: {
                 if (headerToolbar.settingsPageActive)
                     stackView.currentItem.showSettingsSearch()
@@ -1520,12 +1695,16 @@ ApplicationWindow {
     Item {
         anchors.fill: parent
         Accessible.ignored: true
+        opacity: window.rootReady ? 1 : 0
 
         StackView {
             id: stackView
             initialItem: "Home.qml"
             anchors.fill: parent
-            anchors.bottomMargin: (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0
+            // Clear of the bottom system bar in any orientation: held sideways with gesture
+            // navigation the bar stays at the bottom (with buttons it moves to the side, and the
+            // bottom inset is 0 then)
+            anchors.bottomMargin: getBottomPadding()
             anchors.rightMargin: getRightPadding()
             anchors.leftMargin: getLeftPadding()
             focus: true

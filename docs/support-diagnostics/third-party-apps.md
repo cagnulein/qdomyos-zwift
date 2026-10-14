@@ -41,3 +41,85 @@
 
 - Data sources and control sources are independent in many training apps. Correct metrics do not prove that commands are being sent through QZ.
 - A single numerical example makes scaling, rounding, lag, and conflicting-control problems much easier to distinguish in a log.
+
+## A debug log does not show the reported control or pairing failure
+
+### Provide first
+
+- Confirm the exact machine model and the device running QZ.
+- Confirm which app is expected to send the command and which QZ virtual device is selected in that app.
+- State whether QZ is already showing live metrics from the machine before the test begins.
+- Describe one short action that will reproduce the problem, for example starting an ERG interval, changing resistance, or attempting to pair a controllable device.
+
+### Controlled reproduction
+
+1. Fully close QZ and the third-party fitness app.
+2. Wake the fitness machine or console first.
+3. Make sure manufacturer apps and unrelated Bluetooth fitness apps are closed so they cannot take the connection.
+4. Start QZ and wait until the machine is connected and live metrics are visible.
+5. Start the third-party app and pair only the QZ virtual devices required for the test.
+6. Perform one clearly identifiable control action and keep the test short.
+7. Stop QZ and provide the complete debug log, together with the action performed and the approximate time it happened.
+
+If a QZ option is suspected of changing the behavior, run separate short tests with the option enabled and disabled rather than changing several settings during one recording.
+
+### Why it matters
+
+- A log that ends before the machine connects or before the third-party app sends a command cannot show the failure being investigated.
+- Starting from a known state makes the connection order visible and reduces ambiguity from stale Bluetooth sessions.
+- One controlled action creates a clear point in the log where the expected command can be compared with what QZ actually received and sent.
+- Changing one setting at a time makes A/B logs directly comparable and helps distinguish configuration effects from intermittent connection behavior.
+
+## Resistance levels differ between the bike and QZ
+
+### Provide first
+
+- Bike model, QZ version, and the number of physical resistance levels.
+- Minimum and maximum resistance displayed in QZ, with one example of a jump.
+- Whether changes originate from the bike, QZ, or the external training app.
+
+### If still unclear
+
+- Close training apps, turn off Auto Resistance, and slowly sweep the bike's physical resistance levels. Note the values shown in QZ.
+- Share a short debug log or video of the sweep. Test automatic control separately.
+
+### Why it matters
+
+- The physical scale can differ from values reported over Bluetooth.
+- Separating manual and automatic tests distinguishes telemetry mapping from control commands.
+
+## Virtual gear numbers update but trainer resistance does not follow
+
+### Provide first
+
+- Trainer model, QZ version, and devices running QZ and Zwift.
+- Whether QZ receives power/cadence before Zwift starts, and which device Zwift selects as Controllable/Resistance.
+- Whether Click/Play is paired to Zwift or QZ; report Get Gears from Zwift and Align Gear settings.
+- One shift with the gear numbers shown in both apps and the physical resistance response.
+
+### If still unclear
+
+- For Wahoo trainers, capture the Without Wheel Diameter Protocol setting, virtual gearing configuration, and actual drivetrain tooth counts.
+- Provide a short QZ debug log with two deliberate shifts on flat terrain. Stop if resistance becomes excessive.
+
+### Why it matters
+
+- Gear display synchronization alone does not prove a control command reached the trainer.
+- Controllable pairing and drivetrain scaling can fail independently.
+
+## Gradient-controlled accessory does not follow route grade
+
+### Provide first
+
+- Accessory model, receiving training app, QZ version, and device topology.
+- Whether manual incline control from QZ works, and one comparison of route grade, QZ incline tile, and physical movement.
+- Which virtual device is selected as Controllable, and any accessory-specific gain setting.
+
+### If still unclear
+
+- Capture a short QZ log across a clear grade transition, with approximate times and values.
+- Compare incoming simulation requests with outgoing accessory commands; vary one setting at a time.
+
+### Why it matters
+
+- Absent grade requests and incorrectly scaled commands look similar at the accessory but require different investigation.

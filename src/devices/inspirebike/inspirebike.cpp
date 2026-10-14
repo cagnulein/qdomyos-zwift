@@ -109,6 +109,7 @@ void inspirebike::update() {
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
+            lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
             // btinit();
 
             requestStart = -1;
@@ -142,6 +143,13 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
         return;
     }
 
+    const qint64 deltaMs = lastRefreshCharacteristicChanged.msecsTo(now);
+    const bool validIntegrationInterval = !paused && deltaMs >= 0 && deltaMs <= 3000;
+
+    if (!validIntegrationInterval && deltaMs > 3000) {
+        emit debug(QStringLiteral("Ignoring stale Inspire metric interval: ") + QString::number(deltaMs) + QStringLiteral(" ms"));
+    }
+
     Resistance = newValue.at(6);
     emit resistanceRead(Resistance.value());
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
@@ -154,15 +162,16 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
     } else {
         Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
-    if (watts())
+
+    if (validIntegrationInterval && watts())
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
-             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
+             (60000.0 / ((double)deltaMs))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
-    Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+
+    if (validIntegrationInterval)
+        Distance += ((Speed.value() / 3600000.0) * ((double)deltaMs));
 
     if (settings.value(QZSettings::inspire_peloton_formula2, QZSettings::default_inspire_peloton_formula2).toBool()) {
         // y = 0,0002x^3 - 0.1478x^2 + 4.2412x + 1.8102

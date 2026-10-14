@@ -22,3 +22,11 @@ For example, if you are using an elliptical but the watch is still configured fo
 Select the appropriate workout type in the QZ Apple Watch app, then start the workout again. QZ currently maps its watch workout types to HealthKit activities including walking, running, cycling, rowing, and elliptical.
 
 This setting affects how the workout is classified in Apple Health; it is separate from whether QZ can connect to and receive metrics from the fitness machine.
+
+## Why does Garmin Connect classify my QZ elliptical workout as Walking?
+
+Disable **Strava Virtual Activity** in QZ before recording the elliptical session. When this option is enabled, QZ exports the FIT session as virtual Running or Walking. When disabled, it exports **Fitness Equipment / Elliptical**. This behavior is verified in QZ's FIT writer and was confirmed in support.
+
+## Watt Gain resets to 1.00 after entering a decimal value
+
+On older QZ iPhone builds, if **1.20** is not saved, try **1,20** instead, press **OK**, restart and verify the value. A user confirmed this workaround. Current QZ builds accept both decimal separators. Watt Gain scales reported power, not actual physical effort.
