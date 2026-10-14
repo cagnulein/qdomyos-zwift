@@ -13,7 +13,6 @@ ColumnLayout {
 
     signal profile_open_clicked(url name)
     property string pendingProfileName: ""
-    property var pendingProfileSource: null
 
     Connections {
         target: rootItem
@@ -61,7 +60,7 @@ ColumnLayout {
         informativeText: qsTr("You must quit and restart for changes to take effect.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
-            rootItem.restartWithProfile(pendingProfileSource)
+            rootItem.restartWithProfile(pendingProfileName)
         }
         onNoClicked: {
             quitDialog.close()
@@ -228,7 +227,6 @@ ColumnLayout {
                             // would let cached values from the old profile be
                             // written back during teardown.
                             pendingProfileName = profileNameTextField.text
-                            pendingProfileSource = fileUrl
                             quitDialog.visible = true
                         }
                     } else {

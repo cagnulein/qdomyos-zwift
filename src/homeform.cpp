@@ -8909,7 +8909,7 @@ void homeform::profile_open_clicked(const QUrl &fileName) {
 #ifdef Q_OS_ANDROID
     const QString copiedFile = copyAndroidContentsURI(fileName, "profiles");
     if (!copiedFile.isEmpty()) {
-        restartWithProfile(QUrl::fromLocalFile(copiedFile));
+        restartWithProfileSource(QUrl::fromLocalFile(copiedFile));
     }
 #else
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
@@ -11697,7 +11697,27 @@ void homeform::restart() {
 #endif
 }
 
-void homeform::restartWithProfile(const QUrl &profileSource) {
+void homeform::restartWithProfile(const QString &profileName) {
+    const QString requestedName = profileName.trimmed();
+    if (requestedName.isEmpty()) {
+        qWarning() << "Cannot restart without a profile name";
+        return;
+    }
+
+    const QVariantList profiles = getProfileFiles();
+    for (const QVariant &entry : profiles) {
+        const QVariantMap profile = entry.toMap();
+        if (profile.value(QStringLiteral("fileBaseName")).toString() == requestedName) {
+            const QUrl sourceUrl = profile.value(QStringLiteral("fileUrl")).toUrl();
+            restartWithProfileSource(sourceUrl);
+            return;
+        }
+    }
+
+    qWarning() << "Cannot find profile for restart" << requestedName;
+}
+
+void homeform::restartWithProfileSource(const QUrl &profileSource) {
     QUrl sourceUrl = profileSource;
     if (sourceUrl.isEmpty() || !sourceUrl.isValid()) {
         qWarning() << "Cannot restart with invalid profile source" << profileSource;
