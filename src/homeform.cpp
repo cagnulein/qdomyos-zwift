@@ -11708,8 +11708,7 @@ void homeform::restartWithProfile(const QString &profileSource) {
     if (sourceUrl.scheme().isEmpty()) {
         sourceUrl = QUrl::fromLocalFile(trimmedProfileSource);
     }
-    if (!sourceUrl.isValid() || (sourceUrl.isLocalFile() && !QFile::exists(sourceUrl.toLocalFile())) ||
-        (sourceUrl.scheme() != QStringLiteral("file") && sourceUrl.scheme() != QStringLiteral("content"))) {
+    if (!sourceUrl.isValid() || sourceUrl.toString(QUrl::FullyEncoded).isEmpty()) {
         qWarning() << "Cannot restart with invalid profile source" << trimmedProfileSource;
         return;
     }
