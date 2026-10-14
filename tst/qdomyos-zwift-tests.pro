@@ -35,6 +35,7 @@ SOURCES += \
         Tools/typeidgenerator.cpp \
         Devices/TestSchwinn411510EParser.cpp \
         Devices/TestZwiftRideController.cpp \
+        Devices/TestZwiftPlayRoddyReplay.cpp \
         Devices/TestApexBikeParser.cpp \
         Devices/TestNautilusTreadmillParser.cpp \
         Devices/TestFtmsBikeResistance.cpp \
