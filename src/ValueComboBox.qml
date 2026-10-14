@@ -27,10 +27,12 @@ UiComboBox {
             value = savedText
     }
 
-    // Same as the Material style's default delegate; only the text goes through labelFor()
+    // Same as the delegate of UiComboBox; only the text goes through labelFor()
     delegate: MenuItem {
         width: ListView.view.width
         text: control.labelFor(modelData)
+        Accessible.name: text
+        Accessible.onPressAction: clicked()
         Material.foreground: control.currentIndex === index ? ListView.view.contentItem.Material.accent : ListView.view.contentItem.Material.foreground
         highlighted: control.highlightedIndex === index
         hoverEnabled: control.hoverEnabled

@@ -53,6 +53,25 @@ ComboBox {
     // a word. The box keeps the width of its text (at most half the window); 0 is the default
     Layout.minimumWidth: window.textScale !== 1 ? Math.min(implicitWidth, window.width / 2) : 0
 
+    // Modal, as the menus of the workout history, so a screen reader's touch on an item cannot
+    // reach the row under the list; no dim, so it looks as before
+    popup.modal: true
+    popup.dim: false
+
+    // Same as the Material style's default delegate, with a press action for a screen reader:
+    // Qt 5.15 gives a MenuItem no accessible action (Qt 6.5 does), so on Android its node is not
+    // clickable and a TalkBack touch on an item went to the whole window. The name is set from
+    // the text too, as in the menus of the workout history
+    delegate: MenuItem {
+        width: ListView.view.width
+        text: control.textRole ? (Array.isArray(control.model) ? modelData[control.textRole] : model[control.textRole]) : modelData
+        Accessible.name: text
+        Accessible.onPressAction: clicked()
+        Material.foreground: control.currentIndex === index ? ListView.view.contentItem.Material.accent : ListView.view.contentItem.Material.foreground
+        highlighted: control.highlightedIndex === index
+        hoverEnabled: control.hoverEnabled
+    }
+
     // The stock list takes its height from the ListView, which creates its items only as
     // they come into view: a long list opened short over its field and a moment later grew
     // up to the top. All items have the same height, so the full height is known at once.
