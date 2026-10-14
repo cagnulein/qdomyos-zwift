@@ -1539,6 +1539,10 @@ Do you want to update QZ settings?</source>
         <translation>Макс. скорость</translation>
     </message>
     <message>
+        <source>Max Incline</source>
+        <translation>Макс. наклон</translation>
+    </message>
+    <message>
         <source>Max Resistance</source>
         <translation>Макс. сопротивление</translation>
     </message>
@@ -6009,7 +6013,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZ управляет беговой дорожкой или велотренажёром, чтобы удерживать вас в выбранной пульсовой зоне. Включите, задайте целевую пульсовую зону для тренировки и нажмите OK. Например, введите 2, чтобы тренироваться во 2-й пульсовой зоне, – дорожка будет автоматически менять скорость (на велотренажёре – сопротивление), удерживая пульс в зоне 2. QZ постепенно, небольшими шагами каждые 40 секунд, повышает или понижает скорость (или сопротивление велотренажёра), чтобы выйти в целевую пульсовую зону и удерживаться в ней. Во время тренировки можно вывести плитку «Целевая пульсовая зона» и менять целевую зону её кнопками «+» и «-».</translation>
+        <translation type="vanished">QZ управляет беговой дорожкой или велотренажёром, чтобы удерживать вас в выбранной пульсовой зоне. Включите, задайте целевую пульсовую зону для тренировки и нажмите OK. Например, введите 2, чтобы тренироваться во 2-й пульсовой зоне, – дорожка будет автоматически менять скорость (на велотренажёре – сопротивление), удерживая пульс в зоне 2. QZ постепенно, небольшими шагами каждые 40 секунд, повышает или понижает скорость (или сопротивление велотренажёра), чтобы выйти в целевую пульсовую зону и удерживаться в ней. Во время тренировки можно вывести плитку «Целевая пульсовая зона» и менять целевую зону её кнопками «+» и «-».</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -7041,6 +7045,14 @@ IMPORTANT NOTES:
         <translation>Если к QZ подключены Bluetooth-дорожка и датчик Stryd и вы хотите брать скорость со Stryd, а не с дорожки, включите эту настройку. По умолчанию: выключено.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Коррекция скорости дорожки по Runn/Stryd (обратная связь)</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Экспериментально: QZ плавно поправляет заданную им скорость дорожки по данным Runn/Stryd, если драйвер дорожки передаёт собственные замеры скорости. Нужна настройка «Скорость с датчика мощности». По умолчанию: выключено.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Порог коррекции скорости по датчику мощности (%):</translation>
     </message>
@@ -7683,6 +7695,14 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Включите «%1», чтобы изменить эту настройку</translation>
+    </message>
+    <message>
+        <source>PID HR actuator:</source>
+        <translation>Удержание пульса меняет:</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ управляет беговой дорожкой или велотренажёром, чтобы удерживать вас в выбранной пульсовой зоне. Общая настройка «Удержание пульса меняет» выбирает для дорожек скорость или наклон; отдельный интервал тренировки может переопределить её в редакторе тренировок. Плитка «Целевая пульсовая зона» меняет только целевую пульсовую зону.</translation>
     </message>
     <message>
         <source>Pafers Rower</source>

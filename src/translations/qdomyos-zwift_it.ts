@@ -1539,6 +1539,10 @@ Vuoi aggiornare le impostazioni di QZ?</translation>
         <translation>Velocità massima</translation>
     </message>
     <message>
+        <source>Max Incline</source>
+        <translation>Pendenza massima</translation>
+    </message>
+    <message>
         <source>Max Resistance</source>
         <translation>Resistenza massima</translation>
     </message>
@@ -5027,7 +5031,7 @@ Nella finestra successiva, consenti l&apos;accesso alla cartella QZ.</translatio
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZ controlla il tuo tapis roulant o la tua bici per mantenere la tua frequenza cardiaca all&apos;interno di una Zona FC scelta. Accendi, imposta una zona di frequenza cardiaca target (FC) per allenarti e clicca OK. Ad esempio, inserisci 2 per allenarti nella zona FC 2 e il tapis roulant regolerà automaticamente la velocità (o la resistenza su una bici) per mantenere la tua frequenza cardiaca nella zona 2. QZ aumenta o diminuisce gradualmente la tua velocità (o la resistenza della bici) in piccoli incrementi ogni 40 secondi per raggiungere e mantenere la tua zona FC target. Durante l&apos;allenamento, puoi visualizzare e usare i pulsanti ‘+’ e ‘-’ sulla piastrella Zona FC PID per cambiare la zona FC target.</translation>
+        <translation type="vanished">QZ controlla il tuo tapis roulant o la tua bici per mantenere la tua frequenza cardiaca all&apos;interno di una Zona FC scelta. Accendi, imposta una zona di frequenza cardiaca target (FC) per allenarti e clicca OK. Ad esempio, inserisci 2 per allenarti nella zona FC 2 e il tapis roulant regolerà automaticamente la velocità (o la resistenza su una bici) per mantenere la tua frequenza cardiaca nella zona 2. QZ aumenta o diminuisce gradualmente la tua velocità (o la resistenza della bici) in piccoli incrementi ogni 40 secondi per raggiungere e mantenere la tua zona FC target. Durante l&apos;allenamento, puoi visualizzare e usare i pulsanti ‘+’ e ‘-’ sulla piastrella Zona FC PID per cambiare la zona FC target.</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -6637,6 +6641,14 @@ NOTE IMPORTANTI:
         <translation>Test Accesso Garmin</translation>
     </message>
     <message>
+        <source>PID HR actuator:</source>
+        <translation>PID FC – attuatore:</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ controlla il tuo tapis roulant o la tua bici per mantenerti in una zona FC scelta. L&apos;impostazione generale &quot;PID FC – attuatore&quot; sceglie velocità o inclinazione per i tapis roulant; un intervallo dell&apos;allenamento può sostituirla nell&apos;Editor di allenamento. La piastrella &quot;PID Zona FC&quot; cambia solo la zona FC target.</translation>
+    </message>
+    <message>
         <source>PID &apos;Pushy&apos;</source>
         <translation>PID &apos;Pushy&apos;</translation>
     </message>
@@ -7159,6 +7171,14 @@ NOTE IMPORTANTI:
     <message>
         <source>If you have a Bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.</source>
         <translation>Se hai un tapis roulant Bluetooth e anche un dispositivo Stryd collegato a QZ e desideri utilizzare la velocità dello Stryd invece di quella del tapis roulant, attiva questa opzione. Predefinito: disattivato.</translation>
+    </message>
+    <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Correzione della velocità del tapis roulant ad anello chiuso con Runn/Stryd</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Sperimentale: corregge gradualmente la velocità del tapis roulant controllata da QZ in base ai dati di Runn/Stryd, quando il driver fornisce misure di velocità proprie della macchina. Richiede &quot;Utilizza la velocità dal sensore di potenza&quot;. Predefinito: disabilitato.</translation>
     </message>
     <message>
         <source>Use inclination from the power sensor</source>
