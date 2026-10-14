@@ -610,6 +610,7 @@
 		87E1CA7D2B8DF04900E3C414 /* moc_trxappgateusbelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E1CA7C2B8DF04900E3C414 /* moc_trxappgateusbelliptical.cpp */; };
 		87E1CA802B8DF06100E3C414 /* trxappgateusbelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E1CA7E2B8DF06100E3C414 /* trxappgateusbelliptical.cpp */; };
 		87E2F85D291ED308002BDC65 /* lifefitnesstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E2F85C291ED308002BDC65 /* lifefitnesstreadmill.cpp */; };
+		7956FE9209794171B312C7EB /* lifefitnessworkout.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = FF413ACA7D264D15BA58C020 /* lifefitnessworkout.cpp */; settings = {ATTRIBUTES = (); }; };
 		87E2F85F291ED315002BDC65 /* moc_lifefitnesstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E2F85E291ED315002BDC65 /* moc_lifefitnesstreadmill.cpp */; };
 		87E34C2B2886F95400CEDE4B /* octanetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E34C2A2886F95400CEDE4B /* octanetreadmill.cpp */; };
 		87E34C2D2886F99A00CEDE4B /* moc_octanetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E34C2C2886F99900CEDE4B /* moc_octanetreadmill.cpp */; };
@@ -1774,6 +1775,8 @@
 		87E1CA7E2B8DF06100E3C414 /* trxappgateusbelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = trxappgateusbelliptical.cpp; path = ../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp; sourceTree = "<group>"; };
 		87E1CA7F2B8DF06100E3C414 /* trxappgateusbelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = trxappgateusbelliptical.h; path = ../src/devices/trxappgateusbelliptical/trxappgateusbelliptical.h; sourceTree = "<group>"; };
 		87E2F85B291ED308002BDC65 /* lifefitnesstreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lifefitnesstreadmill.h; path = ../src/devices/lifefitnesstreadmill/lifefitnesstreadmill.h; sourceTree = "<group>"; };
+		FF413ACA7D264D15BA58C020 /* lifefitnessworkout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lifefitnessworkout.cpp; path = ../src/devices/lifefitnesstreadmill/lifefitnessworkout.cpp; sourceTree = "<group>"; };
+		5A841DA2CA704B6E913AE906 /* lifefitnessworkout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lifefitnessworkout.h; path = ../src/devices/lifefitnesstreadmill/lifefitnessworkout.h; sourceTree = "<group>"; };
 		87E2F85C291ED308002BDC65 /* lifefitnesstreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lifefitnesstreadmill.cpp; path = ../src/devices/lifefitnesstreadmill/lifefitnesstreadmill.cpp; sourceTree = "<group>"; };
 		87E2F85E291ED315002BDC65 /* moc_lifefitnesstreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_lifefitnesstreadmill.cpp; sourceTree = "<group>"; };
 		87E34C292886F95300CEDE4B /* octanetreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = octanetreadmill.h; path = ../src/devices/octanetreadmill/octanetreadmill.h; sourceTree = "<group>"; };
@@ -2673,6 +2676,8 @@
 				87CF5168293C879700A7CABC /* characteristicwriteprocessore005.h */,
 				87E2F85C291ED308002BDC65 /* lifefitnesstreadmill.cpp */,
 				87E2F85B291ED308002BDC65 /* lifefitnesstreadmill.h */,
+				FF413ACA7D264D15BA58C020 /* lifefitnessworkout.cpp */,
+				5A841DA2CA704B6E913AE906 /* lifefitnessworkout.h */,
 				87F02E3E29178523000DB52C /* octaneelliptical.cpp */,
 				87F02E3F29178524000DB52C /* octaneelliptical.h */,
 				87D10550290996EA00B3935B /* mepanelbike.cpp */,
@@ -3933,6 +3938,7 @@
 				2A61806454201575EDB3F94F /* fit_buffer_encode.cpp in Compile Sources */,
 				87F02E4229178545000DB52C /* moc_octaneelliptical.cpp in Compile Sources */,
 				87E2F85D291ED308002BDC65 /* lifefitnesstreadmill.cpp in Compile Sources */,
+				7956FE9209794171B312C7EB /* lifefitnessworkout.cpp in Compile Sources */,
 				8752C0E82B15D85600C3D1A5 /* eliteariafan.cpp in Compile Sources */,
 				8767CA602DA800590003001F /* ios_zwiftclickremote.mm in Compile Sources */,
 				87917A7328E768D200F8D9AC /* Browser.swift in Compile Sources */,
