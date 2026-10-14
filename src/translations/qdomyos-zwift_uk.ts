@@ -3602,6 +3602,146 @@ This may take a few moments on first startup.</source>
         <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
         <translation>Android дозволяє 5 пошуків Bluetooth за 30 с, наступний почнеться через %1 с</translation>
     </message>
+    <message>
+        <source>Great workout!</source>
+        <translation>Чудове тренування!</translation>
+    </message>
+    <message>
+        <source>Average Speed: %1</source>
+        <translation>Середня швидкість: %1</translation>
+    </message>
+    <message>
+        <source>Max Speed: %1</source>
+        <translation>Максимальна швидкість: %1</translation>
+    </message>
+    <message>
+        <source>Calories burned: %1</source>
+        <translation>Спалено калорій: %1</translation>
+    </message>
+    <message>
+        <source>Distance: %1</source>
+        <translation>Дистанція: %1</translation>
+    </message>
+    <message>
+        <source>Elevation Gain (%1): %2</source>
+        <translation>Набір висоти (%1): %2</translation>
+    </message>
+    <message>
+        <source>Average Watt: %1</source>
+        <translation>Середня потужність: %1</translation>
+    </message>
+    <message>
+        <source>Max Watt: %1</source>
+        <translation>Максимальна потужність: %1</translation>
+    </message>
+    <message>
+        <source>Average Watt/Kg: %1</source>
+        <translation>Середня потужність (Вт/кг): %1</translation>
+    </message>
+    <message>
+        <source>Max Watt/Kg: %1</source>
+        <translation>Максимальна потужність (Вт/кг): %1</translation>
+    </message>
+    <message>
+        <source>Average Heart Rate: %1</source>
+        <translation>Середній пульс: %1</translation>
+    </message>
+    <message>
+        <source>Max Heart Rate: %1</source>
+        <translation>Максимальний пульс: %1</translation>
+    </message>
+    <message>
+        <source>Heart Rate Z%1: %2</source>
+        <translation>Час у пульсовій зоні %1: %2</translation>
+    </message>
+    <message>
+        <source>Total Output: %1</source>
+        <translation>Сумарна робота (кДж): %1</translation>
+    </message>
+    <message>
+        <source>Elapsed Time: %1</source>
+        <translation>Загальний час: %1</translation>
+    </message>
+    <message>
+        <source>Moving Time: %1</source>
+        <translation>Час у русі: %1</translation>
+    </message>
+    <message>
+        <source>Weight Loss (%1): %2</source>
+        <translation>Втрата ваги (%1): %2</translation>
+    </message>
+    <message>
+        <source>Estimated VO2Max: %1</source>
+        <translation>Розрахунковий VO2Max: %1</translation>
+    </message>
+    <message>
+        <source>Running Stress Score: %1</source>
+        <translation>Індекс бігового навантаження: %1</translation>
+    </message>
+    <message>
+        <source>5 Seconds Power: %1W %2W/Kg</source>
+        <translation>Потужність за 5 секунд: %1 Вт, %2 Вт/кг</translation>
+    </message>
+    <message>
+        <source>1 Minute Power: %1W %2W/Kg</source>
+        <translation>Потужність за 1 хвилину: %1 Вт, %2 Вт/кг</translation>
+    </message>
+    <message>
+        <source>5 Minutes Power: %1W %2W/Kg</source>
+        <translation>Потужність за 5 хвилин: %1 Вт, %2 Вт/кг</translation>
+    </message>
+    <message>
+        <source>Estimated FTP: %1W</source>
+        <translation>Розрахунковий FTP: %1 Вт</translation>
+    </message>
+    <message>
+        <source>FTP IMPROVED +%1W!</source>
+        <translation>FTP ЗРІС: +%1 Вт!</translation>
+    </message>
+    <message>
+        <source>Average Cadence: %1</source>
+        <translation>Середній каденс: %1</translation>
+    </message>
+    <message>
+        <source>Max Cadence: %1</source>
+        <translation>Максимальний каденс: %1</translation>
+    </message>
+    <message>
+        <source>Average Resistance: %1</source>
+        <translation>Середній опір: %1</translation>
+    </message>
+    <message>
+        <source>Max Resistance: %1</source>
+        <translation>Максимальний опір: %1</translation>
+    </message>
+    <message>
+        <source>Average Peloton Resistance: %1</source>
+        <translation>Середній опір Peloton: %1</translation>
+    </message>
+    <message>
+        <source>Max Peloton Resistance: %1</source>
+        <translation>Максимальний опір Peloton: %1</translation>
+    </message>
+    <message>
+        <source>Average Pace: %1</source>
+        <translation>Середній темп: %1</translation>
+    </message>
+    <message>
+        <source>Max Pace: %1</source>
+        <translation>Максимальний темп: %1</translation>
+    </message>
+    <message>
+        <source>Average Strokes Length: %1</source>
+        <translation>Середня довжина гребка: %1</translation>
+    </message>
+    <message>
+        <source>meters</source>
+        <translation>м</translation>
+    </message>
+    <message>
+        <source>feet</source>
+        <translation>фут</translation>
+    </message>
 </context>
 <context>
     <name>main</name>

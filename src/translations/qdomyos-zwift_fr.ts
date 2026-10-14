@@ -3610,6 +3610,146 @@ Cela peut prendre quelques instants au premier démarrage.</translation>
         <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
         <translation>Android autorise 5 recherches Bluetooth en 30 s, la prochaine commence dans %1 s</translation>
     </message>
+    <message>
+        <source>Great workout!</source>
+        <translation>Excellent entraînement !</translation>
+    </message>
+    <message>
+        <source>Average Speed: %1</source>
+        <translation>Vitesse moyenne : %1</translation>
+    </message>
+    <message>
+        <source>Max Speed: %1</source>
+        <translation>Vitesse maximale : %1</translation>
+    </message>
+    <message>
+        <source>Calories burned: %1</source>
+        <translation>Calories brûlées : %1</translation>
+    </message>
+    <message>
+        <source>Distance: %1</source>
+        <translation>Distance : %1</translation>
+    </message>
+    <message>
+        <source>Elevation Gain (%1): %2</source>
+        <translation>Dénivelé positif (%1) : %2</translation>
+    </message>
+    <message>
+        <source>Average Watt: %1</source>
+        <translation>Puissance moyenne : %1</translation>
+    </message>
+    <message>
+        <source>Max Watt: %1</source>
+        <translation>Puissance maximale : %1</translation>
+    </message>
+    <message>
+        <source>Average Watt/Kg: %1</source>
+        <translation>Puissance moyenne (W/kg) : %1</translation>
+    </message>
+    <message>
+        <source>Max Watt/Kg: %1</source>
+        <translation>Puissance maximale (W/kg) : %1</translation>
+    </message>
+    <message>
+        <source>Average Heart Rate: %1</source>
+        <translation>Fréquence cardiaque moyenne : %1</translation>
+    </message>
+    <message>
+        <source>Max Heart Rate: %1</source>
+        <translation>Fréquence cardiaque maximale : %1</translation>
+    </message>
+    <message>
+        <source>Heart Rate Z%1: %2</source>
+        <translation>Temps en zone de FC %1 : %2</translation>
+    </message>
+    <message>
+        <source>Total Output: %1</source>
+        <translation>Travail total (kJ) : %1</translation>
+    </message>
+    <message>
+        <source>Elapsed Time: %1</source>
+        <translation>Temps écoulé : %1</translation>
+    </message>
+    <message>
+        <source>Moving Time: %1</source>
+        <translation>Temps de déplacement : %1</translation>
+    </message>
+    <message>
+        <source>Weight Loss (%1): %2</source>
+        <translation>Perte de poids (%1) : %2</translation>
+    </message>
+    <message>
+        <source>Estimated VO2Max: %1</source>
+        <translation>VO2Max estimée : %1</translation>
+    </message>
+    <message>
+        <source>Running Stress Score: %1</source>
+        <translation>Score de stress de course : %1</translation>
+    </message>
+    <message>
+        <source>5 Seconds Power: %1W %2W/Kg</source>
+        <translation>Puissance sur 5 secondes : %1 W, %2 W/kg</translation>
+    </message>
+    <message>
+        <source>1 Minute Power: %1W %2W/Kg</source>
+        <translation>Puissance sur 1 minute : %1 W, %2 W/kg</translation>
+    </message>
+    <message>
+        <source>5 Minutes Power: %1W %2W/Kg</source>
+        <translation>Puissance sur 5 minutes : %1 W, %2 W/kg</translation>
+    </message>
+    <message>
+        <source>Estimated FTP: %1W</source>
+        <translation>FTP estimée : %1 W</translation>
+    </message>
+    <message>
+        <source>FTP IMPROVED +%1W!</source>
+        <translation>FTP AMÉLIORÉE : +%1 W !</translation>
+    </message>
+    <message>
+        <source>Average Cadence: %1</source>
+        <translation>Cadence moyenne : %1</translation>
+    </message>
+    <message>
+        <source>Max Cadence: %1</source>
+        <translation>Cadence maximale : %1</translation>
+    </message>
+    <message>
+        <source>Average Resistance: %1</source>
+        <translation>Résistance moyenne : %1</translation>
+    </message>
+    <message>
+        <source>Max Resistance: %1</source>
+        <translation>Résistance maximale : %1</translation>
+    </message>
+    <message>
+        <source>Average Peloton Resistance: %1</source>
+        <translation>Résistance Peloton moyenne : %1</translation>
+    </message>
+    <message>
+        <source>Max Peloton Resistance: %1</source>
+        <translation>Résistance Peloton maximale : %1</translation>
+    </message>
+    <message>
+        <source>Average Pace: %1</source>
+        <translation>Allure moyenne : %1</translation>
+    </message>
+    <message>
+        <source>Max Pace: %1</source>
+        <translation>Allure maximale : %1</translation>
+    </message>
+    <message>
+        <source>Average Strokes Length: %1</source>
+        <translation>Longueur moyenne des coups de rame : %1</translation>
+    </message>
+    <message>
+        <source>meters</source>
+        <translation>m</translation>
+    </message>
+    <message>
+        <source>feet</source>
+        <translation>ft</translation>
+    </message>
 </context>
 <context>
     <name>main</name>

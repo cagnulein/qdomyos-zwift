@@ -11028,8 +11028,8 @@ void homeform::sendMail() {
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     double unit_conversion = 1.0;
     double meter_feet_conversion = 1.0;
-    QString meter_feet_unit = QStringLiteral("meters");
-    QString weightLossUnit = QStringLiteral("Kg");
+    QString meter_feet_unit = tr("meters");
+    QString weightLossUnit = tr("Kg");
     double WeightLoss = 0;
 
     // TODO: add a condition to avoid sending mail when the user look at the chart while is riding
@@ -11046,9 +11046,9 @@ void homeform::sendMail() {
 
     if (miles) {
         unit_conversion = 0.621371; // clang, don't touch it!
-        weightLossUnit = QStringLiteral("Oz");
+        weightLossUnit = tr("Oz");
         meter_feet_conversion = 3.28084;
-        meter_feet_unit = QStringLiteral("feet");
+        meter_feet_unit = tr("feet");
     }
     WeightLoss = (miles ? bluetoothManager->device()->weightLoss() * 35.274 : bluetoothManager->device()->weightLoss());
 
@@ -11075,7 +11075,7 @@ void homeform::sendMail() {
 
     MimeText *text = new MimeText;
 
-    QString textMessage = QStringLiteral("Great workout!\n\n");
+    QString textMessage = tr("Great workout!") + QStringLiteral("\n\n");
 
     if (pelotonHandler) {
         if (!pelotonHandler->current_ride_id.isEmpty()) {
@@ -11087,138 +11087,166 @@ void homeform::sendMail() {
     }
 
     textMessage += '\n';
-    textMessage += QStringLiteral("Average Speed: ") +
-                   QString::number(bluetoothManager->device()->currentSpeed().average() * unit_conversion, 'f', 1) +
-                   QStringLiteral("\n");
-    textMessage += QStringLiteral("Max Speed: ") +
-                   QString::number(bluetoothManager->device()->currentSpeed().max() * unit_conversion, 'f', 1) +
-                   QStringLiteral("\n");
-    textMessage += QStringLiteral("Calories burned: ") +
-                   QString::number(bluetoothManager->device()->calories().value(), 'f', 0) + QStringLiteral("\n");
-    textMessage += QStringLiteral("Distance: ") +
-                   QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 1) +
-                   QStringLiteral("\n");
-    textMessage += QStringLiteral("Elevation Gain (") + meter_feet_unit + "): " +
-                   QString::number(bluetoothManager->device()->elevationGain().value() * meter_feet_conversion, 'f',
-                                   (miles ? 0 : 1)) +
-                   QStringLiteral("\n");
-    textMessage += QStringLiteral("Average Watt: ") +
-                   QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0) + QStringLiteral("\n");
-    textMessage += QStringLiteral("Max Watt: ") +
-                   QString::number(bluetoothManager->device()->wattsMetric().max(), 'f', 0) + QStringLiteral("\n");
-    textMessage += QStringLiteral("Average Watt/Kg: ") +
-                   QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1) + "\n";
+    // Workout summary for the user, in the app language. The technical lines below (QZ version, devices,
+    // debug log) stay in English: users forward this mail when they ask for support.
     textMessage +=
-        QStringLiteral("Max Watt/Kg: ") + QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1) + "\n";
-    textMessage += QStringLiteral("Average Heart Rate: ") +
-                   QString::number(bluetoothManager->device()->currentHeart().average(), 'f', 0) + QStringLiteral("\n");
-    textMessage += QStringLiteral("Max Heart Rate: ") +
-                   QString::number(bluetoothManager->device()->currentHeart().max(), 'f', 0) + QStringLiteral("\n");
+        tr("Average Speed: %1")
+            .arg(QString::number(bluetoothManager->device()->currentSpeed().average() * unit_conversion, 'f', 1)) +
+        QStringLiteral("\n");
+    textMessage +=
+        tr("Max Speed: %1")
+            .arg(QString::number(bluetoothManager->device()->currentSpeed().max() * unit_conversion, 'f', 1)) +
+        QStringLiteral("\n");
+    textMessage +=
+        tr("Calories burned: %1").arg(QString::number(bluetoothManager->device()->calories().value(), 'f', 0)) +
+        QStringLiteral("\n");
+    textMessage +=
+        tr("Distance: %1").arg(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 1)) +
+        QStringLiteral("\n");
+    textMessage += tr("Elevation Gain (%1): %2")
+                       .arg(meter_feet_unit,
+                            QString::number(bluetoothManager->device()->elevationGain().value() * meter_feet_conversion,
+                                            'f', (miles ? 0 : 1))) +
+                   QStringLiteral("\n");
+    textMessage +=
+        tr("Average Watt: %1").arg(QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0)) +
+        QStringLiteral("\n");
+    textMessage += tr("Max Watt: %1").arg(QString::number(bluetoothManager->device()->wattsMetric().max(), 'f', 0)) +
+                   QStringLiteral("\n");
+    textMessage +=
+        tr("Average Watt/Kg: %1").arg(QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1)) + "\n";
+    textMessage +=
+        tr("Max Watt/Kg: %1").arg(QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1)) + "\n";
+    textMessage += tr("Average Heart Rate: %1")
+                       .arg(QString::number(bluetoothManager->device()->currentHeart().average(), 'f', 0)) +
+                   QStringLiteral("\n");
+    textMessage +=
+        tr("Max Heart Rate: %1").arg(QString::number(bluetoothManager->device()->currentHeart().max(), 'f', 0)) +
+        QStringLiteral("\n");
 
     for(int i=0; i<bluetoothManager->device()->maxHeartZone(); i++) {
-        textMessage += QStringLiteral("Heart Rate Z") + QString::number(i + 1) + QStringLiteral(": ") +
-                    QTime(0, 0, 0, 0).addSecs(bluetoothManager->device()->secondsForHeartZone(i)).toString("H:mm:ss") + QStringLiteral("\n");        
+        textMessage +=
+            tr("Heart Rate Z%1: %2")
+                .arg(
+                    QString::number(i + 1),
+                    QTime(0, 0, 0, 0).addSecs(bluetoothManager->device()->secondsForHeartZone(i)).toString("H:mm:ss")) +
+            QStringLiteral("\n");
     }
 
-    textMessage += QStringLiteral("Total Output: ") +
-                   QString::number(bluetoothManager->device()->jouls().max() / 1000.0, 'f', 0) + QStringLiteral("\n");
     textMessage +=
-        QStringLiteral("Elapsed Time: ") + bluetoothManager->device()->elapsedTime().toString() + QStringLiteral("\n");
+        tr("Total Output: %1").arg(QString::number(bluetoothManager->device()->jouls().max() / 1000.0, 'f', 0)) +
+        QStringLiteral("\n");
     textMessage +=
-        QStringLiteral("Moving Time: ") + bluetoothManager->device()->movingTime().toString() + QStringLiteral("\n");
-    textMessage += QStringLiteral("Weight Loss (") + weightLossUnit + "): " + QString::number(WeightLoss, 'f', 2) +
-                   QStringLiteral("\n");
+        tr("Elapsed Time: %1").arg(bluetoothManager->device()->elapsedTime().toString()) + QStringLiteral("\n");
+    textMessage +=
+        tr("Moving Time: %1").arg(bluetoothManager->device()->movingTime().toString()) + QStringLiteral("\n");
+    textMessage +=
+        tr("Weight Loss (%1): %2").arg(weightLossUnit, QString::number(WeightLoss, 'f', 2)) + QStringLiteral("\n");
     double vo2max = metric::calculateVO2Max(&Session);
     if(vo2max)
-        textMessage += QStringLiteral("Estimated VO2Max: ") + QString::number(vo2max, 'f', 0) +
-                   QStringLiteral("\n");
+        textMessage += tr("Estimated VO2Max: %1").arg(QString::number(vo2max, 'f', 0)) + QStringLiteral("\n");
     if(bluetoothManager->device()->deviceType() == BLUETOOTH_TYPE::TREADMILL) {
-        textMessage += QStringLiteral("Running Stress Score: ") + QString::number(((treadmill*)bluetoothManager->device())->runningStressScore(), 'f', 0) +
-                       QStringLiteral("\n");
+        textMessage +=
+            tr("Running Stress Score: %1")
+                .arg(QString::number(((treadmill *)bluetoothManager->device())->runningStressScore(), 'f', 0)) +
+            QStringLiteral("\n");
     }
     double peak = metric::powerPeak(&Session, 5);
     double weightKg = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
-    textMessage += QStringLiteral("5 Seconds Power: ") + QString::number(peak, 'f', 0) +
-                   QStringLiteral("W ") + QString::number(peak/weightKg, 'f', 1) + QStringLiteral("W/Kg\n");
+    textMessage +=
+        tr("5 Seconds Power: %1W %2W/Kg").arg(QString::number(peak, 'f', 0), QString::number(peak / weightKg, 'f', 1)) +
+        QStringLiteral("\n");
     peak = metric::powerPeak(&Session, 60);
-    textMessage += QStringLiteral("1 Minute Power: ") + QString::number(peak, 'f', 0) +
-                   QStringLiteral("W ") + QString::number(peak/weightKg, 'f', 1) + QStringLiteral("W/Kg\n");
+    textMessage +=
+        tr("1 Minute Power: %1W %2W/Kg").arg(QString::number(peak, 'f', 0), QString::number(peak / weightKg, 'f', 1)) +
+        QStringLiteral("\n");
     peak = metric::powerPeak(&Session, 5 * 60);
-    textMessage += QStringLiteral("5 Minutes Power: ") + QString::number(peak, 'f', 0) +
-                   QStringLiteral("W ") + QString::number(peak/weightKg, 'f', 1) + QStringLiteral("W/Kg\n");    
+    textMessage +=
+        tr("5 Minutes Power: %1W %2W/Kg").arg(QString::number(peak, 'f', 0), QString::number(peak / weightKg, 'f', 1)) +
+        QStringLiteral("\n");
 
     // FTP
     double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
     peak = (metric::powerPeak(&Session, 20 * 60) * 0.95) * 0.95;
-    textMessage += QStringLiteral("Estimated FTP: ") + QString::number(peak, 'f', 0) +
-                   QStringLiteral("W ");
+    textMessage += tr("Estimated FTP: %1W").arg(QString::number(peak, 'f', 0)) + QStringLiteral(" ");
     if(peak > ftpSetting) {
-        textMessage += QStringLiteral(" FTP IMPROVED +") + QString::number(peak - ftpSetting, 'f', 0) +
-                       QStringLiteral("W!");
+        textMessage += QStringLiteral(" ") + tr("FTP IMPROVED +%1W!").arg(QString::number(peak - ftpSetting, 'f', 0));
     }
     textMessage += QStringLiteral("\n");
 
     if (bluetoothManager->device()->deviceType() == BIKE) {
-        textMessage += QStringLiteral("Average Cadence: ") +
-                       QString::number(((bike *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Cadence: ") +
-                       QString::number(((bike *)bluetoothManager->device())->currentCadence().max(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Average Resistance: ") +
-                       QString::number(((bike *)bluetoothManager->device())->currentResistance().average(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Resistance: ") +
-                       QString::number(((bike *)bluetoothManager->device())->currentResistance().max(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Average Peloton Resistance: ") +
-                       QString::number(((bike *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Peloton Resistance: ") +
-                       QString::number(((bike *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0) +
-                       QStringLiteral("\n");
-    } else if (bluetoothManager->device()->deviceType() == ROWING) {
-        textMessage += QStringLiteral("Average Cadence: ") +
-                       QString::number(((rower *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Cadence: ") +
-                       QString::number(((rower *)bluetoothManager->device())->currentCadence().max(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Average Resistance: ") +
-                       QString::number(((rower *)bluetoothManager->device())->currentResistance().average(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Resistance: ") +
-                       QString::number(((rower *)bluetoothManager->device())->currentResistance().max(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Average Peloton Resistance: ") +
-                       QString::number(((rower *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Peloton Resistance: ") +
-                       QString::number(((rower *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Average Pace: ") +
-                       ((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Pace: ") +
-                       ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")) +
+        textMessage +=
+            tr("Average Cadence: %1")
+                .arg(QString::number(((bike *)bluetoothManager->device())->currentCadence().average(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage += tr("Max Cadence: %1")
+                           .arg(QString::number(((bike *)bluetoothManager->device())->currentCadence().max(), 'f', 0)) +
                        QStringLiteral("\n");
         textMessage +=
-            QStringLiteral("Average Strokes Length: ") +
-            QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1) + "\n";
+            tr("Average Resistance: %1")
+                .arg(QString::number(((bike *)bluetoothManager->device())->currentResistance().average(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Max Resistance: %1")
+                .arg(QString::number(((bike *)bluetoothManager->device())->currentResistance().max(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Average Peloton Resistance: %1")
+                .arg(QString::number(((bike *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Max Peloton Resistance: %1")
+                .arg(QString::number(((bike *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0)) +
+            QStringLiteral("\n");
+    } else if (bluetoothManager->device()->deviceType() == ROWING) {
+        textMessage +=
+            tr("Average Cadence: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->currentCadence().average(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Max Cadence: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->currentCadence().max(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Average Resistance: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->currentResistance().average(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Max Resistance: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->currentResistance().max(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Average Peloton Resistance: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Max Peloton Resistance: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0)) +
+            QStringLiteral("\n");
+        textMessage += tr("Average Pace: %1")
+                           .arg(((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss"))) +
+                       QStringLiteral("\n");
+        textMessage +=
+            tr("Max Pace: %1").arg(((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss"))) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Average Strokes Length: %1")
+                .arg(QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1)) +
+            "\n";
     } else if (bluetoothManager->device()->deviceType() == TREADMILL || bluetoothManager->device()->deviceType() == ELLIPTICAL) {
-        textMessage += QStringLiteral("Average Pace: ") +
-                       (bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
-                       QStringLiteral("\n");
-        textMessage += QStringLiteral("Max Pace: ") +
-                       (bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")) +
-                       QStringLiteral("\n");
+        textMessage +=
+            tr("Average Pace: %1").arg((bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss"))) +
+            QStringLiteral("\n");
+        textMessage +=
+            tr("Max Pace: %1").arg((bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss"))) +
+            QStringLiteral("\n");
         // for stryd and similars
         if (bluetoothManager->device()->currentCadence().average() > 0) {
-            textMessage += QStringLiteral("Average Cadence: ") +
-                           QString::number((bluetoothManager->device())->currentCadence().average(), 'f', 0) +
+            textMessage += tr("Average Cadence: %1")
+                               .arg(QString::number((bluetoothManager->device())->currentCadence().average(), 'f', 0)) +
                            QStringLiteral("\n");
-            textMessage += QStringLiteral("Max Cadence: ") +
-                           QString::number((bluetoothManager->device())->currentCadence().max(), 'f', 0) +
+            textMessage += tr("Max Cadence: %1")
+                               .arg(QString::number((bluetoothManager->device())->currentCadence().max(), 'f', 0)) +
                            QStringLiteral("\n");
         }
     }
