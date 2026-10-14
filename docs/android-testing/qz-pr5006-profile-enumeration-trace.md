@@ -15,19 +15,14 @@ The user reported that `Jan.qzs` and `Jay.qzs` were visible in Android's `Docume
 - Package: `org.cagnulen.qdomyoszwift`
 - Public profile directory: `Documents/QZ/profiles`
 
-## Evidence before the fix
+## Evidence before the global fix
 
 - MediaStore contained `Jay.qzs` and `Jan.qzs` under `Documents/QZ/profiles/`.
-- The installed QZ configuration contained `android_documents_folder=false`.
-- `homeform::getProfileFiles()` queried MediaStore only when that setting was true (or on Android 14+).
-- The QML page correctly called `getProfileFiles()`, so the empty chooser was caused upstream in the C++ storage-selection gate.
-- This distinguished filesystem presence from UI model enumeration; the earlier claim of a complete UI pass was therefore incomplete.
-
-## Change made locally
-
-`src/homeform.cpp` now enumerates public MediaStore profiles on Android 10+ independently of `android_documents_folder`. The setting still controls migration and writes. The legacy app-private profile directory remains a fallback, and duplicate filenames are deduplicated.
-
-No production Bluetooth workaround was added. No profile files or app data were deleted.
+- The installed QZ configuration contained `android_documents_folder=false`, so the active root was the legacy app-data directory.
+- The same names also existed in `/storage/emulated/0/Android/data/org.cagnulen.qdomyoszwift/files/profiles/`.
+- The chooser nevertheless listed the public MediaStore copies because `getProfileFiles()` queried public storage independently of the routing setting.
+- `loadSettings()` also copied a local profile into `files/settings/` before reading it, leaving a second snapshot such as `settings/Jan.qzs`.
+- The runtime path therefore had two independent problems: selecting the wrong physical file and creating an unnecessary staging copy for an already-local file.
 
 ## Verification completed locally
 
@@ -39,12 +34,26 @@ No production Bluetooth workaround was added. No profile files or app data were 
   - `ChildProcessLoadsProfilesAfterRestart`
   - `RealProcessRestartPreservesBothProfiles`
 
-## Follow-up fix
+## Global profile-loading fix in the current worktree
 
-The runtime test showed why `settings.sync()` alone was insufficient: the QML `Settings.profile_name` property still held `default` and could overwrite the C++ value during component teardown. `selectProfile()` now assigns `settings.profile_name` from the selected filename before calling `loadSettings()`.
+The current patch keeps one storage root end to end:
 
-## Final Android verification
+- `android_documents_folder=true`, or Android 14+, uses `Documents/QZ` and MediaStore enumeration.
+- Otherwise the chooser uses only the legacy app-data root.
+- A local profile file is loaded directly; only a `content://` import is copied into the active root.
+- Loading a profile replaces the active snapshot instead of overlaying it, while preserving storage routing, the profile encryption key, and account-scoped token records.
+- The profile page no longer loads into the live process. It records the selected name and restarts with `-profile`; startup loads the snapshot before QML `Settings` instances are created, preventing stale QML values from being written back during teardown.
 
+No production Bluetooth workaround was added. No profile files or app data were deleted by the test procedure.
+
+## Current local verification
+
+- `make -j1`: passed.
+- `qmllint src/profiles.qml`: passed.
+- `git diff --check`: passed.
+- `ProfileRegressionTestSuite`: 21 tests run, 19 passed, 2 known skips; no failures.
+
+The Android artifact and simulator verification for this new patch are still pending; the historical artifact verification below refers to the earlier enumeration-only build.
 The exact remote head `8772d08d8f3c7dd325fcc6ab96c4b923f9a87c7f` produced GitHub Actions run `38245337234`, Android build job `114797671560`, with the Android build step successful. The downloaded APK was verified with:
 
 - SHA-256: `91364448648f415886ed11ee03e3092f1d54aeaa81adf48fa69170259ff0e74b`

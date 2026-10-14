@@ -12,6 +12,7 @@ ColumnLayout {
     anchors.fill: parent
 
     signal profile_open_clicked(url name)
+    property string pendingProfileName: ""
 
     Connections {
         target: rootItem
@@ -59,7 +60,7 @@ ColumnLayout {
         informativeText: qsTr("You must quit and restart for changes to take effect.")
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {
-            restart()
+            rootItem.restartWithProfile(pendingProfileName)
         }
         onNoClicked: {
             quitDialog.close()
@@ -221,7 +222,11 @@ ColumnLayout {
                         settings.profile_name = profileNameTextField.text
                         const fileUrl = profileModel.get(profileIndex).fileUrl
                         if (fileUrl) {
-                            loadSettings(fileUrl)
+                            // Load the snapshot before QML Settings objects are
+                            // created in the restarted process. Loading here
+                            // would let cached values from the old profile be
+                            // written back during teardown.
+                            pendingProfileName = profileNameTextField.text
                             quitDialog.visible = true
                         }
                     } else {

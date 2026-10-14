@@ -64,6 +64,16 @@ homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
 namespace {
+#ifdef Q_OS_ANDROID
+bool usePublicDocumentsStorage() {
+    QSettings settings;
+    return settings.value(QZSettings::android_documents_folder,
+                          QZSettings::default_android_documents_folder).toBool() ||
+           QOperatingSystemVersion::current() >=
+               QOperatingSystemVersion(QOperatingSystemVersion::Android, 14);
+}
+#endif
+
 QString uploadActivityLabelFromSport(FIT_SPORT sport) {
     switch (sport) {
     case FIT_SPORT_RUNNING:
@@ -1733,9 +1743,7 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 QString homeform::getWritableAppDir() {
     QString path = QLatin1String("");
 #if defined(Q_OS_ANDROID)
-    QSettings settings;
-    bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
-    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    if (usePublicDocumentsStorage()) {
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
         QDir().mkdir(path);
         // Create .nomedia file to prevent gallery indexing
@@ -8830,21 +8838,16 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 }
 
 QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
-#ifdef Q_OS_ANDROID        
+#ifdef Q_OS_ANDROID
     qDebug() << "Android Version:" << QOperatingSystemVersion::current();
     const QString sourcePath = QQmlFile::urlToLocalFileOrQrc(file);
-    const QString destinationDir = getWritableAppDir() + subfolder + "/";
-    QDir().mkpath(destinationDir);
-
-    if (!sourcePath.isEmpty() && sourcePath.startsWith(destinationDir)) {
-        qDebug() << "no need to copy file, the file is already in QZ subfolder" << file << subfolder;
+    if (!file.toString().startsWith(QStringLiteral("content://"))) {
         return sourcePath;
     }
 
-    QString filename;
-    if (file.toString().startsWith(QStringLiteral("content"))) {
-        filename = getFileNameFromContentUri(file.toString());
-    }
+    const QString destinationDir = getWritableAppDir() + subfolder + "/";
+    QDir().mkpath(destinationDir);
+    QString filename = getFileNameFromContentUri(file.toString());
     if (filename.isEmpty() && !sourcePath.isEmpty()) {
         filename = QFileInfo(sourcePath).fileName();
     }
@@ -8901,7 +8904,7 @@ void homeform::profile_open_clicked(const QUrl &fileName) {
 #ifdef Q_OS_ANDROID
     const QString copiedFile = copyAndroidContentsURI(fileName, "profiles");
     if (!copiedFile.isEmpty()) {
-        loadSettings(QUrl::fromLocalFile(copiedFile));
+        restartWithProfile(QFileInfo(copiedFile).completeBaseName());
     }
 #else
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
@@ -11367,6 +11370,43 @@ void homeform::loadSettings(const QUrl &filename) {
                baseKey == QZSettings::garmin_oauth1_token ||
                baseKey == QZSettings::garmin_oauth1_token_secret;
     };
+
+    auto isPreservedGlobalKey = [](const QString &key) {
+        if (key == QZSettings::android_documents_folder ||
+            key == QZSettings::cryptoKeySettingsProfiles) {
+            return true;
+        }
+        for (const QString &baseKey : {QZSettings::strava_accesstoken,
+                                       QZSettings::strava_refreshtoken,
+                                       QZSettings::strava_lastrefresh,
+                                       QZSettings::strava_expires,
+                                       QZSettings::garmin_access_token,
+                                       QZSettings::garmin_refresh_token,
+                                       QZSettings::garmin_token_type,
+                                       QZSettings::garmin_expires_at,
+                                       QZSettings::garmin_refresh_token_expires_at,
+                                       QZSettings::garmin_oauth1_token,
+                                       QZSettings::garmin_oauth1_token_secret,
+                                       QZSettings::garmin_last_refresh}) {
+            if (key == baseKey || key.startsWith(baseKey + QStringLiteral("_"))) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    // A profile is a snapshot, not an overlay. Remove settings owned by the
+    // active profile before importing the new snapshot so keys absent from
+    // the selected file cannot survive from the previous profile. Storage
+    // routing, the profile encryption key, and account-scoped token records
+    // remain outside the profile snapshot.
+    const QStringList activeKeys = settings.allKeys();
+    for (const QString &key : activeKeys) {
+        if (!isPreservedGlobalKey(key)) {
+            settings.remove(key);
+        }
+    }
+
     bool importedGarminTokenForProfile = false;
 
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
@@ -11500,17 +11540,11 @@ QVariantList homeform::getProfileFiles() {
     };
 
 #ifdef Q_OS_ANDROID
-    // Profile enumeration must not depend on the storage-routing toggle. A
-    // previous run, an upgrade, or a restored QSettings file can leave this
-    // toggle disabled while the profiles already exist in MediaStore's public
-    // Documents/QZ/profiles directory. Hiding those files makes the chooser
-    // disagree with the user's visible storage. The toggle still controls
-    // migration and writes; enumeration reads both public and legacy storage.
-    const bool canUsePublicDocuments =
-        QOperatingSystemVersion::current() >=
-        QOperatingSystemVersion(QOperatingSystemVersion::Android, 10);
-
-    if (canUsePublicDocuments) {
+    // Enumerate the same storage root that getWritableAppDir() uses. A
+    // disabled Documents setting must not make stale public copies visible,
+    // and an enabled/mandatory Documents setting must not fall back to the
+    // legacy directory.
+    if (usePublicDocumentsStorage()) {
         QAndroidJniObject relativeDirectory = QAndroidJniObject::fromString(QStringLiteral("profiles"));
         QAndroidJniObject files = QAndroidJniObject::callStaticObjectMethod(
             "org/cagnulen/qdomyoszwift/ContentHelper",
@@ -11655,6 +11689,31 @@ void homeform::restart() {
     qApp->quit();
 #if !defined(Q_OS_DARWIN) && !defined(Q_OS_IOS) && !defined(Q_OS_WINRT)
     QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+#endif
+}
+
+void homeform::restartWithProfile(const QString &profileName) {
+    const QString trimmedProfileName = profileName.trimmed();
+    if (trimmedProfileName.isEmpty()) {
+        qWarning() << "Cannot restart without a profile name";
+        return;
+    }
+
+    QStringList arguments = qApp->arguments();
+    for (int i = arguments.size() - 1; i >= 1; --i) {
+        if (arguments.at(i) == QStringLiteral("-profile")) {
+            arguments.removeAt(i);
+            if (i < arguments.size()) {
+                arguments.removeAt(i);
+            }
+        }
+    }
+    arguments << QStringLiteral("-profile") << trimmedProfileName;
+
+    qDebug() << "Restarting with profile" << trimmedProfileName;
+    qApp->quit();
+#if !defined(Q_OS_DARWIN) && !defined(Q_OS_IOS) && !defined(Q_OS_WINRT)
+    QProcess::startDetached(qApp->arguments()[0], arguments);
 #endif
 }
 

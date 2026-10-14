@@ -1178,6 +1178,7 @@ public:
     void restoreSettings();
     void saveProfile(QString profilename);
     void restart();
+    Q_INVOKABLE void restartWithProfile(const QString &profileName);
     bool pelotonAskStart() { return m_pelotonAskStart; }
     void Minus(const QString &);
     void Plus(const QString &);
