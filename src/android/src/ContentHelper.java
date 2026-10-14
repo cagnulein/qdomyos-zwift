@@ -1,12 +1,24 @@
 package org.cagnulen.qdomyoszwift;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import org.cagnulen.qdomyoszwift.QLog;
 
 public class ContentHelper {
@@ -43,6 +55,176 @@ public class ContentHelper {
             result = uri.getLastPathSegment();
         }
         return result;
+    }
+
+    public static boolean copyFileToPublicDocuments(Context context, String sourcePath, String relativePath) {
+        if (context == null || sourcePath == null || sourcePath.isEmpty() || relativePath == null || relativePath.isEmpty()) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return false;
+        }
+
+        Uri uri = null;
+        boolean created = false;
+        try (FileInputStream input = new FileInputStream(sourcePath)) {
+            String normalized = relativePath.replace('\\', '/');
+            int separator = normalized.lastIndexOf('/');
+            String name = separator >= 0 ? normalized.substring(separator + 1) : normalized;
+            String parent = separator >= 0 ? normalized.substring(0, separator) : "";
+            String relativeDirectory = Environment.DIRECTORY_DOCUMENTS + "/QZ/"
+                    + (parent.isEmpty() ? "" : parent + "/");
+            ContentResolver resolver = context.getContentResolver();
+            Uri collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+
+            ArrayList<Uri> matches = new ArrayList<>();
+            Cursor cursor = null;
+            try {
+                cursor = resolver.query(
+                        collection,
+                        new String[] {MediaStore.MediaColumns._ID},
+                        MediaStore.MediaColumns.DISPLAY_NAME + "=? AND "
+                                + MediaStore.MediaColumns.RELATIVE_PATH + "=?",
+                        new String[] {name, relativeDirectory},
+                        MediaStore.MediaColumns._ID + " ASC");
+                if (cursor != null) {
+                    int idIndex = cursor.getColumnIndex(MediaStore.MediaColumns._ID);
+                    while (idIndex >= 0 && cursor.moveToNext()) {
+                        matches.add(ContentUris.withAppendedId(collection, cursor.getLong(idIndex)));
+                    }
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+
+            if (matches.isEmpty()) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+                values.put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream");
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, relativeDirectory);
+                values.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                uri = resolver.insert(collection, values);
+                created = true;
+            } else {
+                uri = matches.get(0);
+                ContentValues pending = new ContentValues();
+                pending.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                resolver.update(uri, pending, null, null);
+                for (int i = 1; i < matches.size(); ++i) {
+                    resolver.delete(matches.get(i), null, null);
+                }
+            }
+            if (uri == null) {
+                return false;
+            }
+
+            try (OutputStream output = resolver.openOutputStream(uri, "wt")) {
+                if (output == null) {
+                    return false;
+                }
+                byte[] buffer = new byte[64 * 1024];
+                int count;
+                while ((count = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, count);
+                }
+            }
+            ContentValues ready = new ContentValues();
+            ready.put(MediaStore.MediaColumns.IS_PENDING, 0);
+            resolver.update(uri, ready, null, null);
+            return true;
+        } catch (Exception e) {
+            if (uri != null) {
+                try {
+                    if (created) {
+                        context.getContentResolver().delete(uri, null, null);
+                    } else {
+                        ContentValues ready = new ContentValues();
+                        ready.put(MediaStore.MediaColumns.IS_PENDING, 0);
+                        context.getContentResolver().update(uri, ready, null, null);
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+            Log.e("ContentHelper", "copyFileToPublicDocuments failed", e);
+            return false;
+        }
+    }
+
+    /**
+     * Enumerate profile files stored in the public Documents/QZ directory.
+     *
+     * Android 10 scoped storage does not make MediaStore-owned files reliably
+     * visible to Qt's FolderListModel through a file:// directory. Querying
+     * MediaStore returns stable content URIs which the caller can open through
+     * ContentResolver.
+     */
+    public static String[] listPublicDocumentsFiles(Context context, String relativeDirectory) {
+        if (context == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return new String[0];
+        }
+
+        String directory = relativeDirectory == null ? "" : relativeDirectory.replace('\\', '/');
+        while (directory.startsWith("/")) {
+            directory = directory.substring(1);
+        }
+        while (directory.endsWith("/")) {
+            directory = directory.substring(0, directory.length() - 1);
+        }
+
+        String relativePath = Environment.DIRECTORY_DOCUMENTS + "/QZ/"
+                + (directory.isEmpty() ? "" : directory + "/");
+        Uri collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+        List<String> result = new ArrayList<>();
+        String[] projection = new String[] {
+                MediaStore.MediaColumns._ID,
+                MediaStore.MediaColumns.DISPLAY_NAME
+        };
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(
+                    collection,
+                    projection,
+                    MediaStore.MediaColumns.RELATIVE_PATH + "=?",
+                    new String[] {relativePath},
+                    MediaStore.MediaColumns.DISPLAY_NAME + " COLLATE NOCASE DESC");
+            if (cursor != null) {
+                int idIndex = cursor.getColumnIndex(MediaStore.MediaColumns._ID);
+                int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+                while (cursor.moveToNext()) {
+                    if (idIndex < 0 || nameIndex < 0) {
+                        continue;
+                    }
+                    String name = cursor.getString(nameIndex);
+                    if (name == null || !name.toLowerCase(Locale.US).endsWith(".qzs")) {
+                        continue;
+                    }
+                    long id = cursor.getLong(idIndex);
+                    result.add(ContentUris.withAppendedId(collection, id).toString());
+                }
+            }
+        } catch (Exception e) {
+            QLog.d("ContentHelper", "listPublicDocumentsFiles query failed " + e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return result.toArray(new String[0]);
+    }
+
+    public static boolean deleteContentUri(Context context, String uriString) {
+        if (context == null || uriString == null || uriString.isEmpty()) {
+            return false;
+        }
+        try {
+            Uri uri = Uri.parse(uriString);
+            return uri != null && context.getContentResolver().delete(uri, null, null) > 0;
+        } catch (Exception e) {
+            QLog.d("ContentHelper", "deleteContentUri failed " + e);
+            return false;
+        }
     }
 
     public static boolean copyContentToFile(Context context, Uri uri, String destinationPath) {

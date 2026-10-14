@@ -597,27 +597,57 @@ int main(int argc, char *argv[]) {
     QSettings settings;
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-    QString profileName = "";
+#ifdef Q_OS_ANDROID
+    const QString pendingMarkerPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
+                                      QStringLiteral("/qz-pending-profile");
+    QFile pendingMarker(pendingMarkerPath);
+    if (pendingMarker.open(QIODevice::ReadOnly)) {
+        const QString pendingProfilePath = QString::fromUtf8(pendingMarker.readAll()).trimmed();
+        pendingMarker.close();
+        pendingMarker.remove();
+        if (!pendingProfilePath.isEmpty()) {
+            const QUrl pendingUrl(pendingProfilePath);
+            if ((pendingUrl.scheme() == QStringLiteral("content")) ||
+                (pendingUrl.isLocalFile() && QFile::exists(pendingUrl.toLocalFile()))) {
+                profileToLoad = pendingUrl;
+                qDebug() << "Loading pending profile" << pendingUrl;
+            } else if (pendingUrl.scheme().isEmpty() && QFile::exists(pendingProfilePath)) {
+                profileToLoad = QUrl::fromLocalFile(pendingProfilePath);
+                qDebug() << "Loading pending profile" << profileToLoad;
+            }
+        }
+    }
+#endif
+    if (profileToLoad.isEmpty()) {
+        QString profileName = "";
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    profileName = lockscreen::get_action_profile();
-    lockscreen::nslog(QString("quick_action profile " + profileName).toLatin1());
+        profileName = lockscreen::get_action_profile();
+        lockscreen::nslog(QString("quick_action profile " + profileName).toLatin1());
 #endif
 #else
-    QAndroidJniObject javaPath = QAndroidJniObject::fromString(homeform::getWritableAppDir());
-    QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
-                                                "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
-    profileName = r.toString();
+        for (int i = 1; i + 1 < argc; ++i) {
+            if (!qstrcmp(argv[i], "-profile")) {
+                profileName = QString::fromLocal8Bit(argv[i + 1]);
+                break;
+            }
+        }
+        if (profileName.isEmpty()) {
+            QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
+                                                        "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
+            profileName = r.toString();
+        }
 #endif
-    
-    QFileInfo pp(profileName);
-    profileName = pp.baseName();
-    
-    if(profileName.count()) {
-        if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
-            profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
-        } else {
-            qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
+
+        QFileInfo pp(profileName);
+        profileName = pp.baseName();
+
+        if (profileName.count()) {
+            if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
+                profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
+            } else {
+                qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
+            }
         }
     }
 #endif
