@@ -617,6 +617,7 @@ class bluetoothdevice : public QObject {
      */
     metric Heart;
     bool heartRateFromHealthKit = false;
+    quint64 healthKitHeartUpdateSequence = 0;
 
     /**
      * @brief HRV Heart Rate Variability (RMSSD). Unit: milliseconds
@@ -844,6 +845,7 @@ class bluetoothdevice : public QObject {
      * @brief update_ios_live_activity Updates iOS Live Activity with throttling (max 1 update per second)
      */
     void update_ios_live_activity();
+    bool heartRateIsFromHealthKit();
 
     /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)
