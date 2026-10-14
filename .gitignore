@@ -63,3 +63,6 @@ src/android/local.properties
 src/translations/*.qm
 /tools/__pycache__
 *.qm
+
+# macOS
+*.DS_Store

@@ -99,6 +99,8 @@ ScrollView {
         spacing: 10
         anchors.fill: parent
         anchors.margins: 10
+        anchors.leftMargin: window.contentSideMargin
+        anchors.rightMargin: window.contentSideMargin
 
         Label {
             text: qsTr("Keyboard Shortcuts")

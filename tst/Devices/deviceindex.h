@@ -70,6 +70,7 @@ public:
     DEFINE_DEVICE(FTMSBikeHammer, "FTMS Bike Hammer 64123");
     DEFINE_DEVICE(FTMSBikeIConsole, "FTMS Bike IConsole");
     DEFINE_DEVICE(FTMSBikeHammerRacerS, "FTMS Bike Hammer Racer S");
+    DEFINE_DEVICE(FTMSBikeHS5000L, "FTMS Bike HS-5000L");
     DEFINE_DEVICE(FTMSBike, "FTMS Bike");
     DEFINE_DEVICE(FTMSBike2, "FTMS Bike 2");
     DEFINE_DEVICE(FTMSBike3, "FTMS Bike 3");
@@ -154,6 +155,7 @@ public:
     DEFINE_DEVICE(TacxNeo2Bike, "Tacx Neo 2 Bike");
     DEFINE_DEVICE(TechnoGymMyRunTreadmillRFComm, "TechnoGym MyRun Treadmill RF Comm");
     DEFINE_DEVICE(TechnoGymMyRunTreadmill, "TechnoGym MyRun Treadmill");
+    DEFINE_DEVICE(BodySculpture203, "Body Sculpture BC7330G");
     DEFINE_DEVICE(ToorxAppGateUSBBike_EnabledInSettings, "Toorx AppGate USB Bike (Enabled in settings)");
     DEFINE_DEVICE(ToorxAppGateUSBBike, "Toorx AppGate USB Bike");
     DEFINE_DEVICE(ToorxAppGateUSBTreadmill, "Toorx AppGate USB Treadmill");
