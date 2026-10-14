@@ -87,3 +87,39 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 
 - The physical scale can differ from values reported over Bluetooth.
 - Separating manual and automatic tests distinguishes telemetry mapping from control commands.
+
+## Virtual gear numbers update but trainer resistance does not follow
+
+### Provide first
+
+- Trainer model, QZ version, and devices running QZ and Zwift.
+- Whether QZ receives power/cadence before Zwift starts, and which device Zwift selects as Controllable/Resistance.
+- Whether Click/Play is paired to Zwift or QZ; report Get Gears from Zwift and Align Gear settings.
+- One shift with the gear numbers shown in both apps and the physical resistance response.
+
+### If still unclear
+
+- For Wahoo trainers, capture the Without Wheel Diameter Protocol setting, virtual gearing configuration, and actual drivetrain tooth counts.
+- Provide a short QZ debug log with two deliberate shifts on flat terrain. Stop if resistance becomes excessive.
+
+### Why it matters
+
+- Gear display synchronization alone does not prove a control command reached the trainer.
+- Controllable pairing and drivetrain scaling can fail independently.
+
+## Gradient-controlled accessory does not follow route grade
+
+### Provide first
+
+- Accessory model, receiving training app, QZ version, and device topology.
+- Whether manual incline control from QZ works, and one comparison of route grade, QZ incline tile, and physical movement.
+- Which virtual device is selected as Controllable, and any accessory-specific gain setting.
+
+### If still unclear
+
+- Capture a short QZ log across a clear grade transition, with approximate times and values.
+- Compare incoming simulation requests with outgoing accessory commands; vary one setting at a time.
+
+### Why it matters
+
+- Absent grade requests and incorrectly scaled commands look similar at the accessory but require different investigation.
