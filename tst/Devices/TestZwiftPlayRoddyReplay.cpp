@@ -28,16 +28,16 @@ const char *kLeftShift = "2308fffdffff0f1a04080010001a0408011000"; // 11:53:48.2
 class SettingsGuard {
 public:
     SettingsGuard() {
-        keys = {QZSettings::zwiftplay_swap,
-                QZSettings::gears_volume_debouncing,
-                QZSettings::zwiftplay_gear_paddle_left,
-                QZSettings::zwiftplay_gear_paddle_right,
-                QZSettings::zwiftplay_gear_ls1,
-                QZSettings::zwiftplay_gear_ls2,
-                QZSettings::zwiftplay_gear_rs1,
-                QZSettings::zwiftplay_gear_rs2,
-                QZSettings::zwiftplay_gear_lb,
-                QZSettings::zwiftplay_gear_rb};
+        keys << QZSettings::zwiftplay_swap
+             << QZSettings::gears_volume_debouncing
+             << QZSettings::zwiftplay_gear_paddle_left
+             << QZSettings::zwiftplay_gear_paddle_right
+             << QZSettings::zwiftplay_gear_ls1
+             << QZSettings::zwiftplay_gear_ls2
+             << QZSettings::zwiftplay_gear_rs1
+             << QZSettings::zwiftplay_gear_rs2
+             << QZSettings::zwiftplay_gear_lb
+             << QZSettings::zwiftplay_gear_rb;
         for (const QString &key : keys) {
             existed.append(settings.contains(key));
             values.append(settings.value(key));
