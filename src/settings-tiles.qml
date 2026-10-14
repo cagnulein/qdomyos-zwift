@@ -7,6 +7,11 @@ import Qt.labs.settings 1.0
 
 ScrollView {
     contentWidth: -1
+    // The page height from the column itself, as on the settings page: after a turn of the screen
+    // ScrollView stopped following the height of its only child on a phone
+    contentHeight: tilesColumn.implicitHeight
+    leftPadding: window.contentSideMargin
+    rightPadding: window.contentSideMargin
     focus: true
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
@@ -373,8 +378,14 @@ ScrollView {
 
 
     ColumnLayout {
+        id: tilesColumn
         spacing: 0
-        anchors.fill: parent
+        // Not tied to the bottom: the height of the column is the content height of the page, so
+        // fill made an anchor loop; on a turn of the screen Qt gave up on it and the height stayed
+        // as it was - a section opened after it could not be scrolled to its end
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
 
         NewPageElement {
             id: labelShortcutsSettings
@@ -398,8 +409,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: speedOrderTextField
+                    Accessible.name: speedEnabledAccordion.title + ", " + labelSpeedOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_speed_order
                     Layout.fillHeight: false
@@ -443,8 +455,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: inclinationOrderTextField
+                    Accessible.name: inclinationEnabledAccordion.title + ", " + labelinclinationOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_inclination_order
                     Layout.fillHeight: false
@@ -504,8 +517,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: cadenceOrderTextField
+                        Accessible.name: cadenceEnabledAccordion.title + ", " + labelcadenceOrder.text
                         model: rootItem.tile_order
                         displayText: settings.tile_cadence_order
                         Layout.fillHeight: false
@@ -550,8 +564,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: elevationOrderTextField
+                    Accessible.name: elevationEnabledAccordion.title + ", " + labelelevationOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_elevation_order
                     Layout.fillHeight: false
@@ -581,8 +596,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: negativeInclinationOrderTextField
+                    Accessible.name: negativeInclinationEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
                     displayText: settings.tile_negative_inclination_order
                     Layout.fillHeight: false
@@ -625,8 +641,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: caloriesOrderTextField
+                    Accessible.name: caloriesEnabledAccordion.title + ", " + labelcaloriesOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_calories_order
                     Layout.fillHeight: false
@@ -670,8 +687,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: odometerOrderTextField
+                    Accessible.name: odometerEnabledAccordion.title + ", " + labelodometerOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_odometer_order
                     Layout.fillHeight: false
@@ -731,8 +749,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: paceOrderTextField
+                        Accessible.name: paceEnabledAccordion.title + ", " + labelpaceOrder.text
                         model: rootItem.tile_order
                         displayText: settings.tile_pace_order
                         Layout.fillHeight: false
@@ -764,8 +783,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: avgpaceOrderTextField
+                    Accessible.name: avgPaceEnabledAccordion.title + ", " + labelavgpaceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_avg_pace_order
                     Layout.fillHeight: false
@@ -796,8 +816,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: alternativePaceOrderTextField
+                    Accessible.name: alternativePaceEnabledAccordion.title + ", " + labelalternativePaceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_alternative_pace_order
                     Layout.fillHeight: false
@@ -839,8 +860,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: gradeAdjustedPaceOrderTextField
+                    Accessible.name: gradeAdjustedPaceEnabledAccordion.title + ", " + labelgradeAdjustedPaceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_grade_adjusted_pace_order
                     Layout.fillHeight: false
@@ -853,7 +875,7 @@ ScrollView {
                     id: okgradeAdjustedPaceOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: {settings.tile_grade_adjusted_pace_order = gradeAdjustedPaceOrderTextField.displayText; toast.show("Setting saved!"); }
+                    onClicked: {settings.tile_grade_adjusted_pace_order = gradeAdjustedPaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
             }
         }
@@ -897,8 +919,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: resistanceOrderTextField
+                    Accessible.name: resistanceEnabledAccordion.title + ", " + labelresistanceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_resistance_order
                     Layout.fillHeight: false
@@ -958,8 +981,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: wattOrderTextField
+                        Accessible.name: wattEnabledAccordion.title + ", " + labelwattOrder.text
                         model: rootItem.tile_order
                         displayText: settings.tile_watt_order
                         Layout.fillHeight: false
@@ -1004,8 +1028,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: weightLossOrderTextField
+                    Accessible.name: weightLossEnabledAccordion.title + ", " + labelweightLossOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_weight_loss_order
                     Layout.fillHeight: false
@@ -1050,8 +1075,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: avgwattOrderTextField
+                    Accessible.name: avgwattEnabledAccordion.title + ", " + labelavgwattOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_avgwatt_order
                     Layout.fillHeight: false
@@ -1096,8 +1122,9 @@ ScrollView {
 						  Layout.fillWidth: true
 						  horizontalAlignment: Text.AlignRight
 						}
-					 ComboBox {
+					 UiComboBox {
 					     id: avgwattLapOrderTextField
+					     Accessible.name: avgwattLapEnabledAccordion.title + ", " + labelavgwattLapOrder.text
 						  model: rootItem.tile_order
 						  displayText: settings.tile_avg_watt_lap_order
 						  Layout.fillHeight: false
@@ -1128,8 +1155,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: ftpOrderTextField
+                    Accessible.name: ftpEnabledAccordion.title + ", " + labelftpOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_ftp_order
                     Layout.fillHeight: false
@@ -1202,8 +1230,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: heartrateOrderTextField
+                        Accessible.name: heartEnabledAccordion.title + ", " + labelheartrateOrder.text
                         model: rootItem.tile_order
                         displayText: settings.tile_heart_order
                         Layout.fillHeight: false
@@ -1235,8 +1264,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: fanOrderTextField
+                    Accessible.name: fanEnabledAccordion.title + ", " + labelfanOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_fan_order
                     Layout.fillHeight: false
@@ -1280,8 +1310,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: joulsOrderTextField
+                    Accessible.name: joulsEnabledAccordion.title + ", " + labeljoulsOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_jouls_order
                     Layout.fillHeight: false
@@ -1325,8 +1356,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: elapsedOrderTextField
+                    Accessible.name: elapsedEnabledAccordion.title + ", " + labelelapsedOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_elapsed_order
                     Layout.fillHeight: false
@@ -1370,8 +1402,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: movingTimeOrderTextField
+                    Accessible.name: movingTimeEnabledAccordion.title + ", " + labelmovingTimeOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_moving_time_order
                     Layout.fillHeight: false
@@ -1415,8 +1448,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pelotonOffsetOrderTextField
+                    Accessible.name: pelotonOffsetEnabledAccordion.title + ", " + labelpelotonOffsetOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_peloton_offset_order
                     Layout.fillHeight: false
@@ -1460,8 +1494,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pelotonRemainingOrderTextField
+                    Accessible.name: pelotonRemainingEnabledAccordion.title + ", " + labelPelotonRemainingOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_peloton_remaining_order
                     Layout.fillHeight: false
@@ -1506,7 +1541,7 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pelotonDifficultyOrderTextField
                     model: rootItem.tile_order
                     displayText: settings.tile_peloton_difficulty_order
@@ -1538,8 +1573,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: lapElapsedOrderTextField
+                    Accessible.name: lapElapsedEnabledAccordion.title + ", " + labellapElapsedOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_lapelapsed_order
                     Layout.fillHeight: false
@@ -1585,8 +1621,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: peloton_resistanceOrderTextField
+                        Accessible.name: pelotonResistanceEnabledAccordion.title + ", " + labelpeloton_resistanceOrder.text
                         model: rootItem.tile_order
                         displayText: settings.tile_peloton_resistance_order
                         Layout.fillHeight: false
@@ -1631,8 +1668,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_resistanceOrderTextField
+                    Accessible.name: targetResistanceEnabledAccordion.title + ", " + labeltarget_resistanceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_resistance_order
                     Layout.fillHeight: false
@@ -1677,8 +1715,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_peloton_resistanceOrderTextField
+                    Accessible.name: targetPelotonResistanceEnabledAccordion.title + ", " + labeltarget_peloton_resistanceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_peloton_resistance_order
                     Layout.fillHeight: false
@@ -1722,8 +1761,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_cadenceOrderTextField
+                    Accessible.name: targetCadenceEnabledAccordion.title + ", " + labeltarget_cadenceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_cadence_order
                     Layout.fillHeight: false
@@ -1767,8 +1807,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_powerOrderTextField
+                    Accessible.name: targetPowerEnabledAccordion.title + ", " + labeltarget_powerOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_power_order
                     Layout.fillHeight: false
@@ -1813,8 +1854,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_zoneOrderTextField
+                    Accessible.name: targetZoneEnabledAccordion.title + ", " + labeltarget_zoneOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_zone_order
                     Layout.fillHeight: false
@@ -1858,8 +1900,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_speedOrderTextField
+                    Accessible.name: targetSpeedEnabledAccordion.title + ", " + labeltargetspeedOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_speed_order
                     Layout.fillHeight: false
@@ -1890,8 +1933,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_paceOrderTextField
+                    Accessible.name: targetPaceEnabledAccordion.title + ", " + labeltargetpaceOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_pace_order
                     Layout.fillHeight: false
@@ -1922,8 +1966,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: target_inclineOrderTextField
+                    Accessible.name: targetInclineEnabledAccordion.title + ", " + labeltarget_inclineOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_target_incline_order
                     Layout.fillHeight: false
@@ -1953,8 +1998,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: watt_kgOrderTextField
+                    Accessible.name: wattKgEnabledAccordion.title + ", " + labelwatt_kgOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_watt_kg_order
                     Layout.fillHeight: false
@@ -1998,8 +2044,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: gearsOrderTextField
+                    Accessible.name: gearsEnabledAccordion.title + ", " + labelgearsOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_gears_order
                     Layout.fillHeight: false
@@ -2042,8 +2089,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: biggearsOrderTextField
+                        Accessible.name: qsTr("Gears Big Buttons") + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_biggears_order
                         Layout.fillHeight: false
@@ -2089,6 +2137,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: remainingTimeTrainingProgramRowEnabledAccordion
+            //: Tile title: time left in the current step (row) of the workout program, not rowing and not a lap.
             title: qsTr("Remaining Time/Row")
             linkedBoolSetting: "tile_remainingtimetrainprogramrow_enabled"
             settings: settings
@@ -2100,8 +2149,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: remainingTimeTrainingProgramRowOrderTextField
+                    Accessible.name: remainingTimeTrainingProgramRowEnabledAccordion.title + ", " + labelremainingTimeTrainingProgramRowOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_remainingtimetrainprogramrow_order
                     Layout.fillHeight: false
@@ -2134,6 +2184,7 @@ ScrollView {
 
         AccordionCheckElement {
             id: nextRowsTrainingProgramRowEnabledAccordion
+            //: Tile title: the next steps (rows) of the loaded workout program, not a table row and not rowing.
             title: qsTr("Next Rows")
             linkedBoolSetting: "tile_nextrowstrainprogram_enabled"
             settings: settings
@@ -2145,8 +2196,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: nextRowsTrainingProgramOrderTextField
+                    Accessible.name: nextRowsTrainingProgramRowEnabledAccordion.title + ", " + labelnextRowsTrainingProgramOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_nextrowstrainprogram_order
                     Layout.fillHeight: false
@@ -2190,8 +2242,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: metsOrderTextField
+                    Accessible.name: metsEnabledAccordion.title + ", " + labelmetsOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_mets_order
                     Layout.fillHeight: false
@@ -2235,8 +2288,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: targetmetsOrderTextField
+                    Accessible.name: targetMetsEnabledAccordion.title + ", " + labeltargetmetsOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_targetmets_order
                     Layout.fillHeight: false
@@ -2267,8 +2321,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: datetimeOrderTextField
+                    Accessible.name: datetimeEnabledAccordion.title + ", " + labeldatetimeOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_datetime_order
                     Layout.fillHeight: false
@@ -2312,8 +2367,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: strokes_countOrderTextField
+                    Accessible.name: targetStrokesCountAccordion.title + ", " + labelstrokes_countOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_strokes_count_order
                     Layout.fillHeight: false
@@ -2357,8 +2413,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: strokes_lengthOrderTextField
+                    Accessible.name: targetStrokesLengthAccordion.title + ", " + labelstrokes_lengthOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_strokes_length_order
                     Layout.fillHeight: false
@@ -2402,8 +2459,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: steeringAngleOrderTextField
+                    Accessible.name: targetSteeringAngleEnabledAccordion.title + ", " + labelsteeringAngleOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_steering_angle_order
                     Layout.fillHeight: false
@@ -2447,8 +2505,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pidHROrderTextField
+                    Accessible.name: targetPIDHrAccordion.title + ", " + labelPIDHROrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_pid_hr_order
                     Layout.fillHeight: false
@@ -2492,8 +2551,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: extInclineOrderTextField
+                    Accessible.name: extInclineAccordion.title + ", " + labelExtInclineOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_ext_incline_order
                     Layout.fillHeight: false
@@ -2537,8 +2597,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: strideLengthOrderTextField
+                    Accessible.name: strideLength.title + ", " + labelStrideLengthOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_instantaneous_stride_length_order
                     Layout.fillHeight: false
@@ -2582,8 +2643,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: groundContactOrderTextField
+                    Accessible.name: groundContact.title + ", " + labelGroundContactOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_ground_contact_order
                     Layout.fillHeight: false
@@ -2627,8 +2689,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: verticalOscillationOrderTextField
+                    Accessible.name: verticalOscillation.title + ", " + labelVerticalOscillationOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_vertical_oscillation_order
                     Layout.fillHeight: false
@@ -2672,8 +2735,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: pacelast500mOrderTextField
+                    Accessible.name: paceLast500mEnabledAccordion.title + ", " + labelPacelast500mOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_pace_last500m_order
                     Layout.fillHeight: false
@@ -2704,8 +2768,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: stepCountOrderTextField
+                    Accessible.name: stepCountEnabledAccordion.title + ", " + labelStepCountOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_step_count_order
                     Layout.fillHeight: false
@@ -2736,8 +2801,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: ergModeOrderTextField
+                    Accessible.name: ergModeEnabledAccordion.title + ", " + labelErgModeOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_erg_mode_order
                     Layout.fillHeight: false
@@ -2766,8 +2832,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: rssOrderTextField
+                    Accessible.name: qsTr("Running Stress Score") + ", " + qsTr("order index:")
                     model: rootItem.tile_order
                     displayText: settings.tile_rss_order
                     Layout.fillHeight: false
@@ -2798,8 +2865,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance1TextField
+                        Accessible.name: presetResistance1EnabledAccordion.title + ", " + labelPresetResistance1Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_1_order
                         Layout.fillHeight: false
@@ -2824,6 +2892,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance1ValueTextField
+                        Accessible.name: presetResistance1EnabledAccordion.title + ", " + labelPresetResistance1Value.text
                         text: settings.tile_preset_resistance_1_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2845,6 +2914,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance1LabelTextField
+                        Accessible.name: presetResistance1EnabledAccordion.title + ", " + labelPresetResistance1Label.text
                         text: settings.tile_preset_resistance_1_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2876,6 +2946,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetResistance1ColorTextField
+						      Accessible.name: presetResistance1EnabledAccordion.title + ", " + labelPresetResistance1Color.text
 								text: settings.tile_preset_resistance_1_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2907,8 +2978,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance2TextField
+                        Accessible.name: presetResistance2EnabledAccordion.title + ", " + labelPresetResistance2Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_2_order
                         Layout.fillHeight: false
@@ -2933,6 +3005,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance2ValueTextField
+                        Accessible.name: presetResistance2EnabledAccordion.title + ", " + labelPresetResistance2Value.text
                         text: settings.tile_preset_resistance_2_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2954,6 +3027,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance2LabelTextField
+                        Accessible.name: presetResistance2EnabledAccordion.title + ", " + labelPresetResistance2Label.text
                         text: settings.tile_preset_resistance_2_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -2985,6 +3059,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetResistance2ColorTextField
+						      Accessible.name: presetResistance2EnabledAccordion.title + ", " + labelPresetResistance2Color.text
 								text: settings.tile_preset_resistance_2_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3016,8 +3091,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance3TextField
+                        Accessible.name: presetResistance3EnabledAccordion.title + ", " + labelPresetResistance3Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_3_order
                         Layout.fillHeight: false
@@ -3042,6 +3118,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance3ValueTextField
+                        Accessible.name: presetResistance3EnabledAccordion.title + ", " + labelPresetResistance3Value.text
                         text: settings.tile_preset_resistance_3_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3063,6 +3140,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance3LabelTextField
+                        Accessible.name: presetResistance3EnabledAccordion.title + ", " + labelPresetResistance3Label.text
                         text: settings.tile_preset_resistance_3_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3094,6 +3172,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetResistance3ColorTextField
+						      Accessible.name: presetResistance3EnabledAccordion.title + ", " + labelPresetResistance3Color.text
 								text: settings.tile_preset_resistance_3_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3125,8 +3204,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance4TextField
+                        Accessible.name: presetResistance4EnabledAccordion.title + ", " + labelPresetResistance4Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_4_order
                         Layout.fillHeight: false
@@ -3151,6 +3231,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance4ValueTextField
+                        Accessible.name: presetResistance4EnabledAccordion.title + ", " + labelPresetResistance4Value.text
                         text: settings.tile_preset_resistance_4_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3172,6 +3253,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance4LabelTextField
+                        Accessible.name: presetResistance4EnabledAccordion.title + ", " + labelPresetResistance4Label.text
                         text: settings.tile_preset_resistance_4_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3203,6 +3285,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetResistance4ColorTextField
+						      Accessible.name: presetResistance4EnabledAccordion.title + ", " + labelPresetResistance4Color.text
 								text: settings.tile_preset_resistance_4_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3234,8 +3317,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetResistance5TextField
+                        Accessible.name: presetResistance5EnabledAccordion.title + ", " + labelPresetResistance5Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_resistance_5_order
                         Layout.fillHeight: false
@@ -3260,6 +3344,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance5ValueTextField
+                        Accessible.name: presetResistance5EnabledAccordion.title + ", " + labelPresetResistance5Value.text
                         text: settings.tile_preset_resistance_5_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3281,6 +3366,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetResistance5LabelTextField
+                        Accessible.name: presetResistance5EnabledAccordion.title + ", " + labelPresetResistance5Label.text
                         text: settings.tile_preset_resistance_5_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3312,6 +3398,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetResistance5ColorTextField
+						      Accessible.name: presetResistance5EnabledAccordion.title + ", " + labelPresetResistance5Color.text
 								text: settings.tile_preset_resistance_5_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3343,8 +3430,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed1TextField
+                        Accessible.name: presetSpeed1EnabledAccordion.title + ", " + labelPresetSpeed1Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_1_order
                         Layout.fillHeight: false
@@ -3363,12 +3451,13 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed1Value
-                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed1ValueTextField
+                        Accessible.name: presetSpeed1EnabledAccordion.title + ", " + labelPresetSpeed1Value.text
                         text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_1_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3394,6 +3483,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetSpeed1LabelTextField
+                        Accessible.name: presetSpeed1EnabledAccordion.title + ", " + labelPresetSpeed1Label.text
                         text: settings.tile_preset_speed_1_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3425,6 +3515,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetSpeed1ColorTextField
+						      Accessible.name: presetSpeed1EnabledAccordion.title + ", " + labelPresetSpeed1Color.text
 								text: settings.tile_preset_speed_1_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3456,8 +3547,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed2TextField
+                        Accessible.name: presetSpeed2EnabledAccordion.title + ", " + labelPresetSpeed2Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_2_order
                         Layout.fillHeight: false
@@ -3476,12 +3568,13 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed2Value
-                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed2ValueTextField
+                        Accessible.name: presetSpeed2EnabledAccordion.title + ", " + labelPresetSpeed2Value.text
                         text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_2_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3507,6 +3600,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetSpeed2LabelTextField
+                        Accessible.name: presetSpeed2EnabledAccordion.title + ", " + labelPresetSpeed2Label.text
                         text: settings.tile_preset_speed_2_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3538,6 +3632,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetSpeed2ColorTextField
+						      Accessible.name: presetSpeed2EnabledAccordion.title + ", " + labelPresetSpeed2Color.text
 								text: settings.tile_preset_speed_2_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3569,8 +3664,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed3TextField
+                        Accessible.name: presetSpeed3EnabledAccordion.title + ", " + labelPresetSpeed3Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_3_order
                         Layout.fillHeight: false
@@ -3589,12 +3685,13 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed3Value
-                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed3ValueTextField
+                        Accessible.name: presetSpeed3EnabledAccordion.title + ", " + labelPresetSpeed3Value.text
                         text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_3_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3620,6 +3717,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetSpeed3LabelTextField
+                        Accessible.name: presetSpeed3EnabledAccordion.title + ", " + labelPresetSpeed3Label.text
                         text: settings.tile_preset_speed_3_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3651,6 +3749,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetSpeed3ColorTextField
+						      Accessible.name: presetSpeed3EnabledAccordion.title + ", " + labelPresetSpeed3Color.text
 								text: settings.tile_preset_speed_3_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3682,8 +3781,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed4TextField
+                        Accessible.name: presetSpeed4EnabledAccordion.title + ", " + labelPresetSpeed4Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_4_order
                         Layout.fillHeight: false
@@ -3702,12 +3802,13 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed4Value
-                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed4ValueTextField
+                        Accessible.name: presetSpeed4EnabledAccordion.title + ", " + labelPresetSpeed4Value.text
                         text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_4_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3733,6 +3834,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetSpeed4LabelTextField
+                        Accessible.name: presetSpeed4EnabledAccordion.title + ", " + labelPresetSpeed4Label.text
                         text: settings.tile_preset_speed_4_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3764,6 +3866,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetSpeed4ColorTextField
+						      Accessible.name: presetSpeed4EnabledAccordion.title + ", " + labelPresetSpeed4Color.text
 								text: settings.tile_preset_speed_4_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3795,8 +3898,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetSpeed5TextField
+                        Accessible.name: presetSpeed5EnabledAccordion.title + ", " + labelPresetSpeed5Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_speed_5_order
                         Layout.fillHeight: false
@@ -3815,12 +3919,13 @@ ScrollView {
                 RowLayout {
                     Label {
                         id: labelPresetSpeed5Value
-                        text: qsTr("value:") + (settings.miles_unit ? " (mph)" : " (km/h)")
+                        text: qsTr("value:") + " (" + (settings.miles_unit ? qsTr("mph") : qsTr("km/h")) + ")"
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
                     TextField {
                         id: presetSpeed5ValueTextField
+                        Accessible.name: presetSpeed5EnabledAccordion.title + ", " + labelPresetSpeed5Value.text
                         text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_5_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3846,6 +3951,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetSpeed5LabelTextField
+                        Accessible.name: presetSpeed5EnabledAccordion.title + ", " + labelPresetSpeed5Label.text
                         text: settings.tile_preset_speed_5_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3877,6 +3983,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetSpeed5ColorTextField
+						      Accessible.name: presetSpeed5EnabledAccordion.title + ", " + labelPresetSpeed5Color.text
 								text: settings.tile_preset_speed_5_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3908,8 +4015,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination1TextField
+                        Accessible.name: presetInclination1EnabledAccordion.title + ", " + labelPresetInclination1Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_1_order
                         Layout.fillHeight: false
@@ -3934,6 +4042,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination1ValueTextField
+                        Accessible.name: presetInclination1EnabledAccordion.title + ", " + labelPresetInclination1Value.text
                         text: settings.tile_preset_inclination_1_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3955,6 +4064,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination1LabelTextField
+                        Accessible.name: presetInclination1EnabledAccordion.title + ", " + labelPresetInclination1Label.text
                         text: settings.tile_preset_inclination_1_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3986,6 +4096,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetInclination1ColorTextField
+						      Accessible.name: presetInclination1EnabledAccordion.title + ", " + labelPresetInclination1Color.text
 								text: settings.tile_preset_inclination_1_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4017,8 +4128,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination2TextField
+                        Accessible.name: presetInclination2EnabledAccordion.title + ", " + labelPresetInclination2Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_2_order
                         Layout.fillHeight: false
@@ -4043,6 +4155,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination2ValueTextField
+                        Accessible.name: presetInclination2EnabledAccordion.title + ", " + labelPresetInclination2Value.text
                         text: settings.tile_preset_inclination_2_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4064,6 +4177,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination2LabelTextField
+                        Accessible.name: presetInclination2EnabledAccordion.title + ", " + labelPresetInclination2Label.text
                         text: settings.tile_preset_inclination_2_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4096,6 +4210,7 @@ ScrollView {
 						}
 					 TextField {
 					     id: presetInclination2ColorTextField
+					     Accessible.name: presetInclination2EnabledAccordion.title + ", " + labelPresetInclination2Color.text
 						  text: settings.tile_preset_inclination_2_color
 						  Layout.fillHeight: false
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4126,8 +4241,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination3TextField
+                        Accessible.name: presetInclination3EnabledAccordion.title + ", " + labelPresetInclination3Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_3_order
                         Layout.fillHeight: false
@@ -4152,6 +4268,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination3ValueTextField
+                        Accessible.name: presetInclination3EnabledAccordion.title + ", " + labelPresetInclination3Value.text
                         text: settings.tile_preset_inclination_3_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4173,6 +4290,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination3LabelTextField
+                        Accessible.name: presetInclination3EnabledAccordion.title + ", " + labelPresetInclination3Label.text
                         text: settings.tile_preset_inclination_3_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4204,6 +4322,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetInclination3ColorTextField
+						      Accessible.name: presetInclination3EnabledAccordion.title + ", " + labelPresetInclination3Color.text
 								text: settings.tile_preset_inclination_3_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4235,8 +4354,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination4TextField
+                        Accessible.name: presetInclination4EnabledAccordion.title + ", " + labelPresetInclination4Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_4_order
                         Layout.fillHeight: false
@@ -4261,6 +4381,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination4ValueTextField
+                        Accessible.name: presetInclination4EnabledAccordion.title + ", " + labelPresetInclination4Value.text
                         text: settings.tile_preset_inclination_4_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4282,6 +4403,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination4LabelTextField
+                        Accessible.name: presetInclination4EnabledAccordion.title + ", " + labelPresetInclination4Label.text
                         text: settings.tile_preset_inclination_4_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4313,6 +4435,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetInclination4ColorTextField
+						      Accessible.name: presetInclination4EnabledAccordion.title + ", " + labelPresetInclination4Color.text
 								text: settings.tile_preset_inclination_4_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4344,8 +4467,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetInclination5TextField
+                        Accessible.name: presetInclination5EnabledAccordion.title + ", " + labelPresetInclination5Order.text
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_inclination_5_order
                         Layout.fillHeight: false
@@ -4370,6 +4494,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination5ValueTextField
+                        Accessible.name: presetInclination5EnabledAccordion.title + ", " + labelPresetInclination5Value.text
                         text: settings.tile_preset_inclination_5_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4391,6 +4516,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetInclination5LabelTextField
+                        Accessible.name: presetInclination5EnabledAccordion.title + ", " + labelPresetInclination5Label.text
                         text: settings.tile_preset_inclination_5_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4422,6 +4548,7 @@ ScrollView {
 						  }
 						  TextField {
 						      id: presetInclination5ColorTextField
+						      Accessible.name: presetInclination5EnabledAccordion.title + ", " + labelPresetInclination5Color.text
 								text: settings.tile_preset_inclination_5_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4452,8 +4579,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone1OrderTextField
+                        Accessible.name: presetPowerZone1EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_1_order
                         Layout.fillHeight: false
@@ -4476,6 +4604,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone1Value
+                        Accessible.name: presetPowerZone1EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_1_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4495,6 +4624,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone1Label
+                        Accessible.name: presetPowerZone1EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_1_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4522,6 +4652,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone1ColorTextField
+                        Accessible.name: presetPowerZone1EnabledAccordion.title + ", " + labelPresetPowerzone1Color.text
                         text: settings.tile_preset_powerzone_1_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4553,8 +4684,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone2OrderTextField
+                        Accessible.name: presetPowerZone2EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_2_order
                         Layout.fillHeight: false
@@ -4577,6 +4709,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone2Value
+                        Accessible.name: presetPowerZone2EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_2_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4596,6 +4729,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone2Label
+                        Accessible.name: presetPowerZone2EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_2_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4623,6 +4757,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone2ColorTextField
+                        Accessible.name: presetPowerZone2EnabledAccordion.title + ", " + labelPresetPowerzone2Color.text
                         text: settings.tile_preset_powerzone_2_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4654,8 +4789,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone3OrderTextField
+                        Accessible.name: presetPowerZone3EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_3_order
                         Layout.fillHeight: false
@@ -4678,6 +4814,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone3Value
+                        Accessible.name: presetPowerZone3EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_3_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4697,6 +4834,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone3Label
+                        Accessible.name: presetPowerZone3EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_3_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4724,6 +4862,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone3ColorTextField
+                        Accessible.name: presetPowerZone3EnabledAccordion.title + ", " + labelPresetPowerzone3Color.text
                         text: settings.tile_preset_powerzone_3_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4755,8 +4894,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone4OrderTextField
+                        Accessible.name: presetPowerZone4EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_4_order
                         Layout.fillHeight: false
@@ -4779,6 +4919,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone4Value
+                        Accessible.name: presetPowerZone4EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_4_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4798,6 +4939,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone4Label
+                        Accessible.name: presetPowerZone4EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_4_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4825,6 +4967,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone4ColorTextField
+                        Accessible.name: presetPowerZone4EnabledAccordion.title + ", " + labelPresetPowerzone4Color.text
                         text: settings.tile_preset_powerzone_4_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4856,8 +4999,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone5OrderTextField
+                        Accessible.name: presetPowerZone5EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_5_order
                         Layout.fillHeight: false
@@ -4880,6 +5024,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone5Value
+                        Accessible.name: presetPowerZone5EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_5_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4899,6 +5044,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone5Label
+                        Accessible.name: presetPowerZone5EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_5_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4926,6 +5072,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone5ColorTextField
+                        Accessible.name: presetPowerZone5EnabledAccordion.title + ", " + labelPresetPowerzone5Color.text
                         text: settings.tile_preset_powerzone_5_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -4957,8 +5104,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone6OrderTextField
+                        Accessible.name: presetPowerZone6EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_6_order
                         Layout.fillHeight: false
@@ -4981,6 +5129,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone6Value
+                        Accessible.name: presetPowerZone6EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_6_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5000,6 +5149,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone6Label
+                        Accessible.name: presetPowerZone6EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_6_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5027,6 +5177,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone6ColorTextField
+                        Accessible.name: presetPowerZone6EnabledAccordion.title + ", " + labelPresetPowerzone6Color.text
                         text: settings.tile_preset_powerzone_6_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5058,8 +5209,9 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    ComboBox {
+                    UiComboBox {
                         id: presetPowerZone7OrderTextField
+                        Accessible.name: presetPowerZone7EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
                         displayText: settings.tile_preset_powerzone_7_order
                         Layout.fillHeight: false
@@ -5082,6 +5234,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone7Value
+                        Accessible.name: presetPowerZone7EnabledAccordion.title + ", " + qsTr("zone value:")
                         text: settings.tile_preset_powerzone_7_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5101,6 +5254,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerZone7Label
+                        Accessible.name: presetPowerZone7EnabledAccordion.title + ", " + qsTr("label:")
                         text: settings.tile_preset_powerzone_7_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5128,6 +5282,7 @@ ScrollView {
                     }
                     TextField {
                         id: presetPowerzone7ColorTextField
+                        Accessible.name: presetPowerZone7EnabledAccordion.title + ", " + labelPresetPowerzone7Color.text
                         text: settings.tile_preset_powerzone_7_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5172,8 +5327,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone1OrderTextField
+                    Accessible.name: hrTimeInZone1EnabledAccordion.title + ", " + labelHrTimeInZone1Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_1_order
                     Layout.fillHeight: false
@@ -5217,8 +5373,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone2OrderTextField
+                    Accessible.name: hrTimeInZone2EnabledAccordion.title + ", " + labelHrTimeInZone2Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_2_order
                     Layout.fillHeight: false
@@ -5262,8 +5419,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone3OrderTextField
+                    Accessible.name: hrTimeInZone3EnabledAccordion.title + ", " + labelHrTimeInZone3Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_3_order
                     Layout.fillHeight: false
@@ -5307,8 +5465,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone4OrderTextField
+                    Accessible.name: hrTimeInZone4EnabledAccordion.title + ", " + labelHrTimeInZone4Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_4_order
                     Layout.fillHeight: false
@@ -5352,8 +5511,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrTimeInZone5OrderTextField
+                    Accessible.name: hrTimeInZone5EnabledAccordion.title + ", " + labelHrTimeInZone5Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_hr_time_in_zone_5_order
                     Layout.fillHeight: false
@@ -5426,8 +5586,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: coretemperatureOrderTextField
+                    Accessible.name: coreTemperatureAccordion.title + ", " + labelcoretemperatureOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_coretemperature_order
                     Layout.fillHeight: false
@@ -5471,8 +5632,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: heatTimeInZone1OrderTextField
+                    Accessible.name: heatTimeInZone1EnabledAccordion.title + ", " + labelHeatTimeInZone1Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_heat_time_in_zone_1_order
                     Layout.fillHeight: false
@@ -5516,8 +5678,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: heatTimeInZone2OrderTextField
+                    Accessible.name: heatTimeInZone2EnabledAccordion.title + ", " + labelHeatTimeInZone2Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_heat_time_in_zone_2_order
                     Layout.fillHeight: false
@@ -5561,8 +5724,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: heatTimeInZone3OrderTextField
+                    Accessible.name: heatTimeInZone3EnabledAccordion.title + ", " + labelHeatTimeInZone3Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_heat_time_in_zone_3_order
                     Layout.fillHeight: false
@@ -5606,8 +5770,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: heatTimeInZone4OrderTextField
+                    Accessible.name: heatTimeInZone4EnabledAccordion.title + ", " + labelHeatTimeInZone4Order.text
                     model: rootItem.tile_order
                     displayText: settings.tile_heat_time_in_zone_4_order
                     Layout.fillHeight: false
@@ -5650,8 +5815,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: autoVirtualShiftingCruiseOrderTextField
+                    Accessible.name: autoVirtualShiftingCruiseEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
                     displayText: settings.tile_auto_virtual_shifting_cruise_order
                     Layout.fillHeight: false
@@ -5693,8 +5859,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: autoVirtualShiftingClimbOrderTextField
+                    Accessible.name: autoVirtualShiftingClimbEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
                     displayText: settings.tile_auto_virtual_shifting_climb_order
                     Layout.fillHeight: false
@@ -5736,8 +5903,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: autoVirtualShiftingSprintOrderTextField
+                    Accessible.name: autoVirtualShiftingSprintEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
                     displayText: settings.tile_auto_virtual_shifting_sprint_order
                     Layout.fillHeight: false
@@ -5779,8 +5947,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: powerAvgOrderTextField
+                    Accessible.name: powerAvgEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
                     displayText: settings.tile_power_avg_order
                     Layout.fillHeight: false
@@ -5823,8 +5992,9 @@ ScrollView {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignRight
                 }
-                ComboBox {
+                UiComboBox {
                     id: hrvOrderTextField
+                    Accessible.name: hrvEnabledAccordion.title + ", " + labelhrvOrder.text
                     model: rootItem.tile_order
                     displayText: settings.tile_hrv_order
                     Layout.fillHeight: false
