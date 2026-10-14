@@ -21,8 +21,8 @@ The user reported that `Jan.qzs` and `Jay.qzs` were visible in Android's `Docume
 - The installed QZ configuration contained `android_documents_folder=false`, so the active root was the legacy app-data directory.
 - The same names also existed in `/storage/emulated/0/Android/data/org.cagnulen.qdomyoszwift/files/profiles/`.
 - The chooser nevertheless listed the public MediaStore copies because `getProfileFiles()` queried public storage independently of the routing setting.
-- `loadSettings()` also copied a local profile into `files/settings/` before reading it, leaving a second snapshot such as `settings/Jan.qzs`.
-- The runtime path therefore had two independent problems: selecting the wrong physical file and creating an unnecessary staging copy for an already-local file.
+- The old `loadSettings()` path also staged every Android input in `files/settings/`, including already-local profiles. That staging was unnecessary for local files and obscured which file was canonical.
+- The runtime path therefore had two independent problems: selecting the wrong physical root and creating an unnecessary staging copy for an already-local file.
 
 ## Verification completed locally
 
@@ -46,26 +46,23 @@ The current patch keeps one storage root end to end:
 
 No production Bluetooth workaround was added. No profile files or app data were deleted by the test procedure.
 
-## Current local verification
+## Current verification
 
+- Commit: `4f4aa073bf60ed5795a74ca9701d5aa277fbd37b`.
 - `make -j1`: passed.
 - `qmllint src/profiles.qml`: passed.
 - `git diff --check`: passed.
 - `ProfileRegressionTestSuite`: 21 tests run, 19 passed, 2 known skips; no failures.
+- GitHub Actions run `38548393050`: Android build passed and Android emulator tests passed on API 24, 26, 28, 29, 30, 31, 33, 35, and 36.
+- Artifact `11886102214` (`peloton-v1-grupetto`): SHA-256 `9f0086c5c025cd3f6a5dd67db105f3e6257554da7da368b97cd75e18490c15ef`.
+- APK package: `org.cagnulen.qdomyoszwift`; activity: `org.cagnulen.qdomyoszwift.CustomQtActivity`; ABIs include `arm64-v8a`.
 
-The Android artifact and simulator verification for this new patch are still pending; the historical artifact verification below refers to the earlier enumeration-only build.
-The exact remote head `8772d08d8f3c7dd325fcc6ab96c4b923f9a87c7f` produced GitHub Actions run `38245337234`, Android build job `114797671560`, with the Android build step successful. The downloaded APK was verified with:
+On `qz_arm64_api29` (`API 29`, `arm64-v8a`, `emulator64_arm64`), the exact artifact was installed without clearing app data. The test routing was `android_documents_folder=false`; Bluetooth was disabled only in the emulator test fixture/runtime.
 
-- SHA-256: `91364448648f415886ed11ee03e3092f1d54aeaa81adf48fa69170259ff0e74b`
-- Package: `org.cagnulen.qdomyoszwift`
-- Activity: `org.cagnulen.qdomyoszwift.CustomQtActivity`
-- ABIs: `armeabi-v7a`, `arm64-v8a`, `x86`, `x86_64`
+1. The Profiles page showed both `Jay` and `Jan`, with the active selector matching the loaded profile.
+2. `Jan → Jay`: tapping the selected row twice showed `Profile loaded`; confirming `Yes` exited QZ and wrote only the private pending-restart marker containing the canonical `Jay.qzs` path. No second profile copy was created.
+3. After a normal manual relaunch, the marker was consumed, `homeform::loadSettings` loaded `Jay.qzs`, and the active configuration showed `Jay`, `81 kg`, `180 cm`, `Female`, `FTP 200`, and `virtual_device_bluetooth=false`.
+4. `Jay → Jan`: the same flow consumed the marker and loaded `Jan.qzs`. General Options visibly showed `75 kg`, `175 cm`, age `35`, `Male`; after scrolling, `FTP 200` and Critical Power Run `200` were visible.
+5. The new process stayed on QZ after both relaunches; no new Bluetooth crash occurred. The old process logs a pre-existing Qt/QML teardown SIGSEGV while exiting after `Yes` (`QQmlMetaType::qmlRemoveModuleRegistration`). It does not prevent the requested manual relaunch, but it should be tracked separately from profile persistence.
 
-On `qz_arm64_api29` (`API 29`, `arm64-v8a`, `emulator64_arm64`), with `android_documents_folder=false` and `virtual_device_bluetooth=false` only in the emulator runtime:
-
-1. MediaStore contained `Jay.qzs` and `Jan.qzs` in `Documents/QZ/profiles/`.
-2. A fresh UIAutomator dump and screenshot showed both `Jay` and `Jan` in the QZ Profiles page.
-3. The first tap selected `Jay`; the second tap displayed `Profile loaded` and the quit/restart prompt.
-4. After confirming restart and dismissing the first-run disclaimer, a fresh Profiles screenshot and UIAutomator dump showed the profile name and selector as `Jay`, with both `Jay` and `Jan` still listed.
-
-This closes the requested enumeration, selection, load, and restart-persistence verification. The overall GitHub Actions workflow was not declared fully green: unrelated matrix jobs were still queued/in progress or had independent failures when this verification completed.
+The overall GitHub Actions workflow may still remain non-green because unrelated Linux/Windows/Raspberry jobs have independent failures; all Android build and emulator jobs for this commit passed.
