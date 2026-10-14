@@ -39,7 +39,11 @@
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <QAccessible>
+#include <QAndroidJniObject>
+#include <QQuickItem>
 #include <QtAndroid>
+#include <jni.h>
 #endif
 
 #ifdef Q_OS_MACOS
@@ -556,6 +560,60 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
+
+#ifdef Q_OS_ANDROID
+// Android scrolls its own lists to the item TalkBack moves to, Qt 5.15 does not: TalkBack would
+// stop on an item below the screen, draw its frame there and miss it with a double tap. Each
+// Flickable around the item (a ScrollView, a ListView in it) is scrolled just enough to show it.
+static bool scrollItemIntoView(QQuickItem *item) {
+    bool scrolled = false;
+    for (QQuickItem *flickable = item->parentItem(); flickable; flickable = flickable->parentItem()) {
+        if (!flickable->inherits("QQuickFlickable") || !flickable->property("interactive").toBool())
+            continue;
+        const QRectF rect = item->mapRectToItem(flickable, QRectF(0, 0, item->width(), item->height()));
+        const qreal height = flickable->height();
+        // as Android's ScrollView: an item that already covers the whole view stays where it is,
+        // one taller than the view is shown from its top
+        qreal delta = 0;
+        if (rect.top() < 0 && rect.bottom() <= height)
+            delta = rect.top();
+        else if (rect.top() > 0 && rect.bottom() > height)
+            delta = qMin(rect.bottom() - height, rect.top());
+        if (delta == 0)
+            continue;
+        const qreal contentY = flickable->property("contentY").toReal();
+        const qreal originY = flickable->property("originY").toReal();
+        const qreal top = originY - flickable->property("topMargin").toReal();
+        const qreal bottom = originY + flickable->property("contentHeight").toReal() +
+                             flickable->property("bottomMargin").toReal() - height;
+        const qreal target = qMax(top, qMin(contentY + delta, bottom));
+        if (target != contentY) {
+            flickable->setProperty("contentY", target);
+            scrolled = true;
+        }
+    }
+    return scrolled;
+}
+
+// CustomQtActivity: TalkBack put its focus on this accessible object (Android UI thread)
+extern "C" JNIEXPORT void JNICALL
+Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeScrollToAccessibleObject(JNIEnv *env, jclass clazz, jint id) {
+    Q_UNUSED(env)
+    Q_UNUSED(clazz)
+    if (!QCoreApplication::instance())
+        return;
+    QMetaObject::invokeMethod(
+        QCoreApplication::instance(),
+        [id] {
+            QAccessibleInterface *iface = QAccessible::accessibleInterface(QAccessible::Id(id));
+            QQuickItem *item = iface && iface->isValid() ? qobject_cast<QQuickItem *>(iface->object()) : nullptr;
+            if (item && item->isVisible() && scrollItemIntoView(item))
+                QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                          "accessibilityContentScrolled", "()V");
+        },
+        Qt::QueuedConnection);
+}
+#endif
 
 int main(int argc, char *argv[]) {
 #ifdef Q_OS_WIN32
