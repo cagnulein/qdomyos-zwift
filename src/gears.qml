@@ -327,6 +327,8 @@ ScrollView {
         // Wahoo Options
         GroupBox {
             title: qsTr("Wahoo Options")
+            // the title is a stop of its own, as the controls in the group are
+            Accessible.focusable: true
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -371,6 +373,7 @@ ScrollView {
         // Crankset Size
         GroupBox {
             title: qsTr("Chainring Size")
+            Accessible.focusable: true
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -399,6 +402,7 @@ ScrollView {
         // Cog Size
         GroupBox {
             title: qsTr("Cog Size")
+            Accessible.focusable: true
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -426,6 +430,7 @@ ScrollView {
         // Wheel Size
         GroupBox {
             title: qsTr("Virtual Wheel Size")
+            Accessible.focusable: true
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -560,6 +565,7 @@ ScrollView {
 
         GroupBox {
         title: qsTr("Preset Gear Profiles")
+        Accessible.focusable: true
         Layout.fillWidth: true
 
             UiComboBox {
@@ -593,6 +599,7 @@ ScrollView {
         // Gear Table GroupBox
         GroupBox {
             title: qsTr("Virtual Gear Table")
+            Accessible.focusable: true
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.preferredHeight: parent.height
@@ -712,11 +719,34 @@ ScrollView {
                     }
 
                     function updateGearListModel() {
-                        gearListModel.clear()
+                        var activeRows = []
                         for (var i = 0; i < gearRows.length; i++) {
                             if (gearRows[i].active) {
-                                gearListModel.append(gearRows[i])
+                                activeRows.push(gearRows[i])
                             }
+                        }
+                        // one cell edited: update that row only, so the rows (and the cell
+                        // TalkBack is on) are not made anew
+                        if (activeRows.length === gearListModel.count) {
+                            var changed = -1
+                            var changedRows = 0
+                            for (var j = 0; j < activeRows.length; j++) {
+                                var row = gearListModel.get(j)
+                                if (row.gear !== activeRows[j].gear || row.crankset !== activeRows[j].crankset || row.cog !== activeRows[j].cog) {
+                                    changed = j
+                                    changedRows++
+                                }
+                            }
+                            if (changedRows <= 1) {
+                                if (changed >= 0) {
+                                    gearListModel.set(changed, activeRows[changed])
+                                }
+                                return
+                            }
+                        }
+                        gearListModel.clear()
+                        for (var k = 0; k < activeRows.length; k++) {
+                            gearListModel.append(activeRows[k])
                         }
                     }
 
