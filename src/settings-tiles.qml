@@ -154,6 +154,16 @@ ScrollView {
                     Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: cadenceColorEnabled
                     text: qsTr("Enable Cadence color")
+                    // Screen reader: Qt 5.15 gives a SwitchDelegate no accessible action, so TalkBack's
+                    // swipe passed over it; the press action makes it a stop and turns it as a tap does
+                    // (as Qt 6.11.2 does itself, QTBUG-144350)
+                    Accessible.name: text
+                    Accessible.checkable: true
+                    Accessible.checked: checked
+                    Accessible.onPressAction: {
+                        checked = !checked
+                        clicked()
+                    }
                     spacing: 0
                     bottomPadding: 0
                     topPadding: 0
@@ -415,6 +425,14 @@ ScrollView {
                     Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: paceColorEnabled
                     text: qsTr("Enable Pace color")
+                    // TalkBack: a stop of its own and a turn, as the switch above
+                    Accessible.name: text
+                    Accessible.checkable: true
+                    Accessible.checked: checked
+                    Accessible.onPressAction: {
+                        checked = !checked
+                        clicked()
+                    }
                     spacing: 0
                     bottomPadding: 0
                     topPadding: 0
@@ -615,6 +633,14 @@ ScrollView {
                     Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: wattColorEnabled
                     text: qsTr("Enable Watt color")
+                    // TalkBack: a stop of its own and a turn, as the switch above
+                    Accessible.name: text
+                    Accessible.checkable: true
+                    Accessible.checked: checked
+                    Accessible.onPressAction: {
+                        checked = !checked
+                        clicked()
+                    }
                     spacing: 0
                     bottomPadding: 0
                     topPadding: 0
@@ -866,6 +892,14 @@ ScrollView {
                     Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: heartShowAsPercentSwitch
                     text: qsTr("Show as %FC Max")
+                    // TalkBack: a stop of its own and a turn, as the switch above
+                    Accessible.name: text
+                    Accessible.checkable: true
+                    Accessible.checked: checked
+                    Accessible.onPressAction: {
+                        checked = !checked
+                        clicked()
+                    }
                     spacing: 0
                     bottomPadding: 0
                     topPadding: 0
@@ -1297,6 +1331,14 @@ ScrollView {
                     Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     id: pelotonResistanceColorEnabled
                     text: qsTr("Enable Peloton Resistance color")
+                    // TalkBack: a stop of its own and a turn, as the switch above
+                    Accessible.name: text
+                    Accessible.checkable: true
+                    Accessible.checked: checked
+                    Accessible.onPressAction: {
+                        checked = !checked
+                        clicked()
+                    }
                     spacing: 0
                     bottomPadding: 0
                     topPadding: 0
@@ -1836,6 +1878,14 @@ ScrollView {
                 SwitchDelegate {
                     Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     text: qsTr("Swap Buttons")
+                    // TalkBack: a stop of its own and a turn, as the switch above
+                    Accessible.name: text
+                    Accessible.checkable: true
+                    Accessible.checked: checked
+                    Accessible.onPressAction: {
+                        checked = !checked
+                        clicked()
+                    }
                     spacing: 0
                     bottomPadding: 0
                     topPadding: 0

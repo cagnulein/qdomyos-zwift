@@ -68,6 +68,18 @@ ColumnLayout {
         id: indicatCbx
         text: rootElement.title
         checked: rootElement.isOpen
+        // Screen reader: Qt 5.15 gives a SwitchDelegate no accessible action, so on Android its
+        // node is not clickable and TalkBack's swipe passed over the switch of every section.
+        // The press action makes it a stop; it turns the switch and saves it as a tap does, as
+        // Qt 6.11.2 does itself (QTBUG-144350). A TalkBack double tap presses it with the space
+        // key instead, see CustomQtActivity
+        Accessible.name: text
+        Accessible.checkable: true
+        Accessible.checked: checked
+        Accessible.onPressAction: {
+            checked = !checked
+            clicked()
+        }
         onClicked: {
             rootElement.isOpen = checked;
             if (typeof(settings[rootElement.linkedBoolSetting])=="undefined") {
