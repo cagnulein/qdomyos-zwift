@@ -2217,6 +2217,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                             .match(b.name())
                             .hasMatch() &&
                         ftms_rower.contains(QZSettings::default_ftms_rower) &&
+                       !b.name().toUpper().startsWith(QStringLiteral("TOPUTURE TBE5")) &&
                        !ftmsBike && !ftmsRower && !snodeBike && !fitPlusBike && !stagesBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -3172,7 +3173,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) ||
                         b.name().startsWith(QStringLiteral("X100-")) ||
                         (b.name().toUpper().startsWith("H9110 OSAKA")) ||
-                        b.name().startsWith(QStringLiteral("MRK-"))) &&
+                        b.name().startsWith(QStringLiteral("MRK-")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("TOPUTURE TBE5"))) &&
                        !fitPlusBike && !fitPlusRower && !ftmsBike && !ftmsRower && !snodeBike && !horizonTreadmill && !trxappgateusbRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
