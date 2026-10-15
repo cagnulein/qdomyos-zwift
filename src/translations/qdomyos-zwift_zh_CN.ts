@@ -7769,6 +7769,10 @@ Default: A = -0.96, B = 1.33</source>
         <translation>保持心率区间调节项：</translation>
     </message>
     <message>
+        <source>Speed</source>
+        <translation>速度</translation>
+    </message>
+    <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
         <translation>QZ 控制您的跑步机或自行车，帮助您保持在设定的心率区间内。全局设置“保持心率区间调节项”为跑步机选择速度或坡度；训练中的单个间歇可以在训练编辑器中覆盖此设置。“保持心率区间”卡片只更改目标心率区间。</translation>
     </message>

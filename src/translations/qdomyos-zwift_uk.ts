@@ -6353,6 +6353,10 @@ Please enter it below:</source>
         <translation>Нахил</translation>
     </message>
     <message>
+        <source>Speed</source>
+        <translation>Швидкість</translation>
+    </message>
+    <message>
         <source>Echelon Options</source>
         <translation>Параметри Echelon</translation>
     </message>

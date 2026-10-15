@@ -6361,6 +6361,10 @@ Veuillez le saisir ci-dessous :</translation>
         <translation>Inclinaison</translation>
     </message>
     <message>
+        <source>Speed</source>
+        <translation>Vitesse</translation>
+    </message>
+    <message>
         <source>Echelon Options</source>
         <translation>Options Echelon</translation>
     </message>

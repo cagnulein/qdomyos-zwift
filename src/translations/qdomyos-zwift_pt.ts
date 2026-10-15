@@ -6357,6 +6357,10 @@ Insira-o abaixo:</translation>
         <translation>Inclinação</translation>
     </message>
     <message>
+        <source>Speed</source>
+        <translation>Velocidade</translation>
+    </message>
+    <message>
         <source>Echelon Options</source>
         <translation>Opções Echelon</translation>
     </message>

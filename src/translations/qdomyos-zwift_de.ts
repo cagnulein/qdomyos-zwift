@@ -6357,6 +6357,10 @@ Bitte geben Sie ihn unten ein:</translation>
         <translation>Neigung</translation>
     </message>
     <message>
+        <source>Speed</source>
+        <translation>Geschwindigkeit</translation>
+    </message>
+    <message>
         <source>Echelon Options</source>
         <translation>Echelon Optionen</translation>
     </message>

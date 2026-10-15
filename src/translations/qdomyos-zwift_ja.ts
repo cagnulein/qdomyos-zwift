@@ -6389,6 +6389,10 @@ Please enter it below:</source>
         <translation>傾斜（斜度）</translation>
     </message>
     <message>
+        <source>Speed</source>
+        <translation>スピード</translation>
+    </message>
+    <message>
         <source>Echelon Options</source>
         <translation>Echelon設定</translation>
     </message>
