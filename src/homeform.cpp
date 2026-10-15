@@ -1079,6 +1079,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     }
 
+    removeOldWorkoutImages();
+
     QDirIterator itFit(getWritableAppDir(), QStringList() << "*.fit", QDir::Files);
     qDebug() << itFit.path();
     QDir().mkdir(getWritableAppDir() + "fit");
@@ -1472,6 +1474,70 @@ void homeform::chartSaved(QString fileName) {
         }
         chartImagesFilenames.clear();
     }
+}
+
+static bool isDigits(const QString &s) {
+    if (s.isEmpty())
+        return false;
+    for (const QChar &c : s) {
+        if (!c.isDigit())
+            return false;
+    }
+    return true;
+}
+
+// True for the image names QZ writes: "Tue Oct 14 10_23_45 2026.jpg" (QDateTime::toString() with ':' -> '_'),
+// the same with a "_<chart>" suffix before the extension, or a "<uuid>_mail.jpg" copy.
+static bool isQzWorkoutImageName(const QString &fileName) {
+    const QString name = fileName.toLower();
+    if (name.endsWith(QStringLiteral("_mail.jpg"))) {
+        const QString uuid = name.left(name.length() - 9);
+        if (uuid.length() != 36)
+            return false;
+        for (const QChar &c : uuid) {
+            if (!(c.isDigit() || (c >= QLatin1Char('a') && c <= QLatin1Char('f')) || c == QLatin1Char('-')))
+                return false;
+        }
+        return true;
+    }
+    if (!name.endsWith(QStringLiteral(".jpg")) && !name.endsWith(QStringLiteral(".png")))
+        return false;
+    // weekday, month, day, hh_mm_ss, yyyy[_chart]
+    const QStringList parts = name.left(name.length() - 4).split(QLatin1Char(' '), Qt::SkipEmptyParts);
+    if (parts.length() != 5)
+        return false;
+    if (parts[2].length() > 2 || !isDigits(parts[2]))
+        return false;
+    const QStringList time = parts[3].split(QLatin1Char('_'));
+    if (time.length() != 3)
+        return false;
+    for (const QString &t : time) {
+        if (t.length() != 2 || !isDigits(t))
+            return false;
+    }
+    const QString year = parts[4].left(4);
+    return isDigits(year) && year.length() == 4 && (parts[4].length() == 4 || parts[4].at(4) == QLatin1Char('_'));
+}
+
+// The screenshot and the chart images of each workout stay in the app folder for good (#157):
+// remove the ones older than 30 days. Only names written by QZ are matched (isQzWorkoutImageName):
+// on macOS/Windows the writable dir is Downloads / the current dir, so a plain *.jpg would hit the user's own files.
+void homeform::removeOldWorkoutImages() {
+    const QDateTime limit = QDateTime::currentDateTime().addDays(-30);
+    const QFileInfoList list =
+        QDir(getWritableAppDir())
+            .entryInfoList(QStringList() << QStringLiteral("*.jpg") << QStringLiteral("*.png"), QDir::Files);
+    int removed = 0;
+    for (const QFileInfo &f : list) {
+        if (!isQzWorkoutImageName(f.fileName()) || f.lastModified() >= limit)
+            continue;
+        if (QFile::remove(f.filePath()))
+            removed++;
+        else
+            // e.g. Android 11+: files left by a previous installation can't be removed by the new one
+            qDebug() << "cannot remove old workout image" << f.fileName();
+    }
+    qDebug() << "removed old workout images" << removed << "of" << list.length() << "images";
 }
 
 void homeform::keyMediaPrevious() {
