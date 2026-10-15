@@ -102,10 +102,10 @@ Item {
                                IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width * .5
-        text: "Restore Purchases"
+        text: qsTr("Restore Purchases")
         onClicked: {
             console.log("restoring...");
-            toast.show("Restoring...");
+            toast.show(qsTr("Restoring..."));
             iapStore.restorePurchases();
         }
     }

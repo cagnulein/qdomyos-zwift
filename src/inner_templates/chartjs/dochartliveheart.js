@@ -90,8 +90,8 @@ function updateHeartThresholdAnnotations(arr) {
     heartTargetAbove = positiveHeartTarget(arr.target_heart_above);
     heartTargetBelow = positiveHeartTarget(arr.target_heart_below);
 
-    setHeartThresholdAnnotation('heartTargetAbove', heartTargetAbove, 'HR >' + heartTargetAbove + ' bpm');
-    setHeartThresholdAnnotation('heartTargetBelow', heartTargetBelow, 'HR <' + heartTargetBelow + ' bpm');
+    setHeartThresholdAnnotation('heartTargetAbove', heartTargetAbove, t('chart.hrAboveBpm', 'HR >{value} bpm').replace('{value}', heartTargetAbove));
+    setHeartThresholdAnnotation('heartTargetBelow', heartTargetBelow, t('chart.hrBelowBpm', 'HR <{value} bpm').replace('{value}', heartTargetBelow));
 
     const maxTarget = Math.max(heartTargetAbove, heartTargetBelow);
     if (maxTarget > heartChart.options.scales.y.max) {
@@ -105,6 +105,10 @@ function updateHeartThresholdAnnotations(arr) {
 
 function t(key, fallback) {
     return window.qzTranslate ? window.qzTranslate(key, fallback) : fallback;
+}
+
+function heartZoneLabel(number) {
+    return t('chart.heartZoneShort', 'heart z{number}').replace('{number}', number);
 }
 
 function process_trainprogram_heart(arr) {
@@ -424,11 +428,11 @@ function process_arr_heart(arr) {
                         stepSize: 1,
                         autoSkip: false,
                         callback: value =>  heartZoneLabelPositions.includes(value) ?
-                            value === heartZoneLabelPositions[0] ? 'heart z1' :
-                            value === heartZoneLabelPositions[1] ? 'heart z2' :
-                            value === heartZoneLabelPositions[2] ? 'heart z3' :
-                            value === heartZoneLabelPositions[3] ? 'heart z4' :
-                            value === heartZoneLabelPositions[4] ? 'heart z5' : undefined : undefined,
+                            value === heartZoneLabelPositions[0] ? heartZoneLabel(1) :
+                            value === heartZoneLabelPositions[1] ? heartZoneLabel(2) :
+                            value === heartZoneLabelPositions[2] ? heartZoneLabel(3) :
+                            value === heartZoneLabelPositions[3] ? heartZoneLabel(4) :
+                            value === heartZoneLabelPositions[4] ? heartZoneLabel(5) : undefined : undefined,
                         color: 'black',
                         padding: -70,
                         align: 'end',
