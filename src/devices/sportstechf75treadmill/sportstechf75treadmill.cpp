@@ -20,6 +20,9 @@ constexpr int kTelemetryStart = 0xFD;
 constexpr int kCommandRun = 0x07;
 constexpr int kCommandStart = 0xA2;
 constexpr int kCommandStop = 0x00;
+// The vendor app uses the fourth byte of A2 as a four-second countdown,
+// not as the target speed. The target speed is sent by the later 0x60 frame.
+constexpr int kStartCountdownSeconds = 4;
 }
 
 sportstechf75treadmill::sportstechf75treadmill(bool noHeartService) {
@@ -337,8 +340,9 @@ void sportstechf75treadmill::update() {
 
     if (requestStart != -1) {
         qDebug() << "Sportstech F75 START speed raw" << rawRequestedSpeed << "requested" << requestedSpeed
-                 << "command" << commandSpeed << "incline" << requestedIncline;
-        sendCommand(kCommandStart, requestedIncline, commandSpeed);
+                 << "command" << commandSpeed << "incline" << requestedIncline
+                 << "countdown" << kStartCountdownSeconds;
+        sendCommand(kCommandStart, requestedIncline, kStartCountdownSeconds);
         sendRunningCommand(commandSpeed, requestedIncline);
         requestStart = -1;
         lastCommandSpeed = commandSpeed;
