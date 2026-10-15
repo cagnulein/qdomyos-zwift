@@ -114,12 +114,15 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - Accessory model, receiving training app, QZ version, and device topology.
 - Whether manual incline control from QZ works, and one comparison of route grade, QZ incline tile, and physical movement.
 - Which virtual device is selected as Controllable, and any accessory-specific gain setting.
+- Report the training app's own gradient intensity or realism setting (including whether it is 0%), separate from QZ's gain.
 
 ### If still unclear
 
 - Capture a short QZ log across a clear grade transition, with approximate times and values.
+- If the app's gradient setting was zero, repeat the same short route section with a nonzero setting before collecting a second log.
 - Compare incoming simulation requests with outgoing accessory commands; vary one setting at a time.
 
 ### Why it matters
 
 - Absent grade requests and incorrectly scaled commands look similar at the accessory but require different investigation.
+- An app-level gradient setting of zero can suppress grade changes before QZ receives them. In a confirmed case, increasing the MyWhoosh gradient setting restored QZ incline updates and Elite Rizer movement.
