@@ -66,3 +66,21 @@
 
 - A successful Bluetooth connection does not guarantee that the correct protocol handler was selected.
 - Conflicting model-specific and generic settings can route a device to an unsuitable parser.
+
+## Bike reports metrics but remote resistance support is uncertain
+
+### Provide first
+
+- Exact bike model, QZ version, and which metrics update in QZ.
+- Whether the bike changes resistance using mechanical or electronic controls, and whether its manufacturer app can control resistance remotely.
+- Whether manual resistance requests from QZ work before a third-party app is opened.
+
+### If still unclear
+
+- With other bike apps closed, provide an nRF Connect screenshot showing the bike's Bluetooth services and characteristics, including any FTMS control point.
+- Provide a QZ debug log covering one manual resistance request and the bike's response.
+
+### Why it matters
+
+- Working telemetry does not prove remote resistance control is available.
+- Electronic buttons and FTMS service discovery do not by themselves establish which remote commands are accepted.
