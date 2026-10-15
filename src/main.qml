@@ -1154,7 +1154,6 @@ ApplicationWindow {
         Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
         // Opacity, not visible: some pages set headerToolbar.visible themselves
-        opacity: window.rootReady ? 1 : 0
         property bool settingsPageActive: stackView.currentItem && typeof stackView.currentItem.showSettingsSearch === "function"
         topPadding: getTopPadding()
         // Clear of the side system bar and the cutout held sideways, as the page stack: with
@@ -1718,7 +1717,6 @@ ApplicationWindow {
     Item {
         anchors.fill: parent
         Accessible.ignored: true
-        opacity: window.rootReady ? 1 : 0
 
         StackView {
             id: stackView
