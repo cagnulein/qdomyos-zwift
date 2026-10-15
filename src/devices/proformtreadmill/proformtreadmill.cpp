@@ -110,6 +110,20 @@ void proformtreadmill::forceIncline(double incline) {
 }
 
 void proformtreadmill::forceSpeed(double speed) {
+    const int encodedSpeed = qRound(speed * 100.0);
+    const QDateTime now = QDateTime::currentDateTime();
+    const bool sameCommand = m_lastForceSpeedCommand == encodedSpeed;
+    const bool duplicateWindowActive =
+        sameCommand &&
+        m_lastForceSpeedCommandAt.isValid() &&
+        m_lastForceSpeedCommandAt.msecsTo(now) < forceSpeedDuplicateWindowMs;
+
+    if (duplicateWindowActive) {
+        emit debug(QStringLiteral("duplicate forceSpeed suppressed: ") +
+                   QString::number(speed));
+        return;
+    }
+
     uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
     uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x01,
                        0x01, 0xbc, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -146,6 +160,9 @@ void proformtreadmill::forceSpeed(double speed) {
                                         : QStringLiteral("forceSpeed");
     writeCharacteristic(noOpData7, sizeof(noOpData7), forceSpeedLabel);
     writeCharacteristic(write, sizeof(write), forceSpeedLabel, false, true);
+
+    m_lastForceSpeedCommand = encodedSpeed;
+    m_lastForceSpeedCommandAt = now;
 }
 
 void proformtreadmill::update() {

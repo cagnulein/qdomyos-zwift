@@ -67,6 +67,10 @@ class proformtreadmill : public treadmill {
     bool initRequest = false;
     double maxSpeed = 22;
     double cachedSpeedRequest = -1;
+    int m_lastForceSpeedCommand = -1;
+    QDateTime m_lastForceSpeedCommandAt;
+
+    static constexpr qint64 forceSpeedDuplicateWindowMs = 7000;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
