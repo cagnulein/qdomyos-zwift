@@ -5482,6 +5482,18 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
         <translation>Suchergebnisse</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Geändert</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>Keine geänderten Einstellungen</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Geänderte Einstellungen</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Öffnen</translation>
     </message>

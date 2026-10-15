@@ -5502,6 +5502,18 @@ In the next window, allow access to the QZ folder.</source>
         <translation>検索結果</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>変更済み</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>変更した設定はありません</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>変更した設定</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>開く</translation>
     </message>

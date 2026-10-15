@@ -5518,6 +5518,18 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Resultados de pesquisa</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Alteradas</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>Nenhuma configuração alterada</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Configurações alteradas</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Abrir</translation>
     </message>

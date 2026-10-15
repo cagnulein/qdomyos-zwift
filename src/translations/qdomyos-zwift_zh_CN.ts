@@ -5558,6 +5558,18 @@ In the next window, allow access to the QZ folder.</source>
         <translation>搜索结果</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>已更改</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>没有已更改的设置</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>已更改的设置</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>打开</translation>
     </message>

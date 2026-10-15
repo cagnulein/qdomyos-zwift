@@ -4365,6 +4365,18 @@ In the next window, allow access to the QZ folder.</source>
         <translation>Результаты поиска</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Изменённые</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>Все настройки по умолчанию</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Изменённые настройки</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Открыть</translation>
     </message>

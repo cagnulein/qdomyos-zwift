@@ -5478,6 +5478,18 @@ Dans la fenêtre suivante, autorisez l&apos;accès au dossier QZ.</translation>
         <translation>Résultats de recherche</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Modifiés</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>Aucun paramètre modifié</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Paramètres modifiés</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Ouvrir</translation>
     </message>
