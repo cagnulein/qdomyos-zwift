@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "zwift_play/zwiftclickremote.h"
+#include "devices/bike.h"
 
 #include <QByteArray>
 #include <QDir>
@@ -36,7 +37,11 @@ public:
              << QZSettings::zwiftplay_gear_rs1
              << QZSettings::zwiftplay_gear_rs2
              << QZSettings::zwiftplay_gear_lb
-             << QZSettings::zwiftplay_gear_rb;
+             << QZSettings::zwiftplay_gear_rb
+             << QZSettings::gears_gain
+             << QZSettings::gears_offset
+             << QZSettings::gears_zwift_ratio
+             << QZSettings::gears_custom_table_enabled;
         for (const QString &key : keys) {
             present.append(settings.contains(key));
             original.append(settings.value(key));
@@ -57,6 +62,10 @@ public:
         settings.setValue(QZSettings::gears_volume_debouncing, debounce);
         settings.setValue(QZSettings::zwiftplay_gear_paddle_left, 2);
         settings.setValue(QZSettings::zwiftplay_gear_paddle_right, 1);
+        settings.setValue(QZSettings::gears_gain, 1.0);
+        settings.setValue(QZSettings::gears_offset, 0.0);
+        settings.setValue(QZSettings::gears_zwift_ratio, false);
+        settings.setValue(QZSettings::gears_custom_table_enabled, false);
         // Disable secondary buttons to isolate the analog paddles.
         for (const QString &key : {QZSettings::zwiftplay_gear_ls1,
                                    QZSettings::zwiftplay_gear_ls2,
@@ -241,10 +250,33 @@ TEST(ZwiftPlayDualConnectionReplay, SwapReversesBothDirectionsWithoutChangingCon
         inject(first, kIdle);
         inject(second, kIdle);
         inject(first, kRight);
+        EXPECT_EQ(sink.up, swap ? 0 : 1) << "right paddle, swap=" << swap;
+        EXPECT_EQ(sink.down, swap ? 1 : 0) << "right paddle, swap=" << swap;
         inject(second, kLeft);
         EXPECT_EQ(sink.up, 1);
         EXPECT_EQ(sink.down, 1);
     }
+}
+
+TEST(ZwiftPlayDualConnectionReplay, LocalBikeCanShiftFromTenToNineAndBack) {
+    DualReplaySettings settings;
+    settings.configure(false, false);
+
+    bike trainer;
+    trainer.setGears(10.0);
+    ASSERT_DOUBLE_EQ(trainer.gears(), 10.0);
+
+    zwiftclickremote first(nullptr, AbstractZapDevice::RIGHT);
+    zwiftclickremote second(nullptr, AbstractZapDevice::RIGHT);
+    QObject::connect(first.playDevice, &ZwiftPlayDevice::minus, &trainer, &bike::gearDown);
+    QObject::connect(second.playDevice, &ZwiftPlayDevice::plus, &trainer, &bike::gearUp);
+
+    inject(first, kIdle);
+    inject(second, kIdle);
+    inject(first, kLeft);
+    EXPECT_DOUBLE_EQ(trainer.gears(), 9.0) << "no gear-10 threshold";
+    inject(second, kRight);
+    EXPECT_DOUBLE_EQ(trainer.gears(), 10.0);
 }
 
 TEST(ZwiftPlayDualConnectionReplay, SplitFullCapturedTraceByShapeComparedWithSingleParser) {
