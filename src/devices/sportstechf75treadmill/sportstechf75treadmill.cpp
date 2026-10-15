@@ -26,6 +26,7 @@ sportstechf75treadmill::sportstechf75treadmill(bool noHeartService) {
     this->noHeartService = noHeartService;
     m_watt.setType(metric::METRIC_WATT, deviceType());
     Speed.setType(metric::METRIC_SPEED);
+    qDebug() << "Sportstech F75 diagnostic command tracing enabled";
 
     refresh = new QTimer(this);
     connect(refresh, &QTimer::timeout, this, &sportstechf75treadmill::update);
@@ -148,7 +149,9 @@ QByteArray sportstechf75treadmill::runningFrame(int speed, int incline) const {
     QByteArray frame(12, static_cast<char>(0));
     frame[0] = static_cast<char>(kFrameStart);
     frame[1] = static_cast<char>(0x60);
-    frame[8] = static_cast<char>(qBound(0, speed, 255));
+    // A zero speed is not a valid active command for this treadmill. Stop is
+    // represented by the separate 0x00 command, not by a 0x60 running frame.
+    frame[8] = static_cast<char>(qBound(1, speed, 255));
     frame[9] = static_cast<char>(qBound(0, incline, 255));
 
     int checksum = 0;
@@ -174,6 +177,13 @@ void sportstechf75treadmill::sendRunningCommand(int speed, int incline) {
 QByteArray sportstechf75treadmill::commandFrame(int command, int data1, int data2) const {
     // This is the exact six-byte frame built by the APK's SerialPort class:
     // FB command data1 data2 checksum FC, checksum over command..data2.
+    // Keep zero exclusive to the explicit stop command. This guard belongs at
+    // the frame encoder so every active caller is protected, even if a future
+    // path bypasses update()'s requested-speed normalization.
+    if (command == kCommandStart || command == kCommandRun) {
+        data2 = qMax(1, data2);
+    }
+
     if ((command == kCommandRun || command == 0x0A) && data2 > 250) {
         data1 |= 0x80;
         data2 -= 250;
@@ -186,6 +196,8 @@ QByteArray sportstechf75treadmill::commandFrame(int command, int data1, int data
     frame.append(static_cast<char>(data2 & 0xFF));
     frame.append(static_cast<char>((command + data1 + data2) & 0xFF));
     frame.append(static_cast<char>(kFrameEnd));
+    qDebug() << "Sportstech F75 commandFrame command" << command << "data1" << data1 << "data2" << data2
+             << "frame" << frame.toHex(' ');
     return frame;
 }
 
@@ -196,6 +208,7 @@ void sportstechf75treadmill::sendFrame(const QByteArray &frame) {
     }
 
     QAndroidJniEnvironment env;
+    qDebug() << "Sportstech F75 sendFrame before JNI write" << frame.size() << "bytes" << frame.toHex(' ');
     jbyteArray bytes = env->NewByteArray(frame.size());
     env->SetByteArrayRegion(bytes, 0, frame.size(), reinterpret_cast<const jbyte *>(frame.constData()));
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", bytes);
@@ -313,7 +326,8 @@ void sportstechf75treadmill::update() {
         firstStateChanged = true;
     }
 
-    const int requestedSpeed = qBound(0, qRound(lastRequestedSpeed().value()), 25);
+    const double rawRequestedSpeed = lastRequestedSpeed().value();
+    const int requestedSpeed = qBound(0, qRound(rawRequestedSpeed), 25);
     const int requestedIncline = qBound(0, qRound(lastRequestedInclination().value()), 25);
     // The vendor app starts the belt with a non-zero target speed.  QZ can
     // otherwise reach Start with a zero target, which produces an A2 start
@@ -322,6 +336,8 @@ void sportstechf75treadmill::update() {
     const int commandSpeed = qMax(1, requestedSpeed);
 
     if (requestStart != -1) {
+        qDebug() << "Sportstech F75 START speed raw" << rawRequestedSpeed << "requested" << requestedSpeed
+                 << "command" << commandSpeed << "incline" << requestedIncline;
         sendCommand(kCommandStart, requestedIncline, commandSpeed);
         sendRunningCommand(commandSpeed, requestedIncline);
         requestStart = -1;
@@ -342,6 +358,8 @@ void sportstechf75treadmill::update() {
     }
 
     if (commandActive && (commandSpeed != lastCommandSpeed || requestedIncline != lastCommandIncline)) {
+        qDebug() << "Sportstech F75 RUN speed raw" << rawRequestedSpeed << "requested" << requestedSpeed
+                 << "command" << commandSpeed << "incline" << requestedIncline;
         sendCommand(kCommandRun, requestedIncline, commandSpeed);
         sendRunningCommand(commandSpeed, requestedIncline);
         runningCommandTicks = 0;
