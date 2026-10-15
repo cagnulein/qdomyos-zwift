@@ -223,7 +223,9 @@ void bike::setGears(double gears) {
     const qint64 lastFtmsFrame = virtualBike ? virtualBike->whenLastFTMSFrameReceived() : 0;
     const bool externalControllerActive =
         lastFtmsFrame > 0 && QDateTime::currentMSecsSinceEpoch() <= lastFtmsFrame + 2000;
-    if (!externalControllerActive && RequestedPower.value() > 0 && homeform::singleton()) {
+    const bool ergModeActive =
+        settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+    if (!externalControllerActive && ergModeActive && RequestedPower.value() > 0 && homeform::singleton()) {
         if (gears > m_gears) {
             qDebug() << "Standalone ERG: translating gear up to target power jog";
             homeform::singleton()->keyboardPlus(QStringLiteral("target_power"));
