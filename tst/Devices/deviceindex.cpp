@@ -88,6 +88,7 @@ DEFINE_DEVICE(FlywheelBike, "Flywheel Bike");
 DEFINE_DEVICE(FlywheelLifeFitnessIC8, "Flywheel Life Fitness IC8");
 DEFINE_DEVICE(FocusTreadmill, "Focus Treadmill");
 DEFINE_DEVICE(HorizonGR7Bike, "Horizon GR7 Bike");
+DEFINE_DEVICE(HorizonTreadmill_AdidasFTMS, "Horizon Treadmill (Adidas FTMS)");
 DEFINE_DEVICE(HorizonTreadmill_Bodytone, "Horizon Treadmill (Bodytone)");
 DEFINE_DEVICE(HorizonTreadmill_DomyosTC, "Horizon Treadmill (Domyos TC)");
 DEFINE_DEVICE(HorizonTreadmill_Toorx, "Horizon Treadmill (Toorx)");
