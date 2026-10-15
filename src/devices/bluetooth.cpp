@@ -3022,6 +3022,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (upperDeviceName.startsWith(QStringLiteral("REEBOK"))) ||
                         (flow_fitness_runner_dtm2000i &&
                          trxappgateusbtreadmill::isFlowFitnessDeviceName(deviceName))) &&
+                       deviceName.compare(ftms_treadmill, Qt::CaseInsensitive) &&
+                       !horizonTreadmill &&
                        !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill && !iconsole_elliptical && !iconsole_rower && ftms_elliptical.contains(QZSettings::default_ftms_elliptical) &&
                            ftms_bike.contains(QZSettings::default_ftms_bike) &&
                        filter) {
