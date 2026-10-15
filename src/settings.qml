@@ -270,6 +270,9 @@ import AndroidStatusBar 1.0
             settingsSearchActive = back.query.trim().length > 0 || back.changedOnly
             settingsSearchPending = false
             filteredSettings = back.results
+            // "Changed" may differ now (the setting just opened was edited): that list is rebuilt
+            if (changedOnly)
+                updateFilteredSettings()
             // After the list is laid out again
             contentItem.contentY = 0
             Qt.callLater(function () {
