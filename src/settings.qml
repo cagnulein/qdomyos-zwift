@@ -28,10 +28,11 @@ import AndroidStatusBar 1.0
         id: settingsPane
         // The Duo scene is extended below the safe area so QZ can paint the
         // background there. Keep the last settings row above the home
-        // indicator by adding the same amount to the scrollable content.
+        // indicator through the viewport padding.
         bottomPadding: (ApplicationWindow.window && ApplicationWindow.window.isIPhoneDuoDisplay()) ?
                        ApplicationWindow.window.getIPhoneDuoBottomInset() : 0
-        contentHeight: Math.max(column1.implicitHeight + bottomPadding, availableHeight)
+        contentHeight: (ApplicationWindow.window && ApplicationWindow.window.isIPhoneDuoDisplay()) ?
+                       Math.max(column1.implicitHeight, availableHeight) : column1.implicitHeight
 
         signal peloton_connect_clicked()
         signal intervalsicu_connect_clicked()

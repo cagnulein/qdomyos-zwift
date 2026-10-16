@@ -293,13 +293,6 @@ ColumnLayout {
 
                 Button {
                     Layout.fillWidth: true
-                    // The Duo exposes a bottom hinge/safe-area strip while
-                    // Qt's fullscreen window intentionally paints through it.
-                    // Keep this action above that strip so it remains fully
-                    // tappable, matching the standard iPhone layout.
-                    Layout.bottomMargin: (Qt.platform.os === "ios" &&
-                                          typeof IOSLayout !== "undefined" &&
-                                          IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
                     height: 50
                     text: qsTr("Other folders")
                     onClicked: {
@@ -308,6 +301,12 @@ ColumnLayout {
                         } else {
                             fileDialogLoader.active = true
                         }
+                    }
+                    anchors {
+                        bottom: parent.bottom
+                        bottomMargin: (Qt.platform.os === "ios" &&
+                                       typeof IOSLayout !== "undefined" &&
+                                       IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
                     }
                 }
             }
