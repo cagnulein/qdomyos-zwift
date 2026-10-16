@@ -113,3 +113,15 @@ QZ Companion is not required with either of these direct-console methods. QZ its
 If QZ Companion was previously installed, **removing it is recommended but not strictly required**. The direct-console QZ builds do not use it anymore, so keeping it installed provides no benefit. Uninstalling it also keeps the setup simpler and avoids accidentally starting an obsolete bridge that is no longer needed.
 
 You may still use another device for Zwift, Rouvy, or another training application, depending on your setup.
+
+## Can QZ FitPro USB control speed and incline on a NordicTrack T9 without running iFIT?
+
+**Yes, manual speed and incline control on a NordicTrack T9 has been explicitly confirmed** using QZ FitPro USB running directly on the treadmill's Android console.
+
+1. Use the **FitPro USB treadmill** build (`android-debug-fitpro-treadmill.apk`) on the console. Keep **iFIT fully stopped** so it does not compete for the USB-HID hardware; an active iFIT subscription is not needed for this direct-hardware method.
+2. Start QZ on the treadmill console, confirm that treadmill telemetry updates, and test a **small manual speed and incline adjustment** while remaining able to stop the treadmill safely.
+3. To create an interval session on the same console, open **QZ → Workout Editor**, choose **Treadmill**, and enter the desired speed and incline steps. QZ's editor supports treadmill intervals and **Save & Start**; see the [Workout Editor guide](../workout-editor.md).
+
+The **confirmed T9 test covers manual speed and incline commands**, not yet a complete automatically controlled interval workout. Verify short, gentle intervals on the specific console before relying on programmed transitions.
+
+A separate iPhone running QZ is **not required** for this local-console workflow. Remote creation/start of FitPro workouts **from another QZ instance over Wi-Fi** is a different workflow and should not be assumed to work without a separately tested client connection. The gRPC build is likewise a different mode: it needs a newer iFIT 3D interface and iFIT running, whereas FitPro USB does not.

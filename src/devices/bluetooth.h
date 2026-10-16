@@ -101,6 +101,7 @@
 #include "devices/octaneelliptical/octaneelliptical.h"
 #include "devices/octanetreadmill/octanetreadmill.h"
 #include "devices/pafersbike/pafersbike.h"
+#include "devices/pafersrower/pafersrower.h"
 #include "devices/paferstreadmill/paferstreadmill.h"
 #include "devices/pelotonbike/pelotonbike.h"
 #include "devices/pitpatbike/pitpatbike.h"
@@ -158,6 +159,7 @@
 #include "devices/ultrasportbike/ultrasportbike.h"
 #include "devices/wahookickrheadwind/wahookickrheadwind.h"
 #include "devices/wahookickrsnapbike/wahookickrsnapbike.h"
+#include "devices/wahookickruntreadmill/wahookickruntreadmill.h"
 #include "devices/xcxbike/xcxbike.h"
 #include "devices/yesoulbike/yesoulbike.h"
 #include "devices/ypooelliptical/ypooelliptical.h"
@@ -188,6 +190,18 @@ class bluetooth : public QObject, public SignalHandler {
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
+
+    // Search for the equipment, for the status line on the home page
+    bool isSearching() const;
+    qint64 nextSearchMs() const { return nextRescanMs; }
+    bool searchStopped() const { return rescanStopped; }
+    /**
+     * @brief searchNow Starts a search right away and resets the pause between the automatic ones.
+     * Android 7.0 and later ignore the 6th scan start in 30 s: then the search is scheduled for when it is allowed.
+     * @return 0 if the search started or there is nothing to do (a device is connected, discovery is off or
+     * already running), otherwise the seconds until the scheduled search.
+     */
+    int searchNow();
 
   private:
     bool useDiscovery = false;
@@ -301,6 +315,7 @@ class bluetooth : public QObject, public SignalHandler {
     kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;
     ftmsbike *ftmsBike = nullptr;
     pafersbike *pafersBike = nullptr;
+    pafersrower *pafersRower = nullptr;
     paferstreadmill *pafersTreadmill = nullptr;
     tacxneo2 *tacxneo2Bike = nullptr;
     pitpatbike *pitpatBike = nullptr;
@@ -314,6 +329,7 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
+    wahookickruntreadmill *wahooKickRunTreadmill = nullptr;
     xcxbike *xcxBike = nullptr;
     ypooelliptical *ypooElliptical = nullptr;
     ziprotreadmill *ziproTreadmill = nullptr;
@@ -378,6 +394,17 @@ class bluetooth : public QObject, public SignalHandler {
 
     QTimer discoveryTimeout;
     bool discoveryFinishedHandled = false;
+    int rescanCount = 0;
+    qint64 rescanStartedMs = 0;
+    // Android: while Bluetooth is off, asks the adapter every 2 s whether it is on again
+    QTimer bluetoothOffPoll;
+    QTimer rescanTimer;
+    qint64 nextRescanMs = 0;
+    bool rescanStopped = false;
+    // Android 7.0 and later ignore the scan starts after the 5th one in this window
+    static constexpr qint64 scanStartWindowMs = 30000;
+    QList<qint64> scanStartsMs;
+    void pruneScanStarts(qint64 now);
 
 #ifdef Q_OS_IOS
     lockscreen *h = nullptr;

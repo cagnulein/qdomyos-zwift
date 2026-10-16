@@ -93,6 +93,8 @@ For this setup:
 
 If the controllers appear connected but gear changes do not work in Kinomap, check **FTMS Bike** first. Selecting a trainer model there can make QZ use the wrong bike path for this setup. In a confirmed support case, changing **FTMS Bike** from a KICKR model back to **Disabled** restored virtual shifting immediately.
 
+If QZ does not detect the Zwift Ride/Play controller after enabling the option, fully restart QZ with the controller awake. The controller option is applied during QZ startup. In a confirmed support case, enabling the Zwift controller option before starting QZ restored virtual shifting in MyWhoosh; selecting **FTMS** when adding the QZ virtual trainer in Kinomap then made the same setup work there as well.
+
 ## Can I use QZ virtual gears with Rouvy?
 
 Yes. QZ can manage virtual gear changes while ROUVY controls the bike or trainer through QZ. ROUVY continues sending terrain/grade changes, while QZ applies the current virtual gear on top of the resistance requested for the route.
@@ -171,6 +173,20 @@ If QZ still reports a successful Peloton login but stops recognizing an active P
 
 In a confirmed support case, signing out and back in did not restore workout detection, while changing the Peloton password did and the integration immediately started working again.
 
+## Can QZ send cadence and heart rate to Peloton?
+
+Yes, but use the **native Peloton app on iOS or Android** for this setup. QZ can expose cadence and heart-rate data through its Peloton compatibility path so that the native mobile app can receive them from QZ.
+
+The **Peloton web app in a browser does not accept this live sensor data from QZ**. If you are using Peloton in a web browser, switching QZ settings will not make cadence or heart rate appear there.
+
+For a supported bike or trainer:
+
+1. Connect the physical equipment and, if needed, the heart-rate sensor to QZ.
+2. Enable the Peloton compatibility option in QZ.
+3. Run the native Peloton app on the device that will receive the virtual sensor data and pair the QZ-exposed cadence/heart-rate devices there.
+
+This distinction is important when troubleshooting a setup that works in QZ but shows no live metrics in Peloton: first confirm whether Peloton is running as the native mobile app or in a web browser.
+
 ## Kinomap keeps reconnecting to an old device or does not use QZ correctly. What should I check?
 
 When QZ is acting as the bridge between a physical bike and Kinomap, Kinomap should connect to the **virtual device exposed by QZ**, not directly to the physical bike.
@@ -187,3 +203,13 @@ A useful two-device setup is:
 4. In Kinomap, add the equipment again using **FTMS** and select QZ's virtual device.
 
 In a confirmed support case, Kinomap had retained old connections and was interfering with the intended QZ bridge. Cleaning up those saved connections and using the FTMS path restored the expected connection and resistance behavior.
+
+## My Garmin watch finds QZ as a Bluetooth sensor on iPhone but cannot pair. Will Garmin Upload still work?
+
+**Yes, the two connections have different purposes.** A Garmin watch may *discover* QZ's virtual Bluetooth advertisement without successfully connecting to it as a usable bike sensor. Seeing the device name in the Garmin sensor search does not guarantee that the watch supports the specific Bluetooth service and pairing path exposed by QZ.
+
+An **iPhone cannot transmit ANT+**, so QZ running on iOS cannot use the Android ANT+ sensor-broadcast method to send cycling or treadmill metrics directly to a Garmin watch. Enabling QZ's **Garmin Bluetooth Sensor** compatibility option does not add ANT+ to an iPhone or guarantee that every Garmin watch can connect over Bluetooth.
+
+If your aim is to have the completed ride in **Garmin Connect**, keep **Garmin Upload / Garmin Connect integration** enabled in QZ, record the workout in QZ and finish/save the session. QZ then uploads the completed activity and its available metrics to Garmin Connect **after the workout**, rather than feeding a live data stream into the watch's own activity recording.
+
+In a confirmed iPhone/bike support case, Garmin Connect uploads already worked although a Garmin Epix Pro Gen 2 discovered QZ and then failed the Bluetooth sensor pairing. If you specifically need a live ANT+ feed to the watch, use an appropriate **Android device with ANT+ transmission capability** and a supported QZ broadcast profile instead; see the live ANT+ guidance above.
