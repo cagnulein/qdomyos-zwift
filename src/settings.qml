@@ -12,10 +12,7 @@ import AndroidStatusBar 1.0
         objectName: "settingsPage"
         // Settings is a vertical page: never let a wide translated child enlarge the viewport.
         contentWidth: availableWidth
-        // The page height from the column itself: ScrollView takes it from its only child on its
-        // own, but on a phone it stopped following after a turn of the screen - the column grew
-        // to 7254 while the page stayed 1310, a section opened after it could not be scrolled
-        contentHeight: column1.implicitHeight
+        // The page height follows the column and includes the Duo bottom safe-area padding.
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
@@ -29,6 +26,13 @@ import AndroidStatusBar 1.0
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane
+        // The Duo scene is extended below the safe area so QZ can paint the
+        // background there. Keep the last settings row above the home
+        // indicator through the viewport padding.
+        bottomPadding: (ApplicationWindow.window && ApplicationWindow.window.isIPhoneDuoDisplay()) ?
+                       ApplicationWindow.window.getIPhoneDuoBottomInset() : 0
+        contentHeight: (ApplicationWindow.window && ApplicationWindow.window.isIPhoneDuoDisplay()) ?
+                       Math.max(column1.implicitHeight, availableHeight) : column1.implicitHeight
 
         signal peloton_connect_clicked()
         signal intervalsicu_connect_clicked()

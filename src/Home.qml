@@ -313,6 +313,9 @@ HomeForm {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.bottom: parent.bottom
+        // Home has no page-level bottom padding, so keep its interactive tiles
+        // above the iPhone Duo home-indicator safe area.
+        anchors.bottomMargin: window.isIPhoneDuoDisplay() ? window.getIPhoneDuoBottomInset() : 0
         // The tiles stretch to fill the row: the space left over by a whole number of columns
         // is shared between the columns, up to a quarter of the tile width, and what remains
         // centres the grid. Measured on the page, so the Android insets are excluded.

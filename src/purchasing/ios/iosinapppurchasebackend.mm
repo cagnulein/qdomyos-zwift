@@ -295,5 +295,3 @@ void IosInAppPurchaseBackend::setParentToBackend(QObject *object)
 }
 
 QT_END_NAMESPACE
-
-#include "moc_iosinapppurchasebackend.cpp"

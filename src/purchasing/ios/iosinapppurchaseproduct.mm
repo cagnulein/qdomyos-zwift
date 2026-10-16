@@ -85,5 +85,3 @@ void IosInAppPurchaseProduct::purchase()
 }
 
 QT_END_NAMESPACE
-
-#include "moc_iosinapppurchaseproduct.cpp"
