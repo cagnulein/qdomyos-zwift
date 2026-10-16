@@ -83,6 +83,18 @@ Sound alerts triggered by HR zone are not currently supported.
 
 ## Troubleshooting & Support
 
+### 26. Connecting a Life Fitness Discover SE4 bike
+**Q: How do I connect a Life Fitness Discover SE4 bike to QZ?**
+
+The Discover SE4 must first be activated with the NFC tap on the console. This makes the bike start advertising over Bluetooth; QZ does not currently reproduce the NFC/OOB activation itself.
+
+1. Wake the console and complete its NFC tap/activation procedure.
+2. Wait for a Bluetooth device whose name starts with `LF-` to appear. The suffix may change between sessions.
+3. In QZ, open **Settings > Bike Options > FTMS Bike** and select the exact `LF-*` name shown by the bike.
+4. Fully close and restart QZ, then reconnect and start pedaling.
+
+Do not select the Life Fitness treadmill option for this bike. If the `LF-*` device is not listed, repeat the NFC activation and close other fitness or companion apps that may already be connected to the bike.
+
 ### 9. Getting a debug log
 **Q: How do I get a debug log to send for troubleshooting?**
 
