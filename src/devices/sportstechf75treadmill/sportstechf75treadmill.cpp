@@ -177,6 +177,20 @@ void sportstechf75treadmill::sendRunningCommand(int speed, int incline, bool all
 #endif
 }
 
+void sportstechf75treadmill::publishCommandedMetrics(int speed, int incline) {
+    // The vendor A0 frame carries the controller state that the vendor app is
+    // commanding. This console does not provide a non-zero measured speed or
+    // incline frame while running, so expose that state to QZ as a display
+    // proxy until a real RX measurement is identified. Keep the distinction
+    // explicit in the log and never leave stale values after pause/stop.
+    if (currentSpeed().value() == speed && currentInclination().value() == incline) {
+        return;
+    }
+    qDebug() << "Sportstech F75 commanded metrics proxy speed" << speed << "incline" << incline;
+    speedSensor(speed);
+    inclinationSensor(incline, incline);
+}
+
 QByteArray sportstechf75treadmill::commandFrame(int command, int data1, int data2) const {
     // This is the exact six-byte frame built by the APK's SerialPort class:
     // FB command data1 data2 checksum FC, checksum over command..data2.
@@ -425,4 +439,6 @@ void sportstechf75treadmill::update() {
             runningCommandTicks = 0;
         }
     }
+
+    publishCommandedMetrics(commandActive ? commandSpeed : 0, commandActive ? requestedIncline : 0);
 }

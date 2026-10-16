@@ -34,6 +34,7 @@ class sportstechf75treadmill : public treadmill {
     void sendFrame(const QByteArray &frame);
     void sendStartupCommand();
     void sendRunningCommand(int speed, int incline, bool allowZero = false);
+    void publishCommandedMetrics(int speed, int incline);
     void sendCommand(int command, int data1, int data2);
     QByteArray startupFrame() const;
     QByteArray runningFrame(int speed, int incline, bool allowZero = false) const;
