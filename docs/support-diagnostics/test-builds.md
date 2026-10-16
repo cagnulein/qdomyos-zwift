@@ -22,3 +22,22 @@
 - A debug log from a different build cannot validate a fix or behavior change that exists only in the requested build.
 - TestFlight can expose multiple current or previous builds, so having access to a test build does not prove that it is the version currently installed.
 - Confirming the running build before collecting another log prevents repeated tests against stale code and makes comparisons between reproductions meaningful.
+
+## The downloaded Android APK matches, but QZ still behaves like an older build
+
+### Provide first
+
+- Exact test artifact link or ID and the SHA-256 of the downloaded APK, if support supplied a reference checksum.
+- Installed QZ version/build and a fresh log captured after installing the APK.
+- State whether the machine is an embedded Android console, and whether installation was performed through ADB or the normal package installer.
+
+### If still unclear
+
+- With ADB access and support guidance, use `adb shell pm path org.cagnulen.qdomyoszwift` to locate the installed package APK.
+- Pull the installed `base.apk` to a computer and calculate its SHA-256; compare with the intended artifact, accounting for split APK packaging where applicable.
+- If the installed file is verified, collect a new log from a single controlled action and identify the expected versus actual command behavior. Avoid repeatedly reinstalling the same verified APK.
+
+### Why it matters
+
+- Verifying the downloaded artifact alone does not establish which package Android is running.
+- An installed-package checksum can separate a stale installation from a runtime command-path problem, preventing unnecessary repeated builds or downloads.
