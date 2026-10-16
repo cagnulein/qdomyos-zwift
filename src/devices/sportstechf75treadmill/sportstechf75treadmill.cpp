@@ -17,12 +17,12 @@ constexpr char kDevicePath[] = "/dev/ttyS1";
 constexpr int kFrameStart = 0xFB;
 constexpr int kFrameEnd = 0xFC;
 constexpr int kTelemetryStart = 0xFD;
-constexpr int kCommandRun = 0x07;
 constexpr int kCommandStart = 0xA2;
 constexpr int kCommandStop = 0x00;
-// The vendor app uses the fourth byte of A2 as a four-second countdown,
-// not as the target speed. The target speed is sent by the later 0x60 frame.
-constexpr int kStartCountdownSeconds = 4;
+// The vendor sends A2 as a one-second countdown: 03, 02, 01, 00.
+constexpr int kStartCountdownSeconds = 3;
+constexpr int kTimerTicksPerSecond = 10;
+constexpr int kInitialRunningFrames = 10;
 }
 
 sportstechf75treadmill::sportstechf75treadmill(bool noHeartService) {
@@ -145,15 +145,15 @@ void sportstechf75treadmill::sendStartupCommand() {
 }
 
 QByteArray sportstechf75treadmill::runningFrame(int speed, int incline) const {
-    // The vendor sends this 0x60 running-parameter frame continuously while
-    // active.  The first three values are workout counters; zero is safe for
-    // the control path and keeps this profile independent of QZ's statistics.
-    // Frame: FB 60 time[2] distance[2] calories[2] speed incline checksum FC.
+    // The vendor sends this A0 running-parameter frame after the A2 countdown.
+    // The first three values are workout counters; zero is safe for the first
+    // control probe while the proven speed/incline fields remain at offsets 8/9.
+    // Frame: FB A0 time[2] distance[2] calories[2] speed incline checksum FC.
     QByteArray frame(12, static_cast<char>(0));
     frame[0] = static_cast<char>(kFrameStart);
-    frame[1] = static_cast<char>(0x60);
+    frame[1] = static_cast<char>(0xA0);
     // A zero speed is not a valid active command for this treadmill. Stop is
-    // represented by the separate 0x00 command, not by a 0x60 running frame.
+    // represented by the separate 0x00 command, not by a running frame.
     frame[8] = static_cast<char>(qBound(1, speed, 255));
     frame[9] = static_cast<char>(qBound(0, incline, 255));
 
@@ -183,11 +183,7 @@ QByteArray sportstechf75treadmill::commandFrame(int command, int data1, int data
     // Keep zero exclusive to the explicit stop command. This guard belongs at
     // the frame encoder so every active caller is protected, even if a future
     // path bypasses update()'s requested-speed normalization.
-    if (command == kCommandStart || command == kCommandRun) {
-        data2 = qMax(1, data2);
-    }
-
-    if ((command == kCommandRun || command == 0x0A) && data2 > 250) {
+    if (command == 0x0A && data2 > 250) {
         data1 |= 0x80;
         data2 -= 250;
     }
@@ -342,13 +338,16 @@ void sportstechf75treadmill::update() {
         qDebug() << "Sportstech F75 START speed raw" << rawRequestedSpeed << "requested" << requestedSpeed
                  << "command" << commandSpeed << "incline" << requestedIncline
                  << "countdown" << kStartCountdownSeconds;
-        sendCommand(kCommandStart, requestedIncline, kStartCountdownSeconds);
-        sendRunningCommand(commandSpeed, requestedIncline);
+        // The vendor starts with A2 00 03, then decrements once per second.
+        sendCommand(kCommandStart, 0, kStartCountdownSeconds);
         requestStart = -1;
+        commandActive = false;
+        startCountdownValue = kStartCountdownSeconds - 1;
+        startCountdownTicks = 0;
+        runningCommandTicks = 0;
+        runningBurstFrames = 0;
         lastCommandSpeed = commandSpeed;
         lastCommandIncline = requestedIncline;
-        commandActive = true;
-        runningCommandTicks = 0;
         emit tapeStarted();
     }
 
@@ -356,26 +355,54 @@ void sportstechf75treadmill::update() {
         sendCommand(kCommandStop, 0, 0);
         requestStop = -1;
         commandActive = false;
+        startCountdownValue = -1;
+        startCountdownTicks = 0;
         runningCommandTicks = 0;
+        runningBurstFrames = 0;
         lastCommandSpeed = -1;
         lastCommandIncline = -100;
     }
 
+    // Do not send A0 during the countdown. The vendor emits A2 02, A2 01 and
+    // A2 00 at roughly one-second intervals before the first running frame.
+    if (!commandActive && startCountdownValue >= 0) {
+        if (++startCountdownTicks >= kTimerTicksPerSecond) {
+            sendCommand(kCommandStart, 0, startCountdownValue);
+            startCountdownTicks = 0;
+            if (startCountdownValue == 0) {
+                startCountdownValue = -1;
+                commandActive = true;
+                runningCommandTicks = 0;
+                runningBurstFrames = kInitialRunningFrames;
+                qDebug() << "Sportstech F75 countdown complete; starting A0 running frames";
+            } else {
+                --startCountdownValue;
+            }
+        }
+    }
+
+    bool runningFrameSent = false;
     if (commandActive && (commandSpeed != lastCommandSpeed || requestedIncline != lastCommandIncline)) {
         qDebug() << "Sportstech F75 RUN speed raw" << rawRequestedSpeed << "requested" << requestedSpeed
                  << "command" << commandSpeed << "incline" << requestedIncline;
-        sendCommand(kCommandRun, requestedIncline, commandSpeed);
         sendRunningCommand(commandSpeed, requestedIncline);
         runningCommandTicks = 0;
+        runningBurstFrames = 0;
         lastCommandSpeed = commandSpeed;
         lastCommandIncline = requestedIncline;
+        runningFrameSent = true;
     }
 
-    // The vendor M100msThread repeats SendRunningParamter approximately every
-    // 200 ms.  Without this keep-alive the console accepts the start frame but
-    // remains stopped, even though RX telemetry is present.
-    if (commandActive && ++runningCommandTicks >= 2) {
-        sendRunningCommand(commandSpeed, requestedIncline);
-        runningCommandTicks = 0;
+    // The vendor sends A0 every ~100 ms for the first ten frames, then every
+    // ~1 s. This cadence is part of the start/run contract for this console.
+    if (commandActive && !runningFrameSent) {
+        if (runningBurstFrames > 0) {
+            sendRunningCommand(commandSpeed, requestedIncline);
+            --runningBurstFrames;
+            runningCommandTicks = 0;
+        } else if (++runningCommandTicks >= kTimerTicksPerSecond) {
+            sendRunningCommand(commandSpeed, requestedIncline);
+            runningCommandTicks = 0;
+        }
     }
 }

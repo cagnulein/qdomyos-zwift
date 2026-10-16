@@ -47,6 +47,9 @@ class sportstechf75treadmill : public treadmill {
     bool noHeartService = false;
     bool firstStateChanged = false;
     int runningCommandTicks = 0;
+    int runningBurstFrames = 0;
+    int startCountdownValue = -1;
+    int startCountdownTicks = 0;
     int lastCommandSpeed = -1;
     int lastCommandIncline = -100;
 };
