@@ -40,3 +40,22 @@
 
 - Missing incoming grade updates and rejected treadmill commands are different failure points.
 - Successful manual incline control narrows the fault to grade acquisition or translation.
+
+## Treadmill speed or distance appears in the wrong units in QZ
+
+### Provide first
+
+- Exact treadmill model, QZ version, and the unit displayed on the treadmill console versus QZ.
+- One fixed-speed example with the numeric value and unit from the console, QZ speed tile, and, if relevant, the receiving fitness app.
+- Screenshots of both the device-specific unit interpretation setting (where present) and the QZ user-interface unit preference.
+
+### If still unclear
+
+- Change only the device-specific incoming-unit setting, fully restart QZ, and repeat the same fixed-speed test; retain the preferred display unit.
+- Compare both speed and accumulated distance in a short controlled session before investigating Apple Health or other exports.
+- Provide a debug log if the reported device value or conversion remains inconsistent.
+
+### Why it matters
+
+- Incoming device units and preferred display units are separate decisions. A value interpreted as mph when the treadmill sends km/h can appear numerically correct but be labeled incorrectly and can also affect distance exports.
+- Comparing the same physical speed before and after a single setting change isolates interpretation from downstream recording.
