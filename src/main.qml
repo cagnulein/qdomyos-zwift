@@ -61,7 +61,7 @@ ApplicationWindow {
         // extend through the dynamic bottom safe-area strip; pages that keep
         // controls safe from the home indicator already reserve this inset.
         if (isIPhoneDuoDisplay()) return -getIPhoneDuoBottomInset();
-        return (Screen.orientation === Qt.PortraitOrientation || Screen.orientation === Qt.InvertedPortraitOrientation) ? getBottomPadding() : 0;
+        return getBottomPadding();
     }
 
     function isIPhoneDuoDisplay() {
