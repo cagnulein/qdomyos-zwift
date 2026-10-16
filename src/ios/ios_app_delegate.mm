@@ -306,6 +306,61 @@ static void qz_sendUpdatedExposeEvent(UIView *view)
 // Qt 5.15 can restore a stale 0x0 fullscreen geometry after UIKit connects
 // the scene on iOS 27. Keep the native view and QWindow geometry synchronized
 // while the scene is active.
+// The repair is intentionally bounded: repeatedly sending expose events keeps
+// the Qt scene graph rendering forever and can trip the iOS scene-update watchdog.
+static void qz_repairQtGeometry(UIWindow *window, int attempt)
+{
+    if (!window || attempt >= 20 || !window.windowScene || !qGuiApp)
+        return;
+
+    UIView *container = window.rootViewController.view;
+    if (!container)
+        return;
+
+    const QSize target(qRound(container.bounds.size.width),
+                       qRound(container.bounds.size.height));
+    if (target.isEmpty())
+        return;
+
+    BOOL geometryChanged = NO;
+    for (QWindow *qWindow : qGuiApp->topLevelWindows()) {
+        if (!qWindow || !qWindow->handle() || !qWindow->isVisible())
+            continue;
+
+        const UIEdgeInsets safeInsets = qz_isStandardIPhoneWindow(window)
+            ? window.safeAreaInsets : UIEdgeInsetsZero;
+        const QRect desired = qz_isStandardIPhoneWindow(window)
+            ? QRect(qRound(safeInsets.left), qRound(safeInsets.top),
+                    qMax(0, target.width() - qRound(safeInsets.left + safeInsets.right)),
+                    qMax(0, target.height() - qRound(safeInsets.top + safeInsets.bottom)))
+            : QRect(0, 0, target.width(), target.height());
+        if (qWindow->geometry() != desired) {
+            qWindow->setGeometry(desired);
+            geometryChanged = YES;
+        }
+
+        UIView *qtView = reinterpret_cast<UIView *>(qWindow->winId());
+        if (qtView && qtView.superview) {
+            const CGRect frame = CGRectMake(desired.x(), desired.y(), desired.width(), desired.height());
+            if (!CGRectEqualToRect(qtView.frame, frame)) {
+                qtView.frame = frame;
+                geometryChanged = YES;
+            }
+            qtView.autoresizingMask = UIViewAutoresizingFlexibleWidth |
+                                       UIViewAutoresizingFlexibleHeight;
+        }
+    }
+
+    if (!geometryChanged)
+        return;
+
+    qz_sendUpdatedExposeEvent(container);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC),
+                   dispatch_get_main_queue(), ^{
+        qz_repairQtGeometry(window, attempt + 1);
+    });
+}
+
 static void qz_scheduleQtGeometryRepair(UIWindow *qtWindow)
 {
     if (!qtWindow)
@@ -314,41 +369,7 @@ static void qz_scheduleQtGeometryRepair(UIWindow *qtWindow)
     UIWindow *strongWindow = qtWindow;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC),
                    dispatch_get_main_queue(), ^{
-        UIWindow *window = strongWindow;
-        if (!window || !window.windowScene || !qGuiApp)
-            return;
-
-        UIView *container = window.rootViewController.view;
-        if (container) {
-            const QSize target(qRound(container.bounds.size.width),
-                               qRound(container.bounds.size.height));
-            if (!target.isEmpty()) {
-                for (QWindow *qWindow : qGuiApp->topLevelWindows()) {
-                    if (!qWindow || !qWindow->handle() || !qWindow->isVisible())
-                        continue;
-
-                    const UIEdgeInsets safeInsets = qz_isStandardIPhoneWindow(window)
-                        ? window.safeAreaInsets : UIEdgeInsetsZero;
-                    const QRect desired = qz_isStandardIPhoneWindow(window)
-                        ? QRect(qRound(safeInsets.left), qRound(safeInsets.top),
-                                qMax(0, target.width() - qRound(safeInsets.left + safeInsets.right)),
-                                qMax(0, target.height() - qRound(safeInsets.top + safeInsets.bottom)))
-                        : QRect(0, 0, target.width(), target.height());
-                    if (qWindow->geometry() != desired)
-                        qWindow->setGeometry(desired);
-
-                    UIView *qtView = reinterpret_cast<UIView *>(qWindow->winId());
-                    if (qtView && qtView.superview) {
-                        qtView.frame = CGRectMake(desired.x(), desired.y(), desired.width(), desired.height());
-                        qtView.autoresizingMask = UIViewAutoresizingFlexibleWidth |
-                                                   UIViewAutoresizingFlexibleHeight;
-                    }
-                }
-                qz_sendUpdatedExposeEvent(container);
-            }
-        }
-
-        qz_scheduleQtGeometryRepair(window);
+        qz_repairQtGeometry(strongWindow, 0);
     });
 }
 
@@ -600,6 +621,8 @@ static UIWindow *qz_qtWindowForScreen(void *platformScreen)
 - (void)qz_viewDidLayoutSubviews
 {
     static BOOL updatingGeometry = NO;
+    static CGSize lastSceneSize = {0, 0};
+    static UIEdgeInsets lastSafeInsets = {0, 0, 0, 0};
     if (updatingGeometry)
         return;
 
@@ -619,27 +642,35 @@ static UIWindow *qz_qtWindowForScreen(void *platformScreen)
     }
 
     const BOOL standardIPhone = qz_isStandardIPhoneWindow(self.view.window);
+    const UIEdgeInsets safeInsets = standardIPhone ? self.view.window.safeAreaInsets : UIEdgeInsetsZero;
+    const BOOL layoutMetricsChanged = !CGSizeEqualToSize(lastSceneSize, bounds) ||
+                                      !UIEdgeInsetsEqualToEdgeInsets(lastSafeInsets, safeInsets);
+    lastSceneSize = bounds;
+    lastSafeInsets = safeInsets;
+    BOOL geometryChanged = NO;
     for (QWindow *window : qGuiApp->topLevelWindows()) {
             if (!window || !window->isVisible())
                 continue;
             if (!(window->windowStates() & (Qt::WindowFullScreen | Qt::WindowMaximized)))
                 continue;
 
-            const UIEdgeInsets safeInsets = standardIPhone ? self.view.window.safeAreaInsets : UIEdgeInsetsZero;
             const QRect sceneGeometry = standardIPhone
                 ? QRect(qRound(safeInsets.left), qRound(safeInsets.top),
                         qMax(0, sceneSize.width() - qRound(safeInsets.left + safeInsets.right)),
                         qMax(0, sceneSize.height() - qRound(safeInsets.top + safeInsets.bottom)))
                 : QRect(0, 0, sceneSize.width(), sceneSize.height());
             const QRect currentGeometry = window->geometry();
-            if (currentGeometry != sceneGeometry)
+            if (currentGeometry != sceneGeometry) {
                 window->setGeometry(sceneGeometry);
+                geometryChanged = YES;
+            }
     }
     [self.view layoutIfNeeded];
     qz_layoutQtViews(self.view);
     qz_installHingeInteraction(self.view.window);
     qz_updateIOSLayoutMetrics(self.view.window);
-    qz_sendUpdatedExposeEvent(self.view);
+    if (layoutMetricsChanged || geometryChanged)
+        qz_sendUpdatedExposeEvent(self.view);
     updatingGeometry = NO;
 }
 

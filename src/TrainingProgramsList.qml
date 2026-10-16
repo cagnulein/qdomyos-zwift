@@ -389,11 +389,8 @@ ColumnLayout {
                 }
             }
         }
-        anchors {
-            bottom: parent.bottom
-            bottomMargin: (Qt.platform.os === "ios" &&
-                           typeof IOSLayout !== "undefined" &&
-                           IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
-        }
+        Layout.bottomMargin: (Qt.platform.os === "ios" &&
+                              typeof IOSLayout !== "undefined" &&
+                              IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
     }
 }

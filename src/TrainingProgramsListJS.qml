@@ -302,14 +302,9 @@ ColumnLayout {
                             fileDialogLoader.active = true
                         }
                     }
-                    anchors {
-                        bottom: (Qt.platform.os === "ios" &&
-                                 typeof IOSLayout !== "undefined" &&
-                                 IOSLayout.isIPhoneDuo) ? parent.bottom : undefined
-                        bottomMargin: (Qt.platform.os === "ios" &&
-                                       typeof IOSLayout !== "undefined" &&
-                                       IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
-                    }
+                    Layout.bottomMargin: (Qt.platform.os === "ios" &&
+                                          typeof IOSLayout !== "undefined" &&
+                                          IOSLayout.isIPhoneDuo) ? Math.max(0, Number(IOSLayout.bottomInset) || 0) : 0
                 }
             }
         }
