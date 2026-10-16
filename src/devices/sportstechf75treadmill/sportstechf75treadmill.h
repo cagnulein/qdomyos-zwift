@@ -33,10 +33,10 @@ class sportstechf75treadmill : public treadmill {
     void handleFrame(const QByteArray &frame);
     void sendFrame(const QByteArray &frame);
     void sendStartupCommand();
-    void sendRunningCommand(int speed, int incline);
+    void sendRunningCommand(int speed, int incline, bool allowZero = false);
     void sendCommand(int command, int data1, int data2);
     QByteArray startupFrame() const;
-    QByteArray runningFrame(int speed, int incline) const;
+    QByteArray runningFrame(int speed, int incline, bool allowZero = false) const;
     QByteArray commandFrame(int command, int data1, int data2) const;
     bool serialAvailable() const;
 
@@ -50,8 +50,10 @@ class sportstechf75treadmill : public treadmill {
     int runningBurstFrames = 0;
     int startCountdownValue = -1;
     int startCountdownTicks = 0;
+    int stopRunningFrameTicks = 0;
     int lastCommandSpeed = -1;
     int lastCommandIncline = -100;
+    bool stopRunningFramePending = false;
 };
 
 #endif // SPORTSTECHF75TREADMILL_H

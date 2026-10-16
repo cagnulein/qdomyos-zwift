@@ -144,7 +144,7 @@ void sportstechf75treadmill::sendStartupCommand() {
 #endif
 }
 
-QByteArray sportstechf75treadmill::runningFrame(int speed, int incline) const {
+QByteArray sportstechf75treadmill::runningFrame(int speed, int incline, bool allowZero) const {
     // The vendor sends this A0 running-parameter frame after the A2 countdown.
     // The first three values are workout counters; zero is safe for the first
     // control probe while the proven speed/incline fields remain at offsets 8/9.
@@ -152,9 +152,8 @@ QByteArray sportstechf75treadmill::runningFrame(int speed, int incline) const {
     QByteArray frame(12, static_cast<char>(0));
     frame[0] = static_cast<char>(kFrameStart);
     frame[1] = static_cast<char>(0xA0);
-    // A zero speed is not a valid active command for this treadmill. Stop is
-    // represented by the separate 0x00 command, not by a running frame.
-    frame[8] = static_cast<char>(qBound(1, speed, 255));
+    // A zero speed is reserved for the vendor's pause/stop follow-up frame.
+    frame[8] = static_cast<char>(qBound(allowZero ? 0 : 1, speed, 255));
     frame[9] = static_cast<char>(qBound(0, incline, 255));
 
     int checksum = 0;
@@ -166,14 +165,15 @@ QByteArray sportstechf75treadmill::runningFrame(int speed, int incline) const {
     return frame;
 }
 
-void sportstechf75treadmill::sendRunningCommand(int speed, int incline) {
+void sportstechf75treadmill::sendRunningCommand(int speed, int incline, bool allowZero) {
 #ifdef Q_OS_ANDROID
     if (serialAvailable()) {
-        sendFrame(runningFrame(speed, incline));
+        sendFrame(runningFrame(speed, incline, allowZero));
     }
 #else
     Q_UNUSED(speed);
     Q_UNUSED(incline);
+    Q_UNUSED(allowZero);
 #endif
 }
 
@@ -224,7 +224,8 @@ void sportstechf75treadmill::sendCommand(int command, int data1, int data2) {
 
 void sportstechf75treadmill::handleFrame(const QByteArray &frame) {
     qDebug() << "Sportstech F75 RX candidate" << frame.toHex(' ');
-    if (frame.size() != 5 || static_cast<uint8_t>(frame.at(1)) != 0x60) {
+    if (frame.size() != 6 || static_cast<uint8_t>(frame.at(0)) != kTelemetryStart ||
+        static_cast<uint8_t>(frame.at(5)) != 0xFE || static_cast<uint8_t>(frame.at(1)) != 0x60) {
         qDebug() << "Sportstech F75 RX ignored frame" << frame.toHex(' ');
         return;
     }
@@ -237,7 +238,8 @@ void sportstechf75treadmill::handleFrame(const QByteArray &frame) {
         return;
     }
 
-    // The APK's 0x60 telemetry frame carries integer km/h and incline values.
+    // The APK's six-byte 0x60 telemetry frame is:
+    // FD 60 incline speed checksum FE. Both values are integer device units.
     qDebug() << "Sportstech F75 RX telemetry speed" << speed << "incline" << incline;
     speedSensor(speed);
     inclinationSensor(incline, incline);
@@ -259,8 +261,9 @@ void sportstechf75treadmill::parseFrames() {
 
         const uint8_t function = static_cast<uint8_t>(receiveBuffer.at(1));
         int frameLength = 0;
-        if (function == 0x60 || function == 0x21 || function == 0x55 || function == 0x10 || function == 0x40) {
-            frameLength = 5;
+        if (function == 0x60 || function == 0x21 || function == 0x55 || function == 0x10 || function == 0x40 ||
+            function == 0x75 || function == 0x92) {
+            frameLength = 6;
         } else {
             // Unknown FD functions are discarded one byte at a time so that a
             // later valid frame can still be recovered from the stream.
@@ -346,14 +349,19 @@ void sportstechf75treadmill::update() {
         startCountdownTicks = 0;
         runningCommandTicks = 0;
         runningBurstFrames = 0;
+        stopRunningFramePending = false;
+        stopRunningFrameTicks = 0;
         lastCommandSpeed = commandSpeed;
         lastCommandIncline = requestedIncline;
         emit tapeStarted();
     }
 
+    bool stopRequestedThisTick = false;
     if (requestStop != -1) {
+        qDebug() << "Sportstech F75 STOP" << (requestPause != -1 ? "pause" : "stop");
         sendCommand(kCommandStop, 0, 0);
         requestStop = -1;
+        requestPause = -1;
         commandActive = false;
         startCountdownValue = -1;
         startCountdownTicks = 0;
@@ -361,6 +369,18 @@ void sportstechf75treadmill::update() {
         runningBurstFrames = 0;
         lastCommandSpeed = -1;
         lastCommandIncline = -100;
+        // The vendor sends an A0 frame with zero speed/incline shortly after
+        // the 0x00 command. Keep this separate from active A0 frames so zero
+        // cannot accidentally become a normal running command.
+        stopRunningFramePending = true;
+        stopRunningFrameTicks = 0;
+        stopRequestedThisTick = true;
+    }
+
+    if (stopRunningFramePending && !stopRequestedThisTick && ++stopRunningFrameTicks >= 1) {
+        sendRunningCommand(0, 0, true);
+        stopRunningFramePending = false;
+        stopRunningFrameTicks = 0;
     }
 
     // Do not send A0 during the countdown. The vendor emits A2 02, A2 01 and
