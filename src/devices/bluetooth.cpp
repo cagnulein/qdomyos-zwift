@@ -251,6 +251,25 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #endif
         this->startDiscovery();
     }
+
+#ifdef Q_OS_IOS
+    connect(&iosConnectedFtmsTimer, &QTimer::timeout, this, [this]() {
+        if (!this->useDiscovery || this->device()) {
+            iosConnectedFtmsTimer.stop();
+            return;
+        }
+
+        const QList<QBluetoothDeviceInfo> connectedFtmsDevices = iosConnectedFtmsDevices();
+        for (const QBluetoothDeviceInfo &connectedDevice : connectedFtmsDevices) {
+            deviceDiscovered(connectedDevice);
+            if (this->device()) {
+                iosConnectedFtmsTimer.stop();
+                break;
+            }
+        }
+    });
+    iosConnectedFtmsTimer.start(2000);
+#endif
 }
 
 bluetooth::~bluetooth() {
@@ -1777,7 +1796,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(speraXTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("LF")) && (b.name().length() == 18 || b.name().length() == 15)) &&
-                       !lifefitnessTreadmill && filter) {
+                       b.name().compare(ftms_bike, Qt::CaseInsensitive) && !lifefitnessTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 lifefitnessTreadmill = new lifefitnesstreadmill(noWriteResistance, noHeartService);
