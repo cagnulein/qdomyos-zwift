@@ -3,6 +3,8 @@ package com.nettarion.hyperborea.hardware.fitpro.v2
 enum class V2FeatureId(val code: Int) {
     SYSTEM_MODE(102),
     IDLE_SYSTEM_MODE_LOCK(103),
+    KEY_COOKED(109),
+    DISPLAY_UNITS(140),
     HEART_BEAT_INTERVAL(161),
     CURRENT_CALORIES(202),
     PULSE(222),
@@ -16,9 +18,14 @@ enum class V2FeatureId(val code: Int) {
     MAX_RESISTANCE(504),
     WATTS(522),
     GOAL_WATTS(523),
-    /** The console workout state — its value is a [V2WorkoutMode] ordinal. This is the one to drive for start/pause/resume/stop. */
+    /** The console workout state; its value is a [V2WorkoutMode] ordinal. */
     WORKOUT_STATE(602),
     RUNNING_TIME(604),
+    GOAL_TIME(610),
+    START_REQUESTED(612),
+    WARM_UP_TIMEOUT(615),
+    COOL_DOWN_TIMEOUT(617),
+    PAUSE_TIMEOUT(619),
     ;
 
     val wireLo: Byte get() = (code and 0xFF).toByte()
@@ -37,6 +44,7 @@ enum class V2FeatureId(val code: Int) {
         val subscribable: List<V2FeatureId> = listOf(
             SYSTEM_MODE, WORKOUT_STATE, CURRENT_CALORIES, PULSE, DISTANCE, CURRENT_KPH, RPM,
             CURRENT_GRADE, TARGET_RESISTANCE, MAX_RESISTANCE, WATTS, RUNNING_TIME,
+            KEY_COOKED, TARGET_KPH, TARGET_GRADE,
         )
     }
 }

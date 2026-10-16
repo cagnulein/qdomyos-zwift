@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -47,29 +46,29 @@ class V2Session(
     private val _sessionState = MutableStateFlow<SessionState>(SessionState.Disconnected)
     override val sessionState: StateFlow<SessionState> = _sessionState.asStateFlow()
 
-    // The V2 protocol has no console-keypad field — this never emits.
-    override val consoleKeyPresses: SharedFlow<ConsoleKey> = MutableSharedFlow()
+    private val _consoleKeyPresses = MutableSharedFlow<ConsoleKey>(extraBufferCapacity = 8)
+    override val consoleKeyPresses: SharedFlow<ConsoleKey> = _consoleKeyPresses
 
     private val _degradedReason = MutableStateFlow<String?>(null)
     override val degradedReason: StateFlow<String?> = _degradedReason.asStateFlow()
 
-    /** Latest [V2FeatureId.WORKOUT_STATE] value reported by the console (raw [V2WorkoutMode] ordinal); null until first event. */
+    /** Latest WORKOUT_STATE value reported by the console. */
     private val _workoutMode = MutableStateFlow<Float?>(null)
 
-    /** Features the console declared it supports, captured from the [V2Message.Incoming.SupportedFeatures] response. */
+    /** Complete supported feature set, published only after the list terminator arrives. */
     private val _supportedFeatures = MutableStateFlow<Set<V2FeatureId>?>(null)
 
-    /**
-     * Equipment type derived from the supported-features set after the QueryFeatures handshake. The
-     * V2 protocol has no explicit equipment-id field (V1's [DEVICE_TREADMILL]/[DEVICE_FITNESS_BIKE]
-     * branch is absent), so we infer it: a belt-driven machine reports speed/grade features but no
-     * flywheel-resistance features. Defaults to [DeviceType.BIKE] before [awaitDeviceType] resolves.
-     */
+    /** Union of supported-features frames received so far. */
+    private val featureAccumulator = mutableSetOf<V2FeatureId>()
+    private val unknownFeatureCodes = mutableSetOf<Int>()
+    private var declaredFeatures: Set<V2FeatureId>? = null
+
     override var detectedDeviceType: DeviceType = DeviceType.BIKE
         private set
 
-    private var heartbeatJob: Job? = null
     private var receiveJob: Job? = null
+    private var startRequestJob: Job? = null
+    private var lastKeyCode = 0
     private var lastSentGrade = 0f
     private var lastSentSpeed = 0f
     private val gripHeartRate = GripHeartRateFilter()
@@ -82,15 +81,26 @@ class V2Session(
             transport.open()
 
             _sessionState.value = SessionState.Handshaking
-            queryAndSubscribe()
-            startReceiveLoop()   // WORKOUT_STATE (and other) events flow now
-            startHeartbeat()     // keeps the console alive during the workout-mode transition below
+            startReceiveLoop()
 
-            // Wait briefly for the console to declare its supported features, then derive the
-            // equipment type from them. transitionToWorkout() branches on this.
-            awaitDeviceType()
+            // LargeX consoles send SupportedFeatures over multiple frames. Read the complete list
+            // before subscribing so unsupported feature ids are never sent back to the console.
+            val supported = querySupportedFeatures(QUERY_FEATURES_ATTEMPTS)
+            declaredFeatures = supported
+            if (supported != null) {
+                detectedDeviceType = deriveDeviceType(supported)
+                logger.i(TAG, "Detected device type: $detectedDeviceType (from ${supported.size} features)")
+            } else {
+                logger.w(TAG, "Console never declared supported features; assuming $detectedDeviceType, subscribing unfiltered")
+            }
 
-            // Bring the console up to the workout-active state the way the firmware expects.
+            configureSubscriptions(supported)
+            _deviceIdentity.value = DeviceIdentity()
+
+            // Mirror the stock one-shot bring-up. The idle-lock value depends on whether this is a
+            // belt console and whether START_REQUESTED is available, so do this after type detection.
+            writeInitConfiguration(supported)
+
             transitionToWorkout()
 
             accumulator.start()
@@ -100,34 +110,44 @@ class V2Session(
             throw e
         } catch (e: Exception) {
             logger.e(TAG, "Failed to start V2 session", e)
+            receiveJob?.cancel()
+            receiveJob = null
+            startRequestJob?.cancel()
+            startRequestJob = null
             try { transport.close() } catch (_: Exception) {}
             _sessionState.value = SessionState.Error(e.message ?: "V2 session failed", e)
         }
     }
 
     override suspend fun stop() {
-        heartbeatJob?.cancel()
-        heartbeatJob = null
         receiveJob?.cancel()
         receiveJob = null
+        startRequestJob?.cancel()
+        startRequestJob = null
 
         try {
             if (transport.isOpen) {
                 haltForTeardown()
-                // Return the console to idle before disconnecting
                 transport.write(V2Codec.encode(
                     V2Message.Outgoing.WriteFeature(V2FeatureId.WORKOUT_STATE, V2WorkoutMode.NONE.raw),
                 ))
                 transport.write(V2Codec.encode(V2Message.Outgoing.Unsubscribe(V2FeatureId.subscribable)))
-                transport.close()
             }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             logger.w(TAG, "Error during V2 session stop: ${e.message}")
+        } finally {
+            try { transport.close() } catch (e: Exception) {
+                logger.w(TAG, "Transport close failed: ${e.message}")
+            }
         }
 
         accumulator.reset()
+        featureAccumulator.clear()
+        unknownFeatureCodes.clear()
+        declaredFeatures = null
+        _supportedFeatures.value = null
         _exerciseData.value = null
         _deviceIdentity.value = null
         _degradedReason.value = null
@@ -135,18 +155,9 @@ class V2Session(
         logger.i(TAG, "V2 session stopped")
     }
 
-    /**
-     * Belt machines must be explicitly stopped before the console drops to idle, or the belt keeps
-     * running (the V1-confirmed bug; mirrored here for protocol parity). Command belt speed to 0 and
-     * `PAUSED` — both halt the belt — then let the writes settle before teardown. V2 is event-driven
-     * with no synchronous read-back (and no ready-to-disconnect signal), so unlike V1's graceful
-     * teardown this is best-effort. Non-belt machines have nothing the app drives that keeps moving,
-     * so this is a no-op for them.
-     */
     private suspend fun haltForTeardown() {
         if (!detectedDeviceType.isBeltBased) return
         transport.write(V2Codec.encode(V2Message.Outgoing.WriteFeature(V2FeatureId.TARGET_KPH, 0f)))
-        // Drop incline to 0 too, so an incline trainer doesn't park raised after teardown.
         transport.write(V2Codec.encode(V2Message.Outgoing.WriteFeature(V2FeatureId.TARGET_GRADE, 0f)))
         transport.write(V2Codec.encode(
             V2Message.Outgoing.WriteFeature(V2FeatureId.WORKOUT_STATE, V2WorkoutMode.PAUSED.raw),
@@ -157,13 +168,23 @@ class V2Session(
     override suspend fun identify(): DeviceIdentity? {
         try {
             transport.open()
-            queryAndSubscribe()
+            startReceiveLoop()
+            val supported = querySupportedFeatures(attempts = 1)
+            logger.i(TAG, if (supported != null) {
+                "Console replied with ${supported.size} features"
+            } else {
+                "Console didn't reply to features query"
+            })
+            _deviceIdentity.value = DeviceIdentity()
             return _deviceIdentity.value
-        } catch (e: CancellationException) { throw e }
-        catch (e: Exception) {
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
             logger.e(TAG, "Identify failed", e)
             return null
         } finally {
+            receiveJob?.cancel()
+            receiveJob = null
             try { transport.close() } catch (_: Exception) {}
         }
     }
@@ -208,6 +229,15 @@ class V2Session(
                 V2Message.Outgoing.WriteFeature(V2FeatureId.WORKOUT_STATE, V2WorkoutMode.PAUSED.raw)
             }
             is DeviceCommand.ResumeWorkout -> {
+                val mode = _workoutMode.value?.let { V2WorkoutMode.fromRaw(it) }
+                if (detectedDeviceType == DeviceType.TREADMILL) {
+                    if (mode == V2WorkoutMode.PAUSED) {
+                        requestWorkoutStart("ResumeWorkout")
+                    } else {
+                        logger.i(TAG, "Ignoring host ResumeWorkout while treadmill is idle; waiting for physical Start")
+                    }
+                    return
+                }
                 accumulator.resume()
                 V2Message.Outgoing.WriteFeature(V2FeatureId.WORKOUT_STATE, V2WorkoutMode.RUNNING.raw)
             }
@@ -242,19 +272,58 @@ class V2Session(
         }
     }
 
-    private suspend fun queryAndSubscribe() {
-        // Query supported features
-        transport.write(V2Codec.encode(V2Message.Outgoing.QueryFeatures()))
+    private suspend fun querySupportedFeatures(attempts: Int): Set<V2FeatureId>? {
+        repeat(attempts) { attempt ->
+            transport.write(V2Codec.encode(V2Message.Outgoing.QueryFeatures()))
+            val features = withTimeoutOrNull(SUPPORTED_FEATURES_TIMEOUT_MS) {
+                _supportedFeatures.filterNotNull().first()
+            }
+            if (features != null) return features
+            logger.w(
+                TAG,
+                "No complete supported-features reply within ${SUPPORTED_FEATURES_TIMEOUT_MS}ms (attempt ${attempt + 1}/$attempts)",
+            )
+        }
+        if (featureAccumulator.isNotEmpty()) {
+            logger.w(TAG, "Supported-features list never terminated; using ${featureAccumulator.size} accumulated features")
+            return featureAccumulator.toSet()
+        }
+        return null
+    }
 
-        // Subscribe in batches of 8
-        val batches = V2FeatureId.subscribable.chunked(MAX_SUBSCRIBE_BATCH)
-        logger.d(TAG, "Subscribing to ${V2FeatureId.subscribable.size} features in ${batches.size} batches")
-        for (batch in batches) {
-            val subscribe = V2Message.Outgoing.Subscribe(batch)
-            transport.write(V2Codec.encode(subscribe))
+    private suspend fun configureSubscriptions(supported: Set<V2FeatureId>?) {
+        transport.write(V2Codec.encode(V2Message.Outgoing.Unsubscribe(emptyList())))
+
+        val wanted = V2FeatureId.subscribable.filter { supported == null || it in supported }
+        if (wanted.isEmpty()) {
+            logger.w(TAG, "Console supports none of the features we want; no subscriptions made")
+            return
         }
 
-        _deviceIdentity.value = DeviceIdentity()
+        val batches = wanted.chunked(MAX_SUBSCRIBE_BATCH)
+        logger.d(TAG, "Subscribing to ${wanted.size} features in ${batches.size} batches")
+        for (batch in batches) {
+            transport.write(V2Codec.encode(V2Message.Outgoing.Subscribe(batch)))
+        }
+    }
+
+    private suspend fun writeInitConfiguration(supported: Set<V2FeatureId>?) {
+        if (supported == null) return
+
+        if (V2FeatureId.HEART_BEAT_INTERVAL in supported) {
+            logger.i(TAG, "Bring-up: HEART_BEAT_INTERVAL=$HEART_BEAT_INTERVAL_MS")
+            writeFeatureRaw(V2FeatureId.HEART_BEAT_INTERVAL, HEART_BEAT_INTERVAL_MS)
+        }
+
+        if (V2FeatureId.IDLE_SYSTEM_MODE_LOCK in supported) {
+            val lock = if (detectedDeviceType.isBeltBased && !consoleDeclaresStartRequested) {
+                IDLE_MODE_LOCKED
+            } else {
+                IDLE_MODE_UNLOCKED
+            }
+            logger.i(TAG, "Bring-up: IDLE_SYSTEM_MODE_LOCK=${if (lock == IDLE_MODE_LOCKED) "locked" else "unlocked"}")
+            writeFeatureRaw(V2FeatureId.IDLE_SYSTEM_MODE_LOCK, lock)
+        }
     }
 
     private fun startReceiveLoop() {
@@ -269,7 +338,6 @@ class V2Session(
                 logger.e(TAG, "Receive loop error", e)
             }
 
-            // Flow completed = device disconnected
             if (_sessionState.value is SessionState.Streaming) {
                 logger.w(TAG, "Transport disconnected")
                 _sessionState.value = SessionState.Disconnected
@@ -292,18 +360,34 @@ class V2Session(
                     lastLogTimeMs = now
                     val snap = _exerciseData.value
                     if (snap != null) {
-                        logger.d(TAG, "power=${snap.power}W cadence=${snap.cadence}rpm speed=${snap.speed}kph resistance=${snap.resistance} incline=${snap.incline}%")
+                        logger.d(
+                            TAG,
+                            "power=${snap.power}W cadence=${snap.cadence}rpm speed=${snap.speed}kph resistance=${snap.resistance} incline=${snap.incline}%",
+                        )
                     }
                 }
             }
             is V2Message.Incoming.SupportedFeatures -> {
-                _supportedFeatures.value = message.features.toSet()
-                logger.d(TAG, "Supported features: ${message.features.map { it.name }}")
+                if (message.isEndOfList) {
+                    if (unknownFeatureCodes.isNotEmpty()) {
+                        logger.i(TAG, "Console declared ${unknownFeatureCodes.size} feature ids we don't use: $unknownFeatureCodes")
+                    }
+                    logger.i(TAG, "Supported features complete: ${featureAccumulator.map { it.name }}")
+                    _supportedFeatures.value = featureAccumulator.toSet()
+                } else {
+                    featureAccumulator += message.features
+                    unknownFeatureCodes += message.unknownCodes
+                    logger.d(
+                        TAG,
+                        "Supported-features frame: ${message.features.map { it.name }}" +
+                            if (message.unknownCodes.isNotEmpty()) " + unknown ${message.unknownCodes}" else "",
+                    )
+                }
             }
             is V2Message.Incoming.Acknowledge ->
                 logger.d(TAG, "ACK: ${message.type}")
             is V2Message.Incoming.Error ->
-                logger.w(TAG, "Device error code: ${message.code}")
+                logger.w(TAG, "Console rejected ${message.describe()}")
             is V2Message.Incoming.Unknown ->
                 logger.d(TAG, "Unknown message: ${message.raw.size} bytes")
         }
@@ -311,93 +395,185 @@ class V2Session(
 
     private fun applyEvent(feature: V2FeatureId, value: Float) {
         when (feature) {
+            V2FeatureId.KEY_COOKED -> handleKeypadCode(value.toInt())
             V2FeatureId.WATTS -> accumulator.updatePower(value.toInt())
             V2FeatureId.RPM -> accumulator.updateCadence(value.toInt())
             V2FeatureId.CURRENT_KPH -> accumulator.updateSpeed(value)
             V2FeatureId.TARGET_RESISTANCE -> accumulator.updateResistance(value.toInt())
             V2FeatureId.CURRENT_GRADE -> accumulator.updateIncline(value)
-            // Grip HR is a noisy analog contact reading — gate + smooth it, clearing on contact loss.
-            // External BLE HRMs bypass this and are merged in the orchestrator.
             V2FeatureId.PULSE -> accumulator.updateHeartRate(gripHeartRate.update(value.toInt()))
             V2FeatureId.DISTANCE -> accumulator.updateDistance(value)
             V2FeatureId.CURRENT_CALORIES -> accumulator.updateCalories(value.toInt())
             V2FeatureId.RUNNING_TIME -> accumulator.updateElapsedTime(value.toLong())
-            V2FeatureId.TARGET_KPH -> accumulator.updateTargetSpeed(value)
-            V2FeatureId.TARGET_GRADE -> accumulator.updateTargetIncline(value)
-            V2FeatureId.HEART_BEAT_INTERVAL -> { /* Protocol keepalive echo */ }
-            V2FeatureId.IDLE_SYSTEM_MODE_LOCK -> { /* Write-only idle lock echo */ }
-            V2FeatureId.SYSTEM_MODE -> { /* System on/standby/sleep — not the workout state, and not exercise data */ }
-            // Translated to V1 [com.nettarion.hyperborea.hardware.fitpro.v1.WorkoutMode] numbering
-            // when pushed to the accumulator, so the orchestrator's workout-mode monitor (which
-            // uses V1 codes for DMK / IDLE / RUNNING) reacts uniformly to V1 and V2 sessions.
-            V2FeatureId.WORKOUT_STATE -> {
-                _workoutMode.value = value
-                accumulator.updateWorkoutMode(v2WorkoutStateToV1Code(V2WorkoutMode.fromRaw(value)))
+            V2FeatureId.TARGET_KPH -> {
+                accumulator.updateTargetSpeed(value)
+                if (detectedDeviceType.isBeltBased) accumulator.updateSpeed(value)
             }
-            V2FeatureId.MAX_RESISTANCE -> { /* Device capability, not exercise data */ }
+            V2FeatureId.TARGET_GRADE -> accumulator.updateTargetIncline(value)
+            V2FeatureId.HEART_BEAT_INTERVAL,
+            V2FeatureId.IDLE_SYSTEM_MODE_LOCK,
+            V2FeatureId.START_REQUESTED,
+            V2FeatureId.DISPLAY_UNITS,
+            V2FeatureId.GOAL_TIME,
+            V2FeatureId.WARM_UP_TIMEOUT,
+            V2FeatureId.COOL_DOWN_TIMEOUT,
+            V2FeatureId.PAUSE_TIMEOUT -> { /* Write-only configuration echoes. */ }
+            V2FeatureId.SYSTEM_MODE -> { /* System state, not exercise data. */ }
+            V2FeatureId.WORKOUT_STATE -> {
+                val mode = V2WorkoutMode.fromRaw(value)
+                _workoutMode.value = value
+                logger.i(TAG, "Console workout state event: $mode (raw=$value)")
+                if (mode == V2WorkoutMode.READY_TO_START) {
+                    requestWorkoutStart("console reported READY_TO_START")
+                }
+                accumulator.updateWorkoutMode(v2WorkoutStateToV1Code(mode))
+            }
+            V2FeatureId.MAX_RESISTANCE -> { /* Device capability. */ }
             V2FeatureId.GOAL_WATTS -> accumulator.updateTargetPower(value.toInt())
         }
+    }
+
+    private fun handleKeypadCode(code: Int) {
+        if (code == lastKeyCode) return
+        lastKeyCode = code
+        if (code == 0) return
+
+        val key = when (code) {
+            KEY_STOP -> ConsoleKey.STOP
+            KEY_START -> ConsoleKey.START
+            KEY_SPEED_UP -> ConsoleKey.SPEED_UP
+            KEY_SPEED_DOWN -> ConsoleKey.SPEED_DOWN
+            KEY_INCLINE_UP -> ConsoleKey.INCLINE_UP
+            KEY_INCLINE_DOWN -> ConsoleKey.INCLINE_DOWN
+            else -> null
+        }
+
+        logger.d(TAG, "Console keypad: code=$code${key?.let { " ($it)" } ?: ""}")
+        if (key == null) return
+        _consoleKeyPresses.tryEmit(key)
+
+        if (key == ConsoleKey.START) {
+            requestWorkoutStart("physical Start key")
+            return
+        }
+        routeTreadmillKey(key)
+    }
+
+    private fun routeTreadmillKey(key: ConsoleKey) {
+        if (detectedDeviceType != DeviceType.TREADMILL || consoleDeclaresStartRequested) return
+        val mode = _workoutMode.value?.let { V2WorkoutMode.fromRaw(it) }
+        if (mode != V2WorkoutMode.RUNNING) return
+
+        val command = when (key) {
+            ConsoleKey.SPEED_UP -> DeviceCommand.AdjustSpeed(increase = true)
+            ConsoleKey.SPEED_DOWN -> DeviceCommand.AdjustSpeed(increase = false)
+            ConsoleKey.INCLINE_UP -> DeviceCommand.AdjustIncline(increase = true)
+            ConsoleKey.INCLINE_DOWN -> DeviceCommand.AdjustIncline(increase = false)
+            ConsoleKey.STOP -> DeviceCommand.PauseWorkout
+            else -> return
+        }
+        scope.launch { writeFeature(command) }
+    }
+
+    private val consoleDeclaresStartRequested: Boolean
+        get() = declaredFeatures?.contains(V2FeatureId.START_REQUESTED) == true
+
+    private fun requestWorkoutStart(trigger: String) {
+        if (detectedDeviceType != DeviceType.TREADMILL) return
+        if (_sessionState.value !is SessionState.Streaming) return
+
+        val from = _workoutMode.value?.let { V2WorkoutMode.fromRaw(it) }
+        if (from == V2WorkoutMode.RUNNING) return
+        if (startRequestJob?.isActive == true) return
+
+        val acked = consoleDeclaresStartRequested
+        startRequestJob = scope.launch {
+            try {
+                if (acked) {
+                    logger.i(TAG, "Start requested ($trigger, from=${from ?: "?"}); acking with START_REQUESTED")
+                    writeFeatureRaw(V2FeatureId.START_REQUESTED, START_REQUESTED_TRUE)
+                } else {
+                    logger.i(TAG, "Start requested ($trigger, from=${from ?: "?"}); host-driving RUNNING without WARM_UP")
+                    releaseIdleModeLock()
+                    if (from != V2WorkoutMode.PAUSED) writePreWorkoutConfig()
+                    writeWorkoutState(V2WorkoutMode.RUNNING)
+                    writeFeature(DeviceCommand.SetTargetSpeed(maxOf(lastSentSpeed, INITIAL_BELT_KPH)))
+                    if (V2FeatureId.TARGET_GRADE in (declaredFeatures ?: emptySet())) {
+                        writeFeature(DeviceCommand.SetIncline(lastSentGrade))
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.e(TAG, "Start-request writes failed", e)
+                return@launch
+            }
+
+            if (confirmWorkoutMode("reach RUNNING after Start") { it == V2WorkoutMode.RUNNING }) {
+                logger.i(TAG, "Console reached RUNNING (${if (acked) "START_REQUESTED honored" else "host-driven"})")
+                _degradedReason.value = null
+            } else {
+                logger.w(TAG, "Console didn't reach RUNNING after start ($trigger)")
+                _degradedReason.value = START_NOT_CONFIRMED_REASON
+            }
+        }
+    }
+
+    private suspend fun releaseIdleModeLock() {
+        if (V2FeatureId.IDLE_SYSTEM_MODE_LOCK !in (declaredFeatures ?: emptySet())) return
+        logger.i(TAG, "Start: releasing IDLE_SYSTEM_MODE_LOCK before commanding RUNNING")
+        writeFeatureRaw(V2FeatureId.IDLE_SYSTEM_MODE_LOCK, IDLE_MODE_UNLOCKED)
+    }
+
+    private suspend fun writePreWorkoutConfig() {
+        val declared = declaredFeatures ?: emptySet()
+        val config = listOf(
+            V2FeatureId.DISPLAY_UNITS to DISPLAY_UNITS_METRIC,
+            V2FeatureId.WARM_UP_TIMEOUT to WARM_UP_TIMEOUT_S,
+            V2FeatureId.COOL_DOWN_TIMEOUT to COOL_DOWN_TIMEOUT_S,
+            V2FeatureId.PAUSE_TIMEOUT to PAUSE_TIMEOUT_S,
+            V2FeatureId.GOAL_TIME to GOAL_TIME_S,
+        )
+        val sent = config.filter { (feature, _) -> feature in declared }
+        logger.i(TAG, "Pre-workout config: ${sent.joinToString { "${it.first}=${it.second}" }}")
+        for ((feature, value) in sent) {
+            writeFeatureRaw(feature, value)
+        }
+    }
+
+    private suspend fun writeFeatureRaw(feature: V2FeatureId, value: Float) {
+        transport.write(V2Codec.encode(V2Message.Outgoing.WriteFeature(feature, value)))
     }
 
     private fun roundToStep(value: Float, step: Float): Float =
         (value / step).roundToInt() * step
 
-    /**
-     * Brings the console up to the workout-active state the way the firmware expects. Two paths,
-     * mirroring [com.nettarion.hyperborea.hardware.fitpro.v1.V1Session.transitionToActive]:
-     *
-     * - **Treadmill / incline trainer**: write `WARM_UP` and stop. The MCU gates belt motion on
-     *   the physical Start key; writing `RUNNING` from the app alone would only time out the
-     *   confirmation wait and surface as a (semantically wrong) degraded warning. Instead the
-     *   orchestrator parks in
-     *   [com.nettarion.hyperborea.core.orchestration.OrchestratorState.AwaitingConsoleStart] and
-     *   the WORKOUT_STATE subscription pushes a `RUNNING` event once the user presses the key.
-     * - **Bike / elliptical / rower**: drive the state machine ourselves —
-     *   `NONE → WARM_UP → RUNNING`, confirming each step from the [V2FeatureId.WORKOUT_STATE]
-     *   events. If the console never confirms, log a warning and continue degraded.
-     */
     private suspend fun transitionToWorkout() {
         if (detectedDeviceType == DeviceType.TREADMILL) {
-            writeWorkoutState(V2WorkoutMode.WARM_UP)
-            confirmWorkoutMode("leave idle") { it != V2WorkoutMode.NONE && it != V2WorkoutMode.READY_TO_START }
-            logger.i(TAG, "Console workout state: NONE → WARM_UP (awaiting physical Start key)")
+            // Important for LargeX: do not write WARM_UP while arming. Older firmware rejects it
+            // from idle, while other belt consoles can start moving immediately when it is written.
+            logger.i(TAG, "Treadmill armed; staying idle and awaiting the physical Start key")
             _degradedReason.value = null
             return
         }
 
         writeWorkoutState(V2WorkoutMode.WARM_UP)
-        confirmWorkoutMode("leave idle") { it != V2WorkoutMode.NONE && it != V2WorkoutMode.READY_TO_START }
-        releaseIdleModeLock()
+        confirmWorkoutMode("leave idle") {
+            it != V2WorkoutMode.NONE && it != V2WorkoutMode.READY_TO_START
+        }
         writeWorkoutState(V2WorkoutMode.RUNNING)
         val running = confirmWorkoutMode("reach RUNNING") { it == V2WorkoutMode.RUNNING }
-        logger.i(TAG, "Console workout state: NONE → WARM_UP → ${if (running) V2WorkoutMode.RUNNING else V2WorkoutMode.UNKNOWN}")
-        _degradedReason.value =
-            if (running) null
-            else "The console didn't confirm the workout started — resistance/speed may not respond"
+        logger.i(
+            TAG,
+            "Console workout state: NONE -> WARM_UP -> ${if (running) V2WorkoutMode.RUNNING else V2WorkoutMode.UNKNOWN}",
+        )
+        _degradedReason.value = if (running) {
+            null
+        } else {
+            "The console didn't confirm the workout started; resistance/speed may not respond"
+        }
     }
 
-    /**
-     * Wait briefly for the QueryFeatures response, then resolve [detectedDeviceType]. If the
-     * response never arrives we keep the constructor-supplied default; the failure mode is just
-     * "treadmills get treated as bikes here" (existing pre-this-change behaviour).
-     */
-    private suspend fun awaitDeviceType() {
-        val features = withTimeoutOrNull(SUPPORTED_FEATURES_TIMEOUT_MS) {
-            _supportedFeatures.filterNotNull().first()
-        }
-        if (features == null) {
-            logger.w(TAG, "Console didn't reply with supported features within ${SUPPORTED_FEATURES_TIMEOUT_MS}ms — assuming $detectedDeviceType")
-            return
-        }
-        detectedDeviceType = deriveDeviceType(features)
-        logger.i(TAG, "Detected device type: $detectedDeviceType (from ${features.size} features)")
-    }
-
-    /**
-     * Heuristic: V2 has no equipment-id field, so we infer type from the feature set the console
-     * declared. Treadmills / incline trainers report belt-speed and grade features but no flywheel
-     * resistance; bikes, ellipticals and rowers report resistance features.
-     */
     private fun deriveDeviceType(features: Set<V2FeatureId>): DeviceType {
         val hasResistance = V2FeatureId.TARGET_RESISTANCE in features ||
             V2FeatureId.MAX_RESISTANCE in features
@@ -409,13 +585,6 @@ class V2Session(
         }
     }
 
-    /**
-     * Translates V2's [V2WorkoutMode] ordinal to the V1
-     * [com.nettarion.hyperborea.hardware.fitpro.v1.WorkoutMode] raw value the orchestrator's
-     * workout-mode monitor expects (V1 numbering is the lingua franca because V1 is older). The
-     * `OFF_MACHINE` state has no V1 equivalent — the closest semantic match is `DMK` (user not on
-     * device / not driving telemetry), so the monitor's safety-pause path fires for both.
-     */
     private fun v2WorkoutStateToV1Code(mode: V2WorkoutMode): Int = when (mode) {
         V2WorkoutMode.RUNNING -> V1_WORKOUT_MODE_RUNNING
         V2WorkoutMode.PAUSED -> V1_WORKOUT_MODE_PAUSE
@@ -429,63 +598,50 @@ class V2Session(
     }
 
     private suspend fun writeWorkoutState(mode: V2WorkoutMode) {
-        transport.write(V2Codec.encode(V2Message.Outgoing.WriteFeature(V2FeatureId.WORKOUT_STATE, mode.raw)))
+        transport.write(V2Codec.encode(
+            V2Message.Outgoing.WriteFeature(V2FeatureId.WORKOUT_STATE, mode.raw),
+        ))
     }
 
-    private suspend fun releaseIdleModeLock() {
-        val supported = _supportedFeatures.value
-        if (supported != null && V2FeatureId.IDLE_SYSTEM_MODE_LOCK !in supported) return
-        logger.i(TAG, "Start: releasing IDLE_SYSTEM_MODE_LOCK before commanding RUNNING")
-        transport.write(V2Codec.encode(V2Message.Outgoing.WriteFeature(V2FeatureId.IDLE_SYSTEM_MODE_LOCK, IDLE_MODE_UNLOCKED)))
-    }
-
-    /** Waits (up to [STATE_CONFIRM_TIMEOUT_MS]) for a [V2FeatureId.WORKOUT_STATE] event satisfying [accept]. */
-    private suspend fun confirmWorkoutMode(what: String, accept: (V2WorkoutMode) -> Boolean): Boolean {
+    private suspend fun confirmWorkoutMode(
+        what: String,
+        accept: (V2WorkoutMode) -> Boolean,
+    ): Boolean {
         val ok = withTimeoutOrNull(STATE_CONFIRM_TIMEOUT_MS) {
             _workoutMode.filterNotNull().map { V2WorkoutMode.fromRaw(it) }.first { accept(it) }
             true
         } != null
-        if (!ok) logger.w(TAG, "Console didn't $what — workout may be inactive; continuing")
+        if (!ok) logger.w(TAG, "Console didn't $what; workout may be inactive; continuing")
         return ok
-    }
-
-    private fun startHeartbeat() {
-        heartbeatJob = scope.launch {
-            // Runs from Handshaking on, so the console stays alive through the workout-mode transition too.
-            while (isActive &&
-                (_sessionState.value is SessionState.Streaming || _sessionState.value is SessionState.Handshaking)) {
-                try {
-                    val heartbeat = V2Message.Outgoing.WriteFeature(
-                        V2FeatureId.HEART_BEAT_INTERVAL,
-                        HEARTBEAT_VALUE,
-                    )
-                    transport.write(V2Codec.encode(heartbeat))
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    logger.w(TAG, "Heartbeat write failed: ${e.message}")
-                }
-                delay(HEARTBEAT_INTERVAL_MS)
-            }
-        }
     }
 
     companion object {
         private const val TAG = "V2Session"
-
-        // Belt-machine halt on stop: let the speed-0 + PAUSED writes settle before teardown.
         private const val BELT_HALT_SETTLE_MS = 200L
-        private const val HEARTBEAT_INTERVAL_MS = 720L
-        private const val HEARTBEAT_VALUE = 720f
         private const val MAX_SUBSCRIBE_BATCH = 8
-        // How long to wait for the console to confirm a WORKOUT_STATE transition before continuing degraded.
         private const val STATE_CONFIRM_TIMEOUT_MS = 5_000L
-        // How long to wait for the SupportedFeatures response before falling back to BIKE.
-        private const val SUPPORTED_FEATURES_TIMEOUT_MS = 3_000L
-        private const val IDLE_MODE_UNLOCKED = 0f
+        private const val SUPPORTED_FEATURES_TIMEOUT_MS = 4_000L
+        private const val QUERY_FEATURES_ATTEMPTS = 3
 
-        // V1 [com.nettarion.hyperborea.hardware.fitpro.v1.WorkoutMode] raw codes used by the
-        // orchestrator's workout-mode monitor — kept here as a translation target for V2's WORKOUT_STATE.
+        private const val START_REQUESTED_TRUE = 1f
+        private const val INITIAL_BELT_KPH = 0.5f
+        private const val HEART_BEAT_INTERVAL_MS = 720f
+        private const val IDLE_MODE_UNLOCKED = 0f
+        private const val IDLE_MODE_LOCKED = 1f
+        private const val DISPLAY_UNITS_METRIC = 1f
+        private const val WARM_UP_TIMEOUT_S = 180f
+        private const val COOL_DOWN_TIMEOUT_S = 600f
+        private const val PAUSE_TIMEOUT_S = 600f
+        private const val GOAL_TIME_S = 10_800f
+        private const val START_NOT_CONFIRMED_REASON = "The console didn't confirm the treadmill start; press Start again"
+
+        private const val KEY_STOP = 1
+        private const val KEY_START = 2
+        private const val KEY_SPEED_UP = 3
+        private const val KEY_SPEED_DOWN = 4
+        private const val KEY_INCLINE_UP = 5
+        private const val KEY_INCLINE_DOWN = 6
+
         private const val V1_WORKOUT_MODE_UNKNOWN = 0
         private const val V1_WORKOUT_MODE_IDLE = 1
         private const val V1_WORKOUT_MODE_RUNNING = 2
