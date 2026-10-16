@@ -81,6 +81,7 @@ class fitplusbike : public bike {
     bool merach_MRK = false;
     bool H9110_OSAKA = false;
     bool virtufitEtappe = false;
+    bool toputureTbe5 = false;
     bool virtufitLayoutDetected = false;
     bool validFrameSeen = false;
 
