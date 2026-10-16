@@ -2239,6 +2239,8 @@ import AndroidStatusBar 1.0
             property bool freemotion_t10_9b_hci: false
             property bool treadmill_runn_closed_loop: false
             property string treadmill_pid_heart_control: "Speed"
+            property bool tile_alternative_pace_enabled: false
+            property int tile_alternative_pace_order: 80
         }
 
 

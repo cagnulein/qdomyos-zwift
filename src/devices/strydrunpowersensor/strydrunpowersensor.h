@@ -38,6 +38,8 @@ class strydrunpowersensor : public treadmill {
   public:
     strydrunpowersensor(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
+    double alternativeSpeed() const { return alternativeSpeedValue; }
+    QTime alternativePace() { return speedToPace(alternativeSpeedValue); }
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
@@ -68,6 +70,7 @@ class strydrunpowersensor : public treadmill {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool noVirtualDevice = false;
+    double alternativeSpeedValue = 0;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
