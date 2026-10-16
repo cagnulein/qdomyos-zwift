@@ -26,6 +26,7 @@
 #include <QObject>
 #include <QString>
 
+#include "devices/echelonconnectsport/echelonunlock.h"
 #include "treadmill.h"
 
 #ifdef Q_OS_IOS
@@ -79,6 +80,15 @@ class echelonstride : public treadmill {
     bool initDone = false;
     bool initRequest = false;
 
+    QTimer *directUnlockActivationTimer = nullptr;
+    QTimer *directUnlockFallbackTimer = nullptr;
+    QByteArray directUnlockChallenge;
+    uint8_t directUnlockAuth = 0;
+    bool directUnlockAttempted = false;
+    bool directUnlockInProgress = false;
+    bool directUnlockActivationSent = false;
+    bool directUnlockSucceeded = false;
+
     bool stride4 = false;
 
 #ifdef Q_OS_IOS
@@ -102,6 +112,12 @@ class echelonstride : public treadmill {
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
     void changeInclinationRequested(double grade, double percentage);
+    void handleDirectUnlockChallenge(const QByteArray &newValue);
+    void sendDirectUnlockActivation();
+    void directUnlockFailed(const QString &reason);
+    bool directUnlockTelemetryFrame(const QByteArray &newValue) const;
+    bool virtualEchelonSessionActive();
+    void resetDirectUnlockState();
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
