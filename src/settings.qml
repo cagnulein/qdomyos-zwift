@@ -2623,7 +2623,7 @@ import AndroidStatusBar 1.0
                         spacing: 10
                         Label {
                             id: labelUiZoom
-                            text: qsTr("UI Zoom:")
+                            text: qsTr("Tile size:")
                             Layout.fillWidth: true
                         }
                         SettingsNumberField {
@@ -2646,7 +2646,7 @@ import AndroidStatusBar 1.0
                         }
                     }
                     Label {
-                        text: qsTr("This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol")
+                        text: qsTr("This changes the size of the tiles that display your metrics. The default is 100%. To fit more tiles on your screen, choose a smaller percentage. To make them larger, choose a percentage over 100%. Do not enter the percent symbol. Formerly named “UI Zoom”.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2
