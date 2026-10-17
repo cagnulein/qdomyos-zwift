@@ -35,6 +35,12 @@ class sportsplusbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool connected() override;
 
+    static bool isCareSportsPlusBike13Name(const QString &name);
+    static bool isCareSportsPlusBike13Packet(const QByteArray &packet);
+    static int careSportsPlusBike13Cadence(const QByteArray &packet);
+    static int careSportsPlusBike13Watts(const QByteArray &packet);
+    static double careSportsPlusBike13Speed(const QByteArray &packet);
+
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
@@ -74,6 +80,7 @@ class sportsplusbike : public bike {
     bool readyToStart = false;
 
     bool carefitness_bike = false;
+    bool care_sportsplus_bike_13 = false;
     bool ht_variant_bike = false;
 
     const resistance_t max_resistance = 24;

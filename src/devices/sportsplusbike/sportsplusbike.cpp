@@ -45,6 +45,59 @@ sportsplusbike::sportsplusbike(bool noWriteResistance, bool noHeartService) {
     refresh->start(200ms);
 }
 
+bool sportsplusbike::isCareSportsPlusBike13Name(const QString &name) {
+    const QString upperName = name.toUpper();
+    if (!upperName.startsWith(QStringLiteral("CARE")) || upperName.length() != 13 ||
+        upperName.at(4) != QLatin1Char('1')) {
+        return false;
+    }
+
+    for (int i = 4; i < upperName.length(); ++i) {
+        if (!upperName.at(i).isDigit()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool sportsplusbike::isCareSportsPlusBike13Packet(const QByteArray &packet) {
+    if (packet.size() != 12 || static_cast<uint8_t>(packet.at(0)) != 0x20 ||
+        (static_cast<uint8_t>(packet.at(1)) != 0x00 && static_cast<uint8_t>(packet.at(1)) != 0x10)) {
+        return false;
+    }
+
+    uint8_t checksum = 0;
+    for (int i = 0; i < packet.size() - 1; ++i) {
+        checksum = static_cast<uint8_t>(checksum + static_cast<uint8_t>(packet.at(i)));
+    }
+
+    return checksum == static_cast<uint8_t>(packet.at(packet.size() - 1));
+}
+
+int sportsplusbike::careSportsPlusBike13Cadence(const QByteArray &packet) {
+    if (!isCareSportsPlusBike13Packet(packet) || static_cast<uint8_t>(packet.at(1)) != 0x10) {
+        return -1;
+    }
+
+    const uint8_t packedCadence = static_cast<uint8_t>(packet.at(3));
+    return ((packedCadence & 0xF0) >> 4) * 10 + (packedCadence & 0x0F);
+}
+
+int sportsplusbike::careSportsPlusBike13Watts(const QByteArray &packet) {
+    if (!isCareSportsPlusBike13Packet(packet)) {
+        return -1;
+    }
+
+    const uint8_t packedWatts = static_cast<uint8_t>(packet.at(10));
+    return ((packedWatts & 0xF0) >> 4) * 10 + (packedWatts & 0x0F);
+}
+
+double sportsplusbike::careSportsPlusBike13Speed(const QByteArray &packet) {
+    const int cadence = careSportsPlusBike13Cadence(packet);
+    return cadence < 0 ? 0.0 : 0.37497622 * static_cast<double>(cadence);
+}
+
 void sportsplusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                          bool wait_for_response) {
     QEventLoop loop;
@@ -218,6 +271,46 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
         // double resistance = GetResistanceFromPacket(newValue);
         kcal = GetKcalFromPacket(newValue);
+    } else if (care_sportsplus_bike_13) {
+        const int packetWatts = careSportsPlusBike13Watts(newValue);
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            m_watt = packetWatts >= 0 ? packetWatts : wattsFromResistance(currentResistance().value());
+        }
+        emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+
+        const int packetCadence = careSportsPlusBike13Cadence(newValue);
+        if (packetCadence >= 0) {
+            cadence = packetCadence;
+            cadence_eval = true;
+        } else {
+            cadence = currentCadence().value();
+            cadence_eval = true;
+        }
+
+        const double speed = packetCadence >= 0 ? careSportsPlusBike13Speed(newValue)
+                                                : 0.37497622 * cadence;
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            Speed = speed;
+        } else {
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        }
+        emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
+
+        if (!firstCharChanged) {
+            Distance +=
+                ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
+        }
+        lastTimeCharChanged = now;
+        kcal =
+            ((((0.048 * ((double)watts()) + 1.19) *
+               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+              200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            now))));
     } else if (carefitness_bike) {
         if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
@@ -518,6 +611,7 @@ void sportsplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
         ht_variant_bike = isSportsPlusHTVariantName(bluetoothDevice.name());
+        care_sportsplus_bike_13 = isCareSportsPlusBike13Name(bluetoothDevice.name());
         if ((bluetoothDevice.name().toUpper().contains(QStringLiteral("CARE")) &&
              bluetoothDevice.name().length() >= 11)) // CARE9040177 - Carefitness CV-351)
         {
