@@ -266,6 +266,7 @@ fit-sdk/fit_unicode.cpp \
 devices/flywheelbike/flywheelbike.cpp \
 devices/ftmsbike/ftmsbike.cpp \
 devices/ftmsrower/ftmsrower.cpp \
+devices/ftmsrower/ftmsrowercadence.cpp \
 gpx.cpp \
 devices/heartratebelt/heartratebelt.cpp \
 homefitnessbuddy.cpp \
@@ -576,6 +577,7 @@ devices/fitmetria_fanfit/fitmetria_fanfit.h \
 devices/fitplusbike/fitplusbike.h \
 devices/fitplusrower/fitplusrower.h \
 devices/ftmsrower/ftmsrower.h \
+devices/ftmsrower/ftmsrowercadence.h \
 homefitnessbuddy.h \
 devices/horizongr7bike/horizongr7bike.h \
 devices/iconceptbike/iconceptbike.h \
