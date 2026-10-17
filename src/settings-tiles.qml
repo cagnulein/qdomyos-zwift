@@ -411,7 +411,7 @@ ScrollView {
                     id: speedOrderTextField
                     Accessible.name: speedEnabledAccordion.title + ", " + labelSpeedOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_speed_order
+                    savedText: settings.tile_speed_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -421,6 +421,7 @@ ScrollView {
                 Button {
                     id: okSpeedOrderButton
                     text: qsTr("OK")
+                    enabled: speedOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_speed_order = speedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -457,7 +458,7 @@ ScrollView {
                     id: inclinationOrderTextField
                     Accessible.name: inclinationEnabledAccordion.title + ", " + labelinclinationOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_inclination_order
+                    savedText: settings.tile_inclination_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -467,6 +468,7 @@ ScrollView {
                 Button {
                     id: okinclinationOrderButton
                     text: qsTr("OK")
+                    enabled: inclinationOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_inclination_order = inclinationOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -519,7 +521,7 @@ ScrollView {
                         id: cadenceOrderTextField
                         Accessible.name: cadenceEnabledAccordion.title + ", " + labelcadenceOrder.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_cadence_order
+                        savedText: settings.tile_cadence_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -529,6 +531,7 @@ ScrollView {
                     Button {
                         id: okcadenceOrderButton
                         text: qsTr("OK")
+                        enabled: cadenceOrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_cadence_order = cadenceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -566,7 +569,7 @@ ScrollView {
                     id: elevationOrderTextField
                     Accessible.name: elevationEnabledAccordion.title + ", " + labelelevationOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_elevation_order
+                    savedText: settings.tile_elevation_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -576,6 +579,7 @@ ScrollView {
                 Button {
                     id: okelevationOrderButton
                     text: qsTr("OK")
+                    enabled: elevationOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_elevation_order = elevationOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -598,7 +602,7 @@ ScrollView {
                     id: negativeInclinationOrderTextField
                     Accessible.name: negativeInclinationEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
-                    displayText: settings.tile_negative_inclination_order
+                    savedText: settings.tile_negative_inclination_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -607,6 +611,7 @@ ScrollView {
                 }
                 Button {
                     text: qsTr("OK")
+                    enabled: negativeInclinationOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_negative_inclination_order = negativeInclinationOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -643,7 +648,7 @@ ScrollView {
                     id: caloriesOrderTextField
                     Accessible.name: caloriesEnabledAccordion.title + ", " + labelcaloriesOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_calories_order
+                    savedText: settings.tile_calories_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -653,6 +658,7 @@ ScrollView {
                 Button {
                     id: okcaloriesOrderButton
                     text: qsTr("OK")
+                    enabled: caloriesOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_calories_order = caloriesOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -689,7 +695,7 @@ ScrollView {
                     id: odometerOrderTextField
                     Accessible.name: odometerEnabledAccordion.title + ", " + labelodometerOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_odometer_order
+                    savedText: settings.tile_odometer_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -699,6 +705,7 @@ ScrollView {
                 Button {
                     id: okodometerOrderButton
                     text: qsTr("OK")
+                    enabled: odometerOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_odometer_order = odometerOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -751,7 +758,7 @@ ScrollView {
                         id: paceOrderTextField
                         Accessible.name: paceEnabledAccordion.title + ", " + labelpaceOrder.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_pace_order
+                        savedText: settings.tile_pace_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -761,6 +768,7 @@ ScrollView {
                     Button {
                         id: okpaceOrderButton
                         text: qsTr("OK")
+                        enabled: paceOrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_pace_order = paceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -785,7 +793,7 @@ ScrollView {
                     id: avgpaceOrderTextField
                     Accessible.name: avgPaceEnabledAccordion.title + ", " + labelavgpaceOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_avg_pace_order
+                    savedText: settings.tile_avg_pace_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -795,6 +803,7 @@ ScrollView {
                 Button {
                     id: okavgpaceOrderButton
                     text: qsTr("OK")
+                    enabled: avgpaceOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_avg_pace_order = avgpaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -877,7 +886,7 @@ ScrollView {
                     id: resistanceOrderTextField
                     Accessible.name: resistanceEnabledAccordion.title + ", " + labelresistanceOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_resistance_order
+                    savedText: settings.tile_resistance_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -887,6 +896,7 @@ ScrollView {
                 Button {
                     id: okresistanceOrderButton
                     text: qsTr("OK")
+                    enabled: resistanceOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_resistance_order = resistanceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -939,7 +949,7 @@ ScrollView {
                         id: wattOrderTextField
                         Accessible.name: wattEnabledAccordion.title + ", " + labelwattOrder.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_watt_order
+                        savedText: settings.tile_watt_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -949,6 +959,7 @@ ScrollView {
                     Button {
                         id: okwattOrderButton
                         text: qsTr("OK")
+                        enabled: wattOrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_watt_order = wattOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -986,7 +997,7 @@ ScrollView {
                     id: weightLossOrderTextField
                     Accessible.name: weightLossEnabledAccordion.title + ", " + labelweightLossOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_weight_loss_order
+                    savedText: settings.tile_weight_loss_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -996,6 +1007,7 @@ ScrollView {
                 Button {
                     id: okweightLossOrderButton
                     text: qsTr("OK")
+                    enabled: weightLossOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_weight_loss_order = weightLossOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1033,7 +1045,7 @@ ScrollView {
                     id: avgwattOrderTextField
                     Accessible.name: avgwattEnabledAccordion.title + ", " + labelavgwattOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_avgwatt_order
+                    savedText: settings.tile_avgwatt_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1043,6 +1055,7 @@ ScrollView {
                 Button {
                     id: okavgwattOrderButton
                     text: qsTr("OK")
+                    enabled: avgwattOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_avgwatt_order = avgwattOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1080,7 +1093,7 @@ ScrollView {
 					     id: avgwattLapOrderTextField
 					     Accessible.name: avgwattLapEnabledAccordion.title + ", " + labelavgwattLapOrder.text
 						  model: rootItem.tile_order
-						  displayText: settings.tile_avg_watt_lap_order
+						  savedText: settings.tile_avg_watt_lap_order
 						  Layout.fillHeight: false
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 						  onActivated: {
@@ -1090,6 +1103,7 @@ ScrollView {
 					 Button {
 					     id: okavgwattLapOrderButton
 						  text: qsTr("OK")
+						  enabled: avgwattLapOrderTextField.dirty
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 						  onClicked: {settings.tile_avg_watt_lap_order = avgwattLapOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						}
@@ -1113,7 +1127,7 @@ ScrollView {
                     id: ftpOrderTextField
                     Accessible.name: ftpEnabledAccordion.title + ", " + labelftpOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_ftp_order
+                    savedText: settings.tile_ftp_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1123,6 +1137,7 @@ ScrollView {
                 Button {
                     id: okftpOrderButton
                     text: qsTr("OK")
+                    enabled: ftpOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_ftp_order = ftpOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1188,7 +1203,7 @@ ScrollView {
                         id: heartrateOrderTextField
                         Accessible.name: heartEnabledAccordion.title + ", " + labelheartrateOrder.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_heart_order
+                        savedText: settings.tile_heart_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -1198,6 +1213,7 @@ ScrollView {
                     Button {
                         id: okheartrateOrderButton
                         text: qsTr("OK")
+                        enabled: heartrateOrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_heart_order = heartrateOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -1222,7 +1238,7 @@ ScrollView {
                     id: fanOrderTextField
                     Accessible.name: fanEnabledAccordion.title + ", " + labelfanOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_fan_order
+                    savedText: settings.tile_fan_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1232,6 +1248,7 @@ ScrollView {
                 Button {
                     id: okfanOrderButton
                     text: qsTr("OK")
+                    enabled: fanOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_fan_order = fanOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1268,7 +1285,7 @@ ScrollView {
                     id: joulsOrderTextField
                     Accessible.name: joulsEnabledAccordion.title + ", " + labeljoulsOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_jouls_order
+                    savedText: settings.tile_jouls_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1278,6 +1295,7 @@ ScrollView {
                 Button {
                     id: okjoulsOrderButton
                     text: qsTr("OK")
+                    enabled: joulsOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_jouls_order = joulsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1314,7 +1332,7 @@ ScrollView {
                     id: elapsedOrderTextField
                     Accessible.name: elapsedEnabledAccordion.title + ", " + labelelapsedOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_elapsed_order
+                    savedText: settings.tile_elapsed_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1324,6 +1342,7 @@ ScrollView {
                 Button {
                     id: okelapsedOrderButton
                     text: qsTr("OK")
+                    enabled: elapsedOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_elapsed_order = elapsedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1360,7 +1379,7 @@ ScrollView {
                     id: movingTimeOrderTextField
                     Accessible.name: movingTimeEnabledAccordion.title + ", " + labelmovingTimeOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_moving_time_order
+                    savedText: settings.tile_moving_time_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1370,6 +1389,7 @@ ScrollView {
                 Button {
                     id: okmovingTimeOrderButton
                     text: qsTr("OK")
+                    enabled: movingTimeOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_moving_time_order = movingTimeOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1406,7 +1426,7 @@ ScrollView {
                     id: pelotonOffsetOrderTextField
                     Accessible.name: pelotonOffsetEnabledAccordion.title + ", " + labelpelotonOffsetOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_peloton_offset_order
+                    savedText: settings.tile_peloton_offset_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1416,6 +1436,7 @@ ScrollView {
                 Button {
                     id: okpelotonOffsetOrderButton
                     text: qsTr("OK")
+                    enabled: pelotonOffsetOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_peloton_offset_order = pelotonOffsetOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1452,7 +1473,7 @@ ScrollView {
                     id: pelotonRemainingOrderTextField
                     Accessible.name: pelotonRemainingEnabledAccordion.title + ", " + labelPelotonRemainingOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_peloton_remaining_order
+                    savedText: settings.tile_peloton_remaining_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1462,6 +1483,7 @@ ScrollView {
                 Button {
                     id: okPelotonRemainingOrderButton
                     text: qsTr("OK")
+                    enabled: pelotonRemainingOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_peloton_remaining_order = pelotonRemainingOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1498,7 +1520,7 @@ ScrollView {
                 UiComboBox {
                     id: pelotonDifficultyOrderTextField
                     model: rootItem.tile_order
-                    displayText: settings.tile_peloton_difficulty_order
+                    savedText: settings.tile_peloton_difficulty_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1508,6 +1530,7 @@ ScrollView {
                 Button {
                     id: okpelotonDifficultyOrderButton
                     text: qsTr("OK")
+                    enabled: pelotonDifficultyOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_peloton_difficulty_order = pelotonDifficultyOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1531,7 +1554,7 @@ ScrollView {
                     id: lapElapsedOrderTextField
                     Accessible.name: lapElapsedEnabledAccordion.title + ", " + labellapElapsedOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_lapelapsed_order
+                    savedText: settings.tile_lapelapsed_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1541,6 +1564,7 @@ ScrollView {
                 Button {
                     id: oklapElapsedOrderButton
                     text: qsTr("OK")
+                    enabled: lapElapsedOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_lapelapsed_order = lapElapsedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1579,7 +1603,7 @@ ScrollView {
                         id: peloton_resistanceOrderTextField
                         Accessible.name: pelotonResistanceEnabledAccordion.title + ", " + labelpeloton_resistanceOrder.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_peloton_resistance_order
+                        savedText: settings.tile_peloton_resistance_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -1589,6 +1613,7 @@ ScrollView {
                     Button {
                         id: okpeloton_resistanceOrderButton
                         text: qsTr("OK")
+                        enabled: peloton_resistanceOrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -1626,7 +1651,7 @@ ScrollView {
                     id: target_resistanceOrderTextField
                     Accessible.name: targetResistanceEnabledAccordion.title + ", " + labeltarget_resistanceOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_target_resistance_order
+                    savedText: settings.tile_target_resistance_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1636,6 +1661,7 @@ ScrollView {
                 Button {
                     id: oktarget_resistanceOrderButton
                     text: qsTr("OK")
+                    enabled: target_resistanceOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_target_resistance_order = target_resistanceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1673,7 +1699,7 @@ ScrollView {
                     id: target_peloton_resistanceOrderTextField
                     Accessible.name: targetPelotonResistanceEnabledAccordion.title + ", " + labeltarget_peloton_resistanceOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_target_peloton_resistance_order
+                    savedText: settings.tile_target_peloton_resistance_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1683,6 +1709,7 @@ ScrollView {
                 Button {
                     id: oktarget_peloton_resistanceOrderButton
                     text: qsTr("OK")
+                    enabled: target_peloton_resistanceOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_target_peloton_resistance_order = target_peloton_resistanceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1719,7 +1746,7 @@ ScrollView {
                     id: target_cadenceOrderTextField
                     Accessible.name: targetCadenceEnabledAccordion.title + ", " + labeltarget_cadenceOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_target_cadence_order
+                    savedText: settings.tile_target_cadence_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1729,6 +1756,7 @@ ScrollView {
                 Button {
                     id: oktarget_cadenceOrderButton
                     text: qsTr("OK")
+                    enabled: target_cadenceOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_target_cadence_order = target_cadenceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1765,7 +1793,7 @@ ScrollView {
                     id: target_powerOrderTextField
                     Accessible.name: targetPowerEnabledAccordion.title + ", " + labeltarget_powerOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_target_power_order
+                    savedText: settings.tile_target_power_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1775,6 +1803,7 @@ ScrollView {
                 Button {
                     id: oktarget_powerOrderButton
                     text: qsTr("OK")
+                    enabled: target_powerOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_target_power_order = target_powerOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1812,7 +1841,7 @@ ScrollView {
                     id: target_zoneOrderTextField
                     Accessible.name: targetZoneEnabledAccordion.title + ", " + labeltarget_zoneOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_target_zone_order
+                    savedText: settings.tile_target_zone_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1822,6 +1851,7 @@ ScrollView {
                 Button {
                     id: oktarget_zoneOrderButton
                     text: qsTr("OK")
+                    enabled: target_zoneOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_target_zone_order = target_zoneOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1858,7 +1888,7 @@ ScrollView {
                     id: target_speedOrderTextField
                     Accessible.name: targetSpeedEnabledAccordion.title + ", " + labeltargetspeedOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_target_speed_order
+                    savedText: settings.tile_target_speed_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1868,6 +1898,7 @@ ScrollView {
                 Button {
                     id: oktarget_speedOrderButton
                     text: qsTr("OK")
+                    enabled: target_speedOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_target_speed_order = target_speedOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1891,7 +1922,7 @@ ScrollView {
                     id: target_paceOrderTextField
                     Accessible.name: targetPaceEnabledAccordion.title + ", " + labeltargetpaceOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_target_pace_order
+                    savedText: settings.tile_target_pace_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1901,6 +1932,7 @@ ScrollView {
                 Button {
                     id: oktarget_paceOrderButton
                     text: qsTr("OK")
+                    enabled: target_paceOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_target_pace_order = target_paceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1924,7 +1956,7 @@ ScrollView {
                     id: target_inclineOrderTextField
                     Accessible.name: targetInclineEnabledAccordion.title + ", " + labeltarget_inclineOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_target_incline_order
+                    savedText: settings.tile_target_incline_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1934,6 +1966,7 @@ ScrollView {
                 Button {
                     id: oktarget_inclineOrderButton
                     text: qsTr("OK")
+                    enabled: target_inclineOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_target_incline_order = target_inclineOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -1956,7 +1989,7 @@ ScrollView {
                     id: watt_kgOrderTextField
                     Accessible.name: wattKgEnabledAccordion.title + ", " + labelwatt_kgOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_watt_kg_order
+                    savedText: settings.tile_watt_kg_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -1966,6 +1999,7 @@ ScrollView {
                 Button {
                     id: okwatt_kgOrderButton
                     text: qsTr("OK")
+                    enabled: watt_kgOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_watt_kg_order = watt_kgOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2002,7 +2036,7 @@ ScrollView {
                     id: gearsOrderTextField
                     Accessible.name: gearsEnabledAccordion.title + ", " + labelgearsOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_gears_order
+                    savedText: settings.tile_gears_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2012,6 +2046,7 @@ ScrollView {
                 Button {
                     id: okgearsOrderButton
                     text: qsTr("OK")
+                    enabled: gearsOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_gears_order = gearsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2047,7 +2082,7 @@ ScrollView {
                         id: biggearsOrderTextField
                         Accessible.name: qsTr("Gears Big Buttons") + ", " + qsTr("order index:")
                         model: rootItem.tile_order
-                        displayText: settings.tile_biggears_order
+                        savedText: settings.tile_biggears_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -2056,6 +2091,7 @@ ScrollView {
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: biggearsOrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_biggears_order = biggearsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -2107,7 +2143,7 @@ ScrollView {
                     id: remainingTimeTrainingProgramRowOrderTextField
                     Accessible.name: remainingTimeTrainingProgramRowEnabledAccordion.title + ", " + labelremainingTimeTrainingProgramRowOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_remainingtimetrainprogramrow_order
+                    savedText: settings.tile_remainingtimetrainprogramrow_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2117,6 +2153,7 @@ ScrollView {
                 Button {
                     id: okremainingTimeTrainingProgramRowOrderButton
                     text: qsTr("OK")
+                    enabled: remainingTimeTrainingProgramRowOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_remainingtimetrainprogramrow_order = remainingTimeTrainingProgramRowOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2154,7 +2191,7 @@ ScrollView {
                     id: nextRowsTrainingProgramOrderTextField
                     Accessible.name: nextRowsTrainingProgramRowEnabledAccordion.title + ", " + labelnextRowsTrainingProgramOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_nextrowstrainprogram_order
+                    savedText: settings.tile_nextrowstrainprogram_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2164,6 +2201,7 @@ ScrollView {
                 Button {
                     id: oknextRowsTrainingProgramOrderButton
                     text: qsTr("OK")
+                    enabled: nextRowsTrainingProgramOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_nextrowstrainprogram_order = nextRowsTrainingProgramOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2200,7 +2238,7 @@ ScrollView {
                     id: metsOrderTextField
                     Accessible.name: metsEnabledAccordion.title + ", " + labelmetsOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_mets_order
+                    savedText: settings.tile_mets_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2210,6 +2248,7 @@ ScrollView {
                 Button {
                     id: okmetsOrderButton
                     text: qsTr("OK")
+                    enabled: metsOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_mets_order = metsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2246,7 +2285,7 @@ ScrollView {
                     id: targetmetsOrderTextField
                     Accessible.name: targetMetsEnabledAccordion.title + ", " + labeltargetmetsOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_targetmets_order
+                    savedText: settings.tile_targetmets_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2256,6 +2295,7 @@ ScrollView {
                 Button {
                     id: oktargetmetsOrderButton
                     text: qsTr("OK")
+                    enabled: targetmetsOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_targetmets_order = targetmetsOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2279,7 +2319,7 @@ ScrollView {
                     id: datetimeOrderTextField
                     Accessible.name: datetimeEnabledAccordion.title + ", " + labeldatetimeOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_datetime_order
+                    savedText: settings.tile_datetime_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2289,6 +2329,7 @@ ScrollView {
                 Button {
                     id: okdatetimeOrderButton
                     text: qsTr("OK")
+                    enabled: datetimeOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_datetime_order = datetimeOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2325,7 +2366,7 @@ ScrollView {
                     id: strokes_countOrderTextField
                     Accessible.name: targetStrokesCountAccordion.title + ", " + labelstrokes_countOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_strokes_count_order
+                    savedText: settings.tile_strokes_count_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2335,6 +2376,7 @@ ScrollView {
                 Button {
                     id: okstrokes_countOrderButton
                     text: qsTr("OK")
+                    enabled: strokes_countOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_strokes_count_order = strokes_countOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2371,7 +2413,7 @@ ScrollView {
                     id: strokes_lengthOrderTextField
                     Accessible.name: targetStrokesLengthAccordion.title + ", " + labelstrokes_lengthOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_strokes_length_order
+                    savedText: settings.tile_strokes_length_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2381,6 +2423,7 @@ ScrollView {
                 Button {
                     id: okstrokes_lengthOrderButton
                     text: qsTr("OK")
+                    enabled: strokes_lengthOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_strokes_length_order = strokes_lengthOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2417,7 +2460,7 @@ ScrollView {
                     id: steeringAngleOrderTextField
                     Accessible.name: targetSteeringAngleEnabledAccordion.title + ", " + labelsteeringAngleOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_steering_angle_order
+                    savedText: settings.tile_steering_angle_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2427,6 +2470,7 @@ ScrollView {
                 Button {
                     id: oksteeringAngleOrderButton
                     text: qsTr("OK")
+                    enabled: steeringAngleOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_steering_angle_order = steeringAngleOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2463,7 +2507,7 @@ ScrollView {
                     id: pidHROrderTextField
                     Accessible.name: targetPIDHrAccordion.title + ", " + labelPIDHROrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_pid_hr_order
+                    savedText: settings.tile_pid_hr_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2473,6 +2517,7 @@ ScrollView {
                 Button {
                     id: okpidHROrderButton
                     text: qsTr("OK")
+                    enabled: pidHROrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_pid_hr_order = pidHROrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2509,7 +2554,7 @@ ScrollView {
                     id: extInclineOrderTextField
                     Accessible.name: extInclineAccordion.title + ", " + labelExtInclineOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_ext_incline_order
+                    savedText: settings.tile_ext_incline_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2519,6 +2564,7 @@ ScrollView {
                 Button {
                     id: okextInclineOrderButton
                     text: qsTr("OK")
+                    enabled: extInclineOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_ext_incline_order = extInclineOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2555,7 +2601,7 @@ ScrollView {
                     id: strideLengthOrderTextField
                     Accessible.name: strideLength.title + ", " + labelStrideLengthOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_instantaneous_stride_length_order
+                    savedText: settings.tile_instantaneous_stride_length_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2565,6 +2611,7 @@ ScrollView {
                 Button {
                     id: okStrideLengthOrderButton
                     text: qsTr("OK")
+                    enabled: strideLengthOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_instantaneous_stride_length_order = strideLengthOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2601,7 +2648,7 @@ ScrollView {
                     id: groundContactOrderTextField
                     Accessible.name: groundContact.title + ", " + labelGroundContactOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_ground_contact_order
+                    savedText: settings.tile_ground_contact_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2611,6 +2658,7 @@ ScrollView {
                 Button {
                     id: okGroundContactOrderButton
                     text: qsTr("OK")
+                    enabled: groundContactOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_ground_contact_order = groundContactOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2647,7 +2695,7 @@ ScrollView {
                     id: verticalOscillationOrderTextField
                     Accessible.name: verticalOscillation.title + ", " + labelVerticalOscillationOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_vertical_oscillation_order
+                    savedText: settings.tile_vertical_oscillation_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2657,6 +2705,7 @@ ScrollView {
                 Button {
                     id: okVerticalOscillationOrderButton
                     text: qsTr("OK")
+                    enabled: verticalOscillationOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_vertical_oscillation_order = verticalOscillationOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2693,7 +2742,7 @@ ScrollView {
                     id: pacelast500mOrderTextField
                     Accessible.name: paceLast500mEnabledAccordion.title + ", " + labelPacelast500mOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_pace_last500m_order
+                    savedText: settings.tile_pace_last500m_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2703,6 +2752,7 @@ ScrollView {
                 Button {
                     id: okPacelast500mOrderButton
                     text: qsTr("OK")
+                    enabled: pacelast500mOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_pace_last500m_order = pacelast500mOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2726,7 +2776,7 @@ ScrollView {
                     id: stepCountOrderTextField
                     Accessible.name: stepCountEnabledAccordion.title + ", " + labelStepCountOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_step_count_order
+                    savedText: settings.tile_step_count_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2736,6 +2786,7 @@ ScrollView {
                 Button {
                     id: okStepCountOrderButton
                     text: qsTr("OK")
+                    enabled: stepCountOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_step_count_order = stepCountOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2759,7 +2810,7 @@ ScrollView {
                     id: ergModeOrderTextField
                     Accessible.name: ergModeEnabledAccordion.title + ", " + labelErgModeOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_erg_mode_order
+                    savedText: settings.tile_erg_mode_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2769,6 +2820,7 @@ ScrollView {
                 Button {
                     id: okErgModeOrderButton
                     text: qsTr("OK")
+                    enabled: ergModeOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_erg_mode_order = ergModeOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2790,7 +2842,7 @@ ScrollView {
                     id: rssOrderTextField
                     Accessible.name: qsTr("Running Stress Score") + ", " + qsTr("order index:")
                     model: rootItem.tile_order
-                    displayText: settings.tile_rss_order
+                    savedText: settings.tile_rss_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -2799,6 +2851,7 @@ ScrollView {
                 }
                 Button {
                     text: qsTr("OK")
+                    enabled: rssOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_rss_order = rssOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -2823,7 +2876,7 @@ ScrollView {
                         id: presetResistance1TextField
                         Accessible.name: presetResistance1EnabledAccordion.title + ", " + labelPresetResistance1Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_resistance_1_order
+                        savedText: settings.tile_preset_resistance_1_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -2833,6 +2886,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance1OrderButton
                         text: qsTr("OK")
+                        enabled: presetResistance1TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_1_order = presetResistance1TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -2844,10 +2898,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetResistance1ValueTextField
                         Accessible.name: presetResistance1EnabledAccordion.title + ", " + labelPresetResistance1Value.text
-                        text: settings.tile_preset_resistance_1_value
+                        savedText: settings.tile_preset_resistance_1_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -2855,6 +2909,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance1ValueButton
                         text: qsTr("OK")
+                        enabled: presetResistance1ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_1_value = presetResistance1ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -2866,10 +2921,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetResistance1LabelTextField
                         Accessible.name: presetResistance1EnabledAccordion.title + ", " + labelPresetResistance1Label.text
-                        text: settings.tile_preset_resistance_1_label
+                        savedText: settings.tile_preset_resistance_1_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -2877,6 +2932,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance1LabelButton
                         text: qsTr("OK")
+                        enabled: presetResistance1LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_1_label = presetResistance1LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -2898,10 +2954,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetResistance1ColorTextField
 						      Accessible.name: presetResistance1EnabledAccordion.title + ", " + labelPresetResistance1Color.text
-								text: settings.tile_preset_resistance_1_color
+								savedText: settings.tile_preset_resistance_1_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -2912,6 +2968,7 @@ ScrollView {
 						  Button {
 						      id: okPresetResistance1ColorButton
 								text: qsTr("OK")
+								enabled: presetResistance1ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_resistance_1_color = presetResistance1ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -2936,7 +2993,7 @@ ScrollView {
                         id: presetResistance2TextField
                         Accessible.name: presetResistance2EnabledAccordion.title + ", " + labelPresetResistance2Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_resistance_2_order
+                        savedText: settings.tile_preset_resistance_2_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -2946,6 +3003,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance2OrderButton
                         text: qsTr("OK")
+                        enabled: presetResistance2TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_2_order = presetResistance2TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -2957,10 +3015,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetResistance2ValueTextField
                         Accessible.name: presetResistance2EnabledAccordion.title + ", " + labelPresetResistance2Value.text
-                        text: settings.tile_preset_resistance_2_value
+                        savedText: settings.tile_preset_resistance_2_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -2968,6 +3026,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance2ValueButton
                         text: qsTr("OK")
+                        enabled: presetResistance2ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_2_value = presetResistance2ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -2979,10 +3038,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetResistance2LabelTextField
                         Accessible.name: presetResistance2EnabledAccordion.title + ", " + labelPresetResistance2Label.text
-                        text: settings.tile_preset_resistance_2_label
+                        savedText: settings.tile_preset_resistance_2_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -2990,6 +3049,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance2LabelButton
                         text: qsTr("OK")
+                        enabled: presetResistance2LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_2_label = presetResistance2LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3011,10 +3071,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetResistance2ColorTextField
 						      Accessible.name: presetResistance2EnabledAccordion.title + ", " + labelPresetResistance2Color.text
-								text: settings.tile_preset_resistance_2_color
+								savedText: settings.tile_preset_resistance_2_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3025,6 +3085,7 @@ ScrollView {
 						  Button {
 						      id: okPresetResistance2ColorButton
 								text: qsTr("OK")
+								enabled: presetResistance2ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_resistance_2_color = presetResistance2ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -3049,7 +3110,7 @@ ScrollView {
                         id: presetResistance3TextField
                         Accessible.name: presetResistance3EnabledAccordion.title + ", " + labelPresetResistance3Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_resistance_3_order
+                        savedText: settings.tile_preset_resistance_3_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -3059,6 +3120,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance3OrderButton
                         text: qsTr("OK")
+                        enabled: presetResistance3TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_3_order = presetResistance3TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3070,10 +3132,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetResistance3ValueTextField
                         Accessible.name: presetResistance3EnabledAccordion.title + ", " + labelPresetResistance3Value.text
-                        text: settings.tile_preset_resistance_3_value
+                        savedText: settings.tile_preset_resistance_3_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3081,6 +3143,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance3ValueButton
                         text: qsTr("OK")
+                        enabled: presetResistance3ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_3_value = presetResistance3ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3092,10 +3155,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetResistance3LabelTextField
                         Accessible.name: presetResistance3EnabledAccordion.title + ", " + labelPresetResistance3Label.text
-                        text: settings.tile_preset_resistance_3_label
+                        savedText: settings.tile_preset_resistance_3_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3103,6 +3166,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance3LabelButton
                         text: qsTr("OK")
+                        enabled: presetResistance3LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_3_label = presetResistance3LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3124,10 +3188,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetResistance3ColorTextField
 						      Accessible.name: presetResistance3EnabledAccordion.title + ", " + labelPresetResistance3Color.text
-								text: settings.tile_preset_resistance_3_color
+								savedText: settings.tile_preset_resistance_3_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3138,6 +3202,7 @@ ScrollView {
 						  Button {
 						      id: okPresetResistance3ColorButton
 								text: qsTr("OK")
+								enabled: presetResistance3ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_resistance_3_color = presetResistance3ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -3162,7 +3227,7 @@ ScrollView {
                         id: presetResistance4TextField
                         Accessible.name: presetResistance4EnabledAccordion.title + ", " + labelPresetResistance4Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_resistance_4_order
+                        savedText: settings.tile_preset_resistance_4_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -3172,6 +3237,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance4OrderButton
                         text: qsTr("OK")
+                        enabled: presetResistance4TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_4_order = presetResistance4TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3183,10 +3249,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetResistance4ValueTextField
                         Accessible.name: presetResistance4EnabledAccordion.title + ", " + labelPresetResistance4Value.text
-                        text: settings.tile_preset_resistance_4_value
+                        savedText: settings.tile_preset_resistance_4_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3194,6 +3260,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance4ValueButton
                         text: qsTr("OK")
+                        enabled: presetResistance4ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_4_value = presetResistance4ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3205,10 +3272,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetResistance4LabelTextField
                         Accessible.name: presetResistance4EnabledAccordion.title + ", " + labelPresetResistance4Label.text
-                        text: settings.tile_preset_resistance_4_label
+                        savedText: settings.tile_preset_resistance_4_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3216,6 +3283,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance4LabelButton
                         text: qsTr("OK")
+                        enabled: presetResistance4LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_4_label = presetResistance4LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3237,10 +3305,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetResistance4ColorTextField
 						      Accessible.name: presetResistance4EnabledAccordion.title + ", " + labelPresetResistance4Color.text
-								text: settings.tile_preset_resistance_4_color
+								savedText: settings.tile_preset_resistance_4_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3251,6 +3319,7 @@ ScrollView {
 						  Button {
 						      id: okPresetResistance4ColorButton
 								text: qsTr("OK")
+								enabled: presetResistance4ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_resistance_4_color = presetResistance4ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -3275,7 +3344,7 @@ ScrollView {
                         id: presetResistance5TextField
                         Accessible.name: presetResistance5EnabledAccordion.title + ", " + labelPresetResistance5Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_resistance_5_order
+                        savedText: settings.tile_preset_resistance_5_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -3285,6 +3354,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance5OrderButton
                         text: qsTr("OK")
+                        enabled: presetResistance5TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_5_order = presetResistance5TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3296,10 +3366,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetResistance5ValueTextField
                         Accessible.name: presetResistance5EnabledAccordion.title + ", " + labelPresetResistance5Value.text
-                        text: settings.tile_preset_resistance_5_value
+                        savedText: settings.tile_preset_resistance_5_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3307,6 +3377,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance5ValueButton
                         text: qsTr("OK")
+                        enabled: presetResistance5ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_5_value = presetResistance5ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3318,10 +3389,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetResistance5LabelTextField
                         Accessible.name: presetResistance5EnabledAccordion.title + ", " + labelPresetResistance5Label.text
-                        text: settings.tile_preset_resistance_5_label
+                        savedText: settings.tile_preset_resistance_5_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3329,6 +3400,7 @@ ScrollView {
                     Button {
                         id: okPresetResistance5LabelButton
                         text: qsTr("OK")
+                        enabled: presetResistance5LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_resistance_5_label = presetResistance5LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3350,10 +3422,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetResistance5ColorTextField
 						      Accessible.name: presetResistance5EnabledAccordion.title + ", " + labelPresetResistance5Color.text
-								text: settings.tile_preset_resistance_5_color
+								savedText: settings.tile_preset_resistance_5_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3364,6 +3436,7 @@ ScrollView {
 						  Button {
 						      id: okPresetResistance5ColorButton
 								text: qsTr("OK")
+								enabled: presetResistance5ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_resistance_5_color = presetResistance5ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -3388,7 +3461,7 @@ ScrollView {
                         id: presetSpeed1TextField
                         Accessible.name: presetSpeed1EnabledAccordion.title + ", " + labelPresetSpeed1Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_speed_1_order
+                        savedText: settings.tile_preset_speed_1_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -3398,6 +3471,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed1OrderButton
                         text: qsTr("OK")
+                        enabled: presetSpeed1TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_speed_1_order = presetSpeed1TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3409,10 +3483,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetSpeed1ValueTextField
                         Accessible.name: presetSpeed1EnabledAccordion.title + ", " + labelPresetSpeed1Value.text
-                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_1_value)
+                        savedText: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_1_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3420,6 +3494,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed1ValueButton
                         text: qsTr("OK")
+                        enabled: presetSpeed1ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {
                             settings.tile_preset_speed_1_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed1ValueTextField.displayText);
@@ -3435,10 +3510,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetSpeed1LabelTextField
                         Accessible.name: presetSpeed1EnabledAccordion.title + ", " + labelPresetSpeed1Label.text
-                        text: settings.tile_preset_speed_1_label
+                        savedText: settings.tile_preset_speed_1_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3446,6 +3521,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed1LabelButton
                         text: qsTr("OK")
+                        enabled: presetSpeed1LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_speed_1_label = presetSpeed1LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3467,10 +3543,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetSpeed1ColorTextField
 						      Accessible.name: presetSpeed1EnabledAccordion.title + ", " + labelPresetSpeed1Color.text
-								text: settings.tile_preset_speed_1_color
+								savedText: settings.tile_preset_speed_1_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3481,6 +3557,7 @@ ScrollView {
 						  Button {
 						      id: okPresetSpeed1ColorButton
 								text: qsTr("OK")
+								enabled: presetSpeed1ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_speed_1_color = presetSpeed1ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -3505,7 +3582,7 @@ ScrollView {
                         id: presetSpeed2TextField
                         Accessible.name: presetSpeed2EnabledAccordion.title + ", " + labelPresetSpeed2Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_speed_2_order
+                        savedText: settings.tile_preset_speed_2_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -3515,6 +3592,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed2OrderButton
                         text: qsTr("OK")
+                        enabled: presetSpeed2TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_speed_2_order = presetSpeed2TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3526,10 +3604,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetSpeed2ValueTextField
                         Accessible.name: presetSpeed2EnabledAccordion.title + ", " + labelPresetSpeed2Value.text
-                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_2_value)
+                        savedText: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_2_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3537,6 +3615,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed2ValueButton
                         text: qsTr("OK")
+                        enabled: presetSpeed2ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {
                             settings.tile_preset_speed_2_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed2ValueTextField.displayText);
@@ -3552,10 +3631,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetSpeed2LabelTextField
                         Accessible.name: presetSpeed2EnabledAccordion.title + ", " + labelPresetSpeed2Label.text
-                        text: settings.tile_preset_speed_2_label
+                        savedText: settings.tile_preset_speed_2_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3563,6 +3642,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed2LabelButton
                         text: qsTr("OK")
+                        enabled: presetSpeed2LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_speed_2_label = presetSpeed2LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3584,10 +3664,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetSpeed2ColorTextField
 						      Accessible.name: presetSpeed2EnabledAccordion.title + ", " + labelPresetSpeed2Color.text
-								text: settings.tile_preset_speed_2_color
+								savedText: settings.tile_preset_speed_2_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3598,6 +3678,7 @@ ScrollView {
 						  Button {
 						      id: okPresetSpeed2ColorButton
 								text: qsTr("OK")
+								enabled: presetSpeed2ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_speed_2_color = presetSpeed2ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -3622,7 +3703,7 @@ ScrollView {
                         id: presetSpeed3TextField
                         Accessible.name: presetSpeed3EnabledAccordion.title + ", " + labelPresetSpeed3Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_speed_3_order
+                        savedText: settings.tile_preset_speed_3_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -3632,6 +3713,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed3OrderButton
                         text: qsTr("OK")
+                        enabled: presetSpeed3TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_speed_3_order = presetSpeed3TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3643,10 +3725,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetSpeed3ValueTextField
                         Accessible.name: presetSpeed3EnabledAccordion.title + ", " + labelPresetSpeed3Value.text
-                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_3_value)
+                        savedText: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_3_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3654,6 +3736,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed3ValueButton
                         text: qsTr("OK")
+                        enabled: presetSpeed3ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {
                             settings.tile_preset_speed_3_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed3ValueTextField.displayText);
@@ -3669,10 +3752,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetSpeed3LabelTextField
                         Accessible.name: presetSpeed3EnabledAccordion.title + ", " + labelPresetSpeed3Label.text
-                        text: settings.tile_preset_speed_3_label
+                        savedText: settings.tile_preset_speed_3_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3680,6 +3763,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed3LabelButton
                         text: qsTr("OK")
+                        enabled: presetSpeed3LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_speed_3_label = presetSpeed3LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3701,10 +3785,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetSpeed3ColorTextField
 						      Accessible.name: presetSpeed3EnabledAccordion.title + ", " + labelPresetSpeed3Color.text
-								text: settings.tile_preset_speed_3_color
+								savedText: settings.tile_preset_speed_3_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3715,6 +3799,7 @@ ScrollView {
 						  Button {
 						      id: okPresetSpeed3ColorButton
 								text: qsTr("OK")
+								enabled: presetSpeed3ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_speed_3_color = presetSpeed3ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -3739,7 +3824,7 @@ ScrollView {
                         id: presetSpeed4TextField
                         Accessible.name: presetSpeed4EnabledAccordion.title + ", " + labelPresetSpeed4Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_speed_4_order
+                        savedText: settings.tile_preset_speed_4_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -3749,6 +3834,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed4OrderButton
                         text: qsTr("OK")
+                        enabled: presetSpeed4TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_speed_4_order = presetSpeed4TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3760,10 +3846,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetSpeed4ValueTextField
                         Accessible.name: presetSpeed4EnabledAccordion.title + ", " + labelPresetSpeed4Value.text
-                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_4_value)
+                        savedText: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_4_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3771,6 +3857,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed4ValueButton
                         text: qsTr("OK")
+                        enabled: presetSpeed4ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {
                             settings.tile_preset_speed_4_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed4ValueTextField.displayText);
@@ -3786,10 +3873,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetSpeed4LabelTextField
                         Accessible.name: presetSpeed4EnabledAccordion.title + ", " + labelPresetSpeed4Label.text
-                        text: settings.tile_preset_speed_4_label
+                        savedText: settings.tile_preset_speed_4_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3797,6 +3884,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed4LabelButton
                         text: qsTr("OK")
+                        enabled: presetSpeed4LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_speed_4_label = presetSpeed4LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3818,10 +3906,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetSpeed4ColorTextField
 						      Accessible.name: presetSpeed4EnabledAccordion.title + ", " + labelPresetSpeed4Color.text
-								text: settings.tile_preset_speed_4_color
+								savedText: settings.tile_preset_speed_4_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3832,6 +3920,7 @@ ScrollView {
 						  Button {
 						      id: okPresetSpeed4ColorButton
 								text: qsTr("OK")
+								enabled: presetSpeed4ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_speed_4_color = presetSpeed4ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -3856,7 +3945,7 @@ ScrollView {
                         id: presetSpeed5TextField
                         Accessible.name: presetSpeed5EnabledAccordion.title + ", " + labelPresetSpeed5Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_speed_5_order
+                        savedText: settings.tile_preset_speed_5_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -3866,6 +3955,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed5OrderButton
                         text: qsTr("OK")
+                        enabled: presetSpeed5TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_speed_5_order = presetSpeed5TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3877,10 +3967,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetSpeed5ValueTextField
                         Accessible.name: presetSpeed5EnabledAccordion.title + ", " + labelPresetSpeed5Value.text
-                        text: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_5_value)
+                        savedText: settingsTilesPane.formatPresetSpeedValue(settings.tile_preset_speed_5_value)
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3888,6 +3978,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed5ValueButton
                         text: qsTr("OK")
+                        enabled: presetSpeed5ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {
                             settings.tile_preset_speed_5_value = settingsTilesPane.parsePresetSpeedValue(presetSpeed5ValueTextField.displayText);
@@ -3903,10 +3994,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetSpeed5LabelTextField
                         Accessible.name: presetSpeed5EnabledAccordion.title + ", " + labelPresetSpeed5Label.text
-                        text: settings.tile_preset_speed_5_label
+                        savedText: settings.tile_preset_speed_5_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3914,6 +4005,7 @@ ScrollView {
                     Button {
                         id: okPresetSpeed5LabelButton
                         text: qsTr("OK")
+                        enabled: presetSpeed5LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_speed_5_label = presetSpeed5LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3935,10 +4027,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetSpeed5ColorTextField
 						      Accessible.name: presetSpeed5EnabledAccordion.title + ", " + labelPresetSpeed5Color.text
-								text: settings.tile_preset_speed_5_color
+								savedText: settings.tile_preset_speed_5_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3949,6 +4041,7 @@ ScrollView {
 						  Button {
 						      id: okPresetSpeed5ColorButton
 								text: qsTr("OK")
+								enabled: presetSpeed5ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_speed_5_color = presetSpeed5ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -3973,7 +4066,7 @@ ScrollView {
                         id: presetInclination1TextField
                         Accessible.name: presetInclination1EnabledAccordion.title + ", " + labelPresetInclination1Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_inclination_1_order
+                        savedText: settings.tile_preset_inclination_1_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -3983,6 +4076,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination1OrderButton
                         text: qsTr("OK")
+                        enabled: presetInclination1TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_1_order = presetInclination1TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -3994,10 +4088,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetInclination1ValueTextField
                         Accessible.name: presetInclination1EnabledAccordion.title + ", " + labelPresetInclination1Value.text
-                        text: settings.tile_preset_inclination_1_value
+                        savedText: settings.tile_preset_inclination_1_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4005,6 +4099,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination1ValueButton
                         text: qsTr("OK")
+                        enabled: presetInclination1ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_1_value = presetInclination1ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4016,10 +4111,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetInclination1LabelTextField
                         Accessible.name: presetInclination1EnabledAccordion.title + ", " + labelPresetInclination1Label.text
-                        text: settings.tile_preset_inclination_1_label
+                        savedText: settings.tile_preset_inclination_1_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4027,6 +4122,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination1LabelButton
                         text: qsTr("OK")
+                        enabled: presetInclination1LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_1_label = presetInclination1LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4048,10 +4144,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetInclination1ColorTextField
 						      Accessible.name: presetInclination1EnabledAccordion.title + ", " + labelPresetInclination1Color.text
-								text: settings.tile_preset_inclination_1_color
+								savedText: settings.tile_preset_inclination_1_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4062,6 +4158,7 @@ ScrollView {
 						  Button {
 						      id: okPresetInclination1ColorButton
 								text: qsTr("OK")
+								enabled: presetInclination1ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_inclination_1_color = presetInclination1ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -4086,7 +4183,7 @@ ScrollView {
                         id: presetInclination2TextField
                         Accessible.name: presetInclination2EnabledAccordion.title + ", " + labelPresetInclination2Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_inclination_2_order
+                        savedText: settings.tile_preset_inclination_2_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -4096,6 +4193,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination2OrderButton
                         text: qsTr("OK")
+                        enabled: presetInclination2TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_2_order = presetInclination2TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4107,10 +4205,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetInclination2ValueTextField
                         Accessible.name: presetInclination2EnabledAccordion.title + ", " + labelPresetInclination2Value.text
-                        text: settings.tile_preset_inclination_2_value
+                        savedText: settings.tile_preset_inclination_2_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4118,6 +4216,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination2ValueButton
                         text: qsTr("OK")
+                        enabled: presetInclination2ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_2_value = presetInclination2ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4129,10 +4228,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetInclination2LabelTextField
                         Accessible.name: presetInclination2EnabledAccordion.title + ", " + labelPresetInclination2Label.text
-                        text: settings.tile_preset_inclination_2_label
+                        savedText: settings.tile_preset_inclination_2_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4140,6 +4239,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination2LabelButton
                         text: qsTr("OK")
+                        enabled: presetInclination2LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_2_label = presetInclination2LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4162,10 +4262,10 @@ ScrollView {
 
                     }
 						}
-					 TextField {
+					 SettingsTextField {
 					     id: presetInclination2ColorTextField
 					     Accessible.name: presetInclination2EnabledAccordion.title + ", " + labelPresetInclination2Color.text
-						  text: settings.tile_preset_inclination_2_color
+						  savedText: settings.tile_preset_inclination_2_color
 						  Layout.fillHeight: false
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 						  onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4176,6 +4276,7 @@ ScrollView {
 					 Button {
 					     id: okPresetInclination2ColorButton
 						  text: qsTr("OK")
+						  enabled: presetInclination2ColorTextField.dirty
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 						  onClicked: {settings.tile_preset_inclination_2_color = presetInclination2ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						}
@@ -4199,7 +4300,7 @@ ScrollView {
                         id: presetInclination3TextField
                         Accessible.name: presetInclination3EnabledAccordion.title + ", " + labelPresetInclination3Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_inclination_3_order
+                        savedText: settings.tile_preset_inclination_3_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -4209,6 +4310,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination3OrderButton
                         text: qsTr("OK")
+                        enabled: presetInclination3TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_3_order = presetInclination3TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4220,10 +4322,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetInclination3ValueTextField
                         Accessible.name: presetInclination3EnabledAccordion.title + ", " + labelPresetInclination3Value.text
-                        text: settings.tile_preset_inclination_3_value
+                        savedText: settings.tile_preset_inclination_3_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4231,6 +4333,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination3ValueButton
                         text: qsTr("OK")
+                        enabled: presetInclination3ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_3_value = presetInclination3ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4242,10 +4345,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetInclination3LabelTextField
                         Accessible.name: presetInclination3EnabledAccordion.title + ", " + labelPresetInclination3Label.text
-                        text: settings.tile_preset_inclination_3_label
+                        savedText: settings.tile_preset_inclination_3_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4253,6 +4356,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination3LabelButton
                         text: qsTr("OK")
+                        enabled: presetInclination3LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_3_label = presetInclination3LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4274,10 +4378,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetInclination3ColorTextField
 						      Accessible.name: presetInclination3EnabledAccordion.title + ", " + labelPresetInclination3Color.text
-								text: settings.tile_preset_inclination_3_color
+								savedText: settings.tile_preset_inclination_3_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4288,6 +4392,7 @@ ScrollView {
 						  Button {
 						      id: okPresetInclination3ColorButton
 								text: qsTr("OK")
+								enabled: presetInclination3ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_inclination_3_color = presetInclination3ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -4312,7 +4417,7 @@ ScrollView {
                         id: presetInclination4TextField
                         Accessible.name: presetInclination4EnabledAccordion.title + ", " + labelPresetInclination4Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_inclination_4_order
+                        savedText: settings.tile_preset_inclination_4_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -4322,6 +4427,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination4OrderButton
                         text: qsTr("OK")
+                        enabled: presetInclination4TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_4_order = presetInclination4TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4333,10 +4439,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetInclination4ValueTextField
                         Accessible.name: presetInclination4EnabledAccordion.title + ", " + labelPresetInclination4Value.text
-                        text: settings.tile_preset_inclination_4_value
+                        savedText: settings.tile_preset_inclination_4_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4344,6 +4450,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination4ValueButton
                         text: qsTr("OK")
+                        enabled: presetInclination4ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_4_value = presetInclination4ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4355,10 +4462,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetInclination4LabelTextField
                         Accessible.name: presetInclination4EnabledAccordion.title + ", " + labelPresetInclination4Label.text
-                        text: settings.tile_preset_inclination_4_label
+                        savedText: settings.tile_preset_inclination_4_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4366,6 +4473,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination4LabelButton
                         text: qsTr("OK")
+                        enabled: presetInclination4LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_4_label = presetInclination4LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4387,10 +4495,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetInclination4ColorTextField
 						      Accessible.name: presetInclination4EnabledAccordion.title + ", " + labelPresetInclination4Color.text
-								text: settings.tile_preset_inclination_4_color
+								savedText: settings.tile_preset_inclination_4_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4401,6 +4509,7 @@ ScrollView {
 						  Button {
 						      id: okPresetInclination4ColorButton
 								text: qsTr("OK")
+								enabled: presetInclination4ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_inclination_4_color = presetInclination4ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -4425,7 +4534,7 @@ ScrollView {
                         id: presetInclination5TextField
                         Accessible.name: presetInclination5EnabledAccordion.title + ", " + labelPresetInclination5Order.text
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_inclination_5_order
+                        savedText: settings.tile_preset_inclination_5_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -4435,6 +4544,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination5OrderButton
                         text: qsTr("OK")
+                        enabled: presetInclination5TextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_5_order = presetInclination5TextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4446,10 +4556,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetInclination5ValueTextField
                         Accessible.name: presetInclination5EnabledAccordion.title + ", " + labelPresetInclination5Value.text
-                        text: settings.tile_preset_inclination_5_value
+                        savedText: settings.tile_preset_inclination_5_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4457,6 +4567,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination5ValueButton
                         text: qsTr("OK")
+                        enabled: presetInclination5ValueTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_5_value = presetInclination5ValueTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4468,10 +4579,10 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetInclination5LabelTextField
                         Accessible.name: presetInclination5EnabledAccordion.title + ", " + labelPresetInclination5Label.text
-                        text: settings.tile_preset_inclination_5_label
+                        savedText: settings.tile_preset_inclination_5_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4479,6 +4590,7 @@ ScrollView {
                     Button {
                         id: okPresetInclination5LabelButton
                         text: qsTr("OK")
+                        enabled: presetInclination5LabelTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_inclination_5_label = presetInclination5LabelTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4500,10 +4612,10 @@ ScrollView {
 
                         }
 						  }
-						  TextField {
+						  SettingsTextField {
 						      id: presetInclination5ColorTextField
 						      Accessible.name: presetInclination5EnabledAccordion.title + ", " + labelPresetInclination5Color.text
-								text: settings.tile_preset_inclination_5_color
+								savedText: settings.tile_preset_inclination_5_color
 								Layout.fillHeight: false
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4514,6 +4626,7 @@ ScrollView {
 						  Button {
 						      id: okPresetInclination5ColorButton
 								text: qsTr("OK")
+								enabled: presetInclination5ColorTextField.dirty
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onClicked: {settings.tile_preset_inclination_5_color = presetInclination5ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
 						  }
@@ -4537,7 +4650,7 @@ ScrollView {
                         id: presetPowerZone1OrderTextField
                         Accessible.name: presetPowerZone1EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_powerzone_1_order
+                        savedText: settings.tile_preset_powerzone_1_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -4546,6 +4659,7 @@ ScrollView {
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone1OrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_1_order = presetPowerZone1OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4556,16 +4670,17 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone1Value
                         Accessible.name: presetPowerZone1EnabledAccordion.title + ", " + qsTr("zone value:")
-                        text: settings.tile_preset_powerzone_1_value
+                        savedText: settings.tile_preset_powerzone_1_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone1Value.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_1_value = parseFloat(presetPowerZone1Value.text); toast.show(qsTr("Setting saved!")); }
                     }
@@ -4576,15 +4691,16 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone1Label
                         Accessible.name: presetPowerZone1EnabledAccordion.title + ", " + qsTr("label:")
-                        text: settings.tile_preset_powerzone_1_label
+                        savedText: settings.tile_preset_powerzone_1_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone1Label.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_1_label = presetPowerZone1Label.text; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4604,10 +4720,10 @@ ScrollView {
                         }
                         onRejected: {}
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerzone1ColorTextField
                         Accessible.name: presetPowerZone1EnabledAccordion.title + ", " + labelPresetPowerzone1Color.text
-                        text: settings.tile_preset_powerzone_1_color
+                        savedText: settings.tile_preset_powerzone_1_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4618,6 +4734,7 @@ ScrollView {
                     Button {
                         id: okPresetPowerzone1ColorButton
                         text: qsTr("OK")
+                        enabled: presetPowerzone1ColorTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_1_color = presetPowerzone1ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4642,7 +4759,7 @@ ScrollView {
                         id: presetPowerZone2OrderTextField
                         Accessible.name: presetPowerZone2EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_powerzone_2_order
+                        savedText: settings.tile_preset_powerzone_2_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -4651,6 +4768,7 @@ ScrollView {
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone2OrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_2_order = presetPowerZone2OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4661,16 +4779,17 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone2Value
                         Accessible.name: presetPowerZone2EnabledAccordion.title + ", " + qsTr("zone value:")
-                        text: settings.tile_preset_powerzone_2_value
+                        savedText: settings.tile_preset_powerzone_2_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone2Value.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_2_value = parseFloat(presetPowerZone2Value.text); toast.show(qsTr("Setting saved!")); }
                     }
@@ -4681,15 +4800,16 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone2Label
                         Accessible.name: presetPowerZone2EnabledAccordion.title + ", " + qsTr("label:")
-                        text: settings.tile_preset_powerzone_2_label
+                        savedText: settings.tile_preset_powerzone_2_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone2Label.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_2_label = presetPowerZone2Label.text; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4709,10 +4829,10 @@ ScrollView {
                         }
                         onRejected: {}
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerzone2ColorTextField
                         Accessible.name: presetPowerZone2EnabledAccordion.title + ", " + labelPresetPowerzone2Color.text
-                        text: settings.tile_preset_powerzone_2_color
+                        savedText: settings.tile_preset_powerzone_2_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4723,6 +4843,7 @@ ScrollView {
                     Button {
                         id: okPresetPowerzone2ColorButton
                         text: qsTr("OK")
+                        enabled: presetPowerzone2ColorTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_2_color = presetPowerzone2ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4747,7 +4868,7 @@ ScrollView {
                         id: presetPowerZone3OrderTextField
                         Accessible.name: presetPowerZone3EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_powerzone_3_order
+                        savedText: settings.tile_preset_powerzone_3_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -4756,6 +4877,7 @@ ScrollView {
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone3OrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_3_order = presetPowerZone3OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4766,16 +4888,17 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone3Value
                         Accessible.name: presetPowerZone3EnabledAccordion.title + ", " + qsTr("zone value:")
-                        text: settings.tile_preset_powerzone_3_value
+                        savedText: settings.tile_preset_powerzone_3_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone3Value.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_3_value = parseFloat(presetPowerZone3Value.text); toast.show(qsTr("Setting saved!")); }
                     }
@@ -4786,15 +4909,16 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone3Label
                         Accessible.name: presetPowerZone3EnabledAccordion.title + ", " + qsTr("label:")
-                        text: settings.tile_preset_powerzone_3_label
+                        savedText: settings.tile_preset_powerzone_3_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone3Label.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_3_label = presetPowerZone3Label.text; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4814,10 +4938,10 @@ ScrollView {
                         }
                         onRejected: {}
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerzone3ColorTextField
                         Accessible.name: presetPowerZone3EnabledAccordion.title + ", " + labelPresetPowerzone3Color.text
-                        text: settings.tile_preset_powerzone_3_color
+                        savedText: settings.tile_preset_powerzone_3_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4828,6 +4952,7 @@ ScrollView {
                     Button {
                         id: okPresetPowerzone3ColorButton
                         text: qsTr("OK")
+                        enabled: presetPowerzone3ColorTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_3_color = presetPowerzone3ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4852,7 +4977,7 @@ ScrollView {
                         id: presetPowerZone4OrderTextField
                         Accessible.name: presetPowerZone4EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_powerzone_4_order
+                        savedText: settings.tile_preset_powerzone_4_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -4861,6 +4986,7 @@ ScrollView {
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone4OrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_4_order = presetPowerZone4OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4871,16 +4997,17 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone4Value
                         Accessible.name: presetPowerZone4EnabledAccordion.title + ", " + qsTr("zone value:")
-                        text: settings.tile_preset_powerzone_4_value
+                        savedText: settings.tile_preset_powerzone_4_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone4Value.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_4_value = parseFloat(presetPowerZone4Value.text); toast.show(qsTr("Setting saved!")); }
                     }
@@ -4891,15 +5018,16 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone4Label
                         Accessible.name: presetPowerZone4EnabledAccordion.title + ", " + qsTr("label:")
-                        text: settings.tile_preset_powerzone_4_label
+                        savedText: settings.tile_preset_powerzone_4_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone4Label.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_4_label = presetPowerZone4Label.text; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4919,10 +5047,10 @@ ScrollView {
                         }
                         onRejected: {}
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerzone4ColorTextField
                         Accessible.name: presetPowerZone4EnabledAccordion.title + ", " + labelPresetPowerzone4Color.text
-                        text: settings.tile_preset_powerzone_4_color
+                        savedText: settings.tile_preset_powerzone_4_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -4933,6 +5061,7 @@ ScrollView {
                     Button {
                         id: okPresetPowerzone4ColorButton
                         text: qsTr("OK")
+                        enabled: presetPowerzone4ColorTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_4_color = presetPowerzone4ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4957,7 +5086,7 @@ ScrollView {
                         id: presetPowerZone5OrderTextField
                         Accessible.name: presetPowerZone5EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_powerzone_5_order
+                        savedText: settings.tile_preset_powerzone_5_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -4966,6 +5095,7 @@ ScrollView {
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone5OrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_5_order = presetPowerZone5OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -4976,16 +5106,17 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone5Value
                         Accessible.name: presetPowerZone5EnabledAccordion.title + ", " + qsTr("zone value:")
-                        text: settings.tile_preset_powerzone_5_value
+                        savedText: settings.tile_preset_powerzone_5_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone5Value.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_5_value = parseFloat(presetPowerZone5Value.text); toast.show(qsTr("Setting saved!")); }
                     }
@@ -4996,15 +5127,16 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone5Label
                         Accessible.name: presetPowerZone5EnabledAccordion.title + ", " + qsTr("label:")
-                        text: settings.tile_preset_powerzone_5_label
+                        savedText: settings.tile_preset_powerzone_5_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone5Label.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_5_label = presetPowerZone5Label.text; toast.show(qsTr("Setting saved!")); }
                     }
@@ -5024,10 +5156,10 @@ ScrollView {
                         }
                         onRejected: {}
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerzone5ColorTextField
                         Accessible.name: presetPowerZone5EnabledAccordion.title + ", " + labelPresetPowerzone5Color.text
-                        text: settings.tile_preset_powerzone_5_color
+                        savedText: settings.tile_preset_powerzone_5_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -5038,6 +5170,7 @@ ScrollView {
                     Button {
                         id: okPresetPowerzone5ColorButton
                         text: qsTr("OK")
+                        enabled: presetPowerzone5ColorTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_5_color = presetPowerzone5ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -5062,7 +5195,7 @@ ScrollView {
                         id: presetPowerZone6OrderTextField
                         Accessible.name: presetPowerZone6EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_powerzone_6_order
+                        savedText: settings.tile_preset_powerzone_6_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -5071,6 +5204,7 @@ ScrollView {
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone6OrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_6_order = presetPowerZone6OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -5081,16 +5215,17 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone6Value
                         Accessible.name: presetPowerZone6EnabledAccordion.title + ", " + qsTr("zone value:")
-                        text: settings.tile_preset_powerzone_6_value
+                        savedText: settings.tile_preset_powerzone_6_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone6Value.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_6_value = parseFloat(presetPowerZone6Value.text); toast.show(qsTr("Setting saved!")); }
                     }
@@ -5101,15 +5236,16 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone6Label
                         Accessible.name: presetPowerZone6EnabledAccordion.title + ", " + qsTr("label:")
-                        text: settings.tile_preset_powerzone_6_label
+                        savedText: settings.tile_preset_powerzone_6_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone6Label.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_6_label = presetPowerZone6Label.text; toast.show(qsTr("Setting saved!")); }
                     }
@@ -5129,10 +5265,10 @@ ScrollView {
                         }
                         onRejected: {}
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerzone6ColorTextField
                         Accessible.name: presetPowerZone6EnabledAccordion.title + ", " + labelPresetPowerzone6Color.text
-                        text: settings.tile_preset_powerzone_6_color
+                        savedText: settings.tile_preset_powerzone_6_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -5143,6 +5279,7 @@ ScrollView {
                     Button {
                         id: okPresetPowerzone6ColorButton
                         text: qsTr("OK")
+                        enabled: presetPowerzone6ColorTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_6_color = presetPowerzone6ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -5167,7 +5304,7 @@ ScrollView {
                         id: presetPowerZone7OrderTextField
                         Accessible.name: presetPowerZone7EnabledAccordion.title + ", " + qsTr("order index:")
                         model: rootItem.tile_order
-                        displayText: settings.tile_preset_powerzone_7_order
+                        savedText: settings.tile_preset_powerzone_7_order
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActivated: {
@@ -5176,6 +5313,7 @@ ScrollView {
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone7OrderTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_7_order = presetPowerZone7OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -5186,16 +5324,17 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone7Value
                         Accessible.name: presetPowerZone7EnabledAccordion.title + ", " + qsTr("zone value:")
-                        text: settings.tile_preset_powerzone_7_value
+                        savedText: settings.tile_preset_powerzone_7_value
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         validator: DoubleValidator {bottom: 1; top: 7;}
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone7Value.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_7_value = parseFloat(presetPowerZone7Value.text); toast.show(qsTr("Setting saved!")); }
                     }
@@ -5206,15 +5345,16 @@ ScrollView {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignRight
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerZone7Label
                         Accessible.name: presetPowerZone7EnabledAccordion.title + ", " + qsTr("label:")
-                        text: settings.tile_preset_powerzone_7_label
+                        savedText: settings.tile_preset_powerzone_7_label
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Button {
                         text: qsTr("OK")
+                        enabled: presetPowerZone7Label.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_7_label = presetPowerZone7Label.text; toast.show(qsTr("Setting saved!")); }
                     }
@@ -5234,10 +5374,10 @@ ScrollView {
                         }
                         onRejected: {}
                     }
-                    TextField {
+                    SettingsTextField {
                         id: presetPowerzone7ColorTextField
                         Accessible.name: presetPowerZone7EnabledAccordion.title + ", " + labelPresetPowerzone7Color.text
-                        text: settings.tile_preset_powerzone_7_color
+                        savedText: settings.tile_preset_powerzone_7_color
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -5248,6 +5388,7 @@ ScrollView {
                     Button {
                         id: okPresetPowerzone7ColorButton
                         text: qsTr("OK")
+                        enabled: presetPowerzone7ColorTextField.dirty
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: {settings.tile_preset_powerzone_7_color = presetPowerzone7ColorTextField.displayText; toast.show(qsTr("Setting saved!")); }
                     }
@@ -5285,7 +5426,7 @@ ScrollView {
                     id: hrTimeInZone1OrderTextField
                     Accessible.name: hrTimeInZone1EnabledAccordion.title + ", " + labelHrTimeInZone1Order.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_hr_time_in_zone_1_order
+                    savedText: settings.tile_hr_time_in_zone_1_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5295,6 +5436,7 @@ ScrollView {
                 Button {
                     id: okHrTimeInZone1OrderButton
                     text: qsTr("OK")
+                    enabled: hrTimeInZone1OrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_hr_time_in_zone_1_order = hrTimeInZone1OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5331,7 +5473,7 @@ ScrollView {
                     id: hrTimeInZone2OrderTextField
                     Accessible.name: hrTimeInZone2EnabledAccordion.title + ", " + labelHrTimeInZone2Order.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_hr_time_in_zone_2_order
+                    savedText: settings.tile_hr_time_in_zone_2_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5341,6 +5483,7 @@ ScrollView {
                 Button {
                     id: okHrTimeInZone2OrderButton
                     text: qsTr("OK")
+                    enabled: hrTimeInZone2OrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_hr_time_in_zone_2_order = hrTimeInZone2OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5377,7 +5520,7 @@ ScrollView {
                     id: hrTimeInZone3OrderTextField
                     Accessible.name: hrTimeInZone3EnabledAccordion.title + ", " + labelHrTimeInZone3Order.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_hr_time_in_zone_3_order
+                    savedText: settings.tile_hr_time_in_zone_3_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5387,6 +5530,7 @@ ScrollView {
                 Button {
                     id: okHrTimeInZone3OrderButton
                     text: qsTr("OK")
+                    enabled: hrTimeInZone3OrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_hr_time_in_zone_3_order = hrTimeInZone3OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5423,7 +5567,7 @@ ScrollView {
                     id: hrTimeInZone4OrderTextField
                     Accessible.name: hrTimeInZone4EnabledAccordion.title + ", " + labelHrTimeInZone4Order.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_hr_time_in_zone_4_order
+                    savedText: settings.tile_hr_time_in_zone_4_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5433,6 +5577,7 @@ ScrollView {
                 Button {
                     id: okHrTimeInZone4OrderButton
                     text: qsTr("OK")
+                    enabled: hrTimeInZone4OrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_hr_time_in_zone_4_order = hrTimeInZone4OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5469,7 +5614,7 @@ ScrollView {
                     id: hrTimeInZone5OrderTextField
                     Accessible.name: hrTimeInZone5EnabledAccordion.title + ", " + labelHrTimeInZone5Order.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_hr_time_in_zone_5_order
+                    savedText: settings.tile_hr_time_in_zone_5_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5479,6 +5624,7 @@ ScrollView {
                 Button {
                     id: okHrTimeInZone5OrderButton
                     text: qsTr("OK")
+                    enabled: hrTimeInZone5OrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_hr_time_in_zone_5_order = hrTimeInZone5OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5544,7 +5690,7 @@ ScrollView {
                     id: coretemperatureOrderTextField
                     Accessible.name: coreTemperatureAccordion.title + ", " + labelcoretemperatureOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_coretemperature_order
+                    savedText: settings.tile_coretemperature_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5554,6 +5700,7 @@ ScrollView {
                 Button {
                     id: okcoretemperatureOrderButton
                     text: qsTr("OK")
+                    enabled: coretemperatureOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_coretemperature_order = coretemperatureOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5590,7 +5737,7 @@ ScrollView {
                     id: heatTimeInZone1OrderTextField
                     Accessible.name: heatTimeInZone1EnabledAccordion.title + ", " + labelHeatTimeInZone1Order.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_heat_time_in_zone_1_order
+                    savedText: settings.tile_heat_time_in_zone_1_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5600,6 +5747,7 @@ ScrollView {
                 Button {
                     id: okHeatTimeInZone1OrderButton
                     text: qsTr("OK")
+                    enabled: heatTimeInZone1OrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_heat_time_in_zone_1_order = heatTimeInZone1OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5636,7 +5784,7 @@ ScrollView {
                     id: heatTimeInZone2OrderTextField
                     Accessible.name: heatTimeInZone2EnabledAccordion.title + ", " + labelHeatTimeInZone2Order.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_heat_time_in_zone_2_order
+                    savedText: settings.tile_heat_time_in_zone_2_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5646,6 +5794,7 @@ ScrollView {
                 Button {
                     id: okHeatTimeInZone2OrderButton
                     text: qsTr("OK")
+                    enabled: heatTimeInZone2OrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_heat_time_in_zone_2_order = heatTimeInZone2OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5682,7 +5831,7 @@ ScrollView {
                     id: heatTimeInZone3OrderTextField
                     Accessible.name: heatTimeInZone3EnabledAccordion.title + ", " + labelHeatTimeInZone3Order.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_heat_time_in_zone_3_order
+                    savedText: settings.tile_heat_time_in_zone_3_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5692,6 +5841,7 @@ ScrollView {
                 Button {
                     id: okHeatTimeInZone3OrderButton
                     text: qsTr("OK")
+                    enabled: heatTimeInZone3OrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_heat_time_in_zone_3_order = heatTimeInZone3OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5728,7 +5878,7 @@ ScrollView {
                     id: heatTimeInZone4OrderTextField
                     Accessible.name: heatTimeInZone4EnabledAccordion.title + ", " + labelHeatTimeInZone4Order.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_heat_time_in_zone_4_order
+                    savedText: settings.tile_heat_time_in_zone_4_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5738,6 +5888,7 @@ ScrollView {
                 Button {
                     id: okHeatTimeInZone4OrderButton
                     text: qsTr("OK")
+                    enabled: heatTimeInZone4OrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_heat_time_in_zone_4_order = heatTimeInZone4OrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5773,7 +5924,7 @@ ScrollView {
                     id: autoVirtualShiftingCruiseOrderTextField
                     Accessible.name: autoVirtualShiftingCruiseEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
-                    displayText: settings.tile_auto_virtual_shifting_cruise_order
+                    savedText: settings.tile_auto_virtual_shifting_cruise_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5782,6 +5933,7 @@ ScrollView {
                 }
                 Button {
                     text: qsTr("OK")
+                    enabled: autoVirtualShiftingCruiseOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_auto_virtual_shifting_cruise_order = autoVirtualShiftingCruiseOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5817,7 +5969,7 @@ ScrollView {
                     id: autoVirtualShiftingClimbOrderTextField
                     Accessible.name: autoVirtualShiftingClimbEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
-                    displayText: settings.tile_auto_virtual_shifting_climb_order
+                    savedText: settings.tile_auto_virtual_shifting_climb_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5826,6 +5978,7 @@ ScrollView {
                 }
                 Button {
                     text: qsTr("OK")
+                    enabled: autoVirtualShiftingClimbOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_auto_virtual_shifting_climb_order = autoVirtualShiftingClimbOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5861,7 +6014,7 @@ ScrollView {
                     id: autoVirtualShiftingSprintOrderTextField
                     Accessible.name: autoVirtualShiftingSprintEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
-                    displayText: settings.tile_auto_virtual_shifting_sprint_order
+                    savedText: settings.tile_auto_virtual_shifting_sprint_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5870,6 +6023,7 @@ ScrollView {
                 }
                 Button {
                     text: qsTr("OK")
+                    enabled: autoVirtualShiftingSprintOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_auto_virtual_shifting_sprint_order = autoVirtualShiftingSprintOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5905,7 +6059,7 @@ ScrollView {
                     id: powerAvgOrderTextField
                     Accessible.name: powerAvgEnabledAccordion.title + ", " + qsTr("order index:")
                     model: rootItem.tile_order
-                    displayText: settings.tile_power_avg_order
+                    savedText: settings.tile_power_avg_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5914,6 +6068,7 @@ ScrollView {
                 }
                 Button {
                     text: qsTr("OK")
+                    enabled: powerAvgOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_power_avg_order = powerAvgOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
@@ -5950,7 +6105,7 @@ ScrollView {
                     id: hrvOrderTextField
                     Accessible.name: hrvEnabledAccordion.title + ", " + labelhrvOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_hrv_order
+                    savedText: settings.tile_hrv_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -5960,6 +6115,7 @@ ScrollView {
                 Button {
                     id: okhrvOrderButton
                     text: qsTr("OK")
+                    enabled: hrvOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_hrv_order = hrvOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }

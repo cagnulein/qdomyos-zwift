@@ -293,4 +293,133 @@ TestCase {
         type(i, "5'11")
         verify(i.dirty)
     }
+
+    // ---- SettingsTextField ----
+
+    QtObject { id: textStore; property string nickname: "anon" }
+    Component {
+        id: textField
+        SettingsTextField { width: 300; savedText: textStore.nickname }
+    }
+
+    function test_text_dirty_until_saved() {
+        textStore.nickname = "anon"
+        var f = make(textField)
+        compare(f.text, "anon")
+        verify(!f.dirty)
+        type(f, "x")
+        verify(f.dirty)
+        textStore.nickname = f.text          // what the OK button does
+        verify(!f.dirty)
+        f.text = "other"
+        verify(f.dirty)
+        f.text = textStore.nickname
+        verify(!f.dirty)
+    }
+
+    function test_text_changed_elsewhere_replaces_text() {
+        textStore.nickname = "anon"
+        var f = make(textField)
+        f.text = "typed"
+        textStore.nickname = "new"
+        compare(f.text, "new")
+        verify(!f.dirty)
+    }
+
+    // ---- UiComboBox / ValueComboBox ----
+
+    // UiComboBox reads the bar paddings of the app window
+    QtObject {
+        id: window
+        function getTopPadding() { return 0 }
+        function getBottomPadding() { return 0 }
+    }
+    QtObject {
+        id: listStore
+        property string metric: "Watt"
+        property int index: 1
+        property string sex: "Male"
+    }
+    Component {
+        id: textCombo
+        UiComboBox {
+            width: 300
+            model: [ "Speed", "Watt", "Cadence" ]
+            savedText: listStore.metric
+            onActivated: displayText = currentValue
+        }
+    }
+    Component {
+        id: indexCombo
+        UiComboBox {
+            width: 300
+            model: [ "Classic", "Horizontal" ]
+            savedIndex: listStore.index
+        }
+    }
+    Component {
+        id: valueCombo
+        ValueComboBox {
+            width: 300
+            model: [ "Male", "Female" ]
+            labels: ({ "Male": "Mann", "Female": "Frau" })
+            savedText: listStore.sex
+        }
+    }
+
+    function test_combo_text_dirty_until_saved() {
+        listStore.metric = "Watt"
+        var c = make(textCombo)
+        compare(c.displayText, "Watt")
+        verify(!c.dirty)
+        c.currentIndex = 2
+        c.activated(2)                       // a pick as the user makes it
+        compare(c.displayText, "Cadence")
+        verify(c.dirty)
+        listStore.metric = c.displayText     // OK
+        verify(!c.dirty)
+        listStore.metric = "Speed"           // changed elsewhere
+        compare(c.displayText, "Speed")
+        verify(!c.dirty)
+    }
+
+    function test_combo_index_dirty_until_saved() {
+        listStore.index = 1
+        var c = make(indexCombo)
+        compare(c.currentIndex, 1)
+        verify(!c.dirty)
+        c.currentIndex = 0
+        verify(c.dirty)
+        listStore.index = c.currentIndex     // OK
+        verify(!c.dirty)
+        listStore.index = 1
+        compare(c.currentIndex, 1)
+        verify(!c.dirty)
+    }
+
+    function test_value_combo_compares_raw_value() {
+        listStore.sex = "Male"
+        var c = make(valueCombo)
+        compare(c.value, "Male")
+        compare(c.displayText, "Mann")       // the label, not the raw value
+        verify(!c.dirty)
+        c.currentIndex = 1
+        c.activated(1)
+        compare(c.value, "Female")
+        compare(c.displayText, "Frau")
+        verify(c.dirty)
+        listStore.sex = c.value              // OK
+        verify(!c.dirty)
+        listStore.sex = "Male"
+        compare(c.displayText, "Mann")
+        verify(!c.dirty)
+    }
+
+    function test_combo_without_saved_never_dirty() {
+        var c = createTemporaryObject(Qt.createComponent("../../src/UiComboBox.qml"), testCase,
+                                      { model: [ "a", "b" ] })
+        verify(c)
+        c.currentIndex = 1
+        verify(!c.dirty)
+    }
 }

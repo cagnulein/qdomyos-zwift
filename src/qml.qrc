@@ -5,6 +5,7 @@
         <file>EmailValidator.qml</file>
         <file>SettingsNumberField.qml</file>
         <file>SettingsFormatField.qml</file>
+        <file>SettingsTextField.qml</file>
         <file>Page1Form.ui.qml</file>
         <file>Page2Form.ui.qml</file>
         <file>qtquickcontrols2.conf</file>

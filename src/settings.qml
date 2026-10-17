@@ -2875,7 +2875,7 @@ import AndroidStatusBar 1.0
                             id: sexTextField
                             model: [ "Male", "Female" ]
                             labels: ({ "Male": qsTr("Male"), "Female": qsTr("Female") })
-                            value: settings.sex
+                            savedText: settings.sex
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -2886,6 +2886,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okSex
                             text: qsTr("OK")
+                            enabled: sexTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.sex = sexTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
@@ -2992,9 +2993,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Nickname:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsTextField {
                             id: nicknameTextField
-                            text: settings.user_nickname
+                            savedText: settings.user_nickname
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3004,6 +3005,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okNicknameButton
                             text: qsTr("OK")
+                            enabled: nicknameTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.user_nickname = nicknameTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
@@ -3029,9 +3031,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Email:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsTextField {
                             id: emailTextField
-                            text: settings.user_email
+                            savedText: settings.user_email
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3043,7 +3045,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okEmailButton
                             text: qsTr("OK")
-                            enabled: emailTextField.acceptableInput
+                            enabled: emailTextField.acceptableInput && emailTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.user_email = emailTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
@@ -3348,7 +3350,7 @@ import AndroidStatusBar 1.0
                             id: heartBeltNameTextField
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
-                            value: settings.heart_rate_belt_name
+                            savedText: settings.heart_rate_belt_name
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3360,6 +3362,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okHeartBeltNameButton
                             text: qsTr("OK")
+                            enabled: heartBeltNameTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
@@ -5106,7 +5109,7 @@ import AndroidStatusBar 1.0
                             id: ftmsBikeTextField
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
-                            value: settings.ftms_bike
+                            savedText: settings.ftms_bike
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -5117,6 +5120,7 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: ftmsBikeTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ftms_bike = stripRssi(ftmsBikeTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
@@ -5299,7 +5303,7 @@ import AndroidStatusBar 1.0
                                 UiComboBox {
                                     id: echelonWattTableTextField
                                     model: [ "Echelon", "mgarcea" ]
-                                    displayText: settings.echelon_watttable
+                                    savedText: settings.echelon_watttable
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
@@ -5311,6 +5315,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okEchelonWattTable
                                     text: qsTr("OK")
+                                    enabled: echelonWattTableTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.echelon_watttable = echelonWattTableTextField.displayText; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -6218,9 +6223,9 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Serial Port:")
                                 Layout.fillWidth: true
                             }
-                            TextField {
+                            SettingsTextField {
                                 id: computrainerSerialPortTextField
-                                text: settings.computrainer_serialport
+                                savedText: settings.computrainer_serialport
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -6231,6 +6236,7 @@ import AndroidStatusBar 1.0
                             Button {
                                 id: okcomputrainerSerialPortButton
                                 text: qsTr("OK")
+                                enabled: computrainerSerialPortTextField.dirty
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: { settings.computrainer_serialport = computrainerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                             }
@@ -6253,9 +6259,9 @@ import AndroidStatusBar 1.0
                                 text: qsTr("Serial Port:")
                                 Layout.fillWidth: true
                             }
-                            TextField {
+                            SettingsTextField {
                                 id: kettlerUsbSerialPortTextField
-                                text: settings.kettler_usb_serialport
+                                savedText: settings.kettler_usb_serialport
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -6265,6 +6271,7 @@ import AndroidStatusBar 1.0
                             Button {
                                 id: okKettlerUsbSerialPortButton
                                 text: qsTr("OK")
+                                enabled: kettlerUsbSerialPortTextField.dirty
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: { settings.kettler_usb_serialport = kettlerUsbSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                             }
@@ -6279,7 +6286,7 @@ import AndroidStatusBar 1.0
                             UiComboBox {
                                 id: kettlerUsbBaudrateComboBox
                                 model: [ "9600", "57600" ]
-                                displayText: settings.kettler_usb_baudrate.toString()
+                                savedText: settings.kettler_usb_baudrate.toString()
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onActivated: {
@@ -6290,6 +6297,7 @@ import AndroidStatusBar 1.0
                             Button {
                                 id: okKettlerUsbBaudrateButton
                                 text: qsTr("OK")
+                                enabled: kettlerUsbBaudrateComboBox.dirty
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: {
                                     settings.kettler_usb_baudrate = parseInt(kettlerUsbBaudrateComboBox.displayText);
@@ -6317,9 +6325,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Serial Port:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: freebeatSerialPortTextField
-                                    text: settings.freebeat_serialport
+                                    savedText: settings.freebeat_serialport
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -6329,6 +6337,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okFreebeatSerialPortButton
                                     text: qsTr("OK")
+                                    enabled: freebeatSerialPortTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.freebeat_serialport = freebeatSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -6875,7 +6884,7 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: floatingWindowTypeComboBox
                             model: [qsTr("Classic"), qsTr("Horizontal")]
-                            currentIndex: settings.floatingwindow_type
+                            savedIndex: settings.floatingwindow_type
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -6885,6 +6894,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okFloatingWindowTypeButton
                             text: qsTr("OK")
+                            enabled: floatingWindowTypeComboBox.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.floatingwindow_type = floatingWindowTypeComboBox.currentIndex; toast.show(qsTr("Setting saved!")); }
                         }
@@ -7080,7 +7090,7 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: chartDisplayModeComboBox
                             model: [qsTr("Both Charts"), qsTr("Heart Rate Only"), qsTr("Power Only")]
-                            currentIndex: settings.chart_display_mode
+                            savedIndex: settings.chart_display_mode
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -7090,6 +7100,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okChartDisplayModeButton
                             text: qsTr("OK")
+                            enabled: chartDisplayModeComboBox.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.chart_display_mode = chartDisplayModeComboBox.currentIndex; toast.show(qsTr("Setting saved!")); }
                         }
@@ -7117,13 +7128,14 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: iosLiveActivityCompactLeadingMetricComboBox
                             model: rootItem.metrics
-                            displayText: settings.ios_live_activity_compact_leading_metric
+                            savedText: settings.ios_live_activity_compact_leading_metric
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: displayText = currentValue
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: iosLiveActivityCompactLeadingMetricComboBox.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ios_live_activity_compact_leading_metric = iosLiveActivityCompactLeadingMetricComboBox.displayText; toast.show(qsTr("Setting saved!")); }
                         }
@@ -7138,13 +7150,14 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: iosLiveActivityCompactTrailingMetricComboBox
                             model: rootItem.metrics
-                            displayText: settings.ios_live_activity_compact_trailing_metric
+                            savedText: settings.ios_live_activity_compact_trailing_metric
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: displayText = currentValue
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: iosLiveActivityCompactTrailingMetricComboBox.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ios_live_activity_compact_trailing_metric = iosLiveActivityCompactTrailingMetricComboBox.displayText; toast.show(qsTr("Setting saved!")); }
                         }
@@ -7192,9 +7205,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Background Color:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                       id: backgroundColorTextField
-                                      text: settings.theme_background_color
+                                      savedText: settings.theme_background_color
                                       Layout.fillHeight: false
                                       Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                       onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -7205,6 +7218,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okBackgroundColor
                                     text: qsTr("OK")
+                                    enabled: backgroundColorTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_background_color = backgroundColorTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -7226,9 +7240,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Tiles Background Color:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                       id: tilebackgroundColorTextField
-                                      text: settings.theme_tile_background_color
+                                      savedText: settings.theme_tile_background_color
                                       Layout.fillHeight: false
                                       Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                       onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -7239,6 +7253,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: oktileBackgroundColor
                                     text: qsTr("OK")
+                                    enabled: tilebackgroundColorTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_tile_background_color = tilebackgroundColorTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -7273,9 +7288,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Tiles Shadow Color:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                       id: tileShadowColorTextField
-                                      text: settings.theme_tile_shadow_color
+                                      savedText: settings.theme_tile_shadow_color
                                       Layout.fillHeight: false
                                       Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                       onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -7286,6 +7301,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: oktileShadowColor
                                     text: qsTr("OK")
+                                    enabled: tileShadowColorTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_tile_shadow_color = tileShadowColorTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -7306,9 +7322,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Statusbar Background Color:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                       id: statusbarbackgroundColorTextField
-                                      text: settings.theme_status_bar_background_color
+                                      savedText: settings.theme_status_bar_background_color
                                       Layout.fillHeight: false
                                       Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                       onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -7319,6 +7335,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okStatusbarBackgroundColor
                                     text: qsTr("OK")
+                                    enabled: statusbarbackgroundColorTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.theme_status_bar_background_color = statusbarbackgroundColorTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -7379,9 +7396,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Username:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsTextField {
                             id: pelotonUsernameTextField
-                            text: settings.peloton_username
+                            savedText: settings.peloton_username
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -7391,6 +7408,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okPelotonUsernameButton
                             text: qsTr("OK")
+                            enabled: pelotonUsernameTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_username = pelotonUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
@@ -7426,9 +7444,9 @@ import AndroidStatusBar 1.0
                                 color: rootItem.pelotonLogin === 1 ? "#4caf50" : "#f44336"
                             }
                         }
-                        TextField {
+                        SettingsTextField {
                             id: pelotonPasswordTextField
-                            text: settings.peloton_password
+                            savedText: settings.peloton_password
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -7440,6 +7458,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okPelotonPasswordButton
                             text: qsTr("OK")
+                            enabled: pelotonPasswordTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_password = pelotonPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
@@ -7485,7 +7504,7 @@ import AndroidStatusBar 1.0
                             id: pelotonDifficultyTextField
                             model: [ "lower", "upper", "average" ]
                             labels: ({ "lower": qsTr("lower"), "upper": qsTr("upper"), "average": qsTr("average") })
-                            value: settings.peloton_difficulty
+                            savedText: settings.peloton_difficulty
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -7496,6 +7515,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okPelotonDifficultyButton
                             text: qsTr("OK")
+                            enabled: pelotonDifficultyTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_difficulty = pelotonDifficultyTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
@@ -7523,7 +7543,7 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: pelotonTreadmillLevelTextField
                             model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
-                            displayText: settings.peloton_treadmill_level
+                            savedText: settings.peloton_treadmill_level
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -7534,6 +7554,7 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: pelotonTreadmillLevelTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_treadmill_level = parseInt(pelotonTreadmillLevelTextField.displayText); toast.show(qsTr("Setting saved!")); }
                         }
@@ -7561,7 +7582,7 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: pelotonTreadmillWalkLevelTextField
                             model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
-                            displayText: settings.peloton_treadmill_walk_level
+                            savedText: settings.peloton_treadmill_walk_level
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -7572,6 +7593,7 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: pelotonTreadmillWalkLevelTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_treadmill_walk_level = parseInt(pelotonTreadmillWalkLevelTextField.displayText); toast.show(qsTr("Setting saved!")); }
                         }
@@ -7669,7 +7691,7 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: pelotonRowerLevelTextField
                             model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
-                            displayText: settings.peloton_rower_level
+                            savedText: settings.peloton_rower_level
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -7680,6 +7702,7 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: pelotonRowerLevelTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_rower_level = parseInt(pelotonRowerLevelTextField.displayText); toast.show(qsTr("Setting saved!")); }
                         }
@@ -7705,9 +7728,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("PZP Username:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsTextField {
                             id: pzpUsernameTextField
-                            text: settings.pzp_username
+                            savedText: settings.pzp_username
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -7717,6 +7740,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okPZPUsernameButton
                             text: qsTr("OK")
+                            enabled: pzpUsernameTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pzp_username = pzpUsernameTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
@@ -7751,9 +7775,9 @@ import AndroidStatusBar 1.0
                                 color: rootItem.pzpLogin === 1 ? "#4caf50" : "#f44336"
                             }
                         }
-                        TextField {
+                        SettingsTextField {
                             id: pzpPasswordTextField
-                            text: settings.pzp_password
+                            savedText: settings.pzp_password
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -7765,6 +7789,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okPZPPasswordButton
                             text: qsTr("OK")
+                            enabled: pzpPasswordTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pzp_password = pzpPasswordTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
@@ -7955,7 +7980,7 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: pelotonCadenceMetricTextField
                             model: rootItem.metrics
-                            displayText: settings.peloton_cadence_metric
+                            savedText: settings.peloton_cadence_metric
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -7967,6 +7992,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okPelotonCadenceMetric
                             text: qsTr("OK")
+                            enabled: pelotonCadenceMetricTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.peloton_cadence_metric = pelotonCadenceMetricTextField.displayText;
                         }
@@ -7982,7 +8008,7 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: pelotonHeartRateMetricTextField
                             model: rootItem.metrics
-                            displayText: settings.peloton_heartrate_metric
+                            savedText: settings.peloton_heartrate_metric
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -7994,6 +8020,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okPelotonHeartRateMetric
                             text: qsTr("OK")
+                            enabled: pelotonHeartRateMetricTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_heartrate_metric = pelotonHeartRateMetricTextField.displayText; toast.show(qsTr("Setting saved!")); }
                         }
@@ -8023,7 +8050,7 @@ import AndroidStatusBar 1.0
                             id: pelotonDateOnStravaTextField
                             model: [ "Before Title", "After Title", "Disabled" ]
                             labels: ({ "Before Title": qsTr("Before Title"), "After Title": qsTr("After Title"), "Disabled": qsTr("Disabled") })
-                            value: settings.peloton_date
+                            savedText: settings.peloton_date
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -8034,6 +8061,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okPelotonDateOnStrava
                             text: qsTr("OK")
+                            enabled: pelotonDateOnStravaTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_date = pelotonDateOnStravaTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
@@ -8061,7 +8089,7 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: pelotonDateFormatTextField
                             model: [ "MM/dd/yy", "yy/MM/dd" ]
-                            displayText: settings.peloton_date_format
+                            savedText: settings.peloton_date_format
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -8072,6 +8100,7 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: pelotonDateFormatTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.peloton_date_format = pelotonDateFormatTextField.displayText; toast.show(qsTr("Setting saved!")); }
                         }
@@ -8231,9 +8260,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Username:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsTextField {
                             id: zwiftUsernameTextField
-                            text: settings.zwift_username
+                            savedText: settings.zwift_username
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -8243,6 +8272,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okZwiftUsernameButton
                             text: qsTr("OK")
+                            enabled: zwiftUsernameTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_username = zwiftUsernameTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
@@ -8278,9 +8308,9 @@ import AndroidStatusBar 1.0
                                 color: rootItem.zwiftLogin === 1 ? "#4caf50" : "#f44336"
                             }
                         }
-                        TextField {
+                        SettingsTextField {
                             id: zwiftPasswordTextField
-                            text: settings.zwift_password
+                            savedText: settings.zwift_password
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -8292,6 +8322,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okZwiftPasswordButton
                             text: qsTr("OK")
+                            enabled: zwiftPasswordTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.zwift_password = zwiftPasswordTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
@@ -8774,9 +8805,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Garmin Email:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsTextField {
                             id: garminEmailTextField
-                            text: settings.garmin_email
+                            savedText: settings.garmin_email
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -8787,7 +8818,7 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
-                            enabled: garminEmailTextField.acceptableInput
+                            enabled: garminEmailTextField.acceptableInput && garminEmailTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 rootItem.garmin_connect_logout();
@@ -8803,9 +8834,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Garmin Password:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsTextField {
                             id: garminPasswordTextField
-                            text: settings.garmin_password
+                            savedText: settings.garmin_password
                             echoMode: TextInput.Password
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
@@ -8815,6 +8846,7 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: garminPasswordTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 rootItem.garmin_connect_logout();
@@ -9879,7 +9911,7 @@ import AndroidStatusBar 1.0
                             id: treadmillPidHRTextField
                             model: [ "Disabled", "1", "2","3","4","5" ]
                             labels: ({ "Disabled": qsTr("Disabled") })
-                            value: settings.treadmill_pid_heart_zone
+                            savedText: settings.treadmill_pid_heart_zone
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -9890,6 +9922,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTreadmillPidHR
                             text: qsTr("OK")
+                            enabled: treadmillPidHRTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.treadmill_pid_heart_zone = treadmillPidHRTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
@@ -9906,13 +9939,14 @@ import AndroidStatusBar 1.0
                             id: treadmillPidHRControlTextField
                             model: [ "Speed", "Inclination" ]
                             labels: ({ "Speed": qsTr("Speed"), "Inclination": qsTr("Inclination") })
-                            value: settings.treadmill_pid_heart_control
+                            savedText: settings.treadmill_pid_heart_control
                             currentIndex: settings.treadmill_pid_heart_control === "Inclination" ? 1 : 0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: treadmillPidHRControlTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: {
                                 settings.treadmill_pid_heart_control = treadmillPidHRControlTextField.value;
@@ -10405,7 +10439,7 @@ import AndroidStatusBar 1.0
                             id: treadmillPaceDefaultTextField
                             model: [ "1 mile", "5 km", "10 km","Half Marathon","Marathon", ]
                             labels: ({ "1 mile": qsTr("1 mile"), "5 km": qsTr("5 km"), "10 km": qsTr("10 km"), "Half Marathon": qsTr("Half Marathon"), "Marathon": qsTr("Marathon") })
-                            value: settings.pace_default
+                            savedText: settings.pace_default
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -10416,6 +10450,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okTreadmillPaceDefault
                             text: qsTr("OK")
+                            enabled: treadmillPaceDefaultTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.pace_default = treadmillPaceDefaultTextField.value; toast.show(qsTr("Setting saved!")); }
                         }
@@ -11177,7 +11212,7 @@ import AndroidStatusBar 1.0
                             id: ftmsTreadmillTextField
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
-                            value: settings.ftms_treadmill
+                            savedText: settings.ftms_treadmill
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -11188,6 +11223,7 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: ftmsTreadmillTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ftms_treadmill = stripRssi(ftmsTreadmillTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
@@ -12539,9 +12575,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("User 1:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: horizonTreadmillProfile1TextField
-                                    text: settings.horizon_treadmill_profile_user1
+                                    savedText: settings.horizon_treadmill_profile_user1
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -12551,6 +12587,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okhorizonTreadmillProfile1Button
                                     text: qsTr("OK")
+                                    enabled: horizonTreadmillProfile1TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user1 = horizonTreadmillProfile1TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -12562,9 +12599,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("User 2:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: horizonTreadmillProfile2TextField
-                                    text: settings.horizon_treadmill_profile_user2
+                                    savedText: settings.horizon_treadmill_profile_user2
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -12574,6 +12611,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okhorizonTreadmillProfile2Button
                                     text: qsTr("OK")
+                                    enabled: horizonTreadmillProfile2TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user2 = horizonTreadmillProfile2TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -12585,9 +12623,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("User 3:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: horizonTreadmillProfile3TextField
-                                    text: settings.horizon_treadmill_profile_user3
+                                    savedText: settings.horizon_treadmill_profile_user3
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -12597,6 +12635,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okhorizonTreadmillProfile3Button
                                     text: qsTr("OK")
+                                    enabled: horizonTreadmillProfile3TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user3 = horizonTreadmillProfile3TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -12608,9 +12647,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("User 4:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: horizonTreadmillProfile4TextField
-                                    text: settings.horizon_treadmill_profile_user4
+                                    savedText: settings.horizon_treadmill_profile_user4
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -12620,6 +12659,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okhorizonTreadmillProfile4Button
                                     text: qsTr("OK")
+                                    enabled: horizonTreadmillProfile4TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user4 = horizonTreadmillProfile4TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -12631,9 +12671,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("User 5:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: horizonTreadmillProfile5TextField
-                                    text: settings.horizon_treadmill_profile_user5
+                                    savedText: settings.horizon_treadmill_profile_user5
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -12643,6 +12683,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okhorizonTreadmillProfile5Button
                                     text: qsTr("OK")
+                                    enabled: horizonTreadmillProfile5TextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.horizon_treadmill_profile_user5 = horizonTreadmillProfile5TextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -13089,9 +13130,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Serial Port:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: csaferowerSerialPortTextField
-                                    text: settings.csafe_rower
+                                    savedText: settings.csafe_rower
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -13101,6 +13142,7 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: csaferowerSerialPortTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.csafe_rower = csaferowerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -13118,7 +13160,7 @@ import AndroidStatusBar 1.0
                             id: ftmsRowerTextField
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
-                            value: settings.ftms_rower
+                            savedText: settings.ftms_rower
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -13129,6 +13171,7 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: ftmsRowerTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ftms_rower = stripRssi(ftmsRowerTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
@@ -13316,9 +13359,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Serial Port:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: csafeellipticalSerialPortTextField
-                                    text: settings.csafe_elliptical_port
+                                    savedText: settings.csafe_elliptical_port
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -13328,6 +13371,7 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: csafeellipticalSerialPortTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.csafe_elliptical_port = csafeellipticalSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -13345,7 +13389,7 @@ import AndroidStatusBar 1.0
                             id: ftmsEllipticalTextField
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
-                            value: settings.ftms_elliptical
+                            savedText: settings.ftms_elliptical
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -13356,6 +13400,7 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: ftmsEllipticalTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.ftms_elliptical = stripRssi(ftmsEllipticalTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
@@ -13592,7 +13637,7 @@ import AndroidStatusBar 1.0
                             id: filterDeviceTextField
                             model: rootItem.bluetoothDevices
                             labels: ({ "Disabled": qsTr("Disabled") })
-                            value: settings.filter_device
+                            savedText: settings.filter_device
                             Layout.fillHeight: false
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -13604,6 +13649,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okFilterDeviceButton
                             text: qsTr("OK")
+                            enabled: filterDeviceTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.filter_device = stripRssi(filterDeviceTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
@@ -13950,7 +13996,7 @@ import AndroidStatusBar 1.0
                             id: stravaUploadMode
                             model: [ "Always", "Request", "Disabled" ]
                             labels: ({ "Always": qsTr("Always"), "Request": qsTr("Request"), "Disabled": qsTr("Disabled") })
-                            value: settings.strava_upload_mode
+                            savedText: settings.strava_upload_mode
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -13960,6 +14006,7 @@ import AndroidStatusBar 1.0
                         }
                         Button {
                             text: qsTr("OK")
+                            enabled: stravaUploadMode.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.strava_upload_mode = stravaUploadMode.value; toast.show(qsTr("Setting saved!")); }
                         }
@@ -13972,9 +14019,9 @@ import AndroidStatusBar 1.0
                             text: qsTr("Suffix activity:")
                             Layout.fillWidth: true
                         }
-                        TextField {
+                        SettingsTextField {
                             id: stravaSuffixTextField
-                            text: settings.strava_suffix
+                            savedText: settings.strava_suffix
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -13984,6 +14031,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okStravaSuffixButton
                             text: qsTr("OK")
+                            enabled: stravaSuffixTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.strava_suffix = stravaSuffixTextField.text; toast.show(qsTr("Setting saved!")); }
                         }
@@ -14676,7 +14724,7 @@ import AndroidStatusBar 1.0
                                     id: cadenceSensorNameTextField
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
-                                    value: settings.cadence_sensor_name
+                                    savedText: settings.cadence_sensor_name
                                     Layout.fillHeight: false
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -14688,6 +14736,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okCadenceSensorNameButton
                                     text: qsTr("OK")
+                                    enabled: cadenceSensorNameTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.cadence_sensor_name = stripRssi(cadenceSensorNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -15279,7 +15328,7 @@ import AndroidStatusBar 1.0
                                     id: powerSensorNameTextField
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
-                                    value: settings.power_sensor_name
+                                    savedText: settings.power_sensor_name
                                     Layout.fillHeight: false
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -15291,6 +15340,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okPowerSensorNameButton
                                     text: qsTr("OK")
+                                    enabled: powerSensorNameTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.power_sensor_name = stripRssi(powerSensorNameTextField.value); settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -15345,7 +15395,7 @@ import AndroidStatusBar 1.0
                                             id: eliteRizerNameTextField
                                             model: rootItem.bluetoothDevices
                                             labels: ({ "Disabled": qsTr("Disabled") })
-                                            value: settings.elite_rizer_name
+                                            savedText: settings.elite_rizer_name
                                             Layout.fillHeight: false
                                             Layout.fillWidth: true
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -15357,6 +15407,7 @@ import AndroidStatusBar 1.0
                                         Button {
                                             id: okEliteRizerNameButton
                                             text: qsTr("OK")
+                                            enabled: eliteRizerNameTextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.elite_rizer_name = stripRssi(eliteRizerNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
@@ -15414,7 +15465,7 @@ import AndroidStatusBar 1.0
                                             id: eliteSterzoSmartNameTextField
                                             model: rootItem.bluetoothDevices
                                             labels: ({ "Disabled": qsTr("Disabled") })
-                                            value: settings.elite_sterzo_smart_name
+                                            savedText: settings.elite_sterzo_smart_name
                                             Layout.fillHeight: false
                                             Layout.fillWidth: true
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -15426,6 +15477,7 @@ import AndroidStatusBar 1.0
                                         Button {
                                             id: okEliteSterzoSmartNameButton
                                             text: qsTr("OK")
+                                            enabled: eliteSterzoSmartNameTextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: { settings.elite_sterzo_smart_name = stripRssi(eliteSterzoSmartNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
@@ -15461,7 +15513,7 @@ import AndroidStatusBar 1.0
                                     id: ftmsAccessoryNameTextField
                                     model: rootItem.bluetoothDevices
                                     labels: ({ "Disabled": qsTr("Disabled") })
-                                    value: settings.ftms_accessory_name
+                                    savedText: settings.ftms_accessory_name
                                     Layout.fillHeight: false
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -15473,6 +15525,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okFTMSAccessoryNameButton
                                     text: qsTr("OK")
+                                    enabled: ftmsAccessoryNameTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.ftms_accessory_name = stripRssi(ftmsAccessoryNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -15820,7 +15873,7 @@ import AndroidStatusBar 1.0
                                     id: fitmetriaFanFitModeTextField
                                     model: [ "Heart", "Power", "Manual" ]
                                     labels: ({ "Heart": qsTr("Heart"), "Power": qsTr("Power"), "Manual": qsTr("Manual") })
-                                    value: settings.fitmetria_fanfit_mode
+                                    savedText: settings.fitmetria_fanfit_mode
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
@@ -15831,6 +15884,7 @@ import AndroidStatusBar 1.0
                                 Button {
                                     id: okFitmetriaFanFitModeTextField
                                     text: qsTr("OK")
+                                    enabled: fitmetriaFanFitModeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -15924,7 +15978,7 @@ import AndroidStatusBar 1.0
                                     id: headWindModeTextField
                                     model: [ "Heart", "Power", "Manual" ]
                                     labels: ({ "Heart": qsTr("Heart"), "Power": qsTr("Power"), "Manual": qsTr("Manual") })
-                                    value: settings.fitmetria_fanfit_mode
+                                    savedText: settings.fitmetria_fanfit_mode
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
@@ -15934,6 +15988,7 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: headWindModeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_mode = headWindModeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -16023,7 +16078,7 @@ import AndroidStatusBar 1.0
                                     id: eliteAriaModeTextField
                                     model: [ "Heart", "Power", "Manual" ]
                                     labels: ({ "Heart": qsTr("Heart"), "Power": qsTr("Power"), "Manual": qsTr("Manual") })
-                                    value: settings.fitmetria_fanfit_mode
+                                    savedText: settings.fitmetria_fanfit_mode
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
@@ -16033,6 +16088,7 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: eliteAriaModeTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_mode = eliteAriaModeTextField.value; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -16561,7 +16617,7 @@ import AndroidStatusBar 1.0
                         UiComboBox {
                             id: mapsTypeTextField
                             model: [ "2D", "3D" ]
-                            displayText: settings.maps_type
+                            savedText: settings.maps_type
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
@@ -16573,6 +16629,7 @@ import AndroidStatusBar 1.0
                         Button {
                             id: okMapsType
                             text: qsTr("OK")
+                            enabled: mapsTypeTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.maps_type = mapsTypeTextField.displayText; toast.show(qsTr("Setting saved!")); }
                         }
@@ -17162,9 +17219,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("MQTT Host:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: mqttHostTextField
-                                    text: settings.mqtt_host
+                                    savedText: settings.mqtt_host
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -17173,6 +17230,7 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: mqttHostTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_host = mqttHostTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -17238,9 +17296,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Username:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: mqttUsernameTextField
-                                    text: settings.mqtt_username
+                                    savedText: settings.mqtt_username
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -17249,6 +17307,7 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: mqttUsernameTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_username = mqttUsernameTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -17274,9 +17333,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Password:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: mqttPasswordTextField
-                                    text: settings.mqtt_password
+                                    savedText: settings.mqtt_password
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -17286,6 +17345,7 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: mqttPasswordTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_password = mqttPasswordTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
@@ -17311,9 +17371,9 @@ import AndroidStatusBar 1.0
                                     text: qsTr("Device ID:")
                                     Layout.fillWidth: true
                                 }
-                                TextField {
+                                SettingsTextField {
                                     id: mqttDeviceIdTextField
-                                    text: settings.mqtt_deviceid
+                                    savedText: settings.mqtt_deviceid
                                     horizontalAlignment: Text.AlignRight
                                     Layout.fillHeight: false
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -17322,6 +17382,7 @@ import AndroidStatusBar 1.0
                                 }
                                 Button {
                                     text: qsTr("OK")
+                                    enabled: mqttDeviceIdTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.mqtt_deviceid = mqttDeviceIdTextField.text; toast.show(qsTr("Setting saved!")); }
                                 }
