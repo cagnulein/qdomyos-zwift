@@ -565,22 +565,21 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 // Android UI thread, and when it comes before Qt published its platform integration (a service
 // such as TalkBack already on at launch), Qt logs "Could not activate platform accessibility" and
 // stays off. Qt Quick Controls then set no role or name: buttons are missing from TalkBack's tree,
-// a group box has no title, a spin box takes no focus. Here, on the Qt thread with its event loop
-// running, the report is repeated while Android has accessibility on and Qt does not: triesLeft
-// attempts in all, this one included, 500 ms apart.
-static void restoreLostAccessibility(int triesLeft) {
-    if (QAccessible::isActive() || triesLeft <= 0)
+// a group box has no title, a spin box takes no focus (QTBUG-77320, fixed in later Qt the same way:
+// keep the report and apply it once the integration exists). Qt publishes the integration from an
+// event it posts while QApplication is constructed, so a call queued after that runs once it is
+// published: either Qt has got the report by then, or Android already says accessibility is on
+// and one setActive() is enough.
+static void restoreLostAccessibility() {
+    if (QAccessible::isActive())
         return;
     if (QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/CustomQtActivity",
-                                                      "accessibilityOn", "()Z")) {
+                                                      "accessibilityOn", "(Landroid/content/Context;)Z",
+                                                      QtAndroid::androidContext().object())) {
         QAndroidJniObject::callStaticMethod<void>("org/qtproject/qt5/android/accessibility/QtNativeAccessibility",
                                                   "setActive", "(Z)V", jboolean(true));
-        if (QAccessible::isActive()) {
-            qDebug() << "accessibility: turned on again, Qt lost Android's report at launch";
-            return;
-        }
+        qDebug() << "accessibility: Qt lost Android's report at launch, active after setActive:" << QAccessible::isActive();
     }
-    QTimer::singleShot(500, [triesLeft] { restoreLostAccessibility(triesLeft - 1); });
 }
 #endif
 
@@ -1064,7 +1063,7 @@ int main(int argc, char *argv[]) {
 
         engine.load(url);
 #ifdef Q_OS_ANDROID
-        QTimer::singleShot(0, [] { restoreLostAccessibility(20); });
+        QTimer::singleShot(0, [] { restoreLostAccessibility(); });
 #endif
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
