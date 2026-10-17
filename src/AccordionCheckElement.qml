@@ -49,6 +49,7 @@ ColumnLayout {
             id: accordionText
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             color: "#FFFFFF"
+            font: window.headerFont
             text: rootElement.title
         }
 

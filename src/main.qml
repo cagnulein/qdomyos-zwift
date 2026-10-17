@@ -246,6 +246,10 @@ ApplicationWindow {
         : fontPx(Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize - 2 : appFontPx)
     // The window font is set only for a size other than 100 % and reset otherwise
     readonly property int scaledFontPx: textScale !== 1 ? fontPx(appFontPx) : 0
+    // Font of the section headers of the settings: a plain Text, which does not inherit the window
+    // font. At 100 % the app font, the one a Text takes by itself
+    readonly property font headerFont: textScale === 1 ? Qt.application.font
+        : Qt.font({ family: Qt.application.font.family, pixelSize: scaledFontPx })
     function applyTextScale() {
         if (scaledFontPx > 0)
             font.pixelSize = scaledFontPx

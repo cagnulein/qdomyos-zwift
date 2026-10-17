@@ -39,6 +39,7 @@ ColumnLayout {
             id: accordionText
             x:34;y:13
             color: "#FFFFFF"
+            font: window.headerFont
             text: rootElement.title
         }
         Text {
