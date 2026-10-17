@@ -610,3 +610,33 @@ void ErgTableTestSuite::test_resistanceCadenceBanding() {
     EXPECT_EQ(2, erg.resistanceFromPowerRequest(130, 84, 3));
     EXPECT_EQ(1, erg.resistanceFromPowerRequest(130, 85, 3));
 }
+
+void ErgTableTestSuite::test_pairedPowerTable() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(80, 150, 7, 180, true);
+    }
+
+    EXPECT_EQ(180, erg.trainerPowerForPedalTarget(150, 80, 7));
+    EXPECT_EQ(190, erg.trainerPowerForPedalTarget(160, 80, 7));
+}
+
+void ErgTableTestSuite::test_legacyPowerTableLoading() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+
+    testSettings.qsettings.setValue("ergDataPoints", "80|150|7");
+    testSettings.qsettings.sync();
+    ergTable legacyTable;
+    EXPECT_EQ(150, legacyTable.estimateWattage(80, 7));
+    EXPECT_EQ(0, legacyTable.trainerPowerForPedalTarget(150, 80, 7));
+
+    testSettings.qsettings.setValue("ergDataPoints", "80|150|7|180");
+    testSettings.qsettings.sync();
+    ergTable pairedTable;
+    EXPECT_EQ(180, pairedTable.trainerPowerForPedalTarget(150, 80, 7));
+}
