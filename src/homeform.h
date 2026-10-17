@@ -1163,6 +1163,7 @@ public:
     static void loadSettings(const QUrl &filename);
     void deleteSettings(const QUrl &filename);
     void restoreSettings();
+    void syncTreadmillStateFromDevice(bool running);
     void saveProfile(QString profilename);
     void restart();
     bool pelotonAskStart() { return m_pelotonAskStart; }

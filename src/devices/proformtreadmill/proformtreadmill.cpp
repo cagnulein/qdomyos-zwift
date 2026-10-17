@@ -182,6 +182,9 @@ void proformtreadmill::update() {
                 emit debug(QStringLiteral("writing cached speed ") + QString::number(cachedSpeedRequest));
                 forceSpeed(cachedSpeedRequest);
 
+                if (nordictrack_tseries8_treadmill && homeform::singleton()) {
+                    homeform::singleton()->syncTreadmillStateFromDevice(true);
+                }
                 if (homeform::singleton()) {
                     homeform::singleton()->setToastRequested(
                         QStringLiteral("Applying cached speed request ") +
@@ -579,10 +582,13 @@ void proformtreadmill::update() {
                     requestInclination = -100;
                 }
                 if (requestSpeed != -1) {
-                    if (requestSpeed != currentSpeed().value() &&
+                    const bool speedWriteAllowed = !isPaused() || currentSpeed().value() <= 0;
+                    if (speedWriteAllowed && requestSpeed != currentSpeed().value() &&
                         requestSpeed >= 0 && requestSpeed <= 22) {
                         emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                         forceSpeed(requestSpeed);
+                    } else if (!speedWriteAllowed) {
+                        emit debug(QStringLiteral("ignoring speed request while treadmill is paused"));
                     }
                     requestSpeed = -1;
                 }
@@ -4021,6 +4027,10 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 (double)(((int16_t)((int8_t)newValue.at(13)) << 8) + (int16_t)((uint8_t)newValue.at(12))) / 100.0;
         }
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(11)) << 8) + (uint16_t)((uint8_t)newValue.at(10))) / 100.0;
+        if (nordictrack_tseries8_treadmill && !initialStateReported && homeform::singleton()) {
+            initialStateReported = true;
+            homeform::singleton()->syncTreadmillStateFromDevice(Speed.value() > 0);
+        }
         if (watts(weight))
             KCal +=
                 ((((0.048 * ((double)watts(weight)) + 1.19) * weight * 3.5) / 200.0) /
@@ -4076,6 +4086,8 @@ void proformtreadmill::btinit() {
 #else
     const int sleepms = 400;
 #endif    
+
+    initialStateReported = false;
 
     QSettings settings;    
     nordictrack10 =
