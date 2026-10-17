@@ -30,3 +30,17 @@ Disable **Strava Virtual Activity** in QZ before recording the elliptical sessio
 ## Watt Gain resets to 1.00 after entering a decimal value
 
 On older QZ iPhone builds, if **1.20** is not saved, try **1,20** instead, press **OK**, restart and verify the value. A user confirmed this workaround. Current QZ builds accept both decimal separators. Watt Gain scales reported power, not actual physical effort.
+
+## Can I leave QZ running in the background on my iPhone while MyWhoosh runs on an iPad?
+
+**Yes, this was confirmed with an iOS QZ TestFlight build supporting background operation and a two-device setup.** Connect the physical trainer to QZ on the **iPhone** and run **MyWhoosh on a separate iPad**, pairing MyWhoosh with QZ's virtual trainer.
+
+In the confirmed test, virtual shifting continued during the ride while QZ was put into the background on the iPhone; the user could listen to a radio app, read mail and use a web browser without interrupting the session.
+
+Keep in mind:
+
+- The confirmation was for a **background-capable beta/TestFlight build**, not a guarantee that every older/stable iOS build will maintain every connection in the background. Use a build with the relevant background capability.
+- **MyWhoosh on the same iPad as QZ was not successful** in the user's comparison: MyWhoosh found the physical KICKR CORE but did not discover QZ. For that setup, use two devices; see [MyWhoosh device setup](mywhoosh.md).
+- iOS can still impose background execution limits. Verify power, cadence, virtual gears and connection stability on your own devices during a short test before relying on a long workout.
+
+QZ's iOS app declares Bluetooth background modes, but the successful real-world background test is the evidence for this particular QZ/MyWhoosh arrangement.
