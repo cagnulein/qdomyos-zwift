@@ -755,14 +755,14 @@ void m3ibike::processAdvertising(const QByteArray &data) {
             QByteArray compactLeadingMetricUtf8 = compactLeadingMetric.toUtf8();
             QByteArray compactTrailingMetricUtf8 = compactTrailingMetric.toUtf8();
             const uint8_t liveActivityHeartRate = (uint8_t)Heart.value();
-            const uint8_t workoutHeartRate = heartRateFromHealthKit ? 0 : liveActivityHeartRate;
+            const uint8_t workoutHeartRate = heartRateIsFromHealthKit() ? 0 : liveActivityHeartRate;
+            const double currentElevationGain = elevationGain().value();
 
             h->workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value(), calories().value(),
                                      StepCount.value(), deviceType(), odometer() * 1000.0, totalCalories().value(),
-                                     useMiles, workoutHeartRate, liveActivityHeartRate, compactLeadingMetricUtf8.constData(),
+                                     currentElevationGain, useMiles, workoutHeartRate, liveActivityHeartRate, compactLeadingMetricUtf8.constData(),
                                      metricValueForSetting(compactLeadingMetric), compactTrailingMetricUtf8.constData(),
                                      metricValueForSetting(compactTrailingMetric));
-            heartRateFromHealthKit = false;
         }
 
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();

@@ -38,9 +38,10 @@ import java.util.LinkedList;
 import java.util.concurrent.Callable;
 import java.util.ArrayList;
 import java.util.List;
-import java.nio.charset.StandardCharsets;
 
 public class Usbserial {
+
+    private static final char[] HEX_DIGITS = "0123456789ABCDEF".toCharArray();
 
     static UsbSerialPort port = null;
     static java.io.FileDescriptor localSerialFd = null;
@@ -54,6 +55,19 @@ public class Usbserial {
         "/dev/ttyS2",
         "/dev/ttyS3"
     };
+
+    private static String bytesToHex(byte[] data, int length) {
+        int count = Math.min(Math.max(length, 0), data.length);
+        StringBuilder hex = new StringBuilder(count == 0 ? 0 : count * 3 - 1);
+        for (int i = 0; i < count; i++) {
+            if (i > 0)
+                hex.append(' ');
+            int value = data[i] & 0xFF;
+            hex.append(HEX_DIGITS[value >>> 4]);
+            hex.append(HEX_DIGITS[value & 0x0F]);
+        }
+        return hex.toString();
+    }
 
     public static void open(Context context) {
         open(context, 2400); // Default baud rate for Computrainer
@@ -207,7 +221,8 @@ public class Usbserial {
         if(port == null)
            return;
 
-        QLog.d("QZ","UsbSerial writing " + new String(bytes, StandardCharsets.UTF_8));
+        QLog.d("QZ", "UsbSerial writing " + bytes.length + " bytes: " +
+                bytesToHex(bytes, bytes.length));
         try {
             port.write(bytes, 2000);
         }
@@ -254,7 +269,8 @@ public class Usbserial {
 
         try {
             lastReadLen = port.read(receiveData, 2000);
-            QLog.d("QZ","UsbSerial reading " + lastReadLen + new String(receiveData, StandardCharsets.UTF_8));
+            QLog.d("QZ", "UsbSerial reading " + lastReadLen + " bytes: " +
+                    bytesToHex(receiveData, lastReadLen));
         }
         catch (IOException e) {
             // Do something here

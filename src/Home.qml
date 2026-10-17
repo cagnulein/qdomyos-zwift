@@ -162,7 +162,7 @@ HomeForm {
                 wrapMode: Text.WordWrap
             }
 
-            ComboBox {
+            UiComboBox {
                 id: feelCombo
                 width: parent.width
                 model: [qsTr("Very Bad"), qsTr("Bad"), qsTr("OK"), qsTr("Good"), qsTr("Very Good")]
@@ -203,12 +203,34 @@ HomeForm {
     }
 
     Timer {
+        id: searchStatusTimer
+        // Always running: rootItem.device blinks while no device is connected (it drives the icon),
+        // and bluetoothSearchStatus() is empty once a device is connected
+        interval: 1000; repeat: true; triggeredOnStart: true; running: true
+        onTriggered: searchStatus = rootItem.bluetoothSearchStatus()
+    }
+
+    Timer {
         id: checkStartStopFromWeb
         interval: 200; running: true; repeat: true
         onTriggered: {if(rootItem.stopRequested) {rootItem.stopRequested = false; inner_stop(); }}
     }
 
     property bool locationServiceRequsted: false
+    // Bluetooth and Location as Android reports them now, not only at app start: switched on from
+    // the quick settings, the questions about them go away.
+    // Home.qml is created before homeform sets rootItem: until then assume "on", so the question
+    // doesn't flash at start; setting rootItem re-evaluates the binding with the real value
+    property bool locationServicesOn: typeof rootItem === "undefined" || rootItem.locationServices()
+    // "No" answered: not asked again until the next start
+    property bool locationServicesDeclined: false
+
+    Timer {
+        interval: 2000; repeat: true
+        // only while a question about them is open: devices without GPS never report Location on
+        running: !locationServicesOn && (locationServicesDialog.visible || locationServiceRequsted)
+        onTriggered: locationServicesOn = rootItem.refreshLocationServices()
+    }
 
     MessageDialog {
         id: locationServicesDialog
@@ -219,8 +241,11 @@ HomeForm {
             locationServiceRequsted = true
             rootItem.enableLocationServices()
         }
-        onNoClicked: remindLocationServicesDialog.visible = true
-        visible: !rootItem.locationServices() && !locationServiceRequsted && !settings.skipLocationServicesDialog
+        onNoClicked: {
+            locationServicesDeclined = true
+            remindLocationServicesDialog.visible = true
+        }
+        visible: !locationServicesOn && !locationServiceRequsted && !locationServicesDeclined && !settings.skipLocationServicesDialog
     }
 
     MessageDialog {
@@ -239,7 +264,7 @@ HomeForm {
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
-        visible: locationServiceRequsted
+        visible: locationServiceRequsted && !locationServicesOn
     }
 
     Timer {
@@ -286,29 +311,41 @@ HomeForm {
 
     GridView {
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.fill: parent
-        cellWidth: 175 * settings.ui_zoom / 100
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        // The tiles stretch to fill the row: the space left over by a whole number of columns
+        // is shared between the columns, up to a quarter of the tile width, and what remains
+        // centres the grid. Measured on the page, so the Android insets are excluded.
+        // The grid is exactly as wide as its columns and centred by the anchor above, not
+        // by leftMargin: Qt 5.15 does not recount the columns when leftMargin changes, so
+        // after a resize a row could come out one column short
+        readonly property real tileBaseWidth: 175 * settings.ui_zoom / 100
+        readonly property int tileColumns: Math.max(1, Math.floor(parent.width / tileBaseWidth))
+        cellWidth: Math.floor(Math.min(parent.width / tileColumns, tileBaseWidth * 1.25))
+        width: tileColumns * cellWidth
+        // Every tile is narrower than its cell by tileGap and sits at the cell's left edge, so the
+        // last column ends with the gap: the grid is shifted by half the gap, so the outer margins
+        // are equal
+        readonly property real tileGap: 5 * settings.ui_zoom / 100
+        anchors.horizontalCenterOffset: tileGap / 2
         cellHeight: 130 * settings.ui_zoom / 100
         focus: true
         model: appModel
-        leftMargin: { if(OS_VERSION === "Android") (Screen.width % cellWidth) / 2; else (parent.width % cellWidth) / 2; }
         anchors.topMargin: (!window.lockTiles ? rootItem.topBarHeight + 30 : 0)
+        interactive: !window.lockTiles
         id: gridView
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
-        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
+        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation | Qt.InvertedLandscapeOrientation | Qt.InvertedPortraitOrientation
         Screen.onPrimaryOrientationChanged:{
-            if(OS_VERSION === "Android")
-                gridView.leftMargin = (Screen.width % cellWidth) / 2;
-            else
-                gridView.leftMargin = (parent.width % cellWidth) / 2;
+            // Nothing to recompute: cellWidth and the grid width follow the page width
         }
 
         Accessible.ignored: true
 
         delegate: Item {
             id: id1
-            width: 170 * settings.ui_zoom / 100
+            width: gridView.cellWidth - gridView.tileGap
             height: 125 * settings.ui_zoom / 100
 
             visible: visibleItem
@@ -320,15 +357,6 @@ HomeForm {
             Accessible.description: largeButton ? largeButtonLabel : (secondLine !== "" ? secondLine : (writable ? qsTr("Adjustable. Current value: ") + value : qsTr("Current value: ") + value))
             Accessible.focusable: true
 
-            Behavior on x {
-                enabled: id1.state != "active"
-                NumberAnimation { duration: 400; easing.type: Easing.OutBack }
-            }
-
-            Behavior on y {
-                enabled: id1.state != "active"
-                NumberAnimation { duration: 400; easing.type: Easing.OutBack }
-            }
 
             SequentialAnimation on rotation {
                 NumberAnimation { to:  2; duration: 60 }
@@ -340,13 +368,13 @@ HomeForm {
 
             states: State {
                 name: "active"; when: loc.currentId === gridId && window.lockTiles
-                PropertyChanges { target: id1; x: loc.mouseX - gridView.x - width/2; y: loc.mouseY - gridView.y - height/2; scale: 0.5; z: 10 }
+                PropertyChanges { target: id1; opacity: 0.3 }
             }
 
-            transitions: Transition { NumberAnimation { property: "scale"; duration: 200} }
+            transitions: Transition { NumberAnimation { property: "opacity"; duration: 200} }
 
             Rectangle {
-                width: 168 * settings.ui_zoom / 100
+                width: id1.width - 2 * settings.ui_zoom / 100
                 height: 123 * settings.ui_zoom / 100
                 radius: 3
                 border.width: 1
@@ -630,27 +658,134 @@ HomeForm {
         }
     }
 
+    Item {
+        id: ghostTile
+        visible: loc.currentId !== -1 && window.lockTiles
+        x: loc.mouseX - width / 2
+        y: loc.mouseY - height / 2
+        width: 85 * settings.ui_zoom / 100
+        height: 63 * settings.ui_zoom / 100
+        z: 200
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 3
+            color: settings.theme_tile_background_color
+            opacity: 0.9
+            border.width: 2
+            border.color: settings.theme_tile_shadow_color
+
+            Text {
+                anchors.centerIn: parent
+                color: "white"
+                text: loc.tileName
+                font.pointSize: 10 * settings.ui_zoom / 100
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                width: parent.width - 8
+                wrapMode: Text.WordWrap
+            }
+        }
+    }
+
+    Timer {
+        id: autoScrollTimer
+        interval: 50
+        repeat: true
+        running: false
+        property real scrollSpeed: 15
+        onTriggered: {
+            if (loc.currentId === -1) { running = false; return; }
+            var edgeZone = 80
+            if (loc.mouseY > gridView.height - edgeZone) {
+                var factor = (loc.mouseY - (gridView.height - edgeZone)) / edgeZone
+                gridView.contentY = Math.min(
+                    gridView.contentHeight - gridView.height,
+                    gridView.contentY + scrollSpeed * (1 + factor * 2)
+                )
+            } else if (loc.mouseY < edgeZone) {
+                var factor2 = (edgeZone - loc.mouseY) / edgeZone
+                gridView.contentY = Math.max(0, gridView.contentY - scrollSpeed * (1 + factor2 * 2))
+            } else {
+                running = false
+            }
+        }
+    }
+
     MouseArea {
-        property int currentId: -1 // Original position in model
-        property int newIndex // Current Position in model
-        property int index:  (Math.floor(gridView.width / gridView.cellWidth) * Math.floor(mouseY / gridView.cellHeight)) + Math.floor(mouseX / gridView.cellWidth)  //  gridView.indexAt(mouseX - gridView.x, mouseY - gridView.y) // Item underneath cursor
+        property int currentId: -1
+        property int newIndex
+        property int startIndex: -1
+        property string tileName: ""
+        property real lastScrollY: 0
+        property bool isSwiping: false
+
+        function indexAtMouse(mx, my) {
+            var cols = gridView.tileColumns
+            var adjustedY = my + gridView.contentY
+            var col = Math.floor((mx - gridView.x) / gridView.cellWidth)
+            if (col < 0 || col >= cols) return -1
+            var row = Math.floor(adjustedY / gridView.cellHeight)
+            var idx = row * cols + col
+            if (idx < 0 || idx >= appModel.count) return -1
+            return idx
+        }
 
         id: loc
         enabled: window.lockTiles
         anchors.fill: parent
-        onPressAndHold: { console.log("onPressAndHold " + index); if(index !== -1) currentId = appModel[newIndex = index].gridId; else currentId = -1; }
+
+        onPressed: {
+            lastScrollY = mouseY
+            isSwiping = false
+        }
+
+        onPressAndHold: {
+            if (isSwiping) return
+            var idx = indexAtMouse(mouseX, mouseY)
+            if (idx !== -1) {
+                startIndex = idx
+                newIndex = idx
+                currentId = appModel[idx].gridId
+                tileName = appModel[idx].name
+            } else {
+                currentId = -1
+                tileName = ""
+            }
+        }
+
         onReleased: {
-            console.log("onReleased " + currentId + " " + index );
-            if (currentId !== -1 && index !== -1 && index !== newIndex) {
-                rootItem.moveTile(appModel[currentId].name, index, newIndex);
-            } currentId = -1
+            autoScrollTimer.running = false
+            if (currentId !== -1) {
+                var idx = indexAtMouse(mouseX, mouseY)
+                if (idx !== -1 && idx !== startIndex)
+                    rootItem.moveTile(tileName, idx, startIndex)
+            }
+            currentId = -1
+            startIndex = -1
+            tileName = ""
+            isSwiping = false
         }
 
         onPositionChanged: {
-            console.log("onPositionChanged " + currentId + " " + index + " " + newIndex + " " + mouseX + " " + mouseY)
-            if (currentId !== -1 && index !== -1 && index !== newIndex) {
-                //appModel.move(newIndex, newIndex = index)
+            if (currentId === -1) {
+                // No drag in progress: scroll the grid like a normal flick
+                var dy = mouseY - lastScrollY
+                if (Math.abs(dy) > 5) isSwiping = true
+                gridView.contentY = Math.max(0,
+                    Math.min(gridView.contentHeight - gridView.height,
+                             gridView.contentY - dy))
+                lastScrollY = mouseY
+                return
             }
+            var edgeZone = 80
+            if (mouseY > gridView.height - edgeZone || mouseY < edgeZone)
+                autoScrollTimer.running = true
+            else
+                autoScrollTimer.running = false
+
+            var idx = indexAtMouse(mouseX, mouseY)
+            if (idx !== -1 && idx !== newIndex) newIndex = idx
         }
     }
 }

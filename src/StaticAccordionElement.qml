@@ -42,20 +42,13 @@ ColumnLayout {
             anchors.rightMargin: 20
             width: 30; height: 30
             id: indicatImg
-            source: "qrc:/icons/arrow-collapse-vertical.png"
+            // Bound to isOpen: a section opened from code (a search result) shows the right arrow
+            source: rootElement.isOpen ? "qrc:/icons/arrow-expand-vertical.png" : "qrc:/icons/arrow-collapse-vertical.png"
         }
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
-            onClicked: {
-                rootElement.isOpen = !rootElement.isOpen
-                if(rootElement.isOpen)
-                {
-                    indicatImg.source = "qrc:/icons/arrow-expand-vertical.png"
-                }else{
-                    indicatImg.source = "qrc:/icons/arrow-collapse-vertical.png"
-                }
-            }
+            onClicked: rootElement.isOpen = !rootElement.isOpen
         }
     }
 

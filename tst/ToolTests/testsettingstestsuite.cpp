@@ -1,6 +1,10 @@
 #include "testsettingstestsuite.h"
 
 #include <QCoreApplication>
+#include <QFile>
+#include <QProcess>
+#include <QProcessEnvironment>
+#include <QResource>
 #include "Tools/testsettings.h"
 
 
@@ -81,8 +85,69 @@ void TestSettingsTestSuite::test_destructor(){
         // testSettings should be destroyed here, which should restore the original QCoreApplication details
     }
 
-    EXPECT_EQ(QCoreApplication::organizationName(), originalOrgName);
     EXPECT_EQ(QCoreApplication::applicationName(), originalAppName);
+    EXPECT_EQ(QCoreApplication::organizationName(), originalOrgName);
+}
+
+void TestSettingsTestSuite::test_longTranslatedSwitchLabelsWrap(){
+    // Run the real QML control in an isolated GUI subprocess. The main test process
+    // intentionally remains QCoreApplication-based, so this does not change the
+    // environment or behavior of the rest of the test suite.
+    QProcess probe;
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    environment.insert("QT_QPA_PLATFORM", "offscreen");
+    probe.setProcessEnvironment(environment);
+    probe.start(QCoreApplication::applicationFilePath(),
+                QStringList() << "--settings-label-layout-probe");
+
+    ASSERT_TRUE(probe.waitForStarted(10000));
+    ASSERT_TRUE(probe.waitForFinished(30000));
+
+    const QByteArray probeOutput = probe.readAllStandardError() + probe.readAllStandardOutput();
+    EXPECT_EQ(probe.exitStatus(), QProcess::NormalExit) << probeOutput.constData();
+    EXPECT_EQ(probe.exitCode(), 0) << probeOutput.constData();
+
+    Q_INIT_RESOURCE(qml);
+
+    QFile indicatorOnlySwitch(":/IndicatorOnlySwitch.qml");
+    ASSERT_TRUE(indicatorOnlySwitch.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString indicatorSource = QString::fromUtf8(indicatorOnlySwitch.readAll());
+
+    // Do not replace Material's IconLabel: it owns colors, disabled state,
+    // padding, icon handling and RTL layout. Only configure its text child.
+    EXPECT_FALSE(indicatorSource.contains("contentItem:"));
+    EXPECT_TRUE(indicatorSource.contains("configureTextItem"));
+    EXPECT_TRUE(indicatorSource.contains("Text.WrapAtWordBoundaryOrAnywhere"));
+    EXPECT_TRUE(indicatorSource.contains("maximumLineCount = 2"));
+    EXPECT_TRUE(indicatorSource.contains("elide = Text.ElideRight"));
+
+    QFile settingsQml(":/settings.qml");
+    ASSERT_TRUE(settingsQml.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString settingsSource = QString::fromUtf8(settingsQml.readAll());
+
+    // Regression case: the German translation of this setting previously appeared
+    // as "Nutze Apple Watch Cadence für gefälschte Laufbandges..." on narrow screens.
+    const QString regressionTitle =
+        "text: qsTr(\"Use Apple Watch Cadence for Fake Treadmill Speed\")";
+    const int titlePosition = settingsSource.indexOf(regressionTitle);
+    ASSERT_NE(titlePosition, -1);
+
+    const int delegatePosition = settingsSource.lastIndexOf("IndicatorOnlySwitch {", titlePosition);
+    ASSERT_NE(delegatePosition, -1);
+    EXPECT_LT(titlePosition - delegatePosition, 600);
+
+    // No translated control may enlarge the vertical settings page beyond the
+    // visible viewport. This protects labels, buttons, combo boxes and future
+    // controls with a large implicit width.
+    EXPECT_TRUE(settingsSource.contains("contentWidth: availableWidth"));
+
+    // Concrete regression case from the German UI: the two log buttons used to
+    // make the entire settings page wider than a phone screen. Keep them in two
+    // columns when they fit and stack them when the translated labels do not.
+    EXPECT_TRUE(settingsSource.contains("id: logsButtonsLayout"));
+    EXPECT_TRUE(settingsSource.contains(
+        "columns: width >= clearLogs.implicitWidth + showLogs.implicitWidth + columnSpacing ? 2 : 1"));
+    EXPECT_TRUE(settingsSource.contains("id: showLogs"));
 }
 
 
