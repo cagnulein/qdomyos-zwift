@@ -3364,7 +3364,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             enabled: heartBeltNameTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.heart_rate_belt_name = stripRssi(heartBeltNameTextField.value); heartBeltNameTextField.showSaved(); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -5122,7 +5122,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             enabled: ftmsBikeTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_bike = stripRssi(ftmsBikeTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftms_bike = stripRssi(ftmsBikeTextField.value); ftmsBikeTextField.showSaved(); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -11225,7 +11225,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             enabled: ftmsTreadmillTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_treadmill = stripRssi(ftmsTreadmillTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftms_treadmill = stripRssi(ftmsTreadmillTextField.value); ftmsTreadmillTextField.showSaved(); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -13173,7 +13173,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             enabled: ftmsRowerTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_rower = stripRssi(ftmsRowerTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftms_rower = stripRssi(ftmsRowerTextField.value); ftmsRowerTextField.showSaved(); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }                   
 
@@ -13402,7 +13402,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             enabled: ftmsEllipticalTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftms_elliptical = stripRssi(ftmsEllipticalTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.ftms_elliptical = stripRssi(ftmsEllipticalTextField.value); ftmsEllipticalTextField.showSaved(); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -13651,7 +13651,7 @@ import AndroidStatusBar 1.0
                             text: qsTr("OK")
                             enabled: filterDeviceTextField.dirty
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.filter_device = stripRssi(filterDeviceTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                            onClicked: { settings.filter_device = stripRssi(filterDeviceTextField.value); filterDeviceTextField.showSaved(); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                         }
                     }
 
@@ -14738,7 +14738,7 @@ import AndroidStatusBar 1.0
                                     text: qsTr("OK")
                                     enabled: cadenceSensorNameTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.cadence_sensor_name = stripRssi(cadenceSensorNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.cadence_sensor_name = stripRssi(cadenceSensorNameTextField.value); cadenceSensorNameTextField.showSaved(); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -15342,7 +15342,7 @@ import AndroidStatusBar 1.0
                                     text: qsTr("OK")
                                     enabled: powerSensorNameTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_name = stripRssi(powerSensorNameTextField.value); settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.power_sensor_name = stripRssi(powerSensorNameTextField.value); powerSensorNameTextField.showSaved(); settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 
@@ -15409,7 +15409,7 @@ import AndroidStatusBar 1.0
                                             text: qsTr("OK")
                                             enabled: eliteRizerNameTextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.elite_rizer_name = stripRssi(eliteRizerNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.elite_rizer_name = stripRssi(eliteRizerNameTextField.value); eliteRizerNameTextField.showSaved(); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -15479,7 +15479,7 @@ import AndroidStatusBar 1.0
                                             text: qsTr("OK")
                                             enabled: eliteSterzoSmartNameTextField.dirty
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: { settings.elite_sterzo_smart_name = stripRssi(eliteSterzoSmartNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                            onClicked: { settings.elite_sterzo_smart_name = stripRssi(eliteSterzoSmartNameTextField.value); eliteSterzoSmartNameTextField.showSaved(); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                         }
                                     }
 
@@ -15527,7 +15527,7 @@ import AndroidStatusBar 1.0
                                     text: qsTr("OK")
                                     enabled: ftmsAccessoryNameTextField.dirty
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.ftms_accessory_name = stripRssi(ftmsAccessoryNameTextField.value); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
+                                    onClicked: { settings.ftms_accessory_name = stripRssi(ftmsAccessoryNameTextField.value); ftmsAccessoryNameTextField.showSaved(); window.settings_restart_to_apply = true; toast.show(qsTr("Setting saved!")); }
                                 }
                             }
 

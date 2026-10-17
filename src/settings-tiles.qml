@@ -827,7 +827,7 @@ ScrollView {
                     id: gradeAdjustedPaceOrderTextField
                     Accessible.name: gradeAdjustedPaceEnabledAccordion.title + ", " + labelgradeAdjustedPaceOrder.text
                     model: rootItem.tile_order
-                    displayText: settings.tile_grade_adjusted_pace_order
+                    savedText: settings.tile_grade_adjusted_pace_order
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -837,6 +837,7 @@ ScrollView {
                 Button {
                     id: okgradeAdjustedPaceOrderButton
                     text: "OK"
+                    enabled: gradeAdjustedPaceOrderTextField.dirty
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_grade_adjusted_pace_order = gradeAdjustedPaceOrderTextField.displayText; toast.show(qsTr("Setting saved!")); }
                 }
