@@ -23,6 +23,7 @@ class treadmill : public bluetoothdevice {
     virtual double minStepInclination();
     virtual double minStepSpeed();
     virtual bool canStartStop() { return true; }
+    virtual bool physicalStartNeedsDeviceCommand() { return false; }
     metric currentStrideLength() { return InstantaneousStrideLengthCM; }
     metric currentGroundContact() { return GroundContactMS; }
     metric currentVerticalOscillation() { return VerticalOscillationMM; }

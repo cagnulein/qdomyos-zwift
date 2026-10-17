@@ -6011,12 +6011,22 @@ void homeform::Start_inner(bool send_event_to_device) {
 
 void homeform::StartFromDevice() {
     qDebug() << QStringLiteral("Physical start button pressed on device");
-    Start_inner(false);  // false = don't send command back to device (it already started)
+    bool send_event_to_device = false;
+    if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == TREADMILL) {
+        send_event_to_device = static_cast<treadmill *>(bluetoothManager->device())
+                                   ->physicalStartNeedsDeviceCommand();
+    }
+    Start_inner(send_event_to_device);
 }
 
 void homeform::PauseFromDevice() {
     qDebug() << QStringLiteral("Physical pause button pressed on device");
-    Start_inner(false);  // false = don't send command back to device
+    bool send_event_to_device = false;
+    if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == TREADMILL) {
+        send_event_to_device = static_cast<treadmill *>(bluetoothManager->device())
+                                   ->physicalStartNeedsDeviceCommand();
+    }
+    Start_inner(send_event_to_device);
 }
 
 void homeform::StopFromDevice() {

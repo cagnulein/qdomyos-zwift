@@ -17,6 +17,7 @@ class sportstechf75treadmill : public treadmill {
     bool connected() override;
     double minStepInclination() override { return 1.0; }
     double minStepSpeed() override { return 0.1; }
+    bool physicalStartNeedsDeviceCommand() override { return true; }
 
   private slots:
     void changeInclinationRequested(double grade, double percentage);
