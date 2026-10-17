@@ -2,8 +2,10 @@
 """Check how the settings pages use SettingsNumberField / SettingsFormatField.
 
 The fields only check the typed value; the row around them has to use it. For every such field:
-- the OK button of its row is enabled by `<id>.valid` and writes `<id>.value` (number) or
-  `<id>.text` (format field), never the raw text of a number field;
+- the field shows the setting by `savedText:`, not `text:` (it knows then whether the text was
+  changed - `dirty`);
+- the OK button of its row is enabled by `<id>.valid` and `<id>.dirty` and writes `<id>.value`
+  (number) or `<id>.text` (format field), never the raw text of a number field;
 - Enter (`onAccepted`) writes `value`, and only `if (valid)` when the field has a range;
 - the default value of the setting it shows passes the field's own rule (sign, decimals, range,
   format), so a fresh install never shows a red field.
@@ -300,7 +302,7 @@ def check_page(path):
         body = lines[i + 1:end]
         get = lambda name: next((after_key(x, name).strip() for x in body if after_key(x, name) is not None), None)
         fid = get("id")
-        shown = get("text") or ""
+        shown = (get("text") if kind == "TextField" else get("savedText")) or ""
         keys = setting_names(shown)
         types = {props[k][0] for k in keys if k in props}
 
@@ -333,6 +335,12 @@ def check_page(path):
         is_number = kind == "SettingsNumberField"
         has_range = get("minimum") is not None or get("maximum") is not None
 
+        if get("text") is not None:
+            error(path, i + 1, "%s: shows the setting by text:, use savedText: (the OK button "
+                  "is enabled by dirty)" % fid)
+        elif not shown:
+            error(path, i + 1, "%s: no savedText:" % fid)
+
         # Enter
         accepted = get("onAccepted")
         if accepted and not accepted.startswith("{"):
@@ -357,6 +365,8 @@ def check_page(path):
             enabled = next((x for x in button if after_key(x, "enabled") is not None), "")
             if find_word(enabled, fid + ".valid") < 0:
                 error(path, j + 1, "%s: OK button not enabled by %s.valid" % (fid, fid))
+            if find_word(enabled, fid + ".dirty") < 0:
+                error(path, j + 1, "%s: OK button not enabled by %s.dirty" % (fid, fid))
             if is_number:
                 if find_word(joined, fid + ".text") >= 0:
                     error(path, j + 1, "%s: OK button reads .text of a number field (use .value)" % fid)

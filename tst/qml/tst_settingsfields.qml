@@ -122,6 +122,86 @@ TestCase {
         compare(f.value, 154.32358)
     }
 
+    function test_saved_text_shown_and_not_dirty() {
+        var f = make(numberField, { savedText: 75 })
+        compare(f.text, "75")
+        verify(!f.dirty)
+    }
+
+    function test_dirty_until_saved() {
+        var f = make(numberField, { savedText: 75 })
+        f.selectAll()
+        type(f, "80")
+        verify(f.dirty)
+        f.savedText = 80                     // OK wrote the setting, the row binding follows
+        compare(f.text, "80")
+        verify(!f.dirty)
+    }
+
+    function test_back_to_saved_is_not_dirty() {
+        var f = make(numberField, { savedText: 75 })
+        f.selectAll()
+        type(f, "80")
+        verify(f.dirty)
+        f.selectAll()
+        type(f, "75.0")
+        verify(!f.dirty)                     // same number, another spelling
+    }
+
+    function test_invalid_is_dirty() {
+        var f = make(numberField, { savedText: 75, minimum: 1 })
+        f.selectAll()
+        keyClick(Qt.Key_Backspace)
+        verify(!f.valid)
+        verify(f.dirty)
+    }
+
+    function test_changed_elsewhere_replaces_text() {
+        // e.g. the unit switch: the saved value is shown again in the new unit
+        var f = make(numberField, { savedText: 75 })
+        f.savedText = 165.35
+        compare(f.text, "165.35")
+        verify(!f.dirty)
+    }
+
+    // The row as on the settings page: savedText bound to the setting, OK writes the setting
+    QtObject { id: store; property real weight: 75 }
+    Component {
+        id: boundField
+        SettingsNumberField { width: 300; savedText: store.weight }
+    }
+
+    function test_ok_writes_setting_and_clears_dirty() {
+        store.weight = 75
+        var f = make(boundField)
+        compare(f.text, "75")
+        f.selectAll()
+        type(f, "80,5")
+        verify(f.dirty)
+        store.weight = f.value               // what the OK button does
+        compare(f.text, "80.5")
+        verify(!f.dirty)
+    }
+
+    function test_truncate_while_typing_keeps_following_setting() {
+        // onTextEdited assigns text when it drops extra decimals: the old `text:` binding broke
+        // there, savedText keeps following the setting
+        store.weight = 75
+        var f = make(boundField)
+        f.selectAll()
+        type(f, "7.123")
+        compare(f.text, "7.12")
+        store.weight = 8
+        compare(f.text, "8")
+        verify(!f.dirty)
+    }
+
+    function test_without_saved_text_never_dirty() {
+        var f = make(numberField)
+        type(f, "70")
+        verify(!f.dirty)
+    }
+
     // ---- SettingsFormatField ----
 
     function test_time() {
@@ -177,5 +257,40 @@ TestCase {
         i.text = "5"
         verify(!i.valid)
         compare(i.errorText, "Enter the height as feet'inches, e.g. 5'10\"")
+    }
+
+    function test_format_dirty() {
+        var f = make(formatField, { format: "time", savedText: "00:25:00" })
+        compare(f.text, "00:25:00")
+        verify(!f.dirty)
+        f.selectAll()
+        type(f, "00:30:00")
+        verify(f.dirty)
+        f.savedText = "00:30:00"
+        verify(!f.dirty)
+        var n = make(formatField, { format: "ip" })
+        type(n, "10")
+        verify(!n.dirty)                     // no savedText
+    }
+
+    function test_format_other_spelling_not_dirty() {
+        var t = make(formatField, { format: "time", savedText: "00:08:00" })
+        t.selectAll()
+        type(t, "0:8:0")
+        verify(!t.dirty)
+        var c = make(formatField, { format: "heightCm", savedText: 180 })
+        c.selectAll()
+        type(c, "180.0")
+        verify(!c.dirty)
+        c.selectAll()
+        type(c, "181")
+        verify(c.dirty)
+        var i = make(formatField, { format: "heightFtIn", savedText: "5'10\"" })
+        i.text = "5’10"                  // a typographic apostrophe: keyClick cannot type it
+        verify(i.valid)
+        verify(!i.dirty)
+        i.selectAll()
+        type(i, "5'11")
+        verify(i.dirty)
     }
 }
