@@ -4197,8 +4197,8 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // filter some strange values from proform
     m_watts = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
 
-    // for the proform_treadmill_se this field is the distance in meters ;)
-    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill && !proform_treadmill_sport_3_0 && !proform_carbon_tlx_treadmill && !proform_carbon_tlx_v84_314_treadmill && !proform_carbon_tl_PFTL59723_6 && !freemotion_t10_9b_hci) {
+    // Some profiles expose distance in this field instead of power.
+    if (m_watts > 3000 && !proform_treadmill_se && !nordictrack_s20i_treadmill && !nordictrack_tseries5_treadmill && !proform_treadmill_sport_3_0 && !proform_carbon_tlx_treadmill && !proform_carbon_tlx_v84_314_treadmill && !proform_carbon_tl_PFTL59723_6 && !freemotion_t10_9b_hci && !nordictrack_elite_800) {
         m_watts = 0;
     } else {
         if (!proform_cadence_lt) {
