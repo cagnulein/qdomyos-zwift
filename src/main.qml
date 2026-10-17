@@ -223,6 +223,49 @@ ApplicationWindow {
         property string shortcut_stop: ""
         property bool android_landscape_cutout_margin: true
         property bool android_landscape_cutout_prompt_shown: false
+        property int ui_text_scale: 100
+        property bool ui_text_scale_system: true
+    }
+
+    // Text size of the app (not the tiles, they follow ui_zoom). On Android and iOS it follows the
+    // system text size by default, capped so the fixed-height rows still fit; otherwise ui_text_scale.
+    // Qt 5.15 applies neither by itself, and Qt.application.font is constant, so the size goes
+    // through the window font, which the labels, fields, buttons, lists and menus inherit
+    readonly property bool systemTextScaleAvailable: Qt.platform.os === "android" || Qt.platform.os === "ios"
+    readonly property real systemTextScaleCap: 1.5
+    property real systemTextScale: AndroidStatusBar.systemFontScale()
+    readonly property real textScale: systemTextScaleAvailable && settings.ui_text_scale_system
+        ? Math.max(0.8, Math.min(systemTextScaleCap, systemTextScale))
+        : Math.max(0.8, Math.min(1.7, settings.ui_text_scale / 100))
+    // At 100 % every size stays exactly as before
+    function fontPx(base) { return textScale === 1 ? base : Math.round(base * textScale) }
+    readonly property int appFontPx: Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize : 14
+    // Size of the hints under the settings. Where the app font has no pixel size (iOS, desktop)
+    // "pixelSize - 2" is ignored and the hints have the size of the text: kept so when scaled
+    readonly property int fontHint: textScale === 1 ? Qt.application.font.pixelSize - 2
+        : fontPx(Qt.application.font.pixelSize > 0 ? Qt.application.font.pixelSize - 2 : appFontPx)
+    // The window font is set only for a size other than 100 % and reset otherwise
+    readonly property int scaledFontPx: textScale !== 1 ? fontPx(appFontPx) : 0
+    function applyTextScale() {
+        if (scaledFontPx > 0)
+            font.pixelSize = scaledFontPx
+        else
+            font = undefined
+    }
+    onScaledFontPxChanged: applyTextScale()
+    Component.onCompleted: applyTextScale()
+    // The settings page has its own Settings object, which this one does not hear about until a
+    // restart: the text size options are written through here, so the size changes at once
+    function setTextScaleOption(key, value) {
+        settings[key] = value
+    }
+    // The system text size is changed in the phone settings, while QZ is in the background
+    Connections {
+        target: Qt.application
+        function onStateChanged() {
+            if (Qt.application.state === Qt.ApplicationActive)
+                window.systemTextScale = AndroidStatusBar.systemFontScale()
+        }
     }
 
 
@@ -301,7 +344,7 @@ ApplicationWindow {
             text: window.lapPromptText
             color: "white"
             font.bold: true
-            font.pixelSize: 26
+            font.pixelSize: window.fontPx(26)
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             wrapMode: Text.WordWrap
@@ -542,7 +585,7 @@ ApplicationWindow {
             Label {
                 width: parent.width
                 text: qsTr("Select Your Gym Device")
-                font.pixelSize: Qt.application.font.pixelSize + 10
+                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 10)
                 font.bold: true
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
@@ -562,7 +605,7 @@ ApplicationWindow {
                 labels: ({ "Disabled": qsTr("Disabled") })
                 displayText: currentIndex >= 0 ? labelFor(currentValue) : qsTr("Select a device")
                 currentIndex: -1
-                font.pixelSize: Qt.application.font.pixelSize + 8
+                font.pixelSize: window.fontPx(Qt.application.font.pixelSize + 8)
 
                 onActivated: {
                     var selectedDevice = stripBluetoothDeviceName(currentValue)
@@ -983,7 +1026,7 @@ ApplicationWindow {
                 width: parent.width
                 text: qsTr("Echelon Locked Bike")
                 font.bold: true
-                font.pixelSize: 20
+                font.pixelSize: window.fontPx(20)
                 wrapMode: Text.WordWrap
             }
 
@@ -1052,7 +1095,7 @@ ApplicationWindow {
                 width: parent.width
                 text: qsTr("Connection lost in the background")
                 font.bold: true
-                font.pixelSize: 20
+                font.pixelSize: window.fontPx(20)
                 wrapMode: Text.WordWrap
             }
 

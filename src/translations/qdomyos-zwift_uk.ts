@@ -6361,6 +6361,22 @@ Please enter it below:</source>
         <translation>Змінює розмір плиток із показниками. Типово 100%. Щоб на екрані вміщалося більше плиток, виберіть менший відсоток, а щоб збільшити їх – більший за 100%. Знак відсотка не вводьте. Раніше називалася «Масштаб інтерфейсу» (UI Zoom).</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Розмір тексту як у системі</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>Розмір тексту застосунку береться з налаштувань телефона чи планшета, але не більше за 150%. Вимкніть, щоб задати розмір нижче – наприклад, для екрана, який читають здалеку під час тренування. Типово ввімкнено.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Розмір тексту:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Розмір тексту застосунку (налаштування, меню, діалоги) у відсотках, від 80 до 170. Типово – 100. Для плиток – окреме налаштування розміру.</translation>
+    </message>
+    <message>
         <source>Speed</source>
         <translation>Швидкість</translation>
     </message>

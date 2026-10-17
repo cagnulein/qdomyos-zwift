@@ -6621,6 +6621,22 @@ NOTE IMPORTANTI:
         <translation>Abilita la formula speciale di potenza istantanea SPORT01 solo per la bici Toputure TEB1. Lascia disabilitato per utilizzare la potenza istantanea standard FTMS riportata dal dispositivo.</translation>
     </message>
     <message>
+        <source>Use System Text Size</source>
+        <translation>Usa la dimensione del testo di sistema</translation>
+    </message>
+    <message>
+        <source>The text of the app follows the text size of the phone or tablet settings, up to 150%. Turn off to choose the size below, for example for a screen you read from a distance during a workout. Default is on.</source>
+        <translation>La dimensione del testo dell&apos;app segue le impostazioni del telefono o del tablet, fino al 150%. Disattiva per scegliere la dimensione qui sotto, ad esempio per uno schermo che leggi da lontano durante l&apos;allenamento. Attivo per impostazione predefinita.</translation>
+    </message>
+    <message>
+        <source>Text size:</source>
+        <translation>Dimensione del testo:</translation>
+    </message>
+    <message>
+        <source>Size of the text of the app (settings, menus, dialogs), in percent, from 80 to 170. The default is 100. The tiles keep their own size setting.</source>
+        <translation>Dimensione del testo dell&apos;app (impostazioni, menu, finestre di dialogo), in percentuale, da 80 a 170. Il valore predefinito è 100. I riquadri hanno una propria impostazione di dimensione.</translation>
+    </message>
+    <message>
         <source>iOS Live Activity Left Metric:</source>
         <translation>iOS Attività Live Metrica Sinistra:</translation>
     </message>

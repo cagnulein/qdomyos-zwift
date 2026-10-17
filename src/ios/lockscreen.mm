@@ -847,4 +847,15 @@ void lockscreen::clearWebViewCache() {
         [cookieStorage deleteCookie:cookie];
     }
 }
+
+double lockscreen::systemFontScale() {
+    // Body text is 17 pt at the default Dynamic Type size. The size category is passed in:
+    // outside a UIKit call the current trait collection may still hold the old one
+    const CGFloat body = 17.0;
+    UITraitCollection *traits = [UITraitCollection traitCollectionWithPreferredContentSizeCategory:
+                                     UIApplication.sharedApplication.preferredContentSizeCategory];
+    const CGFloat scaled = [[UIFontMetrics defaultMetrics] scaledValueForValue:body
+                                                compatibleWithTraitCollection:traits];
+    return scaled > 0 ? scaled / body : 1.0;
+}
 #endif
