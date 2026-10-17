@@ -19,3 +19,21 @@
 
 - QZ can scale received power using gain and offset.
 - FTP affects power-zone classification separately from watts.
+
+## Displayed resistance varies with cadence while the physical resistance setting is unchanged
+
+### Provide first
+
+- Bike model, QZ version, and whether the console and QZ show the same resistance value.
+- Hold the bike's physical resistance setting constant and report cadence, watts, and displayed resistance at three comfortable pedaling rates.
+- State whether an external resistance sensor or power meter is configured.
+
+### If still unclear
+
+- Repeat a short controlled session with the physical resistance unchanged and approximately 20 seconds at each cadence.
+- Provide a QZ debug log from that session, not just the workout summary or a training-plan XML file.
+
+### Why it matters
+
+- Some QZ bike drivers estimate resistance from power and cadence when direct resistance data is unavailable.
+- A fixed-knob cadence comparison distinguishes an estimated metric from an actual physical resistance change; raw logs are needed before attributing any difference to firmware or calibration.
