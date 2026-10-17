@@ -2,7 +2,7 @@
 #include <QSettings>
 
 CharacteristicNotifier2A5B::CharacteristicNotifier2A5B(bluetoothdevice *Bike, QObject *parent)
-    : CharacteristicNotifier(0x2a5b, parent), Bike(Bike) {
+    : CharacteristicNotifier(0x2a5b, Bike, parent) {
     QSettings settings;
     bike_wheel_revs = settings.value(QZSettings::bike_wheel_revs, QZSettings::default_bike_wheel_revs).toBool();
 }
