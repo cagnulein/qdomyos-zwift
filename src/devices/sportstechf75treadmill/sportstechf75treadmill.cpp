@@ -23,6 +23,7 @@ constexpr int kCommandStop = 0x00;
 constexpr int kStartCountdownSeconds = 3;
 constexpr int kTimerTicksPerSecond = 10;
 constexpr int kInitialRunningFrames = 10;
+constexpr int kSpeedProtocolScale = 10;
 }
 
 sportstechf75treadmill::sportstechf75treadmill(bool noHeartService) {
@@ -152,8 +153,11 @@ QByteArray sportstechf75treadmill::runningFrame(int speed, int incline, bool all
     QByteArray frame(12, static_cast<char>(0));
     frame[0] = static_cast<char>(kFrameStart);
     frame[1] = static_cast<char>(0xA0);
+    // The vendor UI displays speed / 10, while A0 carries the raw deci-km/h
+    // value. Keep QZ's speed in km/h and scale only at the wire boundary.
     // A zero speed is reserved for the vendor's pause/stop follow-up frame.
-    frame[8] = static_cast<char>(qBound(allowZero ? 0 : 1, speed, 255));
+    const int protocolSpeed = speed * kSpeedProtocolScale;
+    frame[8] = static_cast<char>(qBound(allowZero ? 0 : kSpeedProtocolScale, protocolSpeed, 255));
     frame[9] = static_cast<char>(qBound(0, incline, 255));
 
     int checksum = 0;
@@ -245,16 +249,17 @@ void sportstechf75treadmill::handleFrame(const QByteArray &frame) {
     }
 
     const int incline = static_cast<uint8_t>(frame.at(2));
-    const int speed = static_cast<uint8_t>(frame.at(3));
-    const int checksum = (static_cast<uint8_t>(frame.at(1)) + incline + speed) & 0xFF;
+    const int protocolSpeed = static_cast<uint8_t>(frame.at(3));
+    const int checksum = (static_cast<uint8_t>(frame.at(1)) + incline + protocolSpeed) & 0xFF;
     if (checksum != static_cast<uint8_t>(frame.at(4))) {
         qWarning() << "Sportstech F75 RX checksum error" << frame.toHex(' ');
         return;
     }
 
     // The APK's six-byte 0x60 telemetry frame is:
-    // FD 60 incline speed checksum FE. Both values are integer device units.
-    qDebug() << "Sportstech F75 RX telemetry speed" << speed << "incline" << incline;
+    // FD 60 incline speed checksum FE. Speed is in deci-km/h on the wire.
+    const double speed = static_cast<double>(protocolSpeed) / kSpeedProtocolScale;
+    qDebug() << "Sportstech F75 RX telemetry speed" << speed << "protocol" << protocolSpeed << "incline" << incline;
     speedSensor(speed);
     inclinationSensor(incline, incline);
 }
