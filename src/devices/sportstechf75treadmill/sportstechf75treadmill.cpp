@@ -17,6 +17,11 @@ constexpr char kDevicePath[] = "/dev/ttyS1";
 constexpr int kFrameStart = 0xFB;
 constexpr int kFrameEnd = 0xFC;
 constexpr int kTelemetryStart = 0xFD;
+constexpr int kKeyEventFunction = 0x20;
+constexpr int kKeyEventStart = 0x67;
+constexpr int kKeyEventStop = 0x68;
+constexpr int kKeyEventInclineUpObserved = 0x0A;
+constexpr int kKeyEventInclineUpVendor = 0x0D;
 constexpr int kCommandStart = 0xA2;
 constexpr int kCommandStop = 0x00;
 // The vendor sends A2 as a one-second countdown: 03, 02, 01, 00.
@@ -256,8 +261,56 @@ void sportstechf75treadmill::sendCommand(int command, int data1, int data2) {
 void sportstechf75treadmill::handleFrame(const QByteArray &frame) {
     qDebug() << "Sportstech F75 RX candidate" << frame.toHex(' ');
     if (frame.size() != 6 || static_cast<uint8_t>(frame.at(0)) != kTelemetryStart ||
-        static_cast<uint8_t>(frame.at(5)) != 0xFE || static_cast<uint8_t>(frame.at(1)) != 0x60) {
+        static_cast<uint8_t>(frame.at(5)) != 0xFE) {
         qDebug() << "Sportstech F75 RX ignored frame" << frame.toHex(' ');
+        return;
+    }
+
+    const int function = static_cast<uint8_t>(frame.at(1));
+    if (function == kKeyEventFunction) {
+        const int payload = static_cast<uint8_t>(frame.at(2));
+        const int key = static_cast<uint8_t>(frame.at(3));
+        const int reportedChecksum = static_cast<uint8_t>(frame.at(4));
+        const int expectedChecksum = (function + payload + key) & 0xFF;
+        // The F75 uses the normal checksum for the other FD 20 events, but
+        // the observed Start/Stop frames use key+payload instead:
+        // FD 20 01 67 68 FE and FD 20 01 68 69 FE.
+        const bool startStopChecksum =
+            (key == kKeyEventStart || key == kKeyEventStop) && reportedChecksum == ((payload + key) & 0xFF);
+        // Tristan's isolated F75 capture reported 0x0A for Incline+, while
+        // the vendor parser documents 0x0D. That frame carries the checksum
+        // of the vendor alias (0x2E), so accept that specific observed form.
+        const bool observedInclineUpChecksum =
+            key == kKeyEventInclineUpObserved && reportedChecksum ==
+                ((function + payload + kKeyEventInclineUpVendor) & 0xFF);
+        if (payload != 0x01 ||
+            (reportedChecksum != expectedChecksum && !startStopChecksum && !observedInclineUpChecksum)) {
+            qWarning() << "Sportstech F75 key-event checksum error" << frame.toHex(' ')
+                       << "expected" << expectedChecksum;
+            return;
+        }
+
+        qDebug() << "Sportstech F75 physical key event" << Qt::hex << key << Qt::dec;
+        if (key == kKeyEventStart) {
+            // QZ's Start action is also its pause/resume toggle. The UI slot
+            // receives this signal with send_event_to_device=false, so the
+            // physical Start/Resume action is not echoed to the UART.
+            emit buttonHWStart();
+        } else if (key == kKeyEventStop) {
+            // Stop is terminal in QZ, unlike the Start/Pause toggle.
+            emit buttonHWStop();
+        } else if (key == kKeyEventInclineUpObserved || key == kKeyEventInclineUpVendor) {
+            // 0x0A is the empirical F75 code and 0x0D is the vendor-parser
+            // code. Both represent one Incline+ action, never two steps.
+            emit buttonHWInclineUp();
+        } else {
+            qDebug() << "Sportstech F75 unhandled physical key event" << Qt::hex << key << Qt::dec;
+        }
+        return;
+    }
+
+    if (function != 0x60) {
+        qDebug() << "Sportstech F75 RX ignored function" << Qt::hex << function << Qt::dec;
         return;
     }
 
@@ -293,8 +346,8 @@ void sportstechf75treadmill::parseFrames() {
 
         const uint8_t function = static_cast<uint8_t>(receiveBuffer.at(1));
         int frameLength = 0;
-        if (function == 0x60 || function == 0x21 || function == 0x55 || function == 0x10 || function == 0x40 ||
-            function == 0x75 || function == 0x92) {
+        if (function == 0x20 || function == 0x60 || function == 0x21 || function == 0x55 || function == 0x10 ||
+            function == 0x40 || function == 0x75 || function == 0x92) {
             frameLength = 6;
         } else {
             // Unknown FD functions are discarded one byte at a time so that a

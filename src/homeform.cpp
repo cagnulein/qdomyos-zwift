@@ -2046,6 +2046,8 @@ void homeform::trainProgramSignals() {
                    &homeform::PauseFromDevice);
         disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
                    &homeform::StopFromDevice);
+        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWInclineUp, this,
+                   &homeform::InclineUpFromDevice);
         disconnect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram,
                    &trainprogram::onTapeStarted);
         disconnect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
@@ -2087,6 +2089,8 @@ void homeform::trainProgramSignals() {
                     &homeform::PauseFromDevice);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
                     &homeform::StopFromDevice);
+            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWInclineUp, this,
+                    &homeform::InclineUpFromDevice);
             connect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
         } else if (bluetoothManager->device()->deviceType() == BIKE) {
             connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
@@ -6018,6 +6022,26 @@ void homeform::PauseFromDevice() {
 void homeform::StopFromDevice() {
     qDebug() << QStringLiteral("Physical stop button pressed on device - stopping app");
     Stop();
+}
+
+void homeform::InclineUpFromDevice() {
+    qDebug() << QStringLiteral("Physical incline-up button pressed on device");
+    if (!bluetoothManager->device() || bluetoothManager->device()->deviceType() != TREADMILL) {
+        return;
+    }
+
+    auto *device = static_cast<treadmill *>(bluetoothManager->device());
+    QSettings settings;
+    double step = settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
+                      .toDouble();
+    if (step < device->minStepInclination()) {
+        step = device->minStepInclination();
+    }
+    const double incline = device->currentInclination().value() + step;
+    // The treadmill has already applied the physical key. Updating QZ's
+    // requested target keeps the UI/session in sync; the F75 driver emits
+    // only its normal A0 state frame and never echoes FB 07 here.
+    device->changeInclination(incline, incline);
 }
 
 void homeform::StartRequested() {
