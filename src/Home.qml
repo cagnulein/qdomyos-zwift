@@ -281,6 +281,8 @@ HomeForm {
         if (rootItem.rpeFeelPopupEnabled()) {
             rpeFeelPopup.selectedRpe = 5;
             rpeFeelPopup.selectedFeel = 50;
+            // A change of language rebuilds the list and moves it to the first item
+            feelCombo.currentIndex = 2;
             rpeFeelPopup.open();
         } else {
             finish_stop();

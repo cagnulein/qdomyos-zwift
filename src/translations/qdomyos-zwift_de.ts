@@ -5506,8 +5506,8 @@ Erlauben Sie im nächsten Fenster den Zugriff auf den QZ-Ordner.</translation>
         <translation>Sprache der App:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Wählen Sie Auto, um die Sprache Ihres Geräts zu übernehmen, oder wählen Sie eine bestimmte Sprache für QZ. Neustart erforderlich.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Wählen Sie Auto, um die Sprache Ihres Geräts zu übernehmen, oder wählen Sie eine bestimmte Sprache für QZ.</translation>
     </message>
     <message>
         <source>lbs</source>
