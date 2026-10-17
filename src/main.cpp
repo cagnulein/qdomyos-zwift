@@ -39,6 +39,9 @@
 
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <QAccessible>
+#include <QAndroidJniObject>
+#include <QTimer>
 #include <QtAndroid>
 #endif
 
@@ -557,6 +560,30 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
 
+#ifdef Q_OS_ANDROID
+// Qt 5.15 turns its accessibility on when Android reports it enabled. The report comes on the
+// Android UI thread, and when it comes before Qt published its platform integration (a service
+// such as TalkBack already on at launch), Qt logs "Could not activate platform accessibility" and
+// stays off. Qt Quick Controls then set no role or name: buttons are missing from TalkBack's tree,
+// a group box has no title, a spin box takes no focus. Here, on the Qt thread with its event loop
+// running, the report is repeated while Android has accessibility on and Qt does not: triesLeft
+// attempts in all, this one included, 500 ms apart.
+static void restoreLostAccessibility(int triesLeft) {
+    if (QAccessible::isActive() || triesLeft <= 0)
+        return;
+    if (QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityOn", "()Z")) {
+        QAndroidJniObject::callStaticMethod<void>("org/qtproject/qt5/android/accessibility/QtNativeAccessibility",
+                                                  "setActive", "(Z)V", jboolean(true));
+        if (QAccessible::isActive()) {
+            qDebug() << "accessibility: turned on again, Qt lost Android's report at launch";
+            return;
+        }
+    }
+    QTimer::singleShot(500, [triesLeft] { restoreLostAccessibility(triesLeft - 1); });
+}
+#endif
+
 int main(int argc, char *argv[]) {
 #ifdef Q_OS_WIN32
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
@@ -1036,6 +1063,9 @@ int main(int argc, char *argv[]) {
         engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
 
         engine.load(url);
+#ifdef Q_OS_ANDROID
+        QTimer::singleShot(0, [] { restoreLostAccessibility(20); });
+#endif
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
                          &homeform::aboutToQuit); // NOTE: clazy-unneeded-cast

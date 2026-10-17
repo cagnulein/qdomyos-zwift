@@ -14,6 +14,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
+import android.view.accessibility.AccessibilityManager;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 import android.view.WindowManager;
@@ -151,6 +152,19 @@ public class CustomQtActivity extends QtActivity {
         return 0;
     }
 
+    private static volatile CustomQtActivity accessibilityActivity = null;
+
+    // Called by Qt from its own thread at start: whether Android has accessibility on (main.cpp
+    // turns Qt's accessibility on again when Qt lost that report)
+    public static boolean accessibilityOn() {
+        CustomQtActivity activity = accessibilityActivity;
+        if (activity == null) {
+            return false;
+        }
+        AccessibilityManager manager = (AccessibilityManager) activity.getSystemService(ACCESSIBILITY_SERVICE);
+        return manager != null && manager.isEnabled();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -159,6 +173,7 @@ public class CustomQtActivity extends QtActivity {
         AgeSignalsHelper.requestAgeSignals(this);
         HealthConnectHelper.initialize(this);
         registerBackCallback();
+        accessibilityActivity = this;
 
         // Make the window truly edge-to-edge so the app renders into ALL screen areas
         // including the display cutout (punch-hole/notch) on all 4 rotation variants.
