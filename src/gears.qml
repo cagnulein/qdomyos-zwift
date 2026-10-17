@@ -789,7 +789,9 @@ ScrollView {
 
                                 SpinBox {
                                     id: cranksetSpinBox
-                                    Accessible.name: qsTr("Gear") + " " + gear + ", " + qsTr("Chainring") + ": " + value
+                                    // the column headers are shortened in some languages to fit; the
+                                    // name a screen reader speaks uses the full label of the field above
+                                    Accessible.name: qsTr("Gear") + " " + gear + ", " + qsTr("Chainring Size") + ": " + value
                                     // TalkBack changes the value with increase()/decrease(), which do not emit
                                     // valueModified, the signal that saves the table
                                     Accessible.onIncreaseAction: {
@@ -870,7 +872,7 @@ ScrollView {
 
                                 SpinBox {
                                     id: cogSpinBox
-                                    Accessible.name: qsTr("Gear") + " " + gear + ", " + qsTr("Rear Cog") + ": " + value
+                                    Accessible.name: qsTr("Gear") + " " + gear + ", " + qsTr("Cog Size") + ": " + value
                                     Accessible.onIncreaseAction: {
                                         increase()
                                         valueModified()
