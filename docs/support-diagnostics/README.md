@@ -16,6 +16,8 @@ This directory contains reusable diagnostic intake guidance for QZ support. It f
 - [Treadmill control diagnostics](treadmill-controls.md)
 - [Virtual device settings diagnostics](virtual-device-settings.md)
 - [Virtual profile diagnostic intake](virtual-profile-intake.md)
+- [Zwift power-source pairing diagnostics](zwift-power-pairing.md)
+- [Virtual gearing and controller timing](gear-controller-timing.md)
 - [Workout recording and history](workout-recording.md)
 - [Power and training metrics](power-metrics.md)
 
