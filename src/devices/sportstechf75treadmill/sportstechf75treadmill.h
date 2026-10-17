@@ -59,6 +59,7 @@ class sportstechf75treadmill : public treadmill {
     int lastCommandIncline = -100;
     bool stopRunningFramePending = false;
     bool pauseRampPending = false;
+    bool stopRampPending = false;
     int pauseRampProtocolSpeed = -1;
     int pauseRampIncline = 0;
     int pauseRampTicks = 0;

@@ -9,6 +9,73 @@
 - One concrete expected-versus-observed example for a failing command, including any delay.
 - Confirm that QZ manual control was tested before troubleshooting commands from a training app.
 
+### Sportstech F75 and Sportstech/ZY treadmills with an Android console
+
+Sportstech F75 units with an integrated Android panel may use the proprietary
+ZY-Treadmill serial controller instead of FTMS Bluetooth. QZ must use the
+model-specific **Sportstech F75 Android serial** profile; selecting a generic
+FTMS treadmill profile is not equivalent.
+
+#### Before testing
+
+1. Close QZ.
+2. Stop the manufacturer's app so it cannot keep the UART open. For the F75
+   profile the verified package is `com.zhongyang.treadmill`:
+
+   ```cmd
+   adb shell am force-stop com.zhongyang.treadmill
+   adb shell pm disable-user --user 0 com.zhongyang.treadmill
+   adb shell pidof com.zhongyang.treadmill
+   adb shell pidof com.zhongyang.treadmill:remote
+   ```
+
+   The last two commands must return no PID. `pm disable-user` alone does not
+   prove that an already-running process has exited.
+3. Open QZ and enable **Settings > Treadmill Options > Sportstech F75 Android
+   serial**. The F75 driver uses its fixed Android UART; do not enter a
+   guessed serial-port path.
+4. Test one action at a time: Start, Pause/Resume, Stop, speed, and incline.
+   Do not run QZ and the manufacturer's app concurrently.
+
+#### Expected F75 behavior
+
+- Physical Start toggles Start, Pause, and Resume through QZ.
+- Physical Stop ends the QZ workout and the normal belt stop is sent as a
+  gradual speed ramp rather than an immediate speed drop.
+- Incline+ changes the target by one supported step.
+- The treadmill's safety/emergency stop remains the emergency mechanism; do
+  not use a software ramp as a substitute for it.
+
+QZ distinguishes commanded values from independent feedback. During a
+profile that has no validated non-zero telemetry, a speed or incline visible in
+QZ can be the last requested command rather than a measurement from the
+console. A physical reaction proves that a command reached a controller; it
+does not by itself prove that the displayed value is independent feedback.
+
+#### Unlocking an experimental APK
+
+If support grants access for a test build, enter the exact granted email under
+**QZ > Settings > General > Email**, save it, and restart QZ. Install/update
+the supplied APK, keep the manufacturer's app stopped, enable the F75 serial
+profile, and then repeat the controlled test. An allowlist grant unlocks QZ
+access to the test build; it does not create a Patreon subscription or unlock
+another manufacturer's app.
+
+#### Other Sportstech/ZY Android treadmills
+
+The same ownership and testing rules apply to other Sportstech models with an
+Android console, but the UART path, baud rate, frame layout, telemetry, button
+codes, and vendor package may differ. Do not reuse the F75 profile merely
+because the console looks similar. Collect the exact model number and vendor
+package, keep the official app closed during QZ testing, and provide one
+annotated log for each control action if the behavior is not supported.
+
+For Windows captures, use `cmd.exe` from the folder containing `adb.exe`,
+verify `adb devices` first, clear logcat before launching QZ, and record the
+whole test from QZ launch through the single physical action. Include the QZ
+version, selected profile, exact model, and whether the vendor process checks
+returned empty.
+
 ### If still unclear
 
 - Record a short QZ debug log with one clearly identified control action at a time and note the approximate time.

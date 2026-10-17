@@ -115,3 +115,64 @@ After the reboot, QZ should advertise correctly and be visible to other apps/dev
 
 Yes, QZ has a macOS build that runs on Apple Silicon. If you run into issues with your trainer not being detected or metrics not updating when both QZ and Zwift are on the same Mac, please share a debug log from a session that reproduces the problem so it can be diagnosed:
 https://github.com/cagnulein/qdomyos-zwift/wiki/How-do-i-get-the-debug-log-in-case-something-doesn't-work%3F
+
+---
+
+## Sportstech / ZY-Treadmill Android consoles
+
+### 26. How do I use QZ with a Sportstech F75 or a similar Sportstech treadmill with an Android panel?
+
+Sportstech F75 units with an integrated Android panel may use the proprietary
+ZY-Treadmill serial controller instead of FTMS Bluetooth. Use the exact
+**Sportstech F75 Android serial** profile in **Settings > Treadmill Options**;
+a generic FTMS treadmill profile is not equivalent.
+
+Before testing:
+
+1. Close QZ.
+2. Stop the manufacturer's app so it cannot keep the UART. For the F75, the
+   verified package is `com.zhongyang.treadmill`:
+
+   ```cmd
+   adb shell am force-stop com.zhongyang.treadmill
+   adb shell pm disable-user --user 0 com.zhongyang.treadmill
+   adb shell pidof com.zhongyang.treadmill
+   adb shell pidof com.zhongyang.treadmill:remote
+   ```
+
+   The final two commands must return no PID. Disabling a package does not by
+   itself prove that an already-running process has exited.
+3. Open QZ and enable **Sportstech F75 Android serial**. The F75 driver uses a
+   fixed Android UART; do not enter a guessed serial-port path.
+4. Test one action at a time and do not run QZ and the manufacturer's app
+   concurrently.
+
+On the F75, physical Start toggles Start/Pause/Resume through QZ, physical
+Stop ends the QZ workout with a gradual normal speed ramp, and Incline+ changes
+one supported step. The treadmill's safety/emergency stop remains the
+emergency mechanism; a software ramp is not a substitute for it.
+
+QZ separates commanded values from independent feedback. If the profile has
+not yet validated non-zero telemetry on a particular unit, a value shown in QZ
+may be the last requested command rather than an independent measurement.
+
+### 27. How do I unlock an experimental Android APK for this treadmill?
+
+After support grants access, enter the exact granted email under
+**QZ > Settings > General > Email**, save it, and restart QZ. Install or update
+the supplied APK, keep the manufacturer's app stopped, enable the F75 serial
+profile, and repeat the controlled test. This QZ allowlist grant does not create
+a Patreon subscription and does not unlock the manufacturer's app.
+
+### 28. Does the F75 procedure apply to every Sportstech treadmill?
+
+Only the ownership and diagnostic procedure is general. The UART path, baud
+rate, frame layout, telemetry, button codes, and vendor package may differ by
+model and Android console revision. Do not reuse the F75 profile merely because
+the console looks similar. Provide the exact model number, vendor package, QZ
+version, selected profile, and one annotated log per control action when a
+similar Sportstech/ZY treadmill is not supported.
+
+For Windows captures, use `cmd.exe` from the folder containing `adb.exe`, run
+`adb devices` first, clear logcat before launching QZ, and record the complete
+test from QZ launch through the single physical action.

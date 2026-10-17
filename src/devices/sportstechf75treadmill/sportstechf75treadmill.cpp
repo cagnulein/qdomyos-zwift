@@ -435,6 +435,7 @@ void sportstechf75treadmill::update() {
         runningCommandTicks = 0;
         runningBurstFrames = 0;
         stopRunningFramePending = false;
+        stopRampPending = false;
         pauseRampPending = false;
         pauseRampProtocolSpeed = -1;
         pauseRampTicks = 0;
@@ -456,18 +457,19 @@ void sportstechf75treadmill::update() {
             pauseRampIncline = qBound(0, lastCommandIncline, 255);
             pauseRampTicks = 0;
             pauseRampPending = true;
+            stopRampPending = false;
             stopRunningFramePending = false;
         } else {
-            sendCommand(kCommandStop, 0, 0);
-            pauseRampPending = false;
-            pauseRampProtocolSpeed = -1;
+            // A normal F75 stop uses the same smooth A0 speed ramp as pause.
+            // Keep the final FB 00 command until the belt has reached zero;
+            // an emergency-stop path, if added later, can still send FB 00
+            // immediately without reusing this normal-stop state.
+            pauseRampProtocolSpeed = qBound(0, qRound(lastCommandSpeed * kSpeedProtocolScale), 255);
+            pauseRampIncline = qBound(0, lastCommandIncline, 255);
             pauseRampTicks = 0;
-            // The vendor sends an A0 frame with zero speed/incline shortly
-            // after the 0x00 command. Keep this separate from active A0
-            // frames so zero cannot accidentally become a normal command.
-            stopRunningFramePending = true;
-            stopRunningFrameTicks = 0;
-            stopRequestedThisTick = true;
+            pauseRampPending = true;
+            stopRampPending = true;
+            stopRunningFramePending = false;
         }
         requestStop = -1;
         requestPause = -1;
@@ -493,9 +495,20 @@ void sportstechf75treadmill::update() {
                 // The vendor marks the paused state with incline=0xFF after
                 // the speed ramp reaches zero.
                 sendRunningProtocolCommand(0, 0xFF, true);
+                if (stopRampPending) {
+                    sendCommand(kCommandStop, 0, 0);
+                    stopRampPending = false;
+                    pauseRampPending = false;
+                }
             } else {
                 sendRunningProtocolCommand(pauseRampProtocolSpeed, pauseRampIncline, true);
             }
+            pauseRampTicks = 0;
+        } else if (stopRampPending) {
+            sendRunningProtocolCommand(0, 0xFF, true);
+            sendCommand(kCommandStop, 0, 0);
+            stopRampPending = false;
+            pauseRampPending = false;
             pauseRampTicks = 0;
         } else if (++pauseRampTicks >= kTimerTicksPerSecond) {
             sendRunningProtocolCommand(0, 0xFF, true);
