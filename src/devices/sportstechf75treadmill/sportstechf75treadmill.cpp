@@ -145,7 +145,7 @@ void sportstechf75treadmill::sendStartupCommand() {
 #endif
 }
 
-QByteArray sportstechf75treadmill::runningFrame(int speed, int incline, bool allowZero) const {
+QByteArray sportstechf75treadmill::runningProtocolFrame(int protocolSpeed, int incline, bool allowZero) const {
     // The vendor sends this A0 running-parameter frame after the A2 countdown.
     // The first three values are workout counters; zero is safe for the first
     // control probe while the proven speed/incline fields remain at offsets 8/9.
@@ -153,10 +153,6 @@ QByteArray sportstechf75treadmill::runningFrame(int speed, int incline, bool all
     QByteArray frame(12, static_cast<char>(0));
     frame[0] = static_cast<char>(kFrameStart);
     frame[1] = static_cast<char>(0xA0);
-    // The vendor UI displays speed / 10, while A0 carries the raw deci-km/h
-    // value. Keep QZ's speed in km/h and scale only at the wire boundary.
-    // A zero speed is reserved for the vendor's pause/stop follow-up frame.
-    const int protocolSpeed = speed * kSpeedProtocolScale;
     frame[8] = static_cast<char>(qBound(allowZero ? 0 : kSpeedProtocolScale, protocolSpeed, 255));
     frame[9] = static_cast<char>(qBound(0, incline, 255));
 
@@ -169,7 +165,24 @@ QByteArray sportstechf75treadmill::runningFrame(int speed, int incline, bool all
     return frame;
 }
 
-void sportstechf75treadmill::sendRunningCommand(int speed, int incline, bool allowZero) {
+QByteArray sportstechf75treadmill::runningFrame(double speed, int incline, bool allowZero) const {
+    // QZ keeps speed in km/h; the A0 wire field is deci-km/h.
+    return runningProtocolFrame(qRound(speed * kSpeedProtocolScale), incline, allowZero);
+}
+
+void sportstechf75treadmill::sendRunningProtocolCommand(int protocolSpeed, int incline, bool allowZero) {
+#ifdef Q_OS_ANDROID
+    if (serialAvailable()) {
+        sendFrame(runningProtocolFrame(protocolSpeed, incline, allowZero));
+    }
+#else
+    Q_UNUSED(protocolSpeed);
+    Q_UNUSED(incline);
+    Q_UNUSED(allowZero);
+#endif
+}
+
+void sportstechf75treadmill::sendRunningCommand(double speed, int incline, bool allowZero) {
 #ifdef Q_OS_ANDROID
     if (serialAvailable()) {
         sendFrame(runningFrame(speed, incline, allowZero));
@@ -181,7 +194,7 @@ void sportstechf75treadmill::sendRunningCommand(int speed, int incline, bool all
 #endif
 }
 
-void sportstechf75treadmill::publishCommandedMetrics(int speed, int incline) {
+void sportstechf75treadmill::publishCommandedMetrics(double speed, int incline) {
     // The vendor A0 frame carries the controller state that the vendor app is
     // commanding. This console does not provide a non-zero measured speed or
     // incline frame while running, so expose that state to QZ as a display
@@ -348,13 +361,13 @@ void sportstechf75treadmill::update() {
     }
 
     const double rawRequestedSpeed = lastRequestedSpeed().value();
-    const int requestedSpeed = qBound(0, qRound(rawRequestedSpeed), 25);
+    const double requestedSpeed = qBound(0.0, rawRequestedSpeed, 25.0);
     const int requestedIncline = qBound(0, qRound(lastRequestedInclination().value()), 25);
     // The vendor app starts the belt with a non-zero target speed.  QZ can
     // otherwise reach Start with a zero target, which produces an A2 start
     // frame that leaves the controller stopped.  Keep the minimum only for
     // the active command path; a later user speed request replaces it.
-    const int commandSpeed = qMax(1, requestedSpeed);
+    const double commandSpeed = qMax(0.1, requestedSpeed);
 
     if (requestStart != -1) {
         qDebug() << "Sportstech F75 START speed raw" << rawRequestedSpeed << "requested" << requestedSpeed
@@ -369,6 +382,9 @@ void sportstechf75treadmill::update() {
         runningCommandTicks = 0;
         runningBurstFrames = 0;
         stopRunningFramePending = false;
+        pauseRampPending = false;
+        pauseRampProtocolSpeed = -1;
+        pauseRampTicks = 0;
         stopRunningFrameTicks = 0;
         lastCommandSpeed = commandSpeed;
         lastCommandIncline = requestedIncline;
@@ -377,8 +393,29 @@ void sportstechf75treadmill::update() {
 
     bool stopRequestedThisTick = false;
     if (requestStop != -1) {
-        qDebug() << "Sportstech F75 STOP" << (requestPause != -1 ? "pause" : "stop");
-        sendCommand(kCommandStop, 0, 0);
+        const bool pauseRequested = requestPause != -1;
+        qDebug() << "Sportstech F75 STOP" << (pauseRequested ? "pause" : "stop");
+        if (pauseRequested) {
+            // The vendor pauses by ramping the A0 speed field down by one
+            // deci-km/h every 100 ms. It does not send FB 00 at the start of
+            // this ramp; that command is reserved for the final Stop action.
+            pauseRampProtocolSpeed = qBound(0, qRound(lastCommandSpeed * kSpeedProtocolScale), 255);
+            pauseRampIncline = qBound(0, lastCommandIncline, 255);
+            pauseRampTicks = 0;
+            pauseRampPending = true;
+            stopRunningFramePending = false;
+        } else {
+            sendCommand(kCommandStop, 0, 0);
+            pauseRampPending = false;
+            pauseRampProtocolSpeed = -1;
+            pauseRampTicks = 0;
+            // The vendor sends an A0 frame with zero speed/incline shortly
+            // after the 0x00 command. Keep this separate from active A0
+            // frames so zero cannot accidentally become a normal command.
+            stopRunningFramePending = true;
+            stopRunningFrameTicks = 0;
+            stopRequestedThisTick = true;
+        }
         requestStop = -1;
         requestPause = -1;
         commandActive = false;
@@ -386,20 +423,31 @@ void sportstechf75treadmill::update() {
         startCountdownTicks = 0;
         runningCommandTicks = 0;
         runningBurstFrames = 0;
-        lastCommandSpeed = -1;
+        lastCommandSpeed = -1.0;
         lastCommandIncline = -100;
-        // The vendor sends an A0 frame with zero speed/incline shortly after
-        // the 0x00 command. Keep this separate from active A0 frames so zero
-        // cannot accidentally become a normal running command.
-        stopRunningFramePending = true;
-        stopRunningFrameTicks = 0;
-        stopRequestedThisTick = true;
     }
 
     if (stopRunningFramePending && !stopRequestedThisTick && ++stopRunningFrameTicks >= 1) {
         sendRunningCommand(0, 0, true);
         stopRunningFramePending = false;
         stopRunningFrameTicks = 0;
+    }
+
+    if (pauseRampPending) {
+        if (pauseRampProtocolSpeed > 0) {
+            --pauseRampProtocolSpeed;
+            if (pauseRampProtocolSpeed == 0) {
+                // The vendor marks the paused state with incline=0xFF after
+                // the speed ramp reaches zero.
+                sendRunningProtocolCommand(0, 0xFF, true);
+            } else {
+                sendRunningProtocolCommand(pauseRampProtocolSpeed, pauseRampIncline, true);
+            }
+            pauseRampTicks = 0;
+        } else if (++pauseRampTicks >= kTimerTicksPerSecond) {
+            sendRunningProtocolCommand(0, 0xFF, true);
+            pauseRampTicks = 0;
+        }
     }
 
     // Do not send A0 during the countdown. The vendor emits A2 02, A2 01 and

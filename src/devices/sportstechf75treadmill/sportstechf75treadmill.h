@@ -16,7 +16,7 @@ class sportstechf75treadmill : public treadmill {
 
     bool connected() override;
     double minStepInclination() override { return 1.0; }
-    double minStepSpeed() override { return 1.0; }
+    double minStepSpeed() override { return 0.1; }
 
   private slots:
     void changeInclinationRequested(double grade, double percentage);
@@ -33,11 +33,13 @@ class sportstechf75treadmill : public treadmill {
     void handleFrame(const QByteArray &frame);
     void sendFrame(const QByteArray &frame);
     void sendStartupCommand();
-    void sendRunningCommand(int speed, int incline, bool allowZero = false);
-    void publishCommandedMetrics(int speed, int incline);
+    void sendRunningCommand(double speed, int incline, bool allowZero = false);
+    void sendRunningProtocolCommand(int protocolSpeed, int incline, bool allowZero = false);
+    void publishCommandedMetrics(double speed, int incline);
     void sendCommand(int command, int data1, int data2);
     QByteArray startupFrame() const;
-    QByteArray runningFrame(int speed, int incline, bool allowZero = false) const;
+    QByteArray runningFrame(double speed, int incline, bool allowZero = false) const;
+    QByteArray runningProtocolFrame(int protocolSpeed, int incline, bool allowZero = false) const;
     QByteArray commandFrame(int command, int data1, int data2) const;
     bool serialAvailable() const;
 
@@ -52,9 +54,13 @@ class sportstechf75treadmill : public treadmill {
     int startCountdownValue = -1;
     int startCountdownTicks = 0;
     int stopRunningFrameTicks = 0;
-    int lastCommandSpeed = -1;
+    double lastCommandSpeed = -1.0;
     int lastCommandIncline = -100;
     bool stopRunningFramePending = false;
+    bool pauseRampPending = false;
+    int pauseRampProtocolSpeed = -1;
+    int pauseRampIncline = 0;
+    int pauseRampTicks = 0;
 };
 
 #endif // SPORTSTECHF75TREADMILL_H
