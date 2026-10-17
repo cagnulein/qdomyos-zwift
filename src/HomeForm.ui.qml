@@ -112,6 +112,8 @@ Page {
                     icon.height: row.height - 54
                     icon.width: 46
                     text: rootItem.startText
+                    // fixed width: keep the size it had before the Text size setting
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx }
                     enabled: true
                     id: start
                     width: 120
@@ -142,6 +144,7 @@ Page {
                     icon.height: row.height - 54
                     icon.width: 46
                     text: rootItem.stopText
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx }
                     enabled: true
                     id: stop
                     width: 120
