@@ -19,7 +19,6 @@ WorkoutModel::WorkoutModel(const QString& dbPath, QObject *parent)
     , m_dbPath(dbPath)
     , m_currentStreak(0)
     , m_longestStreak(0)
-    , m_streakMessage("")
     , m_isDateFiltered(false)
     , m_filteredDate()
 {
@@ -128,8 +127,12 @@ int WorkoutModel::longestStreak() const {
     return m_longestStreak;
 }
 
+// Made when it is read, not stored: it follows a change of the app language.
+// No workouts at all (the longest streak is at least 1 otherwise): no line, as before
 QString WorkoutModel::streakMessage() const {
-    return m_streakMessage;
+    if (m_longestStreak == 0)
+        return QString();
+    return getStreakMessage(m_currentStreak);
 }
 
 bool WorkoutModel::deleteWorkout(int workoutId) {
@@ -549,12 +552,10 @@ void WorkoutModel::calculateStreaks() {
     }
 
     // Update values and emit signal if changed
-    QString newMessage = getStreakMessage(currentStreak);
-    bool changed = (m_currentStreak != currentStreak || m_longestStreak != longestStreak || m_streakMessage != newMessage);
+    bool changed = (m_currentStreak != currentStreak || m_longestStreak != longestStreak);
     m_currentStreak = currentStreak;
     m_longestStreak = longestStreak;
-    m_streakMessage = newMessage;
-    
+
     if (changed) {
         emit streakChanged();
     }

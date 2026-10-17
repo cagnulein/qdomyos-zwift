@@ -3960,7 +3960,7 @@ Do you want to switch to the classic Bluetooth bridge for this session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

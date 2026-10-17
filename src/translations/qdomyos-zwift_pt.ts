@@ -5538,8 +5538,8 @@ Na próxima janela, permita o acesso à pasta QZ.</translation>
         <translation>Idioma do Aplicativo:</translation>
     </message>
     <message>
-        <source>Choose Auto to follow your device language, or pick a specific language for QZ. Restart required.</source>
-        <translation>Escolha Automático para seguir o idioma do seu dispositivo, ou selecione um idioma específico para QZ. É necessário reiniciar.</translation>
+        <source>Choose Auto to follow your device language, or pick a specific language for QZ.</source>
+        <translation>Escolha Automático para seguir o idioma do seu dispositivo, ou selecione um idioma específico para QZ.</translation>
     </message>
     <message>
         <source>lbs</source>

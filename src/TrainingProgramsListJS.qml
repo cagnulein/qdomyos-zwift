@@ -378,6 +378,15 @@ ColumnLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/workoutpreview/preview.html"
+
+                    // a new app language: the page takes its texts when loaded and asks the server
+                    // for the program itself, so a reload loses nothing
+                    Connections {
+                        target: rootItem
+                        function onAppLanguageChanged() {
+                            previewWebView.reload()
+                        }
+                    }
                 }
             }
         }
