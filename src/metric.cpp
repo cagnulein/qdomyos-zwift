@@ -74,6 +74,7 @@ void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats
 
     // it has to be here, even if the value is the same, due to https://github.com/cagnulein/qdomyos-zwift/issues/1325
     m_lastChanged = now;
+    ++m_updateSequence;
 
     m_value = v;
 
@@ -460,6 +461,9 @@ double metric::powerPeak(QList<SessionLine> *session, int seconds) {
 // power = 5 min peak power for a specific ride
 double metric::calculateVO2Max(QList<SessionLine> *session) {       
     double peak = powerPeak(session, 5*60);
+    // -1: shorter than 5 min; 0: no power data or no full window. The formula would still give about 7
+    if (peak <= 0)
+        return 0;
     QSettings settings;
     return ((0.0108 * peak + 0.007 * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) /
             settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) *

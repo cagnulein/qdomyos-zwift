@@ -122,3 +122,16 @@ If QZ is following Zwift's automatic incline but you want to hold a manually sel
 The toggle pauses **automatic speed control as well as incline control**; it is not an incline-only lock. Tap it again to request automatic control when needed, but verify that incoming Zwift grade updates actually resume before relying on it for a subsequent climb.
 
 In a confirmed treadmill support case, pausing automatic control allowed the user to hold a 15% incline while continuing to record the workout. The user also reported that automatic incline did not reliably resume afterward; that separate problem remains under investigation.
+
+## My Echelon Stride shows the correct speed number but the wrong km/h or mph units in QZ. What should I check?
+
+**Separate the units reported by the treadmill from the units QZ displays.** The Echelon Stride may report speed in **km/h** even when you prefer to see miles in the QZ interface. Enabling **Miles unit from the device** in that situation makes QZ interpret the incoming km/h number as mph and apply an unnecessary conversion.
+
+1. Open **QZ Settings > Treadmill Options > Echelon Options**.
+2. If the Stride's own console reports **km/h**, set **Miles unit from the device** to **OFF**.
+3. If you want QZ's interface to show mph and miles, leave **Settings > General Options > Use Miles unit in UI** enabled. This is a separate display setting.
+4. Fully close and restart QZ, reconnect the treadmill and compare its speed with QZ. For example, **4 km/h** on the treadmill should be about **2.5 mph** in QZ when miles are selected for display.
+
+**Confirmed result:** This configuration corrected the km/mile mismatch in an Echelon Stride support case. QZ's Echelon Stride driver uses the incoming-device miles flag to decide whether to multiply received speed by approximately 1.60934; the UI units are handled separately.
+
+This corrects **speed/distance units**, not a separate problem where the manufacturer's app has difficulty unlocking or reconnecting to the Stride.

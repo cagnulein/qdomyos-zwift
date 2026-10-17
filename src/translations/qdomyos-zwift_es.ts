@@ -1539,6 +1539,10 @@ Do you want to update QZ settings?</source>
         <translation>Velocidad máxima</translation>
     </message>
     <message>
+        <source>Max Incline</source>
+        <translation>Pendiente máxima</translation>
+    </message>
+    <message>
         <source>Max Resistance</source>
         <translation>Resistencia máxima</translation>
     </message>
@@ -3610,6 +3614,146 @@ Esto puede tardar un poco en el primer inicio.</translation>
         <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
         <translation>Android permite 5 búsquedas Bluetooth en 30 s, la siguiente empieza en %1 s</translation>
     </message>
+    <message>
+        <source>Great workout!</source>
+        <translation>¡Buen entrenamiento!</translation>
+    </message>
+    <message>
+        <source>Average Speed: %1</source>
+        <translation>Velocidad promedio: %1</translation>
+    </message>
+    <message>
+        <source>Max Speed: %1</source>
+        <translation>Velocidad máxima: %1</translation>
+    </message>
+    <message>
+        <source>Calories burned: %1</source>
+        <translation>Calorías quemadas: %1</translation>
+    </message>
+    <message>
+        <source>Distance: %1</source>
+        <translation>Distancia: %1</translation>
+    </message>
+    <message>
+        <source>Elevation Gain (%1): %2</source>
+        <translation>Ganancia de elevación (%1): %2</translation>
+    </message>
+    <message>
+        <source>Average Watt: %1</source>
+        <translation>Potencia promedio: %1</translation>
+    </message>
+    <message>
+        <source>Max Watt: %1</source>
+        <translation>Potencia máxima: %1</translation>
+    </message>
+    <message>
+        <source>Average Watt/Kg: %1</source>
+        <translation>Potencia promedio (W/kg): %1</translation>
+    </message>
+    <message>
+        <source>Max Watt/Kg: %1</source>
+        <translation>Potencia máxima (W/kg): %1</translation>
+    </message>
+    <message>
+        <source>Average Heart Rate: %1</source>
+        <translation>Frecuencia cardíaca promedio: %1</translation>
+    </message>
+    <message>
+        <source>Max Heart Rate: %1</source>
+        <translation>Frecuencia cardíaca máxima: %1</translation>
+    </message>
+    <message>
+        <source>Heart Rate Z%1: %2</source>
+        <translation>Tiempo en zona %1 de FC: %2</translation>
+    </message>
+    <message>
+        <source>Total Output: %1</source>
+        <translation>Trabajo total (kJ): %1</translation>
+    </message>
+    <message>
+        <source>Elapsed Time: %1</source>
+        <translation>Tiempo transcurrido: %1</translation>
+    </message>
+    <message>
+        <source>Moving Time: %1</source>
+        <translation>Tiempo en movimiento: %1</translation>
+    </message>
+    <message>
+        <source>Weight Loss (%1): %2</source>
+        <translation>Pérdida de peso (%1): %2</translation>
+    </message>
+    <message>
+        <source>Estimated VO2Max: %1</source>
+        <translation>VO2Max estimado: %1</translation>
+    </message>
+    <message>
+        <source>Running Stress Score: %1</source>
+        <translation>Puntuación de estrés de carrera: %1</translation>
+    </message>
+    <message>
+        <source>5 Seconds Power: %1W %2W/Kg</source>
+        <translation>Potencia de 5 segundos: %1 W, %2 W/kg</translation>
+    </message>
+    <message>
+        <source>1 Minute Power: %1W %2W/Kg</source>
+        <translation>Potencia de 1 minuto: %1 W, %2 W/kg</translation>
+    </message>
+    <message>
+        <source>5 Minutes Power: %1W %2W/Kg</source>
+        <translation>Potencia de 5 minutos: %1 W, %2 W/kg</translation>
+    </message>
+    <message>
+        <source>Estimated FTP: %1W</source>
+        <translation>FTP estimado: %1 W</translation>
+    </message>
+    <message>
+        <source>FTP IMPROVED +%1W!</source>
+        <translation>¡FTP MEJORADO: +%1 W!</translation>
+    </message>
+    <message>
+        <source>Average Cadence: %1</source>
+        <translation>Cadencia promedio: %1</translation>
+    </message>
+    <message>
+        <source>Max Cadence: %1</source>
+        <translation>Cadencia máxima: %1</translation>
+    </message>
+    <message>
+        <source>Average Resistance: %1</source>
+        <translation>Resistencia promedio: %1</translation>
+    </message>
+    <message>
+        <source>Max Resistance: %1</source>
+        <translation>Resistencia máxima: %1</translation>
+    </message>
+    <message>
+        <source>Average Peloton Resistance: %1</source>
+        <translation>Resistencia Peloton promedio: %1</translation>
+    </message>
+    <message>
+        <source>Max Peloton Resistance: %1</source>
+        <translation>Resistencia Peloton máxima: %1</translation>
+    </message>
+    <message>
+        <source>Average Pace: %1</source>
+        <translation>Ritmo promedio: %1</translation>
+    </message>
+    <message>
+        <source>Max Pace: %1</source>
+        <translation>Ritmo máximo: %1</translation>
+    </message>
+    <message>
+        <source>Average Strokes Length: %1</source>
+        <translation>Longitud de palada promedio: %1</translation>
+    </message>
+    <message>
+        <source>meters</source>
+        <translation>m</translation>
+    </message>
+    <message>
+        <source>feet</source>
+        <translation>ft</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -5394,6 +5538,18 @@ En la siguiente ventana, permite el acceso a la carpeta QZ.</translation>
         <translation>Resultados de búsqueda</translation>
     </message>
     <message>
+        <source>Changed</source>
+        <translation>Modificados</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>No hay ajustes modificados</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Ajustes modificados</translation>
+    </message>
+    <message>
         <source>Open</source>
         <translation>Abrir</translation>
     </message>
@@ -5877,7 +6033,7 @@ Por favor, ingrésalo a continuación:</translation>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZ controla tu cinta de correr o bicicleta para mantenerte dentro de una Zona de Frecuencia Cardíaca elegida. Actívalo, establece una zona de frecuencia cardíaca objetivo (FC) en la que entrenar y haz clic en Aceptar. Por ejemplo, ingresa 2 para entrenar en la zona de FC 2 y la cinta de correr ajustará automáticamente la velocidad (o la resistencia en una bicicleta) para mantener tu frecuencia cardíaca en la zona 2. QZ aumenta o disminuye gradualmente tu velocidad (o resistencia de la bicicleta) en pequeños incrementos cada 40 segundos para alcanzar y mantener tu zona de FC objetivo. Durante un entrenamiento, puedes mostrar y usar el botón ‘+’ y ‘-’ en el mosaico Zona de FC objetivo para cambiar la zona de FC objetivo.</translation>
+        <translation type="vanished">QZ controla tu cinta de correr o bicicleta para mantenerte dentro de una Zona de Frecuencia Cardíaca elegida. Actívalo, establece una zona de frecuencia cardíaca objetivo (FC) en la que entrenar y haz clic en Aceptar. Por ejemplo, ingresa 2 para entrenar en la zona de FC 2 y la cinta de correr ajustará automáticamente la velocidad (o la resistencia en una bicicleta) para mantener tu frecuencia cardíaca en la zona 2. QZ aumenta o disminuye gradualmente tu velocidad (o resistencia de la bicicleta) en pequeños incrementos cada 40 segundos para alcanzar y mantener tu zona de FC objetivo. Durante un entrenamiento, puedes mostrar y usar el botón ‘+’ y ‘-’ en el mosaico Zona de FC objetivo para cambiar la zona de FC objetivo.</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -6203,6 +6359,10 @@ Por favor, ingrésalo a continuación:</translation>
     <message>
         <source>Inclination</source>
         <translation>Inclinación</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Velocidad</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -6913,6 +7073,14 @@ NOTAS IMPORTANTES:
         <translation>Si tienes una cinta de correr Bluetooth y un dispositivo Stryd conectado a QZ, y deseas usar la velocidad del Stryd en lugar de la de la cinta de correr, activa esta opción. Por defecto: deshabilitado.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Corrección de velocidad de la cinta en lazo cerrado con Runn/Stryd</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Experimental: corrige gradualmente la velocidad de la cinta controlada por QZ con los datos de Runn/Stryd, cuando el controlador proporciona mediciones de velocidad propias de la máquina. Requiere &quot;Usa la velocidad del sensor de potencia&quot;. Predeterminado: desactivado.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Umbral de corrección de velocidad del sensor de potencia (%):</translation>
     </message>
@@ -7567,6 +7735,14 @@ Predeterminado: A = -0.96, B = 1.33</translation>
     <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Activa “%1” para cambiar esta configuración</translation>
+    </message>
+    <message>
+        <source>PID HR actuator:</source>
+        <translation>Mantener FC mediante:</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ controla tu cinta de correr o bicicleta para mantenerte dentro de una zona de frecuencia cardíaca elegida. El ajuste general &quot;Mantener FC mediante&quot; elige la velocidad o la inclinación en las cintas; un intervalo del entrenamiento puede cambiarlo en el Editor de entrenamiento. El mosaico &quot;Zona de FC objetivo&quot; solo cambia la zona de FC objetivo.</translation>
     </message>
     <message>
         <source>Pafers Rower</source>

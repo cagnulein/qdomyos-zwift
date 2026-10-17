@@ -1539,6 +1539,10 @@ Do you want to update QZ settings?</source>
         <translation>Макс. швидкість</translation>
     </message>
     <message>
+        <source>Max Incline</source>
+        <translation>Макс. нахил</translation>
+    </message>
+    <message>
         <source>Max Resistance</source>
         <translation>Макс. опір</translation>
     </message>
@@ -3602,6 +3606,146 @@ This may take a few moments on first startup.</source>
         <source>Android allows 5 Bluetooth searches in 30 s, the next one starts in %1 s</source>
         <translation>Android дозволяє 5 пошуків Bluetooth за 30 с, наступний почнеться через %1 с</translation>
     </message>
+    <message>
+        <source>Great workout!</source>
+        <translation>Чудове тренування!</translation>
+    </message>
+    <message>
+        <source>Average Speed: %1</source>
+        <translation>Середня швидкість: %1</translation>
+    </message>
+    <message>
+        <source>Max Speed: %1</source>
+        <translation>Максимальна швидкість: %1</translation>
+    </message>
+    <message>
+        <source>Calories burned: %1</source>
+        <translation>Спалено калорій: %1</translation>
+    </message>
+    <message>
+        <source>Distance: %1</source>
+        <translation>Дистанція: %1</translation>
+    </message>
+    <message>
+        <source>Elevation Gain (%1): %2</source>
+        <translation>Набір висоти (%1): %2</translation>
+    </message>
+    <message>
+        <source>Average Watt: %1</source>
+        <translation>Середня потужність: %1</translation>
+    </message>
+    <message>
+        <source>Max Watt: %1</source>
+        <translation>Максимальна потужність: %1</translation>
+    </message>
+    <message>
+        <source>Average Watt/Kg: %1</source>
+        <translation>Середня потужність (Вт/кг): %1</translation>
+    </message>
+    <message>
+        <source>Max Watt/Kg: %1</source>
+        <translation>Максимальна потужність (Вт/кг): %1</translation>
+    </message>
+    <message>
+        <source>Average Heart Rate: %1</source>
+        <translation>Середній пульс: %1</translation>
+    </message>
+    <message>
+        <source>Max Heart Rate: %1</source>
+        <translation>Максимальний пульс: %1</translation>
+    </message>
+    <message>
+        <source>Heart Rate Z%1: %2</source>
+        <translation>Час у пульсовій зоні %1: %2</translation>
+    </message>
+    <message>
+        <source>Total Output: %1</source>
+        <translation>Сумарна робота (кДж): %1</translation>
+    </message>
+    <message>
+        <source>Elapsed Time: %1</source>
+        <translation>Загальний час: %1</translation>
+    </message>
+    <message>
+        <source>Moving Time: %1</source>
+        <translation>Час у русі: %1</translation>
+    </message>
+    <message>
+        <source>Weight Loss (%1): %2</source>
+        <translation>Втрата ваги (%1): %2</translation>
+    </message>
+    <message>
+        <source>Estimated VO2Max: %1</source>
+        <translation>Розрахунковий VO2Max: %1</translation>
+    </message>
+    <message>
+        <source>Running Stress Score: %1</source>
+        <translation>Індекс бігового навантаження: %1</translation>
+    </message>
+    <message>
+        <source>5 Seconds Power: %1W %2W/Kg</source>
+        <translation>Потужність за 5 секунд: %1 Вт, %2 Вт/кг</translation>
+    </message>
+    <message>
+        <source>1 Minute Power: %1W %2W/Kg</source>
+        <translation>Потужність за 1 хвилину: %1 Вт, %2 Вт/кг</translation>
+    </message>
+    <message>
+        <source>5 Minutes Power: %1W %2W/Kg</source>
+        <translation>Потужність за 5 хвилин: %1 Вт, %2 Вт/кг</translation>
+    </message>
+    <message>
+        <source>Estimated FTP: %1W</source>
+        <translation>Розрахунковий FTP: %1 Вт</translation>
+    </message>
+    <message>
+        <source>FTP IMPROVED +%1W!</source>
+        <translation>FTP ЗРІС: +%1 Вт!</translation>
+    </message>
+    <message>
+        <source>Average Cadence: %1</source>
+        <translation>Середній каденс: %1</translation>
+    </message>
+    <message>
+        <source>Max Cadence: %1</source>
+        <translation>Максимальний каденс: %1</translation>
+    </message>
+    <message>
+        <source>Average Resistance: %1</source>
+        <translation>Середній опір: %1</translation>
+    </message>
+    <message>
+        <source>Max Resistance: %1</source>
+        <translation>Максимальний опір: %1</translation>
+    </message>
+    <message>
+        <source>Average Peloton Resistance: %1</source>
+        <translation>Середній опір Peloton: %1</translation>
+    </message>
+    <message>
+        <source>Max Peloton Resistance: %1</source>
+        <translation>Максимальний опір Peloton: %1</translation>
+    </message>
+    <message>
+        <source>Average Pace: %1</source>
+        <translation>Середній темп: %1</translation>
+    </message>
+    <message>
+        <source>Max Pace: %1</source>
+        <translation>Максимальний темп: %1</translation>
+    </message>
+    <message>
+        <source>Average Strokes Length: %1</source>
+        <translation>Середня довжина гребка: %1</translation>
+    </message>
+    <message>
+        <source>meters</source>
+        <translation>м</translation>
+    </message>
+    <message>
+        <source>feet</source>
+        <translation>фут</translation>
+    </message>
 </context>
 <context>
     <name>main</name>
@@ -4219,6 +4363,18 @@ In the next window, allow access to the QZ folder.</source>
     <message>
         <source>Search results</source>
         <translation>Результати пошуку</translation>
+    </message>
+    <message>
+        <source>Changed</source>
+        <translation>Змінені</translation>
+    </message>
+    <message>
+        <source>No changed settings</source>
+        <translation>Усі налаштування типові</translation>
+    </message>
+    <message>
+        <source>Changed settings</source>
+        <translation>Змінені налаштування</translation>
     </message>
     <message>
         <source>Open</source>
@@ -5869,7 +6025,7 @@ Please enter it below:</source>
     </message>
     <message>
         <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.</source>
-        <translation>QZ керує біговою доріжкою або велотренажером, щоб утримувати вас у вибраній пульсовій зоні. Увімкніть, задайте цільову пульсову зону для тренування й натисніть OK. Наприклад, введіть 2, щоб тренуватися в 2-й пульсовій зоні, – доріжка автоматично змінюватиме швидкість (на велотренажері – опір), утримуючи пульс у зоні 2. QZ поступово, невеликими кроками кожні 40 секунд, підвищує або знижує швидкість (чи опір велотренажера), щоб вийти в цільову пульсову зону й утримуватися в ній. Під час тренування можна вивести плитку «Цільова пульсова зона» і змінювати цільову зону її кнопками «+» і «-».</translation>
+        <translation type="vanished">QZ керує біговою доріжкою або велотренажером, щоб утримувати вас у вибраній пульсовій зоні. Увімкніть, задайте цільову пульсову зону для тренування й натисніть OK. Наприклад, введіть 2, щоб тренуватися в 2-й пульсовій зоні, – доріжка автоматично змінюватиме швидкість (на велотренажері – опір), утримуючи пульс у зоні 2. QZ поступово, невеликими кроками кожні 40 секунд, підвищує або знижує швидкість (чи опір велотренажера), щоб вийти в цільову пульсову зону й утримуватися в ній. Під час тренування можна вивести плитку «Цільова пульсова зона» і змінювати цільову зону її кнопками «+» і «-».</translation>
     </message>
     <message>
         <source>PID on HR min:</source>
@@ -6195,6 +6351,10 @@ Please enter it below:</source>
     <message>
         <source>Inclination</source>
         <translation>Нахил</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>Швидкість</translation>
     </message>
     <message>
         <source>Echelon Options</source>
@@ -6901,6 +7061,14 @@ IMPORTANT NOTES:
         <translation>Якщо до QZ під’єднано Bluetooth-доріжку та датчик Stryd і ви хочете брати швидкість зі Stryd, а не з доріжки, увімкніть це налаштування. Типово: вимкнено.</translation>
     </message>
     <message>
+        <source>Runn/Stryd closed-loop treadmill speed correction</source>
+        <translation>Корекція швидкості доріжки за Runn/Stryd (зворотний зв’язок)</translation>
+    </message>
+    <message>
+        <source>Experimental: gradually correct QZ-controlled treadmill speed using Runn/Stryd feedback, when the driver provides independent machine speed measurements. Requires &apos;Use speed from the power sensor&apos;. Disabled by default.</source>
+        <translation>Експериментально: QZ плавно підправляє задану ним швидкість доріжки за даними Runn/Stryd, якщо драйвер доріжки передає власні виміри швидкості. Потрібне налаштування «Швидкість із датчика потужності». Типово: вимкнено.</translation>
+    </message>
+    <message>
         <source>Power sensor speed correction threshold (%):</source>
         <translation>Поріг корекції швидкості за датчиком потужності (%):</translation>
     </message>
@@ -7543,6 +7711,14 @@ Default: A = -0.96, B = 1.33</source>
     <message>
         <source>Turn on “%1” to change this setting</source>
         <translation>Увімкніть «%1», щоб змінити це налаштування</translation>
+    </message>
+    <message>
+        <source>PID HR actuator:</source>
+        <translation>Утримання пульсу змінює:</translation>
+    </message>
+    <message>
+        <source>QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. The global PID HR actuator setting selects speed or inclination for treadmills; a workout interval can override it in the Workout Editor. The PID HR tile changes only the target HR zone.</source>
+        <translation>QZ керує біговою доріжкою або велотренажером, щоб утримувати вас у вибраній пульсовій зоні. Загальне налаштування «Утримання пульсу змінює» вибирає для доріжок швидкість або нахил; окремий інтервал тренування може перевизначити його в редакторі тренувань. Плитка «Цільова пульсова зона» змінює лише цільову пульсову зону.</translation>
     </message>
     <message>
         <source>Pafers Rower</source>

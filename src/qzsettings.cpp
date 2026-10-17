@@ -245,6 +245,8 @@ const QString QZSettings::peloton_gain = QStringLiteral("peloton_gain");
 const QString QZSettings::peloton_offset = QStringLiteral("peloton_offset");
 const QString QZSettings::treadmill_pid_heart_zone = QStringLiteral("treadmill_pid_heart_zone");
 const QString QZSettings::default_treadmill_pid_heart_zone = QStringLiteral("Disabled");
+const QString QZSettings::treadmill_pid_heart_control = QStringLiteral("treadmill_pid_heart_control");
+const QString QZSettings::default_treadmill_pid_heart_control = QStringLiteral("Speed");
 const QString QZSettings::pacef_1mile = QStringLiteral("pacef_1mile");
 const QString QZSettings::pacef_5km = QStringLiteral("pacef_5km");
 const QString QZSettings::pacef_10km = QStringLiteral("pacef_10km");
@@ -856,6 +858,7 @@ const QString QZSettings::tile_erg_mode_enabled = QStringLiteral("tile_erg_mode_
 const QString QZSettings::tile_erg_mode_order = QStringLiteral("tile_erg_mode_order");
 const QString QZSettings::toorx_srx_3500 = QStringLiteral("toorx_srx_3500");
 const QString QZSettings::stryd_speed_instead_treadmill = QStringLiteral("stryd_speed_instead_treadmill");
+const QString QZSettings::treadmill_runn_closed_loop = QStringLiteral("treadmill_runn_closed_loop");
 const QString QZSettings::inclination_delay_seconds = QStringLiteral("inclination_delay_seconds");
 const QString QZSettings::ergDataPoints = QStringLiteral("ergDataPoints");
 const QString QZSettings::default_ergDataPoints = QStringLiteral("");
@@ -914,6 +917,7 @@ const QString QZSettings::default_peloton_expires = QStringLiteral("");
 const QString QZSettings::peloton_code = QStringLiteral("peloton_code");
 const QString QZSettings::default_peloton_code = QStringLiteral("");
 const QString QZSettings::proform_carbon_tl_PFTL59720 = QStringLiteral("proform_carbon_tl_PFTL59720");
+const QString QZSettings::freemotion_t10_9b_hci = QStringLiteral("freemotion_t10_9b_hci");
 const QString QZSettings::proform_treadmill_sport_70 = QStringLiteral("proform_treadmill_sport_70");
 const QString QZSettings::peloton_date_format = QStringLiteral("peloton_date_format");
 const QString QZSettings::default_peloton_date_format = QStringLiteral("MM/dd/yy");
@@ -1310,7 +1314,7 @@ const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral
 const QString QZSettings::android_notification_prompt_disabled = QStringLiteral("android_notification_prompt_disabled");
 const QString QZSettings::android_notification_v2 = QStringLiteral("android_notification_v2");
 
-const uint32_t allSettingsCount = 1017;
+const uint32_t allSettingsCount = 1020;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1493,6 +1497,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_gain, QZSettings::default_peloton_gain},
     {QZSettings::peloton_offset, QZSettings::default_peloton_offset},
     {QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone},
+    {QZSettings::treadmill_pid_heart_control, QZSettings::default_treadmill_pid_heart_control},
     {QZSettings::pacef_1mile, QZSettings::default_pacef_1mile},
     {QZSettings::pacef_5km, QZSettings::default_pacef_5km},
     {QZSettings::pacef_10km, QZSettings::default_pacef_10km},
@@ -2008,6 +2013,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_erg_mode_order, QZSettings::default_tile_erg_mode_order},
     {QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500},
     {QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill},
+    {QZSettings::treadmill_runn_closed_loop, QZSettings::default_treadmill_runn_closed_loop},
     {QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds},
     {QZSettings::ergDataPoints, QZSettings::default_ergDataPoints},
     {QZSettings::proform_carbon_tl, QZSettings::default_proform_carbon_tl},
@@ -2057,6 +2063,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_expires, QZSettings::default_peloton_expires},
     {QZSettings::peloton_code, QZSettings::default_peloton_code},
     {QZSettings::proform_carbon_tl_PFTL59720, QZSettings::default_proform_carbon_tl_PFTL59720},
+    {QZSettings::freemotion_t10_9b_hci, QZSettings::default_freemotion_t10_9b_hci},
     {QZSettings::proform_treadmill_sport_70, QZSettings::default_proform_treadmill_sport_70},
     {QZSettings::peloton_date_format, QZSettings::default_peloton_date_format},
     {QZSettings::force_resistance_instead_inclination, QZSettings::default_force_resistance_instead_inclination},

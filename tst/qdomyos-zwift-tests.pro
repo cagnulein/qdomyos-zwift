@@ -24,6 +24,8 @@ SOURCES += \
         TrainingProgram/trainprogramtestsuite.cpp \
         ToolTests/qfittestsuite.cpp \
         ToolTests/metrictestsuite.cpp \
+        ToolTests/treadmillrunnclosedlooptests.cpp \
+        ToolTests/fitshowstartspeedgatetests.cpp \
         ToolTests/testsettingstestsuite.cpp \
         ToolTests/testsettingssecuritytestsuite.cpp \
         ToolTests/testtrainingloadtestsuite.cpp \
@@ -34,6 +36,7 @@ SOURCES += \
         Devices/TestSchwinn411510EParser.cpp \
         Devices/TestZwiftRideController.cpp \
         Devices/TestApexBikeParser.cpp \
+        Devices/TestEchelonUnlock.cpp \
         Devices/TestNautilusTreadmillParser.cpp \
         Devices/TestFtmsBikeResistance.cpp \
         Devices/TestTrxAppGateUsBellipticalParser.cpp \
@@ -76,6 +79,7 @@ HEADERS += \
     Devices/devicetestdataindex.h \
     Devices/TestSchwinn411510EParser.h \
     Devices/TestApexBikeParser.h \
+    Devices/TestEchelonUnlock.h \
     Devices/TestNautilusTreadmillParser.h \
     Devices/TestFtmsBikeResistance.h \
     Devices/TestTrxAppGateUsBellipticalParser.h \

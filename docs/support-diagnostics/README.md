@@ -15,6 +15,7 @@ This directory contains reusable diagnostic intake guidance for QZ support. It f
 - [GPX and training program control](training-programs.md)
 - [Treadmill control diagnostics](treadmill-controls.md)
 - [Virtual device settings diagnostics](virtual-device-settings.md)
+- [Virtual profile diagnostic intake](virtual-profile-intake.md)
 - [Workout recording and history](workout-recording.md)
 - [Power and training metrics](power-metrics.md)
 

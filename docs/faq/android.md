@@ -48,3 +48,26 @@ If QZ's floating window is too short and you have to scroll to see the metrics, 
 3. Save the settings, then close and reopen the floating window.
 
 Pinching changes the displayed content size, not the floating window dimensions. The width and height settings are implemented in QZ's Android floating-window code. This is verified setup guidance; a customer confirmation is not yet available.
+
+## A QZ Android test build will not extract or says it conflicts with the installed package. What should I do?
+
+Two different installation problems need different fixes:
+
+1. If the downloaded artifact ZIP reports **Unexpected end of archive** or fails to extract completely, **download it again** from the build's original GitHub Actions artifact link and extract the new download before installing the APK.
+2. If the APK extracts but Android reports that the new package **conflicts with the existing package**, an existing QZ installation may use a different signing certificate. Android will not install a differently signed APK as an in-place update.
+3. **Back up or export important QZ settings, profiles, and workout data first**, if they are stored locally and you need to keep them. Uninstalling the current QZ app can delete its local data.
+4. Only if the normal update is blocked by that package/signature conflict, uninstall the existing QZ installation, install the extracted test APK, and restore your saved settings as needed.
+
+Normally, compatible QZ Android builds can be installed over an existing installation without losing settings. **Do not uninstall by default.** In a confirmed support case, downloading the artifact again fixed the incomplete ZIP, and removing the conflicting existing installation allowed the test APK to be installed and run.
+
+## My Echelon console running QZ disconnects from the bike about 30 seconds after connecting. Could the virtual Bluetooth device be involved?
+
+If QZ runs **directly on an older Android-based Echelon console** and already connects to/unlocks the bike, check whether its **Virtual Device Bluetooth** feature is enabled unnecessarily.
+
+1. First confirm that QZ itself receives the bike's live cadence/resistance and that the physical bike connection works.
+2. If you are using QZ **locally on the console** and **do not need another app/device to connect to QZ's Bluetooth advertisement**, disable **Virtual Device Bluetooth** in QZ's virtual-device settings.
+3. Restart QZ and test whether the physical bike connection remains stable for several minutes.
+
+In a confirmed Android 9 Echelon-console A/B test, the physical Bluetooth link disconnected after roughly **31.6–31.8 seconds** in two runs with virtual Bluetooth advertising enabled. With it disabled, the connection remained stable for **at least 68 seconds**, until QZ was deliberately closed. Android battery-optimization changes alone had not solved that specific issue.
+
+**Important:** Disabling virtual Bluetooth also removes that Bluetooth bridge for downstream apps/devices. Do **not** use this workaround if Zwift, MyWhoosh, or another app needs QZ's advertised Bluetooth trainer; investigate the connection issue or use an appropriately configured alternative bridge instead. This is a targeted workaround on the tested older console, not a universal cure for Bluetooth disconnects.
