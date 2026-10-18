@@ -54,6 +54,32 @@ pelotonbike::pelotonbike(bool noWriteResistance, bool noHeartService) {
         }
     }
     // ********************************************************************************************************
+
+    // Peloton V1 is instantiated while bluetooth is still being constructed, before homeform has connected
+    // to bluetooth::deviceConnected and bluetooth::bluetoothDeviceConnected. Replay those startup events once
+    // homeform is ready, preserving the normal device startup path used by the rest of QZ.
+    QTimer::singleShot(5000, this, [this]() {
+        if (initDone)
+            return;
+
+        initDone = true;
+
+        if (homeform::singleton()) {
+            qDebug() << "Peloton startup delay elapsed, replaying homeform device startup";
+            const bool deviceConnectedInvoked = QMetaObject::invokeMethod(
+                homeform::singleton(), "deviceConnected", Qt::DirectConnection,
+                Q_ARG(QBluetoothDeviceInfo, QBluetoothDeviceInfo()));
+            const bool bluetoothDeviceConnectedInvoked = QMetaObject::invokeMethod(
+                homeform::singleton(), "bluetoothDeviceConnected", Qt::DirectConnection,
+                Q_ARG(bluetoothdevice *, this));
+            qDebug() << "Peloton homeform startup replay"
+                     << deviceConnectedInvoked << bluetoothDeviceConnectedInvoked;
+        } else {
+            qWarning() << "Peloton startup delay elapsed before homeform was available";
+        }
+
+        emit connectedAndDiscovered();
+    });
 }
 
 bool pelotonbike::inclinationAvailableByHardware() { return true; }
@@ -159,11 +185,6 @@ void pelotonbike::update() {
 #endif
     
     update_metrics(false, 0);
-
-    if(!initDone) {
-        initDone = true;
-        emit connectedAndDiscovered();
-    }
 
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
