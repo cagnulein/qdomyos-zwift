@@ -32,6 +32,18 @@ qz_crashes() {
 }
 crashes_before=$(qz_crashes)
 
+# A new start can open a screen of another app over QZ (e.g. Health Connect permissions on
+# API 35+) or a system dialog: close it with back presses until a window of QZ has the focus
+for i in 1 2 3 4 5; do
+  FOCUS=$(adb shell dumpsys window | grep -m 1 mCurrentFocus | tr -d '\r')
+  case "$FOCUS" in
+    *org.cagnulen.qdomyoszwift*) break ;;
+    *"=null"*) echo "No window has the focus, waiting ($i)" ;;
+    *) echo "Not QZ in front ($FOCUS), pressing back ($i)"; adb shell input keyevent KEYCODE_BACK ;;
+  esac
+  sleep 5
+done
+
 timeout 180 adb shell "CLASSPATH=/data/local/tmp/a11y-test.jar app_process / AccessibilityTest '$BUTTON'" \
   | tr -d '\r' > accessibility_test.txt
 cat accessibility_test.txt
