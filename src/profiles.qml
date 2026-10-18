@@ -134,6 +134,7 @@ ColumnLayout {
             id: labelProfileName
             text: qsTr("Profile name")
             Layout.fillWidth: true
+            wrapMode: window.labelWrap
         }
         TextField {
             id: profileNameTextField

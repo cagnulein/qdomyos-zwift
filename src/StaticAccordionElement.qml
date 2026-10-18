@@ -36,6 +36,11 @@ ColumnLayout {
             color: "#FFFFFF"
             font: window.headerFont
             text: rootElement.title
+            // A bigger text can run under the arrow: shrink it down to the normal size, then elide
+            width: window.textScale !== 1 ? indicatImg.x - x - 8 : implicitWidth
+            fontSizeMode: window.textScale !== 1 ? Text.HorizontalFit : Text.FixedSize
+            minimumPixelSize: window.appFontPx
+            elide: window.textScale !== 1 ? Text.ElideRight : Text.ElideNone
         }
         Image {
             y:13

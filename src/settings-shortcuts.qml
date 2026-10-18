@@ -182,15 +182,15 @@ ScrollView {
             ColumnLayout {
                 anchors.fill: parent
                 RowLayout {
-                    Label { text: qsTr("Start / Pause"); Layout.fillWidth: true }
+                    Label { text: qsTr("Start / Pause"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_start_stop; settingName: "shortcut_start_stop" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Stop"); Layout.fillWidth: true }
+                    Label { text: qsTr("Stop"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_stop; settingName: "shortcut_stop" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Lap"); Layout.fillWidth: true }
+                    Label { text: qsTr("Lap"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_lap; settingName: "shortcut_lap" }
                 }
             }
@@ -202,27 +202,27 @@ ScrollView {
             ColumnLayout {
                 anchors.fill: parent
                 RowLayout {
-                    Label { text: qsTr("Speed + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Speed + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_speed_plus; settingName: "shortcut_speed_plus" }
                     ShortcutField { text: settings.shortcut_speed_minus; settingName: "shortcut_speed_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Inclination + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Inclination + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_inclination_plus; settingName: "shortcut_inclination_plus" }
                     ShortcutField { text: settings.shortcut_inclination_minus; settingName: "shortcut_inclination_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Resistance + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Resistance + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_resistance_plus; settingName: "shortcut_resistance_plus" }
                     ShortcutField { text: settings.shortcut_resistance_minus; settingName: "shortcut_resistance_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Gears + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Gears + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_gears_plus; settingName: "shortcut_gears_plus" }
                     ShortcutField { text: settings.shortcut_gears_minus; settingName: "shortcut_gears_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Gears Big Buttons + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Gears Big Buttons + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_biggears_plus; settingName: "shortcut_biggears_plus" }
                     ShortcutField { text: settings.shortcut_biggears_minus; settingName: "shortcut_biggears_minus" }
                 }
@@ -235,27 +235,27 @@ ScrollView {
             ColumnLayout {
                 anchors.fill: parent
                 RowLayout {
-                    Label { text: qsTr("Target Resistance + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Target Resistance + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_target_resistance_plus; settingName: "shortcut_target_resistance_plus" }
                     ShortcutField { text: settings.shortcut_target_resistance_minus; settingName: "shortcut_target_resistance_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Target Power + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Target Power + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_target_power_plus; settingName: "shortcut_target_power_plus" }
                     ShortcutField { text: settings.shortcut_target_power_minus; settingName: "shortcut_target_power_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Target Zone + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Target Zone + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_target_zone_plus; settingName: "shortcut_target_zone_plus" }
                     ShortcutField { text: settings.shortcut_target_zone_minus; settingName: "shortcut_target_zone_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Target Speed + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Target Speed + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_target_speed_plus; settingName: "shortcut_target_speed_plus" }
                     ShortcutField { text: settings.shortcut_target_speed_minus; settingName: "shortcut_target_speed_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Target Incline + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Target Incline + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_target_incline_plus; settingName: "shortcut_target_incline_plus" }
                     ShortcutField { text: settings.shortcut_target_incline_minus; settingName: "shortcut_target_incline_minus" }
                 }
@@ -268,54 +268,54 @@ ScrollView {
             ColumnLayout {
                 anchors.fill: parent
                 RowLayout {
-                    Label { text: qsTr("Peloton Resistance + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Peloton Resistance + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_peloton_resistance_plus; settingName: "shortcut_peloton_resistance_plus" }
                     ShortcutField { text: settings.shortcut_peloton_resistance_minus; settingName: "shortcut_peloton_resistance_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Peloton Offset + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Peloton Offset + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_peloton_offset_plus; settingName: "shortcut_peloton_offset_plus" }
                     ShortcutField { text: settings.shortcut_peloton_offset_minus; settingName: "shortcut_peloton_offset_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Peloton Remaining + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Peloton Remaining + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_peloton_remaining_plus; settingName: "shortcut_peloton_remaining_plus" }
                     ShortcutField { text: settings.shortcut_peloton_remaining_minus; settingName: "shortcut_peloton_remaining_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Time to Next + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Time to Next + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_remaining_time_plus; settingName: "shortcut_remaining_time_plus" }
                     ShortcutField { text: settings.shortcut_remaining_time_minus; settingName: "shortcut_remaining_time_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Fan Speed + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Fan Speed + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_fan_plus; settingName: "shortcut_fan_plus" }
                     ShortcutField { text: settings.shortcut_fan_minus; settingName: "shortcut_fan_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("PID Heart Rate + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("PID Heart Rate + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_pid_hr_plus; settingName: "shortcut_pid_hr_plus" }
                     ShortcutField { text: settings.shortcut_pid_hr_minus; settingName: "shortcut_pid_hr_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Ext. Inclination + / -"); Layout.fillWidth: true }
+                    Label { text: qsTr("Ext. Inclination + / -"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_ext_incline_plus; settingName: "shortcut_ext_incline_plus" }
                     ShortcutField { text: settings.shortcut_ext_incline_minus; settingName: "shortcut_ext_incline_minus" }
                 }
                 RowLayout {
-                    Label { text: qsTr("ERG Mode Toggle"); Layout.fillWidth: true }
+                    Label { text: qsTr("ERG Mode Toggle"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_erg_mode; settingName: "shortcut_erg_mode" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Power Avg Toggle"); Layout.fillWidth: true }
+                    Label { text: qsTr("Power Avg Toggle"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_power_avg; settingName: "shortcut_power_avg" }
                 }
                 RowLayout {
-                    Label { text: qsTr("Auto-Resistance Toggle"); Layout.fillWidth: true }
+                    Label { text: qsTr("Auto-Resistance Toggle"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_auto_resistance; settingName: "shortcut_auto_resistance" }
                 }
                 RowLayout {
-                    Label { text: qsTr("AVS Cruise / Climb / Sprint"); Layout.fillWidth: true }
+                    Label { text: qsTr("AVS Cruise / Climb / Sprint"); Layout.fillWidth: true; wrapMode: window.labelWrap }
                     ShortcutField { text: settings.shortcut_avs_cruise; settingName: "shortcut_avs_cruise" }
                     ShortcutField { text: settings.shortcut_avs_climb; settingName: "shortcut_avs_climb" }
                     ShortcutField { text: settings.shortcut_avs_sprint; settingName: "shortcut_avs_sprint" }

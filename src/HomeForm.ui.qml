@@ -210,6 +210,8 @@ Page {
                 horizontalAlignment: Text.AlignHCenter
                 lineHeight: text.indexOf("\n") >= 0 ? 0.8 : 1
                 text: page.searchStatus !== "" ? page.searchStatus : rootItem.info
+                // like the buttons above: a bigger text would grow up into them
+                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx }
             }
         }
 

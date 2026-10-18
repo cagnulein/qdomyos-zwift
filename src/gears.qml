@@ -520,13 +520,15 @@ ScrollView {
                 Button {
                     text: qsTr("Restore Default Setting to the Trainer")
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 50
+                    // with a bigger text the label wraps in two lines
+                    Layout.preferredHeight: window.textScale !== 1 ? Math.max(50, contentItem.implicitHeight + 16) : 50
                     font.bold: true
                     background: Rectangle {
                         color: "#9C27B0"
                         radius: 4
                     }
                     contentItem: Text {
+                        wrapMode: window.labelWrap
                         text: parent.text
                         font: parent.font
                         color: "white"
@@ -743,6 +745,8 @@ ScrollView {
                                     anchors.centerIn: parent
                                     width: parent.width * 0.8
                                     height: 30
+                                    // a cell of fixed height: a bigger number ran under the + button
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx }
                                     from: 1
                                     to: 999
                                     value: crankset
@@ -813,6 +817,7 @@ ScrollView {
                                     anchors.centerIn: parent
                                     width: parent.width * 0.8
                                     height: 30
+                                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx }
                                     from: 1
                                     to: 999
                                     value: cog

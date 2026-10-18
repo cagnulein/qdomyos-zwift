@@ -96,6 +96,7 @@ ScrollView {
             Label {
                 id: labelTTSSummarySec
                 text: qsTr("Summary Each Seconds:")
+                wrapMode: window.labelWrap
                 Layout.fillWidth: true
             }
             SettingsNumberField {

@@ -250,6 +250,10 @@ ApplicationWindow {
     // font. At 100 % the app font, the one a Text takes by itself
     readonly property font headerFont: textScale === 1 ? Qt.application.font
         : Qt.font({ family: Qt.application.font.family, pixelSize: scaledFontPx })
+    // Wrap mode of a label next to a field: with a bigger text it no longer fits in one line
+    // and ran under the field and the OK button. The fixed-size popups below wrap their text too,
+    // and then take the width of the screen and the height of the text
+    readonly property int labelWrap: textScale === 1 ? Text.NoWrap : Text.WordWrap
     function applyTextScale() {
         if (scaledFontPx > 0)
             font.pixelSize = scaledFontPx
@@ -489,8 +493,8 @@ ApplicationWindow {
 
        x: Math.round((parent.width - width) / 2)
 		 y: Math.round((parent.height - height) / 2)
-		 width: 380
-         height: 60
+		 width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(60, popupText.height + topPadding + bottomPadding) : 60
 		 modal: true
 		 focus: true
 		 palette.text: "white"
@@ -506,8 +510,11 @@ ApplicationWindow {
 		 Column {
              anchors.horizontalCenter: parent.horizontalCenter
 		 Label {
+		     id: popupText
              anchors.horizontalCenter: parent.horizontalCenter
 		     text: qsTr("Program has been loaded correctly. Press start to begin!")
+		     width: window.textScale !== 1 ? popup.availableWidth : implicitWidth
+		     wrapMode: window.labelWrap
 		 }
 		 }
 	}
@@ -545,8 +552,8 @@ ApplicationWindow {
 
        x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 130
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(130, popupClassificaHelperText.height + topPadding + bottomPadding) : 130
          modal: true
          focus: true
          palette.text: "white"
@@ -563,8 +570,11 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupClassificaHelperText
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings\nand enable the QZ Classifica setting in the\nexperimental settings section and\nrestart the app.")
+             width: window.textScale !== 1 ? popupClassificaHelper.availableWidth : implicitWidth
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -575,13 +585,17 @@ ApplicationWindow {
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
         width: Math.min(parent.width - 30, 720)
-        height: Math.min(parent.height - 40, 260)
+        // with a bigger text the content is taller: Skip fell out
+        height: window.textScale !== 1
+            ? Math.min(parent.height - 40, Math.max(260, gymModeColumn.implicitHeight + 36 + topPadding + bottomPadding))
+            : Math.min(parent.height - 40, 260)
         modal: true
         focus: true
         closePolicy: Popup.NoAutoClose
         onOpened: refresh_bluetooth_devices_clicked()
 
         Column {
+            id: gymModeColumn
             anchors.fill: parent
             anchors.margins: 18
             spacing: 14
@@ -654,8 +668,8 @@ ApplicationWindow {
 
        x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 130
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(130, popupWhatsOnZwiftHelperText.height + topPadding + bottomPadding) : 130
          modal: true
          focus: true
          palette.text: "white"
@@ -680,8 +694,11 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupWhatsOnZwiftHelperText
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("Browse the What's on Zwift workout library<br>and choose your workout. It will<br> be automatically loaded on QZ when you will<br>press the load button on the top!<br><br>QZ is not affiliated with Zwift<br>or https://whatsonzwift.com/ website.")
+             width: window.textScale !== 1 ? popupWhatsOnZwiftHelper.availableWidth : implicitWidth
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -692,8 +709,8 @@ ApplicationWindow {
 
        x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 60
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(60, popupLoadSettingsText.height + topPadding + bottomPadding) : 60
          modal: true
          focus: true
          palette.text: "white"
@@ -709,8 +726,11 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupLoadSettingsText
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("Settings has been loaded correctly. Restart the app!")
+             width: window.textScale !== 1 ? popupLoadSettings.availableWidth : implicitWidth
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -721,8 +741,8 @@ ApplicationWindow {
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 60
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(60, popupSaveFileText.height + topPadding + bottomPadding) : 60
          modal: true
          focus: true
          palette.text: "white"
@@ -738,8 +758,11 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupSaveFileText
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("Saved! Check your private folder (Android)<br>or Files App (iOS)")
+             width: window.textScale !== 1 ? popupSaveFile.availableWidth : implicitWidth
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -753,8 +776,8 @@ ApplicationWindow {
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 120
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(120, popupStravaConnectedText.height + topPadding + bottomPadding) : 120
          modal: true
          focus: true
          palette.text: "white"
@@ -770,10 +793,12 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupStravaConnectedText
              anchors.horizontalCenter: parent.horizontalCenter
-             width: 370
-             height: 120
+             width: window.textScale !== 1 ? popupStravaConnected.availableWidth : 370
+             height: window.textScale !== 1 ? undefined : 120
              text: qsTr("Your Strava account is now connected!<br><br>When you will save a FIT file it will<br>automatically uploaded to Strava!")
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -787,8 +812,8 @@ ApplicationWindow {
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 120
+         width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+         height: window.textScale !== 1 ? Math.max(120, popupPelotonConnectedText.height + topPadding + bottomPadding) : 120
          modal: true
          focus: true
          palette.text: "white"
@@ -804,10 +829,12 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupPelotonConnectedText
              anchors.horizontalCenter: parent.horizontalCenter
-             width: 370
-             height: 120
+             width: window.textScale !== 1 ? popupPelotonConnected.availableWidth : 370
+             height: window.textScale !== 1 ? undefined : 120
              text: qsTr("Your Peloton account is now connected!<br><br>Restart the app to apply this change!")
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -827,8 +854,8 @@ ApplicationWindow {
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
-         width: 580
-         height: 230
+         width: window.textScale !== 1 ? Math.min(580, parent.width - 32) : 580
+         height: window.textScale !== 1 ? Math.max(230, popupLicenseText.height + topPadding + bottomPadding) : 230
          modal: true
          focus: true
          palette.text: "white"
@@ -844,10 +871,12 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupLicenseText
              anchors.horizontalCenter: parent.horizontalCenter
-             width: 570
-             height: 220
+             width: window.textScale !== 1 ? popupLicense.availableWidth : 570
+             height: window.textScale !== 1 ? undefined : 220
              text: qsTr("Trial time expired!<br><br>Please join the QZ Patreon Membership to unlock the full license!<br>https://www.patreon.com/bePatron?u=45290147<br><br>Then add your patreon email in the email field in the general settings.<br>The App will now close.")
+             wrapMode: window.labelWrap
             }
          }
     }
@@ -1027,6 +1056,7 @@ ApplicationWindow {
             spacing: 12
 
             Label {
+                id: echelonEnableTitle
                 width: parent.width
                 text: qsTr("Echelon Locked Bike")
                 font.bold: true
@@ -1036,7 +1066,10 @@ ApplicationWindow {
 
             ScrollView {
                 width: parent.width
-                height: parent.height - buttonsRow.height - 52
+                // 52 is a one-line title: a bigger one pushed the buttons out of the popup
+                height: window.textScale !== 1
+                    ? parent.height - buttonsRow.height - echelonEnableTitle.height - 2 * parent.spacing
+                    : parent.height - buttonsRow.height - 52
                 clip: true
 
                 TextArea {
@@ -1096,6 +1129,7 @@ ApplicationWindow {
             spacing: 12
 
             Label {
+                id: androidNotificationTitle
                 width: parent.width
                 text: qsTr("Connection lost in the background")
                 font.bold: true
@@ -1105,7 +1139,10 @@ ApplicationWindow {
 
             ScrollView {
                 width: parent.width
-                height: parent.height - androidNotificationButtons.height - 52
+                // 52 is a one-line title: a bigger one pushed the buttons out of the popup
+                height: window.textScale !== 1
+                    ? parent.height - androidNotificationButtons.height - androidNotificationTitle.height - 2 * parent.spacing
+                    : parent.height - androidNotificationButtons.height - 52
                 clip: true
 
                 TextArea {
@@ -1216,8 +1253,8 @@ ApplicationWindow {
 
              x: Math.round((parent.width - width) / 2)
              y: Math.round((parent.height - height) / 2)
-             width: 380
-             height: 60
+             width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+             height: window.textScale !== 1 ? Math.max(60, popupAutoResistanceText.height + topPadding + bottomPadding) : 60
              modal: true
              focus: true
              palette.text: "white"
@@ -1233,8 +1270,11 @@ ApplicationWindow {
              Column {
                  anchors.horizontalCenter: parent.horizontalCenter
              Label {
+                 id: popupAutoResistanceText
                  anchors.horizontalCenter: parent.horizontalCenter
                  text: rootItem.autoResistance ? qsTr("Auto Resistance enabled") : qsTr("Auto Resistance disabled")
+                 width: window.textScale !== 1 ? popupAutoResistance.availableWidth : implicitWidth
+                 wrapMode: window.labelWrap
                 }
              }
         }
@@ -1251,8 +1291,8 @@ ApplicationWindow {
 
              x: Math.round((parent.width - width) / 2)
              y: Math.round((parent.height - height) / 2)
-             width: 380
-             height: 60
+             width: window.textScale !== 1 ? Math.min(380, parent.width - 32) : 380
+             height: window.textScale !== 1 ? Math.max(60, popuplockTilesText.height + topPadding + bottomPadding) : 60
              modal: true
              focus: true
              palette.text: "white"
@@ -1268,8 +1308,11 @@ ApplicationWindow {
              Column {
                  anchors.horizontalCenter: parent.horizontalCenter
              Label {
+                 id: popuplockTilesText
                  anchors.horizontalCenter: parent.horizontalCenter
                  text: window.lockTiles ? qsTr("You can move the tiles!") : qsTr("The tiles are locked now")
+                 width: window.textScale !== 1 ? popuplockTiles.availableWidth : implicitWidth
+                 wrapMode: window.labelWrap
                 }
              }
         }
@@ -1417,6 +1460,8 @@ ApplicationWindow {
         Label {
             text: stackView.currentItem.title
             anchors.centerIn: parent
+            // centered between the buttons of the bar: a bigger text would run into them
+            Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx }
         }
     }
 
