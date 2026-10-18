@@ -653,7 +653,7 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *en
 // Android UI thread, and when it comes before Qt published its platform integration (a service
 // such as TalkBack already on at launch), Qt logs "Could not activate platform accessibility" and
 // stays off. Qt Quick Controls then set no role or name: buttons are missing from TalkBack's tree,
-// a group box has no title, a spin box takes no focus (QTBUG-77320, fixed in Qt 6 the same way:
+// a group box has no title, a spin box takes no focus (QTBUG-77320, fixed in later Qt the same way:
 // keep the report and apply it once the integration exists). Qt publishes the integration from an
 // event it posts while QApplication is constructed, so a call queued after that runs once it is
 // published: either Qt has got the report by then, or Android already says accessibility is on
@@ -666,7 +666,7 @@ static void restoreLostAccessibility() {
                                                       QtAndroid::androidContext().object())) {
         QAndroidJniObject::callStaticMethod<void>("org/qtproject/qt5/android/accessibility/QtNativeAccessibility",
                                                   "setActive", "(Z)V", jboolean(true));
-        qDebug() << "accessibility: turned on again, Qt lost Android's report at launch:" << QAccessible::isActive();
+        qDebug() << "accessibility: Qt lost Android's report at launch, active after setActive:" << QAccessible::isActive();
     }
 }
 #endif
