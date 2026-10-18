@@ -5,15 +5,10 @@ import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 
 ScrollView {
-    contentWidth: -1
-    leftPadding: window.contentSideMargin
-    rightPadding: window.contentSideMargin
-    focus: true
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.fill: parent
-    //anchors.bottom: footerSettings.top
-    //anchors.bottomMargin: footerSettings.height + 10
     id: settingsInclinationPane
+    contentWidth: -1
+    focus: true
+    anchors.fill: parent
 
     Settings {
         id: settings
@@ -49,885 +44,193 @@ ScrollView {
         property double treadmill_inclination_override_145: 14.5
         property double treadmill_inclination_override_150: 15.0
 
+        property double treadmill_inclination_override_device_command_0: 0.0
+        property double treadmill_inclination_override_device_command_05: 0.5
+        property double treadmill_inclination_override_device_command_10: 1.0
+        property double treadmill_inclination_override_device_command_15: 1.5
+        property double treadmill_inclination_override_device_command_20: 2.0
+        property double treadmill_inclination_override_device_command_25: 2.5
+        property double treadmill_inclination_override_device_command_30: 3.0
+        property double treadmill_inclination_override_device_command_35: 3.5
+        property double treadmill_inclination_override_device_command_40: 4.0
+        property double treadmill_inclination_override_device_command_45: 4.5
+        property double treadmill_inclination_override_device_command_50: 5.0
+        property double treadmill_inclination_override_device_command_55: 5.5
+        property double treadmill_inclination_override_device_command_60: 6.0
+        property double treadmill_inclination_override_device_command_65: 6.5
+        property double treadmill_inclination_override_device_command_70: 7.0
+        property double treadmill_inclination_override_device_command_75: 7.5
+        property double treadmill_inclination_override_device_command_80: 8.0
+        property double treadmill_inclination_override_device_command_85: 8.5
+        property double treadmill_inclination_override_device_command_90: 9.0
+        property double treadmill_inclination_override_device_command_95: 9.5
+        property double treadmill_inclination_override_device_command_100: 10.0
+        property double treadmill_inclination_override_device_command_105: 10.5
+        property double treadmill_inclination_override_device_command_110: 11.0
+        property double treadmill_inclination_override_device_command_115: 11.5
+        property double treadmill_inclination_override_device_command_120: 12.0
+        property double treadmill_inclination_override_device_command_125: 12.5
+        property double treadmill_inclination_override_device_command_130: 13.0
+        property double treadmill_inclination_override_device_command_135: 13.5
+        property double treadmill_inclination_override_device_command_140: 14.0
+        property double treadmill_inclination_override_device_command_145: 14.5
+        property double treadmill_inclination_override_device_command_150: 15.0
+
         property double treadmill_inclination_ovveride_gain: 1.0
         property double treadmill_inclination_ovveride_offset: 0.0
     }
 
-
     ColumnLayout {
-        id: column1
-        spacing: 0
-        anchors.fill: parent
+        width: settingsInclinationPane.availableWidth
+        spacing: 8
 
         Label {
-            Layout.preferredWidth: parent.width
-            id: ttsLabel
-            //: Section title: table that replaces each incline value the treadmill receives with a user-defined value. Avoid the technical word "override".
             text: qsTr("Treadmill Inclination Overrides")
-            textFormat: Text.PlainText
-            wrapMode: Text.WordWrap
-            verticalAlignment: Text.AlignVCenter
             color: Material.color(Material.Red)
+            Layout.fillWidth: true
+        }
+
+        Label {
+            text: qsTr("Each raw/input row maps treadmill feedback to the Logical Inclination used throughout QZ. Device Command controls the value sent when reverse lookup selects that row. Leave Device Command at its row value to preserve legacy behavior.")
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
         }
 
         RowLayout {
-            spacing: 10
-            Label {
-                text: qsTr("Inclination Override Gain:")
-                Layout.fillWidth: true
-            }
+            Layout.fillWidth: true
+            Label { text: qsTr("Gain"); Layout.fillWidth: true }
             SettingsNumberField {
-                id: treadmillOverrideGainTextField
-                Accessible.name: qsTr("Inclination Override Gain:")
+                id: gainField
+                Accessible.name: qsTr("Gain")
                 signed: true
                 text: settings.treadmill_inclination_ovveride_gain
                 horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                Layout.preferredWidth: 90
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
                 onAccepted: settings.treadmill_inclination_ovveride_gain = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
             Button {
-                text: qsTr("OK")
-                enabled: treadmillOverrideGainTextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_ovveride_gain = treadmillOverrideGainTextField.value; toast.show(qsTr("Setting saved!")); }
+                text: qsTr("Save")
+                enabled: gainField.valid
+                onClicked: { settings.treadmill_inclination_ovveride_gain = gainField.value; toast.show(qsTr("Setting saved!")); }
             }
         }
 
         RowLayout {
-            spacing: 10
-            Label {
-                text: qsTr("Inclination Override Offset:")
-                Layout.fillWidth: true
-            }
+            Layout.fillWidth: true
+            Label { text: qsTr("Offset"); Layout.fillWidth: true }
             SettingsNumberField {
-                id: treadmillOverrideOffsetTextField
-                Accessible.name: qsTr("Inclination Override Offset:")
+                id: offsetField
+                Accessible.name: qsTr("Offset")
                 signed: true
                 text: settings.treadmill_inclination_ovveride_offset
                 horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                Layout.preferredWidth: 90
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
                 onAccepted: settings.treadmill_inclination_ovveride_offset = value
                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
             Button {
-                text: qsTr("OK")
-                enabled: treadmillOverrideOffsetTextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_ovveride_offset = treadmillOverrideOffsetTextField.value; toast.show(qsTr("Setting saved!")); }
+                text: qsTr("Save")
+                enabled: offsetField.valid
+                onClicked: { settings.treadmill_inclination_ovveride_offset = offsetField.value; toast.show(qsTr("Setting saved!")); }
             }
         }
 
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 0%:")
+        Repeater {
+            model: [
+            { raw: "0.0", suffix: "0" },
+            { raw: "0.5", suffix: "05" },
+            { raw: "1.0", suffix: "10" },
+            { raw: "1.5", suffix: "15" },
+            { raw: "2.0", suffix: "20" },
+            { raw: "2.5", suffix: "25" },
+            { raw: "3.0", suffix: "30" },
+            { raw: "3.5", suffix: "35" },
+            { raw: "4.0", suffix: "40" },
+            { raw: "4.5", suffix: "45" },
+            { raw: "5.0", suffix: "50" },
+            { raw: "5.5", suffix: "55" },
+            { raw: "6.0", suffix: "60" },
+            { raw: "6.5", suffix: "65" },
+            { raw: "7.0", suffix: "70" },
+            { raw: "7.5", suffix: "75" },
+            { raw: "8.0", suffix: "80" },
+            { raw: "8.5", suffix: "85" },
+            { raw: "9.0", suffix: "90" },
+            { raw: "9.5", suffix: "95" },
+            { raw: "10.0", suffix: "100" },
+            { raw: "10.5", suffix: "105" },
+            { raw: "11.0", suffix: "110" },
+            { raw: "11.5", suffix: "115" },
+            { raw: "12.0", suffix: "120" },
+            { raw: "12.5", suffix: "125" },
+            { raw: "13.0", suffix: "130" },
+            { raw: "13.5", suffix: "135" },
+            { raw: "14.0", suffix: "140" },
+            { raw: "14.5", suffix: "145" },
+            { raw: "15.0", suffix: "150" }
+            ]
+
+            delegate: Frame {
                 Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride0TextField
-                Accessible.name: qsTr("Override 0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_0
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_0 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride0TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_0 = treadmillOverride0TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 0.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride05TextField
-                Accessible.name: qsTr("Override 0.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_05
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_05 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride05TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_05 = treadmillOverride05TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 1.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride10TextField
-                Accessible.name: qsTr("Override 1.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_10
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_10 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride10TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_10 = treadmillOverride10TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 1.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride15TextField
-                Accessible.name: qsTr("Override 1.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_15
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_15 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride15TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_15 = treadmillOverride15TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 2.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride20TextField
-                Accessible.name: qsTr("Override 2.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_20
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_20 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride20TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_20 = treadmillOverride20TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 2.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride25TextField
-                Accessible.name: qsTr("Override 2.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_25
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_25 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride25TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_25 = treadmillOverride25TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 3.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride30TextField
-                Accessible.name: qsTr("Override 3.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_30
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_30 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride30TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_30 = treadmillOverride30TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 3.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride35TextField
-                Accessible.name: qsTr("Override 3.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_35
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_35 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride35TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_35 = treadmillOverride35TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 4.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride40TextField
-                Accessible.name: qsTr("Override 4.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_40
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_40 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride40TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_40 = treadmillOverride40TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 4.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride45TextField
-                Accessible.name: qsTr("Override 4.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_45
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_45 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride45TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_45 = treadmillOverride45TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 5.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride50TextField
-                Accessible.name: qsTr("Override 5.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_50
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_50 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride50TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_50 = treadmillOverride50TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 5.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride55TextField
-                Accessible.name: qsTr("Override 5.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_55
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_55 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride55TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_55 = treadmillOverride55TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 6.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride60TextField
-                Accessible.name: qsTr("Override 6.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_60
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_60 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride60TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_60 = treadmillOverride60TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 6.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride65TextField
-                Accessible.name: qsTr("Override 6.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_65
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_65 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride65TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_65 = treadmillOverride65TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 7.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride70TextField
-                Accessible.name: qsTr("Override 7.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_70
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_70 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride70TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_70 = treadmillOverride70TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 7.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride75TextField
-                Accessible.name: qsTr("Override 7.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_75
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_75 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride75TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_75 = treadmillOverride75TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 8.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride80TextField
-                Accessible.name: qsTr("Override 8.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_80
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_80 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride80TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_80 = treadmillOverride80TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 8.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride85TextField
-                Accessible.name: qsTr("Override 8.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_85
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_85 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride85TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_85 = treadmillOverride85TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 9.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride90TextField
-                Accessible.name: qsTr("Override 9.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_90
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_90 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride90TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_90 = treadmillOverride90TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 9.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride95TextField
-                Accessible.name: qsTr("Override 9.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_95
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_95 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride95TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_95 = treadmillOverride95TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 10.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride100TextField
-                Accessible.name: qsTr("Override 10.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_100
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_100 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride100TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_100 = treadmillOverride100TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 10.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride105TextField
-                Accessible.name: qsTr("Override 10.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_105
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_105 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride105TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_105 = treadmillOverride105TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 11.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride110TextField
-                Accessible.name: qsTr("Override 11.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_110
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_110 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride110TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_110 = treadmillOverride110TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 11.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride115TextField
-                Accessible.name: qsTr("Override 11.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_115
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_115 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride115TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_115 = treadmillOverride115TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 12.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride120TextField
-                Accessible.name: qsTr("Override 12.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_120
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_120 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride120TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_120 = treadmillOverride120TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 12.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride125TextField
-                Accessible.name: qsTr("Override 12.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_125
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_125 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride125TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_125 = treadmillOverride125TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 13.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride130TextField
-                Accessible.name: qsTr("Override 13.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_130
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_130 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride130TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_130 = treadmillOverride130TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 13.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride135TextField
-                Accessible.name: qsTr("Override 13.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_135
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_135 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride135TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_135 = treadmillOverride135TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 14.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride140TextField
-                Accessible.name: qsTr("Override 14.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_140
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_140 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride140TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_140 = treadmillOverride140TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 14.5%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride145TextField
-                Accessible.name: qsTr("Override 14.5%:")
-                signed: true
-                text: settings.treadmill_inclination_override_145
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_145 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride145TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_145 = treadmillOverride145TextField.value; toast.show(qsTr("Setting saved!")); }
-            }
-        }
-        RowLayout {
-            spacing: 10
-            Label {
-                //: Row label in the incline replacement table: the value entered next to it is sent to the treadmill instead of this incline.
-                text: qsTr("Override 15.0%:")
-                Layout.fillWidth: true
-            }
-            SettingsNumberField {
-                id: treadmillOverride150TextField
-                Accessible.name: qsTr("Override 15.0%:")
-                signed: true
-                text: settings.treadmill_inclination_override_150
-                horizontalAlignment: Text.AlignRight
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onAccepted: settings.treadmill_inclination_override_150 = value
-                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-            }
-            Button {
-                text: qsTr("OK")
-                enabled: treadmillOverride150TextField.valid
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: {settings.treadmill_inclination_override_150 = treadmillOverride150TextField.value; toast.show(qsTr("Setting saved!")); }
+                ColumnLayout {
+                    anchors.fill: parent
+                    Label {
+                        text: qsTr("Raw/Input %1%").arg(modelData.raw)
+                        font.bold: true
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Label { text: qsTr("Device Command"); Layout.fillWidth: true }
+                        SettingsNumberField {
+                            id: commandField
+                            Accessible.name: qsTr("Device Command")
+                            signed: true
+                            text: settings["treadmill_inclination_override_device_command_" + modelData.suffix]
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            Layout.preferredWidth: 90
+                            onAccepted: settings["treadmill_inclination_override_device_command_" + modelData.suffix] = value
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: commandField.valid
+                            onClicked: settings["treadmill_inclination_override_device_command_" + modelData.suffix] = commandField.value
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Label { text: qsTr("Logical Inclination"); Layout.fillWidth: true }
+                        SettingsNumberField {
+                            id: logicalField
+                            Accessible.name: qsTr("Logical Inclination")
+                            signed: true
+                            text: settings["treadmill_inclination_override_" + modelData.suffix]
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            Layout.preferredWidth: 90
+                            onAccepted: settings["treadmill_inclination_override_" + modelData.suffix] = value
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: logicalField.valid
+                            onClicked: settings["treadmill_inclination_override_" + modelData.suffix] = logicalField.value
+                        }
+                    }
+                    Button {
+                        text: qsTr("Save")
+                        enabled: commandField.valid && logicalField.valid
+                        Layout.alignment: Qt.AlignRight
+                        onClicked: {
+                            settings["treadmill_inclination_override_device_command_" + modelData.suffix] = commandField.value
+                            settings["treadmill_inclination_override_" + modelData.suffix] = logicalField.value
+                            toast.show(qsTr("Settings saved!"))
+                        }
+                    }
+                }
             }
         }
     }
 }
-

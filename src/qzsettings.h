@@ -307,6 +307,20 @@ class QZSettings {
     static const QString treadmill_force_speed;
     static constexpr bool default_treadmill_force_speed = false;
 
+    /**
+     *@brief seconds during which a treadmill may run its own startup countdown.
+     */
+    static const QString treadmill_start_countdown;
+    static constexpr int default_treadmill_start_countdown = 0;
+
+    // Seconds of command anticipation per 1 km/h of target-speed increase.
+    static const QString treadmill_speed_increase_anticipation;
+    static constexpr float default_treadmill_speed_increase_anticipation = 0.0;
+
+    // Seconds of command anticipation per 1 km/h of target-speed decrease.
+    static const QString treadmill_speed_decrease_anticipation;
+    static constexpr float default_treadmill_speed_decrease_anticipation = 0.0;
+
     static const QString treadmill_force_running_activity;
     static constexpr bool default_treadmill_force_running_activity = false;
 
@@ -1984,6 +1998,70 @@ class QZSettings {
     static const QString treadmill_inclination_override_150;
     static constexpr double default_treadmill_inclination_override_150 = 15.0;
 
+    // Optional outbound command for each legacy raw/index row.
+    static const QString treadmill_inclination_override_device_command_0;
+    static constexpr double default_treadmill_inclination_override_device_command_0 = 0.0;
+    static const QString treadmill_inclination_override_device_command_05;
+    static constexpr double default_treadmill_inclination_override_device_command_05 = 0.5;
+    static const QString treadmill_inclination_override_device_command_10;
+    static constexpr double default_treadmill_inclination_override_device_command_10 = 1.0;
+    static const QString treadmill_inclination_override_device_command_15;
+    static constexpr double default_treadmill_inclination_override_device_command_15 = 1.5;
+    static const QString treadmill_inclination_override_device_command_20;
+    static constexpr double default_treadmill_inclination_override_device_command_20 = 2.0;
+    static const QString treadmill_inclination_override_device_command_25;
+    static constexpr double default_treadmill_inclination_override_device_command_25 = 2.5;
+    static const QString treadmill_inclination_override_device_command_30;
+    static constexpr double default_treadmill_inclination_override_device_command_30 = 3.0;
+    static const QString treadmill_inclination_override_device_command_35;
+    static constexpr double default_treadmill_inclination_override_device_command_35 = 3.5;
+    static const QString treadmill_inclination_override_device_command_40;
+    static constexpr double default_treadmill_inclination_override_device_command_40 = 4.0;
+    static const QString treadmill_inclination_override_device_command_45;
+    static constexpr double default_treadmill_inclination_override_device_command_45 = 4.5;
+    static const QString treadmill_inclination_override_device_command_50;
+    static constexpr double default_treadmill_inclination_override_device_command_50 = 5.0;
+    static const QString treadmill_inclination_override_device_command_55;
+    static constexpr double default_treadmill_inclination_override_device_command_55 = 5.5;
+    static const QString treadmill_inclination_override_device_command_60;
+    static constexpr double default_treadmill_inclination_override_device_command_60 = 6.0;
+    static const QString treadmill_inclination_override_device_command_65;
+    static constexpr double default_treadmill_inclination_override_device_command_65 = 6.5;
+    static const QString treadmill_inclination_override_device_command_70;
+    static constexpr double default_treadmill_inclination_override_device_command_70 = 7.0;
+    static const QString treadmill_inclination_override_device_command_75;
+    static constexpr double default_treadmill_inclination_override_device_command_75 = 7.5;
+    static const QString treadmill_inclination_override_device_command_80;
+    static constexpr double default_treadmill_inclination_override_device_command_80 = 8.0;
+    static const QString treadmill_inclination_override_device_command_85;
+    static constexpr double default_treadmill_inclination_override_device_command_85 = 8.5;
+    static const QString treadmill_inclination_override_device_command_90;
+    static constexpr double default_treadmill_inclination_override_device_command_90 = 9.0;
+    static const QString treadmill_inclination_override_device_command_95;
+    static constexpr double default_treadmill_inclination_override_device_command_95 = 9.5;
+    static const QString treadmill_inclination_override_device_command_100;
+    static constexpr double default_treadmill_inclination_override_device_command_100 = 10.0;
+    static const QString treadmill_inclination_override_device_command_105;
+    static constexpr double default_treadmill_inclination_override_device_command_105 = 10.5;
+    static const QString treadmill_inclination_override_device_command_110;
+    static constexpr double default_treadmill_inclination_override_device_command_110 = 11.0;
+    static const QString treadmill_inclination_override_device_command_115;
+    static constexpr double default_treadmill_inclination_override_device_command_115 = 11.5;
+    static const QString treadmill_inclination_override_device_command_120;
+    static constexpr double default_treadmill_inclination_override_device_command_120 = 12.0;
+    static const QString treadmill_inclination_override_device_command_125;
+    static constexpr double default_treadmill_inclination_override_device_command_125 = 12.5;
+    static const QString treadmill_inclination_override_device_command_130;
+    static constexpr double default_treadmill_inclination_override_device_command_130 = 13.0;
+    static const QString treadmill_inclination_override_device_command_135;
+    static constexpr double default_treadmill_inclination_override_device_command_135 = 13.5;
+    static const QString treadmill_inclination_override_device_command_140;
+    static constexpr double default_treadmill_inclination_override_device_command_140 = 14.0;
+    static const QString treadmill_inclination_override_device_command_145;
+    static constexpr double default_treadmill_inclination_override_device_command_145 = 14.5;
+    static const QString treadmill_inclination_override_device_command_150;
+    static constexpr double default_treadmill_inclination_override_device_command_150 = 15.0;
+
     static const QString sole_elliptical_e55;
     static constexpr bool default_sole_elliptical_e55 = false;
 
@@ -2563,6 +2641,9 @@ class QZSettings {
 
     static const QString peloton_auto_start_without_intro;
     static constexpr bool default_peloton_auto_start_without_intro = false;
+
+    static const QString peloton_auto_start_delay;
+    static constexpr int default_peloton_auto_start_delay = 0;
 
     static const QString nordictrack_tseries5_treadmill;
     static constexpr bool default_nordictrack_tseries5_treadmill = false;

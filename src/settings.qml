@@ -2224,6 +2224,7 @@ import AndroidStatusBar 1.0
             property bool nordictrack_elliptical_s700: false
             property bool virtual_device_tacx: false
             property bool renpho_bike_knob_gears: false
+
             property bool nordictrack_incline_trainer_x7i_ntl15010_0: false
             property bool custom_inclination_resistance_table_enabled: false
             property string custom_inclination_resistance_table: "0|4\n1|6\n2|8\n3|10\n4|11\n5|11.5\n6|12\n8|13\n10|14\n12|15\n15|16"
@@ -2242,6 +2243,48 @@ import AndroidStatusBar 1.0
             property bool freemotion_t10_9b_hci: false
             property bool treadmill_runn_closed_loop: false
             property string treadmill_pid_heart_control: "Speed"
+
+// Optional outbound device commands; row/index defaults preserve legacy profiles.
+            property double treadmill_inclination_override_device_command_0: 0.0
+            property double treadmill_inclination_override_device_command_05: 0.5
+            property double treadmill_inclination_override_device_command_10: 1.0
+            property double treadmill_inclination_override_device_command_15: 1.5
+            property double treadmill_inclination_override_device_command_20: 2.0
+            property double treadmill_inclination_override_device_command_25: 2.5
+            property double treadmill_inclination_override_device_command_30: 3.0
+            property double treadmill_inclination_override_device_command_35: 3.5
+            property double treadmill_inclination_override_device_command_40: 4.0
+            property double treadmill_inclination_override_device_command_45: 4.5
+            property double treadmill_inclination_override_device_command_50: 5.0
+            property double treadmill_inclination_override_device_command_55: 5.5
+            property double treadmill_inclination_override_device_command_60: 6.0
+            property double treadmill_inclination_override_device_command_65: 6.5
+            property double treadmill_inclination_override_device_command_70: 7.0
+            property double treadmill_inclination_override_device_command_75: 7.5
+            property double treadmill_inclination_override_device_command_80: 8.0
+            property double treadmill_inclination_override_device_command_85: 8.5
+            property double treadmill_inclination_override_device_command_90: 9.0
+            property double treadmill_inclination_override_device_command_95: 9.5
+            property double treadmill_inclination_override_device_command_100: 10.0
+            property double treadmill_inclination_override_device_command_105: 10.5
+            property double treadmill_inclination_override_device_command_110: 11.0
+            property double treadmill_inclination_override_device_command_115: 11.5
+            property double treadmill_inclination_override_device_command_120: 12.0
+            property double treadmill_inclination_override_device_command_125: 12.5
+            property double treadmill_inclination_override_device_command_130: 13.0
+            property double treadmill_inclination_override_device_command_135: 13.5
+            property double treadmill_inclination_override_device_command_140: 14.0
+            property double treadmill_inclination_override_device_command_145: 14.5
+            property double treadmill_inclination_override_device_command_150: 15.0
+
+            property int treadmill_start_countdown: 0
+
+            property real treadmill_speed_increase_anticipation: 0.0
+
+            property real treadmill_speed_decrease_anticipation: 0.0
+
+            property int peloton_auto_start_delay: 0
+
         }
 
 
@@ -7932,6 +7975,55 @@ import AndroidStatusBar 1.0
                         color: Material.color(Material.Lime)
                     }
 
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Auto Start Delay:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: pelotonAutoStartDelayTextField
+                            Accessible.name: qsTr("Auto Start Delay:")
+                            signed: true
+                            decimals: 0
+                            minimum: -30
+                            maximum: 30
+                            text: settings.peloton_auto_start_delay.toString()
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.preferredWidth: 80
+                            onAccepted: if (valid) settings.peloton_auto_start_delay = value
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Label {
+                            text: qsTr("seconds")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: pelotonAutoStartDelayTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                settings.peloton_auto_start_delay = pelotonAutoStartDelayTextField.value
+                                toast.show(qsTr("Setting saved!"))
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Positive values delay Peloton auto start; negative values start it earlier. The setting applies with and without the intro. Default is 0 seconds.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     /*
                     RowLayout {
                         spacing: 10
@@ -11847,6 +11939,137 @@ import AndroidStatusBar 1.0
                                 onClicked: { settings.umay_s100_treadmill = checked; window.settings_restart_to_apply = true; }
                             }
                         }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Treadmill Start Countdown:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: treadmillStartCountdownTextField
+                            Accessible.name: qsTr("Treadmill Start Countdown:")
+                            decimals: 0
+                            minimum: 0
+                            maximum: 30
+                            text: settings.treadmill_start_countdown.toString()
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.preferredWidth: 80
+                            onAccepted: if (valid) settings.treadmill_start_countdown = value
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Label {
+                            text: qsTr("seconds")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: treadmillStartCountdownTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                settings.treadmill_start_countdown = treadmillStartCountdownTextField.value
+                                toast.show(qsTr("Setting saved!"))
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Seconds to compensate for a treadmill's startup countdown. QZ advances the training-program timeline by this amount once at the initial start and keeps the program clock running during the countdown. It is not applied to later treadmill restarts. Set to 0 to disable. Default is 0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Speed Increase Anticipation:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: treadmillSpeedIncreaseAnticipationTextField
+                            Accessible.name: qsTr("Speed Increase Anticipation:")
+                            decimals: 2
+                            minimum: 0
+                            maximum: 5
+                            text: (settings.treadmill_speed_increase_anticipation * (settings.miles_unit ? 1.60934 : 1.0)).toFixed(2)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.preferredWidth: 80
+                            onAccepted: if (valid) settings.treadmill_speed_increase_anticipation = value / (settings.miles_unit ? 1.60934 : 1.0)
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Label {
+                            text: settings.miles_unit ? qsTr("s / mph") : qsTr("s / km/h")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: treadmillSpeedIncreaseAnticipationTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                settings.treadmill_speed_increase_anticipation = treadmillSpeedIncreaseAnticipationTextField.value / (settings.miles_unit ? 1.60934 : 1.0)
+                                toast.show(qsTr("Setting saved!"))
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Speed Decrease Anticipation:")
+                            Layout.fillWidth: true
+                        }
+                        SettingsNumberField {
+                            id: treadmillSpeedDecreaseAnticipationTextField
+                            Accessible.name: qsTr("Speed Decrease Anticipation:")
+                            decimals: 2
+                            minimum: 0
+                            maximum: 5
+                            text: (settings.treadmill_speed_decrease_anticipation * (settings.miles_unit ? 1.60934 : 1.0)).toFixed(2)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.preferredWidth: 80
+                            onAccepted: if (valid) settings.treadmill_speed_decrease_anticipation = value / (settings.miles_unit ? 1.60934 : 1.0)
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Label {
+                            text: settings.miles_unit ? qsTr("s / mph") : qsTr("s / km/h")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: treadmillSpeedDecreaseAnticipationTextField.valid
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                settings.treadmill_speed_decrease_anticipation = treadmillSpeedDecreaseAnticipationTextField.value / (settings.miles_unit ? 1.60934 : 1.0)
+                                toast.show(qsTr("Setting saved!"))
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Anticipates normal timed treadmill speed changes in proportion to the target-speed delta: anticipation = |next speed - current speed| x the selected factor, capped at 10 seconds. Increase and decrease use separate factors. It does not anticipate Bootcamp floor stop/resume, GPX/distance rows, blocking rows, or ramp steps. Set either value to 0 to disable that direction. Default is 0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {

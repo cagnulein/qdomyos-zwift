@@ -46,6 +46,7 @@
 class peloton : public QObject {
 
     Q_OBJECT
+
   public:
     explicit peloton(bluetooth *bl, QObject *parent = nullptr);
     QList<trainrow> trainrows;
@@ -53,6 +54,7 @@ class peloton : public QObject {
     enum _PELOTON_API { peloton_api = 0, powerzonepack_api = 1, homefitnessbuddy_api = 2, no_metrics = 3 };
 
     _PELOTON_API currentApi() { return current_api; }
+    bool isBootcampWorkout() const { return bootcampWorkout; }
 
     QString user_id;
     QString current_workout_id = QLatin1String("");
@@ -92,6 +94,8 @@ class peloton : public QObject {
 
   private:
     _PELOTON_API current_api = peloton_api;
+    bluetooth *bluetoothManager = nullptr;
+    bool bootcampWorkout = false;
     const int peloton_workout_second_resolution = 1;
     int workout_retry_count = 0;
     bool peloton_credentials_wrong = false;
@@ -106,7 +110,6 @@ class peloton : public QObject {
 
     QTimer *timer;
 
-    bluetooth *bluetoothManager = nullptr;
     powerzonepack *PZP = nullptr;
     homefitnessbuddy *HFB = nullptr;
 

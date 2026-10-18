@@ -238,6 +238,7 @@ class homeform : public QObject {
 
   public:
     static homeform *singleton() { return m_singleton; }
+    peloton *getPelotonHandler() const { return pelotonHandler; }
     bluetooth *bluetoothManager;
     QQmlApplicationEngine *getEngine() { return engine; }
 

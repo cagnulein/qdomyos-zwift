@@ -929,6 +929,64 @@ void horizontreadmill::update() {
                /*initDone*/) {
 
         QSettings settings;
+
+        if (FS_TREADMILL) {
+            const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+
+            // Any explicit stop cancels a startup recovery. This also prevents a
+            // manual stop during the 15-second window from being undone by a retry.
+            if (requestStop != -1) {
+                m_fsStartupRetryWindowStarted = 0;
+                m_fsStartupTargetSpeed = -1.0;
+                m_fsPendingStartSpeed = -1.0;
+                m_fsStartupTargetReached = false;
+                m_fsStartupRetryDone = false;
+            }
+
+            // Start/Resume is processed later in this update than speed requests.
+            // Therefore release a deferred speed only on the following update, after
+            // requestStart has been consumed by the driver.
+            if (m_fsPendingStartSpeed > 1.1 && requestStart == -1) {
+                requestSpeed = m_fsPendingStartSpeed;
+                if (m_fsStartupRetryWindowStarted > 0 &&
+                    nowMs <= (m_fsStartupRetryWindowStarted + 15000)) {
+                    m_fsStartupTargetSpeed = m_fsPendingStartSpeed;
+                    m_fsStartupTargetReached = false;
+                    m_fsStartupRetryDone = false;
+                }
+                qDebug() << "FS treadmill: applying deferred post-start speed target"
+                         << m_fsPendingStartSpeed;
+                m_fsPendingStartSpeed = -1.0;
+            }
+
+            if (m_fsStartupRetryWindowStarted > 0) {
+                if (nowMs > (m_fsStartupRetryWindowStarted + 15000)) {
+                    qDebug() << "FS treadmill: startup speed retry window expired";
+                    m_fsStartupRetryWindowStarted = 0;
+                    m_fsStartupTargetSpeed = -1.0;
+                    m_fsPendingStartSpeed = -1.0;
+                    m_fsStartupTargetReached = false;
+                    m_fsStartupRetryDone = false;
+                } else if (m_fsStartupTargetSpeed > 1.1 && !m_fsStartupRetryDone) {
+                    const double currentSpeedValue = currentSpeed().value();
+                    const double targetTolerance = qMax(0.2, minStepSpeed());
+
+                    if (!m_fsStartupTargetReached && currentSpeedValue > 1.1 &&
+                        qAbs(currentSpeedValue - m_fsStartupTargetSpeed) <= targetTolerance) {
+                        m_fsStartupTargetReached = true;
+                        qDebug() << "FS treadmill: startup target reached" << currentSpeedValue
+                                 << m_fsStartupTargetSpeed;
+                    } else if (m_fsStartupTargetReached && currentSpeedValue >= 0.9 &&
+                               currentSpeedValue <= 1.1) {
+                        requestSpeed = m_fsStartupTargetSpeed;
+                        m_fsStartupRetryDone = true;
+                        qDebug() << "FS treadmill: detected 1 km/h startup fallback, reapplying target"
+                                 << m_fsStartupTargetSpeed;
+                    }
+                }
+            }
+        }
+
         bool horizon_treadmill_omega_z =
             settings.value(QZSettings::horizon_treadmill_omega_z, QZSettings::default_horizon_treadmill_omega_z).toBool();
         bool horizon_treadmill_7_8 =
@@ -972,8 +1030,55 @@ void horizontreadmill::update() {
         // this treadmill can't go below 1
         if(mobvoi_tmp_treadmill && requestSpeed < 1)
             requestSpeed = -1;
-        
+
         if (requestSpeed != -1) {
+
+            // Keep treadmill::changeSpeed() generic. FS/P30-specific translation belongs
+            // here, where horizontreadmill turns the requested target into a device command.
+            if (FS_TREADMILL && qFuzzyIsNull(requestSpeed)) {
+                homeform *home = homeform::singleton();
+                peloton *pelotonHandler = home ? home->getPelotonHandler() : nullptr;
+                const bool pelotonBootcamp =
+                    pelotonHandler && pelotonHandler->isBootcampWorkout();
+
+                if (pelotonBootcamp && canStartStop()) {
+                    qDebug() << "FS treadmill Peloton Bootcamp floor: translating speed 0 to physical Stop";
+                    requestSpeed = -1;
+                    m_fsStartupRetryWindowStarted = 0;
+                    m_fsStartupTargetSpeed = -1.0;
+                    m_fsPendingStartSpeed = -1.0;
+                    m_fsStartupTargetReached = false;
+                    m_fsStartupRetryDone = false;
+                    stop(false);
+                }
+            }
+
+            // trainprogram can queue Start/Resume and the next running target in the
+            // same floor -> running transition. Since speed is processed before start
+            // below, hold that target for the next driver update so Start/Resume goes first.
+            if (requestSpeed != -1 && FS_TREADMILL &&
+                requestStart != -1 && requestSpeed > 1.1) {
+                m_fsPendingStartSpeed = requestSpeed;
+                requestSpeed = -1;
+                qDebug() << "FS treadmill: deferring speed target until start command has been sent"
+                         << m_fsPendingStartSpeed;
+            }
+
+            if (requestSpeed != -1) {
+                if (FS_TREADMILL && requestSpeed > 1.1 &&
+                    m_fsStartupRetryWindowStarted > 0 &&
+                    QDateTime::currentMSecsSinceEpoch() <=
+                        (m_fsStartupRetryWindowStarted + 15000) &&
+                    !m_fsStartupRetryDone) {
+                    if (m_fsStartupTargetSpeed < 0.0 ||
+                        qAbs(m_fsStartupTargetSpeed - requestSpeed) > 0.01) {
+                        m_fsStartupTargetSpeed = requestSpeed;
+                        m_fsStartupTargetReached = false;
+                        qDebug() << "FS treadmill: armed startup speed target"
+                                 << m_fsStartupTargetSpeed;
+                    }
+                }
+
             // In Runn closed-loop mode the displayed Speed belongs to the sensor,
             // not the motor. Check the motor's independent telemetry instead.
             const bool useMachineSpeed =
@@ -982,17 +1087,21 @@ void horizontreadmill::update() {
                 settings.value(QZSettings::stryd_speed_instead_treadmill,
                                QZSettings::default_stryd_speed_instead_treadmill).toBool();
             const double speedForControl = useMachineSpeed ? rawSpeed.value() : currentSpeed().value();
-            bool minSpeed =
-                fabs(requestSpeed - float_one_point_round(speedForControl)) >= (minStepSpeed() - 0.09);
-            bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
-            qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
-                     << float_one_point_round(speedForControl);
-            if (float_one_point_round(requestSpeed) != float_one_point_round(speedForControl) && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
-                forceSpeedNeed) {
-                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                forceSpeed(float_one_point_round(requestSpeed));
+                bool minSpeed =
+                    fabs(requestSpeed - float_one_point_round(speedForControl)) >=
+                    (minStepSpeed() - 0.09);
+                bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
+                qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
+                         << float_one_point_round(speedForControl);
+                if (float_one_point_round(requestSpeed) !=
+                        float_one_point_round(currentSpeed().value()) &&
+                    minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
+                    forceSpeedNeed) {
+                    emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                    forceSpeed(float_one_point_round(requestSpeed));
+                }
+                requestSpeed = -1;
             }
-            requestSpeed = -1;
         }
         if (requestInclination != -100) {
             if (!adidas_treadmill && (!FS_TREADMILL || !areInclinationSettingsDefault())) {
@@ -1104,6 +1213,13 @@ void horizontreadmill::update() {
             }
             horizonPaused = false;
             lastStart = QDateTime::currentMSecsSinceEpoch();
+            if (FS_TREADMILL) {
+                m_fsStartupRetryWindowStarted = lastStart;
+                m_fsStartupTargetSpeed = -1.0;
+                m_fsStartupTargetReached = false;
+                m_fsStartupRetryDone = false;
+                qDebug() << "FS treadmill: startup speed retry window armed";
+            }
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
@@ -1613,7 +1729,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        parseInclination(treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0));
+        parseInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0);
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(weight))
@@ -1639,7 +1755,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                        1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        parseInclination(treadmillInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0));
+        parseInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0);
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(weight))
@@ -1956,13 +2072,13 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 // Domyos TS100 has a fixed 15° inclination
                 Inclination = 15;
             } else if(!tunturi_t60_treadmill && !ICONCEPT_FTMS_treadmill && !T01)
-                parseInclination(treadmillInclinationOverride((double)(
+                parseInclinationOverride((double)(
                                   (int16_t)(
                                       ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
                                       (uint8_t)newValue.at(index)
                                       )
                                   ) /
-                                                              10.0));
+                                     10.0);
             else if(ICONCEPT_FTMS_treadmill || T01) {
                 uint8_t val1 = (uint8_t)newValue.at(index);
                 uint8_t val2 = (uint8_t)newValue.at(index + 1);
@@ -2915,6 +3031,12 @@ int horizontreadmill::GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count, int crc
 bool horizontreadmill::autoPauseWhenSpeedIsZero() {
     if(disableAutoPause == true)
         return false;
+
+    if (homeform::singleton() && homeform::singleton()->getPelotonHandler() &&
+        homeform::singleton()->getPelotonHandler()->isBootcampWorkout()) {
+        qDebug() << "autoPauseWhenSpeedIsZero disabled for active Peloton Bootcamp";
+        return false;
+    }
 
     // Merach sometimes emits a single transient FTMS speed=0 frame while the treadmill is still running.
     // Without a small debounce QZ treats that glitch as a real pause and starts blinking the start button.

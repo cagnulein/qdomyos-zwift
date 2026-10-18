@@ -45,6 +45,7 @@ SOURCES += \
         Devices/TestSportsPlusBikeParser.cpp \
         Devices/TestWahooKickrRunParser.cpp \
         Devices/TestRenphoBikeKnobGears.cpp \
+        Devices/TestTreadmillInclinationOverrides.cpp \
         Devices/TestNordictrackEllipticalS700Parser.cpp \
         Devices/TestXcxBikeParser.cpp \
         Devices/TestRowerTargetResistance.cpp \
@@ -89,6 +90,7 @@ HEADERS += \
     Devices/TestSportsPlusBikeParser.h \
     Devices/TestWahooKickrRunParser.h \
     Devices/TestRenphoBikeKnobGears.h \
+    Devices/TestTreadmillInclinationOverrides.h \
     Devices/TestNordictrackEllipticalS700Parser.h \
     Devices/TestXcxBikeParser.h \
     Devices/TestOctaneTreadmillZR8.h \
