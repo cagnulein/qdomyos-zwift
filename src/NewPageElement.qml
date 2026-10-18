@@ -53,7 +53,7 @@ ColumnLayout {
             width: 30; height: 30
             id: indicatImg
             text: ">"
-            font.pixelSize: 24
+            font.pixelSize: window.fontPx(24)
             color: "white"
         }
         MouseArea {

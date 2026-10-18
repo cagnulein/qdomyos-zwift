@@ -155,7 +155,7 @@ ColumnLayout {
                     Rectangle {
                         property alias textColor: fileTextBox.color
                         width: parent.width
-                        height: 40
+                        height: window.textScale !== 1 ? Math.max(40, fileTextBox.implicitHeight) : 40
                                 color: Material.backgroundColor
                         z: 1
                         Item {
@@ -169,7 +169,7 @@ ColumnLayout {
                             Text {
                                 id: fileTextBox
                                 color: (!folderModel.isFolder(index)?Material.color(Material.Grey):Material.color(Material.Orange))
-                                font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : window.fontPx(window.appFontPx * 1.6)
                                 text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.length-4):fileName)
                                 NumberAnimation on x {
                                     Component.onCompleted: {
@@ -185,7 +185,7 @@ ColumnLayout {
                                   x: root.width
                                   text: fileTextBox.text
                                   color: Material.color(Material.Grey)
-                                  font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                  font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : window.fontPx(window.appFontPx * 1.6)
                                 }
                             }
                         }
@@ -276,7 +276,7 @@ ColumnLayout {
                     id: date
                     width: parent.width
                     text: rootItem.previewWorkoutDescription
-                    font.pixelSize: 14
+                    font.pixelSize: window.fontPx(14)
                     color: "white"
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
@@ -289,7 +289,7 @@ ColumnLayout {
                     id: description
                     width: parent.width
                     text: rootItem.previewWorkoutTags
-                    font.pixelSize: 10
+                    font.pixelSize: window.fontPx(10)
                     wrapMode: Text.WordWrap
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
@@ -311,7 +311,7 @@ ColumnLayout {
                         height: 400
                         width: parent.width
                         title: qsTr("Power")
-                        titleFont.pixelSize: 20
+                        titleFont.pixelSize: window.fontPx(20)
 
                         DateTimeAxis {
                             id: valueAxisX
@@ -322,7 +322,7 @@ ColumnLayout {
                             //labelsVisible: false
                             gridVisible: false
                             //lineVisible: false
-                            labelsFont.pixelSize: 10
+                            labelsFont.pixelSize: window.fontPx(10)
                         }
 
                         ValueAxis {
@@ -335,7 +335,7 @@ ColumnLayout {
                             //labelsVisible: false
                             //gridVisible: false
                             //lineVisible: false
-                            labelsFont.pixelSize: 10
+                            labelsFont.pixelSize: window.fontPx(10)
                         }
 
                         LineSeries {
