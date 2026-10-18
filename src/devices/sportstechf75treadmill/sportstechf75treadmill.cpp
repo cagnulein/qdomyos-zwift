@@ -208,10 +208,12 @@ void sportstechf75treadmill::publishCommandedMetrics(double speed, int incline) 
     // incline frame while running, so expose that state to QZ as a display
     // proxy until a real RX measurement is identified. Keep the distinction
     // explicit in the log and never leave stale values after pause/stop.
-    if (currentSpeed().value() == speed && currentInclination().value() == incline) {
-        return;
+    const bool changed = currentSpeed().value() != speed || currentInclination().value() != incline;
+    if (changed) {
+        qDebug() << "Sportstech F75 commanded metrics proxy speed" << speed << "incline" << incline;
     }
-    qDebug() << "Sportstech F75 commanded metrics proxy speed" << speed << "incline" << incline;
+    // Sample the proxy on every 100 ms driver tick so its average is weighted
+    // by time rather than by the number of command changes.
     speedSensor(speed);
     inclinationSensor(incline, incline);
 }
