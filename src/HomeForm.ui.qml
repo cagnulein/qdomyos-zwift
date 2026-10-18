@@ -200,9 +200,11 @@ Page {
             id: row1
             width: parent.width
             anchors.bottom: row.bottom
-            anchors.bottomMargin: -10
+            // a bigger text grows down into the gap above the tiles, not up into the buttons
+            anchors.bottomMargin: window.textScale !== 1 ? -10 - Math.round(statusLabel.height * (1 - 1 / window.textScale)) : -10
 
             Label {
+                id: statusLabel
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
                 // the search status may have two lines ("<device> found" and the countdown): the line
@@ -210,8 +212,6 @@ Page {
                 horizontalAlignment: Text.AlignHCenter
                 lineHeight: text.indexOf("\n") >= 0 ? 0.8 : 1
                 text: page.searchStatus !== "" ? page.searchStatus : rootItem.info
-                // like the buttons above: a bigger text would grow up into them
-                Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.appFontPx }
             }
         }
 

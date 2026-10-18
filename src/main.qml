@@ -254,6 +254,9 @@ ApplicationWindow {
     // and ran under the field and the OK button. The fixed-size popups below wrap their text too,
     // and then take the width of the screen and the height of the text
     readonly property int labelWrap: textScale === 1 ? Text.NoWrap : Text.WordWrap
+    // Space under the hint of a setting: a wrapped label of the next one fills its row and
+    // touched the hint above it, the two read as one block
+    readonly property int hintGap: textScale === 1 ? 0 : Math.round(6 * textScale)
     function applyTextScale() {
         if (scaledFontPx > 0)
             font.pixelSize = scaledFontPx

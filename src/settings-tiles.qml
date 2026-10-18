@@ -433,6 +433,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -501,6 +502,7 @@ ScrollView {
                     font.bold: true
                     font.italic: true
                     font.pixelSize: window.fontHint
+                    bottomPadding: window.hintGap
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -544,6 +546,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -623,6 +626,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -670,6 +674,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -717,6 +722,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -849,6 +855,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -862,6 +869,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -909,6 +917,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -973,6 +982,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1020,6 +1030,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1068,6 +1079,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1150,6 +1162,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1184,6 +1197,7 @@ ScrollView {
                     font.bold: true
                     font.italic: true
                     font.pixelSize: window.fontHint
+                    bottomPadding: window.hintGap
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
@@ -1261,6 +1275,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1308,6 +1323,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1355,6 +1371,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1402,6 +1419,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1449,6 +1467,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1496,6 +1515,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1627,6 +1647,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1674,6 +1695,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1722,6 +1744,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1769,6 +1792,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1816,6 +1840,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -1864,6 +1889,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2012,6 +2038,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2059,6 +2086,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2118,6 +2146,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2166,6 +2195,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2214,6 +2244,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2261,6 +2292,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2342,6 +2374,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2389,6 +2422,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2436,6 +2470,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2483,6 +2518,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2530,6 +2566,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2577,6 +2614,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2624,6 +2662,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2671,6 +2710,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -2718,6 +2758,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5402,6 +5443,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5449,6 +5491,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5496,6 +5539,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5543,6 +5587,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5590,6 +5635,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5637,6 +5683,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5666,6 +5713,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5713,6 +5761,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5760,6 +5809,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5807,6 +5857,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5854,6 +5905,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5901,6 +5953,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5946,6 +5999,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -5991,6 +6045,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -6036,6 +6091,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -6081,6 +6137,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
@@ -6128,6 +6185,7 @@ ScrollView {
             font.bold: true
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             textFormat: Text.PlainText
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter

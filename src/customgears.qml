@@ -128,7 +128,8 @@ ScrollView {
             text: qsTr("Each gear uses the offset below instead of the raw gear value. QZ applies it automatically to resistance, inclination, or slope depending on the trainer path. Default is linear.")
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             color: Material.accent
         }
 

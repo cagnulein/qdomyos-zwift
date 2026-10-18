@@ -2486,6 +2486,7 @@ import AndroidStatusBar 1.0
                                         text: settingsPane.parentDisplayName(entry)
                                         color: Material.color(Material.Grey)
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         wrapMode: Text.WordWrap
                                         Layout.fillWidth: true
                                         Layout.minimumWidth: 0
@@ -2514,6 +2515,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
@@ -2681,6 +2683,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2722,6 +2725,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2784,6 +2788,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2827,6 +2832,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2868,6 +2874,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2911,6 +2918,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2951,6 +2959,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -2989,6 +2998,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3030,6 +3040,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3058,6 +3069,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3087,6 +3099,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3116,6 +3129,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3144,6 +3158,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3193,6 +3208,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3221,6 +3237,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3249,6 +3266,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3277,6 +3295,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3305,6 +3324,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3348,6 +3368,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3487,6 +3508,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -3500,6 +3522,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -3565,6 +3588,7 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -3608,6 +3632,7 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -3748,6 +3773,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -3790,6 +3816,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3819,6 +3846,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3887,6 +3915,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -3926,6 +3955,7 @@ import AndroidStatusBar 1.0
                         font.italic: true
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         color: "steelblue"
                     }
                     RowLayout {
@@ -3960,6 +3990,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4040,6 +4071,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4076,6 +4108,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
@@ -4093,6 +4126,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
@@ -4277,6 +4311,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 wrapMode: Text.WordWrap
                                 Layout.fillWidth: true
                                 Layout.topMargin: 10
@@ -4321,6 +4356,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4363,6 +4399,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4403,6 +4440,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4443,6 +4481,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4483,6 +4522,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4523,6 +4563,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4563,6 +4604,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4604,6 +4646,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4642,6 +4685,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4697,6 +4741,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -4734,6 +4779,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -5160,6 +5206,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -5173,6 +5220,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -5270,6 +5318,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -5645,6 +5694,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -5937,6 +5987,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -6611,6 +6662,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -6641,6 +6693,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6668,6 +6721,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6707,6 +6761,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6746,6 +6801,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6803,6 +6859,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6830,6 +6887,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6907,6 +6965,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6945,6 +7004,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -6989,6 +7049,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7034,6 +7095,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7073,6 +7135,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7086,6 +7149,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7127,6 +7191,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7168,6 +7233,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7209,6 +7275,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7237,6 +7304,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7282,6 +7350,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7339,6 +7408,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7592,6 +7662,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7641,6 +7712,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7698,6 +7770,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7737,6 +7810,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7776,6 +7850,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7812,6 +7887,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7848,6 +7924,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7887,6 +7964,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7925,6 +8003,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -7974,6 +8053,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8014,6 +8094,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8055,6 +8136,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8083,6 +8165,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8110,6 +8193,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8137,6 +8221,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8207,6 +8292,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8248,6 +8334,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8302,6 +8389,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8329,6 +8417,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8357,6 +8446,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8384,6 +8474,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8412,6 +8503,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8460,6 +8552,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8510,6 +8603,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8560,6 +8654,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8587,6 +8682,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8615,6 +8711,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8655,6 +8752,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8682,6 +8780,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8709,6 +8808,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8750,6 +8850,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8787,6 +8888,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8825,6 +8927,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8852,6 +8955,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8879,6 +8983,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8914,6 +9019,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8941,6 +9047,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -8968,6 +9075,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9157,6 +9265,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9184,6 +9293,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9921,6 +10031,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9964,6 +10075,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -9991,6 +10103,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10018,6 +10131,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10046,6 +10160,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10073,6 +10188,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10141,6 +10257,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10208,6 +10325,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10235,6 +10353,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10272,6 +10391,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10308,6 +10428,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10335,6 +10456,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10375,6 +10497,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10415,6 +10538,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10455,6 +10579,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10495,6 +10620,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10535,6 +10661,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10654,6 +10781,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10694,6 +10822,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10938,6 +11067,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -10975,6 +11105,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11003,6 +11134,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11031,6 +11163,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11059,6 +11192,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11087,6 +11221,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11115,6 +11250,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11155,6 +11291,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11197,6 +11334,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11237,6 +11375,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11275,6 +11414,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11313,6 +11453,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11353,6 +11494,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11375,6 +11517,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11402,6 +11545,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11442,6 +11586,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -11455,6 +11600,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -12047,6 +12193,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -12418,6 +12565,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -13405,6 +13553,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13636,6 +13785,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13887,6 +14037,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13914,6 +14065,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13955,6 +14107,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -13995,6 +14148,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14034,6 +14188,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14075,6 +14230,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14116,6 +14272,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14157,6 +14314,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14197,6 +14355,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14269,6 +14428,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14296,6 +14456,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14324,6 +14485,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14351,6 +14513,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14378,6 +14541,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14406,6 +14570,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14433,6 +14598,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14479,6 +14645,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14507,6 +14674,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14535,6 +14703,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14576,6 +14745,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14616,6 +14786,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14655,6 +14826,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14695,6 +14867,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14722,6 +14895,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14750,6 +14924,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14777,6 +14952,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14815,6 +14991,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14853,6 +15030,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -14887,6 +15065,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14939,6 +15118,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -14988,6 +15168,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15028,6 +15209,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15055,6 +15237,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15082,6 +15265,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15195,6 +15379,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15233,6 +15418,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15261,6 +15447,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15289,6 +15476,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15317,6 +15505,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15344,6 +15533,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15371,6 +15561,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15409,6 +15600,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15436,6 +15628,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15463,6 +15656,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15490,6 +15684,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15551,6 +15746,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -15600,6 +15796,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16432,6 +16629,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16469,6 +16667,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16506,6 +16705,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16543,6 +16743,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16570,6 +16771,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16597,6 +16799,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16624,6 +16827,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16651,6 +16855,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16678,6 +16883,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16700,6 +16906,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16843,6 +17050,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -16993,6 +17201,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17021,6 +17230,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17049,6 +17259,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17077,6 +17288,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17132,6 +17344,7 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -17160,6 +17373,7 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -17188,6 +17402,7 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -17217,6 +17432,7 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -17246,6 +17462,7 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -17274,6 +17491,7 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -17303,6 +17521,7 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -17331,6 +17550,7 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -17395,6 +17615,7 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -17434,6 +17655,7 @@ import AndroidStatusBar 1.0
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: window.fontHint
+                                        bottomPadding: window.hintGap
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
@@ -17512,6 +17734,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -17553,6 +17776,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -17590,6 +17814,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -17628,6 +17853,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -17665,6 +17891,7 @@ import AndroidStatusBar 1.0
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: window.fontHint
+                                bottomPadding: window.hintGap
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
@@ -17760,6 +17987,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17788,6 +18016,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17861,6 +18090,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17889,6 +18119,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17916,6 +18147,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17944,6 +18176,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -17972,6 +18205,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -18000,6 +18234,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -18028,6 +18263,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -18055,6 +18291,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -18083,6 +18320,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -18112,6 +18350,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -18139,6 +18378,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -18167,6 +18407,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
@@ -18205,6 +18446,7 @@ import AndroidStatusBar 1.0
                         font.bold: true
                         font.italic: true
                         font.pixelSize: window.fontHint
+                        bottomPadding: window.hintGap
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter

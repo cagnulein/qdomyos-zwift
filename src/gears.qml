@@ -350,7 +350,8 @@ ScrollView {
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                     Layout.maximumWidth: chainringColumn.width - 20
-                    font.pixelSize: Qt.application.font.pixelSize - 2
+                    font.pixelSize: window.fontHint
+                    bottomPadding: window.hintGap
                     color: Material.accent
                 }
             }

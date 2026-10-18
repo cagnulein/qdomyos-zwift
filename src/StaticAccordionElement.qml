@@ -20,7 +20,8 @@ ColumnLayout {
         color: "red"
         Layout.alignment: Qt.AlignTop
         Layout.fillWidth: true;
-        height: 48
+        height: window.textScale !== 1 ? Math.max(48, accordionText.y + accordionText.height + 13) : 48
+        Layout.preferredHeight: height
 
         Rectangle{
            id:indicatRect
@@ -36,11 +37,9 @@ ColumnLayout {
             color: "#FFFFFF"
             font: window.headerFont
             text: rootElement.title
-            // A bigger text can run under the arrow: shrink it down to the normal size, then elide
+            // A bigger text can run under the arrow: a long title wraps, and the header grows
             width: window.textScale !== 1 ? indicatImg.x - x - 8 : implicitWidth
-            fontSizeMode: window.textScale !== 1 ? Text.HorizontalFit : Text.FixedSize
-            minimumPixelSize: window.appFontPx
-            elide: window.textScale !== 1 ? Text.ElideRight : Text.ElideNone
+            wrapMode: window.labelWrap
         }
         Image {
             y:13

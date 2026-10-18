@@ -219,7 +219,8 @@ ScrollView {
             text: qsTr("Set the resistance QZ should target at each incline. QZ interpolates automatically between points and uses the nearest endpoint outside the configured range. Changes are saved automatically.")
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            font.pixelSize: Qt.application.font.pixelSize - 2
+            font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             color: Material.accent
         }
 

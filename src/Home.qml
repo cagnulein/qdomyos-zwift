@@ -139,7 +139,7 @@ HomeForm {
             Label {
                 text: qsTr("How was this workout?")
                 font.bold: true
-                font.pixelSize: 18
+                font.pixelSize: window.fontPx(18)
                 width: parent.width
                 wrapMode: Text.WordWrap
             }

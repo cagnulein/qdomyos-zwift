@@ -121,6 +121,7 @@ ScrollView {
             text: qsTr("Click on a field and press a key to assign a shortcut. Press Backspace to clear. Preset fields follow the same left-to-right order as the preset buttons.")
             font.italic: true
             font.pixelSize: window.fontHint
+            bottomPadding: window.hintGap
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
             color: Material.color(Material.Lime)
