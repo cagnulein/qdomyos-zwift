@@ -776,6 +776,7 @@ const QString QZSettings::default_csafe_rower = QStringLiteral("");
 const QString QZSettings::csafe_elliptical_port = QStringLiteral("csafe_elliptical_port");
 const QString QZSettings::default_csafe_elliptical_port = QStringLiteral("");
 const QString QZSettings::waterrower_usb = QStringLiteral("waterrower_usb");
+const QString QZSettings::kettler_racer_s_rower = QStringLiteral("kettler_racer_s_rower");
 const QString QZSettings::ftms_rower = QStringLiteral("ftms_rower");
 const QString QZSettings::default_ftms_rower = QStringLiteral("Disabled");
 const QString QZSettings::ftms_elliptical = QStringLiteral("ftms_elliptical");
@@ -1308,7 +1309,7 @@ const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 const QString QZSettings::android_landscape_cutout_margin = QStringLiteral("android_landscape_cutout_margin");
 const QString QZSettings::android_landscape_cutout_prompt_shown = QStringLiteral("android_landscape_cutout_prompt_shown");
 
-const uint32_t allSettingsCount = 1015;
+const uint32_t allSettingsCount = 1016;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2350,6 +2351,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_trainer_8_0_pftl59721_0, QZSettings::default_proform_trainer_8_0_pftl59721_0},
     {QZSettings::android_landscape_cutout_prompt_shown, QZSettings::default_android_landscape_cutout_prompt_shown},
     {QZSettings::pafers_rower, QZSettings::default_pafers_rower},
+    {QZSettings::kettler_racer_s_rower, QZSettings::default_kettler_racer_s_rower},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

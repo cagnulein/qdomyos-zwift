@@ -617,6 +617,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
     bool cscFound = cscName.startsWith(QStringLiteral("Disabled")) || csc_as_bike || csc_as_treadmill;
     bool hammerRacerS = settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool();
+    bool kettlerRacerSRowerEnabled =
+        settings.value(QZSettings::kettler_racer_s_rower, QZSettings::default_kettler_racer_s_rower).toBool();
     bool flywheel_life_fitness_ic8 =
         settings.value(QZSettings::flywheel_life_fitness_ic8, QZSettings::default_flywheel_life_fitness_ic8).toBool();
     bool life_fitness_ic5 =
@@ -1960,6 +1962,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 npeCableBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(npeCableBike);
+            } else if (b.name().toUpper().startsWith("RACER S") && kettlerRacerSRowerEnabled &&
+                       !kettlerRacerSRower && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                kettlerRacerSRower = new kettlerracersrower(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(kettlerRacerSRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(kettlerRacerSRower, &kettlerracersrower::debug, this, &bluetooth::debug);
+                kettlerRacerSRower->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(kettlerRacerSRower);
             } else if (b.name().toUpper().startsWith("RACER S") && !kettlerRacerSBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -4852,6 +4865,8 @@ bluetoothdevice *bluetooth::device() {
         return horizonGr7Bike;
     } else if (kineticInroadBike) {
         return kineticInroadBike;
+    } else if (kettlerRacerSRower) {
+        return kettlerRacerSRower;
     } else if (kettlerRacerSBike) {
         return kettlerRacerSBike;
     } else if (renphoBike) {
