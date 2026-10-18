@@ -6017,8 +6017,22 @@ void homeform::StartFromDevice() {
     qDebug() << QStringLiteral("Physical start button pressed on device");
     bool send_event_to_device = false;
     if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == TREADMILL) {
-        send_event_to_device = static_cast<treadmill *>(bluetoothManager->device())
-                                   ->physicalStartNeedsDeviceCommand();
+        auto *device = static_cast<treadmill *>(bluetoothManager->device());
+        send_event_to_device = device->physicalStartNeedsDeviceCommand();
+
+        // QZ starts with paused=false/stopped=false even before a workout has
+        // begun. For the F75, that made the first physical Start look like a
+        // pause, so the treadmill immediately received a stop command and all
+        // subsequent physical controls appeared inactive until QZ was started
+        // from the UI once. Treat only this initial idle transition as a new
+        // workout; an active session keeps the normal Start/Pause toggle.
+        const bool idleBeforeWorkout =
+            !paused && !stopped && send_event_to_device && device->currentSpeed().value() <= 0.0 &&
+            device->elapsedTime() == QTime(0, 0, 0, 0);
+        if (idleBeforeWorkout) {
+            stopped = true;
+            qDebug() << QStringLiteral("Physical F75 start from idle - initializing a new workout");
+        }
     }
     Start_inner(send_event_to_device);
 }
