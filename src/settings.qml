@@ -1780,6 +1780,8 @@ import AndroidStatusBar 1.0
             property real treadmill_speed_increase_anticipation: 0.0
 
             property real treadmill_speed_decrease_anticipation: 0.0
+
+            property int peloton_auto_start_delay: 0
         }
 
 
@@ -7215,6 +7217,53 @@ import AndroidStatusBar 1.0
 
                     Label {
                         text: qsTr("Turn this on to start a workout automatically when you start a workout on Peloton (skipping the intro). Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: Qt.application.font.pixelSize - 2
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Auto Start Delay:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pelotonAutoStartDelayTextField
+                            text: settings.peloton_auto_start_delay.toString()
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.preferredWidth: 80
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Label {
+                            text: qsTr("seconds")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                var value = parseInt(pelotonAutoStartDelayTextField.text)
+                                if (isNaN(value))
+                                    value = 0
+                                value = Math.max(-30, Math.min(30, value))
+                                settings.peloton_auto_start_delay = value
+                                pelotonAutoStartDelayTextField.text = value.toString()
+                                toast.show(qsTr("Setting saved!"))
+                            }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Positive values delay Peloton auto start; negative values start it earlier. The setting applies with and without the intro. Default is 0 seconds.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: Qt.application.font.pixelSize - 2

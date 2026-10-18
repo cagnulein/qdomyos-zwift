@@ -964,6 +964,7 @@ const QString QZSettings::default_mqtt_password = QStringLiteral("");
 const QString QZSettings::default_mqtt_deviceid = QStringLiteral("default");
 const QString QZSettings::peloton_auto_start_with_intro = QStringLiteral("peloton_auto_start_with_intro");
 const QString QZSettings::peloton_auto_start_without_intro = QStringLiteral("peloton_auto_start_without_intro");
+const QString QZSettings::peloton_auto_start_delay = QStringLiteral("peloton_auto_start_delay");
 const QString QZSettings::nordictrack_tseries5_treadmill = QStringLiteral("nordictrack_tseries5_treadmill");
 const QString QZSettings::proform_carbon_tl_PFTL59722c = QStringLiteral("proform_carbon_tl_PFTL59722c");
 const QString QZSettings::nordictrack_gx_44_pro = QStringLiteral("nordictrack_gx_44_pro");
@@ -1317,7 +1318,7 @@ const QString QZSettings::default_shortcut_start_stop = QStringLiteral("");
 const QString QZSettings::shortcut_stop = QStringLiteral("shortcut_stop");
 const QString QZSettings::default_shortcut_stop = QStringLiteral("");
 
-const uint32_t allSettingsCount = 1038;
+const uint32_t allSettingsCount = 1039;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -2380,6 +2381,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwiftplay_gear_rb, QZSettings::default_zwiftplay_gear_rb},
     {QZSettings::freebeat_serialport, QZSettings::default_freebeat_serialport},
     {QZSettings::renpho_bike_knob_gears, QZSettings::default_renpho_bike_knob_gears},
+    {QZSettings::peloton_auto_start_delay, QZSettings::default_peloton_auto_start_delay},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
