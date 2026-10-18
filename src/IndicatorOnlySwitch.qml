@@ -14,6 +14,7 @@ SwitchDelegate {
             return false
 
         if (item.wrapMode !== undefined && item.maximumLineCount !== undefined) {
+            titleText = item
             item.wrapMode = Text.WrapAtWordBoundaryOrAnywhere
             item.maximumLineCount = Qt.binding(function () { return window.textScale !== 1 ? 100 : 2 })
             if (item.elide !== undefined)
@@ -36,7 +37,11 @@ SwitchDelegate {
     }
 
     // The title wraps, but its label reports the height of one line: with a bigger text the
-    // second line ran into the hint under the switch. The row takes the height of the wrapped title
+    // second line ran into the hint under the switch. The row takes the height of the wrapped title:
+    // the text item of the label (its content height counts the wrapped lines) or, until it is
+    // found, a hidden copy of the title. The first three terms are those of the Material style, so
+    // at 100 % the height is the one of the style
+    property var titleText: null
     Text {
         id: titleProbe
         visible: false
@@ -45,13 +50,12 @@ SwitchDelegate {
         font: root.font
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
     }
-    Binding on implicitHeight {
-        when: window.textScale !== 1
-        value: Math.max(root.implicitBackgroundHeight + root.topInset + root.bottomInset,
-                        root.implicitContentHeight + root.topPadding + root.bottomPadding,
-                        root.implicitIndicatorHeight + root.topPadding + root.bottomPadding,
-                        titleProbe.height + root.topPadding + root.bottomPadding)
-    }
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding,
+                             implicitIndicatorHeight + topPadding + bottomPadding,
+                             window.textScale !== 1
+                                 ? Math.max(titleProbe.height, titleText ? titleText.contentHeight : 0) + topPadding + bottomPadding
+                                 : 0)
 
     Component.onCompleted: Qt.callLater(configureContentItem)
     onContentItemChanged: Qt.callLater(configureContentItem)
