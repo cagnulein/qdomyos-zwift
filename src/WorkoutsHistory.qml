@@ -111,8 +111,10 @@ Page {
         // Header
         Rectangle {
             Layout.fillWidth: true
-            // a bigger text: the title and the filter line keep inside the header
-            height: window.textScale !== 1 ? Math.max(60, headerTitle.height + 12) : 60
+            height: 60
+            // a bigger text: the title and the filter line keep inside the header (the layout reads
+            // the height only once, a preferred height it follows)
+            Layout.preferredHeight: window.textScale !== 1 ? Math.max(60, headerTitle.height + 12) : -1
             color: "#f5f5f5"
 
             // Calendar Icon Button - positioned absolutely on the left
@@ -579,9 +581,12 @@ Page {
                                 color: "#666666"
                             }
 
-                            // Stats row
-                            RowLayout {
-                                spacing: 16
+                            // Stats row; with a bigger text one under the other, clear of the action
+                            // buttons in the bottom-right corner
+                            GridLayout {
+                                columns: window.textScale > 1 ? 1 : 2
+                                columnSpacing: 16
+                                rowSpacing: 4
 
                                 Text {
                                     Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
@@ -757,8 +762,13 @@ Page {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
 
+        // a bigger text: the dialog keeps inside the screen and the question wraps
+        width: window.textScale !== 1 ? Math.min(implicitWidth, parent.width - 32) : implicitWidth
+
         Text {
             Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
+            width: window.textScale !== 1 ? confirmDialog.availableWidth : implicitWidth
+            wrapMode: window.labelWrap
             text: qsTr("Are you sure you want to delete '%1'?").arg(confirmDialog.workoutTitle)
         }
 
@@ -811,7 +821,7 @@ Page {
             Text {
                 Layout.margins: 20
                 Layout.preferredWidth: 300
-                Layout.preferredHeight: 120
+                Layout.preferredHeight: window.textScale !== 1 ? Math.max(120, implicitHeight) : 120
                 text: Qt.platform.os === "android" ? 
                       wrapEmoji("🔥 ") +
                       wrapEmoji(trainingProgramDialog.isSuccess ? '✅ ' : '❌ ') +

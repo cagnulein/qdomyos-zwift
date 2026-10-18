@@ -135,7 +135,7 @@ ColumnLayout {
                             Text {
                                 id: fileTextBox
                                 color: (!folderModel.isFolder(index)?Material.color(Material.Grey):Material.color(Material.Orange))
-                                font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : window.fontPx(window.appFontPx * 1.6)
+                                font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : window.fontPx(Qt.application.font.pixelSize > 0 ? window.appFontPx * 1.6 : window.appFontPx)
                                 text: fileName.substring(0, fileName.length-4)
                                 NumberAnimation on x {
                                     Component.onCompleted: {
@@ -151,7 +151,7 @@ ColumnLayout {
                                   x: root.width
                                   text: fileTextBox.text
                                   color: Material.color(Material.Grey)
-                                  font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : window.fontPx(window.appFontPx * 1.6)
+                                  font.pixelSize: window.textScale === 1 ? Qt.application.font.pixelSize * 1.6 : window.fontPx(Qt.application.font.pixelSize > 0 ? window.appFontPx * 1.6 : window.appFontPx)
                                 }
                             }
                         }
