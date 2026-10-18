@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
@@ -242,6 +243,8 @@ ScrollView {
                     color: "transparent"
 
                     Text {
+                        // a plain Text does not inherit the window font: the text size while it is not 100 %
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         anchors.centerIn: parent
                         text: qsTr("Inclination (%)")
                         font.bold: true
@@ -257,6 +260,7 @@ ScrollView {
                     color: "transparent"
 
                     Text {
+                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                         anchors.centerIn: parent
                         text: qsTr("Resistance")
                         font.bold: true

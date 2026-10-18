@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQml 2.15
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
@@ -2411,6 +2412,8 @@ import AndroidStatusBar 1.0
                 Layout.preferredWidth: Math.max(1, column1.width)
 
                 Label {
+                    // a label that sets only a weight keeps, in Qt 5, the size it inherited when created
+                    Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                     text: settingsCatalogLoading ? qsTr("Loading settings...") :
                           settingsSearchPending ? qsTr("Searching...") :
                           changedOnly && filteredSettings.length > 0 ?
@@ -2475,6 +2478,7 @@ import AndroidStatusBar 1.0
                                     spacing: 2
 
                                     Label {
+                                        Binding on font.pixelSize { when: window.scaledFontPx > 0; value: window.scaledFontPx; restoreMode: Binding.RestoreBindingOrValue }
                                         text: entry._translatedName || entry.name || entry.key
                                         font.bold: true
                                         wrapMode: Text.WordWrap
