@@ -149,9 +149,10 @@ Before testing:
 
 On the F75, physical Start toggles Start/Pause/Resume through QZ, physical
 Stop ends the QZ workout with a gradual normal speed ramp, and Incline+ changes
-one supported step. The treadmill's safety/emergency stop remains the
-emergency mechanism; a software ramp is not a substitute for it.
-
+one supported step. The F75 emergency-stop event is currently mapped from
+serial key `0x69` to an immediate QZ stop and `FB 00` command. This mapping is
+based on the available capture and should be confirmed with an isolated debug;
+the treadmill's physical safety mechanism remains the emergency authority.
 QZ separates commanded values from independent feedback. If the profile has
 not yet validated non-zero telemetry on a particular unit, a value shown in QZ
 may be the last requested command rather than an independent measurement.

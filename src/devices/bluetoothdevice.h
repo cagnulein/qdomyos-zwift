@@ -515,6 +515,7 @@ class bluetoothdevice : public QObject {
   public Q_SLOTS:
     virtual void start();
     virtual void stop(bool pause);
+    virtual void emergencyStop();
     virtual void heartRate(uint8_t heart);
     virtual void rrIntervalReceived(double rrInterval);
     virtual void cadenceSensor(uint8_t cadence);
@@ -636,6 +637,7 @@ class bluetoothdevice : public QObject {
     int8_t requestStart = -1;
     int8_t requestStop = -1;
     int8_t requestPause = -1;
+    bool requestEmergencyStop = false;
     int8_t requestIncreaseFan = -1;
     int8_t requestDecreaseFan = -1;
     double requestFanSpeed = -1;

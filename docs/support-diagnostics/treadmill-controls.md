@@ -42,6 +42,10 @@ FTMS treadmill profile is not equivalent.
 - Physical Start toggles Start, Pause, and Resume through QZ.
 - Physical Stop ends the QZ workout and the normal belt stop is sent as a
   gradual speed ramp rather than an immediate speed drop.
+- The F75 emergency-stop event currently mapped to serial key `0x69` causes an
+  immediate QZ stop and `FB 00` command. This interpretation comes from the
+  available capture and should be confirmed with an isolated debug; always
+  treat the treadmill's physical safety mechanism as authoritative.
 - Incline+ changes the target by one supported step.
 - The treadmill's safety/emergency stop remains the emergency mechanism; do
   not use a software ramp as a substitute for it.

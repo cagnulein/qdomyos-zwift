@@ -2046,6 +2046,8 @@ void homeform::trainProgramSignals() {
                    &homeform::PauseFromDevice);
         disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
                    &homeform::StopFromDevice);
+        disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWEmergencyStop, this,
+                   &homeform::EmergencyStopFromDevice);
         disconnect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWInclineUp, this,
                    &homeform::InclineUpFromDevice);
         disconnect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram,
@@ -2089,6 +2091,8 @@ void homeform::trainProgramSignals() {
                     &homeform::PauseFromDevice);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWStop, this,
                     &homeform::StopFromDevice);
+            connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWEmergencyStop, this,
+                    &homeform::EmergencyStopFromDevice);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::buttonHWInclineUp, this,
                     &homeform::InclineUpFromDevice);
             connect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
@@ -6031,6 +6035,14 @@ void homeform::PauseFromDevice() {
 
 void homeform::StopFromDevice() {
     qDebug() << QStringLiteral("Physical stop button pressed on device - stopping app");
+    Stop();
+}
+
+void homeform::EmergencyStopFromDevice() {
+    qDebug() << QStringLiteral("Physical emergency stop pressed on device - stopping app immediately");
+    if (bluetoothManager->device()) {
+        bluetoothManager->device()->emergencyStop();
+    }
     Stop();
 }
 

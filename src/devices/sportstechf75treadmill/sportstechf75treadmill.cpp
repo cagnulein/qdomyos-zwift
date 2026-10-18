@@ -20,6 +20,7 @@ constexpr int kTelemetryStart = 0xFD;
 constexpr int kKeyEventFunction = 0x20;
 constexpr int kKeyEventStart = 0x67;
 constexpr int kKeyEventStop = 0x68;
+constexpr int kKeyEventEmergencyStop = 0x69;
 constexpr int kKeyEventInclineUpObserved = 0x0A;
 constexpr int kKeyEventInclineUpVendor = 0x0D;
 constexpr int kCommandStart = 0xA2;
@@ -276,7 +277,8 @@ void sportstechf75treadmill::handleFrame(const QByteArray &frame) {
         // the observed Start/Stop frames use key+payload instead:
         // FD 20 01 67 68 FE and FD 20 01 68 69 FE.
         const bool startStopChecksum =
-            (key == kKeyEventStart || key == kKeyEventStop) && reportedChecksum == ((payload + key) & 0xFF);
+            (key == kKeyEventStart || key == kKeyEventStop || key == kKeyEventEmergencyStop) &&
+            reportedChecksum == ((payload + key) & 0xFF);
         // Tristan's isolated F75 capture reported 0x0A for Incline+, while
         // the vendor parser documents 0x0D. That frame carries the checksum
         // of the vendor alias (0x2E), so accept that specific observed form.
@@ -296,6 +298,11 @@ void sportstechf75treadmill::handleFrame(const QByteArray &frame) {
             // receives this signal with send_event_to_device=false, so the
             // physical Start/Resume action is not echoed to the UART.
             emit buttonHWStart();
+        } else if (key == kKeyEventEmergencyStop) {
+            // The F75 emergency key is reported as 0x69. Keep it separate
+            // from the gradual normal-stop path so it cannot be followed by
+            // another periodic A0 command.
+            emit buttonHWEmergencyStop();
         } else if (key == kKeyEventStop) {
             // Stop is terminal in QZ, unlike the Start/Pause toggle.
             emit buttonHWStop();
@@ -423,6 +430,7 @@ void sportstechf75treadmill::update() {
     const double commandSpeed = qMax(0.1, requestedSpeed);
 
     if (requestStart != -1) {
+        requestEmergencyStop = false;
         qDebug() << "Sportstech F75 START speed raw" << rawRequestedSpeed << "requested" << requestedSpeed
                  << "command" << commandSpeed << "incline" << requestedIncline
                  << "countdown" << kStartCountdownSeconds;
@@ -448,8 +456,18 @@ void sportstechf75treadmill::update() {
     bool stopRequestedThisTick = false;
     if (requestStop != -1) {
         const bool pauseRequested = requestPause != -1;
-        qDebug() << "Sportstech F75 STOP" << (pauseRequested ? "pause" : "stop");
-        if (pauseRequested) {
+        const bool emergencyStopRequested = requestEmergencyStop;
+        qDebug() << "Sportstech F75 STOP"
+                 << (emergencyStopRequested ? "emergency" : (pauseRequested ? "pause" : "stop"));
+        if (emergencyStopRequested) {
+            // Emergency stop is immediate: do not enter the normal A0 ramp and
+            // do not allow the next periodic keep-alive to restart the belt.
+            sendCommand(kCommandStop, 0, 0);
+            pauseRampPending = false;
+            stopRampPending = false;
+            stopRunningFramePending = false;
+            pauseRampProtocolSpeed = -1;
+        } else if (pauseRequested) {
             // The vendor pauses by ramping the A0 speed field down by one
             // deci-km/h every 100 ms. It does not send FB 00 at the start of
             // this ramp; that command is reserved for the final Stop action.
@@ -461,9 +479,7 @@ void sportstechf75treadmill::update() {
             stopRunningFramePending = false;
         } else {
             // A normal F75 stop uses the same smooth A0 speed ramp as pause.
-            // Keep the final FB 00 command until the belt has reached zero;
-            // an emergency-stop path, if added later, can still send FB 00
-            // immediately without reusing this normal-stop state.
+            // Keep the final FB 00 command until the belt has reached zero.
             pauseRampProtocolSpeed = qBound(0, qRound(lastCommandSpeed * kSpeedProtocolScale), 255);
             pauseRampIncline = qBound(0, lastCommandIncline, 255);
             pauseRampTicks = 0;
@@ -473,6 +489,7 @@ void sportstechf75treadmill::update() {
         }
         requestStop = -1;
         requestPause = -1;
+        requestEmergencyStop = false;
         commandActive = false;
         startCountdownValue = -1;
         startCountdownTicks = 0;

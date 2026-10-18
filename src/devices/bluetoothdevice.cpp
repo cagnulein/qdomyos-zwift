@@ -28,6 +28,11 @@ void bluetoothdevice::stop(bool pause) {
     if (pause)
         requestPause = 1;
 }
+void bluetoothdevice::emergencyStop() {
+    requestStop = 1;
+    requestPause = -1;
+    requestEmergencyStop = true;
+}
 metric bluetoothdevice::currentHeart() { return Heart; }
 metric bluetoothdevice::currentSpeed() { return Speed; }
 metric bluetoothdevice::currentInclination() { return Inclination; }
