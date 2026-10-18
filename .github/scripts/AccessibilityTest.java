@@ -46,9 +46,14 @@ public class AccessibilityTest {
         if (nodes.isEmpty()) {
             AccessibilityNodeInfo root = automation.getRootInActiveWindow();
             CharSequence active = root == null ? null : root.getPackageName();
+            String nativeText = firstText(root);
             if (active == null || !active.toString().equals(PACKAGE)) {
                 // e.g. an "isn't responding" dialog of the system over QZ on a slow emulator
                 System.out.println("SKIP the active window is " + active + ", not QZ");
+            } else if (nativeText != null) {
+                // QZ's own Android dialog, not the Qt view: e.g. "Permissions Required" on the
+                // emulator images without Bluetooth (the back button test skips them for it too)
+                System.out.println("SKIP a native window of QZ is in front: '" + nativeText + "'");
             } else {
                 System.out.println("FAIL no accessibility node of QZ with a description: Qt accessibility is off");
             }
@@ -142,6 +147,24 @@ public class AccessibilityTest {
         for (int i = 0; i < node.getChildCount(); i++) {
             collect(node.getChild(i), out);
         }
+    }
+
+    // The first text of a native Android view in the tree; Qt sets descriptions, not texts
+    private static String firstText(AccessibilityNodeInfo node) {
+        if (node == null) {
+            return null;
+        }
+        CharSequence text = node.getText();
+        if (text != null && text.length() > 0) {
+            return text.toString();
+        }
+        for (int i = 0; i < node.getChildCount(); i++) {
+            String found = firstText(node.getChild(i));
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;
     }
 
     private static String describe(AccessibilityNodeInfo node) {

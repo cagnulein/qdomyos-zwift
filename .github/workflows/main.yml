@@ -1007,9 +1007,6 @@ jobs:
             adb shell screencap -p /sdcard/screenshot.png
             adb pull /sdcard/screenshot.png
 
-            # Accessibility test: a screen reader's focus, scroll and press, without TalkBack
-            sh .github/scripts/android_accessibility_test.sh Start
-
             # Test orientamento automatico con screenshot
             echo "Starting orientation test with automatic screenshots..."
 
@@ -1024,6 +1021,11 @@ jobs:
 
             # Back button test (single presses navigate back, a double press on the home page exits)
             sh .github/scripts/android_back_button_test.sh
+
+            # Accessibility test: a screen reader's focus, scroll and press, without TalkBack.
+            # Last, on a new start of the app: its press must not change what the tests above see
+            sh .github/scripts/android_app_start_test.sh
+            sh .github/scripts/android_accessibility_test.sh Start
 
             # Check if the package is installed
             adb shell pm list packages | grep org.cagnulen.qdomyoszwift
