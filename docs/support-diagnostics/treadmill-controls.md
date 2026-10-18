@@ -59,3 +59,22 @@
 
 - Incoming device units and preferred display units are separate decisions. A value interpreted as mph when the treadmill sends km/h can appear numerically correct but be labeled incorrectly and can also affect distance exports.
 - Comparing the same physical speed before and after a single setting change isolates interpretation from downstream recording.
+
+## Treadmill incline is much steeper than the grade requested by Zwift
+
+### Provide first
+
+- Treadmill model, QZ build, and a low, safe numerical example: Zwift route grade, QZ incline tile, and physical console incline at the same moment.
+- Screenshots of **both** Zwift Options > Zwift Inclination Gain/Offset and Treadmill Inclination Overrides > Inclination Override Gain/Offset.
+- Whether manual incline changes from QZ agree with the physical treadmill console.
+
+### If still unclear
+
+- Test only a gentle grade at a comfortable speed, with nobody relying on automatic incline for safety. Restore override gain/offset to neutral values before isolating Zwift-specific scaling.
+- Change one gain or offset at a time and record the three readings again; do not attempt to calibrate using a steep hill.
+- Supply a short debug log covering one small grade transition, including the time and requested versus observed values.
+
+### Why it matters
+
+- The Zwift incline gain and the treadmill override gain are distinct controls. A screenshot showing one set cannot establish how the other is configured.
+- Comparing route, QZ, and console values identifies whether amplification occurs in the incoming grade interpretation or in the treadmill command path.

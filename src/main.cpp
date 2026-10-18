@@ -44,6 +44,7 @@
 #include <QKeyEvent>
 #include <QPointer>
 #include <QQuickItem>
+#include <QTimer>
 #include <QtAndroid>
 #include <jni.h>
 #endif
@@ -647,6 +648,27 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *en
         Qt::QueuedConnection);
     return true;
 }
+
+// Qt 5.15 turns its accessibility on when Android reports it enabled. The report comes on the
+// Android UI thread, and when it comes before Qt published its platform integration (a service
+// such as TalkBack already on at launch), Qt logs "Could not activate platform accessibility" and
+// stays off. Qt Quick Controls then set no role or name: buttons are missing from TalkBack's tree,
+// a group box has no title, a spin box takes no focus (QTBUG-77320, fixed in Qt 6 the same way:
+// keep the report and apply it once the integration exists). Qt publishes the integration from an
+// event it posts while QApplication is constructed, so a call queued after that runs once it is
+// published: either Qt has got the report by then, or Android already says accessibility is on
+// and one setActive() is enough.
+static void restoreLostAccessibility() {
+    if (QAccessible::isActive())
+        return;
+    if (QAndroidJniObject::callStaticMethod<jboolean>("org/cagnulen/qdomyoszwift/CustomQtActivity",
+                                                      "accessibilityOn", "(Landroid/content/Context;)Z",
+                                                      QtAndroid::androidContext().object())) {
+        QAndroidJniObject::callStaticMethod<void>("org/qtproject/qt5/android/accessibility/QtNativeAccessibility",
+                                                  "setActive", "(Z)V", jboolean(true));
+        qDebug() << "accessibility: turned on again, Qt lost Android's report at launch:" << QAccessible::isActive();
+    }
+}
 #endif
 
 int main(int argc, char *argv[]) {
@@ -1128,6 +1150,9 @@ int main(int argc, char *argv[]) {
         engine.rootContext()->setContextProperty("fileSearcher", &fileSearcher);
 
         engine.load(url);
+#ifdef Q_OS_ANDROID
+        QTimer::singleShot(0, [] { restoreLostAccessibility(); });
+#endif
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
                          &homeform::aboutToQuit); // NOTE: clazy-unneeded-cast
