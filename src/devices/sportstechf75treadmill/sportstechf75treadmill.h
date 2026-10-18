@@ -15,6 +15,9 @@ class sportstechf75treadmill : public treadmill {
     ~sportstechf75treadmill() override;
 
     bool connected() override;
+    // The F75 has no independent odometer frame; Distance1s is QZ's
+    // session-integrated distance from the commanded speed.
+    double odometer() override { return currentDistance1s().value(); }
     double minStepInclination() override { return 1.0; }
     double minStepSpeed() override { return 0.1; }
     bool physicalStartNeedsDeviceCommand() override { return true; }

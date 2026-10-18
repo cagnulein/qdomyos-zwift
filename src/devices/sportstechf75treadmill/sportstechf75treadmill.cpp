@@ -30,6 +30,8 @@ constexpr int kStartCountdownSeconds = 3;
 constexpr int kTimerTicksPerSecond = 10;
 constexpr int kInitialRunningFrames = 10;
 constexpr int kSpeedProtocolScale = 10;
+constexpr double kMaximumSpeedKph = 20.0;
+constexpr int kMaximumProtocolSpeed = 200;
 }
 
 sportstechf75treadmill::sportstechf75treadmill(bool noHeartService) {
@@ -159,7 +161,7 @@ QByteArray sportstechf75treadmill::runningProtocolFrame(int protocolSpeed, int i
     QByteArray frame(12, static_cast<char>(0));
     frame[0] = static_cast<char>(kFrameStart);
     frame[1] = static_cast<char>(0xA0);
-    frame[8] = static_cast<char>(qBound(allowZero ? 0 : kSpeedProtocolScale, protocolSpeed, 255));
+    frame[8] = static_cast<char>(qBound(allowZero ? 0 : kSpeedProtocolScale, protocolSpeed, kMaximumProtocolSpeed));
     frame[9] = static_cast<char>(qBound(0, incline, 255));
 
     int checksum = 0;
@@ -173,7 +175,7 @@ QByteArray sportstechf75treadmill::runningProtocolFrame(int protocolSpeed, int i
 
 QByteArray sportstechf75treadmill::runningFrame(double speed, int incline, bool allowZero) const {
     // QZ keeps speed in km/h; the A0 wire field is deci-km/h.
-    return runningProtocolFrame(qRound(speed * kSpeedProtocolScale), incline, allowZero);
+    return runningProtocolFrame(qRound(qBound(0.0, speed, kMaximumSpeedKph) * kSpeedProtocolScale), incline, allowZero);
 }
 
 void sportstechf75treadmill::sendRunningProtocolCommand(int protocolSpeed, int incline, bool allowZero) {
@@ -421,7 +423,7 @@ void sportstechf75treadmill::update() {
     }
 
     const double rawRequestedSpeed = lastRequestedSpeed().value();
-    const double requestedSpeed = qBound(0.0, rawRequestedSpeed, 25.0);
+    const double requestedSpeed = qBound(0.0, rawRequestedSpeed, kMaximumSpeedKph);
     const int requestedIncline = qBound(0, qRound(lastRequestedInclination().value()), 25);
     // The vendor app starts the belt with a non-zero target speed.  QZ can
     // otherwise reach Start with a zero target, which produces an A2 start

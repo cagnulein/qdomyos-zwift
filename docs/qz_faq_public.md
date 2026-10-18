@@ -155,7 +155,11 @@ based on the available capture and should be confirmed with an isolated debug;
 the treadmill's physical safety mechanism remains the emergency authority.
 QZ separates commanded values from independent feedback. If the profile has
 not yet validated non-zero telemetry on a particular unit, a value shown in QZ
-may be the last requested command rather than an independent measurement.
+may be the last requested command rather than an independent measurement. For
+the F75, the displayed odometer is the session distance integrated by QZ from
+that commanded speed because the serial profile does not expose an independent
+odometer frame. The profile also caps requested and serialized belt speed at
+20 km/h, matching the reported physical limit of this model.
 
 ### 27. How do I unlock an experimental Android APK for this treadmill?
 

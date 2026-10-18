@@ -54,7 +54,10 @@ QZ distinguishes commanded values from independent feedback. During a
 profile that has no validated non-zero telemetry, a speed or incline visible in
 QZ can be the last requested command rather than a measurement from the
 console. A physical reaction proves that a command reached a controller; it
-does not by itself prove that the displayed value is independent feedback.
+does not by itself prove that the displayed value is independent feedback. The
+F75 profile integrates the displayed session distance from that commanded
+speed because the serial protocol does not provide an independent odometer
+frame, and caps the requested/serialized speed at 20 km/h.
 
 #### Unlocking an experimental APK
 
