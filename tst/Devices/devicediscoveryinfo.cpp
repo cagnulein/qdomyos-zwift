@@ -31,6 +31,7 @@ void InitializeTrackedSettings()
     trackedSettings.insert(QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill);
     trackedSettings.insert(QZSettings::gymstick_gx6_0_elliptical, QZSettings::default_gymstick_gx6_0_elliptical);
     trackedSettings.insert(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s);
+    trackedSettings.insert(QZSettings::kettler_racer_s_rower, QZSettings::default_kettler_racer_s_rower);
     trackedSettings.insert(QZSettings::horizon_treadmill_force_ftms, QZSettings::default_horizon_treadmill_force_ftms);
     trackedSettings.insert(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical);
     trackedSettings.insert(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical);
