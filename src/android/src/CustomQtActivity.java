@@ -12,7 +12,6 @@ import android.os.Looper;
 import android.util.SparseArray;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
@@ -98,9 +97,6 @@ public class CustomQtActivity extends QtActivity {
     // (a back gesture or press the user aborted) is dropped too, so it no longer goes back.
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-            scheduleAccessibilityRefresh();
-        }
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && !injectingBackKey) {
             if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
                 backDownSentToQt = true;
@@ -152,39 +148,11 @@ public class CustomQtActivity extends QtActivity {
     // notifyAccessibilityUpdate() is a FIXME until 5.15.3, scrolling is reported from 5.15.11),
     // so TalkBack keeps the nodes it cached: after a page is pushed it still walks the page
     // under it, and after a scroll it still has the rows that came into view where they were.
-    // Telling Android that the subtree of Qt's accessibility view changed drops that cache.
-    // Sent after the user lets go of the screen (a two finger scroll, a double tap, which
-    // TalkBack ends with a real tap) or presses back, and again later, as a fling or a page
-    // transition may still be moving then.
-    private static final long[] ACCESSIBILITY_REFRESH_DELAYS_MS = {400, 1500};
+    // Telling Android that the subtree of Qt's accessibility view changed drops that cache:
+    // main.cpp asks for it (accessibilityTreeChanged) when a page or a popup shows or hides and
+    // when a list stops scrolling.
     private final Handler accessibilityHandler = new Handler(Looper.getMainLooper());
-    private final Runnable accessibilityRefresh = new Runnable() {
-        @Override
-        public void run() {
-            sendAccessibilityTreeChanged();
-        }
-    };
     private View qtAccessibilityView = null;
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        boolean handled = super.dispatchTouchEvent(event);
-        int action = event.getActionMasked();
-        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-            scheduleAccessibilityRefresh();
-        }
-        return handled;
-    }
-
-    private void scheduleAccessibilityRefresh() {
-        if (!accessibilityEnabled()) {
-            return;
-        }
-        accessibilityHandler.removeCallbacks(accessibilityRefresh);
-        for (long delay : ACCESSIBILITY_REFRESH_DELAYS_MS) {
-            accessibilityHandler.postDelayed(accessibilityRefresh, delay);
-        }
-    }
 
     private boolean accessibilityEnabled() {
         AccessibilityManager manager = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
@@ -347,7 +315,8 @@ public class CustomQtActivity extends QtActivity {
 
     private static volatile CustomQtActivity accessibilityActivity = null;
 
-    // Called by Qt from its own thread after it scrolled to the focused item, and after a press
+    // Called by Qt from its own thread after it scrolled to the focused item, after a press, when a
+    // page or a popup shows or hides and when a list stops scrolling
     public static void accessibilityTreeChanged() {
         final CustomQtActivity activity = accessibilityActivity;
         if (activity == null) {
