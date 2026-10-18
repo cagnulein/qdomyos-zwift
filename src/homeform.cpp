@@ -11155,7 +11155,8 @@ void homeform::sendMail() {
     // debug log) stay in English: users forward this mail when they ask for support.
     textMessage +=
         tr("Average Speed: %1")
-            .arg(QString::number(bluetoothManager->device()->currentSpeed().average() * unit_conversion, 'f', 1)) +
+            .arg(QString::number(qfit::averageSpeed(Session, bluetoothManager->device()->deviceType()) * unit_conversion,
+                                 'f', 1)) +
         QStringLiteral("\n");
     textMessage +=
         tr("Max Speed: %1")

@@ -16,6 +16,7 @@ class qfit : public QObject {
     Q_OBJECT
   public:
     explicit qfit(QObject *parent = nullptr);
+    static double averageSpeed(const QList<SessionLine> &session, BLUETOOTH_TYPE type);
     static void save(const QString &filename, QList<SessionLine> session, BLUETOOTH_TYPE type,
                      uint32_t processFlag = QFIT_PROCESS_NONE, FIT_SPORT overrideSport = FIT_SPORT_INVALID, QString workoutName = "", QString bluetooth_device_name = "",
                      QString workoutSource = "", QString pelotonWorkoutId = "", QString pelotonUrl = "", QString trainingProgramFile = "",
