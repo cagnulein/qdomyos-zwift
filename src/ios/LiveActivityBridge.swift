@@ -15,8 +15,11 @@ import UIKit
     private var currentActivity: Activity<QZWorkoutAttributes>?
     private var inactivityTimer: Timer?
 
-    // Timeout in seconds - if no updates received, auto-close the Live Activity
-    private let inactivityTimeout: TimeInterval = 10.0
+    // Timeout in seconds - if no updates received, auto-close the Live Activity.
+    // While QZ is in background the updates are throttled to one every 5 seconds
+    // (see ios_liveactivity.mm), so this has to leave a comfortable margin or a
+    // single late BLE notification would close the Live Activity.
+    private let inactivityTimeout: TimeInterval = 30.0
 
     // MARK: - Private Methods
 
