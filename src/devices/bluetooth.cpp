@@ -4548,6 +4548,16 @@ void bluetooth::restart() {
         delete kineticInroadBike;
         kineticInroadBike = nullptr;
     }
+    if (kettlerRacerSRower) {
+
+        delete kettlerRacerSRower;
+        kettlerRacerSRower = nullptr;
+    }
+    if (kettlerRacerSBike) {
+
+        delete kettlerRacerSBike;
+        kettlerRacerSBike = nullptr;
+    }
     if (renphoBike) {
 
         delete renphoBike;

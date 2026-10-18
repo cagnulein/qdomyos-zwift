@@ -30,6 +30,7 @@ TEST(KettlerRacerRowerRouting, KeepsBikeDefaultAndSelectsRowerWhenEnabled)
         EXPECT_NE(dynamic_cast<kettlerracersbike *>(bluetoothDevice.device()), nullptr);
         EXPECT_EQ(dynamic_cast<kettlerracersrower *>(bluetoothDevice.device()), nullptr);
         bluetoothDevice.restart();
+        EXPECT_EQ(bluetoothDevice.device(), nullptr);
     }
 
     testSettings.qsettings.setValue(QZSettings::kettler_racer_s_rower, true);
@@ -41,6 +42,7 @@ TEST(KettlerRacerRowerRouting, KeepsBikeDefaultAndSelectsRowerWhenEnabled)
         EXPECT_NE(dynamic_cast<kettlerracersrower *>(bluetoothDevice.device()), nullptr);
         EXPECT_EQ(dynamic_cast<kettlerracersbike *>(bluetoothDevice.device()), nullptr);
         bluetoothDevice.restart();
+        EXPECT_EQ(bluetoothDevice.device(), nullptr);
     }
 
     testSettings.deactivate();
