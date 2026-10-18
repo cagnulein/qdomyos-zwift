@@ -2,8 +2,8 @@
 # Accessibility test for the android-emulator-test job (PR #5377).
 # Expects the app to be started already and a11y-test.jar (built from AccessibilityTest.java) in
 # the current folder. Sends QZ the actions of a screen reader through UiAutomation, so it runs
-# without TalkBack on every image, and fails on a crash, an UnsatisfiedLinkError of the native
-# accessibility functions or a press that QZ did not handle.
+# without TalkBack on every image, and fails on a crash of QZ, a native accessibility function
+# that is not found or a press that QZ did not handle.
 # Usage: android_accessibility_test.sh [description of a button to press]
 
 BUTTON="$1"
@@ -23,8 +23,14 @@ echo "Accessibility test on API $API"
 [ -f a11y-test.jar ] || fail "a11y-test.jar was not built"
 adb push a11y-test.jar /data/local/tmp/a11y-test.jar > /dev/null || fail "cannot push a11y-test.jar"
 
-# Count the crash lines before the test, so an earlier one does not count
-crashes_before=$(adb logcat -d | grep -c -F -e "FATAL EXCEPTION" -e "UnsatisfiedLinkError")
+# Crash lines of QZ: a Java crash ("Process: <package>, PID"), a native one (">>> <package> <<<"),
+# and ART's "No implementation found" for a native function CustomQtActivity calls (it catches the
+# UnsatisfiedLinkError itself). Counted before the test, so an earlier one does not count.
+qz_crashes() {
+  adb logcat -d | grep -F -e "Process: org.cagnulen.qdomyoszwift" -e ">>> org.cagnulen.qdomyoszwift <<<" \
+    -e "No implementation found for" | grep -c -F -e "qdomyoszwift"
+}
+crashes_before=$(qz_crashes)
 
 timeout 180 adb shell "CLASSPATH=/data/local/tmp/a11y-test.jar app_process / AccessibilityTest '$BUTTON'" \
   | tr -d '\r' > accessibility_test.txt
@@ -37,10 +43,11 @@ FIRST_FAIL=$(while read -r word rest; do
 done < accessibility_test.txt)
 [ -z "$FIRST_FAIL" ] || fail "$FIRST_FAIL"
 
-crashes_after=$(adb logcat -d | grep -c -F -e "FATAL EXCEPTION" -e "UnsatisfiedLinkError")
+crashes_after=$(qz_crashes)
 if [ "$crashes_after" -gt "$crashes_before" ]; then
-  adb logcat -d | grep -F -A 20 -e "FATAL EXCEPTION" -e "UnsatisfiedLinkError" | tail -n 40
-  fail "crash or UnsatisfiedLinkError in the logcat during the accessibility test"
+  adb logcat -d | grep -F -B 2 -A 20 -e "Process: org.cagnulen.qdomyoszwift" -e ">>> org.cagnulen.qdomyoszwift <<<" \
+    -e "No implementation found for" | tail -n 60
+  fail "QZ crashed or missed a native function during the accessibility test"
 fi
 
 adb shell "ps -A 2>/dev/null || ps" | grep -q -F org.cagnulen.qdomyoszwift \

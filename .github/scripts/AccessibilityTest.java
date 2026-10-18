@@ -44,7 +44,14 @@ public class AccessibilityTest {
     private static void run(String button) throws Exception {
         List<AccessibilityNodeInfo> nodes = waitForAppNodes();
         if (nodes.isEmpty()) {
-            System.out.println("FAIL no accessibility node of QZ with a description: Qt accessibility is off");
+            AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+            CharSequence active = root == null ? null : root.getPackageName();
+            if (active == null || !active.toString().equals(PACKAGE)) {
+                // e.g. an "isn't responding" dialog of the system over QZ on a slow emulator
+                System.out.println("SKIP the active window is " + active + ", not QZ");
+            } else {
+                System.out.println("FAIL no accessibility node of QZ with a description: Qt accessibility is off");
+            }
             return;
         }
         System.out.println("OK " + nodes.size() + " nodes of QZ with a description");

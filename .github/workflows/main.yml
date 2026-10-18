@@ -949,12 +949,11 @@ jobs:
       - name: Build the accessibility test
         run: |
           SDK=${ANDROID_SDK_ROOT:-$ANDROID_HOME}
-          JAR=$(ls $SDK/platforms/*/android.jar | sort -V | tail -n 1)
-          BT=$(ls -d $SDK/build-tools/*/ | sort -V | tail -n 1)
-          echo "android.jar: $JAR, build tools: $BT"
+          echo "y" | $SDK/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          JAR=$SDK/platforms/android-35/android.jar
           mkdir -p a11y-test-classes
           javac -source 8 -target 8 -bootclasspath "$JAR" -d a11y-test-classes .github/scripts/AccessibilityTest.java
-          "${BT}d8" --min-api 24 --lib "$JAR" --output a11y-test.jar a11y-test-classes/*.class
+          $SDK/build-tools/35.0.0/d8 --min-api 24 --lib "$JAR" --output a11y-test.jar a11y-test-classes/*.class
 
       - name: Run tests on emulator (${{ matrix.android-version }})
         uses: ReactiveCircus/android-emulator-runner@v2
