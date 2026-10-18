@@ -45,6 +45,7 @@
 #include <QPointer>
 #include <QQuickItem>
 #include <QQuickWindow>
+#include <QThread>
 #include <QTimer>
 #include <QtAndroid>
 #include <jni.h>
@@ -659,6 +660,8 @@ Java_org_cagnulen_qdomyoszwift_CustomQtActivity_nativeAccessibleClick(JNIEnv *en
 // Flickable reports nothing, but emits movementEnded(), so when a finger is lifted each Flickable
 // that is moving is connected to it. Both start one zero timer, so the many items a page shows at
 // once give CustomQtActivity a single call. None of this runs while accessibility is off.
+// The timer is made in main() on the Qt thread; Qt 5.15 runs some accessibility actions on the
+// Android UI thread, so a show or hide that comes from there starts it through a queued call.
 static QTimer *accessibilityRefreshTimer() {
     static QTimer *timer = nullptr;
     if (!timer) {
@@ -674,12 +677,32 @@ static QTimer *accessibilityRefreshTimer() {
     return timer;
 }
 
+// Accessible.ignored: a decorative item, e.g. a tile icon that blinks every 500 ms on the home page
+static bool accessibleIgnored(QObject *object) {
+    const QObjectList children = object->children();
+    for (QObject *child : children) {
+        if (child->inherits("QQuickAccessibleAttached"))
+            return child->property("ignored").toBool();
+    }
+    return false;
+}
+
 static void androidAccessibilityUpdate(QAccessibleEvent *event) {
-    if (event->type() == QAccessible::ObjectShow || event->type() == QAccessible::ObjectHide)
-        accessibilityRefreshTimer()->start();
+    if (event->type() != QAccessible::ObjectShow && event->type() != QAccessible::ObjectHide)
+        return;
+    if (!event->object() || accessibleIgnored(event->object()))
+        return;
+    QTimer *timer = accessibilityRefreshTimer();
+    if (QThread::currentThread() == timer->thread())
+        timer->start();
+    else
+        QMetaObject::invokeMethod(timer, "start", Qt::QueuedConnection);
 }
 
 static void watchMovingFlickables(QQuickItem *item) {
+    // a hidden page of a StackView cannot be scrolling
+    if (!item->isVisible())
+        return;
     if (item->inherits("QQuickFlickable") && item->property("moving").toBool())
         QObject::connect(item, SIGNAL(movementEnded()), accessibilityRefreshTimer(), SLOT(start()),
                          Qt::UniqueConnection);
@@ -1210,6 +1233,7 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_ANDROID
         QTimer::singleShot(0, [] { restoreLostAccessibility(); });
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 3)
+        accessibilityRefreshTimer();
         QAccessible::installUpdateHandler(androidAccessibilityUpdate);
         if (!engine.rootObjects().isEmpty()) {
             if (QQuickWindow *window = qobject_cast<QQuickWindow *>(engine.rootObjects().constFirst()))
