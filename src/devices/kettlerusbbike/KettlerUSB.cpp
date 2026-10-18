@@ -111,23 +111,22 @@ bool KettlerUSB::isStatusResponse(const QString &response) {
         return false;
 
     const QStringList fields = response.split('\t', Qt::KeepEmptyParts);
-    if (fields.size() != 8)
+    // The standard response has a leading protocol field followed by at least
+    // eight status fields. Extra vendor fields may follow the power field.
+    if (fields.size() < 9)
         return false;
 
-    for (int i = 0; i < 8; ++i) {
-        if (i == 6) {
-            if (!QRegularExpression(QStringLiteral("^\\d{1,3}:\\d{2}$")).match(fields[i]).hasMatch())
-                return false;
-            continue;
-        }
-
+    const int numericFields[] = {1, 2, 3, 4, 6, 8};
+    for (const int index : numericFields) {
         bool ok;
-        fields[i].toDouble(&ok);
+        fields[index].toDouble(&ok);
         if (!ok)
             return false;
     }
 
-    return true;
+    return QRegularExpression(QStringLiteral("^[0-9]{1,3}:[0-9]{2}$"))
+        .match(fields[7])
+        .hasMatch();
 }
 
 bool KettlerUSB::takeResponse(QByteArray &buffer, QString &response) {
@@ -142,8 +141,8 @@ bool KettlerUSB::takeResponse(QByteArray &buffer, QString &response) {
 
 bool KettlerUSB::parseStatusResponse(const QString &response) {
     // Status response format (tab-separated):
-    // HR RPM Speed Distance Power Energy Time CurrentPower
-    // Example: 101\t047\t074\t002\t025\t0312\t01:12\t025
+    // Prefix HR RPM Speed Distance Unused Energy Time CurrentPower [extras]
+    // Example: 190\t000\t053\t188\t007\t043\t0019\t02:50\t043
 
     // Ignore non-status responses (ACK, ERROR, etc.)
     if (!isStatusResponse(response)) {
@@ -153,11 +152,11 @@ bool KettlerUSB::parseStatusResponse(const QString &response) {
 
     QStringList fields = response.split('\t', Qt::KeepEmptyParts);
     pvars.lock();
-    deviceHeartRate = fields[0].toDouble();
-    deviceCadence = fields[1].toDouble();
-    deviceSpeed = fields[2].toDouble() * 0.1; // Speed is in 0.1 km/h
-    deviceDistance = fields[3].toDouble() * 100; // Distance is in 100m units
-    devicePower = fields[7].toDouble(); // CurrentPower (last field)
+    deviceHeartRate = fields[1].toDouble();
+    deviceCadence = fields[2].toDouble();
+    deviceSpeed = fields[3].toDouble() * 0.1; // Speed is in 0.1 km/h
+    deviceDistance = fields[4].toDouble() * 100; // Distance is in 100m units
+    devicePower = fields[8].toDouble(); // CurrentPower
     pvars.unlock();
 
     qDebug() << "Kettler Status: HR=" << deviceHeartRate

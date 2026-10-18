@@ -5,7 +5,7 @@
 #include "devices/kettlerusbbike/KettlerUSB.h"
 
 TEST(KettlerUSBProtocolTest, AcceptsStandardStatusResponse) {
-    EXPECT_TRUE(KettlerUSB::isStatusResponse(QStringLiteral("101\t047\t074\t002\t025\t0312\t01:12\t025")));
+    EXPECT_TRUE(KettlerUSB::isStatusResponse(QStringLiteral("190\t000\t053\t188\t007\t043\t0019\t02:50\t043")));
 }
 
 TEST(KettlerUSBProtocolTest, RejectsProtocolError) {
@@ -13,10 +13,10 @@ TEST(KettlerUSBProtocolTest, RejectsProtocolError) {
 }
 
 TEST(KettlerUSBProtocolTest, RejectsMalformedStatusResponse) {
-    EXPECT_FALSE(KettlerUSB::isStatusResponse(QStringLiteral("101\t047\t074")));
-    EXPECT_FALSE(KettlerUSB::isStatusResponse(QStringLiteral("101\tRPM\t074\t002\t025\t0312\t01:12\t025")));
-    EXPECT_FALSE(KettlerUSB::isStatusResponse(QStringLiteral("101\t047\t074\t002\t025\t0312\tinvalid\t025")));
-    EXPECT_FALSE(KettlerUSB::isStatusResponse(QStringLiteral("101\t047\t074\t002\t025\t0312\t01:12\t025\textra")));
+    EXPECT_FALSE(KettlerUSB::isStatusResponse(QStringLiteral("190\t000\t053\t188\t007\t043\t0019\t02:50")));
+    EXPECT_FALSE(KettlerUSB::isStatusResponse(QStringLiteral("190\tRPM\t053\t188\t007\t043\t0019\t02:50\t043")));
+    EXPECT_FALSE(KettlerUSB::isStatusResponse(QStringLiteral("190\t000\t053\t188\t007\t043\t0019\tinvalid\t043")));
+    EXPECT_FALSE(KettlerUSB::isStatusResponse(QStringLiteral("190\t000\t053\t188\t007\t043\t0019\t02:50\tbad")));
 }
 
 TEST(KettlerUSBProtocolTest, PreservesFragmentedAndQueuedResponses) {
