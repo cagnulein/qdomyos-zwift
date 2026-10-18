@@ -211,7 +211,7 @@ void horizontreadmill::btinit() {
             waitForAPacket();
 
             if(homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Treadmill initialization in progress...0%");
+                homeform::singleton()->setToastRequested(QObject::tr("Treadmill initialization in progress...%1%").arg(0));
             }
 
         init1:
@@ -296,7 +296,7 @@ void horizontreadmill::btinit() {
 
             if (!initPacketRecv) {
                 if(gattFTMSService && homeform::singleton()) {
-                    homeform::singleton()->setToastRequested("Enable the 'Force Using FTMS' setting under the Settings->Treadmill Options->Horizon Treadmill options and restart the app");
+                    homeform::singleton()->setToastRequested(QObject::tr("Enable the 'Force Using FTMS' setting under the Settings->Treadmill Options->Horizon Treadmill options and restart the app"));
                 }
                 qDebug() << "init 1 not received";
                 waitForAPacket();
@@ -304,7 +304,7 @@ void horizontreadmill::btinit() {
             }
 
             if(homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Treadmill initialization in progress...15%");
+                homeform::singleton()->setToastRequested(QObject::tr("Treadmill initialization in progress...%1%").arg(15));
             }        
 
         init2:
@@ -394,7 +394,7 @@ void horizontreadmill::btinit() {
             }
 
             if(homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Treadmill initialization in progress...25%");
+                homeform::singleton()->setToastRequested(QObject::tr("Treadmill initialization in progress...%1%").arg(25));
             }            
 
         init3:
@@ -484,7 +484,7 @@ void horizontreadmill::btinit() {
             }
 
             if(homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Treadmill initialization in progress...35%");
+                homeform::singleton()->setToastRequested(QObject::tr("Treadmill initialization in progress...%1%").arg(35));
             }
 
         init4:
@@ -574,7 +574,7 @@ void horizontreadmill::btinit() {
             }
 
             if(homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Treadmill initialization in progress...50%");
+                homeform::singleton()->setToastRequested(QObject::tr("Treadmill initialization in progress...%1%").arg(50));
             }            
 
         init5:
@@ -664,7 +664,7 @@ void horizontreadmill::btinit() {
             }
 
             if(homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Treadmill initialization in progress...65%");
+                homeform::singleton()->setToastRequested(QObject::tr("Treadmill initialization in progress...%1%").arg(65));
             }
 
         init6:
@@ -754,7 +754,7 @@ void horizontreadmill::btinit() {
             }
 
             if(homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Treadmill initialization in progress...80%");
+                homeform::singleton()->setToastRequested(QObject::tr("Treadmill initialization in progress...%1%").arg(80));
             }            
 
         init7:
@@ -844,7 +844,7 @@ void horizontreadmill::btinit() {
             }
 
             if(homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Treadmill initialization in progress...90%");
+                homeform::singleton()->setToastRequested(QObject::tr("Treadmill initialization in progress...%1%").arg(90));
             }
 
         init8:
@@ -874,7 +874,7 @@ void horizontreadmill::btinit() {
             }
 
             if(homeform::singleton()) {
-                homeform::singleton()->setToastRequested("Treadmill initialization completed!");
+                homeform::singleton()->setToastRequested(QObject::tr("Treadmill initialization completed!"));
             }            
         }
         messageID = 0x10;
@@ -1032,6 +1032,7 @@ void horizontreadmill::update() {
             requestSpeed = -1;
 
         if (requestSpeed != -1) {
+
             // Keep treadmill::changeSpeed() generic. FS/P30-specific translation belongs
             // here, where horizontreadmill turns the requested target into a device command.
             if (FS_TREADMILL && qFuzzyIsNull(requestSpeed)) {
@@ -1078,12 +1079,20 @@ void horizontreadmill::update() {
                     }
                 }
 
+            // In Runn closed-loop mode the displayed Speed belongs to the sensor,
+            // not the motor. Check the motor's independent telemetry instead.
+            const bool useMachineSpeed =
+                settings.value(QZSettings::treadmill_runn_closed_loop,
+                               QZSettings::default_treadmill_runn_closed_loop).toBool() &&
+                settings.value(QZSettings::stryd_speed_instead_treadmill,
+                               QZSettings::default_stryd_speed_instead_treadmill).toBool();
+            const double speedForControl = useMachineSpeed ? rawSpeed.value() : currentSpeed().value();
                 bool minSpeed =
-                    fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >=
+                    fabs(requestSpeed - float_one_point_round(speedForControl)) >=
                     (minStepSpeed() - 0.09);
                 bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
                 qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
-                         << float_one_point_round(currentSpeed().value());
+                         << float_one_point_round(speedForControl);
                 if (float_one_point_round(requestSpeed) !=
                         float_one_point_round(currentSpeed().value()) &&
                     minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
@@ -1381,7 +1390,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL) {
+        if(!anplus_treadmill && !trx3500_treadmill && !wellfit_treadmill && !mobvoi_tmp_treadmill && !SW_TREADMILL && !ICONCEPT_FTMS_treadmill && !YPOO_MINI_PRO && !T3G_PRO && !T3G_ELITE && !FS_TREADMILL && !SF_TREADMILL) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1390,7 +1399,6 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                                 false, false);
         }
 
-        uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
         if(BOWFLEX_T9) {
             requestSpeed *= miles_conversion;   // this treadmill wants the speed in miles, at least seems so!!
         }
@@ -1400,9 +1408,15 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                 requestSpeed *= miles_conversion;   // JFTM T202 expects FTMS target speed in miles
             }
         }
-        uint16_t speed_int = round(requestSpeed * 100);
-        writeS[1] = speed_int & 0xFF;
-        writeS[2] = speed_int >> 8;
+        uint16_t speed_int = round(requestSpeed * (SW3925EAI_TREADMILL ? 10 : 100));
+        uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
+        if (SW3925EAI_TREADMILL) {
+            // SW3925EAI reads the high byte as tenths of km/h.
+            writeS[2] = speed_int & 0xFF;
+        } else {
+            writeS[1] = speed_int & 0xFF;
+            writeS[2] = speed_int >> 8;
+        }
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceSpeed"), false, false);
@@ -2482,7 +2496,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             settings.setValue(QZSettings::domyostreadmill_notfmts, true);
             settings.sync();
             if(homeform::singleton())
-                homeform::singleton()->setToastRequested("Domyos Treadmill presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks.");
+                homeform::singleton()->setToastRequested(QObject::tr("Domyos Treadmill presents itself like a FTMS but it's not. Restart QZ to apply the fix, thanks."));
             return;
         }
 
@@ -2677,7 +2691,7 @@ void horizontreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor,
 
     if (!notificationSubscribed) {
         if(homeform::singleton()) {
-            homeform::singleton()->setToastRequested("Treadmill ready");
+            homeform::singleton()->setToastRequested(QObject::tr("Treadmill ready"));
         }
         initRequest = true;
         emit connectedAndDiscovered();
@@ -2736,6 +2750,10 @@ void horizontreadmill::serviceScanDone(void) {
                 qDebug() << s << "skipping (DOMYOS-TC will use only FTMS)";
                 continue;
             }
+            if (TM55_TREADMILL && s != _FTMSServiceId) {
+                qDebug() << s << "skipping (TM55 treadmill will use only FTMS 0x1826)";
+                continue;
+            }
 
             qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
@@ -2772,6 +2790,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         QSettings settings;
         bluetoothDevice = device;
         JFTM_T202 = device.name().toUpper().startsWith(QStringLiteral("JFTM T202"));
+        SW3925EAI_TREADMILL = device.name().toUpper().startsWith(QStringLiteral("SW3925EAI-"));
+        if (SW3925EAI_TREADMILL) {
+            qDebug() << QStringLiteral("SW3925EAI FTMS speed workaround ON!");
+        }
 
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TMP"))) {
             mobvoi_tmp_treadmill = true;
@@ -2788,6 +2810,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) {
             anplus_treadmill = true;
             qDebug() << QStringLiteral("ANPLUS TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("RUN BT-"))) {
+            run_bt_treadmill = true;
+            qDebug() << QStringLiteral("RUN BT- TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-")) ||
                    device.name().toUpper().startsWith(QStringLiteral("TUNTURI T90-"))) {
             tunturi_t60_treadmill = true;
@@ -2838,7 +2863,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 qDebug() << QStringLiteral("ICONCEPT_FTMS_treadmill workaround ON!");
             } else {
                 if(homeform::singleton())
-                    homeform::singleton()->setToastRequested(QStringLiteral("T01_ device detected. If you see strange inclination values, enable 'IConcept FTMS Treadmill' in Treadmill Options settings."));
+                    homeform::singleton()->setToastRequested(QObject::tr("T01_ device detected. If you see strange inclination values, enable 'IConcept FTMS Treadmill' in Treadmill Options settings."));
             }
         } else if ((device.name().toUpper().startsWith("DOMYOS"))) {
             qDebug() << QStringLiteral("DOMYOS found");
@@ -2882,6 +2907,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("TM6500 treadmill found");
             TM6500 = true;
             minInclination = -3.0;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TM55-"))) {
+            qDebug() << QStringLiteral("TM55 treadmill found; will use only FTMS service (0x1826)");
+            TM55_TREADMILL = true;
         } else if (device.name().toUpper().startsWith(QStringLiteral("MRK-T"))) {
             qDebug() << QStringLiteral("MERACH treadmill workaround ON!");
             MERACH_TREADMILL = true;
@@ -2895,6 +2923,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("FS- treadmill found");
             FS_TREADMILL = true;
             maxInclination = 40.0;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("SF-T"))) {
+            qDebug() << QStringLiteral("SF-T treadmill found");
+            SF_TREADMILL = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
@@ -3634,7 +3665,7 @@ void horizontreadmill::testProfileCRC() {
 double horizontreadmill::minStepInclination() {
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
-    if (kettler_treadmill || T01 || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT || T3G_PRO || T3G_ELITE)
+    if (kettler_treadmill || T01 || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill || ICONCEPT_FTMS_treadmill || SW_TREADMILL || sole_s77_treadmill || FIT || T3G_PRO || T3G_ELITE || run_bt_treadmill)
         return 1.0;
     else
         return 0.5;

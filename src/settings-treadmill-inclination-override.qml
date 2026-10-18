@@ -99,27 +99,43 @@ ScrollView {
         RowLayout {
             Layout.fillWidth: true
             Label { text: qsTr("Gain"); Layout.fillWidth: true }
-            TextField {
+            SettingsNumberField {
                 id: gainField
+                Accessible.name: qsTr("Gain")
+                signed: true
                 text: settings.treadmill_inclination_ovveride_gain
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                horizontalAlignment: Text.AlignRight
                 Layout.preferredWidth: 90
-                onAccepted: settings.treadmill_inclination_ovveride_gain = text
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                onAccepted: settings.treadmill_inclination_ovveride_gain = value
+                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button { text: qsTr("Save"); onClicked: settings.treadmill_inclination_ovveride_gain = gainField.text }
+            Button {
+                text: qsTr("Save")
+                enabled: gainField.valid
+                onClicked: { settings.treadmill_inclination_ovveride_gain = gainField.value; toast.show(qsTr("Setting saved!")); }
+            }
         }
 
         RowLayout {
             Layout.fillWidth: true
             Label { text: qsTr("Offset"); Layout.fillWidth: true }
-            TextField {
+            SettingsNumberField {
                 id: offsetField
+                Accessible.name: qsTr("Offset")
+                signed: true
                 text: settings.treadmill_inclination_ovveride_offset
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                horizontalAlignment: Text.AlignRight
                 Layout.preferredWidth: 90
-                onAccepted: settings.treadmill_inclination_ovveride_offset = text
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                onAccepted: settings.treadmill_inclination_ovveride_offset = value
+                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
             }
-            Button { text: qsTr("Save"); onClicked: settings.treadmill_inclination_ovveride_offset = offsetField.text }
+            Button {
+                text: qsTr("Save")
+                enabled: offsetField.valid
+                onClicked: { settings.treadmill_inclination_ovveride_offset = offsetField.value; toast.show(qsTr("Setting saved!")); }
+            }
         }
 
         Repeater {
@@ -168,29 +184,48 @@ ScrollView {
                     RowLayout {
                         Layout.fillWidth: true
                         Label { text: qsTr("Device Command"); Layout.fillWidth: true }
-                        TextField {
+                        SettingsNumberField {
                             id: commandField
+                            Accessible.name: qsTr("Device Command")
+                            signed: true
                             text: settings["treadmill_inclination_override_device_command_" + modelData.suffix]
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             Layout.preferredWidth: 90
+                            onAccepted: settings["treadmill_inclination_override_device_command_" + modelData.suffix] = value
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: commandField.valid
+                            onClicked: settings["treadmill_inclination_override_device_command_" + modelData.suffix] = commandField.value
                         }
                     }
                     RowLayout {
                         Layout.fillWidth: true
                         Label { text: qsTr("Logical Inclination"); Layout.fillWidth: true }
-                        TextField {
+                        SettingsNumberField {
                             id: logicalField
+                            Accessible.name: qsTr("Logical Inclination")
+                            signed: true
                             text: settings["treadmill_inclination_override_" + modelData.suffix]
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             Layout.preferredWidth: 90
+                            onAccepted: settings["treadmill_inclination_override_" + modelData.suffix] = value
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: qsTr("OK")
+                            enabled: logicalField.valid
+                            onClicked: settings["treadmill_inclination_override_" + modelData.suffix] = logicalField.value
                         }
                     }
                     Button {
                         text: qsTr("Save")
+                        enabled: commandField.valid && logicalField.valid
                         Layout.alignment: Qt.AlignRight
                         onClicked: {
-                            settings["treadmill_inclination_override_device_command_" + modelData.suffix] = commandField.text
-                            settings["treadmill_inclination_override_" + modelData.suffix] = logicalField.text
+                            settings["treadmill_inclination_override_device_command_" + modelData.suffix] = commandField.value
+                            settings["treadmill_inclination_override_" + modelData.suffix] = logicalField.value
                             toast.show(qsTr("Settings saved!"))
                         }
                     }

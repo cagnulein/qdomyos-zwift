@@ -34,7 +34,7 @@ ColumnLayout {
         id: portRow
         Label {
             id: labelWebServerPort
-            text: qsTr(rootElement.templateId + " Port:")
+            text: qsTr("%1 Port:").arg(rootElement.templateId)
             Layout.fillWidth: true
         }
         function doSavePort(text) {

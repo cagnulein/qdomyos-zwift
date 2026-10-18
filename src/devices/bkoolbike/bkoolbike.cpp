@@ -108,14 +108,18 @@ void bkoolbike::forcePower(int32_t power) {
     // Power is sent in 1/4 watt units (0.25W resolution)
     // Bytes: [0x31][0x25][0xFF][0xFF][0xFF][0xFF][power_low][power_high]
 
-    uint16_t power_quarter_watts = (uint16_t)(power * 4);
+    QSettings settings;
+    const double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+    const double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+    const double adjusted_power = (power / watt_gain) - watt_offset;
+    const uint16_t power_quarter_watts = (uint16_t)(adjusted_power * 4);
 
     uint8_t power_cmd[] = {0x31, 0x25, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00};
     power_cmd[6] = (uint8_t)(power_quarter_watts & 0xFF);        // Low byte
     power_cmd[7] = (uint8_t)((power_quarter_watts >> 8) & 0xFF); // High byte
 
     writeCharacteristic(power_cmd, sizeof(power_cmd),
-                       QStringLiteral("forcePower ") + QString::number(power) + QStringLiteral("W"),
+                       QStringLiteral("forcePower ") + QString::number(adjusted_power) + QStringLiteral("W"),
                        false, false);
 }
 
