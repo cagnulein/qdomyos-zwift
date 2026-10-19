@@ -24,6 +24,9 @@ public:
     void test_resistanceCadenceBanding();
     void test_pairedPowerTable();
     void test_legacyPowerTableLoading();
+    void test_pairedPowerTableRejectsDistantResistance();
+    void test_pairedPowerTableUsesPairedDeltaMedian();
+    void test_pairedPowerTableWaitsForStableTarget();
 
 };
 
@@ -41,5 +44,17 @@ TEST_F(ErgTableTestSuite, TestPairedPowerTable) {
 
 TEST_F(ErgTableTestSuite, TestLegacyPowerTableLoading) {
     this->test_legacyPowerTableLoading();
+}
+
+TEST_F(ErgTableTestSuite, TestPairedPowerTableRejectsDistantResistance) {
+    this->test_pairedPowerTableRejectsDistantResistance();
+}
+
+TEST_F(ErgTableTestSuite, TestPairedPowerTableUsesPairedDeltaMedian) {
+    this->test_pairedPowerTableUsesPairedDeltaMedian();
+}
+
+TEST_F(ErgTableTestSuite, TestPairedPowerTableWaitsForStableTarget) {
+    this->test_pairedPowerTableWaitsForStableTarget();
 }
 

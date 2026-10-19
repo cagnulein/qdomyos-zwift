@@ -286,7 +286,9 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const b
                  .startsWith(QStringLiteral("Disabled"));
         const uint16_t trainer_wattage =
             power_sensor_enabled ? static_cast<uint16_t>(qMax(0.0, m_rawWatt.value())) : 0;
-        _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value(), trainer_wattage);
+        const uint16_t target_power = static_cast<uint16_t>(qBound(
+            0.0, RequestedPower.value(), static_cast<double>(UINT16_MAX)));
+        _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value(), trainer_wattage, target_power);
     }
 
     if (!_firstUpdate && !paused) {

@@ -640,3 +640,45 @@ void ErgTableTestSuite::test_legacyPowerTableLoading() {
     ergTable pairedTable;
     EXPECT_EQ(180, pairedTable.trainerPowerForPedalTarget(150, 80, 7));
 }
+
+void ErgTableTestSuite::test_pairedPowerTableRejectsDistantResistance() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(80, 150, 7, 180, true);
+    }
+
+    EXPECT_EQ(0, erg.trainerPowerForPedalTarget(150, 80, 20));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableUsesPairedDeltaMedian() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    for (int i = 0; i < 5; ++i) {
+        erg.collectData(80, 10, 7, i == 0 ? 10 : 110, true);
+    }
+    for (int i = 0; i < 5; ++i) {
+        erg.collectData(80, 110, 7, 110, true);
+    }
+
+    EXPECT_EQ(60, erg.trainerPowerForPedalTarget(60, 80, 7));
+}
+
+void ErgTableTestSuite::test_pairedPowerTableWaitsForStableTarget() {
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate();
+    testSettings.qsettings.remove("ergDataPoints");
+
+    ergTable erg;
+    for (int i = 0; i < WattageStats::MIN_SAMPLES_REQUIRED; ++i) {
+        erg.collectData(80, 150, 7, 180, 150, true);
+    }
+
+    EXPECT_TRUE(erg.getConsolidatedData().isEmpty());
+}
