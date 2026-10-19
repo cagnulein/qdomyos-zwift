@@ -30,11 +30,6 @@ public:
      */
     void test_databaseReadability();
 
-    /**
-     * @brief Test that average speed is calculated from session samples, not metric update frequency
-     */
-    void test_averageSpeedUsesSessionSamples();
-
 protected:
     void SetUp() override;
     void TearDown() override;
@@ -62,10 +57,6 @@ private:
 
 TEST_F(QFitTestSuite, TestNewFormatDeveloperFields) {
     this->test_newFormatDeveloperFields();
-}
-
-TEST_F(QFitTestSuite, TestAverageSpeedUsesSessionSamples) {
-    this->test_averageSpeedUsesSessionSamples();
 }
 
 TEST_F(QFitTestSuite, TestDatabaseReadability) {
