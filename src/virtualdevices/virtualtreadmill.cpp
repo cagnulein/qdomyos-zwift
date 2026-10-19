@@ -802,6 +802,10 @@ void virtualtreadmill::reconnect() {
 
     if (!serviceDataEchelon.characteristics().isEmpty()) {
         serviceEchelon = leController->addService(serviceDataEchelon);
+        if (serviceEchelon) {
+            QObject::connect(serviceEchelon, &QLowEnergyService::characteristicChanged, this,
+                             &virtualtreadmill::characteristicChanged);
+        }
         QThread::msleep(100);
         if (!serviceDataEchelonDFU.characteristics().isEmpty()) {
             serviceEchelonDFU = leController->addService(serviceDataEchelonDFU);
