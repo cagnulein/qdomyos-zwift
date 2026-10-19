@@ -2359,6 +2359,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("SOLE B94 found - sending resistance level in 0.1 units");
             SOLE_B94 = true;
             resistance_lvl_mode = true;
+            ergModeSupported = false;
             max_resistance = 20;
         }
 
