@@ -70,3 +70,9 @@ void TrainProgramTestSuite::test_heartRatePidSuppressionCoversPostTransitionWind
     EXPECT_TRUE(trainprogram::isHeartRatePidSuppressed(true, false, 120, true))
         << "The post-transition settling window must suppress HR PID commands.";
 }
+
+void TrainProgramTestSuite::test_manualSpeedChangeRequiresLargeUnexpectedDelta() {
+    EXPECT_TRUE(treadmill::isLikelyManualSpeedChange(8.76, 10.0, 8.76, true));
+    EXPECT_FALSE(treadmill::isLikelyManualSpeedChange(8.76, 8.96, 8.96, true));
+    EXPECT_FALSE(treadmill::isLikelyManualSpeedChange(8.76, 9.0, 8.76, false));
+}

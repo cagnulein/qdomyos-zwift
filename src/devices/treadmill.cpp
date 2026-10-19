@@ -73,8 +73,14 @@ void treadmill::changeSpeed(double speed) {
     }
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
-    if (autoResistanceEnable)
+    if (autoResistanceEnable && manualSpeedOverrideActive()) {
+        qDebug() << "Manual speed override active - suppressing requested speed" << RequestedSpeed.value();
+        requestSpeed = -1;
+    } else if (autoResistanceEnable) {
         requestSpeed = (speed * m_difficult) + m_difficult_offset;
+        m_lastQzSpeedCommand = RequestedSpeed.value();
+        m_lastQzSpeedCommandTimer.start();
+    }
 }
 void treadmill::changeInclination(double grade, double inclination) {    
     QSettings settings;
@@ -159,6 +165,21 @@ void treadmill::onTrainingProgramTransition() {
 metric treadmill::currentInclination() { return Inclination; }
 bool treadmill::connected() { return false; }
 BLUETOOTH_TYPE treadmill::deviceType() { return TREADMILL; }
+
+bool treadmill::manualSpeedOverrideActive() const {
+    return supportsManualSpeedOverride() && m_manualSpeedOverrideTimer.isValid() &&
+           m_manualSpeedOverrideTimer.elapsed() < manualSpeedOverrideDurationMs;
+}
+
+bool treadmill::isLikelyManualSpeedChange(double previousSpeed, double observedSpeed, double expectedSpeed,
+                                          bool expectedSpeedValid) {
+    if (previousSpeed <= 0 || observedSpeed < 0 ||
+        std::abs(observedSpeed - previousSpeed) < manualSpeedChangeThresholdKmh) {
+        return false;
+    }
+
+    return !expectedSpeedValid || std::abs(observedSpeed - expectedSpeed) > expectedSpeedToleranceKmh;
+}
 
 double treadmill::minStepInclination() { return 0.5; }
 double treadmill::minStepSpeed() { return 0.5; }
@@ -364,6 +385,18 @@ void treadmill::powerSensor(uint16_t power) {
 }
 
 void treadmill::speedSensor(double speed) {
+    const double previousSpeed = Speed.value();
+    const bool expectedSpeedValid = m_lastQzSpeedCommandTimer.isValid() &&
+                                    m_lastQzSpeedCommandTimer.elapsed() < expectedSpeedObservationWindowMs &&
+                                    m_lastQzSpeedCommand >= 0;
+    if (supportsManualSpeedOverride() &&
+        isLikelyManualSpeedChange(previousSpeed, speed, m_lastQzSpeedCommand, expectedSpeedValid)) {
+        m_manualSpeedOverrideTimer.start();
+        requestSpeed = -1;
+        clearPendingSpeedCommands();
+        qDebug() << "Manual treadmill speed change detected - suppressing QZ speed commands for"
+                 << manualSpeedOverrideDurationMs << "ms" << previousSpeed << speed;
+    }
     Speed.setValue(speed);
     qDebug() << "Current speed: " << speed;
 }

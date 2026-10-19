@@ -2,6 +2,7 @@
 #define TRAINPROGRAMTESTSUITE_H
 
 #include "gtest/gtest.h"
+#include "devices/treadmill.h"
 
 class TrainProgramTestSuite : public testing::Test {
 public:
@@ -13,6 +14,7 @@ public:
     void test_heartRatePidSuppressionCoversForcedSpeedRows();
     void test_heartRatePidSuppressionCoversRowBoundaryWindow();
     void test_heartRatePidSuppressionCoversPostTransitionWindow();
+    void test_manualSpeedChangeRequiresLargeUnexpectedDelta();
 };
 
 TEST_F(TrainProgramTestSuite, LapButtonBarrierBlocksSkippedZeroDurationRow) {
@@ -45,6 +47,10 @@ TEST_F(TrainProgramTestSuite, HeartRatePidSuppressionCoversRowBoundaryWindow) {
 
 TEST_F(TrainProgramTestSuite, HeartRatePidSuppressionCoversPostTransitionWindow) {
     this->test_heartRatePidSuppressionCoversPostTransitionWindow();
+}
+
+TEST_F(TrainProgramTestSuite, ManualSpeedChangeRequiresLargeUnexpectedDelta) {
+    this->test_manualSpeedChangeRequiresLargeUnexpectedDelta();
 }
 
 #endif // TRAINPROGRAMTESTSUITE_H

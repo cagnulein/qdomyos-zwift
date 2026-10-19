@@ -165,6 +165,10 @@ void proformtreadmill::forceSpeed(double speed) {
     m_lastForceSpeedCommandAt = now;
 }
 
+void proformtreadmill::clearPendingSpeedCommands() {
+    cachedSpeedRequest = -1;
+}
+
 void proformtreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -3965,7 +3969,9 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             Inclination =
                 (double)(((int16_t)((int8_t)newValue.at(13)) << 8) + (int16_t)((uint8_t)newValue.at(12))) / 100.0;
         }
-        Speed = (double)(((uint16_t)((uint8_t)newValue.at(11)) << 8) + (uint16_t)((uint8_t)newValue.at(10))) / 100.0;
+        speedSensor((double)(((uint16_t)((uint8_t)newValue.at(11)) << 8) +
+                             (uint16_t)((uint8_t)newValue.at(10))) /
+                    100.0);
         if (watts(weight))
             KCal +=
                 ((((0.048 * ((double)watts(weight)) + 1.19) * weight * 3.5) / 200.0) /

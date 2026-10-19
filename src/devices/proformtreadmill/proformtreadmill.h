@@ -38,6 +38,7 @@ class proformtreadmill : public treadmill {
     proformtreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
     double minStepSpeed() override { return 0.1; }
+    bool supportsManualSpeedOverride() const override { return nordictrack_incline_trainer_x7i_ntl15010_0; }
 
   private:
     double GetDistanceFromPacket(QByteArray packet);
@@ -49,6 +50,7 @@ class proformtreadmill : public treadmill {
     void sendPoll();
     void forceIncline(double incline);
     void forceSpeed(double speed);
+    void clearPendingSpeedCommands() override;
 
     QTimer *refresh;
     uint8_t counterPoll = 0;
