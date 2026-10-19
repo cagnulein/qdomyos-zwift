@@ -44,3 +44,14 @@ Keep in mind:
 - iOS can still impose background execution limits. Verify power, cadence, virtual gears and connection stability on your own devices during a short test before relying on a long workout.
 
 QZ's iOS app declares Bluetooth background modes, but the successful real-world background test is the evidence for this particular QZ/MyWhoosh arrangement.
+
+## Apple Music or Siri audio stops when I open QZ on iOS. What can I try?
+
+If the iPhone's Music app stops playing when QZ starts, or Siri begins a track but playback immediately stops, check whether QZ is configured to use the device's volume buttons for virtual gear changes.
+
+1. In QZ settings, disable **Volume buttons change gears** (also labeled **Volume change gears** in some builds).
+2. Fully close QZ, start a track in the iOS Music app, and reopen QZ.
+3. Also test the opposite order: open QZ first, then start Music or ask Siri to play a track.
+4. If you use **iOS Background Keep Alive**, you can test it both enabled and disabled; it is not necessary to disable background operation permanently just to try this workaround.
+
+QZ's volume-button gear feature intercepts volume-button events and can interact with the iOS audio session. In a confirmed support case, disabling **Volume change gears** restored Music playback with **iOS Background Keep Alive** both on and off. This is a targeted workaround for audio interruption, not a general requirement to disable background mode.
