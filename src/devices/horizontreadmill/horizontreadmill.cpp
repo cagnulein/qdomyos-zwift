@@ -1292,7 +1292,18 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                 requestSpeed *= miles_conversion;   // JFTM T202 expects FTMS target speed in miles
             }
         }
-        uint16_t speed_int = round(requestSpeed * (SW3925EAI_TREADMILL ? 10 : 100));
+        bool horizon_7at_ceil = false;
+        if (settings.value(QZSettings::horizon_treadmill_7_0_at_24,
+                           QZSettings::default_horizon_treadmill_7_0_at_24).toBool()) {
+            bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+            if (!miles) {
+                requestSpeed *= miles_conversion; // 7.0AT interprets FTMS target speed as mph even in km/h mode
+                horizon_7at_ceil = true; // avoid treadmill truncating the converted value one tick below target
+            }
+        }
+        uint16_t speed_int = horizon_7at_ceil
+                                 ? static_cast<uint16_t>(ceil(requestSpeed * 100)) + 1
+                                 : round(requestSpeed * (SW3925EAI_TREADMILL ? 10 : 100));
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
         if (SW3925EAI_TREADMILL) {
             // SW3925EAI reads the high byte as tenths of km/h.
