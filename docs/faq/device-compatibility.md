@@ -44,3 +44,13 @@ For the confirmed setup:
 4. Test a few gentle Zwift climbs and compare the treadmill's displayed incline with the requested Zwift grades before relying on stronger hills.
 
 **Incline calibration remains device-specific.** The confirmed SF-T723030 had **15 physical incline levels**, with an indicated range of approximately **1.8% to 15%**, so small or zero-grade Zwift requests may not map exactly to a physical incline. If the response is consistently too strong or offset, adjust **Zwift Inclination Gain** (scale) and **Zwift Inclination Offset** (baseline) only after comparing actual values. The user confirmed automatic incline **works**, but had not yet confirmed an exact grade-to-incline calibration.
+
+## Does QZ have a dedicated setup for the Life Fitness / ICG IC5 bike?
+
+**Yes.** QZ includes a **Life Fitness IC5** option in its bike settings and a dedicated initialization path for the IC5 in the Flywheel bike driver. This is distinct from the IC7/IC8 handling.
+
+1. Under **QZ Settings > Bike Options**, enable **Life Fitness IC5** and restart QZ before connecting to the bike.
+2. Power on the IC5 console, then scan and check whether QZ receives live bike metrics.
+3. If the console is not discovered, scan it with **nRF Connect** and provide the advertised **Bluetooth name and services**, together with the IC5 console model/firmware. Different console versions can expose different Bluetooth behavior.
+
+QZ's current driver sends the IC5-specific initialization packets when this option is enabled. This is **code-verified setup guidance**, not confirmation that every IC5 console variant supports all metrics or resistance commands. In particular, a console that advertises unexpected services needs verification before compatibility can be promised.

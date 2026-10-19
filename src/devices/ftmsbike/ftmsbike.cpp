@@ -416,7 +416,7 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
                                 QStringLiteral("forceResistance ") + QString::number(requestResistance));
         } else {
             uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-            if(_3G_Cardio_RB || SL010 || MRK_S36C || WLT_BK)
+            if(_3G_Cardio_RB || SL010 || MRK_S36C || WLT_BK || SOLE_B94)
                 requestResistance = requestResistance * 10;
             write[1] = ((uint8_t)(requestResistance));
             writeCharacteristic(write, sizeof(write),
@@ -2355,6 +2355,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             TUNTURI_E50_168 = true;
             resistance_lvl_mode = true;
             max_resistance = 48;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("B94"))) {
+            qDebug() << QStringLiteral("SOLE B94 found - sending resistance level in 0.1 units");
+            SOLE_B94 = true;
+            resistance_lvl_mode = true;
+            max_resistance = 20;
         }
 
 

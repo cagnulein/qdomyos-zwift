@@ -42,3 +42,22 @@
 - A zero already visible in QZ points to the sensor-to-QZ data path, not the receiving training application's pairing.
 - A power meter can continue reporting watts while its crank-revolution/cadence information is absent or not advancing. Recording both metrics distinguishes a cadence-specific dropout from a complete Bluetooth disconnect.
 - Comparing independent cadence sources identifies whether the issue follows the external power meter or QZ's broader device connection.
+
+## External power-match correction appears ineffective during ERG workouts
+
+### Provide first
+
+- Trainer and external power-meter models, QZ build, receiving app, and whether the external meter is connected **to QZ**, not solely to the receiving app.
+- Screenshot of QZ **Power Sensor Name** and live power values displayed in QZ before starting an ERG interval.
+- One ERG target and the observed QZ power values during the interval.
+
+### If still unclear
+
+- Confirm the exact test build includes the intended power-match behavior, restart QZ with the external power sensor selected, and repeat a short controlled ERG interval.
+- Send the QZ debug log and identify whether any separate trainer Bluetooth disconnects occurred.
+- If power still diverges, compare the external meter reading, trainer-reported power, and ERG target at the same timestamps.
+
+### Why it matters
+
+- An external meter paired only to ROUVY or another receiving app does not establish that QZ can use its data for power matching.
+- A reviewed test log showed **Power Sensor Name = Disabled**, meaning the intended correction path was not active; Bluetooth disconnects were a separate issue.

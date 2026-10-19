@@ -114,12 +114,57 @@ If a QZ option is suspected of changing the behavior, run separate short tests w
 - Accessory model, receiving training app, QZ version, and device topology.
 - Whether manual incline control from QZ works, and one comparison of route grade, QZ incline tile, and physical movement.
 - Which virtual device is selected as Controllable, and any accessory-specific gain setting.
+- Report the training app's own gradient intensity or realism setting (including whether it is 0%), separate from QZ's gain.
 
 ### If still unclear
 
 - Capture a short QZ log across a clear grade transition, with approximate times and values.
+- If the app's gradient setting was zero, repeat the same short route section with a nonzero setting before collecting a second log.
 - Compare incoming simulation requests with outgoing accessory commands; vary one setting at a time.
 
 ### Why it matters
 
 - Absent grade requests and incorrectly scaled commands look similar at the accessory but require different investigation.
+- An app-level gradient setting of zero can suppress grade changes before QZ receives them. In a confirmed case, increasing the MyWhoosh gradient setting restored QZ incline updates and Elite Rizer movement.
+
+## The training app sees QZ, but a pairing role is unavailable or the connection fails
+
+### Provide first
+
+- Name the receiving app and its version; identify the devices and operating systems running QZ and the receiving app. **Explicitly state whether both apps run on the same device.**
+- Confirm which live metrics work inside QZ before opening the receiving app.
+- Provide a screenshot of the receiving app's pairing screen, including which role (Power, Speed, Cadence, or Controllable) is greyed out, fails to connect, or is paired to a different device.
+- Identify the exact advertised virtual trainer name, and whether the receiving app connects to QZ over Bluetooth or Wi-Fi.
+
+### If still unclear
+
+- On a two-device setup, check that QZ remains open and the receiving device is scanning for QZ's virtual trainer, not the physical machine. Record whether discovery succeeds but pairing fails.
+- For a supported network connection, confirm that the devices share the same local network and report the QZ virtual-device/DIRCON settings; compare Bluetooth and network discovery separately.
+- Remove stale pairing entries in the receiving app and retry one role at a time, without connecting the physical trainer directly to that app. Record which role becomes selectable.
+- If QZ and the receiving app are on the **same phone or tablet**, establish whether that specific app supports QZ's same-device connection method before requesting Bluetooth logs or asking the user to change virtual profiles.
+- Request a short QZ debug log only after the topology, transport, and failing pairing role are known.
+
+### Why it matters
+
+- Seeing a virtual trainer in a device list does not prove the receiving app can connect to it or expose it for the required sensor/control role.
+- Same-device integration is app-specific; instructions intended for a second phone, PC, or tablet can be inapplicable when both apps run on one Android device.
+- Separating discovery, pairing, and controllable-role selection avoids treating a transport limitation as a physical-bike or virtual-gearing failure.
+
+## Virtual gears affect resistance only after the training app connects
+
+### Provide first
+
+- Trainer model, QZ build, receiving app, and whether the gear tile changes before and after pairing the receiving app.
+- Exact startup sequence: controller unlock/pairing, QZ launch, receiving-app pairing, ride start, and the first Gear + / Gear - press.
+- Whether the physical resistance changes on a flat route when shifting **only after** the receiving app has fully connected.
+
+### If still unclear
+
+- Repeat one short ride without pressing any gear buttons until the receiving app has connected to QZ and started the activity. Compare with a separate ride where shifting occurs before that connection.
+- Record whether the receiving app needed a cached trainer entry removed and paired again, and whether the result survives the next launch.
+- Capture a QZ debug log of each sequence with the first shift timestamp, and note whether the virtual gear tile changes while physical resistance stays constant.
+
+### Why it matters
+
+- A confirmed comparison restored physical gear response when shifts were delayed until after Kinomap had connected. This distinguishes controller input failure from a timing/state problem in the virtual-trainer control path.
+- Cached trainer pairings and early gear changes can produce similar symptoms but should be tested independently.

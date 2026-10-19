@@ -724,6 +724,17 @@ void DeviceTestDataIndex::Initialize() {
              "KETTLER TREADMILL", "ASSAULTRUNNER", "TM55-"}, DeviceNameComparison::StartsWithIgnoreCase);
 
 
+    // Adidas treadmills explicitly configured for FTMS must use Horizon, not AppGate USB.
+    RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill_AdidasFTMS)
+        ->expectDevice<horizontreadmill>()
+        ->acceptDeviceName("ADIDAS 0584", DeviceNameComparison::IgnoreCase)
+        ->configureSettingsWith([](DeviceDiscoveryInfo &info, bool enable) {
+            info.setValue(QZSettings::ftms_treadmill,
+                          enable ? info.DeviceName() : QZSettings::default_ftms_treadmill);
+            info.includeBluetoothService(QBluetoothUuid((quint16)0x1826), true);
+        })
+        ->excluding<trxappgateusbtreadmill>();
+
     // Horizon Treadmill (Toorx)
     RegisterNewDeviceTestData(DeviceIndex::HorizonTreadmill_Toorx)
         ->expectDevice<horizontreadmill>()        
@@ -1197,7 +1208,8 @@ void DeviceTestDataIndex::Initialize() {
     // Sports Plus Bike
     RegisterNewDeviceTestData(DeviceIndex::SportsPlusBike)
         ->expectDevice<sportsplusbike>()        
-        ->acceptDeviceName("CARDIOFIT", DeviceNameComparison::StartsWithIgnoreCase);
+        ->acceptDeviceName("CARDIOFIT", DeviceNameComparison::StartsWithIgnoreCase)
+        ->acceptDeviceName("CARE113770737", DeviceNameComparison::IgnoreCase);
 
     // Sports Plus Rower
     RegisterNewDeviceTestData(DeviceIndex::SportsPlusRower)

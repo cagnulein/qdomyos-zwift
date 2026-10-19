@@ -59,3 +59,23 @@
 
 - Comparing manual and hands-off runs distinguishes competing speed requests from the normal heart-rate controller.
 - Workout row transitions, commands sent by QZ, and the treadmill's physical response must be checked separately. Manual console inputs may not be recorded as distinct QZ events.
+
+## Heart-rate-controlled treadmill speed repeatedly overshoots and slows down
+
+### Provide first
+
+- Treadmill model, QZ build, selected HR source, workout type, target HR zone, and a short example of speed/HR oscillation over time.
+- Screenshot of HR-control settings, especially whether **PID Pushy** is enabled, and the configured maximum HR plus whether an HR-max override is enabled.
+- Confirm whether the issue occurs during a programmed workout, HR-controlled mode, or both.
+
+### If still unclear
+
+- Repeat a comparable short workout with PID Pushy disabled, changing no other settings, and note whether speed still oscillates around the target zone.
+- Provide a time-aligned QZ debug log showing target HR, measured HR, speed commands, and the periods of overshoot.
+- Compare against a manual steady-speed segment to separate normal delayed heart-rate response from unexpected command spikes.
+
+### Why it matters
+
+- Heart rate responds later than treadmill speed changes, so frequent adjustments can produce oscillation without a Bluetooth fault.
+- PID Pushy can deliberately increase effort within the target zone, while a disabled HR-max override may change the calculated zone boundaries.
+- In a reviewed test, abnormal speed spikes disappeared but the HR-control oscillation remained, showing these are separate symptoms.
