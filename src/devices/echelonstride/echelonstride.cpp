@@ -175,6 +175,12 @@ void echelonstride::update() {
         }
         // ********************************************************************************************************
 
+        // Echelon only notifies speed and inclination when the value changes.
+        // Re-sample the last known values on every poll so metric averages count
+        // the time between notifications instead of only the notifications.
+        Speed.setValue(Speed.valueRaw());
+        Inclination.setValue(Inclination.value(), false, Inclination.value() == 0.0 && Speed.value() > 0.0);
+
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
