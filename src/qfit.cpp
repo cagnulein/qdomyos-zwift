@@ -30,31 +30,6 @@ using namespace std;
 
 qfit::qfit(QObject *parent) : QObject(parent) {}
 
-double qfit::averageSpeed(const QList<SessionLine> &session, BLUETOOTH_TYPE type) {
-    if (session.isEmpty()) {
-        return 0.0;
-    }
-
-    int firstRealIndex = 0;
-    for (int i = 0; i < session.length(); i++) {
-        if ((session.at(i).speed > 0 && (type == TREADMILL || type == ELLIPTICAL)) ||
-            (session.at(i).cadence > 0 && (type == BIKE || type == ROWING))) {
-            firstRealIndex = i;
-            break;
-        }
-    }
-
-    double speedSum = 0.0;
-    int speedCount = 0;
-    for (int i = firstRealIndex; i < session.length(); i++) {
-        if (session.at(i).speed > 0) {
-            speedSum += session.at(i).speed;
-            speedCount++;
-        }
-    }
-
-    return speedCount > 0 ? speedSum / static_cast<double>(speedCount) : 0.0;
-}
 
 void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_TYPE type,
                 uint32_t processFlag, FIT_SPORT overrideSport, QString workoutName, QString bluetooth_device_name,
@@ -290,9 +265,19 @@ void qfit::save(const QString &filename, QList<SessionLine> session, BLUETOOTH_T
         }
     }
 
-    speed_avg = averageSpeed(session, type);
-    if (speed_avg > 0) {
-        qDebug() << "average speed from the fit file" << speed_avg;
+    if (session.size() > 0) {
+        double speed_acc = 0;
+        int speed_count = 0;
+        for (const SessionLine &line : session) {
+            if (line.speed > 0) {
+                speed_acc += line.speed;
+                speed_count++;
+            }
+        }
+        if (speed_count > 0) {
+            speed_avg = speed_acc / static_cast<double>(speed_count);
+            qDebug() << "average speed from the fit file" << speed_avg;
+        }
     }
 
     // Training load remains TRIMP-first for Garmin load/Training Effect compatibility.

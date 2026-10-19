@@ -8,6 +8,7 @@
 #include <QEventLoop>
 #include <QTimer>
 
+
 QFitTestSuite::QFitTestSuite() : tempDir(nullptr) {
 }
 
@@ -140,23 +141,7 @@ void QFitTestSuite::test_newFormatDeveloperFields() {
     qDebug() << "✓ New format developer fields test passed";
 }
 
-void QFitTestSuite::test_averageSpeedUsesSessionSamples() {
-    QList<SessionLine> session;
 
-    SessionLine leadingIdle;
-    leadingIdle.elapsedTime = 0;
-    leadingIdle.speed = 0.0;
-    session.append(leadingIdle);
-
-    for (int i = 1; i <= 9; ++i) {
-        SessionLine line;
-        line.elapsedTime = i;
-        line.speed = i == 1 ? 1.0 : 5.0;
-        session.append(line);
-    }
-
-    EXPECT_NEAR(qfit::averageSpeed(session, TREADMILL), 4.555555555555555, 1e-12);
-}
 
 void QFitTestSuite::test_databaseReadability() {
     // Create a FIT file with new format

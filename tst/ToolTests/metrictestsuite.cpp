@@ -2,6 +2,7 @@
 
 #include <QCoreApplication>
 #include <QSettings>
+#include <QThread>
 
 #include "metric.h"
 #include "qzsettings.h"
@@ -80,4 +81,28 @@ TEST(MetricUpdateSequenceTest, CountsRepeatedHeartRateWrites) {
     // A device reporting the same BPM must still count as a new source write.
     heart = 103.0;
     EXPECT_EQ(heart.updateSequence(), healthKitWrite + 1);
+}
+
+TEST(MetricAverageTest, WeightsStableValuesByElapsedTime) {
+    metric speed;
+    speed.setType(metric::METRIC_SPEED);
+    speed.setValue(1.0);
+    QThread::msleep(50);
+    speed.setValue(5.0);
+    QThread::msleep(200);
+
+    EXPECT_GT(speed.average(), 3.5);
+    EXPECT_LT(speed.average(), 5.0);
+}
+
+TEST(MetricAverageTest, IncludesZeroInclinationInTimeWeightedAverage) {
+    metric inclination;
+    inclination.setType(metric::METRIC_INCLINATION);
+    inclination.setValue(0.0);
+    QThread::msleep(100);
+    inclination.setValue(6.0);
+    QThread::msleep(100);
+
+    EXPECT_GT(inclination.average(), 2.0);
+    EXPECT_LT(inclination.average(), 4.0);
 }

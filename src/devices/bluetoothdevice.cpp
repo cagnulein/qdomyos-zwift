@@ -12,7 +12,9 @@
 #include "ios/lockscreen.h"
 #endif
 
-bluetoothdevice::bluetoothdevice() {}
+bluetoothdevice::bluetoothdevice() {
+    Inclination.setType(metric::METRIC_INCLINATION);
+}
 
 bluetoothdevice::~bluetoothdevice() {
     if(this->virtualDevice) {

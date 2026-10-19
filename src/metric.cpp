@@ -60,6 +60,7 @@ void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats
     }
 
     QDateTime now = QDateTime::currentDateTime();
+    accumulateTimeWeightedStats(now);
     if (v != m_value && v != INFINITY) {
         m_valueChanged = now;
         if (m_last5.count() > 1) {
@@ -77,6 +78,8 @@ void metric::setValue(double v, bool applyGainAndOffset, bool includeZeroInStats
     ++m_updateSequence;
 
     m_value = v;
+    m_statsInitialized = true;
+    m_includeZeroInTimeWeightedStats = includeZeroInStats || m_type == METRIC_INCLINATION;
 
     if (paused) {
         return;
@@ -126,6 +129,10 @@ void metric::clear(bool accumulator) {
     m_totValue = 0;
     m_countValue = 0;
     m_min = 999999999;
+    m_timeWeightedTotal = 0;
+    m_timeWeightedDuration = 0;
+    m_lastStatsTime = QDateTime::currentDateTime();
+    m_statsInitialized = false;
     m_last3.clear();
     m_last5.clear();
     m_last20.clear();
@@ -174,18 +181,20 @@ double metric::value() {
 double metric::lapValue() { return m_value - m_lapOffset; }
 
 double metric::average() {
-    if (m_countValue == 0) {
+    accumulateTimeWeightedStats(QDateTime::currentDateTime());
+    if (m_timeWeightedDuration == 0) {
         return 0;
     } else {
-        return (m_totValue / m_countValue);
+        return (m_timeWeightedTotal / m_timeWeightedDuration);
     }
 }
 
 double metric::lapAverage() {
-    if (m_lapCountValue == 0) {
+    accumulateTimeWeightedStats(QDateTime::currentDateTime());
+    if (m_lapTimeWeightedDuration == 0) {
         return 0;
     } else {
-        return (m_lapTotValue / m_lapCountValue);
+        return (m_lapTimeWeightedTotal / m_lapTimeWeightedDuration);
     }
 }
 
@@ -296,7 +305,10 @@ double metric::lapMin() { return m_lapMin; }
 
 double metric::lapMax() { return m_lapMax; }
 
-void metric::setPaused(bool p) { paused = p; }
+void metric::setPaused(bool p) {
+    accumulateTimeWeightedStats(QDateTime::currentDateTime());
+    paused = p;
+}
 
 void metric::clearLap(bool accumulator) {
     if (accumulator) {
@@ -306,9 +318,38 @@ void metric::clearLap(bool accumulator) {
     m_lapTotValue = 0;
     m_lapCountValue = 0;
     m_lapMin = 999999999;
+    m_lapTimeWeightedTotal = 0;
+    m_lapTimeWeightedDuration = 0;
+    m_lastStatsTime = QDateTime::currentDateTime();
+    m_statsInitialized = false;
 }
 
 void metric::setLap(bool accumulator) { clearLap(accumulator); }
+
+void metric::accumulateTimeWeightedStats(const QDateTime &now) {
+    if (!m_statsInitialized) {
+        m_lastStatsTime = now;
+        return;
+    }
+
+    const qint64 elapsedMilliseconds = m_lastStatsTime.msecsTo(now);
+    m_lastStatsTime = now;
+    if (paused || elapsedMilliseconds <= 0 || value() == INFINITY) {
+        return;
+    }
+
+    const double elapsedSeconds = elapsedMilliseconds / 1000.0;
+    const double current = value();
+    if (current != 0.0 && (current > 0.0 || m_type == METRIC_INCLINATION || m_includeZeroInTimeWeightedStats)) {
+        m_timeWeightedTotal += current * elapsedSeconds;
+        m_timeWeightedDuration += elapsedSeconds;
+        m_lapTimeWeightedTotal += current * elapsedSeconds;
+        m_lapTimeWeightedDuration += elapsedSeconds;
+    } else if (m_includeZeroInTimeWeightedStats) {
+        m_timeWeightedDuration += elapsedSeconds;
+        m_lapTimeWeightedDuration += elapsedSeconds;
+    }
+}
 
 double metric::calculateMaxSpeedFromPower(double power, double inclination) {
     QSettings settings;
